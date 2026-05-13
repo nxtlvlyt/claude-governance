@@ -1,0 +1,32 @@
+# Credentials — never commit
+.credentials.json
+settings.local.json
+
+# Session transcripts and per-project ephemeral state
+projects/
+sessions/
+transcripts/
+telemetry/
+logs/
+cache/
+paste-cache/
+shell-snapshots/
+session-env/
+backups/
+uploads/
+tasks/
+state/
+file-history/
+tools/
+plugins/
+
+# Session-local ephemeral files
+history.jsonl
+.wudu_attestations
+scheduled_tasks.lock
+.last-cleanup
+.turn-count.txt
+cold-instance-test-*.txt
+
+# Wudu / session attestation artifacts
+*.attestation

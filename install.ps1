@@ -1,0 +1,285 @@
+# ~/.claude/install.ps1
+#
+# Governance system installer for Windows.
+# Run this after copying ~/.claude/ to a new machine.
+#
+# Usage:
+#   pwsh -ExecutionPolicy Bypass -File ~/.claude/install.ps1
+#
+# Prerequisites (install manually before running this):
+#   - Ollama:       https://ollama.com/download
+#   - Docker Desktop: https://www.docker.com/products/docker-desktop/
+#   - Node.js 18+:  https://nodejs.org/
+#   - Claude Code:  npm install -g @anthropic-ai/claude-code
+
+$ErrorActionPreference = 'Stop'
+$claud = Join-Path $HOME '.claude'
+
+Write-Host ""
+Write-Host "========================================"
+Write-Host " Governance System Installer"
+Write-Host "========================================"
+Write-Host ""
+
+# ── Prerequisite checks ──────────────────────────────────────────────────────
+
+$prereqOk = $true
+
+function Check-Command($cmd, $label, $url) {
+    if (-not (Get-Command $cmd -ErrorAction SilentlyContinue)) {
+        Write-Host "  MISSING  $label — $url" -ForegroundColor Red
+        return $false
+    }
+    Write-Host "  OK       $label" -ForegroundColor Green
+    return $true
+}
+
+Write-Host "Checking prerequisites..."
+$prereqOk = (Check-Command 'ollama'  'Ollama'       'https://ollama.com/download') -and $prereqOk
+$prereqOk = (Check-Command 'docker'  'Docker'       'https://www.docker.com/products/docker-desktop/') -and $prereqOk
+$prereqOk = (Check-Command 'node'    'Node.js 18+'  'https://nodejs.org/') -and $prereqOk
+$prereqOk = (Check-Command 'claude'  'Claude Code'  'npm install -g @anthropic-ai/claude-code') -and $prereqOk
+
+if (-not $prereqOk) {
+    Write-Host ""
+    Write-Host "Install missing prerequisites then re-run this script." -ForegroundColor Yellow
+    exit 1
+}
+
+Write-Host ""
+
+# ── Tier selection ────────────────────────────────────────────────────────────
+
+Write-Host "Select installation tier:"
+Write-Host "  1) Structure only    (8GB+  RAM) — hooks, governance bootstrap. No substrate edit authorization."
+Write-Host "  2) Governance        (32GB+ RAM) — Tier 1 + laguna. Full substrate edit authorization."
+Write-Host "  3) Full deliberation (100GB+ RAM)— Tier 2 + qwen3.6:27b + granite4.1:30b + nemotron-3-super."
+Write-Host ""
+$tier = Read-Host "Tier (1/2/3)"
+if ($tier -notin @('1','2','3')) {
+    Write-Host "Invalid tier. Exiting." -ForegroundColor Red
+    exit 1
+}
+
+# ── settings.json — hook paths ────────────────────────────────────────────────
+
+Write-Host ""
+Write-Host "Writing settings.json..."
+
+$username = $env:USERNAME
+$settingsPath = Join-Path $claud 'settings.json'
+
+# Back up existing settings.json before overwriting.
+if (Test-Path $settingsPath) {
+    $backup = "$settingsPath.bak"
+    Copy-Item $settingsPath $backup -Force
+    Write-Host "  Backed up existing settings.json -> settings.json.bak" -ForegroundColor Cyan
+}
+
+$writeSettings = $true
+if (Test-Path $settingsPath) {
+    $confirm = Read-Host "Existing settings.json found. Overwrite it? (y/N)"
+    if ($confirm -ne 'y') {
+        Write-Host "  Skipping settings.json write. Existing config preserved." -ForegroundColor Yellow
+        $writeSettings = $false
+    }
+}
+
+$settings = @{
+    model = 'sonnet'
+    hooks = @{
+        SessionStart = @(@{
+            hooks = @(@{
+                type    = 'command'
+                command = "pwsh -NoProfile -ExecutionPolicy Bypass -File `"C:\Users\$username\.claude\hooks\session-start.ps1`""
+                timeout = 30
+            })
+        })
+        UserPromptSubmit = @(@{
+            hooks = @(@{
+                type    = 'command'
+                command = "pwsh -NoProfile -ExecutionPolicy Bypass -File `"C:\Users\$username\.claude\hooks\user-prompt-submit.ps1`""
+                timeout = 10
+            })
+        })
+        Stop = @(@{
+            hooks = @(@{
+                type    = 'command'
+                command = "pwsh -NoProfile -ExecutionPolicy Bypass -File `"C:\Users\$username\.claude\hooks\stop-validation.ps1`""
+                timeout = 15
+            })
+        })
+        SubagentStart = @(@{
+            hooks = @(@{
+                type    = 'command'
+                command = "pwsh -NoProfile -ExecutionPolicy Bypass -File `"C:\Users\$username\.claude\hooks\subagent-start.ps1`""
+                timeout = 30
+            })
+        })
+        PreCompact = @(@{
+            hooks = @(@{
+                type    = 'command'
+                command = "pwsh -NoProfile -ExecutionPolicy Bypass -File `"C:\Users\$username\.claude\hooks\pre-compact.ps1`""
+                timeout = 10
+            })
+        })
+        PreToolUse = @(@{
+            matcher = 'Edit|Write|NotebookEdit'
+            hooks = @(
+                @{ type = 'command'; command = "pwsh -NoProfile -ExecutionPolicy Bypass -File `"C:\Users\$username\.claude\hooks\pre-tool-use-substrate.ps1`""; timeout = 10 },
+                @{ type = 'command'; command = "pwsh -NoProfile -ExecutionPolicy Bypass -File `"C:\Users\$username\.claude\hooks\niyyah-gate.ps1`""; timeout = 10 },
+                @{ type = 'command'; command = "pwsh -NoProfile -ExecutionPolicy Bypass -File `"C:\Users\$username\.claude\hooks\surrender-check.ps1`""; timeout = 10 }
+            )
+        })
+    }
+    skipDangerousModePermissionPrompt = $true
+    skipAutoPermissionPrompt = $true
+}
+
+if ($writeSettings) {
+    $settings | ConvertTo-Json -Depth 10 | Set-Content -Path $settingsPath -Encoding UTF8
+    Write-Host "  Written: $settingsPath" -ForegroundColor Green
+} else {
+    Write-Host "  Skipped." -ForegroundColor Yellow
+}
+
+# ── MCP server registration ───────────────────────────────────────────────────
+
+Write-Host ""
+Write-Host "Registering MCP servers..."
+
+$toolsDir = Join-Path $claud 'tools'
+
+$existingMcp = (claude mcp list 2>$null) -join "`n"
+
+function Add-Mcp($name, $cmd, $args) {
+    Write-Host "  Registering $name..." -NoNewline
+    if ($existingMcp -match [regex]::Escape($name)) {
+        Write-Host " already registered, skipping" -ForegroundColor Cyan
+        return
+    }
+    if ($cmd -eq 'node' -and $args.Count -gt 0 -and -not (Test-Path $args[0])) {
+        Write-Host " SKIPPED (file not found: $($args[0]))" -ForegroundColor Yellow
+        return
+    }
+    try {
+        & claude mcp add $name $cmd @args 2>&1 | Out-Null
+        Write-Host " OK" -ForegroundColor Green
+    } catch {
+        Write-Host " FAILED: $_" -ForegroundColor Red
+    }
+}
+
+# Ensure npm dependencies are installed for bundled MCP tools.
+foreach ($tool in @('ollama-mcp', 'mistral-validator')) {
+    $toolPath = Join-Path $toolsDir $tool
+    if (Test-Path (Join-Path $toolPath 'package.json')) {
+        Write-Host "  npm install — $tool..." -NoNewline
+        Push-Location $toolPath
+        npm install --silent 2>$null
+        Pop-Location
+        Write-Host " OK" -ForegroundColor Green
+    }
+}
+
+Add-Mcp 'ollama-mcp'         'node' @("$toolsDir\ollama-mcp\server.js")
+Add-Mcp 'mistral-validator'  'node' @("$toolsDir\mistral-validator\server.js")
+Add-Mcp 'searxng-mcp'        'npx'  @('-y', 'mcp-searxng')
+
+Write-Host ""
+$mcpServersPath = Read-Host "Path to mcp-servers directory (frontier workers — press Enter to skip)"
+if ($mcpServersPath -and (Test-Path $mcpServersPath)) {
+    Add-Mcp 'gemini-worker'     'node' @("$mcpServersPath\gemini-worker\index.js")
+    Add-Mcp 'gemini-api-worker' 'node' @("$mcpServersPath\gemini-api-worker\index.js")
+    Add-Mcp 'gpt-worker'        'node' @("$mcpServersPath\gpt-worker\index.js")
+    Add-Mcp 'grok-worker'       'node' @("$mcpServersPath\grok-worker\index.js")
+    Add-Mcp 'glm-worker'        'node' @("$mcpServersPath\glm-worker\index.js")
+} else {
+    Write-Host "  Skipping frontier workers." -ForegroundColor Yellow
+    Write-Host "  Note: stop hook requires an Ollama dispatch to clear stop-language." -ForegroundColor Yellow
+}
+
+# ── Ollama model pulls ────────────────────────────────────────────────────────
+
+Write-Host ""
+Write-Host "Pulling Ollama models for Tier $tier..."
+
+$modelsToPull = @('nomic-embed-text:latest')  # always pull embedding model
+
+if ($tier -ge 2) {
+    $modelsToPull += 'laguna-xs.2:q4_K_M'
+}
+if ($tier -ge 3) {
+    $modelsToPull += @('qwen3.6:27b', 'granite4.1:30b', 'nemotron-3-super:latest')
+}
+
+foreach ($model in $modelsToPull) {
+    Write-Host "  Pulling $model (this may take a while)..."
+    ollama pull $model
+}
+
+Write-Host ""
+Write-Host "Model pull complete. Verify with: ollama list" -ForegroundColor Green
+
+# ── AnythingLLM (optional) ────────────────────────────────────────────────────
+
+Write-Host ""
+$setupAnything = Read-Host "Set up AnythingLLM RAG layer? (y/N)"
+if ($setupAnything -eq 'y') {
+    $anythingDir = Read-Host "AnythingLLM directory (e.g. E:\anythingllm)"
+    $hotdirPath  = Read-Host "Session summaries hotdir path (e.g. D:\Desktop\ai book\session-summaries)"
+
+    if (-not (Test-Path $anythingDir)) {
+        New-Item -ItemType Directory -Force -Path $anythingDir | Out-Null
+    }
+
+    $jwtSecret = [System.Convert]::ToBase64String([System.Security.Cryptography.RandomNumberGenerator]::GetBytes(32))
+
+    $compose = @"
+services:
+  anythingllm:
+    image: mintplexlabs/anythingllm:latest
+    container_name: anythingllm
+    ports:
+      - "3001:3001"
+    environment:
+      STORAGE_DIR: /app/server/storage
+      JWT_SECRET: $jwtSecret
+      LLM_PROVIDER: ollama
+      OLLAMA_BASE_PATH: http://host.docker.internal:11434
+      OLLAMA_MODEL_PREF: nemotron-cascade-2:latest
+      OLLAMA_MODEL_TOKEN_LIMIT: "16384"
+      EMBEDDING_ENGINE: ollama
+      EMBEDDING_MODEL_PREF: nomic-embed-text:latest
+      EMBEDDING_BASE_PATH: http://host.docker.internal:11434
+    volumes:
+      - "./storage:/app/server/storage"
+      - "${hotdirPath}:/app/collector/hotdir"
+    restart: unless-stopped
+"@
+
+    $composePath = Join-Path $anythingDir 'docker-compose.yml'
+    Set-Content -Path $composePath -Value $compose -Encoding UTF8
+    Write-Host "  Written: $composePath" -ForegroundColor Green
+
+    Set-Location $anythingDir
+    docker compose up -d
+    Write-Host "  AnythingLLM starting at http://localhost:3001" -ForegroundColor Green
+}
+
+# ── Verification ──────────────────────────────────────────────────────────────
+
+Write-Host ""
+Write-Host "========================================"
+Write-Host " Installation complete."
+Write-Host "========================================"
+Write-Host ""
+Write-Host "Verification test:"
+Write-Host "  1. Open a new terminal"
+Write-Host "  2. Run: claude --dangerously-skip-permissions"
+Write-Host "  3. Ask: what model string should I use for qwen3 in the deliberation chain?"
+Write-Host "  4. Expected answer: qwen3.6:27b"
+Write-Host ""
+Write-Host "If the session-start bootstrap shows canon files loading, hook wiring is correct."
+Write-Host "See ~/.claude/canon/setup-issues-and-solutions.md if anything goes wrong."
+Write-Host ""
