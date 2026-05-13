@@ -38,19 +38,17 @@ whether the verdict was accurate.
 
 ### Verdict Accuracy Record
 
-*(Empty — no qualifying runs with downstream validation yet.)*
-
-| Date | Verdict | Downstream finding | Accurate? |
-|------|---------|-------------------|-----------|
+| Date | Verdict | Context | Downstream finding | Accurate? |
+|------|---------|---------|-------------------|-----------|
+| 2026-05-13 | APPROVE | Gap 1 (ʿIlm al-Rijāl implementation) — Phase 1 | C1 (manual update mechanism) and C2 (silent failure in parsing) both confirmed by Seat 3 substrate read. Raised correct concerns but assessed overall as APPROVE without flagging empty database state. | Partial — concerns accurate; closure confidence overstated (missed empty database = mechanism without content) |
 
 ### Observed Bias Directions
 
-*(Empty — insufficient runs to establish patterns.)*
+*(1 run observation: tends toward APPROVE when mechanism is structurally correct, may not probe data/content state. Monitor.)*
 
 ### Dispatch Summary
 
-*"No prior verdict accuracy data for gemma4:31b. Treat as baseline architectural
-assessment; verify concerns against spec before propagating."*
+*"gemma4:31b (1 qualifying run, Gap 1): APPROVE. Concerns accurate. Known tendency: may overstate closure when structural mechanism is sound but data layer is empty. Probe content state explicitly."*
 
 ---
 
@@ -70,19 +68,17 @@ assessment; verify concerns against spec before propagating."*
 
 ### Verdict Accuracy Record
 
-*(Empty — no qualifying runs with downstream validation yet.)*
-
-| Date | Verdict | Downstream finding | Accurate? |
-|------|---------|-------------------|-----------|
+| Date | Verdict | Context | Downstream finding | Accurate? |
+|------|---------|---------|-------------------|-----------|
+| 2026-05-13 | CONDITIONAL_APPROVE | Gap 1 (ʿIlm al-Rijāl implementation) — Phase 1 | C1 (manual update mechanism, non-blocking) and C2 (silent failure in parsing, non-blocking) both confirmed by Seat 3 substrate read. Better calibrated than gemma — did not overclaim closure. Correctly noted cumulative nature of tradition as specific risk. | Accurate — concerns substrate-verified, confidence well-calibrated |
 
 ### Observed Bias Directions
 
-*(Empty — insufficient runs to establish patterns.)*
+*(1 run observation: appropriately cautious. Did not miss the structural/content distinction as gemma did.)*
 
 ### Dispatch Summary
 
-*"No prior verdict accuracy data for qwen3.6:27b. Confirmed: think:False required
-or output is unusable. No known verdict bias patterns yet."*
+*"qwen3.6:27b (1 qualifying run, Gap 1): CONDITIONAL_APPROVE. Concerns accurate, well-calibrated. No known overstatement tendency. think:False required top-level or output unusable."*
 
 ---
 
@@ -104,22 +100,17 @@ as governance scanner (governance_scanner.faith.md) between chain runs.
 
 ### Verdict Accuracy Record
 
-*(Insufficient qualifying runs for systematic tracking. Governance scanner role
-has been tested on structural changes — format discipline confirmed but verdict
-accuracy not yet cross-validated against downstream outcomes.)*
-
 | Date | Verdict | Context | Downstream finding | Accurate? |
 |------|---------|---------|-------------------|-----------|
+| 2026-05-13 | CONDITIONAL_APPROVE | Gap 1 (ʿIlm al-Rijāl implementation) — Phase 2, code-review seat | C1 (empty database, non-blocking), C2 (silent failure, non-blocking), C3 (documentation gap, non-blocking) all confirmed by Seat 3 substrate read. Correctly distinguished mechanism-closure from data-closure — introduced C1 framing as "epistemic content missing." | Accurate — all three concerns substrate-verified |
 
 ### Observed Bias Directions
 
-*(Empty — insufficient runs to establish patterns.)*
+*(1 run observation: strong at code-level precision (correctly traced get_rijal_summary() failure mode). Introduced "epistemic content missing" framing that other seats echoed.)*
 
 ### Dispatch Summary
 
-*"laguna-xs.2: fastest model, strongest format discipline. No known verdict bias.
-Governance scanner seat confirmed. Use for structural/code concerns — not governance
-philosophy (that is granite's seat)."*
+*"laguna-xs.2 (1 qualifying run, Gap 1): CONDITIONAL_APPROVE. Concerns accurate. Strongest format discipline in stack. Good at code-level tracing. Use for structural/code concerns."*
 
 ---
 
@@ -140,20 +131,17 @@ for compliance and governance — categorical PASS/FAIL orientation.
 
 ### Verdict Accuracy Record
 
-*(Empty — no qualifying runs with downstream validation yet.)*
-
 | Date | Verdict | Context | Downstream finding | Accurate? |
 |------|---------|---------|-------------------|-----------|
+| 2026-05-13 | CONDITIONAL_APPROVE | Gap 1 (ʿIlm al-Rijāl implementation) — Phase 2, governance-audit seat | C1 (empty database), C2 (silent failure), C3 (documentation gap) all confirmed accurate. Correctly framed C3 as "potentially misleading readers about the current state of epistemic information." | Accurate — all three concerns substrate-verified |
 
 ### Observed Bias Directions
 
-*(Empty — insufficient runs to establish patterns.)*
+*(1 run observation: strong governance framing, good at documentation/misleading-reader concerns. No overreach observed.)*
 
 ### Dispatch Summary
 
-*"No prior verdict accuracy data for granite4.1:30b. IBM compliance/governance
-training — expects well-formed governance rationale. Verify concerns are
-canon-grounded before weighting."*
+*"granite4.1:30b (1 qualifying run, Gap 1): CONDITIONAL_APPROVE. Concerns accurate. Strong governance/documentation framing. Expects canon-grounded rationale."*
 
 ---
 
@@ -178,18 +166,15 @@ high-throughput deliberation. Last seat before executor.
 | Date | Verdict | Context | Downstream finding | Accurate? |
 |------|---------|---------|-------------------|-----------|
 | 2026-05-13 | CONDITIONAL_APPROVE | P6 cryptographic non-repudiation architecture (RFC 3161 TSA + SSH-signed git) | Implementation proceeded as approved. C1 (TSA fail-open behavior) and C2 (dual-remote resilience) both valid non-blocking concerns — confirmed accurate. C3 closed by string assertion — accuracy not yet confirmed by downstream testing. | Partial — C1/C2 accurate; C3 closure method was assertion, not evidence |
+| 2026-05-13 | CONDITIONAL_APPROVE | Gap 1 (ʿIlm al-Rijāl implementation) — Phase 2, synthesis seat | C1 (empty database), C2 (silent failure), C3 (documentation gap) all confirmed accurate by Seat 3 substrate read. Strong framing: correctly distinguished "mechanism closure" from "epistemic closure." C3 closed by assertion in this run — same pattern as P6 run. | Accurate — concerns substrate-verified; C3 assertion-closure pattern now observed twice |
 
 ### Observed Bias Directions
 
-*(Insufficient runs for systematic patterns. One observation: C3 closure accepted
-as string assertion without evidence citation — possible pattern of accepting
-closure-by-assertion in the final seat.)*
+*(2 run pattern emerging: accepts assertion closure in final synthesis seat (P6 C3, Gap 1 C3 both closed by assertion without evidence). Strong at naming conceptual distinctions (mechanism vs. epistemic closure). Monitor for assertion-closure tendency.)*
 
 ### Dispatch Summary
 
-*"nemotron-3-super (1 qualifying run): CONDITIONAL_APPROVE on P6 (2026-05-13).
-C1/C2 concerns accurate. C3 closed by assertion — verify assertion-closed
-concerns independently before treating as fully resolved."*
+*"nemotron-3-super (2 qualifying runs): CONDITIONAL_APPROVE on P6 and Gap 1. Concerns accurate both runs. Pattern: accepts assertion-closed concerns as sufficient for final verdict — verify assertion-closed concerns independently. Strong at conceptual framing."*
 
 ---
 
