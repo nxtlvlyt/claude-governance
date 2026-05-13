@@ -94,6 +94,8 @@ with open("output.txt", "w", encoding="utf-8") as f:
 
 **No skipping agents.** All 5 local models must run in the sequence above. Concern propagation (open concerns forwarded to each agent to investigate and close) breaks if any agent is skipped. A skipped agent's role-specific concerns are never raised.
 
+**Concern closure `close_type` (Gap 4 schema):** Every `closed_prior_concerns` entry requires a `close_type` field: `evidence` (primary source or test result found — fully closed), `refutation` (logical argument that concern doesn't apply — fully closed), or `assertion` (opinion without citation — carries forward as a soft note, NOT dropped). `collect_open_concerns()` returns a **tuple** `(open_concerns, soft_notes)`. Soft notes appear in `[ASSERTION-CLOSED CONCERNS — VERIFY INDEPENDENTLY]` blocks in subsequent seat prompts. The final verdict receives both hard-open and assertion-closed concerns. Omitting `close_type` defaults to `assertion` for backwards compatibility.
+
 **Chain runner:** `C:\Users\marka\AppData\Local\Temp\opctx-review.py` — built 2026-05-10. Phase 1 (gemma+qwen): `python opctx-review.py 1`. Then Sonnet architect synthesis (this instance, text output). Phase 2 (laguna+granite+nemotron): `python opctx-review.py 2`. SearxNG at `http://localhost:8080` — not the NAS (which is down).
 
 "No output from MCP" ≠ done. "0 chars from streaming" ≠ done. Check api/ps. Every time. Without exception.
@@ -613,7 +615,7 @@ Faith files define the identity of a role an AI wears during work. No faith may 
 
 | File | What it governs |
 |------|-----------------|
-| `6agent-deliberation-stack.md` | The 5+1 agent stack: sequence, Python streaming dispatch pattern, timeout=num_ctx rule, qwen think:False, concern propagation, structured JSON contract |
+| `6agent-deliberation-stack.md` | The 5+1 agent stack: sequence, Python streaming dispatch pattern, timeout=num_ctx rule, qwen think:False, concern propagation, structured JSON contract. Concern closure schema includes `close_type` (`evidence\|refutation\|assertion`); assertion-closed carries forward as soft note. `collect_open_concerns()` returns `(open_concerns, soft_notes)` tuple. |
 | `delegation-and-stall-discipline.md` | Stop-language → foreign-frontier dispatch requirement. Stop hook is the structural enforcement layer. |
 | `foreign-frontier-validators.md` | Class 1 (framing/meta) vs Class 2 (substantive governance) questions. When frontier dispatch clears the substrate gate. Local quorum satisfies independence but not structural gate. |
 | `kv-cache-budget-checks.md` | Context cache budget management and KV cache awareness. |

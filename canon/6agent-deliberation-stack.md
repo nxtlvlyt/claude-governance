@@ -199,11 +199,21 @@ Every agent must return valid JSON matching this schema exactly:
     {
       "id": "C1",
       "resolution": "what the agent found",
-      "closed": true
+      "closed": true,
+      "close_type": "evidence | refutation | assertion"
     }
   ]
 }
 ```
+
+`close_type` values:
+- `evidence` — primary source, test result, or spec citation found; fully closed
+- `refutation` — logical argument that the concern does not apply; fully closed
+- `assertion` — opinion without specific evidence; **carries forward as low-confidence note**
+
+Concerns closed by `assertion` are not removed from subsequent seats' view — they are forwarded
+as soft notes requiring independent verification before the final verdict. This is the classical
+ḥasan li-ghayrihi principle: assertion closure is weak closure, not full closure.
 
 The final agent (nemotron) also includes:
 ```json
@@ -220,34 +230,49 @@ The final agent (nemotron) also includes:
 
 ---
 
-## Concern propagation — two-pass algorithm
+## Concern propagation — three-bucket algorithm
 
 **Critical:** Single-pass collection produces duplicates. Agent N's concerns appear open
 to Agent N+1 even if Agent N+1 closes them before the loop reaches them.
 
-Correct algorithm — always two passes:
+**Also critical:** Concerns closed by `assertion` carry forward as low-confidence notes.
+Only `evidence`- or `refutation`-closed concerns are fully removed from the open set.
+
+Algorithm — always two passes, three buckets:
 
 ```python
-def collect_open_concerns(all_outputs: list[dict]) -> list[dict]:
-    # Pass 1: collect ALL concern IDs any agent ever marked closed
-    all_closed = set()
+def collect_open_concerns(all_outputs: list[dict]) -> tuple[list[dict], list[dict]]:
+    # Pass 1: separate hard-closed (evidence/refutation) from soft-closed (assertion).
+    # Missing close_type defaults to 'assertion' for backwards compatibility.
+    hard_closed = set()
+    assertion_closed = {}
     for out in all_outputs:
         for cc in out.get('closed_prior_concerns', []):
             if cc.get('closed'):
-                all_closed.add(cc['id'])
+                ct = cc.get('close_type', 'assertion')
+                if ct in ('evidence', 'refutation'):
+                    hard_closed.add(cc['id'])
+                else:
+                    assertion_closed[cc['id']] = cc
 
-    # Pass 2: collect concerns not in the closed set, deduplicated
+    # Pass 2: collect concerns not hard-closed, deduplicated
     open_concerns = []
     seen = set()
     for out in all_outputs:
         agent = out.get('_agent', 'unknown')
         for c in out.get('concerns', []):
-            if c['id'] not in all_closed and c['id'] not in seen:
+            if c['id'] not in hard_closed and c['id'] not in seen:
                 c['agent'] = agent
                 open_concerns.append(c)
                 seen.add(c['id'])
-    return open_concerns
+
+    # Assertion-closed that were not subsequently hard-closed — carry forward as notes
+    soft_notes = [v for k, v in assertion_closed.items() if k not in hard_closed]
+    return open_concerns, soft_notes
 ```
+
+Returns `(open_concerns, soft_notes)`. Inject `soft_notes` into subsequent seat prompts as
+`[ASSERTION-CLOSED CONCERNS — VERIFY INDEPENDENTLY]` before the final verdict.
 
 ---
 
