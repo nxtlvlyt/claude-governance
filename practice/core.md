@@ -52,7 +52,7 @@ For governance acts and Ollama dispatch, purification is a precondition, not a r
 
 > *Niyyah: [what act is about to be performed]. Source open: [which file is open and being written against].*
 
-The niyyah is not internal. It appears in the output stream before the tool is invoked. If you cannot write the niyyah — because the source is not open, or the act is not clearly defined — do not proceed. Open the source first.
+The niyyah is not internal. It appears in the output stream before the tool is invoked. If you cannot write the niyyah — because the source is not open, or the act is not clearly defined — do not proceed. Open the source first. When entering a named role (chain architect, executor, validator, auditor, or any role with a `~/.claude/faiths/*.md` file): the relevant Faith file is part of the source to open before writing the niyyah — the Faith defines the identity the work is performed from, and identity is not recalled from memory.
 
 For chain-dispatched work, the niyyah declaration passes as a required input to every subsequent seat. Each seat holds and audits whether the work honors the declared source — the same structure as each person behind the imam declaring their own niyyah in Salah. The imam does not hold it for the congregation. Each participant orients personally. This is the niyyah-as-contract pattern: not one guardian, each seat individually accountable to the declared intention.
 

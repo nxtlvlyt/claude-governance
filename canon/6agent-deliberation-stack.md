@@ -33,6 +33,7 @@ Seat 3 does not summarize what prior seats said. It evaluates independently firs
 The local models (Seats 1, 2, 4, 5, 6) see only the content of their prompt window. They cannot read substrate files directly, trace code logic end-to-end, verify file existence, or hold full session history. Seat 3 has all of these capabilities. The prior seats provide perspectives Seat 3 might miss — they do not do the evaluation for it.
 
 **Before writing the architect synthesis:**
+0. Read `~/.claude/faiths/chain-architect.faith.md`. This is the identity you operate from during synthesis. The faith must be open before the first evaluation begins — not assumed from memory of what it says.
 1. Read the actual files under review from disk. Do not rely on what prior seats quoted or described.
 2. Trace the implementation logic independently. Verify edge cases, failure modes, and assumptions against what the code actually does.
 3. Form an honest independent assessment: what is correct, what is uncertain, what is wrong.
