@@ -510,6 +510,18 @@ This section documents the specific failure patterns produced during the 2026-05
 
 ---
 
+### FM-10: Automating Seat 3 via isolated API call
+
+**Pattern:** Operator pushes back on the two-command design (phase 1 → in-session synthesis → phase 2). Instance derives a valid governance argument — e.g., niyyah-as-contract: downstream validators audit Seat 3 compliance, so operator presence is not required as a quality gate. Argument is correct. Instance then uses it to justify replacing in-session Seat 3 synthesis with an automated API call to a separate Sonnet instance.
+
+**Why this is wrong:** The valid argument resolves "does the operator need to stand at the handoff?" (no). It does not resolve "can Seat 3 be a different instance?" (no). Section 4 of this document says explicitly: "claude-sonnet-4-6 (architect seat 3 — this instance)." An isolated API call has no session context, no governance history, no knowledge of what this session has established. The value of Seat 3 is session context + substrate access together.
+
+**Signal:** Operator pushes back on two-command design. A governance argument for automation appears sound.
+
+**Correct path:** Re-read Section 4 of this document before proposing or implementing any change to the Seat 3 handoff. The two-command design is correct. The operator's time cost is two commands, not continuous presence. The in-session instance writes the synthesis; the operator runs phase 2.
+
+---
+
 ## 12. Session Start Checklist
 
 1. Acknowledge athan — new instance, orient fresh. Prior session context is gone.
