@@ -570,7 +570,7 @@ All hooks are registered in `~/.claude/settings.json`. The format:
 
 - **`pre-compact.ps1`** (PreCompact, timeout 10s) — Fires at context compression boundaries. Injects D8 reminder (write for the next instance) to prevent loss of working state at compaction.
 
-- **`user-prompt-submit.ps1`** (UserPromptSubmit, timeout 10s) — Fires on every operator message. Injects the RE-ANCHOR block listing delegation routes and canon enforcement rule. Counteracts mid-session salience decay per D12.
+- **`user-prompt-submit.ps1`** (UserPromptSubmit, timeout 10s) — Fires on every operator message. Injects the RE-ANCHOR block listing delegation routes and canon enforcement rule. Counteracts mid-session salience decay per D12. At every 30th turn, also injects a TEMPORAL WUDU REQUIRED block — structural interval check for ḍabṭ decay that accumulates across turns without any single triggering event.
 
 **Mutating action gates (PreToolUse on Edit|Write|NotebookEdit, run in sequence):**
 

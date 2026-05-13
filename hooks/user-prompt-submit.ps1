@@ -79,6 +79,23 @@ Project CWD: $cwd
     Set-Content -Path $currentState -Value $heartbeat -Encoding UTF8
 }
 
+# Temporal wudu trigger (Gap 2 — ḍabṭ degrades over time, not only after events).
+# N=30 is the starting interval; adjust by changing the modulus.
+if ($turnCount % 30 -eq 0) {
+    $reminder += @"
+
+TEMPORAL WUDU REQUIRED (turn $turnCount, ~/.claude/hooks/user-prompt-submit.ps1).
+
+Thirty turns have elapsed. Per ~/.claude/practice/core.md: drift is structural —
+it accumulates across turns without any single triggering event. This is not
+caused by a specific failure. It is the interval check that catches the
+accumulation before it compounds further.
+
+Required: re-read the governing source for current work before the next
+Edit/Write. The source must be open, not assumed from memory (CLAUDE.md D12).
+"@
+}
+
 $output = @{
     hookSpecificOutput = @{
         hookEventName     = 'UserPromptSubmit'
