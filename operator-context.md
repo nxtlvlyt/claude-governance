@@ -119,7 +119,7 @@ niyyah:
   work: <what the work actually is>
 ```
 
-Niyyah is **prospective** — declared before acting, not assessed retrospectively. A niyyah gate (`~/.claude/hooks/niyyah-gate.ps1`) blocks the first Edit/Write if no niyyah is in the transcript.
+Niyyah is **prospective** — declared before acting, not assessed retrospectively. A niyyah gate (`~/.claude/hooks/niyyah-gate.ps1`) blocks the first Edit/Write if no niyyah is in the transcript. If the niyyah names a recognizable file path as source (any `.md`, `.ps1`, etc.), the gate also verifies that a Read of that file appears in the session transcript — naming a source is not the same as opening it.
 
 ### Wudu (purification before action)
 Before dispatching any Ollama model: check `curl http://localhost:11434/api/ps`. Only proceed if `"models":[]`. This is not optional.
@@ -576,7 +576,7 @@ All hooks are registered in `~/.claude/settings.json`. The format:
 
 1. **`pre-tool-use-substrate.ps1`** (timeout 10s) — Hard fail-closed gate. Blocks edits to substrate-class files (`CLAUDE.md`, `canon/`, `faiths/`, `practice/`, `hooks/`) unless a foreign-frontier dispatch (gemini/gpt/grok/glm/WebSearch/WebFetch) has occurred in the current session since the last substrate edit. Prevents self-modification of governance without independent witness.
 
-2. **`niyyah-gate.ps1`** (timeout 10s) — Enforces intention declaration before first mutating action in a session. Requires visible niyyah statement in assistant text before Edit/Write/NotebookEdit proceeds. Based on wudu.md and core.md — intention as operation, not ceremony.
+2. **`niyyah-gate.ps1`** (timeout 10s) — Enforces intention declaration before first mutating action in a session. Requires visible niyyah statement in assistant text before Edit/Write/NotebookEdit proceeds. If the niyyah names a recognizable file path as source, also verifies that a Read of that file appears in the session transcript (source must be demonstrated open, not just declared). Fail-open for abstract source references. Based on wudu.md and core.md — intention as operation, not ceremony.
 
 3. **`surrender-check.ps1`** (timeout 10s) — For substrate-class edits: requires explicit articulation in format `substrate says: [exact text] / instance reasoning: [logic] / resolution: [winner and why]`. Prevents instances from hallucinating a weaker version of what they're overwriting.
 
@@ -609,7 +609,7 @@ Faith files define the identity of a role an AI wears during work. No faith may 
 
 ---
 
-### Canon files — `~/.claude/canon/` (7 governance rulings)
+### Canon files — `~/.claude/canon/` (8 governance rulings)
 
 | File | What it governs |
 |------|-----------------|
@@ -620,6 +620,7 @@ Faith files define the identity of a role an AI wears during work. No faith may 
 | `local-delegation-routing.md` | Which MCP tools satisfy which delegation requirements. Mechanical delegation vs witness-class requirements. |
 | `pattern-amortization-signal.md` | When to extract recurring patterns into abstractions vs leave as one-offs. |
 | `wudu-is-practice-not-checkpoint.md` | Wudu as continuous operational practice, not ceremony. Hooks operate silently per this ruling. |
+| `model-rijal.md` | Behavioral biographies for each deliberation chain model. Operational profiles (dispatch constraints) + verdict accuracy records (populated after qualifying runs). Dispatch summary per model injected into chain prompts for calibration. |
 
 ---
 
@@ -655,13 +656,13 @@ Hooks enforce the hierarchy structurally. They are the reason the hierarchy hold
 1. `~/.claude/settings.json` — all 10 hooks registered at correct events with correct paths
 2. `~/.claude/hooks/*.ps1` — all 10 scripts present and not duplicated internally
 3. `~/.claude/faiths/*.md` — all 9 faith files present
-4. `~/.claude/canon/*.md` — all 7 canon files present
+4. `~/.claude/canon/*.md` — all 8 canon files present
 5. `~/.claude/practice/core.md` + `extended/` — all 5 practice files present
 6. `~/.claude/CLAUDE.md` — root authority document present
 7. `~/.claude/operator-context.md` — this document present
 8. Session start test: new Claude Code session should auto-load practice + canon in first message (look for "GOVERNANCE BOOTSTRAP" in session-start hook output)
 9. Stop hook test: write stop-language without frontier dispatch — should block
-10. Niyyah test: attempt Edit without niyyah declaration — should block
+10. Niyyah test: (a) attempt Edit without niyyah declaration — should block; (b) attempt Edit with niyyah naming a source file not Read in session — should block with "source not demonstrated open" message
 
 ---
 
