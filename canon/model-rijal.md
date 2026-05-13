@@ -41,14 +41,15 @@ whether the verdict was accurate.
 | Date | Verdict | Context | Downstream finding | Accurate? |
 |------|---------|---------|-------------------|-----------|
 | 2026-05-13 | APPROVE | Gap 1 (ʿIlm al-Rijāl implementation) — Phase 1 | C1 (manual update mechanism) and C2 (silent failure in parsing) both confirmed by Seat 3 substrate read. Raised correct concerns but assessed overall as APPROVE without flagging empty database state. | Partial — concerns accurate; closure confidence overstated (missed empty database = mechanism without content) |
+| 2026-05-13 | APPROVE | Gap 2 (temporal ḍabṭ / turn-count wudu trigger) — Phase 1 | Global counter issue (session-local vs. global) identified only by Seat 3 substrate read of session-start.ps1. gemma gave clean APPROVE with no concerns — missed the semantic gap between global and session-local counting. | Partially accurate — mechanism correct, semantic precision gap missed |
 
 ### Observed Bias Directions
 
-*(1 run observation: tends toward APPROVE when mechanism is structurally correct, may not probe data/content state. Monitor.)*
+*(2 run pattern: gives APPROVE when mechanism is structurally sound, regardless of semantic precision of the implementation relative to classical concept. Does not probe whether counter semantics match the classical model. Probe semantic fidelity explicitly.)*
 
 ### Dispatch Summary
 
-*"gemma4:31b (1 qualifying run, Gap 1): APPROVE. Concerns accurate. Known tendency: may overstate closure when structural mechanism is sound but data layer is empty. Probe content state explicitly."*
+*"gemma4:31b (2 qualifying runs, Gap 1+2): APPROVE tendency. Mechanism-correct implementations get APPROVE even when semantic precision is low. Probe explicitly: does this implementation match the classical concept's semantics, not just its structure?"*
 
 ---
 
