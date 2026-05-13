@@ -72,14 +72,15 @@ whether the verdict was accurate.
 | Date | Verdict | Context | Downstream finding | Accurate? |
 |------|---------|---------|-------------------|-----------|
 | 2026-05-13 | CONDITIONAL_APPROVE | Gap 1 (ʿIlm al-Rijāl implementation) — Phase 1 | C1 (manual update mechanism, non-blocking) and C2 (silent failure in parsing, non-blocking) both confirmed by Seat 3 substrate read. Better calibrated than gemma — did not overclaim closure. Correctly noted cumulative nature of tradition as specific risk. | Accurate — concerns substrate-verified, confidence well-calibrated |
+| 2026-05-13 | APPROVE | Gap 2 (temporal ḍabṭ / turn-count wudu trigger) — Phase 1 | No concerns raised. Endorsed mechanism as correct, treated turn count as valid proxy for ḍabṭ decay. Missed global vs. session-local counter distinction that laguna caught in Phase 2. Same pattern as gemma on Gap 2. | Partially accurate — mechanism correct, session-boundary semantics gap missed |
 
 ### Observed Bias Directions
 
-*(1 run observation: appropriately cautious. Did not miss the structural/content distinction as gemma did.)*
+*(2 run pattern: Gap 1 correctly cautious (CONDITIONAL_APPROVE, concerns accurate). Gap 2 clean APPROVE with no concerns — missed global vs. session-local counter distinction, same pattern as gemma. Mechanism-correct implementations get APPROVE without probing session-boundary semantics.)*
 
 ### Dispatch Summary
 
-*"qwen3.6:27b (1 qualifying run, Gap 1): CONDITIONAL_APPROVE. Concerns accurate, well-calibrated. No known overstatement tendency. think:False required top-level or output unusable."*
+*"qwen3.6:27b (2 qualifying runs, Gap 1+2): Gap 1: CONDITIONAL_APPROVE, concerns accurate. Gap 2: APPROVE, missed global counter issue same as gemma. think:False required top-level or output unusable. Probe session-boundary semantics explicitly."*
 
 ---
 
@@ -104,14 +105,15 @@ as governance scanner (governance_scanner.faith.md) between chain runs.
 | Date | Verdict | Context | Downstream finding | Accurate? |
 |------|---------|---------|-------------------|-----------|
 | 2026-05-13 | CONDITIONAL_APPROVE | Gap 1 (ʿIlm al-Rijāl implementation) — Phase 2, code-review seat | C1 (empty database, non-blocking), C2 (silent failure, non-blocking), C3 (documentation gap, non-blocking) all confirmed by Seat 3 substrate read. Correctly distinguished mechanism-closure from data-closure — introduced C1 framing as "epistemic content missing." | Accurate — all three concerns substrate-verified |
+| 2026-05-13 | CONDITIONAL_APPROVE | Gap 2 (temporal ḍabṭ / turn-count wudu trigger) — Phase 2, code-review seat | C1 (global counter, non-blocking): identified that session-start.ps1 does not reset .turn-count.txt, confirmed by file read. Evidence-closed prior concern. Caught the semantic gap that both phase 1 models missed. Variance bounded at +/-30 turns. | Accurate — C1 substrate-verified by direct file read |
 
 ### Observed Bias Directions
 
-*(1 run observation: strong at code-level precision (correctly traced get_rijal_summary() failure mode). Introduced "epistemic content missing" framing that other seats echoed.)*
+*(2 run pattern: strong at code-level substrate tracing. Gap 1 caught epistemic content gap; Gap 2 caught session-boundary semantics gap that gemma and qwen missed. Strongest at identifying what the mechanism does NOT do.)*
 
 ### Dispatch Summary
 
-*"laguna-xs.2 (1 qualifying run, Gap 1): CONDITIONAL_APPROVE. Concerns accurate. Strongest format discipline in stack. Good at code-level tracing. Use for structural/code concerns."*
+*"laguna-xs.2 (2 qualifying runs, Gap 1+2): CONDITIONAL_APPROVE both runs. Concerns accurate both runs. Catches gaps phase 1 misses via substrate read. Fastest model, strongest format discipline. Good at code-level tracing and semantic gaps."*
 
 ---
 
@@ -135,14 +137,15 @@ for compliance and governance — categorical PASS/FAIL orientation.
 | Date | Verdict | Context | Downstream finding | Accurate? |
 |------|---------|---------|-------------------|-----------|
 | 2026-05-13 | CONDITIONAL_APPROVE | Gap 1 (ʿIlm al-Rijāl implementation) — Phase 2, governance-audit seat | C1 (empty database), C2 (silent failure), C3 (documentation gap) all confirmed accurate. Correctly framed C3 as "potentially misleading readers about the current state of epistemic information." | Accurate — all three concerns substrate-verified |
+| 2026-05-13 | CONDITIONAL_APPROVE | Gap 2 (temporal ḍabṭ / turn-count wudu trigger) — Phase 2, governance-audit seat | C1 (global counter, non-blocking): raised same concern as laguna. Closed prior concern by assertion ("documented as accepted engineering trade-off") rather than by evidence. Concern accurate; closure method weaker than laguna. | Accurate concern; assertion closure without evidence (pattern: Gap 1 C3 also closed by assertion) |
 
 ### Observed Bias Directions
 
-*(1 run observation: strong governance framing, good at documentation/misleading-reader concerns. No overreach observed.)*
+*(2 run pattern: concerns accurate both runs. Strong governance framing. Recurring pattern: closes prior concerns by assertion rather than evidence — Gap 1 C3 and Gap 2 C1 both assertion-closed. Verify assertion closures independently.)*
 
 ### Dispatch Summary
 
-*"granite4.1:30b (1 qualifying run, Gap 1): CONDITIONAL_APPROVE. Concerns accurate. Strong governance/documentation framing. Expects canon-grounded rationale."*
+*"granite4.1:30b (2 qualifying runs, Gap 1+2): CONDITIONAL_APPROVE both runs. Concerns accurate. Strong governance/documentation framing. Pattern: assertion closure rather than evidence closure — verify its closures before accepting."*
 
 ---
 
@@ -168,14 +171,15 @@ high-throughput deliberation. Last seat before executor.
 |------|---------|---------|-------------------|-----------|
 | 2026-05-13 | CONDITIONAL_APPROVE | P6 cryptographic non-repudiation architecture (RFC 3161 TSA + SSH-signed git) | Implementation proceeded as approved. C1 (TSA fail-open behavior) and C2 (dual-remote resilience) both valid non-blocking concerns — confirmed accurate. C3 closed by string assertion — accuracy not yet confirmed by downstream testing. | Partial — C1/C2 accurate; C3 closure method was assertion, not evidence |
 | 2026-05-13 | CONDITIONAL_APPROVE | Gap 1 (ʿIlm al-Rijāl implementation) — Phase 2, synthesis seat | C1 (empty database), C2 (silent failure), C3 (documentation gap) all confirmed accurate by Seat 3 substrate read. Strong framing: correctly distinguished "mechanism closure" from "epistemic closure." C3 closed by assertion in this run — same pattern as P6 run. | Accurate — concerns substrate-verified; C3 assertion-closure pattern now observed twice |
+| 2026-05-13 | CONDITIONAL_APPROVE | Gap 2 (temporal ḍabṭ / turn-count wudu trigger) — Phase 2, synthesis seat | C1 (global vs. session-local, non-blocking): accurate concern. Used "refutation" close_type in closed_prior_concerns to flag prior agents had not examined global/session distinction. Concern already evidence-closed by laguna before nemotron ran. No assertion closure observed in this run. | Accurate — concern correct; meta-observation about prior seat gaps notable |
 
 ### Observed Bias Directions
 
-*(2 run pattern emerging: accepts assertion closure in final synthesis seat (P6 C3, Gap 1 C3 both closed by assertion without evidence). Strong at naming conceptual distinctions (mechanism vs. epistemic closure). Monitor for assertion-closure tendency.)*
+*(3 run pattern: assertion closure observed in P6 and Gap 1 (two runs) but NOT in Gap 2 (prior concern evidence-closed by laguna before nemotron ran). Strong at conceptual framing and naming distinctions. Assertion-closure tendency surfaces when it is the first to close a concern; when laguna already evidence-closed, nemotron proceeds correctly.)*
 
 ### Dispatch Summary
 
-*"nemotron-3-super (2 qualifying runs): CONDITIONAL_APPROVE on P6 and Gap 1. Concerns accurate both runs. Pattern: accepts assertion-closed concerns as sufficient for final verdict — verify assertion-closed concerns independently. Strong at conceptual framing."*
+*"nemotron-3-super (3 qualifying runs): CONDITIONAL_APPROVE on P6, Gap 1, Gap 2. Concerns accurate all runs. Assertion-closure pattern observed when nemotron is first to close a concern (P6 C3, Gap 1 C3) — verify those closures independently. Gap 2: no assertion closure (laguna already evidence-closed). Strong at conceptual framing."*
 
 ---
 
