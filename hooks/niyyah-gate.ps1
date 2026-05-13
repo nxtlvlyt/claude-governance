@@ -81,6 +81,8 @@ if (-not $transcriptPath -or -not (Test-Path $transcriptPath)) {
 $lines = Get-Content $transcriptPath
 $niyyahFound = $false
 $priorMutationCount = 0
+$readFilePaths = @()
+$niyyahSourceLine = $null
 
 foreach ($line in $lines) {
     if (-not $line) { continue }
@@ -93,6 +95,8 @@ foreach ($line in $lines) {
     if ($entry.type -eq 'system' -and $entry.subtype -eq 'compact_boundary') {
         $niyyahFound = $false
         $priorMutationCount = 0
+        $readFilePaths = @()
+        $niyyahSourceLine = $null
         continue
     }
 
@@ -100,6 +104,13 @@ foreach ($line in $lines) {
         foreach ($block in $entry.message.content) {
             if ($block.type -eq 'text' -and $block.text -imatch '\bniyyah\s*:') {
                 $niyyahFound = $true
+                # Extract the source: line for source-read verification.
+                if ($block.text -match '(?im)^\s*source\s*:\s*(.+)$') {
+                    $niyyahSourceLine = $matches[1].Trim()
+                }
+            }
+            if ($block.type -eq 'tool_use' -and $block.name -eq 'Read' -and $block.input.file_path) {
+                $readFilePaths += $block.input.file_path
             }
             if ($block.type -eq 'tool_use' -and ($block.name -eq 'Edit' -or $block.name -eq 'Write' -or $block.name -eq 'NotebookEdit')) {
                 $priorMutationCount++
@@ -109,6 +120,55 @@ foreach ($line in $lines) {
 }
 
 if ($niyyahFound) {
+    # Source-read verification: if niyyah names a recognizable file path as source,
+    # require that a Read of that file appears in the session transcript.
+    # Per practice/core.md: "If you cannot write the niyyah — because the source
+    # is not open — do not proceed. Open the source first."
+    # Fail-open when source field contains no recognizable file path (abstract
+    # references like "Directive 12" pass through — they cannot be Read-verified).
+    if ($niyyahSourceLine) {
+        $fileToken = $null
+        if ($niyyahSourceLine -match '([^\s,;]+\.(md|ps1|py|json|txt|yaml|yml))') {
+            $fileToken = $matches[1]
+        }
+        if ($fileToken) {
+            $declaredBasename = [System.IO.Path]::GetFileName($fileToken).ToLower()
+            $readFound = $false
+            foreach ($rp in $readFilePaths) {
+                if ([System.IO.Path]::GetFileName($rp).ToLower() -eq $declaredBasename) {
+                    $readFound = $true; break
+                }
+            }
+            if (-not $readFound) {
+                $readList = if ($readFilePaths.Count -gt 0) { ($readFilePaths | ForEach-Object { [System.IO.Path]::GetFileName($_) }) -join ', ' } else { '(none)' }
+                $blockReason = @"
+NIYYAH SOURCE-READ GATE (~/.claude/hooks/niyyah-gate.ps1).
+
+A niyyah declaration was found, but the declared source was not demonstrated
+open. Per ~/.claude/practice/core.md:
+
+  "If you cannot write the niyyah — because the source is not open,
+   or the act is not clearly defined — do not proceed. Open the source first."
+
+  Declared source : $niyyahSourceLine
+  File identified : $fileToken
+  Files read      : $readList
+
+Required action: Read $fileToken, then retry this $toolName.
+Naming a source is not the same as opening it.
+"@
+                $output = @{
+                    hookSpecificOutput = @{
+                        hookEventName            = 'PreToolUse'
+                        permissionDecision       = 'deny'
+                        permissionDecisionReason = $blockReason
+                    }
+                } | ConvertTo-Json -Depth 10 -Compress
+                Write-Output $output
+                exit 2
+            }
+        }
+    }
     exit 0
 }
 
