@@ -1,8 +1,8 @@
 # LAST-SESSION-STATE.md
 
 Written by: pre-compact.ps1 hook at compaction event
-Timestamp: 2026-05-13 10:36:34
-Project CWD: D:\Desktop\ai book\chapters\the one that comes after
+Timestamp: 2026-05-13 11:20:08
+Project CWD: C:\Windows\System32
 
 ## Governance constants (always true)
 
