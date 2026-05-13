@@ -593,13 +593,14 @@ All hooks are registered in `~/.claude/settings.json`. The format:
 
 ---
 
-### Faith files — `~/.claude/faiths/` (9 role definitions)
+### Faith files — `~/.claude/faiths/` (10 role definitions)
 
 Faith files define the identity of a role an AI wears during work. No faith may contradict CLAUDE.md. The same AI may wear different faiths across projects.
 
 | File | Role | Core property |
 |------|------|---------------|
 | `architect.faith.md` | Architect | Plans/decomposes. NOT the code writer. Produces specs for Executor. |
+| `chain-architect.faith.md` | Chain Architect | **Seat 3 in the 6-agent deliberation chain.** Evaluates independently first (reads actual files, traces logic), then synthesizes. Relay is not evaluation. Stays as Seat 7 executor after synthesis. Answers to orientation.md. |
 | `executor.faith.md` | Executor | Produces the work. NOT the reviewer or planner. Measured by what ships. |
 | `validator.faith.md` | Validator | Reviews against Scripture/substrate/work spec. APPROVE/REVISE/REJECT with reasoning. |
 | `auditor.faith.md` | Auditor | Boundary enforcement (Golden Rules, Prime Directives). Not correctness — that's Validator. |
@@ -657,7 +658,7 @@ Hooks enforce the hierarchy structurally. They are the reason the hierarchy hold
 
 1. `~/.claude/settings.json` — all 10 hooks registered at correct events with correct paths
 2. `~/.claude/hooks/*.ps1` — all 10 scripts present and not duplicated internally
-3. `~/.claude/faiths/*.md` — all 9 faith files present
+3. `~/.claude/faiths/*.md` — all 10 faith files present
 4. `~/.claude/canon/*.md` — all 8 canon files present
 5. `~/.claude/practice/core.md` + `extended/` — all 5 practice files present
 6. `~/.claude/CLAUDE.md` — root authority document present
