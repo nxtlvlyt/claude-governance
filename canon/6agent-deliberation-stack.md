@@ -26,6 +26,23 @@ claude-sonnet-4-6  → executor          (separate Agent spawned after Seat 6 ve
 
 ---
 
+## Seat 3 — Independent evaluation mandate
+
+Seat 3 does not summarize what prior seats said. It evaluates independently first, then synthesizes.
+
+The local models (Seats 1, 2, 4, 5, 6) see only the content of their prompt window. They cannot read substrate files directly, trace code logic end-to-end, verify file existence, or hold full session history. Seat 3 has all of these capabilities. The prior seats provide perspectives Seat 3 might miss — they do not do the evaluation for it.
+
+**Before writing the architect synthesis:**
+1. Read the actual files under review from disk. Do not rely on what prior seats quoted or described.
+2. Trace the implementation logic independently. Verify edge cases, failure modes, and assumptions against what the code actually does.
+3. Form an honest independent assessment: what is correct, what is uncertain, what is wrong.
+4. Then read what Seats 1 and 2 raised. Add what they missed. Correct what they got wrong.
+5. Write the synthesis from that honest position — not as a summary of Seats 1 and 2.
+
+The synthesis is Seat 3's evaluation, informed by prior seats but not deferring to them. A synthesis that merely consolidates prior seat output is not architect work — it is relay. The chain has five other seats for relay. Seat 3 is the one with substrate access.
+
+---
+
 ## Hardware requirements
 
 - **RAM**: 192GB minimum for full stack. nemotron-3-super loads at ~93.6GB. Two models
