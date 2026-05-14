@@ -60,9 +60,11 @@ Our enforcement is split across two classes of operation:
 **Governance-class operations (fully enforced):** Edit/Write/NotebookEdit on
 substrate-class files (canon, faith, practice, hooks, CLAUDE.md) are hard-gated.
 The substrate gate requires foreign-frontier witness. The niyyah gate requires
-declared intent. The surrender check requires explicit articulation of conflict.
-The stop hook blocks stalling without dispatch. These cannot be bypassed by model
-reasoning or prompt injection.
+declared intent. The surrender check requires explicit articulation of conflict (Edit and Write on
+existing substrate paths; Write to new paths allowed without articulation).
+The stop hook enforces delegation discipline at turn boundaries — it fires when
+stop-language is detected at turn-end, not as a real-time blocker of mid-turn
+operations. These cannot be bypassed by model reasoning or prompt injection.
 
 **Operational-class operations (formation-governed):** Bash tool, non-substrate
 file writes, API calls have no hook enforcement. The substrate gate's own comment
@@ -85,6 +87,10 @@ execution) cannot be robustly closed via pattern-matching hooks — trivial bypa
 exist through encoding, path traversal, and subprocess execution. (Laguna analysis
 2026-05-13.) Robust closure requires OS-level ACLs on ~/.claude/ or process
 isolation. Formation is the actual mitigation for operational-class Bash operations.
+
+*Chain-verified 2026-05-13 via community-fit-review.py — unanimous CONDITIONAL_APPROVE
+(6/6 seats). All concerns non-blocking. Surrender check Write-path gap closed
+2026-05-14 (Write on existing substrate paths now gated; "Queued" residual resolved).*
 
 ---
 

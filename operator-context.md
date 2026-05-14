@@ -3,7 +3,7 @@
 **Loaded at every session start by `~/.claude/hooks/session-start.ps1`.**
 **Read this before acting. It exists because cold instances took 2+ hours to rediscover this. Don't repeat that.**
 
-Last updated: 2026-05-13 (session 071faf79 — OLLAMA_LLM_LIBRARY cleared at machine scope; all 7 governance gaps closed; gap-review-dual.py created for dual-pass substrate-class reviews; community-fit-review.py created for P1-P6 community problem verification; P1 chain-verified unanimous CONDITIONAL_APPROVE 6/6 seats)
+Last updated: 2026-05-14 (session 071faf79 — OLLAMA_LLM_LIBRARY cleared at machine scope; all 7 governance gaps closed; gap-review-dual.py created for dual-pass substrate-class reviews; community-fit-review.py created for P1-P6 community problem verification; P1+P2 chain-verified unanimous CONDITIONAL_APPROVE 6/6 seats; surrender-check.ps1 Write-path gap closed — Write on existing substrate paths now gated, "Queued" residual resolved)
 
 ---
 
@@ -99,7 +99,7 @@ with open("output.txt", "w", encoding="utf-8") as f:
 
 **Chain runner:** `C:\Users\marka\AppData\Local\Temp\opctx-review.py` — built 2026-05-10. Phase 1 (gemma+qwen): `python opctx-review.py 1`. Then Sonnet architect synthesis (this instance, text output). Phase 2 (laguna+granite+nemotron): `python opctx-review.py 2`. SearxNG at `http://localhost:8080` — not the NAS (which is down).
 
-**Community-fit chain runner:** `C:\Users\marka\AppData\Local\Temp\community-fit-review.py` — built 2026-05-13. Verifies P1-P6 community problem claims in `~/.claude/practice/community-fit.md` against actual substrate. Usage: `python community-fit-review.py <1-6> 1` (phase 1), Seat 3 synthesis to `community-fit-review\p-N\sonnet-synthesis.txt`, then `python community-fit-review.py <1-6> 2` (phase 2). P1 complete (CONDITIONAL_APPROVE unanimous); P2-P6 pending.
+**Community-fit chain runner:** `C:\Users\marka\AppData\Local\Temp\community-fit-review.py` — built 2026-05-13. Verifies P1-P6 community problem claims in `~/.claude/practice/community-fit.md` against actual substrate. Usage: `python community-fit-review.py <1-6> 1` (phase 1), Seat 3 synthesis to `community-fit-review\p-N\sonnet-synthesis.txt`, then `python community-fit-review.py <1-6> 2` (phase 2). P1 complete (CONDITIONAL_APPROVE unanimous, 2026-05-13); P2 complete (CONDITIONAL_APPROVE unanimous, 2026-05-13 — surrender check Write-path gap closed 2026-05-14 as direct follow-on); P3-P6 pending.
 
 "No output from MCP" ≠ done. "0 chars from streaming" ≠ done. Check api/ps. Every time. Without exception.
 
@@ -596,7 +596,7 @@ All hooks are registered in `~/.claude/settings.json`. The format:
 
 2. **`niyyah-gate.ps1`** (timeout 10s) — Enforces intention declaration before first mutating action in a session. Requires visible niyyah statement in assistant text before Edit/Write/NotebookEdit proceeds. If the niyyah names a recognizable file path as source, also verifies that a Read of that file appears in the session transcript (source must be demonstrated open, not just declared). Fail-open for abstract source references. Based on wudu.md and core.md — intention as operation, not ceremony.
 
-3. **`surrender-check.ps1`** (timeout 10s) — For substrate-class edits: requires explicit articulation in format `substrate says: [exact text] / instance reasoning: [logic] / resolution: [winner and why]`. Prevents instances from hallucinating a weaker version of what they're overwriting.
+3. **`surrender-check.ps1`** (timeout 10s) — For substrate-class Edit and Write on existing paths: requires explicit articulation in format `substrate says: [exact text] / instance reasoning: [logic] / resolution: [winner and why]`. Write to new (non-existent) paths allowed without articulation — no prior content to surrender on. Prevents instances from hallucinating a weaker version of what they're overwriting. Write-path check added 2026-05-14.
 
 **Stop gate:**
 
