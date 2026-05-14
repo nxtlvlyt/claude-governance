@@ -158,7 +158,9 @@ Return ONLY valid JSON (no preamble, no markdown fences):
       "closed": true,
       "close_type": "evidence | refutation | assertion"
     }}
-  ]
+  ],
+  "suggested_queries": ["(phase 1 only, optional) one search query for the next agent — omit or leave [] if current results are sufficient"],
+  "query_justification": "(phase 1 only, optional) why this query fills a specific gap the current results left open"
 }}
 
 close_type REQUIRED on every closed concern:
@@ -511,6 +513,10 @@ def main():
         print(f"Phase {PHASE} loaded {len(all_outputs)} prior outputs. "
               f"Open concerns: {len(open_concerns)}, Soft notes: {len(soft_notes)}", flush=True)
 
+    dynamic_searches_used   = 0
+    MAX_DYNAMIC_SEARCHES    = 2
+    pending_dynamic_context = ""
+
     for cfg in AGENT_CONFIGS:
         name = cfg['name']
 
@@ -529,6 +535,9 @@ def main():
 
         jina_n = 1 if PHASE == 1 else JINA_FETCH_N
         search_results = searxng_search(cfg['search_query'], jina_n=jina_n)
+        if pending_dynamic_context:
+            search_results = pending_dynamic_context + "\n" + search_results
+            pending_dynamic_context = ""
         result = dispatch_agent(cfg, prior_verdicts, search_results, open_concerns, soft_notes)
 
         if result:
@@ -548,6 +557,20 @@ def main():
                 print(f"  {c.get('id')}: [{c.get('severity')}] {c.get('description', '')[:120]}", flush=True)
             for n in soft_notes:
                 print(f"  ~{n.get('id')} [assertion-closed]: {n.get('resolution', '')[:100]}", flush=True)
+
+            # Query-Pass Pattern: execute suggested queries for next agent (phase 1 only, max 2 total)
+            if PHASE == 1 and dynamic_searches_used < MAX_DYNAMIC_SEARCHES:
+                suggested = result.get('suggested_queries', [])
+                justification = result.get('query_justification', '')
+                if suggested and suggested[0].strip():
+                    query = suggested[0].strip()
+                    print(f"\n[Query-Pass] {name} suggested: {query!r}", flush=True)
+                    if justification:
+                        print(f"[Query-Pass] Justification: {justification[:120]}", flush=True)
+                    dynamic_result = searxng_search(query, jina_n=0)  # snippets only — no Jina on dynamic queries
+                    pending_dynamic_context = f"\n[DYNAMIC SEARCH — requested by {name}]\n{dynamic_result}"
+                    dynamic_searches_used += 1
+                    print(f"[Query-Pass] Search {dynamic_searches_used}/{MAX_DYNAMIC_SEARCHES} executed", flush=True)
 
         print(f"  Stopping {name}...", flush=True)
         safe_stop(name)
