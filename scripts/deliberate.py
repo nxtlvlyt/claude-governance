@@ -21,12 +21,13 @@ Per canon 6agent-deliberation-stack.md:
   - check api/ps before every dispatch
   - serial inference only -- one model at a time
   - timeout=32768 non-negotiable
-  - think:False top-level for qwen3.6 and nemotron-3-super
+  - think:True top-level for qwen3.6 (C2); think:False top-level for nemotron-3-super
 """
 import requests, json, urllib.request, urllib.parse, time, os, subprocess, sys, re, tempfile
 sys.stdout.reconfigure(encoding='utf-8')
 
 OLLAMA_HOST    = "http://localhost:11434"
+OLLAMA_EXE     = os.path.join(os.path.expanduser("~"), "AppData", "Local", "Programs", "Ollama", "ollama.exe")
 SEARXNG_HOST   = "http://localhost:8080"
 JINA_ENABLED   = True   # fetch full page content via r.jina.ai (free, 20 RPM, no key)
 JINA_MAX_CHARS = 2000   # truncate per page -- controls context window growth
@@ -174,7 +175,7 @@ PHASE1_AGENTS = [
         "think": None,
         "num_predict": 4096,
         "num_ctx": 16384,   # prompt (substrate+search+Jina) + output room
-        "num_gpu": 99,      # gemma4:31b ~15.5GB model + ~4GB KV at 16384 ctx = ~21GB, fits in 24GB
+        "num_gpu": 50,      # gemma4:31b loads ~29GB total; 50 layers = ~19GB VRAM, ~20.5GB GPU used, ~3.5GB free
     },
     {
         "name": DEEP_DIVE_MODEL,
@@ -183,7 +184,7 @@ PHASE1_AGENTS = [
         "think": True,      # safe: script captures message.thinking separately; JSON verdict in message.content
         "num_predict": 4096,
         "num_ctx": 16384,
-        "num_gpu": 99,      # qwen3.6:27b ~16GB model + ~4GB KV at 16384 ctx = ~21GB, fits in 24GB
+        "num_gpu": 45,      # qwen3.6:27b loads ~27GB total; 45 layers = ~18GB VRAM, ~20GB GPU used, ~3.5GB free
     },
 ]
 
@@ -294,12 +295,45 @@ def check_api_ps():
         return False, [str(e)]
 
 
+def _restart_ollama_server():
+    """Kill all ollama processes and restart server with cuda_v12 GPU support."""
+    subprocess.run(['taskkill', '/F', '/IM', 'ollama.exe'], capture_output=True, timeout=10)
+    time.sleep(3)
+    env = os.environ.copy()
+    env['OLLAMA_LLM_LIBRARY'] = 'cuda_v12'
+    CREATE_NO_WINDOW = 0x08000000
+    subprocess.Popen([OLLAMA_EXE, 'serve'], env=env, creationflags=CREATE_NO_WINDOW)
+    for _ in range(30):
+        try:
+            with urllib.request.urlopen(f"{OLLAMA_HOST}/api/ps", timeout=5) as r:
+                r.read()
+            time.sleep(1)
+            return
+        except Exception:
+            time.sleep(2)
+
+
 def safe_stop(model_name):
-    try:
-        subprocess.run(['ollama', 'stop', model_name], timeout=30, capture_output=True)
-        time.sleep(3)
-    except Exception:
-        pass
+    """Unload model via REST keep_alive; falls back to server kill+restart if it hangs."""
+    for endpoint, body in [
+        ("/api/generate", json.dumps({"model": model_name, "prompt": "", "keep_alive": "0s"})),
+        ("/api/chat",     json.dumps({"model": model_name, "messages": [], "keep_alive": "0s"})),
+    ]:
+        try:
+            req = urllib.request.Request(
+                f"{OLLAMA_HOST}{endpoint}",
+                data=body.encode(),
+                headers={"Content-Type": "application/json"},
+                method="POST"
+            )
+            with urllib.request.urlopen(req, timeout=25) as r:
+                r.read()
+            time.sleep(2)
+            return
+        except Exception:
+            pass
+    print(f"  safe_stop: keep_alive timed out for {model_name} — restarting Ollama...", flush=True)
+    _restart_ollama_server()
 
 
 def collect_open_concerns(all_outputs):
