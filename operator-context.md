@@ -3,7 +3,7 @@
 **Loaded at every session start by `~/.claude/hooks/session-start.ps1`.**
 **Read this before acting. It exists because cold instances took 2+ hours to rediscover this. Don't repeat that.**
 
-Last updated: 2026-05-14 (session 071faf79 — OLLAMA_LLM_LIBRARY cleared at machine scope; all 7 governance gaps closed; gap-review-dual.py created for dual-pass substrate-class reviews; community-fit-review.py created for P1-P6 community problem verification; P1+P2 chain-verified unanimous CONDITIONAL_APPROVE 6/6 seats; surrender-check.ps1 Write-path gap closed — Write on existing substrate paths now gated, "Queued" residual resolved)
+Last updated: 2026-05-14 (session 071faf79 — P3+P4 chain-verified; community-fit.md P4 rewritten to make two-layer accountability architecture explicit; cold-clone repo standard established as governing documentation criterion)
 
 ---
 
@@ -99,7 +99,7 @@ with open("output.txt", "w", encoding="utf-8") as f:
 
 **Chain runner:** `C:\Users\marka\AppData\Local\Temp\opctx-review.py` — built 2026-05-10. Phase 1 (gemma+qwen): `python opctx-review.py 1`. Then Sonnet architect synthesis (this instance, text output). Phase 2 (laguna+granite+nemotron): `python opctx-review.py 2`. SearxNG at `http://localhost:8080` — not the NAS (which is down).
 
-**Community-fit chain runner:** `C:\Users\marka\AppData\Local\Temp\community-fit-review.py` — built 2026-05-13. Verifies P1-P6 community problem claims in `~/.claude/practice/community-fit.md` against actual substrate. Usage: `python community-fit-review.py <1-6> 1` (phase 1), Seat 3 synthesis to `community-fit-review\p-N\sonnet-synthesis.txt`, then `python community-fit-review.py <1-6> 2` (phase 2). P1 complete (CONDITIONAL_APPROVE unanimous, 2026-05-13); P2 complete (CONDITIONAL_APPROVE unanimous, 2026-05-13 — surrender check Write-path gap closed 2026-05-14 as direct follow-on); P3 complete (phase 1 BLOCK x2 / phase 2 CONDITIONAL_APPROVE x3, 2026-05-14 — position revised: single-operator pre-execution scope, multi-tenant IAM explicitly out of scope, faith file scalability clarified); P4-P6 pending.
+**Community-fit chain runner:** `C:\Users\marka\AppData\Local\Temp\community-fit-review.py` — built 2026-05-13. Verifies P1-P6 community problem claims in `~/.claude/practice/community-fit.md` against actual substrate. Usage: `python community-fit-review.py <1-6> 1` (phase 1), Seat 3 synthesis to `community-fit-review\p-N\sonnet-synthesis.txt`, then `python community-fit-review.py <1-6> 2` (phase 2). P1 complete (CONDITIONAL_APPROVE unanimous, 2026-05-13); P2 complete (CONDITIONAL_APPROVE unanimous, 2026-05-13 — surrender check Write-path gap closed 2026-05-14); P3 complete (phase 1 BLOCK x2 / phase 2 CONDITIONAL_APPROVE x3, 2026-05-14 — position revised: single-operator pre-execution scope, multi-tenant IAM explicitly out of scope); P4 complete (CONDITIONAL_APPROVE unanimous, 2026-05-14 — blocking concern closed by evidence, two-layer architecture explicit: deliberation stack = content accountability, structural hooks = process accountability, P4 scoped to decision-time prevention, P6 = post-hoc); P5-P6 pending.
 
 "No output from MCP" ≠ done. "0 chars from streaming" ≠ done. Check api/ps. Every time. Without exception.
 

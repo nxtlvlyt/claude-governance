@@ -147,23 +147,46 @@ with no human in the loop and no escalation path when something goes wrong.
 **Our position: SOLVED**
 
 The community's concern is that autonomous agents act with no accountability at
-all. Our answer is the deliberation stack — six seats deliberate, correct each
-other through the congregation principle, and only when the chain reaches a clean
-verdict does anything act.
+all. Our answer is the governance architecture: six seats deliberate and correct
+each other through the congregation principle before anything acts, and structural
+hooks enforce the process constraints that make each governance action accountable.
 
-The human does not need to be in every loop. That is the point. The stack IS the
-accountability layer. It protects the operator's time — the operator is not pulled
-in for every operational step, only when the chain surfaces a decision that
-genuinely requires operator judgment.
+The architecture has two complementary layers:
 
-The accountability loop is: every governance decision is deliberated by six
-independent seats, each correcting the ones before it, before the executor acts.
-The niyyah gate requires declared intent. The surrender check requires explicit
-articulation of conflict. The stop hook prevents stalling without dispatch. These
-gates escalate to the operator by design when something requires human judgment.
+**Content accountability (deliberation stack):** Every significant decision passes
+through six seats before the executor acts — workshop, deep-dive, synthesis, code
+review, governance audit, final verdict. A bad judgment by any single seat is
+caught by downstream seats. Mutual correction within the run, before anything ships.
 
-The human is in the loop when their judgment is needed. The stack handles
-everything else. That is a complete accountability architecture, not a partial one.
+**Process accountability (structural hooks):** The niyyah gate requires declared
+intent before any mutation in a session. The surrender check requires explicit
+articulation of what the substrate currently says and why the change is correct,
+before any governance content is overwritten — structurally enforced, fail-closed.
+The stop hook enforces the escalation sequence at turn boundaries: exhaust substrate
+options, then foreign-frontier dispatch, then sub-agent dispatch — only then is the
+operator the remaining path.
+
+In the congregation model, the imam's formation and the congregation's correction
+operate as one governance structure — not two separate systems. The deliberation
+chain and the hooks are the same unified surface: content correction and process
+enforcement happening simultaneously before anything acts.
+
+The human is in the loop when their judgment is needed. The stop hook makes trivial
+escalation structurally impossible — the operator is reached only after automated
+resolution paths are exhausted. That is not a limitation; it is how the operator's
+time is protected.
+
+**Scope:** P4 is decision-time accountability — preventing accountability failures
+before they happen. Post-hoc accountability (cryptographic proof of what was
+decided and when) is P6's domain.
+
+*Chain-verified 2026-05-14 via community-fit-review.py — unanimous CONDITIONAL_APPROVE
+(6/6 seats). Blocking concern (surrender-check.ps1 missing from phase 1 substrate
+bundle) closed by evidence: file confirmed at ~/.claude/hooks/surrender-check.ps1,
+gates Edit and Write on existing substrate paths, fail-closed. All remaining concerns
+non-blocking framing; addressed by making two-layer architecture explicit (deliberation
+stack = content accountability; structural hooks = process accountability) and scoping
+P4 to decision-time prevention with P6 handling post-hoc auditability.*
 
 ---
 
