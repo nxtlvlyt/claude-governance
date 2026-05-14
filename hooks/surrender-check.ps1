@@ -25,7 +25,7 @@
 # FAIL-CLOSED on missing/unreadable transcript (same pattern as substrate gate).
 #
 # What this hook does NOT gate:
-#   - Write tool: no old_string available; residual risk documented below.
+#   - Write tool on new substrate files: no old content to couple against — allowed.
 #   - Bash tool: Set-Content, Out-File, >, >>, sed -i, mv, cp on substrate
 #     paths bypass this hook. Same residual risk as pre-tool-use-substrate.ps1.
 #
@@ -34,9 +34,8 @@
 # surrendered to substrate — it has overwritten it.
 #
 # Residual risks (not closed by this hook):
-#   - Write on existing substrate file: would overwrite entire file without
-#     old_string to couple against. Requires a separate Write-path check that
-#     reads current file content. Queued.
+#   - Write on existing substrate file: closed 2026-05-14 — reads current disk
+#     content as coupling source. Write on new paths allowed without articulation.
 #   - Bash bypass: same as pre-tool-use-substrate.ps1 residual.
 #
 # Audit history:
@@ -45,6 +44,8 @@
 #     trap); three sub-fields not two (instance reasoning added); substrate-couple
 #     "substrate says" against old_string (not deferred — label-only theater is
 #     the exact failure mode being closed); fail-CLOSED not fail-OPEN.
+#   - Write-path check added 2026-05-14: P2 chain review (unanimous CONDITIONAL_APPROVE,
+#     6/6 seats) confirmed Edit-only gate made "fully enforced" an overclaim.
 
 $ErrorActionPreference = 'SilentlyContinue'
 
@@ -53,10 +54,10 @@ $inp = $null
 try { $inp = $stdin | ConvertFrom-Json } catch {}
 if (-not $inp) { exit 0 }
 
-# Surrender check applies to Edit only (Write on new paths has no old_string
-# to substrate-couple; Write on existing paths is a queued follow-up).
+# Surrender check applies to Edit and Write on existing substrate files.
+# Write on new paths (file does not exist) has no content to couple against — allowed.
 $toolName = $inp.tool_name
-if ($toolName -ne 'Edit') { exit 0 }
+if ($toolName -ne 'Edit' -and $toolName -ne 'Write') { exit 0 }
 
 # Resolve and normalize file path (defeats ../traversal bypass).
 $filePath = $null
@@ -83,11 +84,17 @@ elseif ($normalized -match "^$claudeRoot/hooks/.*\.ps1$")       { $isSubstrate =
 
 if (-not $isSubstrate) { exit 0 }
 
-# Get old_string. If empty the edit is additive (no existing content overwritten);
-# allow without articulation (nothing to surrender on).
+# Get old_string (Edit) or current file content (Write on existing path).
+# If empty, allow without articulation — nothing to surrender on.
 $oldString = ''
-if ($inp.tool_input.old_string) { $oldString = [string]$inp.tool_input.old_string }
-if ([string]::IsNullOrEmpty($oldString)) { exit 0 }
+if ($toolName -eq 'Write') {
+    if (-not (Test-Path $absPath)) { exit 0 }
+    $oldString = Get-Content $absPath -Raw -ErrorAction SilentlyContinue
+    if ([string]::IsNullOrEmpty($oldString)) { exit 0 }
+} else {
+    if ($inp.tool_input.old_string) { $oldString = [string]$inp.tool_input.old_string }
+    if ([string]::IsNullOrEmpty($oldString)) { exit 0 }
+}
 
 # Locate transcript.
 $transcriptPath = $null
