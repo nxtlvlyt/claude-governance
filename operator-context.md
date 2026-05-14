@@ -3,7 +3,7 @@
 **Loaded at every session start by `~/.claude/hooks/session-start.ps1`.**
 **Read this before acting. It exists because cold instances took 2+ hours to rediscover this. Don't repeat that.**
 
-Last updated: 2026-05-13 (session 071faf79 — OLLAMA_LLM_LIBRARY cleared at machine scope; all 7 governance gaps closed; gap-review-dual.py created for dual-pass substrate-class reviews)
+Last updated: 2026-05-13 (session 071faf79 — OLLAMA_LLM_LIBRARY cleared at machine scope; all 7 governance gaps closed; gap-review-dual.py created for dual-pass substrate-class reviews; community-fit-review.py created for P1-P6 community problem verification; P1 chain-verified unanimous CONDITIONAL_APPROVE 6/6 seats)
 
 ---
 
@@ -98,6 +98,8 @@ with open("output.txt", "w", encoding="utf-8") as f:
 **Concern closure `close_type` (Gap 4 schema):** Every `closed_prior_concerns` entry requires a `close_type` field: `evidence` (primary source or test result found — fully closed), `refutation` (logical argument that concern doesn't apply — fully closed), or `assertion` (opinion without citation — carries forward as a soft note, NOT dropped). `collect_open_concerns()` returns a **tuple** `(open_concerns, soft_notes)`. Soft notes appear in `[ASSERTION-CLOSED CONCERNS — VERIFY INDEPENDENTLY]` blocks in subsequent seat prompts. The final verdict receives both hard-open and assertion-closed concerns. Omitting `close_type` defaults to `assertion` for backwards compatibility.
 
 **Chain runner:** `C:\Users\marka\AppData\Local\Temp\opctx-review.py` — built 2026-05-10. Phase 1 (gemma+qwen): `python opctx-review.py 1`. Then Sonnet architect synthesis (this instance, text output). Phase 2 (laguna+granite+nemotron): `python opctx-review.py 2`. SearxNG at `http://localhost:8080` — not the NAS (which is down).
+
+**Community-fit chain runner:** `C:\Users\marka\AppData\Local\Temp\community-fit-review.py` — built 2026-05-13. Verifies P1-P6 community problem claims in `~/.claude/practice/community-fit.md` against actual substrate. Usage: `python community-fit-review.py <1-6> 1` (phase 1), Seat 3 synthesis to `community-fit-review\p-N\sonnet-synthesis.txt`, then `python community-fit-review.py <1-6> 2` (phase 2). P1 complete (CONDITIONAL_APPROVE unanimous); P2-P6 pending.
 
 "No output from MCP" ≠ done. "0 chars from streaming" ≠ done. Check api/ps. Every time. Without exception.
 
@@ -362,6 +364,7 @@ C:\warroom\config\models.yaml          ← Model registry
 C:\warroom\reviews\                    ← Per-model review scripts
 
 C:\Users\marka\AppData\Local\Temp\opctx-review.py  ← 6-agent chain runner (built 2026-05-10)
+C:\Users\marka\AppData\Local\Temp\community-fit-review.py  ← P1-P6 community-fit claim verifier (built 2026-05-13)
 D:\NAS-BACKUP\REBUILD.md               ← NAS rebuild guide (13-step) — pending 6-agent review
 D:\NAS-BACKUP\rclone\resume-upload.ps1 ← Upload script
 D:\NAS-BACKUP\rclone\resume-upload.log ← Upload log (tail this to monitor)

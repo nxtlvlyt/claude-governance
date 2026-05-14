@@ -37,6 +37,15 @@ SAGA builds an authorization registry for autonomous delegation chains that alre
 exist. We don't create autonomous delegation chains — the architecture prevents it
 at the seat level and the executor faith file closes the remaining surface.
 
+Audit trail for Seat 7 violations: if the executor spawns a sub-agent in violation
+of this constraint, the Agent tool call would appear in the session JSONL transcript.
+The session-hash-chain.ps1 stop hook anchors the transcript hash via RFC 3161 TSA —
+tamper-evident, post-hoc audit visibility. There is no active delegation-violation
+detector; detection requires manual post-hoc review.
+
+*Chain-verified 2026-05-13 via community-fit-review.py — unanimous CONDITIONAL_APPROVE
+(6/6 seats). All concerns non-blocking. Residuals documented above.*
+
 ---
 
 ## P2 — Policy-as-guideline fragility
