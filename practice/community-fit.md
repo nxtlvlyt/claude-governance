@@ -99,7 +99,7 @@ isolation. Formation is the actual mitigation for operational-class Bash operati
 failures because they operate without governance. They go rogue — take unauthorized
 actions, cause real business harm — and nothing catches it before damage is done.
 
-**Our position: SOLVED — architectural prevention via the deliberation stack**
+**Our position: SOLVED for pre-execution rogue agent prevention (single-operator scope). Multi-tenant enterprise authorization is explicitly out of scope.**
 
 The core P3 threat is an agent acting on bad judgment without anyone catching it.
 Our answer is the deliberation stack: every significant decision passes through
@@ -117,15 +117,26 @@ This is the congregation principle: an imam leads prayer but is only as strong a
 his congregation. If he makes a mistake, someone behind him corrects him immediately.
 Our stack works the same way — mutual correction within the run, not post-hoc audit.
 
-Our system scales to multiple agents, each with their own faith file, each
-operating under the same CLAUDE.md, canon, and hooks. The stack can govern any
-number of agents because the governance is baked into each agent's formation and
-the chain provides the review loop.
+Our governance architecture is adaptable for more agents: add a seat, assign it a
+faith file, and it operates under the same CLAUDE.md, canon, and hooks. This scales
+the deliberation chain — not enterprise multi-tenant deployment. Each additional
+agent is governed by the same structural constraints as existing seats.
 
-The enterprise coordination layer (central dashboard, cross-agent visibility across
-simultaneous runs) is not built. But the core problem — rogue agents causing harm
-without detection — is solved. The deliberation chain IS the detection and
-correction layer, operating before harm occurs.
+**What we solve:** rogue agents causing harm without detection, in a single-operator
+context. The deliberation chain IS the detection and correction layer, operating
+before harm occurs.
+
+**What is out of scope:** enterprise multi-tenant authorization — IAM, tenant
+isolation, credential scoping across organizations, runtime authorization enforcement
+between agents in different trust domains. Our system is single-operator by design:
+one operator, one machine, one authority hierarchy. Cross-org trust boundaries are
+not addressed and are not claimed. The enterprise coordination layer (central
+dashboard, cross-agent visibility across simultaneous runs) is also not built.
+
+*Chain-verified 2026-05-14 via community-fit-review.py — phase 1 BLOCK x2, phase 2
+CONDITIONAL_APPROVE x3. Position revised: "SOLVED" qualified to single-operator
+pre-execution scope; multi-tenant authorization explicitly out of scope. Faith file
+scalability clarified: adding chain seats, not multi-tenant enterprise deployment.*
 
 ---
 
@@ -225,7 +236,7 @@ per-entry signing. EU AI Act mandates tamper-resistant logging from August 2026.
 |---------|-------------|
 | P1 — Multi-agent delegation | SOLVED — architectural prevention |
 | P2 — Advisory governance fragility | SOLVED — blocking hooks |
-| P3 — Enterprise multi-tenant | SOLVED — rogue agents prevented by deliberation stack |
+| P3 — Enterprise multi-tenant | SOLVED (single-operator pre-execution scope) — multi-tenant IAM explicitly out of scope |
 | P4 — Accountability loop | SOLVED — deliberation stack is the accountability layer |
 | P5 — Static policy / no learning | SOLVED — two-layer memory (2026-05-12) |
 | P6 — Cryptographic auditability | IMPLEMENTATION COMPLETE — TSA token + SSH-signed git; push verification pending |
