@@ -98,16 +98,17 @@ Unanimous CONDITIONAL_APPROVE from 5-seat deliberation chain. Codeberg token mig
 **deliberate.py** ✓ COMPLETE (2026-05-14)
 General-purpose deliberation chain runner at `scripts/deliberate.py`. Parses a question_file markdown with `## Substrate Files` and `## Search Queries` sections. Runs 6-seat chain in two phases. Output dir: `<TEMP>/deliberate/<slug>/`. Used for the credential storage deliberation. Foundation for the `/deliberate` slash command (Task 4).
 
+**Chain quality deliberation** ✓ COMPLETE (2026-05-14)
+Chain quality question run via deliberate.py. Unanimous CONDITIONAL_APPROVE (3/5 seats — laguna+granite failed GPU OOM). Three concerns resolved: C1 (SEARCH_REFINEMENT — dynamic query generation, deferred design work), C2 (qwen think:True — implemented, committed bbb7952), C3 (prompt order fix — substrate/question moved to position 2 in prompt construction, committed bbb7952). GPU per-agent config committed: gemma4/qwen3.6/laguna/granite num_gpu=99, nemotron num_gpu=14 (partial offload: 14/89 layers, 13.6GiB CUDA0). Jina Reader validated as live in chain (full page content confirmed in both phase 1 agents).
+
 **Task 3 — operator-context.template.md** (Priority: high)
 The current `operator-context.md` is personal history for this specific machine and operator. New users cloning the repo need a blank template with section headers and placeholder guidance. `install.ps1` should copy the template to `operator-context.md` on first run (only if no existing file). Estimated: 30 minutes.
 
 **Task 4 — Slash command skills** (Priority: next)
 Wrap `scripts/deliberate.py` (and `scripts/chain-review.py`) as Claude Code slash command skills (`/deliberate`, `/chain-review`, `/governance-audit`). Each needs a `SKILL.md` with `bootstrap_sequence` and a wrapper that calls the Python script. This is the user-facing interface for deliberation reviews. Estimated: 1 session.
 
-Sub-step before finishing Task 4 — Jina URL fetching validation:
-deliberate.py currently feeds agents SearxNG snippets (2-3 sentence abstracts). Adding Jina Reader (`r.jina.ai/<url>` prefix, ~20 lines) would give agents full page content. This must be tested on a real chain run before the slash command is finalized.
-Research findings (2026-05-14): Jina does NOT actively fight Cloudflare — official position is they do not bypass anti-bot systems. Starlink CGNAT is a real IP reputation risk for local scraping (shared IP flagged when any pool user is banned). BeautifulSoup+markdownify is lightweight (no DOM rendering); Crawl4AI is Playwright-based (~100-200MB RAM per instance). Existing unified tools found: SearchArvester (SearxNG+FastAPI+trafilatura, Tavily-compatible), searxng-mcp (SearxNG→reranking→extraction→Ollama), OpenDeepResearcher-via-searxng, Local Deep Research. None need to be built — evaluate only if Jina fails on our specific content types (GitHub issues, blog posts, docs).
-Test sequence: (1) add Jina to deliberate.py, (2) run one real chain, (3) compare verdict quality vs. credential-storage run (which used snippets only), (4) if passes → keep Jina + wrap slash command; if fails on specific URL types → evaluate SearchArvester or searxng-mcp with evidence from the failure.
+**Sub-step before finishing Task 4 — Jina URL fetching validation: ✓ COMPLETE (2026-05-14)**
+Jina Reader added to deliberate.py (`r.jina.ai/<url>` prefix). Chain quality deliberation (2026-05-14) ran with Jina active — both phase 1 agents received full page content (confirmed via chain run). Decision: SearxNG + Jina is the settled search stack. No custom FastAPI node needed. Task 4 slash command wrapping can proceed directly.
 
 **Task 5 — Migrate skills/ out of ~/.claude/** (Priority: lower)
 Per `canon/perfect-repo-architecture.md`: skills are procedures and belong in project repos, not the formation layer. The HyperFrames, Remotion, CSS animation, and other creative skills in `~/.claude/skills/` violate this ruling. Migration reduces formation layer context window usage and brings the repo into canon compliance. The target project repo for these skills needs to be identified first. Estimated: 1 session.
@@ -115,4 +116,4 @@ Per `canon/perfect-repo-architecture.md`: skills are procedures and belong in pr
 **NOT yet started — npm distribution wrapper**
 Packaging `install.ps1` as an npm package (`npm install -g @nxtlvl/claude-governance`) makes distribution one command. Deferred until Tasks 3-4 are solid, since the installer output is what gets distributed. Cross-platform (Mac/Linux) support is the major variable — install.ps1 is Windows-only today; a bash equivalent would be 3-4 sessions of additional work.
 
-*Task list last updated: 2026-05-14, session continuation (Tasks 1-2 + credential fix + deliberate.py complete; Task 4 is next).*
+*Task list last updated: 2026-05-14, session 071faf79 continuation (chain quality deliberation + Jina validation complete; C2+C3 committed bbb7952; GPU per-agent config committed; Task 4 next).*
