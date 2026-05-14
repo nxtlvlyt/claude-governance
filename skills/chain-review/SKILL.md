@@ -136,18 +136,23 @@ If non-blocking only: proceed with updates, noting each as "chain-verified corre
   <model>-output.txt        — raw agent outputs
 ```
 
-## Note on chain-review.py vs deliberate.py
+## Preferred execution path: deliberate.py
 
-`chain-review.py` predates `deliberate.py` and lacks:
+`scripts/deliberations/chain-review.md` now exists. Use `/deliberate` with this question file
+for full-quality chain-review runs (GPU per-agent config, C3 prompt order, Jina Reader).
+
+```
+/deliberate scripts/deliberations/chain-review.md
+```
+
+`chain-review.py` remains available but is the lower-quality path — it lacks:
 - GPU per-agent `num_gpu` config
 - C3 prompt order fix (substrate at position 2)
 - Jina Reader integration
 - Structured JSON report output
 
-If a chain-review run produces lower-quality output than a deliberate.py run,
-consider porting the chain-review question to `deliberate.py` format
-(a question file in `scripts/deliberations/chain-review.md`). The question
-is already in `chain-review.py` as `REVIEW_QUESTION` — copy it.
+`chain-review.py` also has a stale qwen `think: False` (line 111) — correct value after C2
+is `think: True`. If using `chain-review.py` directly, fix this before dispatch.
 
 ## Critical Constraints
 
