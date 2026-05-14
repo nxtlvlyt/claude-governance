@@ -17,7 +17,7 @@ uploads/
 tasks/
 state/
 file-history/
-tools/
+tools/**/node_modules
 plugins/
 
 # Session-local ephemeral files

@@ -1,8 +1,8 @@
 # CURRENT-STATE.md
 
-Written by: user-prompt-submit.ps1 hook (turn 880 heartbeat)
-Timestamp: 2026-05-14 08:44:12
-Project CWD: C:\Windows\System32
+Written by: user-prompt-submit.ps1 hook (heartbeat)
+Timestamp: (not yet written — first session will populate this)
+Project CWD: (not yet written)
 model_version: (instance: write your actual model ID here at session start — e.g. claude-sonnet-4-6)
 
 ## Governance constants (always true)
