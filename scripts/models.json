@@ -1,0 +1,15 @@
+{
+  "_comment": "Chain runner model configuration. Edit these to match the best available models on your machine. The scripts read this file at runtime — no script changes needed when you swap models.",
+  "_roles": {
+    "workshop":   "Breadth-first creative pass. Large generative model, 30B+ parameter class. Look for: gemma, llama3, mistral-large, qwen3 (larger variants). Needs good instruction following.",
+    "deep_dive":  "Detailed technical analysis. Strong reasoning model with chain-of-thought. Look for: qwen3 (thinking variants), deepseek-r1, llama3.1. think:False required at top-level for qwen3/reasoning models.",
+    "code_review": "Fast, precise code and syntax analysis. Smaller quantized model (3-8B). Look for: laguna, phi3, codellama, deepseek-coder. Must finish within MCP timeout (~30s).",
+    "governance": "Governance audits, canon coherence, structured reasoning. 30B+ analytical model. Look for: granite, qwen3, llama3-instruct. Follows instructions precisely.",
+    "synthesis":  "Final verdict, highest-capability model you have. 70B+ preferred. Look for: nemotron, llama3.3, qwen3-235b. think:False required at top-level for reasoning models. num_ctx ceiling 32768 on 100GB RAM."
+  },
+  "workshop":    "gemma4:31b",
+  "deep_dive":   "qwen3.6:27b",
+  "code_review": "laguna-xs.2:q4_K_M",
+  "governance":  "granite4.1:30b",
+  "synthesis":   "nemotron-3-super:latest"
+}
