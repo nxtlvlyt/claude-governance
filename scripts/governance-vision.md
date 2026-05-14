@@ -101,11 +101,15 @@ General-purpose deliberation chain runner at `scripts/deliberate.py`. Parses a q
 **Chain quality deliberation** ✓ COMPLETE (2026-05-14)
 Chain quality question run via deliberate.py. Unanimous CONDITIONAL_APPROVE (3/5 seats — laguna+granite failed GPU OOM). Three concerns resolved: C1 (SEARCH_REFINEMENT — dynamic query generation, deferred design work), C2 (qwen think:True — implemented, committed bbb7952), C3 (prompt order fix — substrate/question moved to position 2 in prompt construction, committed bbb7952). GPU per-agent config committed: gemma4/qwen3.6/laguna/granite num_gpu=99, nemotron num_gpu=14 (partial offload: 14/89 layers, 13.6GiB CUDA0). Jina Reader validated as live in chain (full page content confirmed in both phase 1 agents).
 
-**Task 3 — operator-context.template.md** (Priority: high)
-The current `operator-context.md` is personal history for this specific machine and operator. New users cloning the repo need a blank template with section headers and placeholder guidance. `install.ps1` should copy the template to `operator-context.md` on first run (only if no existing file). Estimated: 30 minutes.
+**Task 3 — operator-context.template.md** ✓ COMPLETE (2026-05-14)
+`operator-context.template.md` created (674 lines). All universal governance content verbatim; machine/operator-specific sections (1, 3, 8, 9) replaced with `[YOUR-...]` placeholders and `<!-- CUSTOMIZE -->` guidance. `install.ps1` updated: copies template to `operator-context.md` on first run (skips if file exists), with ACTION REQUIRED output listing the four sections to customize. Committed 06d08c9.
 
-**Task 4 — Slash command skills** (Priority: next)
-Wrap `scripts/deliberate.py` (and `scripts/chain-review.py`) as Claude Code slash command skills (`/deliberate`, `/chain-review`, `/governance-audit`). Each needs a `SKILL.md` with `bootstrap_sequence` and a wrapper that calls the Python script. This is the user-facing interface for deliberation reviews. Estimated: 1 session.
+**Task 4 — Slash command skills** ✓ COMPLETE (2026-05-14)
+Three skills created at `~/.claude/skills/`:
+- `/deliberate` (`skills/deliberate/SKILL.md`) — wraps `scripts/deliberate.py`; full 6-seat chain on any question file; bootstrap sequence, Seat 3 in-context synthesis procedure, phase 1/2 execution, final verdict presentation, output file map
+- `/chain-review` (`skills/chain-review/SKILL.md`) — wraps `scripts/chain-review.py`; specializes on operator-context.md accuracy review; notes chain-review.py limitations vs deliberate.py
+- `/governance-audit` (`skills/governance-audit/SKILL.md`) — quick 2-seat scan (laguna + granite); satisfies substrate gate; faster than full chain; gate satisfaction pattern documented (Turn N MCP dispatch → Turn N+1 Edit)
+All three active and showing in Claude Code skill registry.
 
 **Sub-step before finishing Task 4 — Jina URL fetching validation: ✓ COMPLETE (2026-05-14)**
 Jina Reader added to deliberate.py (`r.jina.ai/<url>` prefix). Chain quality deliberation (2026-05-14) ran with Jina active — both phase 1 agents received full page content (confirmed via chain run). Decision: SearxNG + Jina is the settled search stack. No custom FastAPI node needed. Task 4 slash command wrapping can proceed directly.
@@ -116,4 +120,4 @@ Per `canon/perfect-repo-architecture.md`: skills are procedures and belong in pr
 **NOT yet started — npm distribution wrapper**
 Packaging `install.ps1` as an npm package (`npm install -g @nxtlvl/claude-governance`) makes distribution one command. Deferred until Tasks 3-4 are solid, since the installer output is what gets distributed. Cross-platform (Mac/Linux) support is the major variable — install.ps1 is Windows-only today; a bash equivalent would be 3-4 sessions of additional work.
 
-*Task list last updated: 2026-05-14, session 071faf79 continuation (chain quality deliberation + Jina validation complete; C2+C3 committed bbb7952; GPU per-agent config committed; Task 4 next).*
+*Task list last updated: 2026-05-14, session 071faf79 continuation (Tasks 3+4 complete; /deliberate, /chain-review, /governance-audit skills active; Task 5 — skills migration — is next lower-priority item).*
