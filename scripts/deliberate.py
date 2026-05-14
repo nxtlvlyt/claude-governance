@@ -31,7 +31,7 @@ OLLAMA_EXE     = os.path.join(os.path.expanduser("~"), "AppData", "Local", "Prog
 SEARXNG_HOST   = "http://localhost:8080"
 JINA_ENABLED   = True   # fetch full page content via r.jina.ai (free, 20 RPM, no key)
 JINA_MAX_CHARS = 2000   # truncate per page -- controls context window growth
-JINA_FETCH_N   = 2      # fetch top N results per query (rest stay as snippets)
+JINA_FETCH_N   = 2      # phase 2+ default; phase 1 uses 1 (C1 chain prerequisite — budget relief before dynamic injection)
 CLAUDE_HOME  = os.path.join(os.path.expanduser("~"), ".claude")
 RIJAL_PATH   = os.path.join(CLAUDE_HOME, "canon", "model-rijal.md")
 
@@ -257,7 +257,7 @@ def fetch_url_markdown(url):
         return ""
 
 
-def searxng_search(query, num_results=5):
+def searxng_search(query, num_results=5, jina_n=JINA_FETCH_N):
     try:
         encoded = urllib.parse.quote(query)
         url = f"{SEARXNG_HOST}/search?q={encoded}&format=json"
@@ -270,7 +270,7 @@ def searxng_search(query, num_results=5):
             url_val = res.get('url', '')
             snippet = res.get('content', '')
             lines.append(f"{i}. [{title}]({url_val})")
-            if JINA_ENABLED and i <= JINA_FETCH_N and url_val:
+            if JINA_ENABLED and i <= jina_n and url_val:
                 print(f"   [Jina] fetching {url_val[:80]}...", flush=True)
                 full = fetch_url_markdown(url_val)
                 if full:
@@ -527,7 +527,8 @@ def main():
                 break
         print("  api/ps clear", flush=True)
 
-        search_results = searxng_search(cfg['search_query'])
+        jina_n = 1 if PHASE == 1 else JINA_FETCH_N
+        search_results = searxng_search(cfg['search_query'], jina_n=jina_n)
         result = dispatch_agent(cfg, prior_verdicts, search_results, open_concerns, soft_notes)
 
         if result:
