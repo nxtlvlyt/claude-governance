@@ -270,6 +270,17 @@ remote repos and confirm SSH key is uploaded. TSA anchoring works immediately.
 IETF draft-sharif-agent-audit-trail (2025): SHA-256 per RFC 8785 + optional ECDSA
 per-entry signing. EU AI Act mandates tamper-resistant logging from August 2026.
 
+*Chain-verified 2026-05-14 via community-fit-review.py — gemma APPROVE; qwen, laguna, granite,
+nemotron CONDITIONAL_APPROVE (5/6 CONDITIONAL_APPROVE, 1/6 APPROVE). Final open concerns: 0.
+All concerns non-blocking. Key resolutions: fail-open behavior already documented in claim body
+("Fail-open: if all TSAs unreachable, tamper-detection still applies"); session-commit linkage
+exists via committed .hash-chain.json manifest (session_id + final hash committed to ~/.claude/
+by git-anchor.ps1); SSH key hardware backing out of scope for single-operator threat model (threat
+is tampered logs, not adversarial key compromise); long-term cryptographic agility (SHA-256
+deprecation, TSA certificate renewal) is a forward maintenance path, not a current gap. The
+"5-seat chain verdict" reference in the body above is the original P6 design review (2026-05-13),
+distinct from this community-fit claim verification.*
+
 ---
 
 ## Summary
