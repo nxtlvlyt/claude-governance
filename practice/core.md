@@ -41,6 +41,7 @@ The tier is determined by the event, not chosen by the instance. Do not assess w
 - Multiple drift signals fired in the same session
 - Validator rejection at or above documented threshold
 - Before context-sensitive governance assembly: authoring golden tasks, decision logs, identity files
+- Model version boundary: CURRENT-STATE.md's last recorded model_version differs from the current instance's model ID — prior calibrations (chain seat behavior, hook outputs, Faith responses) may be miscalibrated for the new version; re-validate key governance behaviors before governance-depth work
 
 ---
 

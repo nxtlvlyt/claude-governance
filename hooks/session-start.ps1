@@ -53,6 +53,33 @@ if (Test-Path $currentStateFile) {
     $contextParts += "===== ~/.claude/CURRENT-STATE.md (last heartbeat state) =====`n$body"
 }
 
+# Model version boundary check (Gap 6 — ikhtilāṭ detection).
+# Reads model_version from CURRENT-STATE.md while $body still holds that content.
+# If a real model ID was recorded (not the placeholder), inject a boundary comparison prompt.
+# The Claude instance knows its own model ID from its system context and must complete the check.
+$modelVersionNote = ''
+if ($body -match '(?m)^model_version:\s*(?!\()(\S+)') {
+    $lastModel = $Matches[1].Trim()
+    $modelVersionNote = @"
+Last recorded model version: $lastModel
+Compare this to your current model ID (visible in your system prompt environment block).
+If your current model ID differs from '$lastModel':
+  - This is a MODEL VERSION BOUNDARY — Ghusl trigger per practice/core.md.
+  - Re-validate key governance behaviors before governance-depth work this session:
+    niyyah gate fires correctly, surrender check catches bypass pattern,
+    deliberation chain produces expected output structure.
+  - Per the ikhtilat principle: a model updated to a new version may have shifted
+    base values that make prior calibrations unreliable, regardless of prior history.
+"@
+}
+# Always inject — bootstraps model_version recording on first session and keeps it current.
+$contextParts += @"
+===== MODEL VERSION CHECK (session-start.ps1, Gap 6) =====
+$modelVersionNote
+Action: Write your current model_version to CURRENT-STATE.md (replace the placeholder):
+  model_version: <your-actual-model-id, e.g. claude-sonnet-4-6>
+"@
+
 # 4. Operator context — loaded only when LOAD_OPERATOR_CONTEXT=true (file is 45KB; default off preserves lean boot).
 if ($Env:LOAD_OPERATOR_CONTEXT -eq 'true') {
     $operatorContext = Join-Path $HOME '.claude\operator-context.md'

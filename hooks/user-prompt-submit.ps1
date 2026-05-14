@@ -65,6 +65,7 @@ if ($turnCount % 10 -eq 0) {
 Written by: user-prompt-submit.ps1 hook (turn $turnCount heartbeat)
 Timestamp: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')
 Project CWD: $cwd
+model_version: (instance: write your actual model ID here at session start — e.g. claude-sonnet-4-6)
 
 ## Governance constants (always true)
 
