@@ -215,6 +215,25 @@ must be available regardless of semantic query similarity.
 **Why Option C over D (SQLite):** The pipeline existed — the failure was content
 absence inside working infrastructure. Option C fixes what the infrastructure carries.
 
+**What "compounding" means in this framework:** Each session's failures are recorded
+in a format that survives session boundaries and accumulates across sessions — not by
+rewriting CLAUDE.md or canon, but by growing the directly-loaded failure record that
+every subsequent instance starts with. An instance bootstrapped with failure_log.md
+loaded is less likely to repeat recorded mistakes because the formation context
+includes the failure record.
+
+Automated policy self-modification is by design not implemented. CLAUDE.md changes
+"rarely and deliberately" — a change is an event that affects every project and every
+future instance, requiring operator proposal and chain review. Substrate that rewrites
+itself based on observed failure patterns would be precisely the rogue self-modification
+P2 and P3 prevent. failure_log.md is the evidence base for deliberate, operator-authorized
+policy evolution — not an automatic trigger.
+
+*Chain-verified 2026-05-14 via community-fit-review.py — unanimous CONDITIONAL_APPROVE
+(6/6 seats). All concerns non-blocking framing; addressed by clarifying "compounding" =
+structural failure records accumulating across sessions (not automated policy rewrite),
+and making explicit that CLAUDE.md/canon updates are operator-authorized deliberate events.*
+
 ---
 
 ## P6 — Auditability and cryptographic non-repudiation
