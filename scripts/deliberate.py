@@ -173,6 +173,7 @@ PHASE1_AGENTS = [
         "search_query": SEARCH_QUERIES[0],
         "think": None,
         "num_predict": 4096,
+        "num_ctx": 16384,   # prompt (substrate+search+Jina) + output room
     },
     {
         "name": DEEP_DIVE_MODEL,
@@ -180,6 +181,7 @@ PHASE1_AGENTS = [
         "search_query": SEARCH_QUERIES[1],
         "think": False,
         "num_predict": 4096,
+        "num_ctx": 16384,
     },
 ]
 
@@ -190,6 +192,7 @@ PHASE2_AGENTS = [
         "search_query": SEARCH_QUERIES[2],
         "think": None,
         "num_predict": 3072,
+        "num_ctx": 24576,   # larger: all prior verdicts accumulate in phase 2
     },
     {
         "name": GOVERNANCE_MODEL,
@@ -197,6 +200,7 @@ PHASE2_AGENTS = [
         "search_query": SEARCH_QUERIES[3],
         "think": None,
         "num_predict": 4096,
+        "num_ctx": 24576,
     },
     {
         "name": SYNTHESIS_MODEL,
@@ -204,7 +208,7 @@ PHASE2_AGENTS = [
         "search_query": SEARCH_QUERIES[4],
         "think": False,
         "num_predict": 32768,
-        "num_ctx": 32768,
+        "num_ctx": 32768,   # capped at 32768 — nemotron OOM above this on 192GB (operator-context S1)
     },
 ]
 
