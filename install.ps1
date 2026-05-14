@@ -267,6 +267,214 @@ services:
     Write-Host "  AnythingLLM starting at http://localhost:3001" -ForegroundColor Green
 }
 
+# ── P6 — Cryptographic non-repudiation setup ─────────────────────────────────
+
+Write-Host ""
+$setupP6 = Read-Host "Set up P6 cryptographic non-repudiation (SSH-signed commits + dual remotes)? (y/N)"
+if ($setupP6 -eq 'y') {
+
+    # SSH key
+    $sshDir     = Join-Path $HOME '.ssh'
+    $sshKeyPath = Join-Path $sshDir 'id_ed25519'
+    if (-not (Test-Path $sshDir)) { New-Item -ItemType Directory -Force -Path $sshDir | Out-Null }
+
+    if (-not (Test-Path $sshKeyPath)) {
+        Write-Host "  Generating SSH key (ed25519)..."
+        ssh-keygen -t ed25519 -C "governance-deploy" -f $sshKeyPath -N ""
+        Write-Host "  Key generated: $sshKeyPath" -ForegroundColor Green
+    } else {
+        Write-Host "  SSH key exists: $sshKeyPath" -ForegroundColor Cyan
+    }
+    $pubKeyContent = (Get-Content "$sshKeyPath.pub" -Raw -ErrorAction SilentlyContinue).Trim()
+
+    # Git identity (required for commits)
+    $gitEmail = (git config --global user.email 2>&1)
+    if (-not $gitEmail) {
+        $gitEmail = Read-Host "  Git user email"
+        git config --global user.email $gitEmail
+    }
+    $gitName = (git config --global user.name 2>&1)
+    if (-not $gitName) {
+        $gitName = Read-Host "  Git user name"
+        git config --global user.name $gitName
+    }
+
+    # SSH signing config
+    git config --global gpg.format ssh
+    git config --global user.signingkey $sshKeyPath
+    git config --global commit.gpgsign true
+    Write-Host "  Git SSH signing configured" -ForegroundColor Green
+
+    # Repos to anchor
+    $defaultBookPath = "D:\Desktop\ai book"
+    $bookPathInput = Read-Host "  Path to project/book directory for anchoring (default: $defaultBookPath — Enter to accept)"
+    $bookPath = if ($bookPathInput) { $bookPathInput } else { $defaultBookPath }
+
+    $anchorRepos = @(
+        @{ Path = (Join-Path $HOME '.claude'); Name = 'claude-governance' },
+        @{ Path = $bookPath;                   Name = 'ai-book' }
+    )
+
+    foreach ($repo in $anchorRepos) {
+        if ((Test-Path $repo.Path) -and -not (Test-Path (Join-Path $repo.Path '.git'))) {
+            Push-Location $repo.Path
+            git init -b master 2>&1 | Out-Null
+            git add -A 2>&1 | Out-Null
+            git commit -S -m "governance: initial commit" 2>&1 | Out-Null
+            if ($LASTEXITCODE -ne 0) { git commit -m "governance: initial commit [signing-failed]" 2>&1 | Out-Null }
+            Pop-Location
+            Write-Host "  Initialized git repo: $($repo.Path)" -ForegroundColor Green
+        }
+    }
+
+    # GitHub
+    Write-Host ""
+    $githubUser = Read-Host "  GitHub username (Enter to skip)"
+    if ($githubUser) {
+        if (Get-Command 'gh' -ErrorAction SilentlyContinue) {
+            $authLine = (gh auth status 2>&1) | Select-String 'Logged in'
+            if (-not $authLine) {
+                Write-Host "  Authenticate with GitHub (browser will open)..." -ForegroundColor Yellow
+                gh auth login --git-protocol ssh --web
+            }
+            $keyTitle = "governance-deploy-$(hostname)"
+            gh ssh-key add "$sshKeyPath.pub" --title $keyTitle 2>&1 | Out-Null
+            Write-Host "  SSH key uploaded to GitHub" -ForegroundColor Green
+
+            foreach ($repo in $anchorRepos) {
+                gh repo create "$githubUser/$($repo.Name)" --private 2>&1 | Out-Null
+                Push-Location $repo.Path
+                $existingRemotes = (git remote 2>&1)
+                if ($existingRemotes -notcontains 'github') {
+                    git remote add github "git@github.com:$githubUser/$($repo.Name).git" 2>&1 | Out-Null
+                    Write-Host "  Remote: github -> $githubUser/$($repo.Name)" -ForegroundColor Green
+                } else {
+                    Write-Host "  Remote github already exists for $($repo.Name)" -ForegroundColor Cyan
+                }
+                Pop-Location
+            }
+        } else {
+            Write-Host "  gh CLI not found — install from https://cli.github.com/ for automation." -ForegroundColor Yellow
+            Write-Host "  Manual: create repos, upload $sshKeyPath.pub, add github remotes." -ForegroundColor Yellow
+        }
+        ssh-keyscan -H github.com 2>$null >> (Join-Path $HOME '.ssh\known_hosts')
+    }
+
+    # Codeberg
+    Write-Host ""
+    $codebergUser = Read-Host "  Codeberg username (Enter to skip)"
+    if ($codebergUser) {
+        $codebergToken = Read-Host "  Codeberg API token (create at https://codeberg.org/user/settings/applications)"
+        $cbHeaders = @{ Authorization = "token $codebergToken"; 'Content-Type' = 'application/json' }
+
+        $keyPayload = @{ key = $pubKeyContent; read_only = $false; title = "governance-deploy-$(hostname)" } | ConvertTo-Json
+        try {
+            Invoke-RestMethod -Uri 'https://codeberg.org/api/v1/user/keys' -Method Post -Headers $cbHeaders -Body $keyPayload -ErrorAction Stop | Out-Null
+            Write-Host "  SSH key uploaded to Codeberg" -ForegroundColor Green
+        } catch { Write-Host "  Codeberg key upload: $($_.Exception.Message) (may already exist)" -ForegroundColor Yellow }
+
+        ssh-keyscan -H codeberg.org 2>$null >> (Join-Path $HOME '.ssh\known_hosts')
+
+        foreach ($repo in $anchorRepos) {
+            $repoPayload = @{ name = $repo.Name; private = $false; auto_init = $false } | ConvertTo-Json
+            try {
+                Invoke-RestMethod -Uri 'https://codeberg.org/api/v1/user/repos' -Method Post -Headers $cbHeaders -Body $repoPayload -ErrorAction Stop | Out-Null
+                Write-Host "  Created Codeberg repo: $codebergUser/$($repo.Name)" -ForegroundColor Green
+            } catch { Write-Host "  Codeberg $($repo.Name): may already exist" -ForegroundColor Yellow }
+
+            Push-Location $repo.Path
+            $existingRemotes = (git remote 2>&1)
+            if ($existingRemotes -notcontains 'codeberg') {
+                git remote add codeberg "git@codeberg.org:$codebergUser/$($repo.Name).git" 2>&1 | Out-Null
+                Write-Host "  Remote: codeberg -> $codebergUser/$($repo.Name)" -ForegroundColor Green
+            } else {
+                Write-Host "  Remote codeberg already exists for $($repo.Name)" -ForegroundColor Cyan
+            }
+            Pop-Location
+        }
+    }
+
+    # Patch git-anchor.ps1 with actual usernames
+    $anchorHook = Join-Path $claud 'hooks\git-anchor.ps1'
+    if (Test-Path $anchorHook) {
+        $hookContent = Get-Content $anchorHook -Raw
+        if ($codebergUser) { $hookContent = $hookContent -replace 'git@codeberg\.org:[^/]+/', "git@codeberg.org:$codebergUser/" }
+        if ($githubUser)   { $hookContent = $hookContent -replace 'git@github\.com:[^/]+/',   "git@github.com:$githubUser/"   }
+        Set-Content $anchorHook $hookContent -Encoding UTF8
+        Write-Host "  Updated git-anchor.ps1 with remote usernames" -ForegroundColor Green
+    }
+
+    # Initial push
+    Write-Host ""
+    Write-Host "  Pushing to remotes..."
+    foreach ($repo in $anchorRepos) {
+        if (Test-Path (Join-Path $repo.Path '.git')) {
+            Push-Location $repo.Path
+            $remoteList = (git remote 2>&1)
+            foreach ($remote in $remoteList) {
+                Write-Host "    $($repo.Name) -> $remote ..." -NoNewline
+                git push -u $remote master 2>&1 | Out-Null
+                if ($LASTEXITCODE -eq 0) { Write-Host " OK" -ForegroundColor Green }
+                else { Write-Host " WARN (may need manual push)" -ForegroundColor Yellow }
+            }
+            Pop-Location
+        }
+    }
+
+    Write-Host ""
+    Write-Host "  P6 complete — Kiraman Katibin operational." -ForegroundColor Green
+    Write-Host "  SSH-signed commits pushed to external witnesses at every session end." -ForegroundColor Green
+}
+
+# ── Forgejo local mirror (optional) ──────────────────────────────────────────
+
+Write-Host ""
+$setupForgejo = Read-Host "Set up local Forgejo mirror (browsable governance history at http://localhost:3002)? (y/N)"
+if ($setupForgejo -eq 'y') {
+    $forgejoDir = Read-Host "  Forgejo data directory (e.g. C:\forgejo-data)"
+    if (-not (Test-Path $forgejoDir)) { New-Item -ItemType Directory -Force -Path $forgejoDir | Out-Null }
+
+    $forgejoCompose = @'
+services:
+  forgejo:
+    image: codeberg.org/forgejo/forgejo:latest
+    container_name: forgejo
+    environment:
+      USER_UID: "1000"
+      USER_GID: "1000"
+      FORGEJO__database__DB_TYPE: sqlite3
+      FORGEJO__server__HTTP_PORT: "3002"
+      FORGEJO__server__SSH_PORT: "2222"
+      FORGEJO__server__DOMAIN: localhost
+      FORGEJO__server__ROOT_URL: http://localhost:3002/
+    volumes:
+      - "./data:/data"
+    ports:
+      - "3002:3002"
+      - "2222:22"
+    restart: unless-stopped
+'@
+
+    $composePath = Join-Path $forgejoDir 'docker-compose.yml'
+    Set-Content $composePath $forgejoCompose -Encoding UTF8
+    Write-Host "  Written: $composePath" -ForegroundColor Green
+
+    Push-Location $forgejoDir
+    docker compose up -d
+    Pop-Location
+
+    Write-Host ""
+    Write-Host "  Forgejo running at http://localhost:3002" -ForegroundColor Green
+    Write-Host "  Next steps:" -ForegroundColor Yellow
+    Write-Host "    1. Open http://localhost:3002 and complete the initial setup wizard" -ForegroundColor Yellow
+    Write-Host "    2. Create your admin account and repos (claude-governance, ai-book)" -ForegroundColor Yellow
+    Write-Host "    3. Add the forgejo remote to each local repo:" -ForegroundColor Yellow
+    Write-Host "       git -C `"~/.claude`" remote add forgejo http://localhost:3002/<user>/claude-governance.git" -ForegroundColor Yellow
+    Write-Host "       git -C `"D:\Desktop\ai book`" remote add forgejo http://localhost:3002/<user>/ai-book.git" -ForegroundColor Yellow
+    Write-Host "    4. git-anchor.ps1 will auto-push to forgejo at every session end" -ForegroundColor Yellow
+    Write-Host "  Note: SSH to forgejo uses port 2222 (not 22)." -ForegroundColor Yellow
+}
+
 # ── Verification ──────────────────────────────────────────────────────────────
 
 Write-Host ""
