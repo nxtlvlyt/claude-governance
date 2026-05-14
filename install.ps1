@@ -578,6 +578,31 @@ services:
     Write-Host "  Note: SSH to forgejo uses port 2222 (not 22)." -ForegroundColor Yellow
 }
 
+# ── operator-context.md — copy template on first run ─────────────────────────
+
+Write-Host ""
+Write-Host "Checking operator-context.md..."
+
+$opctxPath     = Join-Path $claud 'operator-context.md'
+$opctxTemplate = Join-Path $claud 'operator-context.template.md'
+
+if (-not (Test-Path $opctxPath)) {
+    if (Test-Path $opctxTemplate) {
+        Copy-Item $opctxTemplate $opctxPath
+        Write-Host "  Copied operator-context.template.md -> operator-context.md" -ForegroundColor Green
+        Write-Host "  ACTION REQUIRED: Open operator-context.md and fill in the [YOUR-...] placeholders." -ForegroundColor Yellow
+        Write-Host "    - Section 1: your name, email, machine specs, GPU config" -ForegroundColor Yellow
+        Write-Host "    - Section 3: your primary project path and entry point" -ForegroundColor Yellow
+        Write-Host "    - Section 8: your username in key paths" -ForegroundColor Yellow
+        Write-Host "    - Section 9: your infrastructure notes (NAS, cloud backup, etc.)" -ForegroundColor Yellow
+    } else {
+        Write-Host "  WARNING: operator-context.template.md not found — skipping." -ForegroundColor Yellow
+        Write-Host "  You will need to create operator-context.md manually." -ForegroundColor Yellow
+    }
+} else {
+    Write-Host "  operator-context.md already exists — not overwriting." -ForegroundColor Cyan
+}
+
 # ── Verification ──────────────────────────────────────────────────────────────
 
 Write-Host ""
