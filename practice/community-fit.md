@@ -241,7 +241,7 @@ and making explicit that CLAUDE.md/canon updates are operator-authorized deliber
 need to prove what happened. Logs that can be tampered with are not proof.
 Cryptographic sealing of audit artifacts provides non-repudiation.
 
-**Our position: IMPLEMENTATION COMPLETE — pending push verification**
+**Our position: IMPLEMENTATION COMPLETE — deployed 2026-05-14**
 
 We produce JSONL transcripts that record every tool call, every model output, every
 hook decision. These are app-written records — meaningful content, not opaque logs.
@@ -258,14 +258,13 @@ digicert, microsoft, globalsign fallbacks.
 
 Layer 2 — Governance artifacts and book: git-anchor.ps1 (Stop hook) SSH-signs
 commits in ~/.claude/ and D:\Desktop\ai book and pushes to two independent remotes
-(GitHub and Codeberg.org). Independent witnesses: neither remote is
-operator-controlled infrastructure. Signed push log cannot be retroactively altered.
+(GitHub: nxtlvlyt/claude-governance, nxtlvlyt/ai-book; Codeberg: nxtlvl/claude-governance,
+nxtlvl/ai-book). Independent witnesses: neither remote is operator-controlled
+infrastructure. Signed push log cannot be retroactively altered. First push verified
+2026-05-14; both remotes operational.
 
 Layer 3 — Infrastructure: ~/.claude/ initialized as git repo with SSH commit
 signing (id_ed25519). Same key used for auth and signing — no separate GPG keyring.
-
-Pending verification: first push to GitHub/Codeberg requires operator to create
-remote repos and confirm SSH key is uploaded. TSA anchoring works immediately.
 
 IETF draft-sharif-agent-audit-trail (2025): SHA-256 per RFC 8785 + optional ECDSA
 per-entry signing. EU AI Act mandates tamper-resistant logging from August 2026.

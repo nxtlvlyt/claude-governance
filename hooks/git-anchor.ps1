@@ -7,7 +7,7 @@
 #   - D:\Desktop\ai book\  (AI book)
 #
 # Commits are SSH-signed and pushed to two independent remotes:
-#   - codeberg: git@codeberg.org:<user>/claude-governance.git  (primary)
+#   - codeberg: git@codeberg.org:nxtlvl/claude-governance.git  (primary)
 #   - github:   git@github.com:nxtlvlyt/claude-governance.git  (secondary)
 #
 # This satisfies Kiraman Katibin: records kept by parties outside operator control.
@@ -16,13 +16,10 @@
 # Failure behavior: fail-OPEN. Push failures log WARNING but do not block session end.
 # The signed commit exists locally even if push fails — local record is still signed.
 #
-# SETUP REQUIRED (one-time, operator action):
-#   1. Create repos on Codeberg.org: claude-governance and ai-book
-#   2. Upload public key (id_ed25519.pub) to Codeberg SSH keys
-#   3. Set the correct Codeberg username in the remote URLs below
-#   4. Run: git -C "$HOME/.claude" remote add codeberg git@codeberg.org:<USER>/claude-governance.git
-#   5. Run: git -C "D:\Desktop\ai book" remote add codeberg git@codeberg.org:<USER>/ai-book.git
-#   6. Run: git -C "D:\Desktop\ai book" remote add github git@github.com:nxtlvlyt/ai-book.git
+# SETUP COMPLETE (2026-05-14):
+#   Repos created: codeberg.org/nxtlvl/claude-governance, codeberg.org/nxtlvl/ai-book
+#   SSH key uploaded: nxtlvl-deploy (id: 391233)
+#   Remotes configured and first push verified for both repos.
 
 $ErrorActionPreference = 'SilentlyContinue'
 
