@@ -12,8 +12,9 @@ Last updated: 2026-05-11 (session 31ae622b — session-start.ps1 duplicate bug f
 **Mark Bass** — markabass@gmail.com — Ontario, Canada (America/Toronto)
 
 **The Factory** (primary workstation): Ryzen 9 7950X3D, 192GB RAM, RTX 4090
-- RTX 4090 is **reserved for ComfyUI / Forge Neo only** — War Room and Claude never touch GPU
-- Ollama runs CPU-only: `OLLAMA_NUM_GPU=0` always
+- RTX 4090 is **temporarily shared** — Ollama GPU inference enabled as of 2026-05-13 (operator decision). **This will be reverted.** When ComfyUI / Forge Neo is active, Ollama must not use GPU (VRAM contention on 24GB).
+- `OLLAMA_LLM_LIBRARY=cpu_avx2` is set at **Machine scope** (cannot unset without admin elevation). Workaround: start Ollama via `Start-Job { $env:OLLAMA_LLM_LIBRARY="cuda_v12"; & ollama.exe serve }` to override. The chain runner (`gap-review.py`) has a `safe_stop()` fallback that kills and restarts with GPU if `ollama stop` fails to unload a GPU-resident model (0.23.3 behavior).
+- `OLLAMA_NUM_GPU=0` line is no longer active — do not add it back without operator instruction.
 
 **The Vault** (NAS): Synology DS1821+ at 192.168.2.27
 - Currently offline / crashed (2026-05-08) — see Section 9
