@@ -174,6 +174,7 @@ PHASE1_AGENTS = [
         "think": None,
         "num_predict": 4096,
         "num_ctx": 16384,   # prompt (substrate+search+Jina) + output room
+        "num_gpu": 99,      # gemma4:31b ~15.5GB model + ~4GB KV at 16384 ctx = ~21GB, fits in 24GB
     },
     {
         "name": DEEP_DIVE_MODEL,
@@ -182,6 +183,7 @@ PHASE1_AGENTS = [
         "think": False,
         "num_predict": 4096,
         "num_ctx": 16384,
+        "num_gpu": 99,      # qwen3.6:27b ~16GB model + ~4GB KV at 16384 ctx = ~21GB, fits in 24GB
     },
 ]
 
@@ -192,7 +194,8 @@ PHASE2_AGENTS = [
         "search_query": SEARCH_QUERIES[2],
         "think": None,
         "num_predict": 3072,
-        "num_ctx": 24576,   # larger: all prior verdicts accumulate in phase 2
+        "num_ctx": 20480,   # reduced from 24576: laguna model buffer 16.3GB + KV 5GB + compute 1.4GB = ~22.7GB, fits 24GB
+        "num_gpu": 99,      # laguna-xs.2 65/65 layers on GPU at 20480 ctx
     },
     {
         "name": GOVERNANCE_MODEL,
@@ -201,6 +204,7 @@ PHASE2_AGENTS = [
         "think": None,
         "num_predict": 4096,
         "num_ctx": 24576,
+        "num_gpu": 99,      # granite4.1:30b ~17.5GB model + ~4.5GB KV = ~23GB, fits 24GB
     },
     {
         "name": SYNTHESIS_MODEL,
@@ -209,6 +213,7 @@ PHASE2_AGENTS = [
         "think": False,
         "num_predict": 32768,
         "num_ctx": 32768,   # capped at 32768 — nemotron OOM above this on 192GB (operator-context S1)
+        "num_gpu": 14,      # nemotron 80.6GB/89 layers ~927MB/layer; 14 layers ~13GB on GPU, rest CPU
     },
 ]
 
@@ -353,9 +358,11 @@ def dispatch_agent(cfg, prior_verdicts, search_results, open_concerns, soft_note
         "\nReturn ONLY valid JSON. No explanation before or after the JSON object.",
     ])
 
-    opts = {"num_predict": cfg['num_predict'], "temperature": 0.1, "num_gpu": 99}
+    opts = {"num_predict": cfg['num_predict'], "temperature": 0.1}
     if cfg.get('num_ctx') is not None:
         opts['num_ctx'] = cfg['num_ctx']
+    if cfg.get('num_gpu') is not None:
+        opts['num_gpu'] = cfg['num_gpu']
     body = {
         "model": name,
         "messages": [{"role": "user", "content": prompt}],
