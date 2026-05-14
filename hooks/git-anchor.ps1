@@ -70,6 +70,25 @@ function Test-SafePath([string]$path) {
     return $false
 }
 
+# ── Read Codeberg token: WCM -> env var -> p6-config.json (migration path) ────
+function Get-CodebergToken {
+    if (-not (Get-Command Get-StoredCredential -ErrorAction SilentlyContinue)) {
+        Import-Module CredentialManager -ErrorAction SilentlyContinue
+    }
+    if (Get-Command Get-StoredCredential -ErrorAction SilentlyContinue) {
+        try {
+            $c = Get-StoredCredential -Target "governance:codeberg" -ErrorAction Stop
+            if ($c) { return $c.GetNetworkCredential().Password }
+        } catch {}
+    }
+    if ($env:CODEBERG_TOKEN) { return $env:CODEBERG_TOKEN }
+    if ($p6Config -and $p6Config.codeberg_token) {
+        Write-Error "WARN: Codeberg token read from plaintext p6-config.json — migrate to WCM"
+        return $p6Config.codeberg_token
+    }
+    return $null
+}
+
 # ── Auto-init: git init + create remote repos + push ─────────────────────────
 function Initialize-ProjectRepo([string]$repoPath) {
     if (-not $p6Config) { return "[SKIP] auto-init $(Split-Path $repoPath -Leaf) — no p6-config.json" }
@@ -101,9 +120,10 @@ function Initialize-ProjectRepo([string]$repoPath) {
         }
 
         # Codeberg
-        if ($p6Config.codeberg_user -and $p6Config.codeberg_token) {
+        $codebergToken = Get-CodebergToken
+        if ($p6Config.codeberg_user -and $codebergToken) {
             $cbHeaders = @{
-                Authorization  = "token $($p6Config.codeberg_token)"
+                Authorization  = "token $codebergToken"
                 'Content-Type' = 'application/json'
             }
             $repoPayload = @{ name = $repoName; private = $true; auto_init = $false } | ConvertTo-Json

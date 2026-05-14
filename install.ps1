@@ -46,6 +46,15 @@ if (-not $prereqOk) {
     exit 1
 }
 
+# CredentialManager module — required for secure token storage in git-anchor.ps1
+if (-not (Get-Module -ListAvailable -Name CredentialManager -ErrorAction SilentlyContinue)) {
+    Write-Host "Installing CredentialManager PowerShell module (secure token storage)..."
+    Install-Module CredentialManager -Scope CurrentUser -Force -AllowClobber
+    Write-Host "  CredentialManager installed" -ForegroundColor Green
+} else {
+    Write-Host "  OK       CredentialManager module" -ForegroundColor Green
+}
+
 Write-Host ""
 
 # ── Tier selection ────────────────────────────────────────────────────────────
@@ -421,19 +430,103 @@ if ($setupP6 -eq 'y') {
         }
     }
 
-    # Write p6-config.json for git-anchor.ps1 dynamic project detection
+    # Write p6-config.json — non-sensitive fields only (usernames, prefixes)
+    # The Codeberg token is stored in Windows Credential Manager, NOT in this file
     $p6Cfg = [ordered]@{
         github_user           = if ($githubUser)   { $githubUser }   else { '' }
         codeberg_user         = if ($codebergUser) { $codebergUser } else { '' }
-        codeberg_token        = if ($codebergToken){ $codebergToken } else { '' }
         project_root_prefixes = @()
     }
     $p6Cfg | ConvertTo-Json | Set-Content (Join-Path $claud 'p6-config.json') -Encoding UTF8
-    Write-Host "  p6-config.json written — git-anchor.ps1 will auto-anchor new project dirs" -ForegroundColor Green
+    Write-Host "  p6-config.json written (non-sensitive fields only)" -ForegroundColor Green
+
+    # Store Codeberg token in Windows Credential Manager (DPAPI-protected, not plaintext)
+    if ($codebergToken) {
+        cmdkey /generic:"governance:codeberg" /user:"token" /pass:"$codebergToken" 2>&1 | Out-Null
+        Write-Host "  Codeberg token stored in Windows Credential Manager (target: governance:codeberg)" -ForegroundColor Green
+        Write-Host ""
+        Write-Host "  ADVISORY (C3): For least-privilege, create a Codeberg token scoped to" -ForegroundColor Yellow
+        Write-Host "  'repository:create' only at https://codeberg.org/user/settings/applications" -ForegroundColor Yellow
+        Write-Host "  The current token has full user access. A scoped token limits blast radius." -ForegroundColor Yellow
+    }
 
     Write-Host ""
     Write-Host "  P6 complete — Kiraman Katibin operational." -ForegroundColor Green
     Write-Host "  SSH-signed commits pushed to external witnesses at every session end." -ForegroundColor Green
+}
+
+# ── SearxNG local search (optional — required for chain runner live research) ─
+
+Write-Host ""
+$setupSearxng = Read-Host "Set up SearxNG local search (required for chain runner live search at http://localhost:8080)? (y/N)"
+if ($setupSearxng -eq 'y') {
+    $searxngDir = Read-Host "  SearxNG data directory (e.g. C:\searxng-data or E:\AI_Storage\docker\searxng)"
+    if (-not (Test-Path $searxngDir)) { New-Item -ItemType Directory -Force -Path $searxngDir | Out-Null }
+
+    $searxngSettings = @'
+general:
+  instance_name: "SearXNG"
+  enable_metrics: false
+
+search:
+  safe_search: 0
+  formats:
+    - html
+    - json
+
+server:
+  secret_key: "change-this-to-a-random-string"
+  limiter: false
+  public_instance: false
+  method: "POST"
+
+outgoing:
+  # 10s timeout — 3s is too short for residential connections (engines get CAPTCHA'd)
+  request_timeout: 10.0
+  max_request_timeout: 15.0
+  enable_http2: true
+'@
+
+    $settingsPath = Join-Path $searxngDir 'settings.yml'
+    if (-not (Test-Path $settingsPath)) {
+        Set-Content $settingsPath $searxngSettings -Encoding UTF8
+        Write-Host "  Written: $settingsPath" -ForegroundColor Green
+    } else {
+        Write-Host "  Settings already exist: $settingsPath (not overwritten)" -ForegroundColor Cyan
+    }
+
+    $searxngCompose = @"
+services:
+  searxng:
+    image: searxng/searxng:latest
+    container_name: searxng
+    volumes:
+      - "$($searxngDir -replace '\\', '/'):/etc/searxng"
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+"@
+
+    $composePath = Join-Path $searxngDir 'docker-compose.yml'
+    Set-Content $composePath $searxngCompose -Encoding UTF8
+    Write-Host "  Written: $composePath" -ForegroundColor Green
+
+    Push-Location $searxngDir
+    docker compose up -d
+    Pop-Location
+
+    Start-Sleep 5
+    try {
+        $test = Invoke-RestMethod "http://localhost:8080/search?q=test&format=json" -ErrorAction Stop
+        Write-Host "  SearxNG running — JSON API confirmed at http://localhost:8080" -ForegroundColor Green
+    } catch {
+        Write-Host "  SearxNG started (verify manually at http://localhost:8080)" -ForegroundColor Yellow
+    }
+
+    Write-Host ""
+    Write-Host "  Chain runners (scripts/chain-review.py, scripts/community-fit-review.py," -ForegroundColor Green
+    Write-Host "  scripts/deliberate.py) will now have live search context per agent seat." -ForegroundColor Green
+    Write-Host "  NOTE: If results are empty after start, wait 30s for engines to initialize." -ForegroundColor Yellow
 }
 
 # ── Forgejo local mirror (optional) ──────────────────────────────────────────
