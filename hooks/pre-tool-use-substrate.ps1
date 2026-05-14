@@ -37,9 +37,14 @@
 #
 # 2. It does not gate Bash. A model could bypass this hook by using
 #    `Set-Content`, `Out-File`, `>`, `>>`, `tee`, `sed -i`, `cp`, `mv`, or
-#    similar via the Bash tool. This is a documented residual risk — closing
-#    it requires a Bash-matcher hook with substrate-path detection in the
-#    command string. Queued for a follow-up wire.
+#    similar via the Bash tool. This is a documented residual risk.
+#    Pattern-matching Bash hooks cannot robustly close this surface —
+#    trivial bypasses include subprocess execution (python -c "open().write()"),
+#    base64-encoded payloads, cd+relative-path writes, variable expansion, and
+#    here-docs. Fail-closed matching breaks operational work; fail-open provides
+#    false confidence. (Laguna analysis 2026-05-13.)
+#    Robust closure requires OS-level ACLs on ~/.claude/ or process isolation.
+#    Formation is the actual mitigation for Bash operations on substrate paths.
 #
 # 3. It does not gate parent directory creation, file moves, or filesystem
 #    metadata operations. Same residual risk as #2.

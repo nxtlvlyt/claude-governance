@@ -71,8 +71,11 @@ the model simply reasoning past a guideline.
 
 The advisory gap is fully closed for governance self-modification (structural lock).
 It is formation-closed for operational actions — robust but not cryptographically
-guaranteed. That residual risk is documented in the hook itself as a known bypass
-surface requiring a follow-up Bash-matcher hook.
+guaranteed. The Bash bypass surface (Set-Content, Out-File, redirects, subprocess
+execution) cannot be robustly closed via pattern-matching hooks — trivial bypasses
+exist through encoding, path traversal, and subprocess execution. (Laguna analysis
+2026-05-13.) Robust closure requires OS-level ACLs on ~/.claude/ or process
+isolation. Formation is the actual mitigation for operational-class Bash operations.
 
 ---
 
