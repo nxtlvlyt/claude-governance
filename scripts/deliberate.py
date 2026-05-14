@@ -353,7 +353,7 @@ def dispatch_agent(cfg, prior_verdicts, search_results, open_concerns, soft_note
         "\nReturn ONLY valid JSON. No explanation before or after the JSON object.",
     ])
 
-    opts = {"num_predict": cfg['num_predict'], "temperature": 0.1}
+    opts = {"num_predict": cfg['num_predict'], "temperature": 0.1, "num_gpu": 99}
     if cfg.get('num_ctx') is not None:
         opts['num_ctx'] = cfg['num_ctx']
     body = {
