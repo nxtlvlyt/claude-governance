@@ -79,3 +79,29 @@ The next step is making it easy enough that other practitioners can deploy the s
 ---
 
 *Document status: 2026-05-14. Written for audio review.*
+
+---
+
+## Next Phase — Open Tasks
+
+These are committed here so a cold instance can resume without needing conversation history.
+
+**Task 1 — git-anchor.ps1 project-aware** (Priority: highest)
+Enhance `hooks/git-anchor.ps1` to detect the current working directory at session end and auto-init a git repo + GitHub/Codeberg remotes for new project directories. Must include a system path guard — only auto-init paths under user home or an operator-configured project root prefix (not `C:\Windows\System32` or other system dirs). The API patterns for repo creation are already in `install.ps1` P6 section. Estimated: 1 session.
+
+**Task 2 — SearxNG in install.ps1** (Priority: high)
+Add SearxNG Docker compose block to `install.ps1` as an optional component alongside AnythingLLM and Forgejo. The chain runner scripts (`scripts/community-fit-review.py`, `scripts/chain-review.py`) call SearxNG at `http://localhost:8080` — without it, all search queries return `[Search unavailable]`. Minimal Docker compose: `searxng/searxng` image, port 8080. Estimated: 30 minutes.
+
+**Task 3 — operator-context.template.md** (Priority: high)
+The current `operator-context.md` is personal history for this specific machine and operator. New users cloning the repo need a blank template with section headers and placeholder guidance. `install.ps1` should copy the template to `operator-context.md` on first run (only if no existing file). Estimated: 30 minutes.
+
+**Task 4 — Slash command skills** (Priority: medium)
+Wrap `scripts/community-fit-review.py` and `scripts/chain-review.py` as Claude Code slash command skills (`/deliberate`, `/chain-review`, `/governance-audit`). Each needs a `SKILL.md` with `bootstrap_sequence` and a wrapper that calls the Python script. This is the user-facing interface for deliberation reviews. Estimated: 1 session.
+
+**Task 5 — Migrate skills/ out of ~/.claude/** (Priority: lower)
+Per `canon/perfect-repo-architecture.md`: skills are procedures and belong in project repos, not the formation layer. The HyperFrames, Remotion, CSS animation, and other creative skills in `~/.claude/skills/` violate this ruling. Migration reduces formation layer context window usage and brings the repo into canon compliance. The target project repo for these skills needs to be identified first. Estimated: 1 session.
+
+**NOT yet started — npm distribution wrapper**
+Packaging `install.ps1` as an npm package (`npm install -g @nxtlvl/claude-governance`) makes distribution one command. Deferred until Tasks 1-3 are solid, since the installer output is what gets distributed. Cross-platform (Mac/Linux) support is the major variable — install.ps1 is Windows-only today; a bash equivalent would be 3-4 sessions of additional work.
+
+*Task list last updated: 2026-05-14, session 071faf79.*

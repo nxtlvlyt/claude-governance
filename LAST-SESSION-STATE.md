@@ -1,8 +1,8 @@
 # LAST-SESSION-STATE.md
 
 Written by: pre-compact.ps1 hook at compaction event
-Timestamp: (not yet written — first session will populate this)
-Project CWD: (not yet written)
+Timestamp: 2026-05-14 09:23:09
+Project CWD: C:\Windows\System32
 
 ## Governance constants (always true)
 
