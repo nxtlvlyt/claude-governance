@@ -14,31 +14,28 @@ to agent B which delegates to agent C. The user authorized agent A but never
 explicitly authorized B or C. Who authorized each step? How do you prove it after
 the fact?
 
-**Our position: SOLVED — architectural prevention**
-
-Our architecture eliminates the problem before it can arise. There is one
-decision-maker (Claude), one operator (the human), and one authorization
-relationship between them. The deliberation seats (gemma, qwen, granite, etc.)
-are advisors that return text — they do not take actions. There are no autonomous
-delegation chains because the architecture does not create them.
+**Our position: SOLVED — architectural prevention for seats 1-6; formation-constrained for Seat 7**
 
 The deliberation seats (gemma, qwen, granite, nemotron, laguna) are Ollama HTTP
 calls invoked via Python scripts. They receive a prompt and return text. They
 cannot spawn anything, take no actions, and have no Claude Code context. This is
-structural — they are API calls, not agents.
+structural — they are API calls, not agents. Delegation is a structural impossibility.
 
-The executor (Seat 7) is a single scoped Claude Code Agent spawned at the end of
-an explicitly operator-authorized chain run. It is governed by subagent-start.ps1,
-which bootstraps the full governance stack into it. Every step in the chain was
-explicitly authorized by the operator before the chain ran.
+The executor (Seat 7) is a Claude Code Agent spawned at the end of an explicitly
+operator-authorized chain run. It is governed by subagent-start.ps1 (governance
+bootstrap) and executor.faith.md, which explicitly prohibits sub-agent spawning:
+"I do not spawn sub-agents. My work returns to the parent session. If a task
+requires autonomous delegation beyond what I can execute directly, I surface that
+to the operator rather than delegating without explicit authorization."
+
+The SAGA delegation chain problem does not arise because either (a) the seat
+cannot take any action (seats 1-6, structural) or (b) the seat's faith file
+explicitly prohibits re-delegation (Seat 7, formation-constrained). There is one
+decision-maker (Claude), one operator (the human), one authorization relationship.
 
 SAGA builds an authorization registry for autonomous delegation chains that already
-exist. We don't create autonomous delegation chains — Claude is always the
-decision-maker, the deliberation seats are advisory-only, and every Agent dispatch
-is part of an operator-authorized workflow. The problem SAGA solves does not arise
-in our architecture.
-
-We correct the process, not the symptom. This is architectural prevention, not a gap.
+exist. We don't create autonomous delegation chains — the architecture prevents it
+at the seat level and the executor faith file closes the remaining surface.
 
 ---
 
