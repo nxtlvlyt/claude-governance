@@ -68,6 +68,17 @@ This repo is the **formation layer** — it teaches an AI instance who to be bef
 | 2 — Governance | 32GB+ | Tier 1 + laguna-xs.2 (code review, substrate audit) |
 | 3 — Full deliberation | 100GB+ | Tier 2 + qwen3.6:27b + granite4.1:30b + nemotron-3-super |
 
+**Option A — npm (one command):**
+
+```powershell
+npx @nxtlvl/claude-governance
+```
+
+Clones the repo to `~/.claude` if absent, then runs `install.ps1` automatically.
+Requires Node.js 18+ and git. Windows only for the full installer (see Mac/Linux note below).
+
+**Option B — git clone:**
+
 ```powershell
 # Clone to ~/.claude
 git clone https://github.com/nxtlvlyt/claude-governance.git "$HOME\.claude"
@@ -77,6 +88,8 @@ pwsh -ExecutionPolicy Bypass -File "$HOME\.claude\install.ps1"
 ```
 
 The installer handles: hook registration, MCP server setup, Ollama model pulls, AnythingLLM (P5 RAG), and P6 dual-remote deployment (GitHub + Codeberg).
+
+**Mac/Linux:** The full installer is Windows-only today. Clone the repo and register hooks manually (see `hooks/` directory). A cross-platform bash installer is tracked in [issues](https://github.com/nxtlvlyt/claude-governance/issues).
 
 ---
 

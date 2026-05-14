@@ -123,7 +123,7 @@ All four governance skills now have `bootstrap_sequence` frontmatter: deliberati
 Part B — creative skill symlinks: PENDING (operator input required)
 The HyperFrames, Remotion, CSS animation, animejs, gsap, lottie, three, waapi, tailwind, and website-to-hyperframes skills in `~/.claude/skills/` are symlinks to `~/.agents/skills/`. `~/.agents/` is not a git repo. Canon says skills belong in project repos. The target project repo for these skills needs to be identified before the symlinks can be removed from `~/.claude/`. The skills themselves are complete and correct — this is a location violation, not a content problem.
 
-**NOT yet started — npm distribution wrapper**
-Packaging `install.ps1` as an npm package (`npm install -g @nxtlvl/claude-governance`) makes distribution one command. Deferred until Tasks 3-4 are solid, since the installer output is what gets distributed. Cross-platform (Mac/Linux) support is the major variable — install.ps1 is Windows-only today; a bash equivalent would be 3-4 sessions of additional work.
+**npm distribution wrapper** ✓ COMPLETE (2026-05-14)
+`package.json` at `~/.claude/package.json` (name: `@nxtlvl/claude-governance`, version: 0.1.0). `bin/claude-governance.js` is a Node.js bootstrap script: detects OS, checks for git, guards against overwriting non-governance `~/.claude/` content, clones from GitHub if absent, runs `install.ps1` on Windows, prints manual steps on Mac/Linux. `README.md` updated with Option A (npx) + Option B (git clone) Quick Start. Files in package: `bin/`, `README.md`. No npm dependencies.
 
-*Task list last updated: 2026-05-14, session 071faf79 continuation (Tasks 3+4 complete; Task 5 Part A complete — bootstrap_sequence on all governance skills; Task 5 Part B pending — operator must identify target project repo for creative skill symlinks).*
+*Task list last updated: 2026-05-14, session 071faf79 continuation (Tasks 3+4 complete; Task 5 Part A complete; npm wrapper complete; Task 5 Part B pending — operator must identify target project repo for creative skill symlinks).*

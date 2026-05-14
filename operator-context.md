@@ -3,7 +3,9 @@
 **Loaded at every session start by `~/.claude/hooks/session-start.ps1`.**
 **Read this before acting. It exists because cold instances took 2+ hours to rediscover this. Don't repeat that.**
 
-Last updated: 2026-05-14 (session 071faf79 continuation — chain quality deliberation complete: unanimous CONDITIONAL_APPROVE 3/5 seats; Jina Reader validated on real chain run (full page content confirmed); C2 qwen think:True enabled; C3 prompt order fix committed (substrate/question at position 2 in deliberate.py prompt); GPU per-agent config committed: gemma4/qwen3.6/laguna/granite num_gpu=99, nemotron num_gpu=14; laguna num_ctx not honored by Ollama (always allocates 24576 KV cells — cannot run GPU on 24GB); nemotron partial GPU offload success: 14/89 layers 13.6GiB CUDA0; ProcessStartInfo required for cuda_v12 after Ollama restart)
+Last updated: 2026-05-14 (session 071faf79 continuation — npm wrapper complete: `@nxtlvl/claude-governance` v0.1.0, `bin/claude-governance.js` bootstrap script, README.md updated with `npx` Quick Start; all Tasks 1-4 + npm wrapper complete; Task 5 Part A complete; Task 5 Part B pending)
+
+Previous (same session): chain quality deliberation complete: unanimous CONDITIONAL_APPROVE 3/5 seats; Jina Reader validated on real chain run (full page content confirmed); C2 qwen think:True enabled; C3 prompt order fix committed (substrate/question at position 2 in deliberate.py prompt); GPU per-agent config committed: gemma4/qwen3.6/laguna/granite num_gpu=99, nemotron num_gpu=14; laguna num_ctx not honored by Ollama (always allocates 24576 KV cells — cannot run GPU on 24GB); nemotron partial GPU offload success: 14/89 layers 13.6GiB CUDA0; ProcessStartInfo required for cuda_v12 after Ollama restart
 
 Previous: 2026-05-14 (session 071faf79 — P3+P4+P5+P6 chain-verified; all P1-P6 community-fit claims chain-verified; P6 dual-remote deployment complete: GitHub nxtlvlyt + Codeberg nxtlvl, both verified 2026-05-14)
 
