@@ -26,8 +26,11 @@ Per canon 6agent-deliberation-stack.md:
 import requests, json, urllib.request, urllib.parse, time, os, subprocess, sys, re, tempfile
 sys.stdout.reconfigure(encoding='utf-8')
 
-OLLAMA_HOST  = "http://localhost:11434"
-SEARXNG_HOST = "http://localhost:8080"
+OLLAMA_HOST    = "http://localhost:11434"
+SEARXNG_HOST   = "http://localhost:8080"
+JINA_ENABLED   = True   # fetch full page content via r.jina.ai (free, 20 RPM, no key)
+JINA_MAX_CHARS = 2000   # truncate per page -- controls context window growth
+JINA_FETCH_N   = 2      # fetch top N results per query (rest stay as snippets)
 CLAUDE_HOME  = os.path.join(os.path.expanduser("~"), ".claude")
 RIJAL_PATH   = os.path.join(CLAUDE_HOME, "canon", "model-rijal.md")
 
@@ -95,11 +98,11 @@ for rel_path in SUBSTRATE_FILES:
 
 # Default search queries if not specified (one per agent seat)
 DEFAULT_QUERIES = [
-    "credential storage security plaintext JSON gitignore alternative approaches 2026",
-    "Windows Credential Manager DPAPI PowerShell SecureString credential storage best practices",
-    "API token storage security local machine file system risks plaintext credentials",
-    "governance security credential handling AI governance systems audit trail",
-    "credential management secure storage key management secrets management 2026",
+    "architectural best practices alternatives tradeoffs 2026",
+    "implementation patterns edge cases limitations technical considerations",
+    "security risks failure modes production issues",
+    "governance compliance standards best practices",
+    "real-world usage validation testing production deployment",
 ]
 while len(SEARCH_QUERIES) < 5:
     SEARCH_QUERIES.append(DEFAULT_QUERIES[len(SEARCH_QUERIES)])
@@ -224,6 +227,26 @@ def get_rijal_summary(model_name):
     return ""
 
 
+def fetch_url_markdown(url):
+    """Fetch full page content via Jina Reader (r.jina.ai prefix). Returns markdown or '' on failure."""
+    if not JINA_ENABLED or not url:
+        return ""
+    try:
+        jina_url = f"https://r.jina.ai/{url}"
+        req = urllib.request.Request(
+            jina_url,
+            headers={"Accept": "text/plain", "User-Agent": "deliberate-chain/1.0"}
+        )
+        with urllib.request.urlopen(req, timeout=15) as r:
+            content = r.read().decode('utf-8', errors='replace')
+        content = content.strip()
+        if len(content) < 200:   # too short = error page or empty
+            return ""
+        return content[:JINA_MAX_CHARS]
+    except Exception:
+        return ""
+
+
 def searxng_search(query, num_results=5):
     try:
         encoded = urllib.parse.quote(query)
@@ -233,8 +256,20 @@ def searxng_search(query, num_results=5):
         results = data.get('results', [])[:num_results]
         lines = [f"Search: {query}\n"]
         for i, res in enumerate(results, 1):
-            lines.append(f"{i}. [{res.get('title', '')}]({res.get('url', '')})")
-            lines.append(f"   {res.get('content', '')}\n")
+            title   = res.get('title', '')
+            url_val = res.get('url', '')
+            snippet = res.get('content', '')
+            lines.append(f"{i}. [{title}]({url_val})")
+            if JINA_ENABLED and i <= JINA_FETCH_N and url_val:
+                print(f"   [Jina] fetching {url_val[:80]}...", flush=True)
+                full = fetch_url_markdown(url_val)
+                if full:
+                    lines.append(f"   [full content — {len(full)} chars]\n{full}\n")
+                else:
+                    print(f"   [Jina] blocked or empty — using snippet", flush=True)
+                    lines.append(f"   {snippet}\n")
+            else:
+                lines.append(f"   {snippet}\n")
         return '\n'.join(lines)
     except Exception as e:
         return f"[Search unavailable: {e}]"
