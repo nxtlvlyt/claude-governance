@@ -3,7 +3,9 @@
 **Loaded at every session start by `~/.claude/hooks/session-start.ps1`.**
 **Read this before acting. It exists because cold instances took 2+ hours to rediscover this. Don't repeat that.**
 
-Last updated: 2026-05-14 (session 071faf79 — P3+P4+P5+P6 chain-verified; community-fit.md P4 two-layer accountability explicit; P5 "compounding" clarified; P6 verification tag added, "5-seat chain" reference annotated; cold-clone repo standard established as governing documentation criterion; all P1-P6 community-fit claims now chain-verified; P6 dual-remote deployment complete: GitHub nxtlvlyt + Codeberg nxtlvl, both verified 2026-05-14)
+Last updated: 2026-05-14 (session continuation — credential storage WCM migration complete: Codeberg token moved from plaintext p6-config.json to Windows Credential Manager target "governance:codeberg"; deliberate.py general chain runner created at ~/.claude/scripts/deliberate.py; SearxNG timeout fixed 3s→10s in settings.yml; Jina Reader approved as search upgrade for deliberate.py — test pending before /deliberate slash command is finalized)
+
+Previous: 2026-05-14 (session 071faf79 — P3+P4+P5+P6 chain-verified; all P1-P6 community-fit claims chain-verified; P6 dual-remote deployment complete: GitHub nxtlvlyt + Codeberg nxtlvl, both verified 2026-05-14)
 
 ---
 
@@ -98,6 +100,8 @@ with open("output.txt", "w", encoding="utf-8") as f:
 **Concern closure `close_type` (Gap 4 schema):** Every `closed_prior_concerns` entry requires a `close_type` field: `evidence` (primary source or test result found — fully closed), `refutation` (logical argument that concern doesn't apply — fully closed), or `assertion` (opinion without citation — carries forward as a soft note, NOT dropped). `collect_open_concerns()` returns a **tuple** `(open_concerns, soft_notes)`. Soft notes appear in `[ASSERTION-CLOSED CONCERNS — VERIFY INDEPENDENTLY]` blocks in subsequent seat prompts. The final verdict receives both hard-open and assertion-closed concerns. Omitting `close_type` defaults to `assertion` for backwards compatibility.
 
 **Chain runner:** `C:\Users\marka\AppData\Local\Temp\opctx-review.py` — built 2026-05-10. Phase 1 (gemma+qwen): `python opctx-review.py 1`. Then Sonnet architect synthesis (this instance, text output). Phase 2 (laguna+granite+nemotron): `python opctx-review.py 2`. SearxNG at `http://localhost:8080` — not the NAS (which is down).
+
+**General deliberation chain runner:** `C:\Users\marka\.claude\scripts\deliberate.py` — built 2026-05-14. Parses a question_file markdown with `## Substrate Files` and `## Search Queries` sections. Usage: `python deliberate.py scripts/deliberations/<question>.md 1` (phase 1), Seat 3 synthesis in-session, then `python deliberate.py scripts/deliberations/<question>.md 2` (phase 2). Output: `<TEMP>/deliberate/<slug>/`. Foundation for the `/deliberate` slash command (Task 4 in governance-vision.md). Credential storage deliberation ran on this — see `scripts/deliberations/credential-storage.md`.
 
 **Community-fit chain runner:** `C:\Users\marka\AppData\Local\Temp\community-fit-review.py` — built 2026-05-13. Verifies P1-P6 community problem claims in `~/.claude/practice/community-fit.md` against actual substrate. Usage: `python community-fit-review.py <1-6> 1` (phase 1), Seat 3 synthesis to `community-fit-review\p-N\sonnet-synthesis.txt`, then `python community-fit-review.py <1-6> 2` (phase 2). P1 complete (CONDITIONAL_APPROVE unanimous, 2026-05-13); P2 complete (CONDITIONAL_APPROVE unanimous, 2026-05-13 — surrender check Write-path gap closed 2026-05-14); P3 complete (phase 1 BLOCK x2 / phase 2 CONDITIONAL_APPROVE x3, 2026-05-14 — position revised: single-operator pre-execution scope, multi-tenant IAM explicitly out of scope); P4 complete (CONDITIONAL_APPROVE unanimous, 2026-05-14 — blocking concern closed by evidence, two-layer architecture explicit: deliberation stack = content accountability, structural hooks = process accountability, P4 scoped to decision-time prevention, P6 = post-hoc); P5 complete (CONDITIONAL_APPROVE unanimous, 2026-05-14 — clarified "compounding" = structural failure records accumulating, not automated policy rewrite; CLAUDE.md/canon updates remain operator-authorized deliberate events); P6 complete (gemma APPROVE + qwen/laguna/granite/nemotron CONDITIONAL_APPROVE, 2026-05-14 — all concerns non-blocking: fail-open documented in claim, session-commit linkage via committed .hash-chain.json manifest, SSH key hardware backing out of scope for single-operator threat model; "5-seat chain" reference in body is original design review 2026-05-13, distinct from this claim verification; implementation correct; dual-remote deployment complete 2026-05-14: GitHub nxtlvlyt/{claude-governance,ai-book} + Codeberg nxtlvl/{claude-governance,ai-book}, both remotes pushed and verified).
 
@@ -256,6 +260,7 @@ This is NOT a stock SearxNG install. An hour of work in the 2026-05-10 3am sessi
 - `enable_http2: true` — faster connections
 - `pool_connections: 100`, `pool_maxsize: 20` — high-concurrency outgoing requests
 - `safe_search: 0` — no filtering
+- `request_timeout: 10.0`, `max_request_timeout: 15.0` — **FIXED 2026-05-14** (was 3.0s — caused 0 results on Starlink/residential connections; DuckDuckGo CAPTCHA'd, Google/Wikipedia timed out)
 
 **Active engine mix** (the SOTA aggregation layer):
 - Web: google, brave, startpage, duckduckgo — all active simultaneously
@@ -365,6 +370,8 @@ C:\warroom\reviews\                    ← Per-model review scripts
 
 C:\Users\marka\AppData\Local\Temp\opctx-review.py  ← 6-agent chain runner (built 2026-05-10)
 C:\Users\marka\AppData\Local\Temp\community-fit-review.py  ← P1-P6 community-fit claim verifier (built 2026-05-13)
+C:\Users\marka\.claude\scripts\deliberate.py        ← General-purpose deliberation chain runner (built 2026-05-14)
+C:\Users\marka\.claude\scripts\deliberations\       ← Question files for deliberate.py
 D:\NAS-BACKUP\REBUILD.md               ← NAS rebuild guide (13-step) — pending 6-agent review
 D:\NAS-BACKUP\rclone\resume-upload.ps1 ← Upload script
 D:\NAS-BACKUP\rclone\resume-upload.log ← Upload log (tail this to monitor)
