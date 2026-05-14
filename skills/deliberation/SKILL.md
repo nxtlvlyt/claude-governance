@@ -76,8 +76,9 @@ prompt = """You are <seat name> in a 7-agent deliberation chain.
 
 body = {
     "model": "<model_name>",
-    # For qwen3.6:27b and nemotron-3-super:latest ONLY:
-    # "think": False,   # TOP-LEVEL key, NOT inside options
+    # think is a TOP-LEVEL key, NOT inside options:
+    # "think": True,    # qwen3.6:27b ONLY (C2 fix, bbb7952) — captures CoT in message.thinking
+    # "think": False,   # nemotron-3-super:latest ONLY — prevents CoT consuming token budget
     "messages": [
         {"role": "system", "content": faith},
         {"role": "user",   "content": prompt}

@@ -170,28 +170,37 @@ Fix if needed: `sys.stdout.reconfigure(encoding='utf-8')` at script top.
 
 ---
 
-## qwen3.6:27b — think=False placement
+## qwen3.6:27b — think=True (C2 fix, 2026-05-14)
+
+**C2 update (commit bbb7952, chain quality deliberation 2026-05-14):** qwen uses `think: True`
+so chain-of-thought output is captured separately in `message.thinking`. The dispatch script
+captures both fields: `message.content` for the verdict JSON, `message.thinking` for the
+reasoning trace. This improves deliberation depth.
 
 The `think` parameter must be a top-level key in the request body, NOT inside `options`:
 
 ```python
-# Correct
+# Correct — qwen3.6:27b
 body = {
     "model": "qwen3.6:27b",
     "messages": [...],
     "stream": True,
-    "think": False,          # TOP LEVEL
+    "think": True,           # TOP LEVEL — think:True for qwen (C2 fix)
     "options": {"num_predict": 8192, "temperature": 0.1}
 }
 
 # Wrong — has no effect
 body = {
-    "options": {"think": False, "num_predict": 8192}
+    "options": {"think": True, "num_predict": 8192}
 }
 ```
 
-Without `think: False`, qwen3.6:27b produces extended chain-of-thought output before the
-JSON, causing JSON parse failures downstream.
+Note: nemotron-3-super:latest uses `think: False` (top-level) — NOT think:True. The two models
+differ. qwen produces better deliberation with think:True; nemotron's thinking output consumes
+the entire token budget before content begins, so think:False is required for nemotron.
+
+Without the correct think value, qwen3.6:27b produces chain-of-thought inline in `message.content`,
+corrupting the JSON verdict structure.
 
 ---
 
