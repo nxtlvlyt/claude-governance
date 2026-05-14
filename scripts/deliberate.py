@@ -180,7 +180,7 @@ PHASE1_AGENTS = [
         "name": DEEP_DIVE_MODEL,
         "role": "deep-dive",
         "search_query": SEARCH_QUERIES[1],
-        "think": False,
+        "think": True,      # safe: script captures message.thinking separately; JSON verdict in message.content
         "num_predict": 4096,
         "num_ctx": 16384,
         "num_gpu": 99,      # qwen3.6:27b ~16GB model + ~4GB KV at 16384 ctx = ~21GB, fits in 24GB
@@ -350,11 +350,11 @@ def dispatch_agent(cfg, prior_verdicts, search_results, open_concerns, soft_note
     prompt = "\n".join([
         f"You are the {role} agent in a 5-agent review chain.",
         rijal_block,
+        f"\n[REVIEW QUESTION AND SUBSTRATE]\n{REVIEW_QUESTION}",
         f"\n[LIVE SEARCH RESULTS]\n{search_results}",
         f"\n[PRIOR AGENT VERDICTS]\n{chr(10).join(prior_verdicts) if prior_verdicts else 'None -- you are first.'}",
         concern_block,
         soft_notes_block,
-        f"\n[REVIEW QUESTION AND SUBSTRATE]\n{REVIEW_QUESTION}",
         "\nReturn ONLY valid JSON. No explanation before or after the JSON object.",
     ])
 
