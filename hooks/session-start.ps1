@@ -97,6 +97,28 @@ if (Test-Path $projectState) {
     $contextParts += "===== STATE.md (project: $cwd) =====`n$body"
 }
 
+# 6. P6 catch-up push — offline resilience.
+# git-anchor.ps1 runs at session END and fails-open on push failure (e.g. no network).
+# This block pushes any locally-committed but un-pushed commits at session START.
+# Silent: no output to contextParts; failures do not block session start.
+$catchUpRepos = @(
+    (Join-Path $HOME '.claude'),
+    'D:\Desktop\ai book'
+)
+foreach ($repoPath in $catchUpRepos) {
+    if ((Test-Path $repoPath) -and (Test-Path (Join-Path $repoPath '.git'))) {
+        Push-Location $repoPath
+        try {
+            $remotes = git remote 2>&1
+            foreach ($remote in $remotes) {
+                git push $remote --all 2>&1 | Out-Null
+            }
+        } finally {
+            Pop-Location
+        }
+    }
+}
+
 if ($contextParts.Count -eq 0) {
     exit 0
 }
