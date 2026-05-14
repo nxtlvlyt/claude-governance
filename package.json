@@ -1,0 +1,33 @@
+{
+  "name": "@nxtlvl/claude-governance",
+  "version": "0.1.0",
+  "description": "Structural governance layer for Claude Code. Enforces alignment across session boundaries via hooks, cryptographic audit trail, and 6-seat local deliberation chain.",
+  "bin": {
+    "claude-governance": "bin/claude-governance.js"
+  },
+  "files": [
+    "bin/",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "claude",
+    "claude-code",
+    "governance",
+    "ai-safety",
+    "alignment",
+    "ollama",
+    "deliberation"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nxtlvlyt/claude-governance.git"
+  },
+  "homepage": "https://github.com/nxtlvlyt/claude-governance#readme",
+  "bugs": {
+    "url": "https://github.com/nxtlvlyt/claude-governance/issues"
+  }
+}
