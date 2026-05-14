@@ -194,8 +194,8 @@ PHASE2_AGENTS = [
         "search_query": SEARCH_QUERIES[2],
         "think": None,
         "num_predict": 3072,
-        "num_ctx": 20480,   # reduced from 24576: laguna model buffer 16.3GB + KV 5GB + compute 1.4GB = ~22.7GB, fits 24GB
-        "num_gpu": 99,      # laguna-xs.2 65/65 layers on GPU at 20480 ctx
+        "num_ctx": 16384,   # laguna: 16.3GB model + 4GB KV + 1.62GB compute + 0.5GB overhead = ~22.4GB, fits 24GB
+        "num_gpu": 99,      # laguna-xs.2 65/65 layers on GPU at 16384 ctx
     },
     {
         "name": GOVERNANCE_MODEL,
