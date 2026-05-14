@@ -421,6 +421,16 @@ if ($setupP6 -eq 'y') {
         }
     }
 
+    # Write p6-config.json for git-anchor.ps1 dynamic project detection
+    $p6Cfg = [ordered]@{
+        github_user           = if ($githubUser)   { $githubUser }   else { '' }
+        codeberg_user         = if ($codebergUser) { $codebergUser } else { '' }
+        codeberg_token        = if ($codebergToken){ $codebergToken } else { '' }
+        project_root_prefixes = @()
+    }
+    $p6Cfg | ConvertTo-Json | Set-Content (Join-Path $claud 'p6-config.json') -Encoding UTF8
+    Write-Host "  p6-config.json written — git-anchor.ps1 will auto-anchor new project dirs" -ForegroundColor Green
+
     Write-Host ""
     Write-Host "  P6 complete — Kiraman Katibin operational." -ForegroundColor Green
     Write-Host "  SSH-signed commits pushed to external witnesses at every session end." -ForegroundColor Green

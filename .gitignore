@@ -1,6 +1,7 @@
 # Credentials — never commit
 .credentials.json
 settings.local.json
+p6-config.json
 
 # Session transcripts and per-project ephemeral state
 projects/

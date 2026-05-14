@@ -86,8 +86,8 @@ The next step is making it easy enough that other practitioners can deploy the s
 
 These are committed here so a cold instance can resume without needing conversation history.
 
-**Task 1 — git-anchor.ps1 project-aware** (Priority: highest)
-Enhance `hooks/git-anchor.ps1` to detect the current working directory at session end and auto-init a git repo + GitHub/Codeberg remotes for new project directories. Must include a system path guard — only auto-init paths under user home or an operator-configured project root prefix (not `C:\Windows\System32` or other system dirs). The API patterns for repo creation are already in `install.ps1` P6 section. Estimated: 1 session.
+**Task 1 — git-anchor.ps1 project-aware** ✓ COMPLETE (2026-05-14)
+Reads session CWD from hook stdin (`$inp.cwd`). System path guard blocks C:\Windows, Program Files, ProgramData, drive root. Accepts paths under `$HOME` or `project_root_prefixes` in `p6-config.json`. Auto-init runs `git init + gh repo create + Codeberg REST API + push` for new directories. Credentials stored in `~/.claude/p6-config.json` (gitignored). install.ps1 writes p6-config.json at P6 setup time.
 
 **Task 2 — SearxNG in install.ps1** (Priority: high)
 Add SearxNG Docker compose block to `install.ps1` as an optional component alongside AnythingLLM and Forgejo. The chain runner scripts (`scripts/community-fit-review.py`, `scripts/chain-review.py`) call SearxNG at `http://localhost:8080` — without it, all search queries return `[Search unavailable]`. Minimal Docker compose: `searxng/searxng` image, port 8080. Estimated: 30 minutes.
@@ -104,4 +104,4 @@ Per `canon/perfect-repo-architecture.md`: skills are procedures and belong in pr
 **NOT yet started — npm distribution wrapper**
 Packaging `install.ps1` as an npm package (`npm install -g @nxtlvl/claude-governance`) makes distribution one command. Deferred until Tasks 1-3 are solid, since the installer output is what gets distributed. Cross-platform (Mac/Linux) support is the major variable — install.ps1 is Windows-only today; a bash equivalent would be 3-4 sessions of additional work.
 
-*Task list last updated: 2026-05-14, session 071faf79.*
+*Task list last updated: 2026-05-14, session continuation (Task 1 complete).*
