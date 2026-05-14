@@ -2,10 +2,16 @@
 name: deliberate
 description: Run the 6-seat deliberation chain on a governance question, architectural decision, or substrate change. Produces unanimous or majority verdict with open concerns. Use for any decision with cross-session consequences. Full chain takes 2–8 hours on CPU; with GPU partial offload (see operator-context.md Section 1) phase 1 runs in minutes.
 type: governance-skill
-version: 1.0
+version: 1.1
 governance: subordinate-to-scripture
 grounded-in: canon/6agent-deliberation-stack.md + scripts/deliberate.py
 authored: 2026-05-14
+bootstrap_sequence:
+  - ~/.claude/CLAUDE.md
+  - ~/.claude/practice/core.md
+  - ~/.claude/operator-context.md
+  - ~/.claude/canon/6agent-deliberation-stack.md
+  - ~/.claude/scripts/deliberate.py
 ---
 
 # /deliberate — 6-Seat Deliberation Chain

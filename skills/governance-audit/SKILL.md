@@ -2,10 +2,16 @@
 name: governance-audit
 description: Quick 2-seat governance scan (laguna code review + granite governance audit) against a specific file, diff, or session output. Faster than /deliberate — use for spot checks, pre-commit validation, or verifying a single change before substrate edit. Runs in 3-15 minutes on GPU. Also satisfies the substrate gate (pre-tool-use-substrate.ps1) for the session.
 type: governance-skill
-version: 1.0
+version: 1.1
 governance: subordinate-to-scripture
 grounded-in: canon/6agent-deliberation-stack.md + faiths/governance_scanner.faith.md
 authored: 2026-05-14
+bootstrap_sequence:
+  - ~/.claude/CLAUDE.md
+  - ~/.claude/practice/core.md
+  - ~/.claude/operator-context.md
+  - ~/.claude/faiths/governance_scanner.faith.md
+  - ~/.claude/canon/6agent-deliberation-stack.md
 ---
 
 # /governance-audit — Quick 2-Seat Governance Scan

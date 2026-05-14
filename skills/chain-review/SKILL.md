@@ -2,10 +2,16 @@
 name: chain-review
 description: Run the 6-seat deliberation chain specifically against operator-context.md, verifying whether the document accurately describes the current substrate. Use periodically when operator-context.md has accumulated significant updates, or before sharing the governance repo with a new user.
 type: governance-skill
-version: 1.0
+version: 1.1
 governance: subordinate-to-scripture
 grounded-in: canon/6agent-deliberation-stack.md + scripts/chain-review.py
 authored: 2026-05-14
+bootstrap_sequence:
+  - ~/.claude/CLAUDE.md
+  - ~/.claude/practice/core.md
+  - ~/.claude/operator-context.md
+  - ~/.claude/canon/6agent-deliberation-stack.md
+  - ~/.claude/scripts/chain-review.py
 ---
 
 # /chain-review — operator-context.md Verification Chain

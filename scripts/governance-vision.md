@@ -115,9 +115,15 @@ All three active and showing in Claude Code skill registry.
 Jina Reader added to deliberate.py (`r.jina.ai/<url>` prefix). Chain quality deliberation (2026-05-14) ran with Jina active — both phase 1 agents received full page content (confirmed via chain run). Decision: SearxNG + Jina is the settled search stack. No custom FastAPI node needed. Task 4 slash command wrapping can proceed directly.
 
 **Task 5 — Migrate skills/ out of ~/.claude/** (Priority: lower)
-Per `canon/perfect-repo-architecture.md`: skills are procedures and belong in project repos, not the formation layer. The HyperFrames, Remotion, CSS animation, and other creative skills in `~/.claude/skills/` violate this ruling. Migration reduces formation layer context window usage and brings the repo into canon compliance. The target project repo for these skills needs to be identified first. Estimated: 1 session.
+Per `canon/perfect-repo-architecture.md`: skills are procedures and belong in project repos, not the formation layer.
+
+Part A — bootstrap_sequence: ✓ COMPLETE (2026-05-14)
+All four governance skills now have `bootstrap_sequence` frontmatter: deliberation (v1.3), deliberate (v1.1), chain-review (v1.1), governance-audit (v1.1). The canon ruling is explicit: the sequence is a loading requirement, not a declaration. A cold instance must execute each read before the skill body.
+
+Part B — creative skill symlinks: PENDING (operator input required)
+The HyperFrames, Remotion, CSS animation, animejs, gsap, lottie, three, waapi, tailwind, and website-to-hyperframes skills in `~/.claude/skills/` are symlinks to `~/.agents/skills/`. `~/.agents/` is not a git repo. Canon says skills belong in project repos. The target project repo for these skills needs to be identified before the symlinks can be removed from `~/.claude/`. The skills themselves are complete and correct — this is a location violation, not a content problem.
 
 **NOT yet started — npm distribution wrapper**
 Packaging `install.ps1` as an npm package (`npm install -g @nxtlvl/claude-governance`) makes distribution one command. Deferred until Tasks 3-4 are solid, since the installer output is what gets distributed. Cross-platform (Mac/Linux) support is the major variable — install.ps1 is Windows-only today; a bash equivalent would be 3-4 sessions of additional work.
 
-*Task list last updated: 2026-05-14, session 071faf79 continuation (Tasks 3+4 complete; /deliberate, /chain-review, /governance-audit skills active; Task 5 — skills migration — is next lower-priority item).*
+*Task list last updated: 2026-05-14, session 071faf79 continuation (Tasks 3+4 complete; Task 5 Part A complete — bootstrap_sequence on all governance skills; Task 5 Part B pending — operator must identify target project repo for creative skill symlinks).*

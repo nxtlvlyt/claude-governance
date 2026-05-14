@@ -2,10 +2,15 @@
 name: 7-Agent Governance Deliberation Chain
 description: Full serial deliberation chain for governance decisions, substrate edits, and architectural questions requiring multi-model witness.
 type: governance-skill
-version: 1.2
+version: 1.3
 governance: subordinate-to-scripture
 authored: 2026-05-11
 grounded-in: canon/6agent-deliberation-stack.md + MASTER-GLOBAL-REPO-PLAN.md
+bootstrap_sequence:
+  - ~/.claude/CLAUDE.md
+  - ~/.claude/practice/core.md
+  - ~/.claude/operator-context.md
+  - ~/.claude/canon/6agent-deliberation-stack.md
 ---
 
 ## CRITICAL GOVERNANCE REQUIREMENT
