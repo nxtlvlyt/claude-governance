@@ -101,7 +101,7 @@ To unblock: diagnose transcript path, or temporarily disable this hook in
 
 // Read current assistant turn's text blocks from transcript (last 50 lines, walk in reverse)
 const allLines = readFileSync(transcriptPath, 'utf8').split('\n');
-const tail = allLines.slice(-50);
+const tail = allLines;
 
 let currentAssistantText = '';
 let foundAssistant = false;
