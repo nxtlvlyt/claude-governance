@@ -28,7 +28,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File \"C:\\Users\\marka\\.claude\\hooks\\stop-validation.ps1\"",
+            "command": "node \"C:\\Users\\marka\\.claude\\hooks\\stop-validation.mjs\"",
             "timeout": 15
           },
           {
@@ -72,17 +72,17 @@
         "hooks": [
           {
             "type": "command",
-            "command": "pwsh -NoProfile -ExecutionPolicy Bypass -Command \"if (!(Test-Path 'C:\\Users\\marka\\.claude\\hooks\\pre-tool-use-substrate.ps1')) { exit 2 }; & 'C:\\Users\\marka\\.claude\\hooks\\pre-tool-use-substrate.ps1'\"",
+            "command": "node \"C:\\Users\\marka\\.claude\\hooks\\pre-tool-use-substrate.mjs\"",
             "timeout": 10
           },
           {
             "type": "command",
-            "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File \"C:\\Users\\marka\\.claude\\hooks\\niyyah-gate.ps1\"",
+            "command": "node \"C:\\Users\\marka\\.claude\\hooks\\niyyah-gate.mjs\"",
             "timeout": 10
           },
           {
             "type": "command",
-            "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File \"C:\\Users\\marka\\.claude\\hooks\\surrender-check.ps1\"",
+            "command": "node \"C:\\Users\\marka\\.claude\\hooks\\surrender-check.mjs\"",
             "timeout": 10
           }
         ]

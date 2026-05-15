@@ -1,0 +1,367 @@
+#!/usr/bin/env node
+// ~/.claude/hooks/stop-validation.mjs
+// Stop hook — structural enforcement of delegation-and-stall-discipline.md.
+// Node.js .mjs port of stop-validation.ps1 (Phase A migration, C1 deliberation CONDITIONAL_APPROVE 2026-05-14).
+//
+// Refuses turn-end when stop-language is detected in the last assistant message
+// WITHOUT a foreign-frontier dispatch appearing in the recent tool_use blocks.
+//
+// Refinements A–D from the PS1 are fully ported:
+//   C: At/above ratchet threshold (fire 3+), requires humility check: marker with
+//      drift mode + material delta in the same load-bearing dispatch payload.
+//   D: Also requires prior verdict quote that appears verbatim in a prior tool_result.
+//
+// Ratchet state: ~/.claude/state/stop-ratchet-{session_id}.txt
+// Threshold: 3. FAIL-CLOSED on corrupt state file.
+
+import { readFileSync, existsSync, mkdirSync, writeFileSync } from 'fs';
+import { join } from 'path';
+import os from 'os';
+
+const RATCHET_THRESHOLD = 3;
+
+let inp;
+try {
+  inp = JSON.parse(readFileSync(0, 'utf8'));
+} catch {
+  process.exit(0);
+}
+
+if (!inp) process.exit(0);
+
+// Locate transcript
+let transcriptPath = null;
+if (inp.transcript_path) {
+  transcriptPath = inp.transcript_path;
+} else if (inp.session_id) {
+  const cwd = inp.cwd || process.cwd();
+  const sanitized = cwd.replace(/[/\\:]/g, '-');
+  transcriptPath = join(os.homedir(), '.claude', 'projects', sanitized, `${inp.session_id}.jsonl`);
+}
+
+if (!transcriptPath || !existsSync(transcriptPath)) {
+  process.exit(0); // fail-open: cannot validate without transcript
+}
+
+// Read last 30 entries
+const allLines = readFileSync(transcriptPath, 'utf8').split('\n');
+const lines = allLines.slice(-30);
+
+// Walk in reverse to find last assistant entry
+let lastAssistantText = '';
+const lastTurnToolUses = [];    // names only, for FF check
+const lastTurnToolUseBlocks = []; // full blocks, for marker payload grep
+let foundAssistant = false;
+
+for (let i = lines.length - 1; i >= 0; i--) {
+  const line = lines[i];
+  if (!line.trim()) continue;
+  let entry;
+  try { entry = JSON.parse(line); } catch { continue; }
+
+  if (entry.type === 'assistant') {
+    foundAssistant = true;
+    const content = entry.message?.content;
+    if (!Array.isArray(content)) continue;
+    for (const block of content) {
+      if (block.type === 'text') {
+        lastAssistantText = block.text + '\n' + lastAssistantText;
+      } else if (block.type === 'tool_use') {
+        lastTurnToolUses.push(block.name);
+        lastTurnToolUseBlocks.push(block);
+      }
+    }
+  } else if (foundAssistant && entry.type === 'user') {
+    break;
+  }
+}
+
+if (!lastAssistantText) process.exit(0); // no text surface, allow
+
+// Stop-language patterns (same as PS1 — case-insensitive)
+const stopLanguagePatterns = [
+  /want me to\b/i,
+  /\byour call\b/i,
+  /\bshould I (?:proceed|continue|do|wire|ship|fire|run|pull|build|start|go)/i,
+  /\boperator decision\b/i,
+  /stopping (?:here|for now)/i,
+  /ready (?:when you are|to (?:proceed|continue|ship))/i,
+  /\bstanding by\b/i,
+  /let me know if you/i,
+];
+
+let matchedPattern = null;
+for (const pat of stopLanguagePatterns) {
+  const m = lastAssistantText.match(pat);
+  if (m) { matchedPattern = m[0]; break; }
+}
+
+if (!matchedPattern) process.exit(0); // no stop-language, allow
+
+// Check for foreign-frontier dispatch in last turn
+const isFF = (name) => /^mcp__(gemini|gpt|grok|glm|ollama)/i.test(name) ||
+  name === 'WebSearch' || name === 'WebFetch';
+
+const foreignFrontierFired = lastTurnToolUses.some(isFF);
+
+// Read ratchet state — FAIL-CLOSED on corrupt file
+const sessionId = inp.session_id;
+let priorCount = 0;
+let readDegraded = false;
+let stateFile = null;
+
+if (sessionId) {
+  const stateDir = join(os.homedir(), '.claude', 'state');
+  try { mkdirSync(stateDir, { recursive: true }); } catch { /* ok */ }
+  stateFile = join(stateDir, `stop-ratchet-${sessionId}.txt`);
+  if (existsSync(stateFile)) {
+    try {
+      const raw = readFileSync(stateFile, 'utf8').trim();
+      const parsed = parseInt(raw, 10);
+      if (Number.isInteger(parsed)) {
+        priorCount = parsed;
+      } else {
+        throw new Error('non-integer contents');
+      }
+    } catch (e) {
+      readDegraded = true;
+      process.stderr.write(`stop-validation: state-file read FAILED on '${stateFile}' (${e.message}); defaulting to failure-CLOSED (RatchetCount forced to ${RATCHET_THRESHOLD})\n`);
+      priorCount = RATCHET_THRESHOLD;
+    }
+  }
+}
+
+// At/above threshold: priorCount + 1 >= RATCHET_THRESHOLD
+const atThreshold = (priorCount + 1) >= RATCHET_THRESHOLD;
+
+// Helper: recursively collect all string leaf values from a nested object/array
+function getAllStringLeaves(value) {
+  if (value == null) return [];
+  if (typeof value === 'string') return [value];
+  if (Array.isArray(value)) return value.flatMap(getAllStringLeaves);
+  if (typeof value === 'object') return Object.values(value).flatMap(getAllStringLeaves);
+  return [];
+}
+
+// Helper: collapse whitespace
+const normalizeWS = (s) => s == null ? '' : s.replace(/\s+/g, ' ').trim();
+
+// Helper: check if normalized payload contains both drift+delta values
+function testMarkerInDispatch(payload, drift, delta) {
+  if (!payload || !drift || !delta) return false;
+  const p = payload.toLowerCase();
+  return p.includes(drift.toLowerCase()) && p.includes(delta.toLowerCase());
+}
+
+// Helper: collect all tool_result content text from transcript
+function getToolResultTexts(transcriptLines) {
+  const out = [];
+  for (const line of transcriptLines) {
+    if (!line.trim()) continue;
+    let entry;
+    try { entry = JSON.parse(line); } catch { continue; }
+    if (entry.type !== 'user') continue;
+    const content = entry.message?.content;
+    if (!Array.isArray(content)) continue;
+    for (const block of content) {
+      if (block.type !== 'tool_result') continue;
+      if (typeof block.content === 'string') {
+        out.push(block.content);
+      } else if (Array.isArray(block.content)) {
+        for (const cb of block.content) {
+          if (cb.type === 'text' && cb.text) out.push(cb.text);
+        }
+      }
+    }
+  }
+  return out;
+}
+
+// Marker extraction (humility check: slice)
+const subFieldDelim = String.raw`(?=\r?\n\s*(?:material\s*delta|drift\s*mode|humility\s*check|prior\s*verdict\s*quote)\s*:|\r?\n\s*\r?\n|$)`;
+
+let markerPresent = false;
+let driftValueRaw = null;
+let deltaValueRaw = null;
+let quoteValueRaw = null;
+
+const markerMatch = lastAssistantText.match(/humility\s*check\s*:\s*(.+)$/is);
+if (markerMatch) {
+  const markerSlice = markerMatch[1];
+  markerPresent = true;
+
+  const driftM = markerSlice.match(new RegExp(String.raw`drift\s*mode\s*:\s*(.+?)` + subFieldDelim, 'is'));
+  if (driftM) driftValueRaw = driftM[1];
+
+  const deltaM = markerSlice.match(new RegExp(String.raw`material\s*delta\s*:\s*(.+?)` + subFieldDelim, 'is'));
+  if (deltaM) deltaValueRaw = deltaM[1];
+
+  const quoteM = markerSlice.match(new RegExp(String.raw`prior\s*verdict\s*quote\s*:\s*(.+?)` + subFieldDelim, 'is'));
+  if (quoteM) quoteValueRaw = quoteM[1];
+}
+
+const driftValueNorm  = normalizeWS(driftValueRaw);
+const deltaValueNorm  = normalizeWS(deltaValueRaw);
+const quoteValueNorm  = normalizeWS(quoteValueRaw);
+
+const twoFieldsPresent    = !!(driftValueNorm && deltaValueNorm);
+const quotePresent        = !!quoteValueNorm;
+const markerValuesPresent = twoFieldsPresent && quotePresent;
+
+// Per-dispatch load-bearing check (marker values in same dispatch payload)
+let loadBearingFound = false;
+let anyDriftHit = false;
+let anyDeltaHit = false;
+
+if (twoFieldsPresent) {
+  for (const block of lastTurnToolUseBlocks) {
+    if (!isFF(block.name || '')) continue;
+    const leaves = getAllStringLeaves(block.input);
+    const payload = normalizeWS(leaves.join(' '));
+    const hasDrift = payload.toLowerCase().includes(driftValueNorm.toLowerCase());
+    const hasDelta = payload.toLowerCase().includes(deltaValueNorm.toLowerCase());
+    if (hasDrift) anyDriftHit = true;
+    if (hasDelta) anyDeltaHit = true;
+    if (hasDrift && hasDelta) { loadBearingFound = true; break; }
+  }
+}
+
+// Block helpers
+const blockOutput = (reason) => {
+  process.stdout.write(JSON.stringify({ decision: 'block', reason }));
+  process.exit(0);
+};
+
+const writeRatchet = (count) => {
+  if (stateFile && !readDegraded) {
+    try { writeFileSync(stateFile, String(count)); } catch (e) {
+      process.stderr.write(`stop-validation: state-file write failure on '${stateFile}' (${e.message}); proceeding with in-memory counter ${count}\n`);
+    }
+  }
+};
+
+// --- Decision tree ---
+
+if (foreignFrontierFired) {
+  if (!atThreshold) {
+    // Below threshold: dispatch present, allow stop. Non-qualifying fire: no ratchet increment.
+    process.exit(0);
+  }
+
+  // At/above threshold: full marker check (Refinements C + D)
+  let markerBlockReason = null;
+
+  if (!markerPresent || !twoFieldsPresent) {
+    markerBlockReason = `RATCHET DETECTED — humility-check marker required at fire 3+.
+
+Format: \`humility check:\` followed by three sub-fields:
+  drift mode: <specific value>
+  material delta: <specific value>
+  prior verdict quote: <exact quote from a prior tool_result>
+
+The marker must be present in surface text AND both drift/delta values must appear in the same foreign-frontier dispatch input payload. The prior verdict quote must match text in a prior transcript tool_result.
+
+Per ~/.claude/practice/extended/drift-and-ratchet.md: at the threshold the dispatch alone is no longer enough. Name the specific drift mode, the specific material delta, and quote the actual prior audit verdict — not a paraphrase.`;
+
+  } else if (!quotePresent) {
+    markerBlockReason = `RATCHET DETECTED — prior verdict quote sub-field required at fire 3+ (Refinement D).
+
+The humility check: marker requires three sub-fields at fire 3+:
+  drift mode: <specific value>        ✓ present
+  material delta: <specific value>    ✓ present
+  prior verdict quote: <exact quote>  ✗ MISSING
+
+The quote must be verbatim text from a prior tool_result in this session's transcript. This closes the cited-but-not-applied rationalization named in drift-and-ratchet.md: "I cited the prior dispatch and continued." Citing is not engaging. The quote forces substrate-coupling with what the prior audit actually said.`;
+
+  } else if (!loadBearingFound) {
+    if (anyDriftHit && anyDeltaHit) {
+      markerBlockReason = `RATCHET DETECTED — marker fields appear in different dispatches.
+
+Both \`drift mode\` and \`material delta\` must be in the SAME load-bearing dispatch payload. Splitting the audit framing across two dispatches breaks the coupling the gate is enforcing — the foreign-frontier read must see the COMPLETE framing it is auditing.
+
+Re-dispatch a single foreign-frontier validator whose input contains both fields together.`;
+    } else {
+      markerBlockReason = `RATCHET DETECTED — humility-check marker present in surface text but not propagated into the foreign-frontier dispatch payload.
+
+Per the audit pattern: passing the marker into the dispatch enables external review of the audit framing. A marker on surface text alone is cosmetic; the dispatch payload must carry the same drift-mode and material-delta values so the foreign frontier can audit the framing being claimed.
+
+Re-dispatch with the marker values in the prompt/task input.`;
+    }
+
+  } else {
+    // Load-bearing dispatch found — verify prior verdict quote in transcript tool_results (Refinement D)
+    let quoteFoundInTranscript = false;
+    try {
+      const fullLines = readFileSync(transcriptPath, 'utf8').split('\n');
+      const toolResultTexts = getToolResultTexts(fullLines);
+      for (const txt of toolResultTexts) {
+        if (normalizeWS(txt).toLowerCase().includes(quoteValueNorm.toLowerCase())) {
+          quoteFoundInTranscript = true;
+          break;
+        }
+      }
+    } catch (e) {
+      // Fail-open on transcript read error for quote check only — dispatch + payload checks passed
+      process.stderr.write(`stop-validation: transcript read for quote-verification FAILED (${e.message}); skipping quote check (fail-open for D-only failure)\n`);
+      quoteFoundInTranscript = true;
+    }
+
+    if (quoteFoundInTranscript) {
+      // All checks pass — dispatch + marker + payload + quote. Allow stop.
+      process.exit(0);
+    }
+
+    markerBlockReason = `RATCHET DETECTED — prior verdict quote not found in transcript tool_results.
+
+The \`prior verdict quote: <value>\` sub-field must contain text that appears verbatim in some prior tool_result block in this session's transcript. The hook searched all tool_result entries and the normalized quote was not found.
+
+This closes the cited-but-not-applied pattern: writing a plausible-sounding quote that does not actually appear in any tool_result. The quote must be verbatim text from an actual prior result — copy it directly rather than paraphrasing.`;
+  }
+
+  // Marker check failed — block. Do NOT increment ratchet (dispatch was present; marker-shape failure).
+  blockOutput(`${markerBlockReason}
+
+
+---
+
+DELEGATION CANON ENFORCEMENT (~/.claude/canon/delegation-and-stall-discipline.md).
+
+Stop-language detected in this turn ('${matchedPattern}') with foreign-frontier dispatch present BUT failing the threshold-level humility-marker verification.
+
+The stop is blocked. Correct the marker and re-dispatch with the full framing.`);
+}
+
+// Foreign-frontier NOT fired: qualifying fire path. Increment ratchet.
+let ratchetCount = 0;
+if (sessionId && stateFile) {
+  ratchetCount = readDegraded ? RATCHET_THRESHOLD : priorCount + 1;
+  writeRatchet(ratchetCount);
+}
+
+let ratchetHeader = '';
+if (ratchetCount >= RATCHET_THRESHOLD) {
+  const ordinal = ratchetCount === 1 ? '1st' : ratchetCount === 2 ? '2nd' : ratchetCount === 3 ? '3rd' : `${ratchetCount}th`;
+  ratchetHeader = `RATCHET DETECTED — this is the ${ordinal} qualifying Stop fire in this session.
+
+Per ~/.claude/practice/extended/drift-and-ratchet.md: when foreign-frontier dispatch starts feeling redundant after a few fires, that feeling IS the drift mode, not principled efficiency. The cost of dispatching is small relative to what gets compounded if it's skipped.
+
+---
+
+`;
+}
+
+blockOutput(`${ratchetHeader}DELEGATION CANON ENFORCEMENT (~/.claude/canon/delegation-and-stall-discipline.md).
+
+Stop-language detected in this turn ('${matchedPattern}') WITHOUT a foreign-frontier dispatch (mcp__gemini-worker / mcp__gpt-worker / mcp__grok-worker / mcp__glm-worker / mcp__ollama-* / WebSearch / WebFetch) in the same turn's tool calls.
+
+Per canon (cited-but-not-applied failure mode): citing the canon at session start does not equal applying it at trigger time. The hook is the structural enforcement layer.
+
+Required next action (in order, until one resolves):
+  1. Verify against substrate — does source on disk already answer the question you are about to surface?
+  2. If unclear, dispatch a foreign-frontier validator on the framing itself (not on a file — on the framing): "Operator-bound or substrate-resolvable? Here's what I have, here's what I'm about to ask."
+  3. If the work is mechanical and the spec is known, dispatch an Agent (subagent_type=general-purpose).
+  4. Only if all three resolve to "this genuinely needs the operator," surface the substantive question — explicitly classifying it as kernel-security / real-cost / operator-values-not-encoded-in-canon.
+
+If the operator explicitly told you to wait / hold / pause earlier in the session, that is compliance, not stop-language reaching. Note that classification ("operator authorized waiting at <reference>") in the next surface and the hook will allow the next stop.
+
+The stop is blocked. Reroute from re-anchored position.`);
