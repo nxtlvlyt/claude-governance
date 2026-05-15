@@ -33,12 +33,12 @@
           },
           {
             "type": "command",
-            "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File \"C:\\Users\\marka\\.claude\\hooks\\session-hash-chain.ps1\"",
+            "command": "node \"C:\\Users\\marka\\.claude\\hooks\\session-hash-chain.mjs\"",
             "timeout": 90
           },
           {
             "type": "command",
-            "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File \"C:\\Users\\marka\\.claude\\hooks\\git-anchor.ps1\"",
+            "command": "node \"C:\\Users\\marka\\.claude\\hooks\\git-anchor.mjs\"",
             "timeout": 120
           }
         ]
