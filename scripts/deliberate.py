@@ -127,10 +127,12 @@ SYNTHESIS_MODEL   = _m.get("synthesis",   "nemotron-3-super:latest")
 REVIEW_QUESTION = f"""
 You are a seat in a 6-agent deliberation chain evaluating an architectural decision.
 
-[QUESTION]
+[QUESTION — THIS IS WHAT YOU ARE EVALUATING]
 {QUESTION}
 
-[SUBSTRATE — files relevant to this decision]
+[BACKGROUND CONTEXT — NOT THE EVALUATION TARGET]
+The files below describe the existing system as background reference. They are context, not
+the thing you are evaluating. Evaluate the QUESTION above, not these files.
 {substrate_context}
 
 Evaluate the question above thoroughly. Consider alternatives, risks, tradeoffs, and
@@ -139,6 +141,7 @@ whether the current implementation is correct, improvable, or needs replacement.
 Return ONLY valid JSON (no preamble, no markdown fences):
 {{
   "verdict": "APPROVE|CONDITIONAL_APPROVE|BLOCK",
+  "question_restated": "(required) restate in 1-2 sentences the specific question you evaluated",
   "summary": "one paragraph",
   "concerns": [
     {{
@@ -512,6 +515,32 @@ def main():
         open_concerns, soft_notes = collect_open_concerns(all_outputs)
         print(f"Phase {PHASE} loaded {len(all_outputs)} prior outputs. "
               f"Open concerns: {len(open_concerns)}, Soft notes: {len(soft_notes)}", flush=True)
+
+        # Semantic pre-check: warn if a phase 1 seat may have answered the wrong question.
+        # Checks keyword overlap between question_restated and the actual question.
+        _stop = {'the','and','for','that','this','from','with','have','are','not','what',
+                 'does','would','should','could','which','been','will','were','they','their'}
+        _q_keywords = {w.lower().strip('.,?!:;') for w in QUESTION.split()
+                       if len(w) > 4 and w.lower() not in _stop}
+        _semantic_warnings = []
+        for _out in all_outputs:
+            if _out.get('verdict') == 'PARSE_ERROR' or _out.get('raw'):
+                continue
+            _restated = _out.get('question_restated', '').lower()
+            if not _restated:
+                print(f"SEMANTIC CHECK: {_out.get('_agent','?')} — no question_restated (old schema run)", flush=True)
+                continue
+            _hits = sum(1 for kw in _q_keywords if kw in _restated)
+            _cov  = _hits / max(len(_q_keywords), 1)
+            if _cov < 0.15:
+                _w = (f"SEMANTIC WARNING: {_out.get('_agent','?')} question_restated "
+                      f"has {_cov:.0%} keyword overlap — may have answered wrong question\n"
+                      f"  Restated: {_restated[:200]}")
+                print(_w, flush=True)
+                _semantic_warnings.append(_w)
+        if _semantic_warnings:
+            print(f"\n{len(_semantic_warnings)} semantic warning(s). "
+                  f"Seat 3 synthesis should flag these. Proceeding to phase 2.", flush=True)
 
     dynamic_searches_used   = 0
     MAX_DYNAMIC_SEARCHES    = 2
