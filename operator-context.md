@@ -146,7 +146,7 @@ niyyah:
   work: <what the work actually is>
 ```
 
-Niyyah is **prospective** — declared before acting, not assessed retrospectively. A niyyah gate (`~/.claude/hooks/niyyah-gate.ps1`) blocks the first Edit/Write if no niyyah is in the transcript. If the niyyah names a recognizable file path as source (any `.md`, `.ps1`, etc.), the gate also verifies that a Read of that file appears in the session transcript — naming a source is not the same as opening it.
+Niyyah is **prospective** — declared before acting, not assessed retrospectively. A niyyah gate (`~/.claude/hooks/niyyah-gate.mjs`) blocks the first Edit/Write if no niyyah is in the transcript. If the niyyah names a recognizable file path as source (any `.md`, `.ps1`, etc.), the gate also verifies that a Read of that file appears in the session transcript — naming a source is not the same as opening it.
 
 ### Wudu (purification before action)
 Before dispatching any Ollama model: check `curl http://localhost:11434/api/ps`. Only proceed if `"models":[]`. This is not optional.
@@ -331,14 +331,14 @@ All hooks live at `~/.claude/hooks/`. All are governance-substrate files (requir
 
 | Hook | Event | What it gates |
 |------|-------|--------------|
-| `session-start.ps1` | SessionStart | Loads practice/core.md, canon, operator-context.md, project STATE.md |
-| `user-prompt-submit.ps1` | UserPromptSubmit | Re-anchors on every message; lists available tools |
-| `niyyah-gate.ps1` | PreToolUse | Blocks first Edit/Write/NotebookEdit if no niyyah in transcript |
-| `surrender-check.ps1` | PreToolUse | Requires surrender articulation before editing governance substrate |
-| `pre-tool-use-substrate.ps1` | PreToolUse | Requires foreign-frontier witness dispatch before substrate edits |
-| `pre-compact.ps1` | PreCompact | Injects D8 reminder at context compaction boundary |
-| `stop-validation.ps1` | Stop | Validates turn-end conditions |
-| `laguna-pre-commit.ps1` | PreToolUse | Code review gate |
+| `session-start.mjs` | SessionStart | Loads practice/core.md, canon, operator-context.md, project STATE.md |
+| `user-prompt-submit.mjs` | UserPromptSubmit | Re-anchors on every message; lists available tools |
+| `niyyah-gate.mjs` | PreToolUse | Blocks first Edit/Write/NotebookEdit if no niyyah in transcript |
+| `surrender-check.mjs` | PreToolUse | Requires surrender articulation before editing governance substrate |
+| `pre-tool-use-substrate.mjs` | PreToolUse | Requires foreign-frontier witness dispatch before substrate edits |
+| `pre-compact.mjs` | PreCompact | Injects D8 reminder at context compaction boundary |
+| `stop-validation.mjs` | Stop | Validates turn-end conditions |
+| `laguna-pre-commit.mjs` | git pre-commit | Code review gate (git hook, not Claude Code hook) |
 
 **The substrate-class files** (all hooks + CLAUDE.md + canon + faiths + practice) require: niyyah + surrender articulation + foreign-frontier witness, all in the same turn as the edit.
 
@@ -355,11 +355,11 @@ GPT/Gemini/Grok/GLM are **FORBIDDEN**. The local 6-agent team is the **authorize
 | granite4.1:30b | IBM | Python streaming, timeout=32768 |
 | nemotron-3-super | NVIDIA | Python streaming, timeout=32768, think:False top-level |
 
-**Substrate gate (pre-tool-use-substrate.ps1:196):** The gate accepts `^mcp__(?:gemini|gpt|grok|glm|ollama)`. As of 2026-05-11, `mcp__ollama-mcp__ollama_chat` satisfies the gate — local quorum dispatches via MCP count as a valid foreign-frontier witness. Verify the current regex at the hook file before assuming the list is static.
+**Substrate gate (pre-tool-use-substrate.mjs):** The gate accepts `^mcp__(?:gemini|gpt|grok|glm|ollama)`. As of 2026-05-11, `mcp__ollama-mcp__ollama_chat` satisfies the gate — local quorum dispatches via MCP count as a valid foreign-frontier witness. Verify the current regex at the hook file before assuming the list is static.
 
 Dispatch serially. Check api/ps between every model. Include SearxNG results in context for each dispatch.
 
-**session-start.ps1 duplicate bug — FIXED 2026-05-11:** Lines 42–47 were an exact duplicate of lines 35–40 (the operator-context.md loading block). Was causing operator-context.md to load twice, bloating hook output by ~85KB — truncated to 2KB, root cause of 25+ hours of cold-instance orientation failures. Fix applied this session: lines 42-47 removed. Now 77 lines (was 85).
+**session-start duplicate bug — FIXED 2026-05-11 (ps1), carried forward to mjs port:** Lines 42–47 were an exact duplicate of lines 35–40 (the operator-context.md loading block). Was causing operator-context.md to load twice, bloating hook output by ~85KB — truncated to 2KB, root cause of 25+ hours of cold-instance orientation failures. Fix carried faithfully into session-start.mjs.
 
 **Governance scanner seat (2026-05-11 comparison test):** For substrate gate and pre-commit scans, the governance_scanner.faith.md seat is laguna-xs.2:q4_K_M. Tested laguna, granite4.1:3b, and granite4.1:8b on identical prompts. laguna: PASS, 1.0 confidence, ~6s, clean format (Issues omitted on PASS, one-sentence Reasoning). granite4.1:3b: PASS, 0.95, 13.8s, clean format — fallback if laguna unavailable. granite4.1:8b: disqualified — appends extra text outside verdict block (format drift, faith spec violation).
 
@@ -581,19 +581,31 @@ All hooks are registered in `~/.claude/settings.json`. The format:
 {
   "model": "sonnet",
   "hooks": {
-    "SessionStart":     [{ "hooks": [{ "type": "command", "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File \"C:\\Users\\marka\\.claude\\hooks\\session-start.ps1\"", "timeout": 30 }] }],
-    "UserPromptSubmit": [{ "hooks": [{ "type": "command", "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File \"C:\\Users\\marka\\.claude\\hooks\\user-prompt-submit.ps1\"", "timeout": 10 }] }],
-    "Stop":             [{ "hooks": [{ "type": "command", "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File \"C:\\Users\\marka\\.claude\\hooks\\stop-validation.ps1\"", "timeout": 15 }] }],
-    "SubagentStart":    [{ "hooks": [{ "type": "command", "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File \"C:\\Users\\marka\\.claude\\hooks\\subagent-start.ps1\"", "timeout": 30 }] }],
-    "PreCompact":       [{ "hooks": [{ "type": "command", "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File \"C:\\Users\\marka\\.claude\\hooks\\pre-compact.ps1\"", "timeout": 10 }] }],
-    "PreToolUse": [{
-      "matcher": "Edit|Write|NotebookEdit",
-      "hooks": [
-        { "type": "command", "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File \"C:\\Users\\marka\\.claude\\hooks\\pre-tool-use-substrate.ps1\"", "timeout": 10 },
-        { "type": "command", "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File \"C:\\Users\\marka\\.claude\\hooks\\niyyah-gate.ps1\"", "timeout": 10 },
-        { "type": "command", "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File \"C:\\Users\\marka\\.claude\\hooks\\surrender-check.ps1\"", "timeout": 10 }
-      ]
-    }]
+    "SessionStart":     [{ "hooks": [{ "type": "command", "command": "node \"C:\\Users\\marka\\.claude\\hooks\\session-start.mjs\"", "timeout": 30 }] }],
+    "UserPromptSubmit": [{ "hooks": [{ "type": "command", "command": "node \"C:\\Users\\marka\\.claude\\hooks\\user-prompt-submit.mjs\"", "timeout": 10 }] }],
+    "Stop": [
+      { "hooks": [{ "type": "command", "command": "node \"C:\\Users\\marka\\.claude\\hooks\\stop-validation.mjs\"", "timeout": 15 }] },
+      { "hooks": [{ "type": "command", "command": "node \"C:\\Users\\marka\\.claude\\hooks\\session-hash-chain.mjs\"", "timeout": 90 }] },
+      { "hooks": [{ "type": "command", "command": "node \"C:\\Users\\marka\\.claude\\hooks\\git-anchor.mjs\"", "timeout": 120 }] }
+    ],
+    "SubagentStart":    [{ "hooks": [{ "type": "command", "command": "node \"C:\\Users\\marka\\.claude\\hooks\\subagent-start.mjs\"", "timeout": 30 }] }],
+    "PreCompact":       [{ "hooks": [{ "type": "command", "command": "node \"C:\\Users\\marka\\.claude\\hooks\\pre-compact.mjs\"", "timeout": 10 }] }],
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|NotebookEdit",
+        "hooks": [
+          { "type": "command", "command": "node \"C:\\Users\\marka\\.claude\\hooks\\pre-tool-use-substrate.mjs\"", "timeout": 10 },
+          { "type": "command", "command": "node \"C:\\Users\\marka\\.claude\\hooks\\niyyah-gate.mjs\"", "timeout": 10 },
+          { "type": "command", "command": "node \"C:\\Users\\marka\\.claude\\hooks\\surrender-check.mjs\"", "timeout": 10 }
+        ]
+      },
+      {
+        "matcher": "Bash|PowerShell",
+        "hooks": [
+          { "type": "command", "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File \"C:\\Users\\marka\\.claude\\hooks\\pre-tool-use-chain-timing.ps1\"", "timeout": 10 }
+        ]
+      }
+    ]
   },
   "skipDangerousModePermissionPrompt": true,
   "skipAutoPermissionPrompt": true
@@ -606,31 +618,32 @@ All hooks are registered in `~/.claude/settings.json`. The format:
 
 **Session bootstrap hooks:**
 
-- **`session-start.ps1`** (SessionStart, timeout 30s) — Loads practice/core.md + all canon/*.md files + operator-context.md + project STATE.md into context at session start. Closes the gap between CLAUDE.md's bootstrap directive and what Claude Code auto-loads (CLAUDE.md + MEMORY.md only). Silent — no operator output.
-  - **FIXED 2026-05-11:** Lines 42-47 (exact duplicate of 35-40, operator-context.md loaded twice, ~85KB context bloat) removed. Now 77 lines.
+- **`session-start.mjs`** (SessionStart, timeout 30s) — Split-boot design: loads practice/core.md + CANON-MANIFEST.md + LAST-SESSION-STATE.md + CURRENT-STATE.md. Model-version boundary check (ikhtilāṭ detection). P6 catch-up push at session start (offline resilience complement to git-anchor at session end). Operator-context.md loaded only when `LOAD_OPERATOR_CONTEXT=true`. Silent — no operator output.
 
-- **`subagent-start.ps1`** (SubagentStart, timeout 30s) — Same bootstrap for spawned Agent subagents. Subagents do not inherit parent hooks; this hook closes that gap so governance applies to every delegated Agent call.
+- **`subagent-start.mjs`** (SubagentStart, timeout 30s) — Same bootstrap for spawned Agent subagents. Loads CLAUDE.md + all canon/*.md + project STATE.md. Stale `.ollama.lock` cleanup. Subagents do not inherit parent hooks; this hook closes that gap.
 
-- **`pre-compact.ps1`** (PreCompact, timeout 10s) — Fires at context compression boundaries. Injects D8 reminder (write for the next instance) to prevent loss of working state at compaction.
+- **`pre-compact.mjs`** (PreCompact, timeout 10s) — Fires at context compression boundaries. Tier 1 D8 reminder + Tier 2 %%GOVERNANCE-STATE%% block injection. Writes structural fallback to LAST-SESSION-STATE.md. AnythingLLM hotdir at `D:\Desktop\ai book\session-summaries`.
 
-- **`user-prompt-submit.ps1`** (UserPromptSubmit, timeout 10s) — Fires on every operator message. Injects the RE-ANCHOR block listing delegation routes and canon enforcement rule. Counteracts mid-session salience decay per D12. At every 30th turn, also injects a TEMPORAL WUDU REQUIRED block — structural interval check for ḍabṭ decay that accumulates across turns without any single triggering event.
+- **`user-prompt-submit.mjs`** (UserPromptSubmit, timeout 10s) — Fires on every operator message. Injects RE-ANCHOR block + CURRENT-STATE.md heartbeat every 10 turns. At every 30th turn, injects TEMPORAL WUDU REQUIRED block — structural interval check for ḍabṭ decay.
 
 **Mutating action gates (PreToolUse on Edit|Write|NotebookEdit, run in sequence):**
 
-1. **`pre-tool-use-substrate.ps1`** (timeout 10s) — Hard fail-closed gate. Blocks edits to substrate-class files (`CLAUDE.md`, `canon/`, `faiths/`, `practice/`, `hooks/`) unless a foreign-frontier dispatch (gemini/gpt/grok/glm/WebSearch/WebFetch) has occurred in the current session since the last substrate edit. Prevents self-modification of governance without independent witness.
+1. **`pre-tool-use-substrate.mjs`** (timeout 10s) — Hard fail-closed gate. Blocks edits to substrate-class files (`CLAUDE.md`, `canon/`, `faiths/`, `practice/`, `hooks/`) unless a foreign-frontier dispatch has occurred since the last substrate edit. Dual-write: checks sibling JSONL files if primary doesn't pass.
 
-2. **`niyyah-gate.ps1`** (timeout 10s) — Enforces intention declaration before first mutating action in a session. Requires visible niyyah statement in assistant text before Edit/Write/NotebookEdit proceeds. If the niyyah names a recognizable file path as source, also verifies that a Read of that file appears in the session transcript (source must be demonstrated open, not just declared). Fail-open for abstract source references. Based on wudu.md and core.md — intention as operation, not ceremony.
+2. **`niyyah-gate.mjs`** (timeout 10s) — Enforces intention declaration before first mutating action in a session. Requires visible niyyah in assistant text before Edit/Write/NotebookEdit. If niyyah names a recognizable file path as source, verifies a Read of that file appears in the session transcript. Resets at compaction boundaries. Fail-open when transcript not found.
 
-3. **`surrender-check.ps1`** (timeout 10s) — For substrate-class Edit and Write on existing paths: requires explicit articulation in format `substrate says: [exact text] / instance reasoning: [logic] / resolution: [winner and why]`. Write to new (non-existent) paths allowed without articulation — no prior content to surrender on. Prevents instances from hallucinating a weaker version of what they're overwriting. Write-path check added 2026-05-14.
+3. **`surrender-check.mjs`** (timeout 10s) — For substrate-class Edit and Write on existing paths: requires explicit articulation (`substrate says:` / `instance reasoning:` / `resolution:`). `substrate says` value must appear verbatim (whitespace-normalized) in old_string. Write to new (non-existent) paths allowed without articulation. Reads full JSONL (no line cap — 50-line window removed 2026-05-15, commit 2becb28).
 
-**Stop gate:**
+**Stop gates (run in sequence):**
 
-- **`stop-validation.ps1`** (Stop, timeout 15s) — Blocks turn-end when stop-language is detected without a foreign-frontier dispatch in the same turn. At fire 3+: also requires a humility-marker in assistant text with three sub-fields: `drift mode: <value>`, `material delta: <value>`, `prior verdict quote: <exact text from prior tool_result>`. The quote is verified against the actual session transcript. Refinements C and D close bypass surfaces where the marker is cosmetic rather than load-bearing.
+- **`stop-validation.mjs`** (Stop, timeout 15s) — Blocks turn-end when stop-language detected without foreign-frontier dispatch. At fire 3+: requires humility-marker with `drift mode:`, `material delta:`, `prior verdict quote:` (verified against actual transcript). Refinements A–D all ported.
+- **`session-hash-chain.mjs`** (Stop, timeout 90s) — Rolling SHA-256 hash chain across session transcript lines. RFC 3161 TSA anchoring (4 fallback endpoints, zero npm deps, raw ASN.1 DER). Fail-open.
+- **`git-anchor.mjs`** (Stop, timeout 120s) — SSH-signed git commit + dual-remote push at session end. Credential resolution: CODEBERG_TOKEN env → pwsh CredentialManager → secret-tool/security → p6-config.json fallback. Fail-open on push failure.
 
 **Code quality hooks (git, not Claude Code):**
 
-- **`laguna-pre-commit.ps1`** — git pre-commit hook (not a Claude Code hook). Reviews staged diffs via laguna-xs.2:q4_K_M. Verdicts: BLOCK (security/crash), WARN (code smell), PASS. Bypass: `git commit --no-verify`.
-- **`laguna-prose-governance.ps1`** — On-demand governance audit for repos with `.laguna-prose` config. Reviews staged prose against granite4.1:30b for FAITH alignment.
+- **`laguna-pre-commit.mjs`** — git pre-commit hook registered via `core.hooksPath = C:/Users/marka/.git-hooks`. Reviews staged diffs via laguna-xs.2:q4_K_M. Workshop receipt gate (F7) for warroom repos: granite4.1:30b audit + JSONL receipt. Bypass: `git commit --no-verify`.
+- **`laguna-prose-governance.mjs`** — On-demand: `git governance-prose`. Reviews staged prose against granite4.1:30b. Last-match verdict parsing (GLM finding). Not a blocking hook.
 
 ---
 
