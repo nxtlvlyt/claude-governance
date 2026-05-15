@@ -200,8 +200,9 @@ PHASE2_AGENTS = [
         "search_query": SEARCH_QUERIES[2],
         "think": None,
         "num_predict": 3072,
-        "num_ctx": 16384,   # laguna: 16.3GB model + 4GB KV + 1.62GB compute + 0.5GB overhead = ~22.4GB, fits 24GB
-        "num_gpu": 99,      # laguna-xs.2 65/65 layers on GPU at 16384 ctx
+        "num_ctx": 16384,
+        "num_gpu": 0,       # laguna ignores num_ctx — always allocates 24576 KV cells → ~24.8GB > 24GB VRAM → 500.
+                            # CPU is required. num_gpu=99 was wrong; corrected per no-skip rule.
     },
     {
         "name": GOVERNANCE_MODEL,
@@ -418,6 +419,7 @@ def dispatch_agent(cfg, prior_verdicts, search_results, open_concerns, soft_note
     content = ""
     thinking_chars = 0
     start = time.time()
+    wall_start = start   # preserved across retry so total elapsed is accurate
     out_txt = os.path.join(OUTPUT_DIR, f"{name.replace(':', '-').replace('/', '-')}.txt")
     try:
         with requests.post(f"{OLLAMA_HOST}/api/chat", json=body, stream=True, timeout=32768) as r:
@@ -446,9 +448,44 @@ def dispatch_agent(cfg, prior_verdicts, search_results, open_concerns, soft_note
                             pass
     except Exception as e:
         print(f"\nDISPATCH ERROR: {e}", flush=True)
-        return None
+        # 500 on GPU → retry with CPU (num_gpu=0). No-skip rule: a 500 is a skip.
+        if "500" in str(e) and body.get("options", {}).get("num_gpu", 1) != 0:
+            print(f"  Retrying {name} with num_gpu=0 (CPU fallback)...", flush=True)
+            safe_stop(name)
+            time.sleep(3)
+            body["options"]["num_gpu"] = 0
+            content = ""
+            thinking_chars = 0
+            start = time.time()
+            try:
+                with requests.post(f"{OLLAMA_HOST}/api/chat", json=body, stream=True, timeout=32768) as r:
+                    r.raise_for_status()
+                    with open(out_txt, 'w', encoding='utf-8') as fout:
+                        for line in r.iter_lines():
+                            if line:
+                                try:
+                                    chunk = json.loads(line)
+                                    msg   = chunk.get("message", {})
+                                    piece = msg.get("content", "") or chunk.get("response", "")
+                                    think_piece = msg.get("thinking", "")
+                                    if think_piece:
+                                        thinking_chars += len(think_piece)
+                                    if piece:
+                                        content += piece
+                                        fout.write(piece)
+                                        fout.flush()
+                                        print(piece, end='', flush=True)
+                                    if chunk.get("done"):
+                                        break
+                                except json.JSONDecodeError:
+                                    pass
+            except Exception as e2:
+                print(f"\nCPU RETRY FAILED: {e2}", flush=True)
+                return None
+        else:
+            return None
 
-    elapsed = time.time() - start
+    elapsed = time.time() - wall_start
     print(f"\nDone in {elapsed / 60:.1f} min -- {len(content)} chars", flush=True)
 
     try:
