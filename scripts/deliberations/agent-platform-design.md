@@ -20,8 +20,10 @@ each layer?
   per session line) + RFC 3161 TSA timestamps — tamper-resistant audit trail
 - SearxNG (20+ engines: Google, Brave, DuckDuckGo, arXiv, GitHub, StackOverflow, etc.)
   + Jina Reader (r.jina.ai — raw page markdown, not summarized) — the SOTA search stack
-- HyperFrames + Remotion + FFmpeg: programmatic video/animation pipeline;
-  agents can author, render, and compose media
+- HyperFrames (HeyGen, April 2026) + FFmpeg: agent-authored video pipeline —
+  HyperFrames is HTML/CSS/JS-first, specifically designed for AI agents to write;
+  Remotion is React-first and engineer-authored (different tool, different author).
+  "React engineer? Use Remotion. AI agent doing the work? Use HyperFrames."
 - Ollama: local model runtime with GPU/CPU hybrid dispatch, serial inference discipline,
   context budget management per phase
 
@@ -44,23 +46,32 @@ Specifically evaluate:
    unified memory primitive look like that covers episodic (this session), semantic
    (RAG across sessions), and structural (committed substrate)?
 
-4. **Creative pipeline.** HyperFrames → Remotion → FFmpeg as composable steps in an
-   agent workflow. What is the right interface? Should pipeline steps be first-class
-   agent roles (like Faith files) or composable functions? What does SOTA for
-   programmatic media generation with AI agents look like in 2026?
+4. **Creative pipeline.** HyperFrames (HTML/CSS/JS, agent-authored) → FFmpeg as the
+   agent creative pipeline. HyperFrames is specifically designed for AI agents to write
+   video by composing HTML — released April 2026, designed for this exact use case.
+   What is the right interface for integrating this into an agent platform? Should
+   pipeline steps be first-class agent roles (like Faith files) or composable functions?
+   Does HyperFrames + FFmpeg cover the full creative output surface or are there gaps?
 
-5. **Financial integrations.** What are the viable financial tie-ins?
-   - API cost tracking and budget enforcement (per-session, per-model, per-project)
-   - Revenue from creative outputs (pay-per-render, subscription creative services)
-   - Financial data as a research source (market data, on-chain, economic indicators)
-   - Billing/metering for multi-user deployments
-   Which of these are near-term (implementable now) vs. architectural (requires platform
-   maturity first)?
+5. **Financial integrations.** The agentic financial infrastructure is now a developed
+   category in 2026. Specific platforms to evaluate:
+   - Nevermined: per-token/per-API-call/per-GPU-cycle billing rails ("financial rails
+     for the agentic economy" — processes 15,000 events/sec)
+   - Paid.ai: AI cost tracking and margin analytics
+   - Skyfire: agent wallet abstraction
+   - Stripe / usage-based billing patterns for agent-as-a-service
+   Which of these integrate naturally with a CLI platform? What does "AI agents as
+   revenue endpoints" mean for a platform that generates creative content? Is there
+   a financial model where agents earn as well as spend?
 
-6. **SOTA comparison.** What purpose-built agent CLIs/platforms exist in 2026?
-   (smolagents, Eliza, AgentKit, LangGraph, Swarm, CrewAI, AutoGen, etc.)
-   What does each get right that we don't have? What do we have that none of them have?
-   What is the genuine differentiation of building this vs. wrapping one of these?
+6. **SOTA comparison.** LangGraph leads complex multi-agent orchestration in 2026 but
+   has no structural enforcement layer — no hooks that block at the OS level, no
+   formal governance. CrewAI, smolagents, AutoGen, Pydantic AI, Strands Agents are
+   all in the space. The "awesome-harness-engineering" category (MCP, permissions,
+   observability, audit) is emerging as its own layer. What does each framework get
+   right? What does none of them have that we've built? Is the genuine differentiation
+   the structural enforcement (hooks that can't be bypassed by the model), or something
+   else? Is it worth building on top of one of these vs. building from scratch?
 
 7. **What to keep vs. replace.** What from the claude-governance repo is worth keeping
    verbatim in a native platform? What is Claude Code scaffolding that would be replaced
@@ -78,6 +89,6 @@ both, and what the minimum viable platform looks like vs. the full vision.
 ## Search Queries
 - purpose-built AI agent CLI platform architecture multi-model orchestration 2026 open source primitives
 - AnythingLLM RAG episodic memory agent platform integration Ollama multi-session knowledge retrieval 2026
-- programmatic video pipeline Remotion FFmpeg AI agent creative workflow automation 2026
-- AI platform financial integration API cost tracking billing revenue creative agent monetization
+- HyperFrames HeyGen AI agent HTML video pipeline FFmpeg programmatic media generation 2026
+- Nevermined Paid.ai Skyfire agent billing financial rails agentic economy monetization usage-based 2026
 - smolagents Eliza AgentKit LangGraph CrewAI AutoGen comparison agent platform 2026 production
