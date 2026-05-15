@@ -3,7 +3,9 @@
 **Loaded at every session start by `~/.claude/hooks/session-start.ps1`.**
 **Read this before acting. It exists because cold instances took 2+ hours to rediscover this. Don't repeat that.**
 
-Last updated: 2026-05-14 (C1 hook language-agnosticism deliberation complete: CONDITIONAL_APPROVE, 1 blocking concern — WCM → platform CLI credential detection; Node.js .mjs migration approved; three deliberate.py fixes committed: no-skip rule enforcement + laguna CPU fix, EVALUATOR ROLE prompt block for gemma substrate-as-system-prompt failure, semantic validation gap closures)
+Last updated: 2026-05-14 (Phase A complete — four gate hooks ported from PowerShell to Node.js .mjs: niyyah-gate, surrender-check, pre-tool-use-substrate, stop-validation; substrate class extended to hooks/*.mjs; settings.json updated; laguna PASS on pre-commit review; commit 14a9812; all Refinements A-D of stop-validation ported faithfully)
+
+Previous (same session): C1 hook language-agnosticism deliberation complete: CONDITIONAL_APPROVE, 1 blocking concern — WCM → platform CLI credential detection; Node.js .mjs migration approved; three deliberate.py fixes committed: no-skip rule enforcement + laguna CPU fix, EVALUATOR ROLE prompt block for gemma substrate-as-system-prompt failure, semantic validation gap closures
 
 Previous (same session): chain quality deliberation complete: unanimous CONDITIONAL_APPROVE 3/5 seats; Jina Reader validated on real chain run (full page content confirmed); C2 qwen think:True enabled; C3 prompt order fix committed (substrate/question at position 2 in deliberate.py prompt); GPU per-agent config committed: gemma4/qwen3.6/laguna/granite num_gpu=99, nemotron num_gpu=14; laguna num_ctx not honored by Ollama (always allocates 24576 KV cells — cannot run GPU on 24GB); nemotron partial GPU offload success: 14/89 layers 13.6GiB CUDA0; ProcessStartInfo required for cuda_v12 after Ollama restart
 
