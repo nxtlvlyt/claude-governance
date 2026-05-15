@@ -428,6 +428,22 @@ gaps the spec must address before implementation. Patch the spec, run pass 2.
 
 ---
 
+## Phase 1 — completion criteria
+
+Phase 1 is complete only when ALL agents have produced parseable output. An agent that returns a non-JSON response, a truncated response, a timeout, or a parse error is not a completed seat — it is a failed seat. The phase is not complete until the failed seat has been re-run and its output is parseable.
+
+**Why this rule exists:** The concern propagation algorithm (see above) operates on structured output. An agent that returns unparseable output silently contributes zero concerns and zero closures to the propagation. A chain that proceeds past a failed seat operates as if that seat agreed with everything — which is not agreement, it is absence. Absence is not the same as APPROVE.
+
+**Enforcement:** The chain runner must validate JSON-parsability of each seat's output before proceeding to the next seat. On parse failure:
+1. Log the failure (seat name, error, first 200 chars of raw output)
+2. Re-dispatch the failed seat with the same inputs
+3. Limit retries to 2 per seat
+4. If retries exhausted: BLOCK the chain run with explicit failure — do not proceed to next seat
+
+The re-dispatch is not optional. Proceeding without parseable output from every seat corrupts the concern propagation and makes the final verdict unreliable.
+
+---
+
 ## The chain runner scripts
 
 The current chain uses individual dispatch scripts per seat:

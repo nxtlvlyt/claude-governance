@@ -72,6 +72,11 @@
         "hooks": [
           {
             "type": "command",
+            "command": "node \"C:\\Users\\marka\\.claude\\hooks\\bootstrap-gate.mjs\"",
+            "timeout": 10
+          },
+          {
+            "type": "command",
             "command": "node \"C:\\Users\\marka\\.claude\\hooks\\pre-tool-use-substrate.mjs\"",
             "timeout": 10
           },
