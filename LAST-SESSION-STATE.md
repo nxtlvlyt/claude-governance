@@ -1,8 +1,8 @@
 # LAST-SESSION-STATE.md
 
 Written by: pre-compact.mjs hook at compaction event
-Timestamp: 2026-05-15 10:09:35
-Project CWD: C:\WINDOWS\system32
+Timestamp: 2026-05-15 11:07:02
+Project CWD: C:\Windows\System32
 
 ## Governance constants (always true)
 

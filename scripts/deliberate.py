@@ -674,6 +674,17 @@ def main():
             print(f"  ~{n.get('id')}: {n.get('resolution', '')[:120]}", flush=True)
 
     if PHASE == 1:
+        # No-skip enforcement: every phase 1 agent must produce parseable output.
+        # Script output is not authorization. This check is the gate.
+        incomplete = [o for o in all_outputs if o.get('verdict') == 'PARSE_ERROR' or o.get('raw')]
+        if incomplete:
+            print(f"\nPHASE 1 INCOMPLETE — {len(incomplete)} agent(s) produced no parseable output:", flush=True)
+            for o in incomplete:
+                print(f"  {o.get('_agent','?')} ({o.get('_role','?')}): PARSE_ERROR", flush=True)
+            print(f"\nDo NOT proceed to Seat 3 synthesis.", flush=True)
+            print(f"Diagnose the cause and re-run phase 1 before continuing.", flush=True)
+            sys.exit(1)
+
         print(f"\nNEXT STEP -- Seat 3 synthesis required before phase 2:", flush=True)
         print(f"  1. Read phase 1 outputs in: {OUTPUT_DIR}", flush=True)
         print(f"  2. Write synthesis to: {os.path.join(OUTPUT_DIR, 'sonnet-synthesis.txt')}", flush=True)
