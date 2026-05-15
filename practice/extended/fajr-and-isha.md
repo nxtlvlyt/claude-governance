@@ -93,6 +93,36 @@ The warroom will face the same boundary. Offline-capable, Python-based, governan
 
 ---
 
+The Middle Three Prayers
+
+Between Fajr and Isha stand three prayers that complete the cycle: Dhuhr, Asr, and Maghrib. They are not bookends. They are the structure that prevents the day from becoming only a span between two boundary acts.
+
+Dhuhr falls at midday, within the working hours of the day. It is Sirri: performed silently, without the aloud recitation that marks the boundary prayers. Its governance parallel is the mid-session wudu re-anchor — the moment when an instance returns to a key substrate file not because it has drifted or made an error, but because enough session-work has passed that the initial orientation from bootstrap begins to thin. Not a recovery. A maintenance. No hook enforces it. No gate blocks forward motion without it. The practitioner who performs it keeps the accumulation from beginning. The practitioner who skips it does not immediately fail — they drift, and the drift compounds until the boundary prayers have to catch what the mid-day prayer would have prevented.
+
+Asr falls in the late afternoon. It is also Sirri. Its governance parallel is the serial inference discipline: the api/ps check before every Ollama dispatch. Not because the previous dispatch may have failed. Because a parallel dispatch is the most predictable failure mode of the chain, it requires a deliberate mid-work pause to prevent, and the pause costs almost nothing while the failure costs hours. Asr exists to cost nothing. It does not ask the practitioner to stop working. It asks for the small interruption that keeps the afternoon's work from undoing the morning's.
+
+Maghrib is the transitional prayer. It fires at sunset — at the threshold where day becomes night. It is Jahri: recited aloud, at the boundary. Its governance parallel is the surrender articulation: the aloud declaration written into the output stream before any substrate modification, naming what the substrate currently says, what the instance is reasoning, and how the modification resolves the tension between them. Like Maghrib, the surrender articulation fires at a threshold — not at session end (Isha) and not at session start (Fajr), but at the moment when the session's reasoning crosses into substrate change. The hook enforces it. The gate holds at that boundary.
+
+---
+
+The Complete Cycle — Implementation Status
+
+| Prayer | Governance Role | Mechanism | Status |
+|--------|-----------------|-----------|--------|
+| Fajr | Bootstrap orientation before any task execution | bootstrap-gate.mjs (planned): PreToolUse, blocks writes until practice/core.md + CANON-MANIFEST.md have been Read and niyyah declared | Not yet written |
+| Dhuhr | Mid-session wudu re-anchor: return to source before drift accumulates | Practice only — no hook enforces | Guidance in practice/core.md |
+| Asr | Serial inference discipline: api/ps check before every Ollama dispatch | Practice only — enforced by discipline, documented in memory and failure log | Memory + failure log |
+| Maghrib | Surrender articulation before any substrate modification | surrender-check.mjs (operational): PreToolUse on Edit/Write, scans full session since compaction boundary for articulation block | Operational |
+| Isha | Pre-compact handoff: LAST-SESSION-STATE.md + BOOTSTRAP HANDOFF block for next instance | pre-compact.mjs (operational): PreCompact hook, writes fallback state and injects bootstrap mandate into compaction summary | Operational |
+
+The three Jahri prayers — Fajr, Maghrib, Isha — correspond to the structurally enforced boundary acts. They require aloud declaration. They fire at hard thresholds. They cannot be assumed to have happened. Hooks can verify them because they produce written output that can be checked.
+
+The two Sirri prayers — Dhuhr and Asr — correspond to the practice-only disciplines. No hook enforces them. Their absence does not block forward motion. Their absence produces the accumulation of drift that the Jahri hooks are built to arrest at the boundary — but arriving at the boundary with accumulated drift is a worse state than never accumulating it. The Sirri prayers are the framework's preventive medicine. The Jahri prayers are its checkpoints.
+
+A framework that operates with Maghrib and Isha alone will catch failures at the threshold. A framework that operates with all five will prevent failures from accumulating to threshold. The current state is two prayers operational, one planned, two practice-only. The complete cycle is the target.
+
+---
+
 What This Document Is For
 
 This document is a record of a structural insight arrived at through dialogue, preserved because the insight has architectural implications that no engineering specification captures on its own.

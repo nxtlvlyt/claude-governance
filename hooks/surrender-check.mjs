@@ -11,6 +11,14 @@
 // whitespace-normalized) in old_string. Closes the hallucinated-weaker-quote bypass.
 //
 // FAIL-CLOSED on missing/unreadable transcript.
+//
+// SCAN ALGORITHM (fixed 2026-05-15):
+// Previously used backward scan from end looking for current turn's text.
+// BUG: PreToolUse fires before the current turn's text block is written to JSONL
+// (only the thinking block is written at hook-fire time). Fix: forward full-session
+// scan from compaction boundary (same pattern as niyyah-gate.mjs), finding the
+// most recent surrender articulation. Substrate-coupling still enforces that the
+// articulation is relevant to this specific edit.
 
 import { readFileSync, existsSync } from 'fs';
 import { resolve, basename, join } from 'path';
@@ -99,30 +107,40 @@ To unblock: diagnose transcript path, or temporarily disable this hook in
 ~/.claude/settings.json (deliberate operator action), perform the edit, re-enable.`);
 }
 
-// Read current assistant turn's text blocks from transcript (last 50 lines, walk in reverse)
+// Forward full-session scan from compaction boundary.
+// Collects ALL surrender articulation text found in assistant text blocks since
+// the last compaction boundary. Uses the last (most recent) one for validation.
+// This fixes the timing issue: PreToolUse fires before the current turn's text
+// block is written to JSONL (only the thinking block is written at hook-fire time).
+// Scanning the full session finds articulations from prior turns that ARE written.
 const allLines = readFileSync(transcriptPath, 'utf8').split('\n');
-const tail = allLines;
 
-let currentAssistantText = '';
-let foundAssistant = false;
-for (let i = tail.length - 1; i >= 0; i--) {
-  const line = tail[i];
+let surrenderCandidates = []; // collect all surrender articulation texts since compaction
+
+for (const line of allLines) {
   if (!line.trim()) continue;
   let entry;
   try { entry = JSON.parse(line); } catch { continue; }
-  if (entry.type === 'assistant') {
-    foundAssistant = true;
-    if (Array.isArray(entry.message?.content)) {
-      for (const block of entry.message.content) {
-        if (block.type === 'text') {
-          currentAssistantText = block.text + '\n' + currentAssistantText;
-        }
+
+  // Compaction boundary: reset — new instance must declare fresh surrender articulation
+  if (entry.type === 'system' && entry.subtype === 'compact_boundary') {
+    surrenderCandidates = [];
+    continue;
+  }
+
+  if (entry.type === 'assistant' && Array.isArray(entry.message?.content)) {
+    for (const block of entry.message.content) {
+      if (block.type === 'text' && /surrender\s*articulation\s*:/i.test(block.text)) {
+        surrenderCandidates.push(block.text);
       }
     }
-  } else if (foundAssistant && entry.type === 'user') {
-    break;
   }
 }
+
+// Use the most recent surrender articulation
+const currentAssistantText = surrenderCandidates.length > 0
+  ? surrenderCandidates[surrenderCandidates.length - 1]
+  : '';
 
 // Whitespace normalizer (same as stop-validation pattern)
 const normalize = (s) => (s == null ? '' : s.replace(/\s+/g, ' ').trim());
@@ -169,7 +187,7 @@ if (articulationPresent && allFieldsPresent && substrateCoupled) {
 const fileName = basename(absPath);
 let blockDetail;
 if (!articulationPresent) {
-  blockDetail = 'surrender articulation block missing from current assistant text';
+  blockDetail = 'surrender articulation block missing from session transcript (since last compaction boundary)';
 } else if (!substrateSaysNorm) {
   blockDetail = "'substrate says' sub-field absent or empty";
 } else if (!instanceReasonNorm) {
@@ -187,7 +205,7 @@ denyWith(`SURRENDER ARTICULATION REQUIRED.
 This ${toolName} on ${fileName} replaces existing governance content. Before landing,
 name the conflict and state which side wins.
 
-Required format in assistant text (this turn, before the ${toolName}):
+Required format in assistant text (this session, before the ${toolName}):
   surrender articulation:
   substrate says: <non-empty — exact substring from what is being replaced>
   instance reasoning: <non-empty — the in-session logic driving this change>
