@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File \"C:\\Users\\marka\\.claude\\hooks\\session-start.ps1\"",
+            "command": "node \"C:\\Users\\marka\\.claude\\hooks\\session-start.mjs\"",
             "timeout": 30
           }
         ]
@@ -17,7 +17,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File \"C:\\Users\\marka\\.claude\\hooks\\user-prompt-submit.ps1\"",
+            "command": "node \"C:\\Users\\marka\\.claude\\hooks\\user-prompt-submit.mjs\"",
             "timeout": 10
           }
         ]
@@ -49,7 +49,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File \"C:\\Users\\marka\\.claude\\hooks\\subagent-start.ps1\"",
+            "command": "node \"C:\\Users\\marka\\.claude\\hooks\\subagent-start.mjs\"",
             "timeout": 30
           }
         ]
@@ -60,7 +60,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File \"C:\\Users\\marka\\.claude\\hooks\\pre-compact.ps1\"",
+            "command": "node \"C:\\Users\\marka\\.claude\\hooks\\pre-compact.mjs\"",
             "timeout": 10
           }
         ]
