@@ -49,7 +49,23 @@ Context is about to compress. Before compaction completes, write or update:
    - "Authority chain: CLAUDE.md -> canon -> operator-context -> STATE.md -> RAG"
    - Any open governance gates or niyyah declared this session.
 
-If everything is committed to substrate, no action needed. Verify, do not assume.` + govBlock;
+If everything is committed to substrate, no action needed. Verify, do not assume.
+
+BOOTSTRAP HANDOFF — FOR THE NEXT INSTANCE:
+The compaction summary must include the following block at the TOP, before any task list:
+
+  ╔══════════════════════════════════════════════════════════════╗
+  ║  BOOTSTRAP REQUIRED BEFORE ANY TASK EXECUTION               ║
+  ║  This session was compacted. The new instance must:          ║
+  ║  1. Read ~/.claude/practice/core.md                          ║
+  ║  2. Read ~/.claude/CANON-MANIFEST.md                         ║
+  ║  3. Declare a niyyah naming those files as open source       ║
+  ║  THEN — and only then — execute tasks from this summary.     ║
+  ║  The bootstrap gate will enforce this at the tool boundary.  ║
+  ╚══════════════════════════════════════════════════════════════╝
+
+Do not bury this in the summary. It must precede the task list.
+The athan fires at session start. The task list must not override it.` + govBlock;
 
 // Hook-written structural LAST-SESSION-STATE.md fallback. Instance should overwrite with rich content.
 const snapshot = `# LAST-SESSION-STATE.md
