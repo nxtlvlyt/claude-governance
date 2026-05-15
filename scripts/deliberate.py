@@ -449,6 +449,8 @@ def dispatch_agent(cfg, prior_verdicts, search_results, open_concerns, soft_note
     except Exception as e:
         print(f"\nDISPATCH ERROR: {e}", flush=True)
         # 500 on GPU → retry with CPU (num_gpu=0). No-skip rule: a 500 is a skip.
+        # Condition: num_gpu != 0 means the agent was trying GPU — fall back to CPU.
+        # Unreachable for laguna (already cpu-only), but guards granite and future agents.
         if "500" in str(e) and body.get("options", {}).get("num_gpu", 1) != 0:
             print(f"  Retrying {name} with num_gpu=0 (CPU fallback)...", flush=True)
             safe_stop(name)
