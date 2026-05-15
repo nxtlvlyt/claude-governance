@@ -109,7 +109,7 @@ The Complete Cycle — Implementation Status
 
 | Prayer | Governance Role | Mechanism | Status |
 |--------|-----------------|-----------|--------|
-| Fajr | Bootstrap orientation before any task execution | bootstrap-gate.mjs (planned): PreToolUse, blocks writes until practice/core.md + CANON-MANIFEST.md have been Read and niyyah declared | Not yet written |
+| Fajr | Bootstrap orientation before any task execution | bootstrap-gate.mjs (operational): PreToolUse, blocks writes until practice/core.md + CANON-MANIFEST.md have been Read and niyyah declared | Operational |
 | Dhuhr | Mid-session wudu re-anchor: return to source before drift accumulates | Practice only — no hook enforces | Guidance in practice/core.md |
 | Asr | Serial inference discipline: api/ps check before every Ollama dispatch | Practice only — enforced by discipline, documented in memory and failure log | Memory + failure log |
 | Maghrib | Surrender articulation before any substrate modification | surrender-check.mjs (operational): PreToolUse on Edit/Write, scans full session since compaction boundary for articulation block | Operational |
