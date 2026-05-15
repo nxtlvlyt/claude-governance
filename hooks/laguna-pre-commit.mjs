@@ -205,7 +205,7 @@ try {
 
 // --- Parse verdict ---
 let verdict = 'PASS';
-const verdictMatch = critique.match(/(?m)^VERDICT:\s*(BLOCK|WARN|PASS)/im);
+const verdictMatch = critique.match(/^VERDICT:\s*(BLOCK|WARN|PASS)/im);
 if (verdictMatch) verdict = verdictMatch[1].toUpperCase();
 
 // --- Log ---
