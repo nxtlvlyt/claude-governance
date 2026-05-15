@@ -1,7 +1,7 @@
 # LAST-SESSION-STATE.md
 
-Written by: pre-compact.ps1 hook at compaction event
-Timestamp: 2026-05-14 22:53:48
+Written by: pre-compact.mjs hook at compaction event
+Timestamp: 2026-05-15 08:35:26
 Project CWD: C:\Windows\System32
 
 ## Governance constants (always true)
