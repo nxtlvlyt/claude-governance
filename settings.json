@@ -89,6 +89,11 @@
             "type": "command",
             "command": "node \"C:\\Users\\marka\\.claude\\hooks\\surrender-check.mjs\"",
             "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "node \"C:\\Users\\marka\\.claude\\hooks\\pre-tool-use-seat3-phase.mjs\"",
+            "timeout": 10
           }
         ]
       },
