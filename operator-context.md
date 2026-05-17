@@ -55,7 +55,7 @@ When the canon or a hook requires a "frontier-level" dispatch (substrate edit wi
 4. Check api/ps → `{"models":[]}` before proceeding.
 5. Dispatch **qwen3.6:27b** (deep-dive — investigates gemma concerns + SOTA, second) via Python streaming. `"think": True` enables chain-of-thought (C2, 2026-05-14). Must be a **top-level body key** (NOT inside `options`). The chain runner captures `message.thinking` separately from `message.content` — qwen's JSON verdict is in `message.content`, chain-of-thought in `message.thinking`. Include SearxNG + gemma concerns.
 6. Check api/ps.
-7. **claude-sonnet-4-6 (architect seat 3 — this instance)** — reads gemma + qwen outputs, runs own `mcp__searxng-mcp__searxng_web_search` queries, adds architect synthesis with history context the local models don't have. This is text output, not an Ollama dispatch.
+7. **claude-sonnet-4-6 (architect seat 3 — this instance)** — reads gemma + qwen outputs, runs own `mcp__searxng-mcp__searxng_web_search` queries, adds architect synthesis with history context the local models don't have. This is text output, not an Ollama dispatch. **Two-phase protocol (enforced by hook):** Phase 1 — read substrate files, form independent assessment, write `sonnet-blind.txt` BEFORE reading Seats 1+2 output. Phase 2 — read prior seats, write `sonnet-synthesis.txt` delta only. The `pre-tool-use-seat3-phase.mjs` hook blocks writing synthesis if blind artifact is absent.
 8. Dispatch **laguna-xs.2:q4_K_M** (code review — structural audit, third) via Python streaming (timeout=32768). Include all prior context + open concerns.
 9. Check api/ps.
 10. Dispatch **granite4.1:30b** (governance audit — canon coherence, fourth) via Python streaming (timeout=32768). Include all prior context + open concerns.
@@ -201,7 +201,7 @@ The operator's deliberation team is **NOT** the Facilitator's executor/validator
 |------|-------|---------|
 | Architect (workshop) | gemma4:31b | First pass — architectural shape, first-pass concerns. SearxNG: breadth/SOTA/threads. |
 | Architect (deep-dive) | qwen3.6:27b | Second — investigates gemma concerns, SOTA research. SearxNG: GitHub/SO/changelogs/edge cases. |
-| Architect (synthesis) | claude-sonnet-4-6 (this instance) | Third — reads gemma+qwen, adds history context, SearxNG research. Text output, not Ollama. |
+| Architect (synthesis) | claude-sonnet-4-6 (this instance) | Third — reads gemma+qwen, adds history context, SearxNG research. Text output, not Ollama. **Two-phase:** Phase 1 writes `sonnet-blind.txt` (substrate-only, no prior seat output); Phase 2 writes `sonnet-synthesis.txt` (delta only). Enforced by `pre-tool-use-seat3-phase.mjs` hook + laguna hard-fail if blind artifact missing. |
 | Code Review | laguna-xs.2:q4_K_M | Third local — structural audit, investigates qwen concerns. SearxNG: API docs/type defs. |
 | Governance | granite4.1:30b | Fourth — canon coherence, rule violations. SearxNG: governance/official specs/compliance. |
 | Synthesis | nemotron-3-super:latest | Fifth — final verdict, assumption auditing. SearxNG: production validation/testing/timeouts. |
@@ -332,6 +332,7 @@ All hooks live at `~/.claude/hooks/`. All are governance-substrate files (requir
 | Hook | Event | What it gates |
 |------|-------|--------------|
 | `session-start.mjs` | SessionStart | Loads practice/core.md, canon, operator-context.md, project STATE.md |
+| `pre-tool-use-seat3-phase.mjs` | PreToolUse | Blocks Write to `*sonnet-synthesis*` files unless `sonnet-blind.txt` exists in same directory. Enforces two-phase independence protocol for Seat 3. |
 | `user-prompt-submit.mjs` | UserPromptSubmit | Re-anchors on every message; lists available tools |
 | `niyyah-gate.mjs` | PreToolUse | Blocks first Edit/Write/NotebookEdit if no niyyah in transcript |
 | `surrender-check.mjs` | PreToolUse | Requires surrender articulation before editing governance substrate |

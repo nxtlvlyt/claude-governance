@@ -44,6 +44,71 @@ The synthesis is Seat 3's evaluation, informed by prior seats but not deferring 
 
 ---
 
+## Seat 3 — Two-Phase Protocol (structural enforcement, 2026-05-17)
+
+The independence mandate above defines the obligation. This section defines the structural enforcement that makes independence verifiable rather than trust-based.
+
+### Phase 1 — Blind substrate eval (before reading prior seat output)
+
+1. Read substrate files under review directly from disk.
+2. Form an independent assessment: what is correct, uncertain, wrong, and what is missing.
+3. Write this assessment to **`sonnet-blind.txt`** in the chain's working directory.
+4. Only after `sonnet-blind.txt` is written: read Seats 1 and 2 output.
+
+### Phase 2 — Delta synthesis (after reading prior seats)
+
+5. Read Seats 1 and 2 output.
+6. Write **`sonnet-synthesis.txt`** — delta only: what prior seats got right, what they got wrong, what they missed, and the synthesis verdict. Not a summary of prior seats.
+
+### Structural enforcement
+
+**`pre-tool-use-seat3-phase.mjs`** (PreToolUse hook on Edit|Write) — blocks any Write to a file matching `*sonnet-synthesis*` unless `sonnet-blind.txt` exists in the same directory. If blocked, the message is explicit: complete Phase 1 first.
+
+**Laguna hard-fail** — `dispatch-laguna.mjs` (and Python equivalent) hard-fails at startup if `sonnet-blind.txt` is missing: exits with "FATAL: sonnet-blind.txt missing. Seat 3 did not complete Phase 1." This makes skipping Phase 1 impossible even if the hook is bypassed.
+
+**Laguna independence audit** — Laguna's prompt includes both `sonnet-blind.txt` and `sonnet-synthesis.txt`. It audits whether synthesis reversed blind-eval positions without substrate evidence (deference to Seats 1/2). Reports `INDEPENDENCE: PASS/FAIL` as a separate check alongside its verdict.
+
+**Why artifact dependency, not trust:** An instance can claim independent evaluation while actually reading prior seats first. Artifact dependency makes independence verifiable by structure, not by trust. The blind artifact must exist before synthesis can be written — this is enforceable; a promise is not.
+
+---
+
+## Dispatch script language — Node.js preferred (2026-05-17)
+
+New chain dispatch scripts should be authored in Node.js (.mjs), not Python. The hooks are already Node.js — same runtime, async-native HTTP polling, no interpreter switching. Long-sleep polling in PowerShell is blocked by the tool sandbox; Bash `until` loops work but are crude workarounds. Node.js `fetch` streaming is non-blocking by design.
+
+**Python works** for existing scripts in active chains — do not rewrite mid-chain. Apply going forward, and when authoring chain-compaction master scripts (canonical replacements for per-chain dispatch-*.py files).
+
+```js
+// Node.js streaming pattern (replaces Python requests.post streaming)
+import { readFileSync, writeFileSync } from 'fs';
+
+const res = await fetch('http://localhost:11434/api/chat', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify(body),  // body includes model, messages, stream:true, options
+});
+
+let content = '', buf = '';
+const decoder = new TextDecoder();
+for await (const chunk of res.body) {
+  buf += decoder.decode(chunk, { stream: true });
+  const lines = buf.split('\n');
+  buf = lines.pop();
+  for (const line of lines) {
+    if (!line.trim()) continue;
+    const obj = JSON.parse(line);
+    const piece = obj?.message?.content ?? '';
+    if (piece) { content += piece; process.stdout.write(piece); }
+    if (obj.done) break;
+  }
+}
+writeFileSync(outputPath, content, 'utf8');
+```
+
+No timeout needed: Node.js `fetch` holds the stream open as long as Ollama is writing — correct behavior for CPU inference that can run for hours.
+
+---
+
 ## Hardware requirements
 
 - **RAM**: 192GB minimum for full stack. nemotron-3-super loads at ~93.6GB. Two models
