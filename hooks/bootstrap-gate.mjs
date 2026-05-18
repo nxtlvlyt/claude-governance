@@ -1,22 +1,28 @@
 #!/usr/bin/env node
 // ~/.claude/hooks/bootstrap-gate.mjs
-// PreToolUse hook — Fajr gate: bootstrap orientation before first write.
+// PreToolUse hook — Fajr gate: bootstrap orientation before substantive action.
 //
-// Fires on Edit/Write/NotebookEdit. Passes on Read/Glob/Grep (bootstrap reads
-// are the point — don't block them).
+// Fires on Edit/Write/NotebookEdit (always) and Read (non-bootstrap files only).
+// Bootstrap-file Reads (core.md, CANON-MANIFEST.md) always pass — they are
+// the unlock path and must never be blocked.
+// Glob/Grep/Bash pass silently — Bash is an accepted bypass documented in
+// pillars-and-sunnah.md (shell commands cannot be reliably classified without
+// executing them; the scope here is the Read tool which has deterministic input).
 //
-// Required before any write in a session:
+// Required before any non-bootstrap Read or write in a session:
 //   1. ~/.claude/practice/core.md has been Read
 //   2. ~/.claude/CANON-MANIFEST.md has been Read
 //
-// These are the minimum bootstrap reads per CLAUDE.md Bootstrap section and
-// practice/extended/pillars-and-sunnah.md. Niyyah is handled by niyyah-gate.mjs.
+// Fail behavior:
+//   - Bootstrap-file Read: always allow (prevents deadlock)
+//   - Non-bootstrap Read, transcript unreadable: fail-closed (block)
+//   - Edit/Write/NotebookEdit, transcript unreadable: fail-open (allow)
 //
-// Fail-open on missing/unreadable transcript (cannot validate → allow).
 // Resets at compaction boundary — new instance must demonstrate fresh reads.
+// Niyyah is handled by niyyah-gate.mjs (separate gate, fires after this one).
 
 import { readFileSync, existsSync } from 'fs';
-import { basename, join } from 'path';
+import { join } from 'path';
 import os from 'os';
 
 let inp;
@@ -29,8 +35,28 @@ try {
 if (!inp) process.exit(0);
 
 const toolName = inp.tool_name;
-if (toolName !== 'Edit' && toolName !== 'Write' && toolName !== 'NotebookEdit') {
-  process.exit(0);
+
+const isWriteTool = toolName === 'Edit' || toolName === 'Write' || toolName === 'NotebookEdit';
+const isReadTool = toolName === 'Read';
+if (!isWriteTool && !isReadTool) process.exit(0);
+
+// Required bootstrap reads — matched by normalized path suffix
+const REQUIRED = [
+  { suffix: '.claude/practice/core.md',   label: '~/.claude/practice/core.md' },
+  { suffix: '.claude/CANON-MANIFEST.md',  label: '~/.claude/CANON-MANIFEST.md' },
+];
+
+// Normalize separators and lowercase only — do NOT resolve() the suffix,
+// that would expand it relative to CWD and break the endsWith comparison.
+const normSlash = (p) => p.replace(/\\/g, '/').toLowerCase();
+const pathEndsWith = (haystack, suffix) =>
+  normSlash(haystack).endsWith(normSlash(suffix));
+
+// For Read calls: check if this IS a bootstrap file — always allow those through
+if (isReadTool) {
+  const filePath = inp.tool_input?.file_path;
+  if (!filePath) process.exit(0);
+  if (REQUIRED.some(req => pathEndsWith(filePath, req.suffix))) process.exit(0);
 }
 
 // Locate transcript
@@ -43,22 +69,30 @@ if (inp.transcript_path) {
   transcriptPath = join(os.homedir(), '.claude', 'projects', sanitized, `${inp.session_id}.jsonl`);
 }
 
-// Fail-open on missing transcript
+// Fail behavior differs by tool type when transcript is unavailable
 if (!transcriptPath || !existsSync(transcriptPath)) {
+  if (isReadTool) {
+    // Fail-closed for non-bootstrap Reads — transcript required to validate orientation
+    process.stdout.write(JSON.stringify({
+      hookSpecificOutput: {
+        hookEventName: 'PreToolUse',
+        permissionDecision: 'deny',
+        permissionDecisionReason: `BOOTSTRAP GATE (~/.claude/hooks/bootstrap-gate.mjs).
+
+Cannot read session transcript to validate bootstrap status.
+Non-bootstrap Read blocked (fail-closed).
+
+Read ~/.claude/practice/core.md and ~/.claude/CANON-MANIFEST.md first.
+Those reads are always allowed — they are the bootstrap path itself.`,
+      },
+    }));
+    process.exit(2);
+  }
+  // Fail-open for write tools — cannot validate, allow
   process.exit(0);
 }
 
-// Path-suffix matcher (normalize separators, case-insensitive)
-const normSlash = (p) => p.replace(/\\/g, '/').toLowerCase();
-const endsWith = (haystack, suffix) => normSlash(haystack).endsWith(normSlash(suffix));
-
-// Required reads — must match path suffixes
-const REQUIRED = [
-  { suffix: '.claude/practice/core.md', label: '~/.claude/practice/core.md' },
-  { suffix: '.claude/CANON-MANIFEST.md', label: '~/.claude/CANON-MANIFEST.md' },
-];
-
-// Forward scan from compaction boundary
+// Scan transcript from last compaction boundary forward
 const lines = readFileSync(transcriptPath, 'utf8').split('\n');
 const readPaths = [];
 
@@ -67,7 +101,7 @@ for (const line of lines) {
   let entry;
   try { entry = JSON.parse(line); } catch { continue; }
 
-  // Compaction boundary: reset — new instance must demonstrate fresh reads
+  // Compaction boundary: reset — new cold instance must re-demonstrate reads
   if (entry.type === 'system' && entry.subtype === 'compact_boundary') {
     readPaths.length = 0;
     continue;
@@ -84,16 +118,18 @@ for (const line of lines) {
 
 // Check which required reads are missing
 const missing = REQUIRED.filter(req =>
-  !readPaths.some(rp => endsWith(rp, req.suffix))
+  !readPaths.some(rp => pathEndsWith(rp, req.suffix))
 );
 
-if (missing.length === 0) {
-  process.exit(0);
-}
+if (missing.length === 0) process.exit(0);
 
-// Compose denial
+// Block — compose denial message
 const missingList = missing.map(r => `  - ${r.label}`).join('\n');
 const allList = REQUIRED.map(r => `  - ${r.label}`).join('\n');
+
+const toolContext = isReadTool
+  ? 'This Read is blocked — Fajr orientation has not been demonstrated in this session.'
+  : 'This is the first mutating action in this session. The Fajr reads have not been demonstrated.';
 
 process.stdout.write(JSON.stringify({
   hookSpecificOutput: {
@@ -101,23 +137,18 @@ process.stdout.write(JSON.stringify({
     permissionDecision: 'deny',
     permissionDecisionReason: `BOOTSTRAP GATE (~/.claude/hooks/bootstrap-gate.mjs).
 
-This is the first mutating action in this session. The Fajr reads have not been
-demonstrated in the session transcript.
+${toolContext}
 
 Missing reads:
 ${missingList}
 
-Required before any Edit/Write:
+Required before any non-bootstrap Read or Edit/Write:
 ${allList}
 
 Per CLAUDE.md Bootstrap and ~/.claude/practice/extended/pillars-and-sunnah.md:
-orientation reads are a precondition for writing, not a response to noticing
-drift. Read the required files, then proceed — niyyah-gate.mjs will require
-the niyyah declaration.
-
-Read calls are allowed without restriction — this gate does not block them.
-Once both required reads appear in the transcript, this gate opens for the
-remainder of the session.`,
+orientation is a precondition for substantive action — not a response to drift.
+Read the required files first. Bootstrap reads are always allowed.
+Once both appear in the transcript, this gate opens for the remainder of the session.`,
   },
 }));
 process.exit(2);
