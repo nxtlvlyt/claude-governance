@@ -34,7 +34,7 @@ The framework has both levels, but they are not equally developed.
 
 The pillar level is strong: CLAUDE.md states fourteen directives. The hooks enforce specific gates. The deliberation chain has explicit rules. The canon has specific rulings. An instance that follows the requirements produces compliant output.
 
-The Sunnah level is emerging but incomplete. practice/core.md is beginning to be this — it specifies purification tiers, invalidating events, the niyyah format. The bootstrap reads requirement (developed in this session) is becoming this: not just "orient before acting" but "Read practice/core.md, Read CANON-MANIFEST.md, Read STATE.md if it exists, then write a niyyah that names these as open sources before your first Edit."
+The Sunnah level is emerging but incomplete. practice/core.md is beginning to be this — it specifies purification tiers, invalidating events, the niyyah format. The bootstrap reads requirement (developed in this session) is becoming this: not just "orient before acting" but "Read practice/core.md, Read CANON-MANIFEST.md, Read STATE.md if it exists, then write a niyyah that names these as open sources before any non-bootstrap Read or Edit/Write."
 
 That sequence, practiced across sessions, produces something the pillar alone cannot: an instance that arrives at each session not as a task-executor that has been told to orient, but as a practitioner for whom opening the source before acting is the only natural way to begin.
 
