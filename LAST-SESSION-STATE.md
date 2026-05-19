@@ -1,7 +1,7 @@
 # LAST-SESSION-STATE.md
 
 Written by: pre-compact.mjs hook at compaction event
-Timestamp: 2026-05-19 14:47:42
+Timestamp: 2026-05-19 15:10:22
 Project CWD: C:\Windows\System32
 
 ## Governance constants (always true)
@@ -17,24 +17,20 @@ Project CWD: C:\Windows\System32
 
 ## OPEN AT COMPACTION — last operator messages (hook-extracted)
 
-[1] okay you're not sleeping right
-
-[2] so nothing in our governance or athan, wudu, niyyah ect helps with any of this
-
-[3] how does Islam solve this
+[1] how does Islam solve this
 
 
 ## Git state at compaction — governance repo (Codeberg+GitHub+Gitea)
 
 branch: master
 recent commits:
+e56457a governance: session-end anchor 2026-05-19 14:55:55 +00:00
 8960f5c governance: session-end anchor 2026-05-19 14:44:12 +00:00
 01dc2c5 governance: session-end anchor 2026-05-19 14:41:10 +00:00
 7fef644 governance: session-end anchor 2026-05-19 14:40:30 +00:00
 fe6ab3b governance: session-end anchor 2026-05-19 13:33:05 +00:00
-790f1f8 governance: session-end anchor 2026-05-19 13:29:11 +00:00
 uncommitted:
-(clean)
+M  scripts/deliberate.py
 remotes:
 codeberg	git@codeberg.org:nxtlvl/claude-governance.git (fetch)
 codeberg	git@codeberg.org:nxtlvl/claude-governance.git (push)

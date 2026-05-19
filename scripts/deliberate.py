@@ -182,8 +182,8 @@ PHASE1_AGENTS = [
         "role": "workshop",
         "search_query": SEARCH_QUERIES[0],
         "think": None,
-        "num_predict": 4096,
-        "num_ctx": 16384,   # prompt (substrate+search+Jina) + output room
+        "num_predict": 8192, # 4096 was too small — thinking tokens count against num_predict; gemma exhausted budget on thinking with 0 left for content (same bug as qwen, same fix)
+        "num_ctx": 24576,   # 16384 too small for large prompts (~14.5K tokens) + thinking budget; 24576 leaves ~10K tokens for output
         "num_gpu": 50,      # gemma4:31b loads ~29GB total; 50 layers = ~19GB VRAM, ~20.5GB GPU used, ~3.5GB free
     },
     {
