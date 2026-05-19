@@ -59,20 +59,30 @@ if (transcriptPath && existsSync(transcriptPath)) {
   } catch { /* non-fatal */ }
 }
 
-// Capture git state in project CWD — branch name encodes active task, no LLM needed
+// Capture git state — primary is ~/.claude governance repo (local repo, pushes to Codeberg+GitHub+Gitea).
+// Project CWD added as secondary if it is also a git repo.
 let gitState = '';
+function gitSnapshot(dir, label) {
+  const branch  = spawnSync('git', ['rev-parse', '--abbrev-ref', 'HEAD'], { cwd: dir, encoding: 'utf8' });
+  if (branch.status !== 0) return '';
+  const log     = spawnSync('git', ['log', '--oneline', '-5'],             { cwd: dir, encoding: 'utf8' });
+  const status  = spawnSync('git', ['status', '--short'],                  { cwd: dir, encoding: 'utf8' });
+  const remotes = spawnSync('git', ['remote', '-v'],                       { cwd: dir, encoding: 'utf8' });
+  const br = branch.stdout.trim();
+  const lg = (log.status === 0 && log.stdout.trim()) ? log.stdout.trim() : '(none)';
+  const st = (status.status === 0 && status.stdout.trim()) ? status.stdout.trim() : '(clean)';
+  const rm = (remotes.status === 0 && remotes.stdout.trim()) ? remotes.stdout.trim() : '(none)';
+  return `\n\n## Git state at compaction — ${label}\n\nbranch: ${br}\nrecent commits:\n${lg}\nuncommitted:\n${st}\nremotes:\n${rm}`;
+}
 try {
-  const gitCwd = inp.cwd || process.cwd();
-  const branch  = spawnSync('git', ['rev-parse', '--abbrev-ref', 'HEAD'], { cwd: gitCwd, encoding: 'utf8' });
-  const log     = spawnSync('git', ['log', '--oneline', '-5'],             { cwd: gitCwd, encoding: 'utf8' });
-  const status  = spawnSync('git', ['status', '--short'],                  { cwd: gitCwd, encoding: 'utf8' });
-  if (branch.status === 0) {
-    const br = branch.stdout.trim();
-    const lg = (log.status === 0 && log.stdout.trim()) ? log.stdout.trim() : '(none)';
-    const st = (status.status === 0 && status.stdout.trim()) ? status.stdout.trim() : '(clean)';
-    gitState = `\n\n## Git state at compaction\n\nbranch: ${br}\nrecent commits:\n${lg}\nuncommitted:\n${st}`;
+  const govRepo = join(os.homedir(), '.claude');
+  const projCwd = inp.cwd || process.cwd();
+  gitState = gitSnapshot(govRepo, 'governance repo (Codeberg+GitHub+Gitea)');
+  if (projCwd !== govRepo) {
+    const projSnap = gitSnapshot(projCwd, `project CWD: ${projCwd}`);
+    if (projSnap) gitState += projSnap;
   }
-} catch { /* non-fatal — not all project dirs are git repos */ }
+} catch { /* non-fatal */ }
 
 const claud      = join(os.homedir(), '.claude');
 const sessionDir = 'D:\\Desktop\\ai book\\session-summaries';
