@@ -192,7 +192,7 @@ PHASE1_AGENTS = [
         "search_query": SEARCH_QUERIES[1],
         "think": True,      # safe: script captures message.thinking separately; JSON verdict in message.content
         "num_predict": 8192, # 4096 was too small — thinking tokens count against num_predict; qwen exhausted budget on thinking with 0 left for content
-        "num_ctx": 16384,
+        "num_ctx": 24576,   # 16384 too small for large prompts (~61K chars) + thinking budget; 24576 leaves ~9-12K tokens for output (same fix as gemma)
         "num_gpu": 45,      # qwen3.6:27b loads ~27GB total; 45 layers = ~18GB VRAM, ~20GB GPU used, ~3.5GB free
     },
 ]
