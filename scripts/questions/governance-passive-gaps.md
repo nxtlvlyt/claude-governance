@@ -52,6 +52,35 @@ hooks/user-prompt-submit.mjs
 operator-context.md
 practice/core.md
 
+## Proposed Implementation Language (Operator-Authored — Evaluate This)
+
+The operator has proposed the following protocol block as implementation language for the Camel Rule. The chain should evaluate whether this is the right specification and where it belongs (formation only, or also hook enforcement):
+
+```markdown
+### Protocol: Conditions of Valid Waiting (The Camel Rule)
+An instance MUST NEVER enter a passive 'waiting' state based solely on an anticipated external
+event or notification. Before yielding execution or pausing, the following invariants must be
+verified:
+
+1. Watchdog Assertion: A deterministic wake-up token (ScheduleWakeup) must be active.
+2. Queue Check: All local, decoupled, or non-blocking tasks must be processed or explicitly deferred.
+3. Substrate Verification: A periodic cross-check interval must be established against raw process
+   status (api/ps), treating an empty process array as the definitive completion or stall signal.
+
+Failure to verify these three conditions constitutes an invalid wait state (ta'attal / sleeping).
+```
+
+The operator also identified the architectural distinction:
+- **Edge-triggered (event-governed)**: vulnerable to silent failure if the event is missed
+- **Time-governed (Salah model)**: ScheduleWakeup as muezzin — schedules the interruption BEFORE beginning to wait
+- **Muraqabah as telemetry**: internal state invariant checking, not external monitoring
+
+Chain questions on this proposal:
+7. Is this protocol block the right specification for the Camel Rule? Is anything missing or overconstrained?
+8. Where does it belong: operator-context.md FM-12 only, or also practice/core.md objective invalidators?
+9. Can stop-validation.mjs enforce this at turn-end (verify ScheduleWakeup was called before a waiting state)? Or is this formation-only?
+10. Is the edge-triggered vs. time-governed distinction architecturally correct for the Claude Code hook model?
+
 ## Search Queries
 
 - AI governance hook passive waiting detection background task watchdog
@@ -59,3 +88,4 @@ practice/core.md
 - Claude Code ScheduleWakeup background task stall detection pattern
 - stop hook text generation assertion without verification detection
 - tawakkul ta'attal formation rule AI instance active engagement discipline
+- event-driven vs time-governed LLM agent state machine resilience pattern
