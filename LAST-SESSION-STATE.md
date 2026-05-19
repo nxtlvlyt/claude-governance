@@ -1,7 +1,7 @@
 # LAST-SESSION-STATE.md
 
 Written by: pre-compact.mjs hook at compaction event
-Timestamp: 2026-05-19 10:29:00
+Timestamp: 2026-05-19 11:44:46
 Project CWD: C:\Windows\System32
 
 ## Governance constants (always true)
@@ -13,3 +13,13 @@ Project CWD: C:\Windows\System32
 ## Session state
 
 (Not yet updated by instance - hook-written structural fallback only.)
+
+
+## OPEN AT COMPACTION — last operator messages (hook-extracted)
+
+[1] yes work in accordance with the governance
+
+[2] but our repo git is a 3 tier process?
+
+[3] and we are using anything llm which uses a local model?
+
