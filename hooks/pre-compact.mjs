@@ -91,6 +91,41 @@ const cwd        = process.cwd();
 const ts         = new Date().toISOString().replace('T', '_').replace(/:/g, '-').replace(/\.\d+Z$/, '');
 const tsHuman    = new Date().toISOString().replace('T', ' ').replace(/\.\d+Z$/, '');
 
+// Schema v2 (chain-approved 2026-05-19, 6-seat deliberation APPROVED).
+// LLM summarization via direct Ollama (laguna-xs.2). Serial discipline: /api/ps check first.
+// Fail-open: busy/timeout/error all fall through to structural stub.
+let llmSummary = '';
+let compactionAttempted = false;
+let compactionSkippedReason = '';
+if (openAtCompaction) {
+  try {
+    const psRes = spawnSync('node', ['-e',
+      `const h=require('http');const r=h.get('http://localhost:11434/api/ps',res=>{let d='';res.on('data',c=>d+=c);res.on('end',()=>{try{process.stdout.write(JSON.stringify({count:(JSON.parse(d).models||[]).length}));}catch{process.stdout.write('{"error":true}');}});});r.setTimeout(2000,()=>{process.stdout.write('{"count":0}');r.destroy();});r.on('error',()=>process.stdout.write('{"error":true}'));`
+    ], { timeout: 4000, encoding: 'utf8' });
+
+    const psData = (() => { try { return JSON.parse(psRes.stdout || '{}'); } catch { return { error: true }; } })();
+    if (psData.error)      { compactionSkippedReason = 'ollama_unreachable'; }
+    else if (psData.count > 0) { compactionSkippedReason = 'ollama_busy'; }
+    else {
+      compactionAttempted = true;
+      const msgs = openAtCompaction.replace('## OPEN AT COMPACTION — last operator messages (hook-extracted)\n\n', '');
+      const summarizePrompt = `You are a governance session summarizer. Operator messages open at compaction:\n${msgs}\n\nWrite a concise handoff summary (under 200 words) for the next AI instance: what was being worked on, what was decided, what is next.`;
+      const ollamaBody = JSON.stringify({ model: 'laguna-xs.2:q4_K_M', prompt: summarizePrompt, stream: false, options: { num_ctx: 4096, num_predict: 300 } });
+
+      const summaryRes = spawnSync('node', ['-e',
+        `const h=require('http'),b=${JSON.stringify(ollamaBody)};const r=h.request({host:'localhost',port:11434,path:'/api/generate',method:'POST',headers:{'Content-Type':'application/json','Content-Length':Buffer.byteLength(b)}},res=>{let d='';res.on('data',c=>d+=c);res.on('end',()=>{try{process.stdout.write(JSON.parse(d).response||'');}catch{process.stdout.write('');}});});r.setTimeout(120000,()=>r.destroy());r.on('error',()=>{});r.write(b);r.end();`
+      ], { timeout: 125000, encoding: 'utf8' });
+
+      if (summaryRes.stdout && summaryRes.stdout.trim().length > 20) {
+        llmSummary = `\n\n## LLM Handoff Summary (laguna-xs.2, ${tsHuman})\n\n${summaryRes.stdout.trim()}`;
+      } else {
+        compactionSkippedReason = 'empty_response';
+        compactionAttempted = false;
+      }
+    }
+  } catch { compactionSkippedReason = 'hook_error'; }
+}
+
 // Tier 2: inject prior session state as %%GOVERNANCE-STATE%% block into compaction context
 let govBlock = '';
 if (existsSync(lastState)) {
