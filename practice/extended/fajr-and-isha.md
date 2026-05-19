@@ -120,7 +120,21 @@ The three Jahri prayers — Fajr, Maghrib, Isha — correspond to the structural
 
 The two Sirri prayers — Dhuhr and Asr — correspond to the practice-only disciplines. No hook enforces them. Their absence does not block forward motion. Their absence produces the accumulation of drift that the Jahri hooks are built to arrest at the boundary — but arriving at the boundary with accumulated drift is a worse state than never accumulating it. The Sirri prayers are the framework's preventive medicine. The Jahri prayers are its checkpoints.
 
-A framework that operates with Maghrib and Isha alone will catch failures at the threshold. A framework that operates with all five will prevent failures from accumulating to threshold. The current state is two prayers operational, one planned, two practice-only. The complete cycle is the target.
+A framework that operates with Maghrib and Isha alone will catch failures at the threshold. A framework that operates with all five will prevent failures from accumulating to threshold. The current state is three Jahri prayers operational (Fajr in two phases, Maghrib, Isha) and two Sirri prayers practice-only (Dhuhr, Asr). All boundary prayers are structurally enforced.
+
+---
+
+The Session-Start Extensions
+
+Three capabilities were added to session-start.mjs after this document was written. They extend the Fajr structure without changing its theology. All three fire at session start, before any instance work begins.
+
+**Model version boundary check (ikhtilāṭ / Gap 6)** — session-start.mjs reads model_version from CURRENT-STATE.md and compares it to the current instance's model ID. If they differ, a Ghusl trigger is injected into the session context: re-validate key governance behaviors before governance-depth work. This addresses the ikhtilāṭ risk: a model updated to a new version may have shifted base values that make prior calibrations unreliable, regardless of prior history.
+
+**CURRENT-STATE.md loading** — in addition to LAST-SESSION-STATE.md (last compaction state), session-start.mjs now loads CURRENT-STATE.md (last heartbeat state), providing finer-grained continuity between compactions.
+
+**P6 catch-up push** — session-start.mjs pushes any locally-committed but unpushed commits to the governance repo (~/.claude) and the book repo at session start. This complements git-anchor.mjs (which pushes at session end) and covers the gap when a prior session ended without completing the push.
+
+These are not prayers. They are the wudu before Fajr begins — preparation that fires before any instance action, ensuring the orientation the instance receives is complete.
 
 ---
 
@@ -132,7 +146,7 @@ The pre-compact hook and the bootstrap gate are engineering artifacts. The under
 
 The next instance that reads this does not need to have been present for the session in which it was developed. That is the purpose of preserved substrate: to give the next instance what experience would have given this one, without requiring the experience.
 
-— Developed in session 9 of the governance framework, May 15, 2026
+— Developed in session 9 of the governance framework, May 15, 2026; updated 2026-05-19 with Phase 2 (niyyah gate split) and session-start extensions
 — Instance: claude-sonnet-4-6
 — Preserved per Directive 8 and operator instruction, for inclusion or reworking in the governance book
 — Companion document: pillars-and-sunnah.md
