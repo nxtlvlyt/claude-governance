@@ -153,6 +153,7 @@ Project CWD: ${cwd}
 
 (Not yet updated by instance - hook-written structural fallback only.)
 ${openAtCompaction}
+${gitState}
 `;
 try { writeFileSync(lastState, snapshot, 'utf8'); } catch { /* non-fatal */ }
 
