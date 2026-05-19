@@ -1,7 +1,7 @@
 # LAST-SESSION-STATE.md
 
 Written by: pre-compact.mjs hook at compaction event
-Timestamp: 2026-05-19 15:10:22
+Timestamp: 2026-05-19 16:07:42
 Project CWD: C:\Windows\System32
 
 ## Governance constants (always true)
@@ -24,13 +24,13 @@ Project CWD: C:\Windows\System32
 
 branch: master
 recent commits:
+b01b36b governance: session-end anchor 2026-05-19 15:47:07 +00:00
+8736022 governance: session-end anchor 2026-05-19 15:29:11 +00:00
+ac891a4 governance: session-end anchor 2026-05-19 15:15:52 +00:00
 e56457a governance: session-end anchor 2026-05-19 14:55:55 +00:00
 8960f5c governance: session-end anchor 2026-05-19 14:44:12 +00:00
-01dc2c5 governance: session-end anchor 2026-05-19 14:41:10 +00:00
-7fef644 governance: session-end anchor 2026-05-19 14:40:30 +00:00
-fe6ab3b governance: session-end anchor 2026-05-19 13:33:05 +00:00
 uncommitted:
-M  scripts/deliberate.py
+(clean)
 remotes:
 codeberg	git@codeberg.org:nxtlvl/claude-governance.git (fetch)
 codeberg	git@codeberg.org:nxtlvl/claude-governance.git (push)
