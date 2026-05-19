@@ -91,9 +91,10 @@ if (existsSync(lastState)) {
 }
 
 // Build open-carries warning for additionalContext if questions were in flight
-const openCarriesNote = openAtCompaction
+const openCarriesNote = (openAtCompaction || gitState)
   ? `\n\n⚠️  OPEN AT COMPACTION — operator questions in flight when window filled:\n` +
     openAtCompaction.replace('## OPEN AT COMPACTION — last operator messages (hook-extracted)\n\n', '') +
+    (gitState ? `\n${gitState}` : '') +
     `\n\nThese MUST go into open_carries in LAST-SESSION-STATE.md. The next instance will not know about them otherwise.`
   : '';
 
