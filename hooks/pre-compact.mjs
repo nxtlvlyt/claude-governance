@@ -59,6 +59,21 @@ if (transcriptPath && existsSync(transcriptPath)) {
   } catch { /* non-fatal */ }
 }
 
+// Capture git state in project CWD — branch name encodes active task, no LLM needed
+let gitState = '';
+try {
+  const gitCwd = inp.cwd || process.cwd();
+  const branch  = spawnSync('git', ['rev-parse', '--abbrev-ref', 'HEAD'], { cwd: gitCwd, encoding: 'utf8' });
+  const log     = spawnSync('git', ['log', '--oneline', '-5'],             { cwd: gitCwd, encoding: 'utf8' });
+  const status  = spawnSync('git', ['status', '--short'],                  { cwd: gitCwd, encoding: 'utf8' });
+  if (branch.status === 0) {
+    const br = branch.stdout.trim();
+    const lg = (log.status === 0 && log.stdout.trim()) ? log.stdout.trim() : '(none)';
+    const st = (status.status === 0 && status.stdout.trim()) ? status.stdout.trim() : '(clean)';
+    gitState = `\n\n## Git state at compaction\n\nbranch: ${br}\nrecent commits:\n${lg}\nuncommitted:\n${st}`;
+  }
+} catch { /* non-fatal — not all project dirs are git repos */ }
+
 const claud      = join(os.homedir(), '.claude');
 const sessionDir = 'D:\\Desktop\\ai book\\session-summaries';
 const lastState  = join(claud, 'LAST-SESSION-STATE.md');
