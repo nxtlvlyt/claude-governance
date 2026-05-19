@@ -1,7 +1,7 @@
 # LAST-SESSION-STATE.md
 
 Written by: pre-compact.mjs hook at compaction event
-Timestamp: 2026-05-19 19:08:00
+Timestamp: 2026-05-19 20:42:40
 Project CWD: C:\Windows\System32
 
 ## Governance constants (always true)
@@ -17,20 +17,18 @@ Project CWD: C:\Windows\System32
 
 ## OPEN AT COMPACTION — last operator messages (hook-extracted)
 
-[1] what's task 3
-
-[2] our timeouts are the length of their context window as per our substrate right
+[1] our timeouts are the length of their context window as per our substrate right
 
 
 ## Git state at compaction — governance repo (Codeberg+GitHub+Gitea)
 
 branch: master
 recent commits:
+1db9f88 governance: session-end anchor 2026-05-19 20:05:42 +00:00
+0d5eb5f governance: session-end anchor 2026-05-19 19:14:26 +00:00
 725cdf6 governance: session-end anchor 2026-05-19 18:42:23 +00:00
 44e3349 governance: session-end anchor 2026-05-19 18:23:45 +00:00
 b2c77eb governance: session-end anchor 2026-05-19 17:45:45 +00:00
-4a83c9c governance: session-end anchor 2026-05-19 17:17:21 +00:00
-9e75084 governance: session-end anchor 2026-05-19 17:00:31 +00:00
 uncommitted:
 (clean)
 remotes:
