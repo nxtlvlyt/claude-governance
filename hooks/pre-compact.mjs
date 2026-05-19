@@ -7,10 +7,56 @@
 // LAST-SESSION-STATE.md and STATE.md before compaction erases in-flight context.
 // Also writes a structural fallback to LAST-SESSION-STATE.md and a timestamped
 // session summary to the AnythingLLM hotdir if it exists.
+//
+// 2026-05-19: Added stdin reading + last-prompt JSONL scan. Extracts last operator
+// messages at compaction time and embeds them in the stub and additionalContext.
+// Closes the gap where unexpected compaction drops in-flight questions.
+// Operator text lives in last-prompt entries (not user text blocks) — confirmed by JSONL inspection.
 
 import { readFileSync, writeFileSync, existsSync } from 'fs';
 import { join } from 'path';
 import os from 'os';
+
+// Read hook input — PreCompact receives session_id + transcript_path on stdin
+let inp = {};
+try { inp = JSON.parse(readFileSync(0, 'utf8')); } catch { /* non-fatal */ }
+
+// Resolve JSONL transcript path from hook input
+let transcriptPath = inp.transcript_path || null;
+if (!transcriptPath && inp.session_id) {
+  const _cwd = inp.cwd || process.cwd();
+  const sanitized = _cwd.replace(/[/\\:]/g, '-');
+  transcriptPath = join(os.homedir(), '.claude', 'projects', sanitized, `${inp.session_id}.jsonl`);
+}
+
+// Extract last operator messages since last compaction boundary.
+// Operator text lives in last-prompt entries (lastPrompt field), not user text blocks.
+// Multiple last-prompt entries exist per message (one per leaf UUID) — deduplicate by content.
+let openAtCompaction = '';
+if (transcriptPath && existsSync(transcriptPath)) {
+  try {
+    const lines = readFileSync(transcriptPath, 'utf8').split('\n');
+    const recentMsgs = [];
+    const seen = new Set();
+    for (let i = lines.length - 1; i >= 0 && recentMsgs.length < 3; i--) {
+      if (!lines[i].trim()) continue;
+      let entry;
+      try { entry = JSON.parse(lines[i]); } catch { continue; }
+      if (entry.type === 'system' && entry.subtype === 'compact_boundary') break;
+      if (entry.type === 'last-prompt' && entry.lastPrompt) {
+        const t = entry.lastPrompt.trim();
+        if (t.length > 5 && !seen.has(t)) {
+          seen.add(t);
+          recentMsgs.unshift(t.slice(0, 400));
+        }
+      }
+    }
+    if (recentMsgs.length > 0) {
+      openAtCompaction = '\n\n## OPEN AT COMPACTION — last operator messages (hook-extracted)\n\n' +
+        recentMsgs.map((m, i) => `[${i + 1}] ${m}`).join('\n\n');
+    }
+  } catch { /* non-fatal */ }
+}
 
 const claud      = join(os.homedir(), '.claude');
 const sessionDir = 'D:\\Desktop\\ai book\\session-summaries';
@@ -27,6 +73,13 @@ if (existsSync(lastState)) {
     govBlock = `\n\n%%GOVERNANCE-STATE%% - preserved from last compaction:\n${prior}\n%%END-GOVERNANCE-STATE%%`;
   } catch { /* non-fatal */ }
 }
+
+// Build open-carries warning for additionalContext if questions were in flight
+const openCarriesNote = openAtCompaction
+  ? `\n\n⚠️  OPEN AT COMPACTION — operator questions in flight when window filled:\n` +
+    openAtCompaction.replace('## OPEN AT COMPACTION — last operator messages (hook-extracted)\n\n', '') +
+    `\n\nThese MUST go into open_carries in LAST-SESSION-STATE.md. The next instance will not know about them otherwise.`
+  : '';
 
 // Tier 1: compaction instruction
 const reminder = `COMPACT EVENT - D8 CHECKPOINT + COMPACTION RESILIENCE (~/.claude/hooks/pre-compact.mjs).
@@ -49,7 +102,7 @@ Context is about to compress. Before compaction completes, write or update:
    - "Authority chain: CLAUDE.md -> canon -> operator-context -> STATE.md -> RAG"
    - Any open governance gates or niyyah declared this session.
 
-If everything is committed to substrate, no action needed. Verify, do not assume.
+If everything is committed to substrate, no action needed. Verify, do not assume.${openCarriesNote}
 
 BOOTSTRAP HANDOFF — FOR THE NEXT INSTANCE:
 The compaction summary must include the following block at the TOP, before any task list:
@@ -83,6 +136,7 @@ Project CWD: ${cwd}
 ## Session state
 
 (Not yet updated by instance - hook-written structural fallback only.)
+${openAtCompaction}
 `;
 try { writeFileSync(lastState, snapshot, 'utf8'); } catch { /* non-fatal */ }
 
@@ -126,7 +180,7 @@ LAST-SESSION-STATE.md is a hook-written stub (500 bytes or less). Failure record
 - failures_this_session: MISSING
 - corrections_applied: MISSING
 - patterns_confirmed: MISSING
-- open_carries: MISSING
+- open_carries: MISSING${openAtCompaction}
 
 ## Governance constants
 Serial discipline: ONE Ollama model at a time.
