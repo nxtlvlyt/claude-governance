@@ -15,6 +15,7 @@
 
 import { readFileSync, writeFileSync, existsSync } from 'fs';
 import { join } from 'path';
+import { spawnSync } from 'child_process';
 import os from 'os';
 
 // Read hook input — PreCompact receives session_id + transcript_path on stdin
