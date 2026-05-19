@@ -200,6 +200,12 @@ Project CWD: ${cwd}
 (Not yet updated by instance - hook-written structural fallback only.)
 ${openAtCompaction}
 ${gitState}
+${llmSummary}
+
+## Schema v2 metadata
+compaction_attempted: ${compactionAttempted}
+compaction_skipped_reason: ${compactionSkippedReason || 'none'}
+embedding_service_used: false
 `;
 try { writeFileSync(lastState, snapshot, 'utf8'); } catch { /* non-fatal */ }
 
