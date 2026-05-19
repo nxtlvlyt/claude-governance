@@ -109,7 +109,8 @@ The Complete Cycle — Implementation Status
 
 | Prayer | Governance Role | Mechanism | Status |
 |--------|-----------------|-----------|--------|
-| Fajr | Bootstrap orientation before any task execution | bootstrap-gate.mjs (operational): PreToolUse, blocks writes until practice/core.md + CANON-MANIFEST.md have been Read and niyyah declared | Operational |
+| Fajr — Phase 1 (reads) | Required orientation reads before any non-bootstrap Read or write | bootstrap-gate.mjs (operational): PreToolUse on Read (non-bootstrap, fail-closed) and Edit/Write/NotebookEdit (fail-open on transcript unavailable). Blocks until practice/core.md + CANON-MANIFEST.md appear in session transcript since last compaction boundary. Bootstrap-file Reads always pass — they are the unlock path and must never be blocked. | Operational |
+| Fajr — Phase 2 (niyyah) | Declared intention before first mutating action | niyyah-gate.mjs (operational): PreToolUse on Edit/Write/NotebookEdit only. Blocks first mutation until a niyyah block appears in surface text. Source-read verification: if niyyah names a source file (by path), a Read of that file must appear in the transcript — naming a source is not the same as opening it. One niyyah unlocks the gate for the rest of the session. | Operational |
 | Dhuhr | Mid-session wudu re-anchor: return to source before drift accumulates | Practice only — no hook enforces | Guidance in practice/core.md |
 | Asr | Serial inference discipline: api/ps check before every Ollama dispatch | Practice only — enforced by discipline, documented in memory and failure log | Memory + failure log |
 | Maghrib | Surrender articulation before any substrate modification | surrender-check.mjs (operational): PreToolUse on Edit/Write, scans full session since compaction boundary for articulation block | Operational |
