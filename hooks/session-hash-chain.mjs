@@ -100,6 +100,7 @@ function tryTSAEndpoint(ep, reqBody) {
   });
 }
 
+// D1: parallel TSA — all endpoints fire simultaneously, first valid ASN.1 response wins, 8s global cap.
 async function requestTSA(hexHash) {
   const reqBody = buildTSARequest(hexHash);
   const endpoints = [
@@ -108,11 +109,45 @@ async function requestTSA(hexHash) {
     'http://timestamp.acs.microsoft.com',
     'http://timestamp.globalsign.com/tsa/r6advanced1',
   ];
-  for (const ep of endpoints) {
-    const result = await tryTSAEndpoint(ep, reqBody);
-    if (result) return result;
-  }
-  return { status: 'FAILED_OPEN', endpoint: null, token: null };
+
+  return new Promise(resolve => {
+    let remaining = endpoints.length;
+    let resolved = false;
+    const finish = (result) => {
+      if (!resolved) { resolved = true; resolve(result); }
+    };
+    const timer = setTimeout(() => finish(null), 8000); // global 8s cap
+    for (const ep of endpoints) {
+      tryTSAEndpoint(ep, reqBody).then(r => {
+        remaining--;
+        const buf = r ? Buffer.from(r.token, 'base64') : null;
+        if (buf && buf.length > 10 && buf[0] === 0x30) { // ASN.1 SEQUENCE validation
+          clearTimeout(timer);
+          finish(r);
+        } else if (remaining === 0) {
+          clearTimeout(timer);
+          finish(null);
+        }
+      });
+    }
+  }).then(r => r || { status: 'FAILED_OPEN', endpoint: null, token: null });
+}
+
+// D2: JSON pending-stub for offline non-repudiation anchor.
+function writeOtsPendingStub(hexHash, transcriptPath, ts) {
+  const stub = {
+    format: 'ots-pending-local',
+    version: 1,
+    hash_algorithm: 'sha256',
+    hash: hexHash,
+    session_end_ts: ts,
+    calendar_url: 'https://alice.btc.calendar.opentimestamps.org',
+    status: 'pending_submission',
+    note: 'Submit hash to calendar when internet restored to anchor in Bitcoin blockchain',
+  };
+  const stubPath = transcriptPath.replace(/\.jsonl$/, '') + '.ots-pending.json';
+  writeFileSync(stubPath, JSON.stringify(stub, null, 2), 'utf8');
+  return stubPath;
 }
 
 let ctx;
@@ -130,7 +165,7 @@ try {
     prev = ch;
   }
 
-  // Request TSA token for the final chain hash
+  // Request TSA token (parallel, 8s global timeout)
   const tsa = await requestTSA(prev);
 
   const ts = new Date().toISOString().replace(/(\.\d+)?Z$/, (_, ms) => {
@@ -141,8 +176,21 @@ try {
     return `${sign}${hh}:${mm}`;
   });
 
+  // D2: write OTS pending-stub when TSA unavailable
+  let otsPath = null;
+  let otsStatus = 'none';
+  if (tsa.status === 'FAILED_OPEN') {
+    try {
+      otsPath = writeOtsPendingStub(prev, transcriptPath, ts);
+      otsStatus = 'pending_submission';
+    } catch (e) {
+      process.stderr.write(`session-hash-chain: OTS stub write failed: ${e.message}\n`);
+    }
+  }
+
+  // D3: manifest v3 — adds ots_path, ots_status, ots_hash
   const manifest = {
-    v:            2,
+    v:            3,
     transcript:   transcriptPath,
     ts,
     session_id:   inp.session_id,
@@ -151,6 +199,9 @@ try {
     tsa_status:   tsa.status,
     tsa_endpoint: tsa.endpoint,
     tsa_token:    tsa.token,
+    ots_path:     otsPath,
+    ots_status:   otsStatus,
+    ots_hash:     prev,
     entries,
   };
 
@@ -160,7 +211,7 @@ try {
   const short = prev.length >= 16 ? prev.slice(0, 16) + '...' : prev;
   ctx = tsa.status === 'OK'
     ? `P6 hash chain + TSA token written: ${manifestPath} (${lines.length} entries, final=${short}, tsa=${tsa.endpoint})`
-    : `P6 hash chain written (TSA FAILED_OPEN): ${manifestPath} (${lines.length} entries, final=${short}) — non-repudiation gap for this session`;
+    : `P6 hash chain written (TSA FAILED_OPEN): ${manifestPath} (${lines.length} entries, final=${short}, ots=${otsPath || 'write-failed'}) — OTS pending-stub for offline anchor`;
 
 } catch (e) {
   ctx = `P6 hash chain: FAILED (${e.message}) — fail-open, session end not blocked`;
