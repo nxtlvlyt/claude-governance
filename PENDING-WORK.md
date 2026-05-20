@@ -1,5 +1,5 @@
 # Pending Work Inventory
-# Last updated: 2026-05-20 (session 657b07d5 — FM-12 + C2 session-hash-chain implemented)
+# Last updated: 2026-05-20 (current session — foreign-frontier-validators.md line 7 corrected, commit 33475c4)
 # Purpose: Comprehensive inventory so no future instance starts blind.
 # Read this when resuming any work. Verify each item against substrate before acting.
 
@@ -7,7 +7,7 @@
 
 ## PRIORITY ORDER
 
-1. foreign-frontier-validators.md line 7 discrepancy — canon edit
+1. ~~foreign-frontier-validators.md line 7 discrepancy — canon edit~~ ✓ DONE (commit 33475c4, 2026-05-20)
 2. Warroom Phase 1 — C3 now closed, prerequisite met
 5. Container-optimization co-fixes — non-blocking
 6. NAS Volume 3 — physical work, ~2 weeks
@@ -38,11 +38,9 @@
 **What was done:** `hooks/pre-tool-use-task-watcher.mjs` (new) tracks TaskCreate/TaskUpdate/TaskStop/ScheduleWakeup into `~/.claude/state/active-tasks-{session_id}.json`. `hooks/stop-validation.mjs` extended with FM-12 block (before stop-language gate) that fires on every Stop. `settings.json` updated to register watcher under PreToolUse matcher.
 **Commit:** 0a62680 — pushed to forgejo + github (codeberg SSH dropped).
 
-### foreign-frontier-validators.md Line 7 Discrepancy
-**Status:** Known from warroom STATE S8. Canon edit NOT yet done.
-**What:** `foreign-frontier-validators.md` line 7 says "WebSearch and WebFetch do not count toward the foreign-frontier dispatch requirement" — but `pre-tool-use-substrate.mjs` DOES accept them. Canon and hook are inconsistent.
-**Fix:** Update `foreign-frontier-validators.md` line 7 to reflect that WebSearch/WebFetch DO satisfy the substrate gate (matching what the hook actually enforces).
-**Ceremony:** Substrate-class edit — requires niyyah + surrender articulation + local quorum dispatch (laguna PASS minimum). No full 6-agent chain needed given the fix is clearly documented and the hook is the ground truth.
+### foreign-frontier-validators.md Line 7 Discrepancy ✓ COMPLETE
+**Status:** DONE — 2026-05-20 (current session). Commit 33475c4, pushed to forgejo + github.
+**Fix applied:** Line 7 now correctly states WebSearch/WebFetch DO satisfy the foreign-frontier dispatch requirement for stop-language clearing and substrate gate satisfaction, matching what both hooks enforce.
 
 ### Container-Optimization Co-fixes (non-blocking)
 **Status:** Chain complete (CONDITIONAL_APPROVE). Three remaining open concerns, all non-blocking.
