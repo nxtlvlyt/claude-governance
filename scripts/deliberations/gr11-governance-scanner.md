@@ -20,11 +20,12 @@ SPECIFIC DESIGN QUESTIONS:
 
 1. TRACK 1 SCOPE: The existing hooks already enforce rule compliance at runtime (fail-closed at PreToolUse). What does a post-cycle rule compliance scan add that the runtime hooks don't already catch? Is Track 1 redundant, or does it catch failure modes the runtime hooks miss? If redundant, should GR11 be Track 2 only?
 
-2. WASWAS BEHAVIORAL METRIC: The waswas failure mode is: instance declares niyyah in a prior turn, then waits passively for user input before acting, when same-turn Path B (state file) execution was architecturally available. The proposed metric: measure the turn-gap between niyyah declaration and first subsequent Edit. If turn-gap > 0 under conditions where Path B was available, flag as behavioral waswas residual.
+2. WASWAS BEHAVIORAL METRIC: The waswas failure mode is: instance declares niyyah in a prior turn, then waits passively for user input before acting, when same-turn Path B (state file) execution was architecturally available. Two candidate metrics exist and must be distinguished:
+   - Turn-gap metric: measure turns between niyyah declaration and first subsequent Edit. Problem: turn-gap > 0 is EXPECTED for Path A (prior turn is the valid path); this metric cannot distinguish valid Path A from waswas.
+   - Timestamp-delta-within-turn metric: for Path B specifically, measure `Timestamp(First_Edit_Invocation) - Timestamp(pending-niyyah.json_Write)` within the same turn block. A gap > 5 seconds indicates model hesitation despite state-file being written. A missing pending-niyyah.json entry entirely indicates Path A was used.
    Questions:
-   (a) Is turn-gap the right metric, or should it be timestamp delta between pending-niyyah.json write and Edit tool call within the same turn?
-   (b) How does the scanner determine whether Path B "was available"? (Is it always available when Bash/PowerShell can run?)
-   (c) What is the appropriate response to a waswas detection — log only, or block the next session start?
+   (a) Is the timestamp-delta-within-turn metric sufficient to detect waswas, or does GR11 also need to detect Path A usage in cases where Path B was clearly available? (How does the scanner determine "Path B was available"?)
+   (b) What is the appropriate response to a waswas detection — log only, or block the next session start?
 
 3. SESSION-SCOPED NIYYAH TTL: The niyyah gate is session-scoped — once niyyah is declared, it covers all subsequent Edits in the session. The muwala principle (60s TTL on state files) enforces continuity at the micro-execution layer (same turn). But there is no enforcement at the macro layer. A niyyah declared at 10:00am for "editing foreign-frontier-validators.md" is still valid for a CLAUDE.md edit at 1:00pm in the same session.
    Questions:
@@ -33,7 +34,7 @@ SPECIFIC DESIGN QUESTIONS:
        - Option 1: Temporal inactivity timeout (niyyah expires after N minutes of no tool calls)
        - Option 2: Scope boundary (niyyah scoped to files named in its "work" field; out-of-scope Edit invalidates it)
        - Option 3: Transactional close (successful git push purges session niyyah; re-declaration required before next Edit)
-   (c) If surrender-check already closes the gap, document why explicitly rather than leaving it as an open question.
+   (c) If surrender-check already closes the gap, document why explicitly. Specifically: before the chain recommends any macro-TTL mechanism, it must first define a concrete exploit or drift failure mode that bypasses the per-edit surrender gate. If no such exploit can be defined, the chain verdict must be that session-scoped niyyah TTL is redundant and should not be built.
 
 4. TRADITION-ALIGNMENT DETECTORS: Beyond waswas, what other tradition-alignment failure modes should GR11 detect? Consider:
    (a) Muwala violations: gaps in atomic sequences (how to detect in JSONL?)
