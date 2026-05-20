@@ -73,6 +73,24 @@ for (const line of lines) {
   }
 }
 
+// State-file fallback: same-turn niyyah via Bash (intention accompanies act — Islamic model).
+// Instance writes ~/.claude/state/pending-niyyah.json with {ts, niyyah_text} before Edit in same turn.
+// TTL: 60s. Source-read verification still runs against JSONL — integrity intact.
+if (!niyyahFound) {
+  const pendingFile = join(os.homedir(), '.claude', 'state', 'pending-niyyah.json');
+  if (existsSync(pendingFile)) {
+    try {
+      const pending = JSON.parse(readFileSync(pendingFile, 'utf8'));
+      const age = Date.now() - (pending.ts || 0);
+      if (age < 60000 && pending.niyyah_text && /\bniyyah\s*:/i.test(pending.niyyah_text)) {
+        niyyahFound = true;
+        const m = pending.niyyah_text.match(/^\s*source\s*:\s*(.+)$/im);
+        if (m) niyyahSourceLine = m[1].trim();
+      }
+    } catch { /* fail-open */ }
+  }
+}
+
 if (niyyahFound) {
   // Source-read verification: if niyyah names a recognizable file path as source,
   // require that a Read of that file appears in the session transcript.
