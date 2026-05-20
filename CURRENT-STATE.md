@@ -1,8 +1,8 @@
 # CURRENT-STATE.md
 
-Written by: user-prompt-submit.mjs hook (turn 1770 heartbeat)
-Timestamp: 2026-05-20 03:52:36
-Project CWD: C:\Windows\System32
+Written by: user-prompt-submit.mjs hook (turn 1780 heartbeat)
+Timestamp: 2026-05-20 04:24:10
+Project CWD: C:\WINDOWS\system32
 model_version: (instance: write your actual model ID here at session start — e.g. claude-sonnet-4-6)
 
 ## Governance constants (always true)
