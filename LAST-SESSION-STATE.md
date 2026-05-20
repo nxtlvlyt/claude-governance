@@ -1,7 +1,7 @@
 # LAST-SESSION-STATE.md
 
 Written by: pre-compact.mjs hook at compaction event
-Timestamp: 2026-05-19 22:29:10
+Timestamp: 2026-05-20 01:35:50
 Project CWD: C:\Windows\System32
 
 ## Governance constants (always true)
@@ -17,24 +17,25 @@ Project CWD: C:\Windows\System32
 
 ## OPEN AT COMPACTION — last operator messages (hook-extracted)
 
-[1] our timeouts are the length of their context window as per our substrate right
+[1] first we need to look at all future work that is documented we need to run through it with the chain and we need to document it with as much context as possible so that nothing is lost and then we nee…
 
-[2] have you been verifying every, nothing at face value
+[2] are you sleeping, I thought we fixed this?
 
-[3] hey can you add making volume 3 on the task list, the drives are finally added in shr1
+[3] are you sleeping?
 
 
 ## Git state at compaction — governance repo (Codeberg+GitHub+Gitea)
 
 branch: master
 recent commits:
-c5e2811 governance: session-end anchor 2026-05-19 22:26:11 +00:00
-6b29ee4 governance: session-end anchor 2026-05-19 21:56:45 +00:00
-fa4fb38 governance: session-end anchor 2026-05-19 21:34:23 +00:00
-abf01ed governance: session-end anchor 2026-05-19 20:53:40 +00:00
-e297adc governance: session-end anchor 2026-05-19 20:48:50 +00:00
+343d85b governance: session-end anchor 2026-05-20 00:49:01 +00:00
+8639f62 governance: add FM-11 and FM-12 to operator-context and practice/core
+016a3ab governance: session-end anchor 2026-05-20 00:10:08 +00:00
+5560484 governance: session-end anchor 2026-05-20 00:07:39 +00:00
+d257a2c governance: session-end anchor 2026-05-19 23:43:21 +00:00
 uncommitted:
-(clean)
+A  PENDING-WORK.md
+?? scripts/deliberations/c3-memory-unification.md
 remotes:
 codeberg	git@codeberg.org:nxtlvl/claude-governance.git (fetch)
 codeberg	git@codeberg.org:nxtlvl/claude-governance.git (push)

@@ -1,0 +1,151 @@
+# Pending Work Inventory
+# Last updated: 2026-05-19 (session 657b07d5)
+# Purpose: Comprehensive inventory so no future instance starts blind.
+# Read this when resuming any work. Verify each item against substrate before acting.
+
+---
+
+## PRIORITY ORDER
+
+1. C2 (TSA SPoF) — question file ready, run immediately
+2. C3 (memory unification) — write question file, then run
+3. FM-12 stop-validation.mjs extension — implementation-ready after C2/C3
+4. foreign-frontier-validators.md line 7 discrepancy — canon edit
+5. Container-optimization co-fixes — non-blocking, implement post-chain
+6. Warroom Phase 1 — after C2/C3 close
+7. NAS Volume 3 — physical work, ~2 weeks
+8. Windows Scheduled Tasks — 11 disabled tasks
+9. BC1 smoke test — wire-server.py integration test
+
+---
+
+## CATEGORY 1 — Governance Repo (immediate)
+
+### C2 — TSA SPoF: Parallel TSA + OpenTimestamps
+**Status:** Question file ready at `~/.claude/scripts/deliberations/c2-tsa-spof.md`. Chain NOT yet run.
+**What:** `hooks/session-hash-chain.mjs` submits hash to 4 RFC 3161 TSA endpoints serially. Worst case: 32s latency per session end. When fully offline (warroom use case), ALL TSAs fail — the hook writes FAILED_OPEN and the session has no cryptographic timestamp anchor.
+**Chain questions:** Parallel TSA (Promise.race), OpenTimestamps as offline fallback, zero-dependency constraint, warroom Python equivalent, manifest format for .ots sidecar.
+**Why urgency:** EU AI Act Aug 2026. Warroom is offline-first — every warroom session currently has a non-repudiation gap.
+**Sequencing note (from project memory):** Complete C2 before warroom Phase 1. Document findings to `C:\warroom\logs\decisions\2026\05\<dd>\` after chain closes.
+
+### C3 — Memory Unification Interface
+**Status:** No question file written yet. No chain run.
+**What:** Three memory systems currently coexist without a unified interface:
+  - `~/.claude/projects/C--WINDOWS-system32/memory/` — auto-memory files (this session)
+  - AnythingLLM claude-governance workspace — RAG-based semantic retrieval
+  - `STATE.md` pattern — session-end committed narrative
+**The problem:** Cold instances see MEMORY.md index but have no systematic way to know which of the 3 systems to query for a given retrieval need. AnythingLLM has the governance documents; auto-memory has operational facts; STATE.md has session narrative. No routing layer.
+**Chain questions to write:** What is the correct retrieval routing? When does an instance query AnythingLLM vs read MEMORY.md vs read STATE.md? Is there a unified interface, or are they intentionally separate tiers?
+**Sequencing note:** Complete C3 before warroom Phase 1. Warroom AnythingLLM + STATE.md integration depends on the C3 decision.
+
+### FM-12 stop-validation.mjs Extension
+**Status:** Formation rule implemented in practice/core.md and operator-context.md (2026-05-19). Hook enforcement NOT implemented.
+**What:** The governance-passive-gaps chain (APPROVE, confidence 0.88) recommended a state-file architecture:
+  - `~/.claude/state/active-tasks-{session_id}.json` — updated by PreToolUse on TaskCreate/ScheduleWakeup
+  - `stop-validation.mjs` reads state-file at Stop, verifies ScheduleWakeup was set before any background-task wait
+**Why not done yet:** Was scoped as recommended future work, not blocking for the chain. Formation rule is the primary vehicle; hook is the structural backstop.
+**No chain needed:** Architecture approved by governance-passive-gaps chain. Needs implementation chain question or direct implementation.
+**Files to touch:** `hooks/stop-validation.mjs`, new hook `hooks/pre-tool-use-task-watcher.mjs`.
+
+### foreign-frontier-validators.md Line 7 Discrepancy
+**Status:** Known from warroom STATE S8. Canon edit NOT yet done.
+**What:** `foreign-frontier-validators.md` line 7 says "WebSearch and WebFetch do not count toward the foreign-frontier dispatch requirement" — but `pre-tool-use-substrate.mjs` DOES accept them. Canon and hook are inconsistent.
+**Fix:** Update `foreign-frontier-validators.md` line 7 to reflect that WebSearch/WebFetch DO satisfy the substrate gate (matching what the hook actually enforces).
+**Ceremony:** Substrate-class edit — requires niyyah + surrender articulation + local quorum dispatch (laguna PASS minimum). No full 6-agent chain needed given the fix is clearly documented and the hook is the ground truth.
+
+### Container-Optimization Co-fixes (non-blocking)
+**Status:** Chain complete (CONDITIONAL_APPROVE). Three remaining open concerns, all non-blocking.
+**What was implemented:** CPU embedding offload (Infinity), SFTP volume backup, Forgejo remote, pre-compact hook schema v2.
+**Open concerns from chain:**
+  1. **C1 (pre-compact.mjs):** Explicit `ollama stop laguna-xs.2:q4_K_M` after pre-compact summarization — prevent slot lingering. LOW priority.
+  2. **C2 (volume-backup):** SHA256 checksum verification on NAS after SFTP backup — add SSH-based verification script. MEDIUM priority.
+  3. **C3 (pre-compact JSONL parsing):** Length/content validation before dispatching to laguna — handle malformed lastPrompt fields. LOW priority.
+**Note on Forgejo triple-remote concern:** git-anchor.mjs already pushes to all 3 remotes at session end. Concern may already be addressed. Verify before implementing.
+
+---
+
+## CATEGORY 2 — Warroom Phase 1 (after C2/C3)
+
+**Prerequisite:** C2 and C3 must close first. Decision log entries must be written to `C:\warroom\logs\decisions\2026\05\<dd>\` after each closes.
+
+### warroom status command
+**Status:** NEXT warroom task (pending from S8 and confirmed in S9). No implementation yet.
+**What:** `python cli.py status` exists but `warroom status` as a named subcommand may not. The STATUS stub must be wired to real health checks.
+**Reference:** warroom STATE.md 0-MAY-15-S9 — "Phase 1 item 2: warroom status command — first item in resumption sequence."
+
+### Autonomous Mode Wiring (Phase 1 Gap 1)
+**Status:** `FailoverDetector` detects Claude Code absence (5 trigger types) but CLI doesn't auto-act. Manual fallback only.
+**What:** Wire FailoverDetector verdict → automatic mode switch in CLI (no operator confirmation required for offline fallback to local models).
+**This is the most important Phase 1 gap** per warroom STATE S9.
+
+### Seat 3 Tryout (qwen3.6:27b)
+**Status:** Not yet validated. Recommendation documented in warroom STATE S9.
+**What:** Validate qwen3.6:27b as Seat 3 substitute for offline mode. Requires chain restructure: gemma solo Phase 1, qwen takes Seat 3.
+**Why qwen:** gemma has documented void-output failure mode (blocks it from synthesis seat). qwen think:True is structured chain-of-thought. qwen already first governance consultation model.
+**Validation run needed:** Run a tryout mission with qwen in Seat 3. Grade output quality.
+
+### GR11 Post-Cycle Governance Scanner
+**Status:** Not implemented. Documented as Phase 1 gap 3 in warroom STATE S9.
+**What:** Automatic drift check after every mission cycle. GR11 is the governance rule requiring post-cycle scan.
+
+### Rebase Artifact Cleanup
+**Status:** Pending from S8. Safe to delete.
+**What:** `rebase-seq-editor.ps1` and similar rebase artifacts in warroom directory. Confirmed safe to delete.
+
+---
+
+## CATEGORY 3 — NAS/Infrastructure
+
+### NAS Volume 3 (DX517 SHR1)
+**Status:** Deferred ~2 weeks (new drives ordered/arriving). Task #8 in current task list.
+**What:** Create Volume 3 on DX517 expansion unit using SHR1 with new drives.
+**Prerequisite:** 6-agent review of `D:\NAS-BACKUP\REBUILD.md` before physical work begins (documented in operator-context.md Section 9).
+**Memory reference:** project_nas_crash.md has all credentials and architecture.
+
+### Windows Scheduled Tasks
+**Status:** 11 tasks disabled. Script ready.
+**What:** Run `C:\Temp\post-extraction-step12.ps1` AS ADMIN. Remaps N: homes→web, registers tasks.
+**Note:** This was from the NAS extraction chain — the extraction completed 2026-05-14/15. This cleanup step was never run.
+
+### BC1 Smoke Test
+**Status:** Unverified from 2026-05-17 session.
+**What:** POST /v1/assemble to wire-server.py at port 5010 with real InfiniteTalk output as revoiced_base + synthetic source + 2-chapter polished_chunks JSON.
+**Prerequisite for:** text-to-video processor going live.
+**NAS reference:** wire-server.py running at port 5010. InfiniteTalk output format confirmed in 2026-05-17 session.
+
+---
+
+## CATEGORY 4 — Media (auto-resolving / low effort)
+
+### South Park S01-S25 ShieldBearer Import
+**Status:** IN PROGRESS. Background poll+trigger script (b3j08cplj) running.
+**What:** RDTClient building 363 file links from AllDebrid cache (hash 4c235de23a50a987e36b21039504420860fdd0e6, 259GB). Script will auto-fire Sonarr DownloadedEpisodesScan + Radarr DownloadedMoviesScan on completion.
+**Note:** Movie file (South Park: Bigger Longer & Uncut) will be in same folder as TV episodes. Radarr scan should pick it up.
+
+### Monster Hunter Re-search
+**Status:** Triggered. Should auto-resolve.
+**What:** 22GB 4K Bluray file was deleted. Re-search command 188844 was queued. Radarr will find a 720p version via the 4K-Block custom format (CF ID 26, score -10000 in HD-720p profile).
+
+---
+
+## CHAIN RUNS NEEDED (in order)
+
+| Priority | Chain | Question File | Status |
+|----------|-------|---------------|--------|
+| 1 | C2 TSA SPoF | `scripts/deliberations/c2-tsa-spof.md` | Ready to run |
+| 2 | C3 Memory Unification | Not written yet | Write then run |
+| 3 | FM-12 hook impl | Not written yet | Write then run |
+
+---
+
+## CHAIN RUNS COMPLETE (reference)
+
+| Chain | Date | Verdict | Key co-fixes |
+|-------|------|---------|--------------|
+| chain-quality | 2026-05-14 | CONDITIONAL_APPROVE | qwen think:True, substrate at position 2, GPU per-agent config |
+| c1-search-refinement | 2026-05-14 | CONDITIONAL_APPROVE | JINA_FETCH_N=1 for phase 1, query-pass pattern |
+| c1-hook-language-agnosticism | 2026-05-14 | CONDITIONAL_APPROVE | Node.js .mjs migration (all 10 hooks) |
+| agent-platform-design | 2026-05-14 | CONDITIONAL_APPROVE | 7-layer architecture, C1 PowerShell hook latency blocking |
+| bootstrap-gate-fix | 2026-05-19 | APPROVE (all 6 seats) | Line 151 "both" → "all required files"; operator-context.md as 3rd required read |
+| governance-passive-gaps | 2026-05-19 | APPROVE (confidence 0.88) | FM-11/FM-12 formation rules committed |
+| container-optimization | 2026-05-19 | CONDITIONAL_APPROVE | 3 non-blocking concerns (see Category 1 above) |
