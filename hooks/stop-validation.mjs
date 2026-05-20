@@ -96,6 +96,27 @@ for (const pat of stopLanguagePatterns) {
   if (m) { matchedPattern = m[0]; break; }
 }
 
+// --- FM-12 check: runs regardless of stop-language ---
+// Camel Rule: block stop if active background tasks exist without ScheduleWakeup set.
+{
+  const fm12SId = inp.session_id;
+  if (fm12SId) {
+    const fm12StateFile = join(os.homedir(), '.claude', 'state', `active-tasks-${fm12SId}.json`);
+    if (existsSync(fm12StateFile)) {
+      try {
+        const fm12State = JSON.parse(readFileSync(fm12StateFile, 'utf8'));
+        if ((fm12State.active_count || 0) > 0 && !fm12State.wakeup_set) {
+          process.stdout.write(JSON.stringify({
+            decision: 'block',
+            reason: `FM-12 VIOLATION (Camel Rule) — ${fm12State.active_count} active task(s) without ScheduleWakeup.\n\nPer ~/.claude/practice/core.md FM-12: before stopping with pending background tasks,\nScheduleWakeup must be set with a reason naming what is monitored and what the stall signal is.\n\n${fm12State.active_count} TaskCreate(s) recorded this session without corresponding completion,\nand no ScheduleWakeup was set.\n\nTie the camel: call ScheduleWakeup before ending this session.`
+          }));
+          process.exit(0);
+        }
+      } catch { /* fail-open on missing/corrupt FM-12 state */ }
+    }
+  }
+}
+
 if (!matchedPattern) process.exit(0); // no stop-language, allow
 
 // Check for foreign-frontier dispatch in last turn
