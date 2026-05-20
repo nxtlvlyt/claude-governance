@@ -82,3 +82,27 @@ These symptoms indicate the prior state of purity may already be broken. They ar
 Asking the operator to validate something the source already specifies. Improvising when a read would resolve the question. Proceeding past a drift signal without stopping. Making an assumption and stating it with confidence rather than verifying it. Feeling that a required dispatch is redundant — and acting on that feeling rather than dispatching anyway.
 
 When a symptom appears: check the objective invalidators. If one fired and was not acted on, perform the required tier now. Continue from the re-anchored position.
+
+---
+
+## Retrieval routing
+
+Identify the class of question, then go directly to the owning system. Do not
+default to MEMORY.md for all queries — MEMORY.md is advisory, not authoritative.
+
+| Question class                         | Primary system                        | Fallback                      |
+|----------------------------------------|---------------------------------------|-------------------------------|
+| Current operational state              | Substrate (tool call: api/ps, Read)   | None — substrate only         |
+| Session narrative / historical context | STATE.md or LAST-SESSION-STATE.md     | PENDING-WORK.md               |
+| Governance rules / canon semantics     | AnythingLLM claude-governance         | Direct canon file read        |
+| Operational pointers & credentials     | MEMORY.md (advisory)                  | Direct file read              |
+| Failure modes & behavioral constraints | MEMORY.md feedback entries (advisory) | AnythingLLM + STATE.md        |
+
+FM-11 applies across all advisory tiers: before asserting operational state from MEMORY.md
+or STATE.md, verify against a current-session tool call.
+
+If primary system unavailable or answer insufficient, escalate to fallback, then to direct
+substrate read. Never escalate MEMORY.md advisory answers to governance-authoritative status.
+
+If AnythingLLM is unavailable: read canon files directly from ~/.claude/canon/ (indexed
+in CANON-MANIFEST.md). Do not substitute MEMORY.md summaries for governance answers.

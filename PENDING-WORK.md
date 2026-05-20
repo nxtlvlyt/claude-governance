@@ -1,5 +1,5 @@
 # Pending Work Inventory
-# Last updated: 2026-05-19 (session 657b07d5 — C2 chain closed)
+# Last updated: 2026-05-20 (session 657b07d5 — C3 chain closed)
 # Purpose: Comprehensive inventory so no future instance starts blind.
 # Read this when resuming any work. Verify each item against substrate before acting.
 
@@ -7,11 +7,11 @@
 
 ## PRIORITY ORDER
 
-1. C3 (memory unification) — question file exists at scripts/deliberations/c3-memory-unification.md, run immediately
-2. FM-12 stop-validation.mjs extension — implementation-ready after C3
+1. FM-12 stop-validation.mjs extension — implementation-ready
+2. session-hash-chain.mjs C2 implementation — approved in C2 chain, deferred until after C3
 3. foreign-frontier-validators.md line 7 discrepancy — canon edit
-4. Container-optimization co-fixes — non-blocking, implement post-chain
-5. Warroom Phase 1 — after C3 closes
+4. Warroom Phase 1 — C3 now closed, prerequisite met
+5. Container-optimization co-fixes — non-blocking
 6. NAS Volume 3 — physical work, ~2 weeks
 7. Windows Scheduled Tasks — 11 disabled tasks
 8. BC1 smoke test — wire-server.py integration test
@@ -28,15 +28,12 @@
 **Implementation pending:** Edit `hooks/session-hash-chain.mjs` after C3 closes
 **Open Q1:** Does EU AI Act Art 12/15 require third-party timestamp certification? (gates whether binary OTS + javascript-opentimestamps required vs JSON stub sufficient)
 
-### C3 — Memory Unification Interface
-**Status:** No question file written yet. No chain run.
-**What:** Three memory systems currently coexist without a unified interface:
-  - `~/.claude/projects/C--WINDOWS-system32/memory/` — auto-memory files (this session)
-  - AnythingLLM claude-governance workspace — RAG-based semantic retrieval
-  - `STATE.md` pattern — session-end committed narrative
-**The problem:** Cold instances see MEMORY.md index but have no systematic way to know which of the 3 systems to query for a given retrieval need. AnythingLLM has the governance documents; auto-memory has operational facts; STATE.md has session narrative. No routing layer.
-**Chain questions to write:** What is the correct retrieval routing? When does an instance query AnythingLLM vs read MEMORY.md vs read STATE.md? Is there a unified interface, or are they intentionally separate tiers?
-**Sequencing note:** Complete C3 before warroom Phase 1. Warroom AnythingLLM + STATE.md integration depends on the C3 decision.
+### C3 — Memory Unification Interface ✓ COMPLETE
+**Status:** CLOSED — 6-seat chain unanimous CONDITIONAL_APPROVE (2026-05-20, session 657b07d5).
+**Decision log:** `C:\warroom\logs\decisions\2026\05\20\c3-memory-unification-routing-architecture.md`
+**Architecture decided:** D1 four-tier categorical model (substrate→STATE.md→AnythingLLM→MEMORY.md) + D2 retrieval routing section added to practice/core.md + D3 commit-triggered AnythingLLM sync (pending impl) + D4 warroom separate workspace + D5 MEMORY.md audit (deferred)
+**Implementation done:** practice/core.md routing section committed (D2)
+**Implementation pending:** D3 AnythingLLM sync in git-anchor.mjs; D5 MEMORY.md coverage audit
 
 ### FM-12 stop-validation.mjs Extension
 **Status:** Formation rule implemented in practice/core.md and operator-context.md (2026-05-19). Hook enforcement NOT implemented.
@@ -66,7 +63,7 @@
 
 ## CATEGORY 2 — Warroom Phase 1 (after C2/C3)
 
-**Prerequisite:** C2 and C3 must close first. Decision log entries must be written to `C:\warroom\logs\decisions\2026\05\<dd>\` after each closes.
+**Prerequisite:** C2 ✓ CLOSED (2026-05-19). C3 ✓ CLOSED (2026-05-20). Decision logs written. Warroom Phase 1 is unblocked.
 
 ### warroom status command
 **Status:** NEXT warroom task (pending from S8 and confirmed in S9). No implementation yet.
@@ -132,8 +129,7 @@
 
 | Priority | Chain | Question File | Status |
 |----------|-------|---------------|--------|
-| 1 | C3 Memory Unification | `scripts/deliberations/c3-memory-unification.md` | Ready to run |
-| 2 | FM-12 hook impl | Not written yet | Write then run |
+| 1 | FM-12 hook impl | Not written yet | Write then run |
 
 ---
 
@@ -149,3 +145,4 @@
 | governance-passive-gaps | 2026-05-19 | APPROVE (confidence 0.88) | FM-11/FM-12 formation rules committed |
 | container-optimization | 2026-05-19 | CONDITIONAL_APPROVE | 3 non-blocking concerns (see Category 1 above) |
 | c2-tsa-spof | 2026-05-19 | CONDITIONAL_APPROVE (unanimous 6-seat) | D1 parallel TSA + D2 JSON OTS stub + D3 manifest v3 + D4 warroom 2s; Q1 EU Act open |
+| c3-memory-unification | 2026-05-20 | CONDITIONAL_APPROVE (unanimous 6-seat) | D1 four-tier model + D2 routing protocol in core.md + D3 commit-triggered sync (pending) + D4 separate warroom workspace + D5 MEMORY.md audit (pending) |
