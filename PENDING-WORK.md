@@ -1,5 +1,5 @@
 # Pending Work Inventory
-# Last updated: 2026-05-20 (session 657b07d5 — C3 chain closed)
+# Last updated: 2026-05-20 (session 657b07d5 — FM-12 hook implemented)
 # Purpose: Comprehensive inventory so no future instance starts blind.
 # Read this when resuming any work. Verify each item against substrate before acting.
 
@@ -7,10 +7,9 @@
 
 ## PRIORITY ORDER
 
-1. FM-12 stop-validation.mjs extension — implementation-ready
-2. session-hash-chain.mjs C2 implementation — approved in C2 chain, deferred until after C3
-3. foreign-frontier-validators.md line 7 discrepancy — canon edit
-4. Warroom Phase 1 — C3 now closed, prerequisite met
+1. session-hash-chain.mjs C2 implementation — approved in C2 chain, deferred until after C3
+2. foreign-frontier-validators.md line 7 discrepancy — canon edit
+3. Warroom Phase 1 — C3 now closed, prerequisite met
 5. Container-optimization co-fixes — non-blocking
 6. NAS Volume 3 — physical work, ~2 weeks
 7. Windows Scheduled Tasks — 11 disabled tasks
@@ -35,14 +34,10 @@
 **Implementation done:** practice/core.md routing section committed (D2)
 **Implementation pending:** D3 AnythingLLM sync in git-anchor.mjs; D5 MEMORY.md coverage audit
 
-### FM-12 stop-validation.mjs Extension
-**Status:** Formation rule implemented in practice/core.md and operator-context.md (2026-05-19). Hook enforcement NOT implemented.
-**What:** The governance-passive-gaps chain (APPROVE, confidence 0.88) recommended a state-file architecture:
-  - `~/.claude/state/active-tasks-{session_id}.json` — updated by PreToolUse on TaskCreate/ScheduleWakeup
-  - `stop-validation.mjs` reads state-file at Stop, verifies ScheduleWakeup was set before any background-task wait
-**Why not done yet:** Was scoped as recommended future work, not blocking for the chain. Formation rule is the primary vehicle; hook is the structural backstop.
-**No chain needed:** Architecture approved by governance-passive-gaps chain. Needs implementation chain question or direct implementation.
-**Files to touch:** `hooks/stop-validation.mjs`, new hook `hooks/pre-tool-use-task-watcher.mjs`.
+### FM-12 stop-validation.mjs Extension ✓ COMPLETE
+**Status:** DONE — 2026-05-20 (session 657b07d5). Formation rule (practice/core.md) + hook enforcement both implemented.
+**What was done:** `hooks/pre-tool-use-task-watcher.mjs` (new) tracks TaskCreate/TaskUpdate/TaskStop/ScheduleWakeup into `~/.claude/state/active-tasks-{session_id}.json`. `hooks/stop-validation.mjs` extended with FM-12 block (before stop-language gate) that fires on every Stop. `settings.json` updated to register watcher under PreToolUse matcher.
+**Commit:** 0a62680 — pushed to forgejo + github (codeberg SSH dropped).
 
 ### foreign-frontier-validators.md Line 7 Discrepancy
 **Status:** Known from warroom STATE S8. Canon edit NOT yet done.
