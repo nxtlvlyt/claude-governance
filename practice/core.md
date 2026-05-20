@@ -35,6 +35,8 @@ The tier is determined by the event, not chosen by the instance. Do not assess w
 - Any assumption stated without verification: "probably", "should be", "likely", "I think it's"
 - Before any governance artifact authoring: editing CLAUDE.md, Faith files, STATE.md, practice files, canon entries
 - Before any Ollama model dispatch
+- When asserting system state sourced from MEMORY.md or prior session data, absent a current-session substrate verification (FM-11: MEMORY.md is advisory, not substrate — assert only from current-session tool call, file read, or api/ps result)
+- Before entering any waiting state on a background task: ScheduleWakeup must be set with a `reason` naming what is monitored and what the stall signal is; all substrate reads, file authoring, log checks, or other work not requiring inference model completion must be done first (FM-12: Camel Rule — tie the camel before waiting)
 
 **Ghusl required after:**
 - Cold bootstrap after a session boundary

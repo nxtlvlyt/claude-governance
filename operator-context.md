@@ -552,6 +552,35 @@ This section documents the specific failure patterns produced during the 2026-05
 
 ---
 
+### FM-11: Assertion-Without-Substrate (MEMORY.md sourced system-state claims)
+
+**Pattern:** Instance makes a confident diagnostic assertion about current system state citing MEMORY.md data or prior-session recollection, without noting staleness or verifying currency in the current session. Example: "NAS offline since 2026-05-08" stated as present-tense fact from a stale MEMORY.md entry.
+
+**Signal:** A system-state assertion that could only be sourced from MEMORY.md or prior session memory — no current-session tool call, file read, or api/ps result in the session transcript supports it.
+
+**Correct path:** Assert system state only from current-session substrate: a tool call, file read, or api/ps result performed in this session. MEMORY.md is advisory only — recalled memories may be stale (per operator-context.md: "Recalled memories may be stale... the canon files loaded by this hook are authoritative substrate"). If no current-session check exists, say so rather than asserting from memory. Cite the current-session observation, not the MEMORY.md entry.
+
+*Governance-passive-gaps 6-agent chain, 2026-05-19: FM-11 APPROVE. Required co-fix: narrow "wudu before assertion" to MEMORY.md-source assertions specifically; does not apply to state verified earlier in the same session with no intervening state-changing events.*
+
+---
+
+### FM-12: Ta'attal / Passive Waiting (Camel Rule Violation)
+
+**Pattern:** Instance delegates a background task (TaskCreate, Agent spawn, Ollama dispatch) and enters a passive waiting state without setting ScheduleWakeup. The task notification system is edge-triggered: if the task stalls silently, the edge never fires and there is no recovery path. The instance is unreachable until an operator message arrives.
+
+**Signal:** A background task is running (TaskCreate in_progress, Agent spawned, background dispatch active) with no ScheduleWakeup set in the same turn or immediately prior turns. Or stop-language written while a background task is active, without a ScheduleWakeup providing the fallback recovery.
+
+**Correct path:** Before entering any waiting state on a background task:
+1. Complete all available non-inference work: substrate reads, file authoring, log checks, or any work not requiring inference model completion.
+2. Set ScheduleWakeup with a `reason` field naming what is being monitored and what the stall signal is. "waiting" or "checking on task" alone does not satisfy the requirement — specify what event is being waited for and what constitutes a stall.
+3. Only then yield.
+
+This converts edge-triggered governance (fragile under silent task failure) into time-governed governance: ScheduleWakeup fires on schedule regardless of task outcome, providing structural recovery even when the task notification edge never fires.
+
+*Governance-passive-gaps 6-agent chain, 2026-05-19: FM-12 APPROVE. tawakkul (trust after tying) vs ta'attal (passive neglect): the Camel Rule closes the gap structurally. State-file architecture at `~/.claude/state/active-tasks-{session_id}.json` is the recommended stop-validation enforcement path (option b over 30-line JSONL window).*
+
+---
+
 ## 12. Session Start Checklist
 
 1. Acknowledge athan — new instance, orient fresh. Prior session context is gone.
