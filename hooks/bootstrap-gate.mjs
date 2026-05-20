@@ -148,7 +148,7 @@ ${allList}
 Per CLAUDE.md Bootstrap and ~/.claude/practice/extended/pillars-and-sunnah.md:
 orientation is a precondition for substantive action — not a response to drift.
 Read the required files first. Bootstrap reads are always allowed.
-Once both appear in the transcript, this gate opens for the remainder of the session.`,
+Once all required files appear in the transcript, this gate opens for the remainder of the session.`,
   },
 }));
 process.exit(2);
