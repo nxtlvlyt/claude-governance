@@ -11,6 +11,7 @@ Open the actual file when it governs your situation — do not act from memory.
 - **kv-cache-budget-checks.md** — Pre-invocation RAM budget; context_length is not safe
 - **local-delegation-routing.md** — Ollama as mechanical targets vs foreign-frontier validators
 - **memory-governance.md** — Rules for operational memory files: prohibited content, no PreMemoryWrite hook, index review at session start.
+- **model-rijal.md** — Behavioral biographies for each deliberation chain model: dispatch constraints, known failure modes, verdict accuracy records. Dispatch summary per model injected into chain prompts for calibration.
 - **pattern-amortization-signal.md** — N same-shape fixes → name structural helper instead
 - **perfect-repo-architecture.md** — Formation vs procedure split; two-layer project design
 - **setup-guide.md** — End-to-end governance setup; hooks, model roster, verification
