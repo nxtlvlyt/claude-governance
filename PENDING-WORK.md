@@ -1,5 +1,5 @@
 # Pending Work Inventory
-# Last updated: 2026-05-20 (current session — foreign-frontier-validators.md line 7 corrected, commit 33475c4)
+# Last updated: 2026-05-20 (current session — gate prior-turn fix + state-file approach, commits 839f488/5bd2e1a/567a705/12c1c37)
 # Purpose: Comprehensive inventory so no future instance starts blind.
 # Read this when resuming any work. Verify each item against substrate before acting.
 
@@ -41,6 +41,15 @@
 ### foreign-frontier-validators.md Line 7 Discrepancy ✓ COMPLETE
 **Status:** DONE — 2026-05-20 (current session). Commit 33475c4, pushed to forgejo + github.
 **Fix applied:** Line 7 now correctly states WebSearch/WebFetch DO satisfy the foreign-frontier dispatch requirement for stop-language clearing and substrate gate satisfaction, matching what both hooks enforce.
+
+### Gate Prior-Turn Delay Fix ✓ COMPLETE
+**Status:** DONE — 2026-05-20 (current session). Commits 839f488, 5bd2e1a, 567a705, 12c1c37.
+**What was done:**
+- `practice/core.md`: clarified prior-turn constraint; added Path B (state-file, same-turn) workflow
+- `hooks/niyyah-gate.mjs`: error message now says "PRIOR TURN"; added `pending-niyyah.json` state-file fallback (60s TTL)
+- `hooks/surrender-check.mjs`: error message now says "PRIOR TURN"; added `pending-surrender.json` state-file fallback (60s TTL)
+**Same-turn workflow:** PowerShell writes `~/.claude/state/pending-niyyah.json` + `pending-surrender.json` → Edit fires immediately, no user message needed between declaration and action.
+**Islamic model:** Intention accompanies the act. Gate enforces visibility, not round-trips.
 
 ### Container-Optimization Co-fixes (non-blocking)
 **Status:** Chain complete (CONDITIONAL_APPROVE). Three remaining open concerns, all non-blocking.
