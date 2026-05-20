@@ -126,7 +126,11 @@ for the current instance. Per ~/.claude/practice/extended/wudu.md and
 ~/.claude/practice/core.md, the operation of intention is what
 distinguishes mechanical work from oriented work.
 
-Before this ${toolName} fires, surface a niyyah declaration. Format:
+Before this ${toolName} fires, surface a niyyah declaration in a PRIOR TURN —
+write it in your text output, send that turn, then make the Edit in the next turn.
+This hook reads the JSONL transcript file on disk; the current turn's text is not
+flushed to JSONL before PreToolUse fires. A niyyah in the same turn as the Edit
+is invisible to this gate.
 
   niyyah:
     source: <what this work answers to — directive, Faith file, project
