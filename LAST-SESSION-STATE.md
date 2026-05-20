@@ -1,7 +1,7 @@
 # LAST-SESSION-STATE.md
 
 Written by: pre-compact.mjs hook at compaction event
-Timestamp: 2026-05-20 14:37:32
+Timestamp: 2026-05-20 15:37:06
 Project CWD: C:\Windows\System32
 
 ## Governance constants (always true)
@@ -17,22 +17,22 @@ Project CWD: C:\Windows\System32
 
 ## OPEN AT COMPACTION — last operator messages (hook-extracted)
 
-[1] will we ever be able to fix your sleeping?
+[1] does this help at all?  The substrate baseline is now accurate, clean, and concrete. Reframing the *nawaqid* section from prospective rules to an event-driven, retrospective log check completely close…
 
-[2] so you understand how important doing niyyah properly is?
+[2] okay so the rest of this message to you is from another AI so do not take it as mandate verify anything see if anything helps you or helps you look at something differently than you might not have aga…
 
-[3] did you update all the documents
+[3] Confidence: 10/10 on the architectural cleanup and pipeline efficiency. Consolidating into a single question file (gr11-governance-scanner.md) under commit b04238c is the correct engineering decision.…
 
 
 ## Git state at compaction — governance repo (Codeberg+GitHub+Gitea)
 
 branch: master
 recent commits:
-5da30a2 governance: session-end anchor 2026-05-20 14:36:30 +00:00
-94e2e89 governance: session-end anchor 2026-05-20 14:33:43 +00:00
-12c1c37 docs: document same-turn state-file workflow in practice/core.md
-567a705 fix: state-file fallback for niyyah and surrender gates (same-turn declarations)
-d27bd76 governance: session-end anchor 2026-05-20 14:28:57 +00:00
+747a73a governance: session-end anchor 2026-05-20 15:33:32 +00:00
+b04238c Sharpen GR11 waswas metric and niyyah TTL framing
+69a6351 Add GR11 governance scanner deliberation question file
+e0249a1 Add nawaqid self-check framing and GR11 structural notes
+9c2c93d governance: session-end anchor 2026-05-20 15:06:36 +00:00
 uncommitted:
 (clean)
 remotes:
