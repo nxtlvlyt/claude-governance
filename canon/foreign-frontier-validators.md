@@ -4,7 +4,7 @@
 
 The stop hook enforces this structurally. Foreign-frontier dispatches are recognized by pattern: `^mcp__(?:gemini|gpt|grok|glm)`. Matches satisfy the foreign-frontier dispatch requirement. Non-matches do not, regardless of what the call contains or which model it targets.
 
-`WebSearch` and `WebFetch` also satisfy the stop hook via a separate substrate path (external information retrieval, not model independence). They are not foreign-frontier validators, are not governed by this document, and do not count toward the foreign-frontier dispatch requirement for stop-language clearing or substrate gate satisfaction.
+`WebSearch` and `WebFetch` also satisfy the stop hook via a separate substrate path (external information retrieval, not model independence). They are not foreign-frontier validators and are not governed by this document — but both `stop-validation.mjs` and `pre-tool-use-substrate.mjs` accept them on the same `isFF` check as the approved validators above, so they DO satisfy the foreign-frontier dispatch requirement for stop-language clearing and substrate gate satisfaction.
 
 ---
 
