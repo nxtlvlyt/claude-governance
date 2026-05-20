@@ -205,7 +205,11 @@ denyWith(`SURRENDER ARTICULATION REQUIRED.
 This ${toolName} on ${fileName} replaces existing governance content. Before landing,
 name the conflict and state which side wins.
 
-Required format in assistant text (this session, before the ${toolName}):
+Required format in a PRIOR TURN — write it in your text output, send that turn,
+then make the ${toolName} in the next turn. This hook reads the JSONL transcript
+on disk; the current turn's text is not flushed before PreToolUse fires. An
+articulation written in the same turn as the ${toolName} is invisible to this gate.
+
   surrender articulation:
   substrate says: <non-empty — exact substring from what is being replaced>
   instance reasoning: <non-empty — the in-session logic driving this change>
