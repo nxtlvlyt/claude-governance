@@ -137,6 +137,22 @@ for (const line of allLines) {
   }
 }
 
+// State-file fallback: same-turn surrender articulation via Bash (intention accompanies act).
+// Instance writes ~/.claude/state/pending-surrender.json with {ts, surrender_text} before Edit.
+// TTL: 60s. Substrate-coupling check still runs — substrate says must appear in old_string.
+{
+  const pendingFile = join(os.homedir(), '.claude', 'state', 'pending-surrender.json');
+  if (existsSync(pendingFile)) {
+    try {
+      const pending = JSON.parse(readFileSync(pendingFile, 'utf8'));
+      const age = Date.now() - (pending.ts || 0);
+      if (age < 60000 && pending.surrender_text && /surrender\s*articulation\s*:/i.test(pending.surrender_text)) {
+        surrenderCandidates.push(pending.surrender_text);
+      }
+    } catch { /* fail-open */ }
+  }
+}
+
 // Use the most recent surrender articulation
 const currentAssistantText = surrenderCandidates.length > 0
   ? surrenderCandidates[surrenderCandidates.length - 1]
