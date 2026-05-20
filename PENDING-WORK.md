@@ -85,6 +85,11 @@
 ### GR11 Post-Cycle Governance Scanner
 **Status:** Not implemented. Documented as Phase 1 gap 3 in warroom STATE S9.
 **What:** Automatic drift check after every mission cycle. GR11 is the governance rule requiring post-cycle scan.
+**Two-track design (2026-05-20):**
+  1. Rule compliance — traditional: explicit governance rules followed?
+  2. Tradition-alignment — semantic: emergent behavior matches traditions the rules are drawn from? (catches rule-compliant but structurally broken behaviors — e.g., waswas, muwala violations)
+**Waswas metric (new, 2026-05-20):** In JSONL transcript, measure turn-gap between niyyah declaration and first subsequent Edit. If consistently > 0 turns under conditions where same-turn Path B was available, behavioral waswas is persisting despite the architectural fix. This is detectable from stop-validation.mjs or as a post-cycle GR11 check.
+**Open structural question — session-scoped niyyah TTL:** Niyyah is currently session-scoped with no expiry. The muwala/transaction model raises whether a 3-hour-old niyyah should still authorize an edit on a completely different file. Needs design decision before GR11 is built — the answer changes what GR11 checks.
 
 ### Rebase Artifact Cleanup
 **Status:** Pending from S8. Safe to delete.
