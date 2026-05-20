@@ -1,8 +1,8 @@
 # LAST-SESSION-STATE.md
 
 Written by: pre-compact.mjs hook at compaction event
-Timestamp: 2026-05-20 13:02:57
-Project CWD: C:\WINDOWS\system32
+Timestamp: 2026-05-20 14:37:32
+Project CWD: C:\Windows\System32
 
 ## Governance constants (always true)
 
@@ -17,25 +17,24 @@ Project CWD: C:\WINDOWS\system32
 
 ## OPEN AT COMPACTION — last operator messages (hook-extracted)
 
-[1] and we are working with the chain and verifying everything?
+[1] will we ever be able to fix your sleeping?
 
-[2] why do you sleep
+[2] so you understand how important doing niyyah properly is?
 
-[3] why are you sleeping
+[3] did you update all the documents
 
 
 ## Git state at compaction — governance repo (Codeberg+GitHub+Gitea)
 
 branch: master
 recent commits:
-33ed5dd Implement C2 TSA SPoF architecture in session-hash-chain.mjs
-f11e842 Mark FM-12 complete in PENDING-WORK.md, advance priority queue
-0a62680 Implement FM-12 Camel Rule hook enforcement
-84283fc governance: session-end anchor 2026-05-20 10:47:15 +00:00
-50eef61 governance: session-end anchor 2026-05-20 04:24:36 +00:00
+5da30a2 governance: session-end anchor 2026-05-20 14:36:30 +00:00
+94e2e89 governance: session-end anchor 2026-05-20 14:33:43 +00:00
+12c1c37 docs: document same-turn state-file workflow in practice/core.md
+567a705 fix: state-file fallback for niyyah and surrender gates (same-turn declarations)
+d27bd76 governance: session-end anchor 2026-05-20 14:28:57 +00:00
 uncommitted:
-M  CURRENT-STATE.md
-M  PENDING-WORK.md
+(clean)
 remotes:
 codeberg	git@codeberg.org:nxtlvl/claude-governance.git (fetch)
 codeberg	git@codeberg.org:nxtlvl/claude-governance.git (push)
