@@ -148,3 +148,4 @@
 | bootstrap-gate-fix | 2026-05-19 | APPROVE (all 6 seats) | Line 151 "both" → "all required files"; operator-context.md as 3rd required read |
 | governance-passive-gaps | 2026-05-19 | APPROVE (confidence 0.88) | FM-11/FM-12 formation rules committed |
 | container-optimization | 2026-05-19 | CONDITIONAL_APPROVE | 3 non-blocking concerns (see Category 1 above) |
+| c2-tsa-spof | 2026-05-19 | CONDITIONAL_APPROVE (unanimous 6-seat) | D1 parallel TSA + D2 JSON OTS stub + D3 manifest v3 + D4 warroom 2s; Q1 EU Act open |
