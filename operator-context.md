@@ -3,7 +3,7 @@
 **Loaded at every session start by `~/.claude/hooks/session-start.mjs`.**
 **Read this before acting. It exists because cold instances took 2+ hours to rediscover this. Don't repeat that.**
 
-Last updated: 2026-05-15 (C1 migration COMPLETE — all 10 governance hooks ported from PowerShell to Node.js .mjs across Phases A–D. Phase B (commits 438998f): session-start, user-prompt-submit, subagent-start, pre-compact ported; heartbeat, model-version boundary check, P6 catch-up push, AnythingLLM hotdir all faithful. Phase C (commits e389dda/eca16f2): session-hash-chain with RFC 3161 TSA (4 fallback endpoints, zero npm deps, raw ASN.1 DER), git-anchor with platform CLI credential resolution: CODEBERG_TOKEN env → pwsh CredentialManager → secret-tool/security → p6-config.json fallback. Phase D (commit 0daf620): laguna-pre-commit, laguna-prose-governance; pre-commit wrapper updated to call node; governance-prose alias registered globally. All PS1 hooks superseded. PowerShell hooks retained as archived reference.)
+Last updated: 2026-05-20 (bootstrap-gate.mjs Read matcher added to settings.json — fajr Read enforcement was wired in the hook but missing from settings.json registration, allowing instances to do arbitrary Reads without demonstrating orientation; fixed by adding Read PreToolUse entry. Previous: 2026-05-15 (C1 migration COMPLETE — all 10 governance hooks ported from PowerShell to Node.js .mjs across Phases A–D. Phase B (commits 438998f): session-start, user-prompt-submit, subagent-start, pre-compact ported; heartbeat, model-version boundary check, P6 catch-up push, AnythingLLM hotdir all faithful. Phase C (commits e389dda/eca16f2): session-hash-chain with RFC 3161 TSA (4 fallback endpoints, zero npm deps, raw ASN.1 DER), git-anchor with platform CLI credential resolution: CODEBERG_TOKEN env → pwsh CredentialManager → secret-tool/security → p6-config.json fallback. Phase D (commit 0daf620): laguna-pre-commit, laguna-prose-governance; pre-commit wrapper updated to call node; governance-prose alias registered globally. All PS1 hooks superseded. PowerShell hooks retained as archived reference.)
 
 Previous (same session): Phase A complete — four gate hooks ported from PowerShell to Node.js .mjs: niyyah-gate, surrender-check, pre-tool-use-substrate, stop-validation; substrate class extended to hooks/*.mjs; settings.json updated; laguna PASS on pre-commit review; commit 14a9812; all Refinements A-D of stop-validation ported faithfully
 
@@ -633,8 +633,15 @@ All hooks are registered in `~/.claude/settings.json`. The format:
     "PreCompact":       [{ "hooks": [{ "type": "command", "command": "node \"C:\\Users\\marka\\.claude\\hooks\\pre-compact.mjs\"", "timeout": 10 }] }],
     "PreToolUse": [
       {
+        "matcher": "Read",
+        "hooks": [
+          { "type": "command", "command": "node \"C:\\Users\\marka\\.claude\\hooks\\bootstrap-gate.mjs\"", "timeout": 10 }
+        ]
+      },
+      {
         "matcher": "Edit|Write|NotebookEdit",
         "hooks": [
+          { "type": "command", "command": "node \"C:\\Users\\marka\\.claude\\hooks\\bootstrap-gate.mjs\"", "timeout": 10 },
           { "type": "command", "command": "node \"C:\\Users\\marka\\.claude\\hooks\\pre-tool-use-substrate.mjs\"", "timeout": 10 },
           { "type": "command", "command": "node \"C:\\Users\\marka\\.claude\\hooks\\niyyah-gate.mjs\"", "timeout": 10 },
           { "type": "command", "command": "node \"C:\\Users\\marka\\.claude\\hooks\\surrender-check.mjs\"", "timeout": 10 }
