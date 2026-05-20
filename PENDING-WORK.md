@@ -1,5 +1,5 @@
 # Pending Work Inventory
-# Last updated: 2026-05-19 (session 657b07d5)
+# Last updated: 2026-05-19 (session 657b07d5 — C2 chain closed)
 # Purpose: Comprehensive inventory so no future instance starts blind.
 # Read this when resuming any work. Verify each item against substrate before acting.
 
@@ -7,26 +7,26 @@
 
 ## PRIORITY ORDER
 
-1. C2 (TSA SPoF) — question file ready, run immediately
-2. C3 (memory unification) — write question file, then run
-3. FM-12 stop-validation.mjs extension — implementation-ready after C2/C3
-4. foreign-frontier-validators.md line 7 discrepancy — canon edit
-5. Container-optimization co-fixes — non-blocking, implement post-chain
-6. Warroom Phase 1 — after C2/C3 close
-7. NAS Volume 3 — physical work, ~2 weeks
-8. Windows Scheduled Tasks — 11 disabled tasks
-9. BC1 smoke test — wire-server.py integration test
+1. C3 (memory unification) — question file exists at scripts/deliberations/c3-memory-unification.md, run immediately
+2. FM-12 stop-validation.mjs extension — implementation-ready after C3
+3. foreign-frontier-validators.md line 7 discrepancy — canon edit
+4. Container-optimization co-fixes — non-blocking, implement post-chain
+5. Warroom Phase 1 — after C3 closes
+6. NAS Volume 3 — physical work, ~2 weeks
+7. Windows Scheduled Tasks — 11 disabled tasks
+8. BC1 smoke test — wire-server.py integration test
 
 ---
 
 ## CATEGORY 1 — Governance Repo (immediate)
 
-### C2 — TSA SPoF: Parallel TSA + OpenTimestamps
-**Status:** Question file ready at `~/.claude/scripts/deliberations/c2-tsa-spof.md`. Chain NOT yet run.
-**What:** `hooks/session-hash-chain.mjs` submits hash to 4 RFC 3161 TSA endpoints serially. Worst case: 32s latency per session end. When fully offline (warroom use case), ALL TSAs fail — the hook writes FAILED_OPEN and the session has no cryptographic timestamp anchor.
-**Chain questions:** Parallel TSA (Promise.race), OpenTimestamps as offline fallback, zero-dependency constraint, warroom Python equivalent, manifest format for .ots sidecar.
-**Why urgency:** EU AI Act Aug 2026. Warroom is offline-first — every warroom session currently has a non-repudiation gap.
-**Sequencing note (from project memory):** Complete C2 before warroom Phase 1. Document findings to `C:\warroom\logs\decisions\2026\05\<dd>\` after chain closes.
+### C2 — TSA SPoF: Parallel TSA + OpenTimestamps ✓ COMPLETE
+**Status:** CLOSED — 6-seat chain unanimous CONDITIONAL_APPROVE (2026-05-19, task btjjhymvq).
+**Decision log:** `C:\warroom\logs\decisions\2026\05\19\c2-tsa-spof-parallel-ots-architecture.md`
+**Supersedes:** `C:\warroom\logs\decisions\2026\05\15\c2-tsa-spof-redundancy-design.md`
+**Architecture decided:** D1 parallel TSA (8s global timeout, ASN.1 validation) + D2 JSON OTS pending-stub offline + D3 manifest v3 (ots_path/ots_status/ots_hash) + D4 War Room 2s tight TSA timeout
+**Implementation pending:** Edit `hooks/session-hash-chain.mjs` after C3 closes
+**Open Q1:** Does EU AI Act Art 12/15 require third-party timestamp certification? (gates whether binary OTS + javascript-opentimestamps required vs JSON stub sufficient)
 
 ### C3 — Memory Unification Interface
 **Status:** No question file written yet. No chain run.
@@ -132,9 +132,8 @@
 
 | Priority | Chain | Question File | Status |
 |----------|-------|---------------|--------|
-| 1 | C2 TSA SPoF | `scripts/deliberations/c2-tsa-spof.md` | Ready to run |
-| 2 | C3 Memory Unification | Not written yet | Write then run |
-| 3 | FM-12 hook impl | Not written yet | Write then run |
+| 1 | C3 Memory Unification | `scripts/deliberations/c3-memory-unification.md` | Ready to run |
+| 2 | FM-12 hook impl | Not written yet | Write then run |
 
 ---
 
