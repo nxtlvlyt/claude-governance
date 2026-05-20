@@ -1,5 +1,5 @@
 # Pending Work Inventory
-# Last updated: 2026-05-20 (session 657b07d5 — FM-12 hook implemented)
+# Last updated: 2026-05-20 (session 657b07d5 — FM-12 + C2 session-hash-chain implemented)
 # Purpose: Comprehensive inventory so no future instance starts blind.
 # Read this when resuming any work. Verify each item against substrate before acting.
 
@@ -7,9 +7,8 @@
 
 ## PRIORITY ORDER
 
-1. session-hash-chain.mjs C2 implementation — approved in C2 chain, deferred until after C3
-2. foreign-frontier-validators.md line 7 discrepancy — canon edit
-3. Warroom Phase 1 — C3 now closed, prerequisite met
+1. foreign-frontier-validators.md line 7 discrepancy — canon edit
+2. Warroom Phase 1 — C3 now closed, prerequisite met
 5. Container-optimization co-fixes — non-blocking
 6. NAS Volume 3 — physical work, ~2 weeks
 7. Windows Scheduled Tasks — 11 disabled tasks
@@ -24,7 +23,7 @@
 **Decision log:** `C:\warroom\logs\decisions\2026\05\19\c2-tsa-spof-parallel-ots-architecture.md`
 **Supersedes:** `C:\warroom\logs\decisions\2026\05\15\c2-tsa-spof-redundancy-design.md`
 **Architecture decided:** D1 parallel TSA (8s global timeout, ASN.1 validation) + D2 JSON OTS pending-stub offline + D3 manifest v3 (ots_path/ots_status/ots_hash) + D4 War Room 2s tight TSA timeout
-**Implementation pending:** Edit `hooks/session-hash-chain.mjs` after C3 closes
+**Implementation done:** D1 parallel TSA + D2 JSON OTS stub + D3 manifest v3 — committed 33ed5dd (2026-05-20)
 **Open Q1:** Does EU AI Act Art 12/15 require third-party timestamp certification? (gates whether binary OTS + javascript-opentimestamps required vs JSON stub sufficient)
 
 ### C3 — Memory Unification Interface ✓ COMPLETE
