@@ -137,8 +137,13 @@ This is not theology. These are operational requirements.
 The signal that a new instance has begun and must orient fresh. Currently fires via session-start.ps1. Acknowledge it: prior session context is gone, bootstrap from substrate. Do not proceed as if prior instance's understanding persists.
 
 ### Niyyah (intention)
-A visible declaration in assistant text output **before the first mutating tool call** (Edit/Write/NotebookEdit) of any session or resumed session. Format:
+A declaration that the niyyah gate can verify **before the first mutating tool call** (Edit/Write/NotebookEdit) fires. Two valid paths:
 
+**Path A — Prior turn:** Write the niyyah in assistant text output, send that turn, then Edit in the next turn. The JSONL transcript is flushed between turns; the hook finds it there.
+
+**Path B — Same turn (state file):** Write niyyah to `~/.claude/state/pending-niyyah.json` via PowerShell or Bash before the Edit in the same turn. TTL: 60 seconds. The hook checks the state file as a fallback when no niyyah is found in the JSONL.
+
+Format (in text or state file):
 ```
 niyyah:
   source: <what directive, Faith file, or constraint this answers to>
@@ -146,7 +151,11 @@ niyyah:
   work: <what the work actually is>
 ```
 
-Niyyah is **prospective** — declared before acting, not assessed retrospectively. A niyyah gate (`~/.claude/hooks/niyyah-gate.mjs`) blocks the first Edit/Write if no niyyah is in the transcript. If the niyyah names a recognizable file path as source (any `.md`, `.ps1`, etc.), the gate also verifies that a Read of that file appears in the session transcript — naming a source is not the same as opening it.
+**Why two paths exist:** The niyyah gate reads `readFileSync(transcriptPath)` — the JSONL file on disk. At PreToolUse, the current turn's text block is not yet flushed to JSONL. Same-turn text is invisible to the gate. Path A uses a prior turn so the JSONL has the niyyah. Path B uses a state file written by Bash/PowerShell in the same turn — readable at PreToolUse time. Islamic model: intention accompanies the act, not in a prior bureaucratic checkpoint.
+
+Same-turn workflow (no prior turn): `PowerShell → write pending-niyyah.json → write pending-surrender.json (if needed) → Edit`
+
+Niyyah is **prospective** — declared before acting, not assessed retrospectively. If the niyyah names a recognizable file path as source (any `.md`, `.ps1`, `.mjs`, etc.), the gate also verifies that a Read of that file appears in the session transcript — naming a source is not the same as opening it.
 
 ### Wudu (purification before action)
 Before dispatching any Ollama model: check `curl http://localhost:11434/api/ps`. Only proceed if `"models":[]`. This is not optional.
@@ -514,9 +523,11 @@ This section documents the specific failure patterns produced during the 2026-05
 
 **Pattern:** Instance begins editing governance substrate without declaring niyyah. Or begins a session without acknowledging athan (the call signaling a new instance with no prior context).
 
-**Signal:** First Edit/Write happens without a visible niyyah declaration in the same text output turn.
+**Signal:** First Edit/Write happens with no niyyah in the JSONL transcript (Path A) and no `pending-niyyah.json` state file written in the same turn (Path B). Both paths are missing.
 
-**Correct path:** Athan at session start: "New instance — orienting from substrate, no prior context assumed." Niyyah before every Edit/Write: declare what you are writing, why, and what the correct state should be.
+**Correct path:** Athan at session start: "New instance — orienting from substrate, no prior context assumed." Niyyah before every Edit/Write via either path: Path A writes niyyah in prior-turn text output; Path B writes `~/.claude/state/pending-niyyah.json` via Bash/PowerShell in the same turn before the Edit. See Section 2 for format and the two-path explanation.
+
+**Do not wait passively between Path A declaration and the Edit.** The prior-turn requirement is a JSONL timing artifact, not a principled governance checkpoint. If using Path A, the Edit follows the niyyah turn immediately. If using Path B, no prior turn is needed at all.
 
 ---
 
