@@ -55,7 +55,13 @@ For governance acts and Ollama dispatch, purification is a precondition, not a r
 
 > *Niyyah: [what act is about to be performed]. Source open: [which file is open and being written against].*
 
-The niyyah is not internal. It appears in the output stream before the tool is invoked — and it must be in a **prior turn**, not the same turn as the Edit. The niyyah-gate hook reads the JSONL transcript file on disk (`readFileSync(transcriptPath)`). The current turn's text is not flushed to JSONL before PreToolUse fires. A niyyah written in the same turn as the Edit is invisible to the gate. Write the niyyah. Send the turn. Then make the Edit in the next turn.
+The niyyah is not internal. It must be visible before the Edit fires. Two valid paths:
+
+**Path A — Prior turn (text output):** Write the niyyah in your text output, send that turn, then Edit in the next turn. The JSONL transcript is flushed between turns; the hook finds it there.
+
+**Path B — Same turn (state file):** Write niyyah to `~/.claude/state/pending-niyyah.json` via PowerShell/Bash before the Edit in the same turn. TTL: 60 seconds. Format: `{"ts": <unix-ms>, "niyyah_text": "niyyah:\n  source: ...\n  failure_mode: ...\n  work: ..."}`. The hook checks the state file as a fallback when JSONL has no niyyah. Similarly, surrender articulation: `~/.claude/state/pending-surrender.json` with `{"ts": <unix-ms>, "surrender_text": "surrender articulation:\n  substrate says: ..."}`.
+
+Same-turn workflow (no prior turn needed): PowerShell → write pending-niyyah.json → write pending-surrender.json → Edit.
 
 If you cannot write the niyyah — because the source is not open, or the act is not clearly defined — do not proceed. Open the source first. When entering a named role (chain architect, executor, validator, auditor, or any role with a `~/.claude/faiths/*.md` file): the relevant Faith file is part of the source to open before writing the niyyah — the Faith defines the identity the work is performed from, and identity is not recalled from memory.
 
