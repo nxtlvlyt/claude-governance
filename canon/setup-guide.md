@@ -45,29 +45,19 @@ Serial inference discipline applies at all tiers: one model at a time. RAM requi
 
 ## Phase 1: settings.json — hooks and model
 
-Create or update `~/.claude/settings.json`. Replace `<username>` with the actual Windows username:
+The canonical `settings.json` lives in the cloned repo at `~/.claude/settings.json`. It uses `.mjs` Node.js hooks throughout — do not regenerate it from a template.
 
-```json
-{
-  "model": "sonnet",
-  "hooks": {
-    "SessionStart": [{"hooks": [{"type": "command", "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File \"C:\\Users\\<username>\\.claude\\hooks\\session-start.ps1\"", "timeout": 30}]}],
-    "UserPromptSubmit": [{"hooks": [{"type": "command", "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File \"C:\\Users\\<username>\\.claude\\hooks\\user-prompt-submit.ps1\"", "timeout": 10}]}],
-    "Stop": [{"hooks": [{"type": "command", "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File \"C:\\Users\\<username>\\.claude\\hooks\\stop-validation.ps1\"", "timeout": 15}]}],
-    "SubagentStart": [{"hooks": [{"type": "command", "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File \"C:\\Users\\<username>\\.claude\\hooks\\subagent-start.ps1\"", "timeout": 30}]}],
-    "PreCompact": [{"hooks": [{"type": "command", "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File \"C:\\Users\\<username>\\.claude\\hooks\\pre-compact.ps1\"", "timeout": 10}]}],
-    "PreToolUse": [{"matcher": "Edit|Write|NotebookEdit", "hooks": [
-      {"type": "command", "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File \"C:\\Users\\<username>\\.claude\\hooks\\pre-tool-use-substrate.ps1\"", "timeout": 10},
-      {"type": "command", "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File \"C:\\Users\\<username>\\.claude\\hooks\\niyyah-gate.ps1\"", "timeout": 10},
-      {"type": "command", "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File \"C:\\Users\\<username>\\.claude\\hooks\\surrender-check.ps1\"", "timeout": 10}
-    ]}]
-  },
-  "skipDangerousModePermissionPrompt": true,
-  "skipAutoPermissionPrompt": true
-}
+Patch it for the actual username:
+
+```powershell
+$username = $env:USERNAME
+$settingsPath = "$HOME\.claude\settings.json"
+$content = Get-Content $settingsPath -Raw
+$patched = $content.Replace('C:\\Users\\marka\\.claude', "C:\\Users\\$username\\.claude")
+Set-Content $settingsPath $patched -Encoding UTF8
 ```
 
-**Linux/Mac note:** Replace `pwsh` with `bash` and `.ps1` with `.sh` — the hooks will need to be rewritten in bash. The governance structure is identical; only the hook shell differs.
+`install.ps1` (run by `bootstrap.ps1`) does this automatically alongside all other setup steps. Manual patching is only needed if running setup steps individually.
 
 ---
 
