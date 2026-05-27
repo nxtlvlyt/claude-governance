@@ -85,71 +85,21 @@ if (Test-Path $settingsPath) {
     Write-Host "  Backed up existing settings.json -> settings.json.bak" -ForegroundColor Cyan
 }
 
-$writeSettings = $true
+# Patch the canonical settings.json (already in the cloned repo) for this user.
+# Rather than regenerating from a hardcoded template, we patch the live canonical
+# version so it stays synchronized with whatever the repo contains.
 if (Test-Path $settingsPath) {
-    $confirm = Read-Host "Existing settings.json found. Overwrite it? (y/N)"
-    if ($confirm -ne 'y') {
-        Write-Host "  Skipping settings.json write. Existing config preserved." -ForegroundColor Yellow
-        $writeSettings = $false
+    $content = Get-Content $settingsPath -Raw
+    $patched = $content.Replace('C:\\Users\\marka\\.claude', "C:\\Users\\$username\\.claude")
+    if ($content -ne $patched) {
+        Copy-Item $settingsPath "$settingsPath.bak" -Force
+        Set-Content $settingsPath $patched -Encoding UTF8
+        Write-Host "  Patched: $settingsPath (username: $username)" -ForegroundColor Green
+    } else {
+        Write-Host "  Already correct: $settingsPath" -ForegroundColor Green
     }
-}
-
-$settings = @{
-    model = 'sonnet'
-    hooks = @{
-        SessionStart = @(@{
-            hooks = @(@{
-                type    = 'command'
-                command = "pwsh -NoProfile -ExecutionPolicy Bypass -File `"C:\Users\$username\.claude\hooks\session-start.ps1`""
-                timeout = 30
-            })
-        })
-        UserPromptSubmit = @(@{
-            hooks = @(@{
-                type    = 'command'
-                command = "pwsh -NoProfile -ExecutionPolicy Bypass -File `"C:\Users\$username\.claude\hooks\user-prompt-submit.ps1`""
-                timeout = 10
-            })
-        })
-        Stop = @(@{
-            hooks = @(@{
-                type    = 'command'
-                command = "pwsh -NoProfile -ExecutionPolicy Bypass -File `"C:\Users\$username\.claude\hooks\stop-validation.ps1`""
-                timeout = 15
-            })
-        })
-        SubagentStart = @(@{
-            hooks = @(@{
-                type    = 'command'
-                command = "pwsh -NoProfile -ExecutionPolicy Bypass -File `"C:\Users\$username\.claude\hooks\subagent-start.ps1`""
-                timeout = 30
-            })
-        })
-        PreCompact = @(@{
-            hooks = @(@{
-                type    = 'command'
-                command = "pwsh -NoProfile -ExecutionPolicy Bypass -File `"C:\Users\$username\.claude\hooks\pre-compact.ps1`""
-                timeout = 10
-            })
-        })
-        PreToolUse = @(@{
-            matcher = 'Edit|Write|NotebookEdit'
-            hooks = @(
-                @{ type = 'command'; command = "pwsh -NoProfile -ExecutionPolicy Bypass -File `"C:\Users\$username\.claude\hooks\pre-tool-use-substrate.ps1`""; timeout = 10 },
-                @{ type = 'command'; command = "pwsh -NoProfile -ExecutionPolicy Bypass -File `"C:\Users\$username\.claude\hooks\niyyah-gate.ps1`""; timeout = 10 },
-                @{ type = 'command'; command = "pwsh -NoProfile -ExecutionPolicy Bypass -File `"C:\Users\$username\.claude\hooks\surrender-check.ps1`""; timeout = 10 }
-            )
-        })
-    }
-    skipDangerousModePermissionPrompt = $true
-    skipAutoPermissionPrompt = $true
-}
-
-if ($writeSettings) {
-    $settings | ConvertTo-Json -Depth 10 | Set-Content -Path $settingsPath -Encoding UTF8
-    Write-Host "  Written: $settingsPath" -ForegroundColor Green
 } else {
-    Write-Host "  Skipped." -ForegroundColor Yellow
+    Write-Host "  WARNING: settings.json not found — was the repo cloned correctly?" -ForegroundColor Red
 }
 
 # ── MCP server registration ───────────────────────────────────────────────────
@@ -219,7 +169,7 @@ if ($tier -ge 2) {
     $modelsToPull += 'laguna-xs.2:q4_K_M'
 }
 if ($tier -ge 3) {
-    $modelsToPull += @('qwen3.6:27b', 'granite4.1:30b', 'nemotron-3-super:latest')
+    $modelsToPull += @('gemma4:31b', 'qwen3.6:27b', 'granite4.1:30b', 'nemotron-3-super:latest')
 }
 
 foreach ($model in $modelsToPull) {
