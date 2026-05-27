@@ -1,11 +1,11 @@
 # bootstrap.ps1 — Claude OS one-command installer
 #
 # Quick install:
-#   irm https://codeberg.org/nxtlvl/claude-governance/raw/branch/master/bootstrap.ps1 | iex
+#   irm https://nxtlvl.studio/get | iex
 #
 # Custom fork:
 #   $env:CLAUDE_REPO = "https://github.com/YOURFORK/claude-governance.git"
-#   irm https://codeberg.org/nxtlvl/claude-governance/raw/branch/master/bootstrap.ps1 | iex
+#   irm https://nxtlvl.studio/get | iex
 #
 # Environment overrides:
 #   CLAUDE_REPO   — git clone URL (default: https://github.com/nxtlvlyt/claude-governance.git)
