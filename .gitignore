@@ -11,6 +11,9 @@ CURRENT-STATE.md
 settings.local.json
 p6-config.json
 
+# Per-instance memory — advisory, may contain credentials, never commit
+memory/
+
 # Session transcripts and per-project ephemeral state
 projects/
 sessions/
