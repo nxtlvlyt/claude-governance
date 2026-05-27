@@ -1,7 +1,7 @@
 # LAST-SESSION-STATE.md
 
 Written by: pre-compact.mjs hook at compaction event
-Timestamp: 2026-05-21 14:43:12
+Timestamp: 2026-05-27 18:23:31
 Project CWD: C:\Windows\System32
 
 ## Governance constants (always true)
@@ -17,24 +17,24 @@ Project CWD: C:\Windows\System32
 
 ## OPEN AT COMPACTION — last operator messages (hook-extracted)
 
-[1] does this help  https://www.torrentday.com/download.php/3590734/South.Park.S01-S21.720p.BluRay.x265-HETeam.torrent
+[1] does this help xt + docs + images + video, which collapses your model count.One thing I should flag I'm now less confident on (confidence: 0.5): whether Qwen3.6 inherited Qwen3-VL's specific temporal…
 
-[2] why are you trying to delete files
+[2] 1. Nemotron 3 Nano Omni (30B-A3B) — still top for video+audio joint reasoning (confidence: 0.80, down from 0.85 because Qwen3.6 closes more of the gap than I credited)2. Qwen3.6-35B-A3B or Qwen3.6-27…
 
-[3] are we ok
+[3] still looks more ai than what i know comfyui can produce
 
 
 ## Git state at compaction — governance repo (Codeberg+GitHub+Gitea)
 
 branch: master
 recent commits:
-a06e98e governance: session-end anchor 2026-05-21 14:39:24 +00:00
-ba5bd37 governance: session-end anchor 2026-05-21 13:47:41 +00:00
-f3b701e governance: session-end anchor 2026-05-21 12:19:15 +00:00
-a4ab865 governance: session-end anchor 2026-05-21 10:35:27 +00:00
-29b50a8 governance: session-end anchor 2026-05-21 08:32:39 +00:00
+2cd64c4 governance: session-end anchor 2026-05-27 17:02:30 +00:00
+1130988 governance: session-end anchor 2026-05-26 08:46:11 +00:00
+f3be22e governance: session-end anchor 2026-05-22 15:30:11 +00:00
+727c6c1 governance: session-end anchor 2026-05-22 11:40:24 +00:00
+1b3adf0 governance: session-end anchor 2026-05-22 05:15:29 +00:00
 uncommitted:
-?? .update.lock
+(clean)
 remotes:
 codeberg	git@codeberg.org:nxtlvl/claude-governance.git (fetch)
 codeberg	git@codeberg.org:nxtlvl/claude-governance.git (push)
