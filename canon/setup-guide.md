@@ -91,24 +91,34 @@ Verify: `claude mcp list` — all servers should show ✓ Connected.
 
 ## Phase 3: Ollama model pulls
 
-Pull models in order of priority. Each is large — runs in background, check with `ollama ps`.
+Pull only the models for your tier. Serial discipline: one model loaded at a time.
+`install.ps1` handles pulls automatically. Manual pulls below.
 
 ```bash
-# Tier 2 minimum — laguna (enables surrender-check authorization)
-ollama pull laguna-xs.2:q4_K_M        # ~28GB — 33B parameter code/review model
+# All tiers — embedding model (~274MB, required for AnythingLLM RAG)
+ollama pull nomic-embed-text:latest
 
-# Tier 3 additions — full deliberation chain
-ollama pull qwen3.6:27b               # ~16GB — Alibaba deliberation (governance questions first)
-ollama pull granite4.1:30b            # ~18GB — IBM governance audits and canon coherence
-ollama pull nemotron-3-super:latest   # ~24GB — NVIDIA high-throughput deliberation
+# Tier 2 additions — small dense models (16GB+ system)
+ollama pull nemotron-mini:4b          # ~3GB  — NVIDIA 4B
+ollama pull qwen3:8b                  # ~5GB  — Alibaba lightweight
+ollama pull granite4.1:8b             # ~5GB  — IBM compact
 
-# Embedding (required for AnythingLLM RAG)
-ollama pull nomic-embed-text:latest   # ~274MB — 768d embeddings
+# Tier 3 additions — MoE governance chain (32GB+ system)
+# laguna-xs.2 required — without it, surrender-check blocks substrate edits
+ollama pull gemma4:26b                # ~17GB — Google MoE
+ollama pull qwen3.6:27b               # ~16GB — Alibaba MoE deliberation
+ollama pull laguna-xs.2:q4_K_M        # ~28GB — governance witness, substrate edit authorization
+ollama pull nemotron-cascade-2:latest # ~23GB — NVIDIA MoE (AnythingLLM RAG model)
+
+# Tier 4 additions — dense full chain (128GB+ system)
+ollama pull granite4.1:30b            # ~18GB — IBM dense, governance audits
+ollama pull nemotron-3-super:latest   # ~93GB — NVIDIA dense, high-throughput deliberation
+ollama pull gemma4:31b                # ~20GB — Google dense, max resolution
 ```
 
-Verify pulls: `ollama list` — all pulled models should appear.
+Verify: `ollama list` — all pulled models appear.
 
-**Serial discipline starts now:** Never run two large models simultaneously. Before any dispatch: `curl http://localhost:11434/api/ps` to check what's running. Use `ollama stop <model>` to unload before loading another.
+**Serial discipline starts now:** Before any dispatch: `curl http://localhost:11434/api/ps` to check what's running. One model at a time — unload before loading another.
 
 ---
 
