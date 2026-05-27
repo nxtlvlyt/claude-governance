@@ -12,9 +12,11 @@
 #   CLAUDE_BRANCH — branch name  (default: master)
 
 param(
-    [string]$Repo   = ($env:CLAUDE_REPO   ?? 'https://github.com/nxtlvlyt/claude-governance.git'),
-    [string]$Branch = ($env:CLAUDE_BRANCH ?? 'master')
+    [string]$Repo   = $env:CLAUDE_REPO,
+    [string]$Branch = $env:CLAUDE_BRANCH
 )
+if (-not $Repo)   { $Repo   = 'https://github.com/nxtlvlyt/claude-governance.git' }
+if (-not $Branch) { $Branch = 'master' }
 
 $ErrorActionPreference = 'Stop'
 $dest = Join-Path $HOME '.claude'
