@@ -4,6 +4,10 @@
 # Personal context brief — contains name, email, machine specs, API keys
 # Friends/new machines use operator-context.template.md as their starting point
 operator-context.md
+
+# Hook-written session state — ephemeral, changes every session, not repo content
+LAST-SESSION-STATE.md
+CURRENT-STATE.md
 settings.local.json
 p6-config.json
 
