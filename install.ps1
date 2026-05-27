@@ -60,14 +60,53 @@ Write-Host ""
 # ── Tier selection ────────────────────────────────────────────────────────────
 
 Write-Host "Select installation tier:"
-Write-Host "  1) Structure only    (8GB+  RAM) — hooks, governance bootstrap. No substrate edit authorization."
-Write-Host "  2) Governance        (32GB+ RAM) — Tier 1 + laguna. Full substrate edit authorization."
-Write-Host "  3) Full deliberation (100GB+ RAM)— Tier 2 + qwen3.6:27b + granite4.1:30b + nemotron-3-super."
+Write-Host "  1) Structure + Cloud   (8GB+   RAM) — hooks, governance bootstrap, cloud model guidance."
+Write-Host "     Use Claude API or claude.ai as your AI layer. No local models required."
+Write-Host "  2) Lightweight chain   (16GB+  RAM) — Tier 1 + small local models (4-9B)."
+Write-Host "     Models: nemotron-mini:4b, qwen3:8b, granite4.1:8b"
+Write-Host "  3) Governance chain    (32GB+  RAM) — Tier 2 + full MoE deliberation chain."
+Write-Host "     Models: gemma4:26b (MoE ~8GB), qwen3.6:27b (MoE ~20GB), laguna-xs.2, nemotron-cascade-2"
+Write-Host "  4) The Factory         (128GB+ RAM) — Tier 3 + dense full chain."
+Write-Host "     Models: + granite4.1:30b, nemotron-3-super, gemma4:31b (dense, max resolution)"
 Write-Host ""
-$tier = Read-Host "Tier (1/2/3)"
-if ($tier -notin @('1','2','3')) {
+Write-Host "  Serial inference discipline: only one model runs at a time." -ForegroundColor DarkGray
+Write-Host "  RAM requirement = largest single model, not sum of all models." -ForegroundColor DarkGray
+Write-Host ""
+$tier = Read-Host "Tier (1/2/3/4)"
+if ($tier -notin @('1','2','3','4')) {
     Write-Host "Invalid tier. Exiting." -ForegroundColor Red
     exit 1
+}
+$tierNum = [int]$tier
+
+# ── Tier 1 cloud model guidance ──────────────────────────────────────────────
+
+if ($tier -eq '1') {
+    Write-Host ""
+    Write-Host "──────────────────────────────────────────────────────────" -ForegroundColor Cyan
+    Write-Host " Tier 1 — Governance Structure + Cloud AI"                  -ForegroundColor Cyan
+    Write-Host "──────────────────────────────────────────────────────────" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "  This installs the full governance framework — hooks, canon, faiths," -ForegroundColor White
+    Write-Host "  deliberation patterns, P6 anchoring — without requiring local models." -ForegroundColor White
+    Write-Host ""
+    Write-Host "  Recommended cloud setup:" -ForegroundColor Yellow
+    Write-Host "    1. Claude Code (you have it): claude.ai/code" -ForegroundColor Yellow
+    Write-Host "       The governance hooks, canon, and deliberation chain all work" -ForegroundColor Yellow
+    Write-Host "       inside Claude Code sessions with zero local model dependency." -ForegroundColor Yellow
+    Write-Host "    2. Anthropic API key: console.anthropic.com -> API Keys" -ForegroundColor Yellow
+    Write-Host "       Set ANTHROPIC_API_KEY in your shell for chain scripts." -ForegroundColor Yellow
+    Write-Host ""
+    Write-Host "  Suggested model mapping for the 6-seat deliberation chain:" -ForegroundColor Yellow
+    Write-Host "    Architects (Seats 1-3): claude-sonnet-4-6" -ForegroundColor White
+    Write-Host "    Executor   (Seat 4):    claude-sonnet-4-6" -ForegroundColor White
+    Write-Host "    Validator  (Seat 5):    claude-haiku-4-5  (faster, lower cost)" -ForegroundColor White
+    Write-Host "    Scanner    (Seat 6):    claude-haiku-4-5" -ForegroundColor White
+    Write-Host "    Auditor    (Seat 7):    claude-sonnet-4-6" -ForegroundColor White
+    Write-Host ""
+    Write-Host "  Upgrade path: re-run this script with Tier 2 (16GB+) to add" -ForegroundColor Cyan
+    Write-Host "  local Ollama models without losing your current configuration." -ForegroundColor Cyan
+    Write-Host ""
 }
 
 # ── settings.json — hook paths ────────────────────────────────────────────────
@@ -163,13 +202,19 @@ if ($mcpServersPath -and (Test-Path $mcpServersPath)) {
 Write-Host ""
 Write-Host "Pulling Ollama models for Tier $tier..."
 
-$modelsToPull = @('nomic-embed-text:latest')  # always pull embedding model
+$modelsToPull = @('nomic-embed-text:latest')  # ~300MB, used by AnythingLLM for embeddings
 
-if ($tier -ge 2) {
-    $modelsToPull += 'laguna-xs.2:q4_K_M'
+if ($tierNum -ge 2) {
+    # Tier 2 — small dense models (4-9B), run on 16GB serial
+    $modelsToPull += @('nemotron-mini:4b', 'qwen3:8b', 'granite4.1:8b')
 }
-if ($tier -ge 3) {
-    $modelsToPull += @('gemma4:31b', 'qwen3.6:27b', 'granite4.1:30b', 'nemotron-3-super:latest')
+if ($tierNum -ge 3) {
+    # Tier 3 — MoE governance chain: large param count, low active RAM per token
+    $modelsToPull += @('gemma4:26b', 'qwen3.6:27b', 'laguna-xs.2:q4_K_M', 'nemotron-cascade-2:latest')
+}
+if ($tierNum -ge 4) {
+    # Tier 4 — dense full chain: all params active, max resolution
+    $modelsToPull += @('granite4.1:30b', 'nemotron-3-super:latest', 'gemma4:31b')
 }
 
 foreach ($model in $modelsToPull) {
@@ -187,6 +232,18 @@ $setupAnything = Read-Host "Set up AnythingLLM RAG layer? (y/N)"
 if ($setupAnything -eq 'y') {
     $anythingDir = Read-Host "AnythingLLM directory (e.g. E:\anythingllm)"
     $hotdirPath  = Read-Host "Session summaries hotdir path (e.g. D:\Desktop\ai book\session-summaries)"
+
+    $alModel = switch ($tierNum) {
+        1       { 'none' }                       # Tier 1: configure model via AnythingLLM UI
+        2       { 'qwen3:8b' }                   # Tier 2: lightweight local model
+        3       { 'nemotron-cascade-2:latest' }  # Tier 3: MoE governance model
+        default { 'nemotron-cascade-2:latest' }  # Tier 4: same as 3 for RAG seat
+    }
+    $alTokenLimit = switch ($tierNum) {
+        1       { '8192' }
+        2       { '8192' }
+        default { '16384' }
+    }
 
     if (-not (Test-Path $anythingDir)) {
         New-Item -ItemType Directory -Force -Path $anythingDir | Out-Null
@@ -206,8 +263,8 @@ services:
       JWT_SECRET: $jwtSecret
       LLM_PROVIDER: ollama
       OLLAMA_BASE_PATH: http://host.docker.internal:11434
-      OLLAMA_MODEL_PREF: nemotron-cascade-2:latest
-      OLLAMA_MODEL_TOKEN_LIMIT: "16384"
+      OLLAMA_MODEL_PREF: $alModel
+      OLLAMA_MODEL_TOKEN_LIMIT: "$alTokenLimit"
       EMBEDDING_ENGINE: ollama
       EMBEDDING_MODEL_PREF: nomic-embed-text:latest
       EMBEDDING_BASE_PATH: http://host.docker.internal:11434
@@ -560,12 +617,23 @@ Write-Host "========================================"
 Write-Host " Installation complete."
 Write-Host "========================================"
 Write-Host ""
-Write-Host "Verification test:"
-Write-Host "  1. Open a new terminal"
-Write-Host "  2. Run: claude --dangerously-skip-permissions"
-Write-Host "  3. Ask: what model string should I use for qwen3 in the deliberation chain?"
-Write-Host "  4. Expected answer: qwen3.6:27b"
+Write-Host "Verification:"
+Write-Host "  1. Open a new terminal and run: claude"
+Write-Host "  2. Session-start output should show 'GOVERNANCE BOOTSTRAP' loading." -ForegroundColor Cyan
+Write-Host "     If it does, hooks are wired and bootstrap gate is active." -ForegroundColor Cyan
 Write-Host ""
-Write-Host "If the session-start bootstrap shows canon files loading, hook wiring is correct."
-Write-Host "See ~/.claude/canon/setup-issues-and-solutions.md if anything goes wrong."
+if ($tierNum -ge 3) {
+    Write-Host "  Model check: ollama list" -ForegroundColor Yellow
+    Write-Host "    Expected: qwen3.6:27b, laguna-xs.2:q4_K_M, nemotron-cascade-2:latest" -ForegroundColor Yellow
+    if ($tierNum -ge 4) {
+        Write-Host "              granite4.1:30b, nemotron-3-super:latest, gemma4:31b" -ForegroundColor Yellow
+    }
+    Write-Host ""
+}
+if ($tierNum -eq 1) {
+    Write-Host "  Next step: set ANTHROPIC_API_KEY in your environment to use Claude API" -ForegroundColor Yellow
+    Write-Host "  for chain-dispatched deliberation work." -ForegroundColor Yellow
+    Write-Host ""
+}
+Write-Host "  Troubleshooting: ~/.claude/canon/setup-issues-and-solutions.md" -ForegroundColor DarkGray
 Write-Host ""
