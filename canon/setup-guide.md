@@ -30,11 +30,16 @@ After these six steps, hand off to a Claude instance with the instructions below
 
 ## Tier selection (choose based on available RAM)
 
-| Tier | RAM needed | What works |
-|---|---|---|
-| 1 — Structure only | 8GB+ | Hooks, governance bootstrap, session-start. No laguna = surrender-check blocks substrate edits. |
-| 2 — Governance | 32GB+ | Tier 1 + laguna-xs.2 (33B). Surrender-check works. Full substrate edit authorization. |
-| 3 — Full deliberation | 100GB+ | Tier 2 + qwen3.6:27b + granite4.1:30b + nemotron-3-super. Full 6-agent chain. |
+Serial inference discipline applies at all tiers: one model at a time. RAM requirement = largest single model, not sum.
+
+| Tier | RAM needed | What works | Substrate edits |
+|---|---|---|---|
+| 1 — Structure + Cloud | 8GB+ | Hooks, governance bootstrap, cloud model guidance. No local models. | ❌ No — laguna unavailable |
+| 2 — Lightweight chain | 16GB+ | Tier 1 + nemotron-mini:4b, qwen3:8b, granite4.1:8b | ❌ No — laguna unavailable |
+| 3 — Governance chain | 32GB+ | Tier 2 + gemma4:26b (MoE), qwen3.6:27b (MoE), laguna-xs.2:q4_K_M, nemotron-cascade-2 | ✓ Yes — laguna enables surrender-check |
+| 4 — The Factory | 128GB+ | Tier 3 + granite4.1:30b, nemotron-3-super, gemma4:31b | ✓ Yes — full chain |
+
+**Tiers 1 and 2 have no substrate edit authorization.** laguna-xs.2:q4_K_M requires ~28GB RAM and cannot run on those tiers. The surrender-check gate will block Edit/Write on governance files. Tier 1–2 users operate the full framework (hooks, canon, session-start) and can use cloud models for deliberation, but cannot make governed substrate edits without a Tier 3+ machine.
 
 ---
 
