@@ -169,20 +169,17 @@ function Add-Mcp($name, $cmd, $args) {
 }
 
 # Ensure npm dependencies are installed for bundled MCP tools.
-foreach ($tool in @('ollama-mcp', 'mistral-validator')) {
-    $toolPath = Join-Path $toolsDir $tool
-    if (Test-Path (Join-Path $toolPath 'package.json')) {
-        Write-Host "  npm install — $tool..." -NoNewline
-        Push-Location $toolPath
-        npm install --silent 2>$null
-        Pop-Location
-        Write-Host " OK" -ForegroundColor Green
-    }
+$toolPath = Join-Path $toolsDir 'ollama-mcp'
+if (Test-Path (Join-Path $toolPath 'package.json')) {
+    Write-Host "  npm install — ollama-mcp..." -NoNewline
+    Push-Location $toolPath
+    npm install --silent 2>$null
+    Pop-Location
+    Write-Host " OK" -ForegroundColor Green
 }
 
-Add-Mcp 'ollama-mcp'         'node' @("$toolsDir\ollama-mcp\server.js")
-Add-Mcp 'mistral-validator'  'node' @("$toolsDir\mistral-validator\server.js")
-Add-Mcp 'searxng-mcp'        'npx'  @('-y', 'mcp-searxng')
+Add-Mcp 'ollama-mcp'  'node' @("$toolsDir\ollama-mcp\server.js")
+Add-Mcp 'searxng-mcp' 'npx'  @('-y', 'mcp-searxng')
 
 Write-Host ""
 $mcpServersPath = Read-Host "Path to mcp-servers directory (frontier workers — press Enter to skip)"
