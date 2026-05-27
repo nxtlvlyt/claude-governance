@@ -217,13 +217,23 @@ if ($tierNum -ge 4) {
     $modelsToPull += @('granite4.1:30b', 'nemotron-3-super:latest', 'gemma4:31b')
 }
 
-foreach ($model in $modelsToPull) {
-    Write-Host "  Pulling $model (this may take a while)..."
-    ollama pull $model
+$skipPulls = Read-Host "Pull models now? Large models may take 30+ minutes each. (Y/n)"
+if ($skipPulls -eq 'n') {
+    Write-Host "  Skipping model pulls. Run manually: ollama pull <model>" -ForegroundColor Yellow
+    Write-Host "  Models needed for Tier $tier`: $($modelsToPull -join ', ')" -ForegroundColor Yellow
+} else {
+    $existingModels = (ollama list 2>$null) -join "`n"
+    foreach ($model in $modelsToPull) {
+        if ($existingModels -match [regex]::Escape($model)) {
+            Write-Host "  Already present: $model" -ForegroundColor Cyan
+        } else {
+            Write-Host "  Pulling $model (this may take a while)..."
+            ollama pull $model
+        }
+    }
+    Write-Host ""
+    Write-Host "  Model pulls complete. Verify with: ollama list" -ForegroundColor Green
 }
-
-Write-Host ""
-Write-Host "Model pull complete. Verify with: ollama list" -ForegroundColor Green
 
 # ── AnythingLLM (optional) ────────────────────────────────────────────────────
 
