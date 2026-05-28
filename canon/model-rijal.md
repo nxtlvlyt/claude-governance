@@ -68,8 +68,8 @@ whether the verdict was accurate.
 |-------|-------|
 | RAM footprint | ~20GB |
 | Typical inference time | ~2.1 min (GPU, RTX 4090, Gap 7 phase 1, 2026-05-13) |
-| Dispatch method | Python streaming, timeout=32768, `think: False` TOP-LEVEL (not inside options) |
-| Known constraints | `think: False` must be top-level body key — inside `options` has no effect. Without it, qwen emits chain-of-thought before JSON, causing parse failures downstream. |
+| Dispatch method | Python streaming, timeout=32768, `think: True` TOP-LEVEL — C2 fix, commit bbb7952 |
+| Known constraints | `think: True` must be top-level body key — captures CoT in `message.thinking`, improving deliberation depth. nemotron-3-super uses `think: False`; the two models differ. Without top-level placement, the parameter has no effect. |
 | MCP usable? | No — CPU inference too slow for MCP timeout |
 
 ### Verdict Accuracy Record
