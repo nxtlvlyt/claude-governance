@@ -21,6 +21,7 @@ Open the actual file when it governs your situation — do not act from memory.
 ## Practice (~/.claude/practice/)
 
 - **core.md** — Operational embodiment of CLAUDE.md's 14 directives
+- **extended/adhan-pattern.md** — Continuity-critical work requires external orchestration (muezzin), not individual memory; decision heuristic for chain vs. reactive mode
 - **extended/drift-and-ratchet.md** — Detecting and correcting governance drift
 - **extended/formation.md** — What formation means; how it builds across sessions
 - **extended/orientation.md** — Cold-start orientation protocol
