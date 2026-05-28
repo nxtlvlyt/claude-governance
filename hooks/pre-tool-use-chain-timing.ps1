@@ -90,7 +90,6 @@ function Test-ChainConfirmed($path) {
     foreach ($line in (Get-Content $path)) {
         if (-not $line) { continue }
         try { $entry = $line | ConvertFrom-Json } catch { continue }
-        if ($entry.type -eq 'system' -and $entry.subtype -eq 'compact_boundary') { $loc = $false; continue }
         if ($entry.type -eq 'last-prompt' -and $entry.lastPrompt -imatch 'CHAIN-TIMING-CONFIRMED') { $loc = $true }
         if ($entry.type -eq 'user' -and $entry.message.content) {
             foreach ($block in $entry.message.content) {
