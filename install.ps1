@@ -1,16 +1,20 @@
 # ~/.claude/install.ps1
 #
 # Governance system installer for Windows.
-# Run this after copying ~/.claude/ to a new machine.
+# Run this after copying ~/.claude/ to a new machine, or via bootstrap:
+#   irm https://nxtlvl.studio/get | iex
 #
-# Usage:
+# Direct usage (interactive):
 #   pwsh -ExecutionPolicy Bypass -File ~/.claude/install.ps1
 #
-# Prerequisites (install manually before running this):
-#   - Ollama:       https://ollama.com/download
-#   - Docker Desktop: https://www.docker.com/products/docker-desktop/
-#   - Node.js 18+:  https://nodejs.org/
-#   - Claude Code:  npm install -g @anthropic-ai/claude-code
+# Non-interactive (called by bootstrap — no prompts, auto-detects tier from RAM):
+#   pwsh -ExecutionPolicy Bypass -File ~/.claude/install.ps1 -NonInteractive
+#   pwsh -ExecutionPolicy Bypass -File ~/.claude/install.ps1 -Tier 4 -NonInteractive
+
+param(
+    [int]$Tier = 0,
+    [switch]$NonInteractive
+)
 
 $ErrorActionPreference = 'Stop'
 $claud = Join-Path $HOME '.claude'
@@ -59,25 +63,36 @@ Write-Host ""
 
 # ── Tier selection ────────────────────────────────────────────────────────────
 
-Write-Host "Select installation tier:"
-Write-Host "  1) Structure + Cloud   (8GB+   RAM) — hooks, governance bootstrap, cloud model guidance."
-Write-Host "     Use Claude API or claude.ai as your AI layer. No local models required."
-Write-Host "  2) Lightweight chain   (16GB+  RAM) — Tier 1 + small local models (4-9B)."
-Write-Host "     Models: nemotron-mini:4b, qwen3:8b, granite4.1:8b"
-Write-Host "  3) Governance chain    (32GB+  RAM) — Tier 2 + full MoE deliberation chain."
-Write-Host "     Models: gemma4:26b (MoE ~8GB), qwen3.6:27b (MoE ~20GB), laguna-xs.2, nemotron-cascade-2"
-Write-Host "  4) The Factory         (128GB+ RAM) — Tier 3 + dense full chain."
-Write-Host "     Models: + granite4.1:30b, nemotron-3-super, gemma4:31b (dense, max resolution)"
-Write-Host ""
-Write-Host "  Serial inference discipline: only one model runs at a time." -ForegroundColor DarkGray
-Write-Host "  RAM requirement = largest single model, not sum of all models." -ForegroundColor DarkGray
-Write-Host ""
-$tier = Read-Host "Tier (1/2/3/4)"
-if ($tier -notin @('1','2','3','4')) {
-    Write-Host "Invalid tier. Exiting." -ForegroundColor Red
-    exit 1
+# Auto-detect tier from RAM if not supplied
+if ($Tier -eq 0) {
+    $ramGB = [math]::Round((Get-CimInstance Win32_ComputerSystem).TotalPhysicalMemory / 1GB)
+    $Tier = if ($ramGB -ge 128) { 4 } elseif ($ramGB -ge 32) { 3 } elseif ($ramGB -ge 16) { 2 } else { 1 }
+    if (-not $NonInteractive) {
+        Write-Host "Select installation tier:"
+        Write-Host "  1) Structure + Cloud   (8GB+   RAM) — hooks, governance bootstrap, cloud model guidance."
+        Write-Host "     Use Claude API or claude.ai as your AI layer. No local models required."
+        Write-Host "  2) Lightweight chain   (16GB+  RAM) — Tier 1 + small local models (4-9B)."
+        Write-Host "     Models: nemotron-mini:4b, qwen3:8b, granite4.1:8b"
+        Write-Host "  3) Governance chain    (32GB+  RAM) — Tier 2 + full MoE deliberation chain."
+        Write-Host "     Models: gemma4:26b (MoE ~8GB), qwen3.6:27b (MoE ~20GB), laguna-xs.2, nemotron-cascade-2"
+        Write-Host "  4) The Factory         (128GB+ RAM) — Tier 3 + dense full chain."
+        Write-Host "     Models: + granite4.1:30b, nemotron-3-super, gemma4:31b (dense, max resolution)"
+        Write-Host ""
+        Write-Host "  Serial inference discipline: only one model runs at a time." -ForegroundColor DarkGray
+        Write-Host "  RAM requirement = largest single model, not sum of all models." -ForegroundColor DarkGray
+        Write-Host ""
+        $tierInput = Read-Host "Tier (1/2/3/4) [detected $Tier from ${ramGB}GB RAM — Enter to accept]"
+        if ($tierInput -and $tierInput -notin @('1','2','3','4')) {
+            Write-Host "Invalid tier. Exiting." -ForegroundColor Red
+            exit 1
+        }
+        if ($tierInput) { $Tier = [int]$tierInput }
+    } else {
+        Write-Host "  Auto-detected Tier $Tier from ${ramGB}GB RAM" -ForegroundColor Cyan
+    }
 }
-$tierNum = [int]$tier
+$tierNum = $Tier
+$tier = "$Tier"
 
 # ── Tier 1 cloud model guidance ──────────────────────────────────────────────
 
@@ -182,7 +197,12 @@ Add-Mcp 'ollama-mcp'  'node' @("$toolsDir\ollama-mcp\server.js")
 Add-Mcp 'searxng-mcp' 'npx'  @('-y', 'mcp-searxng')
 
 Write-Host ""
-$mcpServersPath = Read-Host "Path to mcp-servers directory (frontier workers — press Enter to skip)"
+if ($NonInteractive) {
+    $mcpServersPath = ''
+    Write-Host "  Skipping frontier workers (non-interactive — add manually with: claude mcp add)" -ForegroundColor Yellow
+} else {
+    $mcpServersPath = Read-Host "Path to mcp-servers directory (frontier workers — press Enter to skip)"
+}
 if ($mcpServersPath -and (Test-Path $mcpServersPath)) {
     Add-Mcp 'gemini-worker'     'node' @("$mcpServersPath\gemini-worker\index.js")
     Add-Mcp 'gemini-api-worker' 'node' @("$mcpServersPath\gemini-api-worker\index.js")
@@ -214,7 +234,7 @@ if ($tierNum -ge 4) {
     $modelsToPull += @('granite4.1:30b', 'nemotron-3-super:latest', 'gemma4:31b')
 }
 
-$skipPulls = Read-Host "Pull models now? Large models may take 30+ minutes each. (Y/n)"
+$skipPulls = if ($NonInteractive) { 'n' } else { Read-Host "Pull models now? Large models may take 30+ minutes each. (Y/n)" }
 if ($skipPulls -eq 'n') {
     Write-Host "  Skipping model pulls. Run manually: ollama pull <model>" -ForegroundColor Yellow
     Write-Host "  Models needed for Tier $tier`: $($modelsToPull -join ', ')" -ForegroundColor Yellow
@@ -235,7 +255,7 @@ if ($skipPulls -eq 'n') {
 # ── AnythingLLM (optional) ────────────────────────────────────────────────────
 
 Write-Host ""
-$setupAnything = Read-Host "Set up AnythingLLM RAG layer? (y/N)"
+$setupAnything = if ($NonInteractive) { 'n' } else { Read-Host "Set up AnythingLLM RAG layer? (y/N)" }
 if ($setupAnything -eq 'y') {
     $anythingDir = Read-Host "AnythingLLM directory (e.g. E:\anythingllm)"
     $hotdirPath  = Read-Host "Session summaries hotdir path (e.g. D:\Desktop\ai book\session-summaries)"
@@ -293,7 +313,7 @@ services:
 # ── P6 — Cryptographic non-repudiation setup ─────────────────────────────────
 
 Write-Host ""
-$setupP6 = Read-Host "Set up P6 cryptographic non-repudiation (SSH-signed commits + dual remotes)? (y/N)"
+$setupP6 = if ($NonInteractive) { 'n' } else { Read-Host "Set up P6 cryptographic non-repudiation (SSH-signed commits + dual remotes)? (y/N)" }
 if ($setupP6 -eq 'y') {
 
     # SSH key
@@ -472,7 +492,7 @@ if ($setupP6 -eq 'y') {
 # ── SearxNG local search (optional — required for chain runner live research) ─
 
 Write-Host ""
-$setupSearxng = Read-Host "Set up SearxNG local search (required for chain runner live search at http://localhost:8080)? (y/N)"
+$setupSearxng = if ($NonInteractive) { 'n' } else { Read-Host "Set up SearxNG local search (required for chain runner live search at http://localhost:8080)? (y/N)" }
 if ($setupSearxng -eq 'y') {
     $searxngDir = Read-Host "  SearxNG data directory (e.g. C:\searxng-data or E:\AI_Storage\docker\searxng)"
     if (-not (Test-Path $searxngDir)) { New-Item -ItemType Directory -Force -Path $searxngDir | Out-Null }
@@ -546,7 +566,7 @@ services:
 # ── Forgejo local mirror (optional) ──────────────────────────────────────────
 
 Write-Host ""
-$setupForgejo = Read-Host "Set up local Forgejo mirror (browsable governance history at http://localhost:3002)? (y/N)"
+$setupForgejo = if ($NonInteractive) { 'n' } else { Read-Host "Set up local Forgejo mirror (browsable governance history at http://localhost:3002)? (y/N)" }
 if ($setupForgejo -eq 'y') {
     $forgejoDir = Read-Host "  Forgejo data directory (e.g. C:\forgejo-data)"
     if (-not (Test-Path $forgejoDir)) { New-Item -ItemType Directory -Force -Path $forgejoDir | Out-Null }
@@ -644,3 +664,12 @@ if ($tierNum -eq 1) {
 }
 Write-Host "  Troubleshooting: ~/.claude/canon/setup-issues-and-solutions.md" -ForegroundColor DarkGray
 Write-Host ""
+if ($NonInteractive) {
+    Write-Host "Optional setup (run install.ps1 interactively to configure):" -ForegroundColor Cyan
+    Write-Host "  - Model pulls:    ollama pull <model>  (see list above for Tier $tierNum)" -ForegroundColor DarkGray
+    Write-Host "  - AnythingLLM:    pwsh ~/.claude/install.ps1  (select y at AnythingLLM prompt)" -ForegroundColor DarkGray
+    Write-Host "  - P6 signing:     pwsh ~/.claude/install.ps1  (select y at P6 prompt)" -ForegroundColor DarkGray
+    Write-Host "  - SearxNG:        pwsh ~/.claude/install.ps1  (select y at SearxNG prompt)" -ForegroundColor DarkGray
+    Write-Host "  - Frontier MCPs:  claude mcp add <name> node <path>" -ForegroundColor DarkGray
+    Write-Host ""
+}
