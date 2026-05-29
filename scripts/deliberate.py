@@ -224,7 +224,7 @@ PHASE2_AGENTS = [
         "think": False,
         "num_predict": 32768,
         "num_ctx": 32768,   # capped at 32768 — nemotron OOM above this on 192GB (operator-context S1)
-        "num_gpu": 0,       # 2026-05-29: Ollama 0.24.0 memory-layout change — set CPU to match qwen/granite fix and avoid a 500-debug cycle (was 14). TODO: retune for 0.24.0.
+        "num_gpu": 14,      # 2026-05-29 REVERTED to 14: blanket num_gpu=0 forced all 93GB to CPU RAM -> OOM 500. nemotron NEEDS partial GPU (14 layers ~13GB on the free 24GB GPU, ~80GB CPU) to fit. This is its documented working config (unlike qwen/granite which 500 on GPU layout — nemotron's small offload is fine).
     },
 ]
 
