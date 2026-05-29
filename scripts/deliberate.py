@@ -215,7 +215,7 @@ PHASE2_AGENTS = [
         "think": None,
         "num_predict": 4096,
         "num_ctx": 24576,
-        "num_gpu": 99,      # granite4.1:30b ~17.5GB model + ~4.5GB KV = ~23GB, fits 24GB
+        "num_gpu": 0,       # 2026-05-29: Ollama 0.24.0 changed memory layout — num_gpu=99 risks the same "memory layout cannot be allocated" 500 that hit qwen. CPU is the safe fit; slower but deterministic. TODO: retune for 0.24.0.
     },
     {
         "name": SYNTHESIS_MODEL,
@@ -224,7 +224,7 @@ PHASE2_AGENTS = [
         "think": False,
         "num_predict": 32768,
         "num_ctx": 32768,   # capped at 32768 — nemotron OOM above this on 192GB (operator-context S1)
-        "num_gpu": 14,      # nemotron 80.6GB/89 layers ~927MB/layer; 14 layers ~13GB on GPU, rest CPU
+        "num_gpu": 0,       # 2026-05-29: Ollama 0.24.0 memory-layout change — set CPU to match qwen/granite fix and avoid a 500-debug cycle (was 14). TODO: retune for 0.24.0.
     },
 ]
 
