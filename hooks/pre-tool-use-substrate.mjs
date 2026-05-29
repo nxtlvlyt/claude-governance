@@ -116,6 +116,10 @@ function getSubstrateEvents(path, skipId) {
     if (!line.trim()) continue;
     let entry;
     try { entry = JSON.parse(line); } catch { continue; }
+    // Reset event tracking at compaction boundary (mirrors bootstrap-gate + niyyah-gate):
+    // only count dispatch/edit events AFTER the most recent compaction, so a post-compaction
+    // substrate edit requires a FRESH witness rather than a stale pre-compaction dispatch.
+    if (entry.type === 'system' && entry.subtype === 'compact_boundary') { events.length = 0; idx = 0; continue; }
     if (entry.type !== 'assistant' || !Array.isArray(entry.message?.content)) continue;
     for (const block of entry.message.content) {
       if (block.type !== 'tool_use') continue;
