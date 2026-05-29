@@ -117,6 +117,29 @@ for (const pat of stopLanguagePatterns) {
   }
 }
 
+// Fix 1 (2026-05-29, chain-approved + laguna-reviewed): action-triggered ship-verification gate.
+// If this turn shipped a deliverable (SendUserFile, or a Bash/PowerShell write into the outgoing
+// webroot), require a Read of the shipped file in the SAME turn (substrate-coupled by basename).
+// Action-triggered, NOT language. Fail-open on any parse trouble. (Catches the upside-down-clip case.)
+try {
+  const shipped = new Set();
+  for (const b of lastTurnToolUseBlocks) {
+    if (b.name === 'SendUserFile') for (const f of (b.input?.files || [])) shipped.add(String(f).split(/[\\/]/).pop());
+    else if (b.name === 'Bash' || b.name === 'PowerShell') {
+      const c = String(b.input?.command || '');
+      if (/apps[\\/]+outgoing/i.test(c)) for (const m of (c.match(/[\w.\-]+\.(?:mp4|mov|png|jpg|jpeg|webp|pdf|zip|gif|mp3|wav)/gi) || [])) shipped.add(m.split(/[\\/]/).pop());
+    }
+  }
+  if (shipped.size > 0) {
+    const reads = lastTurnToolUseBlocks.filter(b => b.name === 'Read').map(b => String(b.input?.file_path || '').split(/[\\/]/).pop());
+    const ok = [...shipped].some(n => reads.includes(n) || reads.some(r => r && (n.replace(/\.[^.]+$/, '') === r.replace(/\.[^.]+$/, ''))));
+    if (!ok) {
+      process.stdout.write(JSON.stringify({ decision: 'block', reason: `SHIP VERIFICATION GATE (Fix 1) — shipped [${[...shipped].join(', ')}] without reading/looking at it this turn. Open the output (extract a frame, Read it) and verify content — not just exit-code/HTTP-200 — then ship.` }));
+      process.exit(0);
+    }
+  }
+} catch { /* fail-open */ }
+
 if (!matchedPattern) process.exit(0); // no stop-language, allow
 
 // Check for foreign-frontier dispatch in last turn
