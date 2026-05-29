@@ -140,6 +140,20 @@ try {
   }
 } catch { /* fail-open */ }
 
+// Structural deferral-shape OR-clause (chain-approved 2026-05-29, 6/6 deliberation; granite C1/C3 blocking; laguna witness APPROVE).
+// Model-agnostic: catches the SHAPE of a stall the fixed word list misses (the false-negative that dominates across models).
+// ADDITIVE — fires MORE, never narrows the word list; NO quote/code normalizer (that is the documented bypass, drift-and-ratchet.md).
+// Downstream FF-dispatch + ratchet logic is unchanged and now also engages on this structural match.
+if (!matchedPattern) {
+  const noToolThisTurn = lastTurnToolUses.length === 0;
+  const txt = lastAssistantText.trim();
+  const operatorDirectedQuestion = /\?\s*$/.test(txt) || /\b(let me know|do you want|would you like|want me to|should i)\b/i.test(txt);
+  const authorizedWait = /operator[- ]authorized\s+wait|operator authorized waiting/i.test(txt);
+  if (noToolThisTurn && operatorDirectedQuestion && !authorizedWait) {
+    matchedPattern = 'structural-stall-shape (no tool_use + operator-directed question)';
+  }
+}
+
 if (!matchedPattern) process.exit(0); // no stop-language, allow
 
 // Check for foreign-frontier dispatch in last turn
