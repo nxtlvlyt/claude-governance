@@ -129,5 +129,6 @@
     ]
   },
   "skipDangerousModePermissionPrompt": true,
-  "skipAutoPermissionPrompt": true
+  "skipAutoPermissionPrompt": true,
+  "model": "opus"
 }
