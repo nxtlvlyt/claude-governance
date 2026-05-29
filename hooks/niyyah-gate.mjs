@@ -129,6 +129,49 @@ Naming a source is not the same as opening it.`;
       }
     }
   }
+
+  // PROACTIVE per-action fresh-read gate (chain-approved 2026-05-29, 6/6 deliberation; laguna-reviewed).
+  // niyyah-gate historically opened once-per-session and matched a stale Read anywhere in the
+  // transcript. For substrate-class edits, additionally require a FRESH read of the target file --
+  // present in the read-watcher's bounded last-20-reads window (~/.claude/hooks/read-watcher.mjs),
+  // a structural definition of "recent" that avoids clock/timestamp fragility. Fail-open throughout.
+  const targetPath = inp.tool_input?.file_path || '';
+  const SUBSTRATE_RE = /[\\/]\.claude[\\/](hooks|canon|practice|faiths)[\\/]|CLAUDE\.md$|STATE\.md$/i;
+  if (targetPath && SUBSTRATE_RE.test(targetPath)) {
+    const rwFile = join(os.homedir(), '.claude', 'state', `read-watcher-${inp.session_id}.json`);
+    let freshRead = true; // fail-open default: watcher inactive / no session / unreadable -> allow
+    if (inp.session_id && existsSync(rwFile)) {
+      try {
+        const rw = JSON.parse(readFileSync(rwFile, 'utf8'));
+        const tgt = basename(targetPath).toLowerCase();
+        freshRead = !Array.isArray(rw.reads) || rw.reads.some(r => String(r.file).toLowerCase() === tgt);
+      } catch { freshRead = true; }
+    }
+    if (!freshRead) {
+      const freshReason = `NIYYAH FRESH-READ GATE (~/.claude/hooks/niyyah-gate.mjs).
+
+A niyyah is declared, but this substrate-class edit targets a file that was not
+read recently. Per CLAUDE.md D6 (read a file fully before changing it) and
+~/.claude/practice/core.md (read-before-act is proactive, not once-per-session):
+
+  Target : ${targetPath}
+
+The read-watcher's recent-reads window shows no recent Read of this file.
+A read from earlier in the session does not count -- re-orient to the current
+contents before mutating.
+
+Required action: Read ${targetPath}, then retry this ${toolName}.`;
+      process.stdout.write(JSON.stringify({
+        hookSpecificOutput: {
+          hookEventName: 'PreToolUse',
+          permissionDecision: 'deny',
+          permissionDecisionReason: freshReason,
+        },
+      }));
+      process.exit(2);
+    }
+  }
+
   process.exit(0);
 }
 

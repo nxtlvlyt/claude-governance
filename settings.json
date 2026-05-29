@@ -73,6 +73,11 @@
             "type": "command",
             "command": "node \"C:\\Users\\marka\\.claude\\hooks\\bootstrap-gate.mjs\"",
             "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "node \"C:\\Users\\marka\\.claude\\hooks\\read-watcher.mjs\"",
+            "timeout": 5
           }
         ]
       },
