@@ -193,7 +193,7 @@ PHASE1_AGENTS = [
         "think": True,      # safe: script captures message.thinking separately; JSON verdict in message.content
         "num_predict": 8192, # 4096 was too small — thinking tokens count against num_predict; qwen exhausted budget on thinking with 0 left for content
         "num_ctx": 32768,   # 16384 stalled (token exhaustion); 24576 caused model-load hang; 32768 = operator-context.md S4 intended value for thinking models with large prompts
-        "num_gpu": 45,      # qwen3.6:27b loads ~27GB total; 45 layers = ~18GB VRAM, ~20GB GPU used, ~3.5GB free
+        "num_gpu": 0,       # 2026-05-29: Ollama 0.24.0 changed memory layout — num_gpu=45 now 500s ("memory layout cannot be allocated with num_gpu = 45", total 32.4GB > 24GB VRAM). 0 (CPU) is the safe fit (110GB RAM free); slower but deterministic. TODO: retune max GPU layers for 0.24.0.
     },
 ]
 
