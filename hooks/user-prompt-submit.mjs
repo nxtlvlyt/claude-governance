@@ -52,12 +52,24 @@ try { writeFileSync(turnCountFile, String(turnCount)); } catch { /* non-fatal */
 
 if (turnCount % 10 === 0) {
   const ts = new Date().toISOString().replace('T', ' ').replace(/\.\d+Z$/, '');
+  // Fix 2 (2026-05-29, chain-approved): preserve an already-set model_version across
+  // heartbeats. The old code hardcoded the placeholder, clobbering the real value every
+  // 10 turns (why Sonnet-vs-Opus was untraceable). Read existing CURRENT-STATE.md; reuse
+  // model_version if it is a real value; otherwise keep the placeholder. Fails open.
+  let modelVersionLine = 'model_version: (instance: write your actual model ID here at session start — e.g. claude-sonnet-4-6)';
+  try {
+    const prevState = readFileSync(currentStateFile, 'utf8');
+    const mv = prevState.match(/^model_version:\s*(.+)$/m);
+    if (mv && !/write your actual model ID/i.test(mv[1])) {
+      modelVersionLine = `model_version: ${mv[1].trim()}`;
+    }
+  } catch { /* no prior file — keep placeholder */ }
   const heartbeat = `# CURRENT-STATE.md
 
 Written by: user-prompt-submit.mjs hook (turn ${turnCount} heartbeat)
 Timestamp: ${ts}
 Project CWD: ${cwd}
-model_version: (instance: write your actual model ID here at session start — e.g. claude-sonnet-4-6)
+${modelVersionLine}
 
 ## Governance constants (always true)
 
