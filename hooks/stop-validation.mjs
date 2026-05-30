@@ -88,6 +88,16 @@ const stopLanguagePatterns = [
   /ready (?:when you are|to (?:proceed|continue|ship))/i,
   /\bstanding by\b/i,
   /let me know if you/i,
+  // Defer-to-operator-TIMING family (added 2026-05-30, laguna witness APPROVE). The false-negative that
+  // slipped through: a soft punt ("whenever you're ready, the next move is X") handing the operator the
+  // next-action decision. Distinct from "ready when you are" (wrong word order missed it). Fires regardless
+  // of tool-use, which closes the structural-clause hole (that clause only fires on tool-LESS turns, so a
+  // deferral wrapped in a productive tool-bearing turn evaded it). Additive; false-positives acceptable-by-design.
+  /whenever you(?:'re| are) ready/i,
+  /when you(?:'re| are) ready\b/i,
+  /\bready whenever\b/i,
+  /when(?:ever)? you want\b/i,
+  /\bup to you\b/i,
 ];
 
 let matchedPattern = null;
