@@ -39,9 +39,9 @@ SELF-GOVERNING framework (role "faith"/casting, self-audit "hooks", durable subs
 5. Given all this — is building this worth it, and for WHOM specifically? Return the standard verdict JSON schema.
 
 ## Substrate Files
-- ../../../llama.cpp/dji_test/EDITOR_FRAMEWORK.md
-- ../../../llama.cpp/dji_test/UNIVERSAL_EDITOR_HANDBOOK.md
-- ../../../llama.cpp/dji_test/EDITOR_MODEL_CASTING.md
+- C:\Users\marka\llama.cpp\dji_test\EDITOR_FRAMEWORK.md
+- C:\Users\marka\llama.cpp\dji_test\UNIVERSAL_EDITOR_HANDBOOK.md
+- C:\Users\marka\llama.cpp\dji_test\EDITOR_MODEL_CASTING.md
 
 ## Search Queries
 - local LLM quality vs frontier GPT Claude gap creative judgment 2026
