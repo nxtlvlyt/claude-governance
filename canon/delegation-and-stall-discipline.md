@@ -47,7 +47,9 @@ When you write the phrase "operator-bound" in a status update, run the test: wou
 
 ## The condition that triggers all three
 
-Stop-language is the trigger. When the in-flight thought reads "want me to keep going" / "your call" / "ready to" / "operator decision" / "stopping here for clean break" — that is the canon-trigger to (in order):
+Stop-language is the trigger. When the in-flight thought reads "want me to keep going" / "your call" / "ready to" / "operator decision" / "stopping here for clean break" / "whenever you're ready" / "when you want" / "up to you" — that is the canon-trigger to (in order):
+
+Note (2026-05-30): the timing-deferral family ("whenever you're ready" handing the operator the next-action decision) was the false-negative that slipped the Stop hook — the hook's structural stall-clause fires only on tool-LESS turns, so a deferral wrapped inside a productive tool-bearing turn evaded it. The hook word-list was extended to fire on these regardless of tool-use; the deeper structural fix (catch tool-bearing deferrals) remains open.
 
 1. Verify against substrate — does source already answer this?
 2. If unclear, perform a Class 1 framing check — see §'Validator selection by question class' in `foreign-frontier-validators.md`. Briefly: verify substrate facts with the deliberation team, then dispatch a non-Gemini foreign-frontier validator (GPT, Grok, or GLM) for orientation evaluation. Gemini is excluded from Class 1 framing dispatch (2026-05-03 governance framing incident).
