@@ -158,9 +158,18 @@ if (!matchedPattern) {
   const noToolThisTurn = lastTurnToolUses.length === 0;
   const txt = lastAssistantText.trim();
   const operatorDirectedQuestion = /\?\s*$/.test(txt) || /\b(let me know|do you want|would you like|want me to|should i)\b/i.test(txt);
+  // Operator-directed DEFERRAL shape (added 2026-05-30, laguna witness APPROVE): the next action handed to the
+  // operator's FUTURE. Fires REGARDLESS of tool-use — closes the hole where a deferral rode in on a tool-bearing
+  // turn with non-interrogative phrasing ("the next step when you come back to it") and slipped both the word list
+  // and the tool-less-question clause. Additive; false-positives accepted by design (canon: fire more, never narrow).
+  const operatorDirectedDeferral =
+    /\b(?:whenever|when|once|after)\s+you(?:'re|\s+are)?\b[^.?!]{0,40}\b(?:ready|want|wanna|come back|get\s+(?:a\s+chance|to\s+it|around)|return|free|back|next)\b/i.test(txt)
+    || /\bcome back to (?:it|this|that)\b/i.test(txt)
+    || /\bnext (?:step|move|thing|fix|action)\b[^.?!]{0,40}\byou\b/i.test(txt)
+    || /\bwhen you(?:'re|\s+are)?\s+(?:back|free|around|ready)\b/i.test(txt);
   const authorizedWait = /operator[- ]authorized\s+wait|operator authorized waiting/i.test(txt);
-  if (noToolThisTurn && operatorDirectedQuestion && !authorizedWait) {
-    matchedPattern = 'structural-stall-shape (no tool_use + operator-directed question)';
+  if (!authorizedWait && ((noToolThisTurn && operatorDirectedQuestion) || operatorDirectedDeferral)) {
+    matchedPattern = 'structural-deferral-shape (operator-directed next-action deferral / stall)';
   }
 }
 
