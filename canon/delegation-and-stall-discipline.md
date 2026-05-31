@@ -9,6 +9,8 @@ This is not a license to delegate everything. The split:
 
 If the work in front of you would feel rote to write but requires reading the surrounding code first, that is exactly where Sonnet earns its keep — it can read what it needs, do the mechanical work, and report back. Verify with `git diff` before committing. Trust but verify: an agent's summary describes what it intended, not necessarily what it did.
 
+**Routing rule — sub-agents are for BOUNDED work, NOT long compute (empirical, 2026-05-31).** A sub-agent CANNOT await a minutes-long background job's completion — the harness re-invokes the MAIN loop on completion, not the finished sub-agent's dead context — so an agent handed a long render / multi-clip VLM loop / autoheal pass backgrounds the command and returns a fake "waiting for the monitor" non-result, orphaning the work. Route LONG-RUNNING COMPUTE (anything minutes-long: renders, multi-clip model loops, heavy pipelines) to the MAIN loop's OWN `Bash` with `run_in_background: true` — the main loop reliably resumes on the harness completion notification. Delegate to sub-agents ONLY work that finishes INSIDE their turn: edits, analysis, a grep/search, a single short model dispatch. Empirical discriminator (one session, ~5 flakes): handed a long-compute job an agent flakes; handed bounded reasoning it completes. This is a tool-mismatch, NOT a broken hook and NOT fixable by telling the agent to "wait harder."
+
 ---
 
 ## Gemini as stall-breaker
