@@ -206,10 +206,13 @@ async function main() {
         // Serial discipline: deliberate.py manages its own Ollama serial gate.
         // The muezzin must not have a concurrent model step running.
         // timeout_ms must be large — a full deliberation takes 10-40 min.
+        // Pass ANTHROPIC_API_KEY so the sonnet verifier inside deliberate.py can call the API.
+        // The key is available in Claude Code's environment but not inherited by spawnSync.
         stepResult = await runShellStep({
           command: `python "${join(os.homedir(), '.claude', 'scripts', 'deliberate.py')}" "${step.question_file}" ${step.phase || 1}`,
           cwd: join(os.homedir(), '.claude'),
-          timeout_ms: step.timeout_ms || 3_600_000, // 1 hour default for deliberation
+          timeout_ms: step.timeout_ms || 3_600_000,
+          env: { ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY || '' },
         });
       } else if (step.type === 'instance-action') {
         handleInstanceAction(step, i, steps.length);
