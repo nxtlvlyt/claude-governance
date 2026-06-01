@@ -641,7 +641,7 @@ Return ONLY valid JSON, no preamble:
         kwargs = {"creationflags": CREATE_NO_WINDOW} if os.name == "nt" else {}
         r = subprocess.run(
             "claude --print --output-format text",
-            input=prompt, capture_output=True, encoding="utf-8", timeout=120, shell=True,
+            input=prompt, capture_output=True, encoding="utf-8", timeout=240, shell=True,
             **kwargs,
         )
         raw = r.stdout or ""
