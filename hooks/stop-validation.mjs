@@ -150,6 +150,41 @@ try {
   }
 } catch { /* fail-open */ }
 
+// Fix 2 (2026-06-01, chain-ratified 6/6 + Seat-3 + laguna code-witness REVISE-incorporated): narration-without-execution gate.
+// Catches the conductor asserting an imminent TOOL action then ending the turn with ZERO tool_use this turn ("Launching now" with nothing launched).
+// SEPARATE early-return block (NOT routed through stop-language/FF machinery — the fix is "emit the tool call", not a dispatch).
+// EXEMPT: niyyah-in-prior-turn (the niyyah-gate REQUIRES declaring intent this turn to act next) + authorizedWait. Imminent-only (NOT past-tense; past may reference a real prior-turn tool call).
+// Backtick/code spans stripped so meta-discussion of the phrase does not trip it. Strand-guard: ratchet-based FAIL-OPEN after 3 consecutive (loud log). Fail-open on any parse trouble.
+try {
+  const nweNoTool = lastTurnToolUses.length === 0;
+  const nweClean = lastAssistantText.replace(/```[\s\S]*?```/g, ' ').replace(/`[^`]*`/g, ' ');
+  const nweNiyyah = /\bniyyah\s*:/i.test(lastAssistantText);
+  const nweAuthWait = /operator[- ]authorized\s+wait|operator authorized waiting/i.test(lastAssistantText);
+  const nweImminent =
+    /\b(?:launch|run|execut|dispatch|writ|fir|kick|creat|build|edit|deploy|start)\w*\b[^.?!\n]{0,40}\b(?:now|next)\b/i.test(nweClean)
+    || /\b(?:i'?ll|i will|let me|i'?m going to|about to|time to)\s+(?:now\s+|just\s+)?(?:launch|run|execut\w*|dispatch|writ\w*|fir\w*|creat\w*|build|edit|deploy|kick\s*off|start)\b/i.test(nweClean);
+  const nweTrigger = nweNoTool && nweImminent && !nweNiyyah && !nweAuthWait;
+  const nweFile = inp.session_id ? join(os.homedir(), '.claude', 'state', `narration-ratchet-${inp.session_id}.txt`) : null;
+  if (nweTrigger) {
+    let nweCount = 0;
+    if (nweFile && existsSync(nweFile)) { try { nweCount = parseInt(readFileSync(nweFile, 'utf8').trim(), 10) || 0; } catch { nweCount = 0; } }
+    if (nweCount >= 3) {
+      process.stderr.write(`stop-validation: narration-gate FAIL-OPEN after ${nweCount} consecutive blocks (strand guard)\n`);
+      if (nweFile) { try { writeFileSync(nweFile, '0'); } catch { /* ok */ } }
+    } else {
+      if (nweFile) { try { writeFileSync(nweFile, String(nweCount + 1)); } catch { /* ok */ } }
+      process.stdout.write(JSON.stringify({ decision: 'block', reason: `NARRATION-WITHOUT-EXECUTION GATE (~/.claude/hooks/stop-validation.mjs, Fix 2).
+
+This turn asserts an IMMINENT action (imminent + tool-verb language) but contains ZERO tool calls — the words are standing in for the act ("launching now" with nothing launched).
+
+Emit the tool call you described, OR remove the claim and state the true state plainly. If this legitimately defers to next turn, carry a "niyyah:" marker (that is the exemption).` }));
+      process.exit(0);
+    }
+  } else if (nweFile && existsSync(nweFile)) {
+    try { writeFileSync(nweFile, '0'); } catch { /* ok */ } // reset consecutive counter on any clean/exempt turn
+  }
+} catch { /* fail-open */ }
+
 // Structural deferral-shape OR-clause (chain-approved 2026-05-29, 6/6 deliberation; granite C1/C3 blocking; laguna witness APPROVE).
 // Model-agnostic: catches the SHAPE of a stall the fixed word list misses (the false-negative that dominates across models).
 // ADDITIVE — fires MORE, never narrows the word list; NO quote/code normalizer (that is the documented bypass, drift-and-ratchet.md).
