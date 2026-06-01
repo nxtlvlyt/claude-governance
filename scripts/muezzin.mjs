@@ -513,7 +513,10 @@ async function ensureOllamaIdle(forModel) {
   if (clear) { log(`  api/ps clear`); return true; }
 
   log(`  Still loaded: ${models.join(', ')} — stopping...`);
-  for (const m of models) await safeStop(m);
+  for (const m of models) {
+    try { await safeStop(m); }
+    catch (e) { log(`  safeStop(${m}) failed: ${e.message} — continuing`); }  // laguna witness: never strand on a failed stop
+  }
   await sleep(5000);
 
   const after = await apiPs();
@@ -603,7 +606,7 @@ async function dispatchOllama(body, modelName, outputFile) {
         try { writeFileSync(outputFile, content, 'utf8'); } catch { /* best effort */ }
         resolve({ ok: true, content });
       });
-      res.on('error', (e) => resolve({ ok: false, error: e.message }));
+      res.on('error', (e) => { res.destroy(); resolve({ ok: false, error: e.message }); });  // laguna witness: destroy stream on error (leak-safety over long runs)
     });
     req.on('error', (e) => resolve({ ok: false, error: e.message }));
     req.on('timeout', () => { req.destroy(); resolve({ ok: false, error: 'dispatch timeout' }); });
