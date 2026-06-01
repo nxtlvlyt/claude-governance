@@ -205,8 +205,7 @@ PHASE2_AGENTS = [
         "think": None,
         "num_predict": 3072,
         "num_ctx": 16384,
-        "num_gpu": 0,       # laguna ignores num_ctx — always allocates 24576 KV cells → ~24.8GB > 24GB VRAM → 500.
-                            # CPU is required. num_gpu=99 was wrong; corrected per no-skip rule.
+        "num_gpu": 20,      # RETUNED 2026-06-01 (gpu_retune empirical, operator-prompted): full offload still 500s (fixed 24576-cell KV overflows 24GB), but num_gpu=20 PARTIAL fits at 16384 — 46%/54% CPU/GPU, ~26GB split. Measured prefill 722 vs 140 tok/s (5.2x) + gen 16 vs 9.9 (1.6x) = ~2.4x total on a prefill-heavy prompt. The old "CPU required" assumed full-offload-only. Requires OLLAMA_LLM_LIBRARY=cuda_v12 server.
     },
     {
         "name": GOVERNANCE_MODEL,
