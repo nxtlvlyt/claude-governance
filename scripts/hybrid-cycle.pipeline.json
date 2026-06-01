@@ -20,7 +20,11 @@
       "type": "instance-action",
       "description": "Seat-3 synthesis: conductor reads phase-1 outputs, writes sonnet-synthesis.txt. Per FM-10: NOT an automated API call — this is the conductor's independent substrate evaluation before phase 2.",
       "instruction": "Read phase-1 verdicts in the OUTPUT_DIR for this question. Write your Seat-3 blind eval (sonnet-blind.txt) and synthesis (sonnet-synthesis.txt) — read the substrate directly, not from the seats' framing. See sota_chain_spec §5 G4'.",
-      "produces": "__OUTPUT_DIR__/sonnet-synthesis.txt"
+      "produces": "__OUTPUT_DIR__/sonnet-synthesis.txt",
+      "checkpoint": {
+        "file": "__OUTPUT_DIR__/sonnet-synthesis.txt",
+        "min_chars": 200
+      }
     },
     {
       "id": "phase2-local-sonnet",
@@ -40,7 +44,11 @@
       "type": "instance-action",
       "description": "Conductor Phase 3: read phase-2 report + verifier filters. Produce the final verdict, update the roadmap, drive the next cycle question. DO NOT implement — that is the chain's job.",
       "instruction": "Read __OUTPUT_DIR__/phase-2-report.json. Synthesize the local verdicts AND their verifier_filter fields. Produce the final ruling. If a new question emerges, write it to a new question file and fire the next muezzin cycle.",
-      "produces": "__OUTPUT_DIR__/conductor-ruling.md"
+      "produces": "__OUTPUT_DIR__/conductor-ruling.md",
+      "checkpoint": {
+        "file": "__OUTPUT_DIR__/conductor-ruling.md",
+        "min_chars": 200
+      }
     }
   ]
 }
