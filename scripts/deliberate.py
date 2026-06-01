@@ -776,17 +776,6 @@ def main():
             with open(out_json, 'w', encoding='utf-8') as f:
                 json.dump(result, f, indent=2, ensure_ascii=False)
 
-            # Phase-2 per-seat Sonnet verifier (FILTER, not override -- spec §2/§3)
-            if PHASE == 2:
-                seat_label = name.split(':')[0].split('/')[-1]  # e.g. "laguna-xs.2" stays as-is
-                vf = run_sonnet_verifier(result, QUESTION, seat_label)
-                if vf is not None:
-                    result['verifier_filter'] = vf
-                    # Re-write the JSON on disk so the record includes the filter
-                    with open(out_json, 'w', encoding='utf-8') as f:
-                        json.dump(result, f, indent=2, ensure_ascii=False)
-                    print(f"  [verifier] filter written to disk: {vf.get('filter_verdict','?')}", flush=True)
-
             print(f"\nVerdict: {result.get('verdict')} | "
                   f"Open: {len(open_concerns)} | Soft notes: {len(soft_notes)}", flush=True)
             for c in result.get('concerns', []):
@@ -811,6 +800,18 @@ def main():
         print(f"  Stopping {name}...", flush=True)
         safe_stop(name)
         time.sleep(5)
+
+        # Phase-2 per-seat Sonnet verifier (FILTER, not override -- spec §2/§3)
+        # Runs AFTER safe_stop so the local model is fully unloaded before the claude CLI fires.
+        # This prevents resource contention (Ollama + claude subprocess competing for RAM/GPU).
+        if PHASE == 2 and result is not None:
+            seat_label = name.split(':')[0].split('/')[-1]
+            vf = run_sonnet_verifier(result, QUESTION, seat_label)
+            if vf is not None:
+                result['verifier_filter'] = vf
+                with open(out_json, 'w', encoding='utf-8') as f:
+                    json.dump(result, f, indent=2, ensure_ascii=False)
+                print(f"  [verifier] filter written to disk: {vf.get('filter_verdict','?')}", flush=True)
 
     report = {
         "phase": PHASE,
