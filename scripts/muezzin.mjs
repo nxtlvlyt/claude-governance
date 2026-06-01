@@ -205,9 +205,11 @@ async function main() {
         // step.phase: 1 or 2 (default 1)
         // Serial discipline: deliberate.py manages its own Ollama serial gate.
         // The muezzin must not have a concurrent model step running.
+        // timeout_ms must be large — a full deliberation takes 10-40 min.
         stepResult = await runShellStep({
           command: `python "${join(os.homedir(), '.claude', 'scripts', 'deliberate.py')}" "${step.question_file}" ${step.phase || 1}`,
           cwd: join(os.homedir(), '.claude'),
+          timeout_ms: step.timeout_ms || 3_600_000, // 1 hour default for deliberation
         });
       } else if (step.type === 'instance-action') {
         handleInstanceAction(step, i, steps.length);
@@ -315,12 +317,14 @@ async function runShellStep(step) {
   const cwd = step.cwd ? resolve(step.cwd) : process.cwd();
 
   // shell:true lets the platform shell handle quoting, built-ins, and pipes correctly
+  // step.timeout_ms overrides the default for long-running steps (e.g. deliberate type)
+  const stepTimeout = step.timeout_ms || 120_000;
   const result = spawnSync(cmd, [], {
     cwd,
     env,
     encoding: 'utf8',
     shell: true,
-    timeout: 120_000,
+    timeout: stepTimeout,
     windowsHide: true,
   });
 
