@@ -634,10 +634,15 @@ Return ONLY valid JSON, no preamble:
     print(f"  [verifier:{seat_name}] Dispatching via claude CLI ({len(prompt)} chars)...", flush=True)
     start = time.time()
     try:
-        # Pipe prompt via stdin -- avoids all shell quoting issues on Windows
+        # Pipe prompt via stdin -- avoids all shell quoting issues on Windows.
+        # CREATE_NO_WINDOW suppresses the console window on Windows for background dispatch.
+        import ctypes
+        CREATE_NO_WINDOW = 0x08000000
+        kwargs = {"creationflags": CREATE_NO_WINDOW} if os.name == "nt" else {}
         r = subprocess.run(
             "claude --print --output-format text",
             input=prompt, capture_output=True, encoding="utf-8", timeout=120, shell=True,
+            **kwargs,
         )
         raw = r.stdout or ""
         elapsed = time.time() - start
