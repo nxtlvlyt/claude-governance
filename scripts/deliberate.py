@@ -512,6 +512,148 @@ def dispatch_agent(cfg, prior_verdicts, search_results, open_concerns, soft_note
     }
 
 
+def run_sonnet_verifier(local_result, question, seat_name):
+    """
+    Phase-2 per-seat Sonnet verifier. FILTER, not override.
+    Rule 1: cannot delete the local verdict -- appends verifier_filter field only.
+    Rule 2: tool-grounded -- reads substrate files cited in concerns + runs SearXNG.
+    Rule 3: slowdown-as-insight -- disagreement is the signal, not an error.
+
+    Returns a verifier_filter dict or None on API failure.
+    """
+    try:
+        import anthropic
+    except ImportError:
+        print(f"  [verifier:{seat_name}] anthropic SDK not available -- skipping", flush=True)
+        return None
+
+    # --- Identify substrate files to read ---
+    # Pull files referenced in the local seat's concern sections + the declared SUBSTRATE_FILES
+    files_to_read = list(SUBSTRATE_FILES)  # always include the declared substrate
+    for c in local_result.get('concerns', []):
+        sec = c.get('section', '')
+        # section often names a file path or partial path -- try to resolve
+        if sec and ('/' in sec or '\\' in sec or '.' in sec):
+            # treat as a possible file path relative to CLAUDE_HOME or absolute
+            candidate = sec if os.path.isabs(sec) else os.path.join(CLAUDE_HOME, sec)
+            if os.path.exists(candidate) and candidate not in files_to_read:
+                files_to_read.append(candidate)
+
+    # Read substrate files (bounded -- cap at 6 files, 3000 chars each)
+    files_read = []
+    substrate_read_block = ""
+    for fpath in files_to_read[:6]:
+        full = fpath if os.path.isabs(fpath) else os.path.join(CLAUDE_HOME, fpath)
+        try:
+            with open(full, 'r', encoding='utf-8') as fh:
+                content = fh.read(3000)
+            substrate_read_block += f"\n\n=== FILE: {fpath} ===\n{content}"
+            files_read.append(fpath)
+        except Exception as e:
+            substrate_read_block += f"\n\n=== FILE: {fpath} ===\n[UNREADABLE: {e}]"
+
+    # --- Run SearXNG search on the primary concern ---
+    # Use the highest-severity concern's description as the search target
+    concerns = local_result.get('concerns', [])
+    blocking = [c for c in concerns if c.get('severity') == 'blocking']
+    primary_concern = (blocking[0] if blocking else (concerns[0] if concerns else None))
+    search_query = ""
+    search_findings = "[no concerns to search]"
+    if primary_concern:
+        # Build a targeted query: concern description + key term from investigation_task
+        desc = primary_concern.get('description', '')[:120]
+        inv  = primary_concern.get('investigation_task', '')[:60]
+        search_query = f"{desc} {inv}".strip()
+        print(f"  [verifier:{seat_name}] SearXNG search: {search_query[:100]!r}", flush=True)
+        search_findings = searxng_search(search_query, num_results=4, jina_n=1)
+
+    # --- Build the verifier prompt ---
+    concerns_block = json.dumps(concerns, indent=2) if concerns else "[]"
+    prompt = f"""You are a Sonnet verifier in a deliberation chain. Your role is FILTER, not override.
+
+A local AI seat ({seat_name}) has reviewed a governance/architecture question and returned a verdict.
+Your task: judge whether each concern the local seat raised is VALID and APPLICABLE to the actual substrate.
+
+You are TOOL-GROUNDED. You have been given:
+1. Real substrate files read from disk (below)
+2. Live SearXNG search results on the primary concern (below)
+You must base your filter verdict on these -- not on re-reasoning alone.
+
+=== THE QUESTION UNDER REVIEW ===
+{question}
+
+=== LOCAL SEAT VERDICT (DO NOT DELETE OR OVERRIDE -- READ AND FILTER) ===
+Seat: {seat_name}
+Verdict: {local_result.get('verdict', '?')}
+Summary: {local_result.get('summary', '')}
+Concerns raised:
+{concerns_block}
+
+=== SUBSTRATE FILES READ FROM DISK ===
+{substrate_read_block}
+
+=== LIVE SEARXNG SEARCH RESULTS (query: {search_query!r}) ===
+{search_findings}
+
+=== YOUR TASK ===
+For each concern the local seat raised, evaluate whether it is VALID given the actual substrate files
+and search evidence above. Then produce an overall FILTER verdict.
+
+FILTER verdicts (pick one):
+  PASS    -- The local seat's concern(s) are valid and applicable to this substrate. Carry them forward.
+  WEAKEN  -- The concern applies but is overstated; reduce its severity or scope (explain how).
+  DISMISS -- The concern does not apply to THIS substrate (cite the specific file/line/evidence that
+             refutes it). DISMISS is only valid when evidence contradicts the concern, not when
+             you merely disagree with the local model's reasoning.
+
+CRITICAL -- Slowdown-as-insight rule:
+Even if you believe the local model is factually wrong, do NOT simply dismiss. A wrong verdict
+from a heterogeneous model often means there is a real issue the local model mis-located.
+If the concern is wrong but points at a real risk, return WEAKEN with a redirect, not DISMISS.
+
+Return ONLY valid JSON, no preamble:
+{{
+  "filter_verdict": "PASS|WEAKEN|DISMISS",
+  "rationale": "one paragraph grounded in the substrate files and search results above",
+  "evidence_cited": "specific file path(s) and/or search result title(s) that support your verdict",
+  "per_concern_notes": [
+    {{"concern_id": "C1", "assessment": "VALID|OVERSTATED|INAPPLICABLE", "note": "one sentence"}}
+  ],
+  "redirect_if_weaken": "(if WEAKEN) where should the concern be re-aimed",
+  "search_query_used": "{search_query}",
+  "search_findings_summary": "one sentence on what search revealed",
+  "files_read": {json.dumps(files_read)}
+}}
+"""
+
+    print(f"  [verifier:{seat_name}] Dispatching Sonnet verifier ({len(prompt)} chars)...", flush=True)
+    start = time.time()
+    try:
+        client = anthropic.Anthropic()
+        message = client.messages.create(
+            model="claude-sonnet-4-6",
+            max_tokens=2048,
+            messages=[{"role": "user", "content": prompt}],
+        )
+        raw = message.content[0].text if message.content else ""
+        elapsed = time.time() - start
+        print(f"  [verifier:{seat_name}] Done in {elapsed:.1f}s -- {len(raw)} chars", flush=True)
+
+        # Parse JSON from response
+        si = raw.find('{')
+        ei = raw.rfind('}') + 1
+        if si >= 0 and ei > si:
+            vf = json.loads(raw[si:ei])
+            print(f"  [verifier:{seat_name}] Filter verdict: {vf.get('filter_verdict', '?')}", flush=True)
+            return vf
+        else:
+            print(f"  [verifier:{seat_name}] PARSE FAILED -- raw: {raw[:200]}", flush=True)
+            return {"filter_verdict": "PARSE_ERROR", "raw": raw[:800]}
+    except Exception as e:
+        print(f"  [verifier:{seat_name}] API ERROR: {e}", flush=True)
+        return None
+
+
 def main():
     print(f"\nDELIBERATE: Phase {PHASE}", flush=True)
     print(f"Question file: {QUESTION_FILE}", flush=True)
@@ -621,6 +763,17 @@ def main():
             out_json = os.path.join(OUTPUT_DIR, f"{name.replace(':', '-').replace('/', '-')}.json")
             with open(out_json, 'w', encoding='utf-8') as f:
                 json.dump(result, f, indent=2, ensure_ascii=False)
+
+            # Phase-2 per-seat Sonnet verifier (FILTER, not override -- spec §2/§3)
+            if PHASE == 2:
+                seat_label = name.split(':')[0].split('/')[-1]  # e.g. "laguna-xs.2" stays as-is
+                vf = run_sonnet_verifier(result, QUESTION, seat_label)
+                if vf is not None:
+                    result['verifier_filter'] = vf
+                    # Re-write the JSON on disk so the record includes the filter
+                    with open(out_json, 'w', encoding='utf-8') as f:
+                        json.dump(result, f, indent=2, ensure_ascii=False)
+                    print(f"  [verifier] filter written to disk: {vf.get('filter_verdict','?')}", flush=True)
 
             print(f"\nVerdict: {result.get('verdict')} | "
                   f"Open: {len(open_concerns)} | Soft notes: {len(soft_notes)}", flush=True)
