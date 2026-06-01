@@ -1,0 +1,46 @@
+{
+  "name": "hybrid-deliberation-cycle",
+  "_comment": "Full local+sonnet hybrid cycle per sota_chain_spec Phase 2. Muezzin drives; Seat-3 (conductor) synthesizes between phases. Each phase checkpointed before advancing.",
+  "steps": [
+    {
+      "id": "phase1-local",
+      "type": "deliberate",
+      "description": "Phase 1: gemma (breadth) + qwen (depth) deliberation with SearXNG grounding",
+      "question_file": "__QUESTION_FILE__",
+      "phase": 1,
+      "checkpoint": {
+        "file": "__OUTPUT_DIR__/gemma4-31b.json",
+        "schema": "json",
+        "keys": ["verdict", "summary", "concerns"],
+        "min_chars": 200
+      }
+    },
+    {
+      "id": "seat3-synthesis",
+      "type": "instance-action",
+      "description": "Seat-3 synthesis: conductor reads phase-1 outputs, writes sonnet-synthesis.txt. Per FM-10: NOT an automated API call — this is the conductor's independent substrate evaluation before phase 2.",
+      "instruction": "Read phase-1 verdicts in the OUTPUT_DIR for this question. Write your Seat-3 blind eval (sonnet-blind.txt) and synthesis (sonnet-synthesis.txt) — read the substrate directly, not from the seats' framing. See sota_chain_spec §5 G4'.",
+      "produces": "__OUTPUT_DIR__/sonnet-synthesis.txt"
+    },
+    {
+      "id": "phase2-local-sonnet",
+      "type": "deliberate",
+      "description": "Phase 2: laguna + granite + nemotron, each with a tool-grounded sonnet verifier (FILTER not override). Verifier appends verifier_filter to each seat's JSON. Serial.",
+      "question_file": "__QUESTION_FILE__",
+      "phase": 2,
+      "checkpoint": {
+        "file": "__OUTPUT_DIR__/phase-2-report.json",
+        "schema": "json",
+        "keys": ["all_outputs", "prior_verdicts"],
+        "min_chars": 500
+      }
+    },
+    {
+      "id": "conductor-review",
+      "type": "instance-action",
+      "description": "Conductor Phase 3: read phase-2 report + verifier filters. Produce the final verdict, update the roadmap, drive the next cycle question. DO NOT implement — that is the chain's job.",
+      "instruction": "Read __OUTPUT_DIR__/phase-2-report.json. Synthesize the local verdicts AND their verifier_filter fields. Produce the final ruling. If a new question emerges, write it to a new question file and fire the next muezzin cycle.",
+      "produces": "__OUTPUT_DIR__/conductor-ruling.md"
+    }
+  ]
+}

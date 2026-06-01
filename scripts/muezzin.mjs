@@ -199,6 +199,16 @@ async function main() {
         stepResult = await runShellStep(step);
       } else if (step.type === 'model') {
         stepResult = await runModelStep(step);
+      } else if (step.type === 'deliberate') {
+        // Run deliberate.py (local chain + sonnet verifiers) as a sub-pipeline.
+        // step.question_file: path to the .md question file
+        // step.phase: 1 or 2 (default 1)
+        // Serial discipline: deliberate.py manages its own Ollama serial gate.
+        // The muezzin must not have a concurrent model step running.
+        stepResult = await runShellStep({
+          command: `python "${join(os.homedir(), '.claude', 'scripts', 'deliberate.py')}" "${step.question_file}" ${step.phase || 1}`,
+          cwd: join(os.homedir(), '.claude'),
+        });
       } else if (step.type === 'instance-action') {
         handleInstanceAction(step, i, steps.length);
         // handleInstanceAction exits; we never reach here
