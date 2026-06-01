@@ -522,17 +522,14 @@ def run_sonnet_verifier(local_result, question, seat_name):
     Dispatches via Claude CLI (`claude -p`) -- uses subscription, no separate API billing.
     Returns a verifier_filter dict or None on failure.
     """
-    claude_exe = None
-    for candidate in ["claude", os.path.join(os.path.expanduser("~"), ".claude", "local", "claude")]:
-        try:
-            r = subprocess.run([candidate, "--version"], capture_output=True, timeout=5)
-            if r.returncode == 0:
-                claude_exe = candidate
-                break
-        except Exception:
-            continue
-    if not claude_exe:
-        print(f"  [verifier:{seat_name}] claude CLI not found -- skipping", flush=True)
+    # On Windows, `claude` resolves as claude.cmd via shell=True; bare list fails.
+    try:
+        r = subprocess.run("claude --version", capture_output=True, shell=True, timeout=5)
+        if r.returncode != 0:
+            print(f"  [verifier:{seat_name}] claude CLI not available (exit {r.returncode}) -- skipping", flush=True)
+            return None
+    except Exception as e:
+        print(f"  [verifier:{seat_name}] claude CLI probe failed: {e} -- skipping", flush=True)
         return None
 
     # --- Identify substrate files to read ---
@@ -637,9 +634,12 @@ Return ONLY valid JSON, no preamble:
     print(f"  [verifier:{seat_name}] Dispatching via claude CLI ({len(prompt)} chars)...", flush=True)
     start = time.time()
     try:
+        import shlex
+        # shell=True required on Windows for claude.cmd resolution
+        safe_prompt = prompt.replace('"', '\\"')
         r = subprocess.run(
-            [claude_exe, "-p", prompt, "--output-format", "text"],
-            capture_output=True, encoding="utf-8", timeout=120,
+            f'claude -p "{safe_prompt}" --output-format text',
+            capture_output=True, encoding="utf-8", timeout=120, shell=True,
         )
         raw = r.stdout or ""
         elapsed = time.time() - start
