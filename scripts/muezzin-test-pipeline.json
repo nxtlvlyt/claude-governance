@@ -1,0 +1,43 @@
+{
+  "_comment": "Test pipeline for muezzin.mjs. Uses cheap shell-command steps (no model dispatch). Proves: step execution, checkpoint gating (PASS path), state persistence after each step, pipeline-complete. Safe to run anytime.",
+  "name": "muezzin-dry-run-test",
+  "run_dir": "C:\\Users\\marka\\AppData\\Local\\Temp\\muezzin-test-run",
+  "steps": [
+    {
+      "id": "step-1-write-text-artifact",
+      "type": "shell",
+      "description": "Write a substantive text artifact. Gate: text schema + min_chars + require regex.",
+      "command": "node C:\\Users\\marka\\.claude\\scripts\\muezzin-test-step1.js",
+      "checkpoint": {
+        "file": "C:\\Users\\marka\\AppData\\Local\\Temp\\muezzin-test-run\\step1-output.txt",
+        "schema": "text",
+        "min_chars": 50,
+        "require": "checkpoint_verify"
+      }
+    },
+    {
+      "id": "step-2-write-json-artifact",
+      "type": "shell",
+      "description": "Write a JSON artifact with required keys. Gate: json schema + required keys + min_chars.",
+      "command": "node C:\\Users\\marka\\.claude\\scripts\\muezzin-test-step2.js",
+      "checkpoint": {
+        "file": "C:\\Users\\marka\\AppData\\Local\\Temp\\muezzin-test-run\\step2-output.json",
+        "schema": "json",
+        "keys": ["verdict", "summary"],
+        "min_chars": 50
+      }
+    },
+    {
+      "id": "step-3-verify-state-persistence",
+      "type": "shell",
+      "description": "Read back state.json to confirm it was persisted after each prior step. Gate: json + completed_steps key.",
+      "command": "node C:\\Users\\marka\\.claude\\scripts\\muezzin-test-step3.js",
+      "checkpoint": {
+        "file": "C:\\Users\\marka\\AppData\\Local\\Temp\\muezzin-test-run\\state.json",
+        "schema": "json",
+        "keys": ["completed_steps"],
+        "min_chars": 50
+      }
+    }
+  ]
+}

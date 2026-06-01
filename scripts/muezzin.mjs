@@ -304,11 +304,12 @@ async function runShellStep(step) {
   const env = { ...process.env, ...(step.env || {}) };
   const cwd = step.cwd ? resolve(step.cwd) : process.cwd();
 
-  // Use cmd /c on Windows to handle shell built-ins
-  const result = spawnSync('cmd', ['/c', cmd], {
+  // shell:true lets the platform shell handle quoting, built-ins, and pipes correctly
+  const result = spawnSync(cmd, [], {
     cwd,
     env,
     encoding: 'utf8',
+    shell: true,
     timeout: 120_000,
     windowsHide: true,
   });
@@ -503,7 +504,7 @@ async function safeStop(modelName) {
   }
   // keep_alive timed out — restart Ollama as in deliberate.py
   log(`  safe_stop: keep_alive timed out for ${modelName} — restarting Ollama`);
-  restartOllamaServer();
+  await restartOllamaServer();
 }
 
 async function ensureOllamaIdle(forModel) {
@@ -602,7 +603,7 @@ async function dispatchOllama(body, modelName, outputFile) {
       log(`  Ollama 500 (${consecutiveErrors500}/${NEMOTRON_500_THRESHOLD}) for ${modelName}`);
       if (consecutiveErrors500 >= NEMOTRON_500_THRESHOLD) {
         log(`  Nemotron cache-deadlock threshold hit — killing+restarting Ollama`);
-        restartOllamaServer();
+        await restartOllamaServer();
         consecutiveErrors500 = 0;
         await sleep(5000);
         continue;
