@@ -179,7 +179,44 @@ if (!matchedPattern) process.exit(0); // no stop-language, allow
 const isFF = (name) => /^mcp__(gemini|gpt|grok|glm|ollama)/i.test(name) ||
   name === 'WebSearch' || name === 'WebFetch';
 
-const foreignFrontierFired = lastTurnToolUses.some(isFF);
+// WITNESS-INTEGRITY (root-fix; witness-chain APPROVED 2026-06-01; laguna change-shape + code audit APPROVE).
+// A witness dispatch satisfies this gate ONLY IF its paired tool_result (matched by tool_use_id) is
+// SUBSTANTIVE (>= WITNESS_MIN_CHARS non-whitespace). Applied UNIFORMLY to every FF transport
+// (frontier + local ollama + WebSearch/WebFetch). Closes the empirically-confirmed hole where an
+// EMPTY mcp__ollama no-op satisfied the gate (witness theater). D13: the quorum's literal "remove
+// mcp__ollama" would strand the no-frontier workflow (local ollama is the only permitted witness);
+// verifying substance preserves it. Reuses allLines (already read at top) — no second read, no read-
+// error bypass. FOUND-but-empty fails closed (the hole); NOT-FOUND fails open (id-edge / never strand).
+const WITNESS_MIN_CHARS = 40;
+function witnessResultText(toolUseId) {
+  if (!toolUseId) return null;
+  for (const line of allLines) {
+    if (!line.trim()) continue;
+    let entry; try { entry = JSON.parse(line); } catch { continue; }
+    if (entry.type !== 'user') continue;
+    const content = entry.message?.content;
+    if (!Array.isArray(content)) continue;
+    for (const block of content) {
+      if (block.type === 'tool_result' && block.tool_use_id === toolUseId) {
+        if (typeof block.content === 'string') return block.content;
+        if (Array.isArray(block.content)) return block.content.filter(b => b?.type === 'text').map(b => b.text || '').join(' ');
+        return '';
+      }
+    }
+  }
+  return null;
+}
+
+const foreignFrontierFired = (() => {
+  const ffBlocks = lastTurnToolUseBlocks.filter(b => isFF(b.name || ''));
+  for (const b of ffBlocks) {
+    const res = witnessResultText(b.id);
+    if (res === null) return true;                                       // not found (edge) → fail-open, never strand
+    if (res.replace(/\s+/g, '').length >= WITNESS_MIN_CHARS) return true; // substantive witness
+    // found but empty/thin → does NOT satisfy (the confirmed hole)
+  }
+  return false;
+})();
 
 // Read ratchet state — FAIL-CLOSED on corrupt file
 const sessionId = inp.session_id;
