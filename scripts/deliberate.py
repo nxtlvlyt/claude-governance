@@ -634,13 +634,19 @@ Return ONLY valid JSON, no preamble:
     print(f"  [verifier:{seat_name}] Dispatching via claude CLI ({len(prompt)} chars)...", flush=True)
     start = time.time()
     try:
-        import shlex
-        # shell=True required on Windows for claude.cmd resolution
-        safe_prompt = prompt.replace('"', '\\"')
+        # Write prompt to a temp file to avoid shell quoting issues with complex JSON content
+        import tempfile
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False, encoding='utf-8') as tf:
+            tf.write(prompt)
+            prompt_file = tf.name
         r = subprocess.run(
-            f'claude -p "{safe_prompt}" --output-format text',
+            f'claude -p "$(cat \"{prompt_file}\")" --output-format text',
             capture_output=True, encoding="utf-8", timeout=120, shell=True,
         )
+        try:
+            os.unlink(prompt_file)
+        except Exception:
+            pass
         raw = r.stdout or ""
         elapsed = time.time() - start
         print(f"  [verifier:{seat_name}] Done in {elapsed:.1f}s -- {len(raw)} chars", flush=True)
