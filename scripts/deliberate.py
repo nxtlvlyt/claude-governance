@@ -214,8 +214,8 @@ PHASE2_AGENTS = [
         "search_query": SEARCH_QUERIES[3],
         "think": None,
         "num_predict": 4096,
-        "num_ctx": 24576,
-        "num_gpu": 0,       # 2026-05-29: Ollama 0.24.0 changed memory layout — num_gpu=99 risks the same "memory layout cannot be allocated" 500 that hit qwen. CPU is the safe fit; slower but deterministic. TODO: retune for 0.24.0.
+        "num_ctx": 16384,   # retuned 2026-06-01: granite is GQA (small KV) → full GPU fits at 16384.
+        "num_gpu": 64,      # RETUNED 2026-06-01 (gpu_retune.mjs empirical): granite q4 is ~17GB (NOT the ~35GB static estimate) → all 64 layers fit the 24GB 4090 at ctx<=16384. ~4.4s vs ~11.8s CPU (~3x). Requires the ollama server on OLLAMA_LLM_LIBRARY=cuda_v12.
     },
     {
         "name": SYNTHESIS_MODEL,
