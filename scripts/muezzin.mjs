@@ -551,7 +551,6 @@ async function dispatchOllama(body, modelName, outputFile) {
     const payload = JSON.stringify(body);
     let content = '';
     let thinkingChars = 0;
-    let out = '';
 
     const req = http.request({
       host: OLLAMA_HOST, port: OLLAMA_PORT, path: '/api/chat',
@@ -564,8 +563,15 @@ async function dispatchOllama(body, modelName, outputFile) {
         return;
       }
       res.setEncoding('utf8');
+      let buf = '';
       res.on('data', (chunk) => {
-        for (const line of chunk.split('\n')) {
+        // Cross-chunk line buffering: Ollama NDJSON lines split across TCP chunks
+        // constantly. Splitting each chunk independently drops every partial line.
+        // buf carries the incomplete tail of the last chunk into the next event.
+        buf += chunk;
+        const lines = buf.split('\n');
+        buf = lines.pop(); // last element is the incomplete (or empty) tail
+        for (const line of lines) {
           if (!line.trim()) continue;
           try {
             const parsed = JSON.parse(line);
@@ -573,14 +579,26 @@ async function dispatchOllama(body, modelName, outputFile) {
             const piece = msg.content || parsed.response || '';
             const thinkPiece = msg.thinking || '';
             if (thinkPiece) thinkingChars += thinkPiece.length;
-            if (piece) { content += piece; out += piece; }
+            if (piece) content += piece;
             if (parsed.done) {
               if (thinkingChars) log(`  [thinking: ${thinkingChars} chars]`);
             }
-          } catch { /* skip malformed */ }
+          } catch { /* skip genuinely malformed */ }
         }
       });
       res.on('end', () => {
+        // Flush any remaining buffered content (should be empty for well-formed
+        // NDJSON but guard against a server that omits the trailing newline).
+        if (buf.trim()) {
+          try {
+            const parsed = JSON.parse(buf);
+            const msg = parsed.message || {};
+            const piece = msg.content || parsed.response || '';
+            const thinkPiece = msg.thinking || '';
+            if (thinkPiece) thinkingChars += thinkPiece.length;
+            if (piece) content += piece;
+          } catch { /* incomplete final line — discard */ }
+        }
         // Write output file
         try { writeFileSync(outputFile, content, 'utf8'); } catch { /* best effort */ }
         resolve({ ok: true, content });
