@@ -519,12 +519,20 @@ def run_sonnet_verifier(local_result, question, seat_name):
     Rule 2: tool-grounded -- reads substrate files cited in concerns + runs SearXNG.
     Rule 3: slowdown-as-insight -- disagreement is the signal, not an error.
 
-    Returns a verifier_filter dict or None on API failure.
+    Dispatches via Claude CLI (`claude -p`) -- uses subscription, no separate API billing.
+    Returns a verifier_filter dict or None on failure.
     """
-    try:
-        import anthropic
-    except ImportError:
-        print(f"  [verifier:{seat_name}] anthropic SDK not available -- skipping", flush=True)
+    claude_exe = None
+    for candidate in ["claude", os.path.join(os.path.expanduser("~"), ".claude", "local", "claude")]:
+        try:
+            r = subprocess.run([candidate, "--version"], capture_output=True, timeout=5)
+            if r.returncode == 0:
+                claude_exe = candidate
+                break
+        except Exception:
+            continue
+    if not claude_exe:
+        print(f"  [verifier:{seat_name}] claude CLI not found -- skipping", flush=True)
         return None
 
     # --- Identify substrate files to read ---
@@ -626,18 +634,19 @@ Return ONLY valid JSON, no preamble:
 }}
 """
 
-    print(f"  [verifier:{seat_name}] Dispatching Sonnet verifier ({len(prompt)} chars)...", flush=True)
+    print(f"  [verifier:{seat_name}] Dispatching via claude CLI ({len(prompt)} chars)...", flush=True)
     start = time.time()
     try:
-        client = anthropic.Anthropic()
-        message = client.messages.create(
-            model="claude-sonnet-4-6",
-            max_tokens=2048,
-            messages=[{"role": "user", "content": prompt}],
+        r = subprocess.run(
+            [claude_exe, "-p", prompt, "--output-format", "text"],
+            capture_output=True, encoding="utf-8", timeout=120,
         )
-        raw = message.content[0].text if message.content else ""
+        raw = r.stdout or ""
         elapsed = time.time() - start
         print(f"  [verifier:{seat_name}] Done in {elapsed:.1f}s -- {len(raw)} chars", flush=True)
+        if r.returncode != 0:
+            print(f"  [verifier:{seat_name}] CLI exit {r.returncode}: {r.stderr[:200]}", flush=True)
+            return None
 
         # Parse JSON from response
         si = raw.find('{')
@@ -650,7 +659,7 @@ Return ONLY valid JSON, no preamble:
             print(f"  [verifier:{seat_name}] PARSE FAILED -- raw: {raw[:200]}", flush=True)
             return {"filter_verdict": "PARSE_ERROR", "raw": raw[:800]}
     except Exception as e:
-        print(f"  [verifier:{seat_name}] API ERROR: {e}", flush=True)
+        print(f"  [verifier:{seat_name}] CLI ERROR: {e}", flush=True)
         return None
 
 
