@@ -160,7 +160,11 @@ The read-watcher's recent-reads window shows no recent Read of this file.
 A read from earlier in the session does not count -- re-orient to the current
 contents before mutating.
 
-Required action: Read ${targetPath}, then retry this ${toolName}.`;
+Required action: Read ${targetPath}, then retry this ${toolName}.
+
+If the GOVERNING SOURCE for this work (the directive / canon / STATE / spec your
+niyyah named) differs from the target file, re-read THAT too -- a fresh read of
+the target file is not a fresh read of the governing source for the work.`;
       process.stdout.write(JSON.stringify({
         hookSpecificOutput: {
           hookEventName: 'PreToolUse',
