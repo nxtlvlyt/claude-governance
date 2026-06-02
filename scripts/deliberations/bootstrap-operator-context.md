@@ -1,50 +1,58 @@
-# Deliberation — Ratify gating operator-hot.md into bootstrap
+# Deliberation — Ratify gating operator-hot.md into bootstrap (foreign-tribe witness)
 
-## What is being reviewed
+You are the binding governance witness. A cloud Claude workflow did the BUILD-SIDE hardening
+(both pages of operator-context.md + all three hooks read in-session); it cannot rule the one
+governance-class question below. Confirm or block before this commits. Treat disagreement among
+you as signal. If any seat 500s, do not skip it — fix and re-run.
 
-A BUILT fix (not an abstract proposal) to a verified governance gap: the operational
-brief is neither reliably loaded nor enforced at bootstrap, so cold instances operate
-without it and repeat documented failure modes.
+## What is changing
 
-The fix is Option B (hot-subset), already authored:
-1. `~/.claude/operator-hot.md` — a < 150-line distillation of the load-bearing
-   must-knows from operator-context.md (frontier prohibition, Claude-vs-foreign-tribe
-   seat split, serial-inference discipline, the nemotron RAM/500/num_gpu wall, the
-   Camel Rule, MCP "no-output != done", SearXNG-via-MCP, chain-runner path). Fully
-   readable in ONE Read (under the ~25K-token tool cap).
-2. A one-line edit to `bootstrap-gate.mjs` REQUIRED array:
+1. NEW gate-required file `~/.claude/operator-hot.md` — a 59-line / ~1.8K-token hot subset of
+   operator-context.md (reads in ONE Read, no truncation). 13 substrate-cited completeness patches
+   already applied (niyyah 60s TTL + why, surrender verbatim-substring rule, the separate
+   pre-tool-use-substrate.mjs gate + mcp__ollama-* clears it, keep_alive:0 deadlock, Ollama-restart
+   ProcessStartInfo env trap, no-skip-seats + why, num_ctx=input+output, GPU 4090-shared contention,
+   FM-8 ceremony wording, FM-4 surface-don't-escalate fallback, think:qwen stale-line note).
+2. `bootstrap-gate.mjs` REQUIRED gains a third entry:
    `{ suffix: '.claude/operator-hot.md', label: '~/.claude/operator-hot.md' },`
+   Build-verified: pathEndsWith (`:51-53`) lowercases+slash-normalizes+endsWith — no false-match vs
+   operator-context.md / bootstrap-operator-context.md; Read auto-allow (`:56-60`) self-exempts the
+   entry — no deadlock; main deny message (`:127-128`) maps over REQUIRED and auto-lists it.
+3. COUPLED substrate-class fixes the build found REQUIRED for the fix to actually achieve its goal:
+   - **D2 (blocking):** the no-transcript deny message (`bootstrap-gate.mjs:85-86`) hardcodes only 2
+     files — after the array edit the two deny-paths disagree (3 required, 2 advertised). Make it
+     derive from REQUIRED.
+   - **Injection half (D1):** `session-start.mjs:76-83` still gates operator-context behind
+     LOAD_OPERATOR_CONTEXT (default off); operator-hot.md is never proactively surfaced — a cold
+     instance finds it only by block-and-retry. Add an UNCONDITIONAL `contextParts.push` of
+     operator-hot.md to session-start.mjs (outside the env guard) so it loads at boot in one Read.
+   - **Subagent gap:** `subagent-start.mjs` injects CLAUDE.md+core.md+canon+STATE.md but NOT
+     operator-hot.md, and bootstrap-gate is not on subagent PreToolUse. Mirror the push there.
+   - **GAP-1 (recommended):** a missing REQUIRED file = permanent cold-session lockout. Guard the
+     new entry with `existsSync` (degrade to prior 2-read unlock) or header-comment the
+     delete/rename hazard.
 
-Rule on whether this fix is sound and complete, and whether the gate edit is correct.
+## Ceremony split (must be honored in the commit)
+- operator-hot.md content = NOT substrate-class → niyyah + this 6-agent deliberation, NO
+  surrender/frontier gate (FM-8: which ceremony, not whether).
+- bootstrap-gate.mjs / session-start.mjs / subagent-start.mjs edits = SUBSTRATE-CLASS (hooks/*.mjs)
+  → niyyah + surrender articulation (verbatim substring of old_string) + same-turn local-quorum
+  witness via mcp__ollama-mcp__ollama_chat. Do not let the lighter ceremony leak onto the hooks.
 
-## The gap (verified 2026-05-29..06-02)
+## What you must confirm (governance-class — build already verified the mechanics)
 
-- `session-start.mjs:76-83`: operator-context.md is injected inline ONLY when
-  `LOAD_OPERATOR_CONTEXT=true` (default off). Inline injection bloats session-start
-  output past the persistence cap → instance gets a ~2KB preview, not the body.
-  operator-context.md itself documents this as the root cause of "25+ hours of
-  cold-instance orientation failures."
-- `bootstrap-gate.mjs:44-47`: REQUIRED holds only core.md + CANON-MANIFEST.md.
-  operator-context.md is absent — neither injected nor gate-enforced.
-
-## Seat-3 blind finding driving Option B over Option A (full-file gate)
-
-Option A (gate the full operator-context.md) is DEFECTIVE: operator-context.md is
-775 lines / ~27K tokens, but the Read tool caps at ~25K tokens/page (verified: a single
-Read returns ~601 of 775 lines). `bootstrap-gate.mjs:120-122` only checks that SOME Read
-of the path appears in the transcript — it does NOT verify full paging. So a full-file
-gate is satisfiable by a PARTIAL read, recreating the truncation→false-orientation
-failure one layer up. A sub-cap hot file (Option B) is captured in one Read, so gating it
-guarantees the load-bearing content is actually read. This is why the fix is Option B.
-
-## Mechanism correctness to confirm
-
-- REQUIRED entries double as the always-allow list for Reads (`bootstrap-gate.mjs:55-60`),
-  so gating operator-hot.md cannot deadlock its own Read. Confirm.
-- Change shape = one array entry {suffix, label}; same normalized path-suffix match;
-  fail-open-on-write / fail-closed-on-non-bootstrap-Read preserved. Confirm.
-- This is a substrate-class hook edit → requires niyyah + surrender + local-quorum
-  witness at execution. This chain IS that witness.
+A. **AUTHORITY ELEVATION (central question, only the quorum can rule).** Gate-MANDATING operator-hot.md
+   forces every cold instance to read a file whose §1 instructs OVERRIDING the "mandatory"
+   frontier-dispatch injection emitted by the user-prompt-submit/stop hooks. The file is declared
+   NOT substrate-class, yet gate-mandating it elevates its operational authority above its class. Is
+   it coherent for a non-substrate-class file to be a hard bootstrap precondition that overrides
+   hook-emitted instructions? Ratify, or rule the override should not be gate-wired.
+B. **FM-8 wording fix** is correct/necessary (operator-hot.md:47 old "(niyyah only)" invited FM-8;
+   replaced with "no surrender/frontier gate but STILL niyyah AND 6-agent deliberation"). Confirm.
+C. **FM-4 fallback** addition correct (surface-don't-escalate; never frontier to unblock). Confirm.
+D. **Ceremony split** above is honored in the commit. Confirm.
+E. **think:qwen** — operator-hot.md adopts True (C2, operator-context.md:116); operator-context.md:363
+   still says False. Confirm True is authoritative and ratify correcting :363.
 
 ## Substrate Files
 
@@ -55,18 +63,7 @@ guarantees the load-bearing content is actually read. This is why the fix is Opt
 
 - mandatory context file read gate AI agent session start orientation enforcement
 - token budget always-loaded context vs on-demand retrieval LLM agent best practice
-- distilled hot context vs full reference document split maintenance risk
-
-## Review scope
-
-1. Is `operator-hot.md` COMPLETE on the load-bearing set? Name anything operational and
-   load-bearing that a cold instance needs but the hot file omits (or anything included
-   that is actually cold reference and could be cut).
-2. Is gating a Read (orientation precondition) the right mechanism, and is the one-line
-   REQUIRED edit correct and side-effect-free?
-3. Hot/cold split maintenance: what is the risk that a future-needed fact lives only in
-   the cold half, and how should the hot file point to the full reference to mitigate it?
-4. Does anything about Option B reintroduce a truncation or false-orientation failure?
+- non-privileged config file elevated to hard precondition authority coherence policy
 
 ## Verdict schema
 
@@ -74,8 +71,8 @@ Return valid JSON:
 {
   "verdict": "APPROVE | CONDITIONAL_APPROVE | BLOCK",
   "summary": "one paragraph",
-  "hot_file_complete": true,
-  "missing_from_hot_file": ["..."],
+  "authority_elevation_ruling": "coherent_ratify | wire_without_override | block_gate_mandate | other (describe)",
+  "confirms": {"A_authority": "...", "B_fm8": "...", "C_fm4": "...", "D_ceremony": "...", "E_think_qwen": "..."},
   "concerns": [
     {"id": "C1", "description": "...", "code_ref": "file:line", "severity": "blocking | non_blocking", "investigation_task": "..."}
   ],
