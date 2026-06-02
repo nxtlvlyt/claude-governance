@@ -5,11 +5,13 @@
     "deep_dive":  "Detailed technical analysis. Strong reasoning model with chain-of-thought. Look for: qwen3 (thinking variants), deepseek-r1, llama3.1. think:False required at top-level for qwen3/reasoning models.",
     "code_review": "Fast, precise code and syntax analysis. Smaller quantized model (3-8B). Look for: laguna, phi3, codellama, deepseek-coder. Must finish within MCP timeout (~30s).",
     "governance": "Governance audits, canon coherence, structured reasoning. 30B+ analytical model. Look for: granite, qwen3, llama3-instruct. Follows instructions precisely.",
-    "synthesis":  "Final verdict, highest-capability model you have. 70B+ preferred. Look for: nemotron, llama3.3, qwen3-235b. think:False required at top-level for reasoning models. num_ctx ceiling 32768 on 100GB RAM."
+    "synthesis":  "Final verdict, highest-capability model you have. 70B+ preferred. Look for: nemotron, llama3.3, qwen3-235b. think:False required at top-level for reasoning models. num_ctx ceiling 32768 on 100GB RAM.",
+    "vlm_vision": "Vision/image dispatch model — must have projector key in Ollama model_info. Used by aim_seeder.py and qc_check.py for per-frame subject detection. nemotron3:33b (Nemotron Omni) proven on this footage."
   },
   "workshop":    "gemma4:31b",
   "deep_dive":   "qwen3.6:27b",
   "code_review": "laguna-xs.2:q4_K_M",
   "governance":  "granite4.1:30b",
-  "synthesis":   "nemotron-3-super:latest"
+  "synthesis":   "nemotron-3-super:latest",
+  "vlm_vision":  "nemotron3:33b"
 }
