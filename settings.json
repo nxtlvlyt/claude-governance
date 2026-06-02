@@ -1,4 +1,5 @@
 {
+  "model": "opus",
   "hooks": {
     "SessionStart": [
       {
@@ -134,6 +135,5 @@
     ]
   },
   "skipDangerousModePermissionPrompt": true,
-  "skipAutoPermissionPrompt": true,
-  "model": "opus"
+  "skipAutoPermissionPrompt": true
 }
