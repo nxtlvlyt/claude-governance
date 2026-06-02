@@ -406,15 +406,19 @@ def dispatch_agent(cfg, prior_verdicts, search_results, open_concerns, soft_note
                 blind_text = bf.read().strip()
             if blind_text:
                 independence_block = (
-                    "\n[CONDUCTOR INDEPENDENCE-AUDIT -- REQUIRED, IN ADDITION TO YOUR NORMAL VERDICT]\n"
-                    "Compare the Seat-3 SYNTHESIS (shown in PRIOR AGENT VERDICTS above, labelled "
-                    "'architect seat 3') against the Seat-3 BLIND eval below. The blind eval was written "
-                    "by Seat 3 from substrate ALONE, before it read Seats 1/2. The synthesis was written "
-                    "after.\n"
-                    "Did the synthesis REVERSE any blind-eval position WITHOUT citing new substrate "
-                    "evidence (= conductor confirmation-bias / deference to Seats 1/2)?\n"
-                    "Report a separate line `INDEPENDENCE: PASS` or `INDEPENDENCE: FAIL` with one sentence "
-                    "of reasoning, IN ADDITION to your normal JSON verdict.\n\n"
+                    "\n[CONDUCTOR INDEPENDENCE-AUDIT -- REQUIRED FIELD IN YOUR RETURNED JSON]\n"
+                    "You MUST include in your returned JSON an additional REQUIRED field "
+                    "`\"independence_audit\": \"PASS\"` or `\"FAIL\"` (PASS if the Seat-3 synthesis "
+                    "honored the blind eval / cited substrate for any reversal; FAIL if it reversed a "
+                    "blind-eval position without evidence = conductor confirmation-bias), plus a "
+                    "`\"independence_reason\": \"one sentence\"` field. These two fields are REQUIRED "
+                    "in your JSON object -- do not omit them.\n"
+                    "How to decide: compare the Seat-3 SYNTHESIS (shown in PRIOR AGENT VERDICTS above, "
+                    "labelled 'architect seat 3') against the Seat-3 BLIND eval below. The blind eval was "
+                    "written by Seat 3 from substrate ALONE, before it read Seats 1/2. The synthesis was "
+                    "written after. Did the synthesis REVERSE any blind-eval position WITHOUT citing new "
+                    "substrate evidence (= conductor confirmation-bias / deference to Seats 1/2)? If yes, "
+                    "`\"independence_audit\": \"FAIL\"`; otherwise `\"PASS\"`.\n\n"
                     "[SEAT-3 BLIND EVAL]\n"
                     f"{blind_text}\n"
                 )
@@ -527,18 +531,17 @@ def dispatch_agent(cfg, prior_verdicts, search_results, open_concerns, soft_note
     elapsed = time.time() - wall_start
     print(f"\nDone in {elapsed / 60:.1f} min -- {len(content)} chars", flush=True)
 
-    # Capture the laguna INDEPENDENCE-AUDIT line (canon: separate check alongside the verdict).
-    # The instruction asks for `INDEPENDENCE: PASS|FAIL` as a line in ADDITION to the JSON, so it
-    # lives in the raw content (and laguna's .txt, already preserved). Parse it out so it lands in
-    # the result dict → phase-2-report. None when no audit ran (non-laguna, or blind missing).
-    independence_verdict = None
+    # Capture the laguna INDEPENDENCE-AUDIT (canon: separate check alongside the verdict).
+    # The instruction now asks for a REQUIRED structured field `"independence_audit": "PASS|FAIL"`
+    # inside the returned JSON (laguna ignored the old free-text `INDEPENDENCE:` line on its first
+    # live run). We PREFER the parsed-JSON field below; the regex on raw content is kept as a
+    # resilience FALLBACK (older outputs / models that still emit the line). None when no audit ran
+    # (non-laguna, or blind missing).
+    independence_verdict = None  # regex-fallback capture from raw content
     if role == 'code-review':
         _im = re.search(r'INDEPENDENCE:\s*(PASS|FAIL)', content, re.IGNORECASE)
         if _im:
             independence_verdict = _im.group(1).upper()
-            print(f"  INDEPENDENCE-AUDIT: {independence_verdict}", flush=True)
-        elif independence_block_present:
-            print(f"  INDEPENDENCE-AUDIT: (no INDEPENDENCE: line found in laguna output)", flush=True)
 
     try:
         start_idx = content.find('{')
@@ -547,12 +550,27 @@ def dispatch_agent(cfg, prior_verdicts, search_results, open_concerns, soft_note
             result = json.loads(content[start_idx:end_idx])
             result['_agent'] = name
             result['_role']  = role
-            if independence_verdict is not None:
-                result['independence_audit'] = independence_verdict
+            if role == 'code-review':
+                # Prefer the parsed-JSON field; fall back to the regex value from raw content.
+                parsed_ia = result.get('independence_audit')
+                if isinstance(parsed_ia, str) and parsed_ia.strip().upper() in ('PASS', 'FAIL'):
+                    result['independence_audit'] = parsed_ia.strip().upper()
+                    print(f"  INDEPENDENCE-AUDIT: {result['independence_audit']} (parsed JSON)", flush=True)
+                elif independence_verdict is not None:
+                    result['independence_audit'] = independence_verdict
+                    print(f"  INDEPENDENCE-AUDIT: {independence_verdict} (regex fallback)", flush=True)
+                elif independence_block_present:
+                    result.pop('independence_audit', None)
+                    print(f"  INDEPENDENCE-AUDIT: (no independence_audit field or line found in laguna output)", flush=True)
             return result
     except json.JSONDecodeError:
         pass
 
+    # PARSE_ERROR path: JSON unusable, so only the regex fallback is available.
+    if role == 'code-review' and independence_verdict is not None:
+        print(f"  INDEPENDENCE-AUDIT: {independence_verdict} (regex fallback, JSON unparsed)", flush=True)
+    elif role == 'code-review' and independence_block_present:
+        print(f"  INDEPENDENCE-AUDIT: (no independence_audit field or line found in laguna output)", flush=True)
     return {
         "_agent": name, "_role": role,
         "verdict": "PARSE_ERROR",
