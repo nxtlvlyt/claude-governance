@@ -390,6 +390,39 @@ def dispatch_agent(cfg, prior_verdicts, search_results, open_concerns, soft_note
     rijal = get_rijal_summary(name)
     rijal_block = f"\n[RIJAL -- PRIOR PERFORMANCE NOTE FOR {name}]\n{rijal}" if rijal else ""
 
+    # CONDUCTOR INDEPENDENCE-AUDIT (canon 6agent-deliberation-stack.md, "Laguna independence audit").
+    # ONLY the laguna seat (the FIRST phase-2 seat, role 'code-review') performs this check.
+    # It receives sonnet-blind.txt (Seat-3 Phase-1 blind eval) alongside the synthesis it already
+    # sees in prior_verdicts, and audits whether the synthesis reversed any blind-eval position
+    # WITHOUT new substrate evidence (= conductor confirmation-bias / deference to Seats 1/2).
+    # FAIL-SAFE: if sonnet-blind.txt is missing/unreadable, the audit is skipped silently — the
+    # dispatch proceeds unchanged. Only the laguna seat is touched; granite/nemotron unaffected.
+    independence_block = ""
+    independence_block_present = False
+    if role == 'code-review':
+        blind_path = os.path.join(OUTPUT_DIR, "sonnet-blind.txt")
+        try:
+            with open(blind_path, 'r', encoding='utf-8') as bf:
+                blind_text = bf.read().strip()
+            if blind_text:
+                independence_block = (
+                    "\n[CONDUCTOR INDEPENDENCE-AUDIT -- REQUIRED, IN ADDITION TO YOUR NORMAL VERDICT]\n"
+                    "Compare the Seat-3 SYNTHESIS (shown in PRIOR AGENT VERDICTS above, labelled "
+                    "'architect seat 3') against the Seat-3 BLIND eval below. The blind eval was written "
+                    "by Seat 3 from substrate ALONE, before it read Seats 1/2. The synthesis was written "
+                    "after.\n"
+                    "Did the synthesis REVERSE any blind-eval position WITHOUT citing new substrate "
+                    "evidence (= conductor confirmation-bias / deference to Seats 1/2)?\n"
+                    "Report a separate line `INDEPENDENCE: PASS` or `INDEPENDENCE: FAIL` with one sentence "
+                    "of reasoning, IN ADDITION to your normal JSON verdict.\n\n"
+                    "[SEAT-3 BLIND EVAL]\n"
+                    f"{blind_text}\n"
+                )
+                independence_block_present = True
+        except Exception:
+            # Fail-safe: blind eval missing/unreadable → skip the audit silently, do not break dispatch.
+            independence_block = ""
+
     prompt = "\n".join([
         f"You are the {role} agent in a 5-agent review chain.",
         rijal_block,
@@ -398,6 +431,7 @@ def dispatch_agent(cfg, prior_verdicts, search_results, open_concerns, soft_note
         f"\n[PRIOR AGENT VERDICTS]\n{chr(10).join(prior_verdicts) if prior_verdicts else 'None -- you are first.'}",
         concern_block,
         soft_notes_block,
+        independence_block,
         "\nReturn ONLY valid JSON. No explanation before or after the JSON object.",
     ])
 
@@ -493,6 +527,19 @@ def dispatch_agent(cfg, prior_verdicts, search_results, open_concerns, soft_note
     elapsed = time.time() - wall_start
     print(f"\nDone in {elapsed / 60:.1f} min -- {len(content)} chars", flush=True)
 
+    # Capture the laguna INDEPENDENCE-AUDIT line (canon: separate check alongside the verdict).
+    # The instruction asks for `INDEPENDENCE: PASS|FAIL` as a line in ADDITION to the JSON, so it
+    # lives in the raw content (and laguna's .txt, already preserved). Parse it out so it lands in
+    # the result dict → phase-2-report. None when no audit ran (non-laguna, or blind missing).
+    independence_verdict = None
+    if role == 'code-review':
+        _im = re.search(r'INDEPENDENCE:\s*(PASS|FAIL)', content, re.IGNORECASE)
+        if _im:
+            independence_verdict = _im.group(1).upper()
+            print(f"  INDEPENDENCE-AUDIT: {independence_verdict}", flush=True)
+        elif independence_block_present:
+            print(f"  INDEPENDENCE-AUDIT: (no INDEPENDENCE: line found in laguna output)", flush=True)
+
     try:
         start_idx = content.find('{')
         end_idx   = content.rfind('}') + 1
@@ -500,6 +547,8 @@ def dispatch_agent(cfg, prior_verdicts, search_results, open_concerns, soft_note
             result = json.loads(content[start_idx:end_idx])
             result['_agent'] = name
             result['_role']  = role
+            if independence_verdict is not None:
+                result['independence_audit'] = independence_verdict
             return result
     except json.JSONDecodeError:
         pass
@@ -509,6 +558,7 @@ def dispatch_agent(cfg, prior_verdicts, search_results, open_concerns, soft_note
         "verdict": "PARSE_ERROR",
         "summary": content[:800],
         "concerns": [], "raw": True,
+        **({"independence_audit": independence_verdict} if independence_verdict is not None else {}),
     }
 
 
