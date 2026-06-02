@@ -1,93 +1,72 @@
-# Deliberation — Enforce operator-context.md orientation at bootstrap
+# Deliberation — Ratify gating operator-hot.md into bootstrap
 
 ## What is being reviewed
 
-A proposed fix to a governance gap: `operator-context.md` (the operator/machine-specific
-operational brief) is NOT loaded by default and is NOT enforced by the bootstrap gate.
-Instances operate without it and repeat documented failure modes.
+A BUILT fix (not an abstract proposal) to a verified governance gap: the operational
+brief is neither reliably loaded nor enforced at bootstrap, so cold instances operate
+without it and repeat documented failure modes.
 
-This question proposes a structural fix and asks the chain to choose between two
-implementation shapes and rule on whether it is sound.
+The fix is Option B (hot-subset), already authored:
+1. `~/.claude/operator-hot.md` — a < 150-line distillation of the load-bearing
+   must-knows from operator-context.md (frontier prohibition, Claude-vs-foreign-tribe
+   seat split, serial-inference discipline, the nemotron RAM/500/num_gpu wall, the
+   Camel Rule, MCP "no-output != done", SearXNG-via-MCP, chain-runner path). Fully
+   readable in ONE Read (under the ~25K-token tool cap).
+2. A one-line edit to `bootstrap-gate.mjs` REQUIRED array:
+   `{ suffix: '.claude/operator-hot.md', label: '~/.claude/operator-hot.md' },`
 
-## The gap (verified 2026-05-29)
+Rule on whether this fix is sound and complete, and whether the gate edit is correct.
 
-- `session-start.mjs` line 77-82: operator-context.md is injected inline ONLY when
-  `LOAD_OPERATOR_CONTEXT=true`. Default off. The file is 45KB+ / ~27K tokens.
-- When loaded inline, it bloats session-start output past the persistence threshold —
-  output gets saved to a file and the instance receives a ~2KB preview, not the content.
+## The gap (verified 2026-05-29..06-02)
+
+- `session-start.mjs:76-83`: operator-context.md is injected inline ONLY when
+  `LOAD_OPERATOR_CONTEXT=true` (default off). Inline injection bloats session-start
+  output past the persistence cap → instance gets a ~2KB preview, not the body.
   operator-context.md itself documents this as the root cause of "25+ hours of
-  cold-instance orientation failures" (the 2026-05-11 double-load truncation bug).
-- `bootstrap-gate.mjs` REQUIRED array enforces Read-from-disk of core.md and
-  CANON-MANIFEST.md before any non-bootstrap work. operator-context.md is NOT in it.
-- Net effect: the operational brief that contains the machine-specific answers is
-  neither reliably injected nor enforced-as-read. Cold instances run without it.
+  cold-instance orientation failures."
+- `bootstrap-gate.mjs:44-47`: REQUIRED holds only core.md + CANON-MANIFEST.md.
+  operator-context.md is absent — neither injected nor gate-enforced.
 
-## Evidence of cost (this session, 2026-05-28/29)
+## Seat-3 blind finding driving Option B over Option A (full-file gate)
 
-Failures this session that operator-context.md would have prevented, with line refs:
-- **nemotron 500 / "memory layout cannot be allocated"** — op-context line 106 documents
-  nemotron is 93.5GB, returns 500 on load when RAM/KV exceeds available, max num_ctx 32768;
-  line 29 documents num_gpu=14 partial offload (num_gpu=99 OOMs). Rediscovered from server
-  log after multiple hours.
-- **Camel Rule violation (passive waiting, no ScheduleWakeup)** — op-context FM-12 (line 578)
-  documents this exact failure mode. Operator sat idle for hours while a completed seat went
-  unnoticed.
-- **"No output from MCP = done" confusion** — op-context line 126: "No output from MCP != done.
-  Check api/ps. Every time."
-- **Hand-rolled dispatch scripts** — op-context lines 112-114 document existing chain runners
-  (opctx-review.py, deliberate.py). New per-seat scripts were written instead of using them.
+Option A (gate the full operator-context.md) is DEFECTIVE: operator-context.md is
+775 lines / ~27K tokens, but the Read tool caps at ~25K tokens/page (verified: a single
+Read returns ~601 of 775 lines). `bootstrap-gate.mjs:120-122` only checks that SOME Read
+of the path appears in the transcript — it does NOT verify full paging. So a full-file
+gate is satisfiable by a PARTIAL read, recreating the truncation→false-orientation
+failure one layer up. A sub-cap hot file (Option B) is captured in one Read, so gating it
+guarantees the load-bearing content is actually read. This is why the fix is Option B.
 
-## Proposed fix — two options for the chain to choose
+## Mechanism correctness to confirm
 
-**Option A — Gate the full file.**
-Add operator-context.md to the bootstrap-gate.mjs REQUIRED array. Every instance must
-Read it from disk (full content, paged) before any non-bootstrap Read/Edit/Write.
-- Pro: complete brief guaranteed read; zero truncation (Read tool pages full file).
-- Con: 775-line / 27K-token read tax on every session before any work; much of the file
-  is reference (reconstruction guide, NAS history) not needed every session.
-
-**Option B — Gate a distilled hot-subset.**
-Extract the operational must-knows into a new short file (e.g. `operator-hot.md`, target
-< 150 lines): no-frontier OPERATOR OVERRIDE, serial inference discipline, the nemotron
-RAM/500/num_gpu constraint, the Camel Rule (FM-12), "MCP no-output != done", the 6-agent
-sequence pointer, existing chain-runner paths. Gate THAT in bootstrap-gate.mjs REQUIRED.
-Full operator-context.md stays read-on-demand (pointer in the hot file).
-- Pro: low read tax; the load-bearing operational facts are guaranteed; full reference
-  still one Read away.
-- Con: a curation step; the hot/cold split must be maintained as op-context evolves;
-  risk of a needed fact living in the cold half.
-
-**Ruled out — `LOAD_OPERATOR_CONTEXT=true`.** Reintroduces the documented inline-injection
-truncation failure (session-start.mjs injects the full body; output exceeds persistence
-threshold; instance gets a preview). Do not propose this.
+- REQUIRED entries double as the always-allow list for Reads (`bootstrap-gate.mjs:55-60`),
+  so gating operator-hot.md cannot deadlock its own Read. Confirm.
+- Change shape = one array entry {suffix, label}; same normalized path-suffix match;
+  fail-open-on-write / fail-closed-on-non-bootstrap-Read preserved. Confirm.
+- This is a substrate-class hook edit → requires niyyah + surrender + local-quorum
+  witness at execution. This chain IS that witness.
 
 ## Substrate Files
 
 - C:\Users\marka\.claude\hooks\bootstrap-gate.mjs
-- C:\Users\marka\.claude\hooks\session-start.mjs
-- C:\Users\marka\.claude\operator-context.md
-- C:\Users\marka\.claude\CLAUDE.md
-- C:\Users\marka\.claude\practice\core.md
+- C:\Users\marka\.claude\operator-hot.md
 
 ## Search Queries
 
-- bootstrap orientation enforcement cold-start LLM agent context window truncation
-- mandatory context file read gate AI agent session start best practice
-- token budget tradeoff always-loaded context vs on-demand retrieval agent
+- mandatory context file read gate AI agent session start orientation enforcement
+- token budget always-loaded context vs on-demand retrieval LLM agent best practice
+- distilled hot context vs full reference document split maintenance risk
 
 ## Review scope
 
-1. Is the gap real and correctly diagnosed? Does the substrate confirm operator-context.md
-   is neither reliably loaded nor gate-enforced?
-2. Option A vs Option B: which is architecturally correct for a single-operator governance
-   stack where session-start output is persistence-capped? Weigh read-tax vs completeness.
-3. If Option B: what is the minimal load-bearing set? Is anything proposed for the hot file
-   actually cold, or vice versa?
-4. Is gating a Read (orientation precondition) the right mechanism, or should the fix live
-   elsewhere (e.g. a smaller always-injected summary that fits under the persistence cap)?
-5. Implementation correctness: adding to REQUIRED is a substrate-class hook edit — confirm
-   the change shape (one array entry + label) and that fail-open/fail-closed behavior is
-   preserved.
+1. Is `operator-hot.md` COMPLETE on the load-bearing set? Name anything operational and
+   load-bearing that a cold instance needs but the hot file omits (or anything included
+   that is actually cold reference and could be cut).
+2. Is gating a Read (orientation precondition) the right mechanism, and is the one-line
+   REQUIRED edit correct and side-effect-free?
+3. Hot/cold split maintenance: what is the risk that a future-needed fact lives only in
+   the cold half, and how should the hot file point to the full reference to mitigate it?
+4. Does anything about Option B reintroduce a truncation or false-orientation failure?
 
 ## Verdict schema
 
@@ -95,7 +74,8 @@ Return valid JSON:
 {
   "verdict": "APPROVE | CONDITIONAL_APPROVE | BLOCK",
   "summary": "one paragraph",
-  "chosen_option": "A | B | other (describe)",
+  "hot_file_complete": true,
+  "missing_from_hot_file": ["..."],
   "concerns": [
     {"id": "C1", "description": "...", "code_ref": "file:line", "severity": "blocking | non_blocking", "investigation_task": "..."}
   ],
