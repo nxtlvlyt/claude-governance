@@ -804,7 +804,7 @@ def main():
         # Phase-2 per-seat Sonnet verifier (FILTER, not override -- spec §2/§3)
         # Runs AFTER safe_stop so the local model is fully unloaded before the claude CLI fires.
         # This prevents resource contention (Ollama + claude subprocess competing for RAM/GPU).
-        if PHASE == 2 and result is not None:
+        if PHASE == 2 and result is not None and os.environ.get('DELIBERATE_SKIP_VERIFIER') != '1':
             seat_label = name.split(':')[0].split('/')[-1]
             vf = run_sonnet_verifier(result, QUESTION, seat_label)
             if vf is not None:
