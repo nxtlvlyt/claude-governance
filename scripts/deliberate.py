@@ -634,8 +634,8 @@ def run_sonnet_verifier(local_result, question, seat_name):
     search_findings = "[no concerns to search]"
     if primary_concern:
         # Build a targeted query: concern description + key term from investigation_task
-        desc = primary_concern.get('description', '')[:120]
-        inv  = primary_concern.get('investigation_task', '')[:60]
+        desc = (primary_concern.get('description') or '')[:120]
+        inv  = (primary_concern.get('investigation_task') or '')[:60]
         search_query = f"{desc} {inv}".strip()
         print(f"  [verifier:{seat_name}] SearXNG search: {search_query[:100]!r}", flush=True)
         search_findings = searxng_search(search_query, num_results=4, jina_n=1)
