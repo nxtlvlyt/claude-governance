@@ -17,16 +17,6 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"C:\\Users\\marka\\.claude\\hooks\\gr10-concurrency.mjs\"",
-            "timeout": 5
-          },
-          {
-            "type": "command",
-            "command": "node \"C:\\Users\\marka\\.claude\\hooks\\fm11-assertion-guard.mjs\"",
-            "timeout": 5
-          },
-          {
-            "type": "command",
             "command": "node \"C:\\Users\\marka\\.claude\\hooks\\user-prompt-submit.mjs\"",
             "timeout": 10
           }
@@ -82,16 +72,6 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"C:\\Users\\marka\\.claude\\hooks\\gr10-concurrency.mjs\"",
-            "timeout": 5
-          },
-          {
-            "type": "command",
-            "command": "node \"C:\\Users\\marka\\.claude\\hooks\\purification-state.mjs\"",
-            "timeout": 10
-          },
-          {
-            "type": "command",
             "command": "node \"C:\\Users\\marka\\.claude\\hooks\\bootstrap-gate.mjs\"",
             "timeout": 10
           },
@@ -105,16 +85,6 @@
       {
         "matcher": "Edit|Write|NotebookEdit",
         "hooks": [
-          {
-            "type": "command",
-            "command": "node \"C:\\Users\\marka\\.claude\\hooks\\gr10-concurrency.mjs\"",
-            "timeout": 5
-          },
-          {
-            "type": "command",
-            "command": "node \"C:\\Users\\marka\\.claude\\hooks\\purification-state.mjs\"",
-            "timeout": 10
-          },
           {
             "type": "command",
             "command": "node \"C:\\Users\\marka\\.claude\\hooks\\bootstrap-gate.mjs\"",
@@ -147,38 +117,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"C:\\Users\\marka\\.claude\\hooks\\gr10-concurrency.mjs\"",
-            "timeout": 5
-          },
-          {
-            "type": "command",
-            "command": "node \"C:\\Users\\marka\\.claude\\hooks\\purification-state.mjs\"",
-            "timeout": 10
-          },
-          {
-            "type": "command",
             "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File \"C:\\Users\\marka\\.claude\\hooks\\pre-tool-use-chain-timing.ps1\"",
             "timeout": 10
-          }
-        ]
-      },
-      {
-        "matcher": "mcp__ollama-mcp__ollama_chat|mcp__ollama-mcp__ollama_generate",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"C:\\Users\\marka\\.claude\\hooks\\gr10-concurrency.mjs\"",
-            "timeout": 5
-          },
-          {
-            "type": "command",
-            "command": "node \"C:\\Users\\marka\\.claude\\hooks\\purification-state.mjs\"",
-            "timeout": 10
-          },
-          {
-            "type": "command",
-            "command": "node \"C:\\Users\\marka\\.claude\\hooks\\fm11-assertion-guard.mjs\"",
-            "timeout": 5
           }
         ]
       },
