@@ -1,0 +1,12 @@
+{
+  "BeforeModel": [
+    {
+      "command": "node",
+      "args": [
+        "C:\\Users\\marka\\.gemini\\antigravity-cli\\pipelines\\antigravity-muezzin.mjs",
+        "$prompt",
+        "1"
+      ]
+    }
+  ]
+}
