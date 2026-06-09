@@ -91,6 +91,24 @@ GPT/Gemini/Grok/GLM workers forbidden for all dispatch classes; the exception is
 authorized validator/witness/deliberation path. The post-May-20 frontier-mandating texts
 are the drifted side.
 
+**AMENDED 2026-06-09 (later same day, operator-confirmed):** The operator identified the
+original ban's root cause: frontier dispatches went out COLD — no governance context — and
+underperformed governance-briefed local models. The ban targeted the symptom (frontier
+labs) rather than the condition (cold dispatch), which is why instances kept eroding it —
+the unmet need (independent second reads) was real. Successor ruling, condition-form per
+CLAUDE.md D7:
+
+> **No cold dispatch, any model.** Governance work reaches a model only through a
+> briefed, receipted path — a muezzin mission or roster-seated dispatch carrying context.
+> Validation/witness seats draw from Ollama-served models, **cloud or local**. Foreign-tribe
+> (different lab than the audited seat) REQUIRED for witness seats. Open-weight PREFERRED
+> for verdict-bearing seats (proprietary entries lack digest-pinning; their rijal records
+> decay invisibly). The frontier MCP workers (gemini/gpt/grok/glm) remain dead — not by
+> lab, but because they are cold-dispatch transports.
+
+This supersedes the morning phrasing "the frontier ban stands." Memory entries and
+ROSTER_AND_SEATING_SPEC.md updated same day to the condition-form rule.
+
 **Cleanup queued (substrate-class, chain-ratified):** remove/rewrite frontier-worker
 references in `user-prompt-submit.mjs` (re-anchor block), `foreign-frontier-validators.md`,
 `delegation-and-stall-discipline.md` (Gemini-as-stall-breaker), `stop-validation.mjs`

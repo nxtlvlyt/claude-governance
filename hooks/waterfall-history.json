@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-06-09T20:39:41.489Z",
+  "timestamp": "2026-06-09T20:44:49.044Z",
   "hook_version": "1.0.0",
   "parse_error": null,
   "history": [
@@ -11,7 +11,26 @@
       "error_type": "NETWORK",
       "message": "Network error on ollama: fetch failed",
       "history": []
+    },
+    {
+      "timestamp": "2026-06-09T20:44:47.972Z",
+      "event": "FALLBACK",
+      "provider": "ollama_local",
+      "model": "qwen3.6:27b",
+      "error_type": "NETWORK",
+      "message": "Network error on ollama_local: fetch failed",
+      "history": [
+        {
+          "timestamp": "2026-06-09T20:39:40.431Z",
+          "event": "FALLBACK",
+          "provider": "ollama",
+          "model": "nemotron-3-super",
+          "error_type": "NETWORK",
+          "message": "Network error on ollama: fetch failed",
+          "history": []
+        }
+      ]
     }
   ],
-  "history_length": 1
+  "history_length": 2
 }

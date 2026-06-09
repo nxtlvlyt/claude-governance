@@ -1,14 +1,14 @@
 # M37: Post-Failure Diagnostic Report
-**Generated:** 2026-06-09T20:39:41.491Z
+**Generated:** 2026-06-09T20:44:49.046Z
 **Hook Version:** 1.0.0 (M37 Automated Diagnostics)
 
 ---
 
 ## 1. Executive Summary
 
-- **Total Provider Attempts:** 1
-- **Total Failures:** 1
-- **Providers Contacted:** ollama
+- **Total Provider Attempts:** 2
+- **Total Failures:** 2
+- **Providers Contacted:** ollama, ollama_local
 - **Failure Rate:** 100.0%
 - **Verdict:** 🔴 ALL PROVIDERS FAILED — Waterfall exhausted
 
@@ -16,20 +16,21 @@
 
 | Bucket | Count | Severity | Description |
 |--------|-------|----------|-------------|
-| `NETWORK` | 1 | HIGH | Network-level failure (DNS, connection refused, TLS) |
+| `NETWORK` | 2 | HIGH | Network-level failure (DNS, connection refused, TLS) |
 
 ## 3. Root Cause Analysis
 
 ### 🔴 **PRIMARY**: `NETWORK` (confidence: 99%)
 
 - **Detail:** Network unreachable, DNS resolution failure, or firewall block
-- **Occurrences:** 1/1 (100%)
+- **Occurrences:** 2/2 (100%)
 
 ## 4. Detailed Failure Log
 
 | # | Timestamp | Provider | Model | Error Type | Message |
 |---|-----------|----------|-------|------------|---------|
 | 1 | 20:39:40 | ollama | nemotron-3-super | `NETWORK` | Network error on ollama: fetch failed |
+| 2 | 20:44:47 | ollama_local | qwen3.6:27b | `NETWORK` | Network error on ollama_local: fetch failed |
 
 ## 5. Recommended Actions
 
@@ -43,7 +44,7 @@
 MUEZZIN_FETCH_TIMEOUT_MS: 900000
 OLLAMA_API_KEY set: YES
 OLLAMA_LOCAL_URL: http://localhost:11434
-MUEZZIN_WATERFALL_HISTORY length: 1 entries
+MUEZZIN_WATERFALL_HISTORY length: 2 entries
 ```
 
 ---
