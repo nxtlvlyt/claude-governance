@@ -1,5 +1,5 @@
 # M37: Post-Failure Diagnostic Report
-**Generated:** 2026-06-09T19:24:33.805Z
+**Generated:** 2026-06-09T19:35:24.358Z
 **Hook Version:** 1.0.0 (M37 Automated Diagnostics)
 
 ---
@@ -29,7 +29,7 @@
 
 | # | Timestamp | Provider | Model | Error Type | Message |
 |---|-----------|----------|-------|------------|---------|
-| 1 | 19:24:33 | ollama | nemotron-3-super | `NETWORK` | Network error on ollama: fetch failed |
+| 1 | 19:35:23 | ollama | nemotron-3-ultra | `NETWORK` | Network error on ollama: fetch failed |
 
 ## 5. Recommended Actions
 
