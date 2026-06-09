@@ -1,14 +1,14 @@
 # M37: Post-Failure Diagnostic Report
-**Generated:** 2026-06-09T19:12:48.493Z
+**Generated:** 2026-06-09T19:24:33.805Z
 **Hook Version:** 1.0.0 (M37 Automated Diagnostics)
 
 ---
 
 ## 1. Executive Summary
 
-- **Total Provider Attempts:** 2
-- **Total Failures:** 2
-- **Providers Contacted:** ollama, ollama_local
+- **Total Provider Attempts:** 1
+- **Total Failures:** 1
+- **Providers Contacted:** ollama
 - **Failure Rate:** 100.0%
 - **Verdict:** 🔴 ALL PROVIDERS FAILED — Waterfall exhausted
 
@@ -16,36 +16,34 @@
 
 | Bucket | Count | Severity | Description |
 |--------|-------|----------|-------------|
-| `TIMEOUT` | 2 | HIGH | Provider did not respond within timeout window |
+| `NETWORK` | 1 | HIGH | Network-level failure (DNS, connection refused, TLS) |
 
 ## 3. Root Cause Analysis
 
-### 🔴 **PRIMARY**: `TIMEOUT` (confidence: 99%)
+### 🔴 **PRIMARY**: `NETWORK` (confidence: 99%)
 
-- **Detail:** Network latency, model overload, or insufficient timeout threshold
-- **Occurrences:** 2/2 (100%)
+- **Detail:** Network unreachable, DNS resolution failure, or firewall block
+- **Occurrences:** 1/1 (100%)
 
 ## 4. Detailed Failure Log
 
 | # | Timestamp | Provider | Model | Error Type | Message |
 |---|-----------|----------|-------|------------|---------|
-| 1 | 19:07:46 | ollama | nemotron-3-super | `TIMEOUT` | Provider ollama timed out after 300000ms |
-| 2 | 19:12:47 | ollama_local | granite4.1:30b-q8_0 | `TIMEOUT` | Provider ollama_local timed out after 300000ms |
+| 1 | 19:24:33 | ollama | nemotron-3-super | `NETWORK` | Network error on ollama: fetch failed |
 
 ## 5. Recommended Actions
 
-1. Increase MUEZZIN_FETCH_TIMEOUT_MS or consider removing this provider from waterfall
-2. Increase `MUEZZIN_FETCH_TIMEOUT_MS` (currently 300000ms). Consider 180000ms for large cloud models like nemotron-3-ultra.
-3. Verify `ollama_local` with `qwen3.6:27b` is available at `http://localhost:11434`. Run `ollama list` to confirm model is pulled.
-4. Check `3phase-consensus.json` — ensure `routing_rules.waterfall` includes `"ollama_local"`.
+1. Verify network connectivity, DNS resolution, and firewall rules
+2. Verify `ollama_local` with `qwen3.6:27b` is available at `http://localhost:11434`. Run `ollama list` to confirm model is pulled.
+3. Check `3phase-consensus.json` — ensure `routing_rules.waterfall` includes `"ollama_local"`.
 
 ## 6. Environment Snapshot
 
 ```
-MUEZZIN_FETCH_TIMEOUT_MS: 300000
+MUEZZIN_FETCH_TIMEOUT_MS: 900000
 OLLAMA_API_KEY set: YES
 OLLAMA_LOCAL_URL: http://localhost:11434
-MUEZZIN_WATERFALL_HISTORY length: 2 entries
+MUEZZIN_WATERFALL_HISTORY length: 1 entries
 ```
 
 ---

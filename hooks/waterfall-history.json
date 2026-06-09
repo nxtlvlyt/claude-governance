@@ -1,36 +1,17 @@
 {
-  "timestamp": "2026-06-09T19:12:48.492Z",
+  "timestamp": "2026-06-09T19:24:33.805Z",
   "hook_version": "1.0.0",
   "parse_error": null,
   "history": [
     {
-      "timestamp": "2026-06-09T19:07:46.247Z",
+      "timestamp": "2026-06-09T19:24:33.726Z",
       "event": "FALLBACK",
       "provider": "ollama",
       "model": "nemotron-3-super",
-      "error_type": "TIMEOUT",
-      "message": "Provider ollama timed out after 300000ms",
+      "error_type": "NETWORK",
+      "message": "Network error on ollama: fetch failed",
       "history": []
-    },
-    {
-      "timestamp": "2026-06-09T19:12:47.179Z",
-      "event": "FALLBACK",
-      "provider": "ollama_local",
-      "model": "granite4.1:30b-q8_0",
-      "error_type": "TIMEOUT",
-      "message": "Provider ollama_local timed out after 300000ms",
-      "history": [
-        {
-          "timestamp": "2026-06-09T19:07:46.247Z",
-          "event": "FALLBACK",
-          "provider": "ollama",
-          "model": "nemotron-3-super",
-          "error_type": "TIMEOUT",
-          "message": "Provider ollama timed out after 300000ms",
-          "history": []
-        }
-      ]
     }
   ],
-  "history_length": 2
+  "history_length": 1
 }
