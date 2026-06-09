@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-06-09T21:19:34.735Z",
+  "timestamp": "2026-06-09T21:27:46.752Z",
   "hook_version": "1.0.0",
   "parse_error": null,
   "history": [
@@ -11,7 +11,26 @@
       "error_type": "HTTP_500",
       "message": "Provider ollama rejected request (Status 500): {\"error\":\"Internal Server Error (ref: b8963c92-f25f-4099-a296-885bd5194cb2)\"}\n",
       "history": []
+    },
+    {
+      "timestamp": "2026-06-09T21:27:46.623Z",
+      "event": "FALLBACK",
+      "provider": "ollama_local",
+      "model": "qwen3.6:27b",
+      "error_type": "NETWORK",
+      "message": "Network error on ollama_local: fetch failed",
+      "history": [
+        {
+          "timestamp": "2026-06-09T21:19:33.411Z",
+          "event": "FALLBACK",
+          "provider": "ollama",
+          "model": "nemotron-3-super",
+          "error_type": "HTTP_500",
+          "message": "Provider ollama rejected request (Status 500): {\"error\":\"Internal Server Error (ref: b8963c92-f25f-4099-a296-885bd5194cb2)\"}\n",
+          "history": []
+        }
+      ]
     }
   ],
-  "history_length": 1
+  "history_length": 2
 }
