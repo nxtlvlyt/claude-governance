@@ -80,8 +80,37 @@ is also encoded hook-vs-hook: `pre-compact.mjs` writes "No frontier models: forb
 into LAST-SESSION-STATE as an always-true constant while `user-prompt-submit.mjs` writes
 "frontier validators available" into CURRENT-STATE.
 
-**Resolution state:** OPEN — operator ruling required (the missing fact is operator
-intent; both sides claim to encode it). Once ruled, delete the losing text in all
-locations listed above.
+**Resolution state:** RESOLVED 2026-06-09 — operator ruling (Mark, in session, verbatim:
+"the ollama cloud api is an exceptance to the rule"): **the frontier ban STANDS** —
+GPT/Gemini/Grok/GLM workers forbidden for all dispatch classes; the exception is the
+**Ollama Cloud API** — open-weight models served via Ollama (local or cloud) are the
+authorized validator/witness/deliberation path. The post-May-20 frontier-mandating texts
+are the drifted side.
+
+**Cleanup queued (substrate-class, chain-ratified):** remove/rewrite frontier-worker
+references in `user-prompt-submit.mjs` (re-anchor block), `foreign-frontier-validators.md`,
+`delegation-and-stall-discipline.md` (Gemini-as-stall-breaker), `stop-validation.mjs`
+(reason strings; isFF regex already accepts mcp__ollama — functional path unchanged),
+`pre-compact.mjs`/`user-prompt-submit.mjs` state-file constants (make them agree). Memory
+entries corrected this session (2026-06-09). Until cleanup lands, THIS RULING OVERRIDES
+the frontier-mandating text.
+
+---
+
+## 2026-06-09 — EVENT-003: lefthook shims clobbered global git hooks (May 20 event, detected and fixed June 9)
+
+**Class:** Silent enforcement failure (pre-commit review gate).
+
+**What happened:** On 2026-05-20 ~11:57, lefthook shims were installed over
+`~/.git-hooks/pre-commit` (original saved as `pre-commit.old`) and `commit-msg` (no
+original existed). The lefthook binary was never installed (not in PATH, npm -g empty) and
+no lefthook.yml exists in any active repo — so since May 20, NO pre-commit gate ran on any
+repo (core.hooksPath is global): laguna commit review silently dead ~3 weeks, every commit
+emitting "Can't find lefthook in PATH" as a non-blocking warning.
+
+**Resolution:** original laguna pre-commit restored from `pre-commit.old` (dispatches
+`hooks/laguna-pre-commit.mjs`; BLOCK aborts commit, WARN/PASS allow). Both lefthook shims
+parked as `*.lefthook-shim.bak`. Root-cause session of the May 20 lefthook install not
+identified — same open question class as EVENT-001's writer.
 
 ---
