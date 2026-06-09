@@ -52,13 +52,17 @@ permanently in history (acceptable; history is history).
   Q3 REVISE (document timeline + hashes durably — this entry is that fix).
 
 **Open:**
-- 5 born-corrupted artifacts need chain-ratified rebuild (intended logic is readable
-  inside the repr fragments; gr10's api/ps guard logic is fully recoverable). Until then
-  they crash inert/fail-open; consider unregistering purification-state.mjs from
-  settings.json to silence per-call errors, pending operator/chain decision.
-- Root-cause session of June 5 not identified; whatever wrote these files serialized
-  content through a Python structure before writing. Find and fix the writer before
-  rebuilding, or the rebuilds may be re-corrupted.
+- 5 born-corrupted artifacts need rebuild **via muezzin mission** (operator 2026-06-09:
+  the old 6-agent serial chain method is retired; the muezzin plugin is the orchestrator).
+  Intended logic is readable inside the repr fragments; gr10's api/ps guard logic is fully
+  recoverable. NOTE: the 4 corrupted skills are exactly the OLD CHAIN skills — they may be
+  deprecated rather than rebuild-worthy; decide per-artifact in the mission.
+- UPDATE 2026-06-09: the 3 dead hook registrations were removed from settings.json
+  (commit b081584) — per-call errors silenced; re-register only what gets rebuilt.
+- Root-cause hypothesis (confidence ~0.5): a Python orchestrator session in the muezzin
+  build line serialized file contents on June 5 (Python-repr signature + the affected
+  skills being the chain artifacts under migration). Find and fix the writer before any
+  rebuild, or the rebuilds may be re-corrupted.
 - `lefthook` not in PATH — laguna-pre-commit git gate is NOT executing on commits
   (observed during b56f994).
 
