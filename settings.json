@@ -19,6 +19,11 @@
             "type": "command",
             "command": "node \"C:\\Users\\marka\\.claude\\hooks\\user-prompt-submit.mjs\"",
             "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "node \"C:\\Users\\marka\\.claude\\hooks\\fm11-assertion-guard.mjs\"",
+            "timeout": 10
           }
         ]
       }
@@ -129,6 +134,16 @@
             "type": "command",
             "command": "node \"C:\\Users\\marka\\.claude\\hooks\\pre-tool-use-task-watcher.mjs\"",
             "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "mcp__ollama-mcp__ollama_chat|mcp__ollama-mcp__ollama_generate",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"C:\\Users\\marka\\.claude\\hooks\\fm11-assertion-guard.mjs\"",
+            "timeout": 10
           }
         ]
       }
