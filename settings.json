@@ -146,6 +146,16 @@
             "timeout": 10
           }
         ]
+      },
+      {
+        "matcher": "mcp__gpt-worker__.*|mcp__grok-worker__.*|mcp__gemini-worker__.*|mcp__gemini-api-worker__.*|mcp__glm-worker__.*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"C:\\Users\\marka\\.claude\\hooks\\frontier-deny.mjs\"",
+            "timeout": 5
+          }
+        ]
       }
     ]
   },
