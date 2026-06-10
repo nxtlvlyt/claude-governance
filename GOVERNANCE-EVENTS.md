@@ -51,12 +51,36 @@ permanently in history (acceptable; history is history).
   (restore-from-git correct), Q2 APPROVE (defer born-corrupted rebuilds to chain),
   Q3 REVISE (document timeline + hashes durably — this entry is that fix).
 
-**Open:**
-- 5 born-corrupted artifacts need rebuild **via muezzin mission** (operator 2026-06-09:
-  the old 6-agent serial chain method is retired; the muezzin plugin is the orchestrator).
-  Intended logic is readable inside the repr fragments; gr10's api/ps guard logic is fully
-  recoverable. NOTE: the 4 corrupted skills are exactly the OLD CHAIN skills — they may be
-  deprecated rather than rebuild-worthy; decide per-artifact in the mission.
+**THE WUDU-LAYER FINDING (2026-06-09 late session, operator-driven):** the two corrupted
+HOOKS — `fm11-assertion-guard.mjs` (forbids asserting from memory without a current-session
+Read) and `purification-state.mjs` (wudu-tier gate before governance acts) — are precisely
+the PURIFICATION layer. They were dead all session. CONSEQUENCE, observed: the Fable-5
+conductor asserted-from-memory ~12 times unchecked (e.g. "direct API fine", "3 bugs",
+"MCP has no waterfall") — caught only by the operator, by hand. The gates that would have
+caught these structurally were the dead ones. ROOT-OF-ROOT: nothing monitored hook
+liveness, so the purification layer's death was invisible for days while the system
+reported healthy.
+
+**CORRECTION to the earlier "rebuild via muezzin mission" note:** WRONG for these.
+Governance-substrate hooks (hooks/*) require ceremony (wudu/niyyah/surrender + foreign
+witness) which the muezzin (commits --no-verify, cloud seats) CANNOT perform. These are
+GOVERNANCE ACTS for a CLEAN, ORIENTED Claude instance — not daemon missions. (The 4
+corrupted SKILLS may still route to muezzin/deprecation; the HOOKS do not.)
+
+**RESOLUTION SPEC (for a fresh instance, full ceremony, foreign witness via laguna direct
+API — the working path):**
+1. Rebuild `fm11-assertion-guard.mjs` from the legible logic in its corrupted dump
+   (memory-assertion regex + read-watcher current-session-Read evidence + deny); re-register
+   on UserPromptSubmit + ollama dispatch; self-test (assert-without-read→deny, with-read→allow).
+2. Rebuild `purification-state.mjs` (wudu-tier gate) likewise.
+3. Build `hook-health-check.mjs` (detector for the root-of-root — a drifted instance was
+   correctly BLOCKED by the niyyah gate from writing it mid-session 2026-06-09; that block
+   IS the system working). Wire as SessionStart advisory so corruption is never again invisible.
+4. Each: self-test green + laguna foreign-witness APPROVE + hook-health census green.
+
+**Open (other):**
+- 5 born-corrupted artifacts (the SKILLS): rebuild or deprecate — the 4 are OLD CHAIN
+  skills, likely deprecated; decide per-artifact. gr10-concurrency logic recoverable.
 - UPDATE 2026-06-09: the 3 dead hook registrations were removed from settings.json
   (commit b081584) — per-call errors silenced; re-register only what gets rebuilt.
 - Root-cause hypothesis (confidence ~0.5): a Python orchestrator session in the muezzin
