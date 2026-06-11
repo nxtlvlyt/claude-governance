@@ -98,6 +98,16 @@ const stopLanguagePatterns = [
   /\bready whenever\b/i,
   /when(?:ever)? you want\b/i,
   /\bup to you\b/i,
+  // Permission-ask family (added 2026-06-11, laguna witness APPROVE). The receipted
+  // false-negative: "say the word and I'll do it without further asking" — a pure
+  // permission-ask for work D2 already authorizes — passed unadjudicated because this
+  // family was absent. Operator caught it himself ("why are you asking me?"). Additive;
+  // false-positives acceptable-by-design per the 2026-05-30 family precedent.
+  /say the word\b/i,
+  /\bgive (?:me )?the (?:word|go|green light)\b/i,
+  /if you (?:want|like|prefer),? i can\b/i,
+  /\bi can (?:do|build|set|wire|add|fix|run|push|create) [^.?!]{0,60}if you (?:want|like|'d like|prefer)/i,
+  /\bshall i\b/i,
 ];
 
 let matchedPattern = null;
