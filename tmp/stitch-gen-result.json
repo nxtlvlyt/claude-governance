@@ -1,0 +1,9 @@
+{
+ "content": [
+  {
+   "text": "Request contains an invalid argument.",
+   "type": "text"
+  }
+ ],
+ "isError": true
+}
