@@ -1,0 +1,163 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NXTLVL Post</title>
+<style>
+ body{font:16px system-ui;background:#10151a;color:#e8edf2;margin:0;padding:20px;max-width:520px;margin:auto}
+ h1{font-size:20px;margin:18px 0} .card{background:#1a222b;border-radius:14px;padding:18px;margin:14px 0}
+ input[type=file]{width:100%;padding:30px 10px;background:#0d1116;border:2px dashed #3a4a5a;border-radius:12px;color:#9ab}
+ textarea,input[type=password]{width:100%;box-sizing:border-box;background:#0d1116;border:1px solid #2a3540;border-radius:10px;color:#e8edf2;padding:12px;font:15px system-ui}
+ button{width:100%;padding:15px;border:0;border-radius:12px;background:#0d9488;color:#fff;font:600 16px system-ui;margin-top:12px}
+ .tog{display:flex;gap:8px;margin-top:10px}.tog label{flex:1;text-align:center;padding:10px;background:#0d1116;border:1px solid #2a3540;border-radius:10px;cursor:pointer}
+ .tog input{display:none}.tog input:checked+span{color:#0d9488;font-weight:700}
+ .msg{background:#0d3a32;border-radius:10px;padding:12px;margin:12px 0}
+ a{color:#4db6ac}
+ .frow{display:flex;align-items:center;gap:10px;background:#0d1116;border:1px solid #2a3540;border-radius:10px;padding:8px 10px;margin-top:8px}
+ .frow .num{background:#0d9488;color:#fff;font:700 14px system-ui;border-radius:8px;min-width:26px;text-align:center;padding:4px 0}
+ .frow .thumb{width:64px;height:48px;object-fit:cover;border-radius:8px;background:#000;flex:none}
+ .frow .fcol{flex:1;min-width:0}
+ .frow .fname{font-size:13px;color:#cfd8e0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+ .frow .fmeta{font-size:11px;color:#7a8794;margin-top:2px}
+ .frow button{width:34px;padding:6px 0;margin:0;background:#1f2a36;border-radius:8px;font-size:14px}
+ .frow button:disabled{opacity:.3}
+ .ohint{font-size:12px;color:#7a8794;margin-top:8px}
+</style></head><body>
+<h1>📤 NXTLVL Post</h1>
+    <div class="card"><form id="upform">
+    <input type="file" id="media" accept="image/*,video/*" multiple>
+    <div id="filelist"></div>
+    <textarea name="blurb" id="blurb" rows="2" placeholder="Optional blurb — what's this about?"></textarea>
+    <div class="tog">
+      <label><input type="radio" name="property" value="auto" checked><span>✨ Auto</span></label>
+      <label><input type="radio" name="property" value="vanlife"><span>🚐 Vanlife</span></label>
+      <label><input type="radio" name="property" value="nxtlvl"><span>🎬 NXTLVL</span></label>
+    </div>
+    <button type="submit" id="gobtn">Create my posts</button>
+    <div id="prog" style="display:none;margin-top:10px">
+      <div style="background:#0d1116;border-radius:8px;overflow:hidden;height:14px"><div id="bar2" style="background:#0d9488;height:14px;width:0%"></div></div>
+      <div id="ptext" style="font-size:12px;color:#9ab;margin-top:4px"></div>
+    </div>
+  </form></div>
+<script>
+// CHUNKED UPLOAD (Cloudflare caps requests ~100MB — operator hit a live 413 on a phone
+// video). 16MB slices, sequential per file so server-side append preserves order.
+const CHUNK = 16 * 1024 * 1024;
+
+// ORDER BOXES — videos are joined in the order shown here (position 1 plays first).
+// The picker's hand-over order is invisible and phone-dependent, so the user sees and
+// controls it. `picked` is the single source of truth; upload iterates it, so file n
+// becomes 00/01/02 on the server and therefore the ffmpeg concat order.
+let picked = [];   // entries: {f, url, isVid, dur} — url is a cached object URL (revoked on replace)
+const fmtSize = b => b > 1024 * 1024 ? Math.round(b / 1024 / 1024) + 'MB' : Math.round(b / 1024) + 'KB';
+const fmtDur = s => !isFinite(s) ? '' : Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0');
+const fmtWhen = ms => new Date(ms).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+function entryFor(f) {
+  const e = { f, url: URL.createObjectURL(f), isVid: /^video\//.test(f.type) || /\.(mp4|mov)$/i.test(f.name), dur: NaN };
+  if (e.isVid) {   // probe duration from metadata only (no full download into memory)
+    const v = document.createElement('video');
+    v.preload = 'metadata'; v.src = e.url;
+    v.onloadedmetadata = () => { e.dur = v.duration; v.removeAttribute('src'); renderList(); };
+  }
+  return e;
+}
+function renderList() {
+  const box = document.getElementById('filelist');
+  if (!picked.length) { box.innerHTML = ''; return; }
+  box.innerHTML = picked.map((e, i) => {
+    const name = e.f.name.replace(/[<>&]/g, '');
+    // #t=0.5 nudges the preview past an all-black first frame
+    const thumb = e.isVid
+      ? `<video class="thumb" src="${e.url}#t=0.5" muted playsinline preload="metadata"></video>`
+      : `<img class="thumb" src="${e.url}" alt="">`;
+    const meta = [e.isVid ? fmtDur(e.dur) : 'photo', fmtSize(e.f.size), fmtWhen(e.f.lastModified)].filter(Boolean).join(' · ');
+    return `<div class="frow"><span class="num">${i + 1}</span>${thumb}` +
+      `<div class="fcol"><div class="fname">${name}</div><div class="fmeta">${meta}</div></div>` +
+      `<button type="button" onclick="moveFile(${i},-1)" ${i === 0 ? 'disabled' : ''}>▲</button>` +
+      `<button type="button" onclick="moveFile(${i},1)" ${i === picked.length - 1 ? 'disabled' : ''}>▼</button></div>`;
+  }).join('') + (picked.length > 1 ? `<div class="ohint">Videos are joined in this order — 1 plays first. Use ▲▼ to rearrange.</div>` : '');
+}
+window.moveFile = (i, d) => {
+  const j = i + d;
+  if (j < 0 || j >= picked.length) return;
+  [picked[i], picked[j]] = [picked[j], picked[i]];
+  renderList();
+};
+document.getElementById('media').onchange = (e) => {
+  picked.forEach(en => URL.revokeObjectURL(en.url));
+  picked = [...e.target.files].map(entryFor);
+  renderList();
+};
+
+document.getElementById('upform').onsubmit = async (e) => {
+  e.preventDefault();
+  const files = picked.map(en => en.f);
+  if (!files.length) { alert('Pick at least one photo or video'); return; }
+  const btn = document.getElementById('gobtn'), prog = document.getElementById('prog'),
+        bar = document.getElementById('bar2'), ptext = document.getElementById('ptext');
+  btn.disabled = true; prog.style.display = 'block';
+  // CROSS-ATTEMPT RESUME: same files re-picked after a stall -> same batch id, server
+  // tells us what it already has, we skip it (operator lost 3 attempts at GB scale).
+  const fp = picked.map(en => en.f.name + ':' + en.f.size + ':' + en.f.lastModified).join('|');
+  let batch = null, resume = {};
+  try {
+    const saved = JSON.parse(localStorage.getItem('nxtlvl-up') || 'null');
+    if (saved && saved.fp === fp && saved.batch) {
+      const st = await fetch('chunk.php?act=status&batch=' + saved.batch).then(r => r.ok ? r.json() : null);
+      if (st && st.ok) { batch = saved.batch; resume = st.files || {}; }
+    }
+  } catch {}
+  if (!batch) batch = new Date().toISOString().replace(/[-:T]/g, '').slice(0, 14) + '-' + Math.random().toString(36).slice(2, 8);
+  localStorage.setItem('nxtlvl-up', JSON.stringify({ batch, fp }));
+  const totalBytes = files.reduce((a, f) => a + f.size, 0);
+  let sent = 0;
+  try {
+    await fetch(`chunk.php?act=start&batch=${batch}`, { method: 'POST' }).then(r => { if (!r.ok) throw new Error('start failed'); });
+    for (let n = 0; n < files.length; n++) {
+      const f = files[n];
+      const ext = (f.name.split('.').pop() || 'mp4').toLowerCase().replace(/[^a-z0-9]/g, '');
+      const chunks = Math.max(1, Math.ceil(f.size / CHUNK));
+      const rs = resume[n] || {};
+      if (rs.done) { sent += f.size; bar.style.width = Math.round(100 * sent / totalBytes) + '%'; ptext.textContent = f.name + ': already uploaded, skipping'; continue; }
+      const startChunk = Math.min(rs.chunks || 0, chunks);
+      if (startChunk > 0) { sent += Math.min(startChunk * CHUNK, f.size); bar.style.width = Math.round(100 * sent / totalBytes) + '%'; ptext.textContent = f.name + ': resuming at ' + Math.round(100 * startChunk / chunks) + '%'; }
+      for (let i = startChunk; i < chunks; i++) {
+        const blob = f.slice(i * CHUNK, Math.min((i + 1) * CHUNK, f.size));
+        let ok = false;
+        for (let attempt = 0; attempt < 3 && !ok; attempt++) {   // resumable: retry a failed chunk
+          try {
+            const r = await fetch(`chunk.php?act=chunk&batch=${batch}&file=${n}&idx=${i}&ext=${ext}`, { method: 'POST', body: blob });
+            ok = r.ok;
+          } catch { ok = false; }
+          if (!ok) { ptext.textContent = `retrying chunk ${i + 1}…`; await new Promise(r => setTimeout(r, 2000)); }
+        }
+        if (!ok) throw new Error(`chunk ${i + 1} of file ${n + 1} failed after retries`);
+        sent += blob.size;
+        bar.style.width = Math.round(100 * sent / totalBytes) + '%';
+        ptext.textContent = `${f.name}: ${Math.round(100 * sent / totalBytes)}% of total`;
+      }
+      await fetch(`chunk.php?act=filedone&batch=${batch}&file=${n}&ext=${ext}`, { method: 'POST' }).then(r => { if (!r.ok) throw new Error('filedone failed'); });
+    }
+    const fd = new FormData();
+    fd.append('blurb', document.getElementById('blurb').value);
+    fd.append('property', document.querySelector('input[name=property]:checked').value);
+    const fin = await fetch(`chunk.php?act=finalize&batch=${batch}`, { method: 'POST', body: fd });
+    if (!fin.ok) throw new Error('finalize failed');
+    localStorage.removeItem('nxtlvl-up');
+    ptext.textContent = '';
+    prog.style.display = 'none';
+    document.getElementById('upform').insertAdjacentHTML('beforebegin',
+      `<div class="msg">Uploaded ✓ — you'll get a buzz when it's ready. <a href="results.php">→ Library</a></div>`);
+    document.getElementById('media').value = '';
+    picked.forEach(en => URL.revokeObjectURL(en.url));
+    picked = []; renderList();
+  } catch (err) {
+    ptext.textContent = 'Upload failed: ' + err.message + ' — try again (it picks up where it left off within this attempt).';
+  } finally { btn.disabled = false; }
+};
+</script>
+  <div class="card"><a href="results.php">📚 Library — past uploads & packages</a></div>
+    <div class="card" style="font-size:13px;color:#9ab">
+    <b style="color:#e8edf2">What this can do right now</b>
+    <ul style="margin:8px 0;padding-left:18px"><li style='margin:4px 0'>📷 Photos (1–6): AI reads them → captions + tags for Instagram, TikTok, YouTube, Facebook</li><li style='margin:4px 0'>🎬 Videos (1–3 clips): auto-joined in the order YOU set (▲▼ boxes after picking) → ready-to-post 9:16 (Reels/TikTok/Shorts) + 16:9 (YouTube) renders</li><li style='margin:4px 0'>✨ Auto-detects vanlife vs NXTLVL content (or pick yourself)</li><li style='margin:4px 0'>🔍 Captions are keyword-led for search (2026 social-SEO) and only claim what is actually in your media</li><li style='margin:4px 0'>🖼️ Thumbnails: every video gets YouTube-spec 1280x720 candidates (thumb-youtube-*.jpg) + preview frames — tap any image in the Library to save it</li><li style='margin:4px 0'>🔔 Your phone buzzes when ready — the Instagram caption is in the notification</li></ul>
+    <b style="color:#8a99a8">Coming next</b>
+    <ul style="margin:8px 0;padding-left:18px;color:#7a8794"><li style='margin:4px 0'>Spoken-word captions + YouTube chapters (Whisper)</li><li style='margin:4px 0'>Smarter 9:16 framing + best-thumbnail ranking</li><li style='margin:4px 0'>Dead-air trimmer (preview before use; originals never touched)</li></ul>
+  </div>
+</body></html>
