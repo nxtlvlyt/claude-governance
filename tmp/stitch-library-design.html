@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>NXTLVL Post - Content Library</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=Geist:wght@500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "secondary": "#bfc7d3",
+                      "on-surface-variant": "#bcc9c6",
+                      "primary-fixed": "#89f5e7",
+                      "on-error": "#690005",
+                      "surface-variant": "#273647",
+                      "surface-container-highest": "#273647",
+                      "outline-variant": "#3d4947",
+                      "inverse-primary": "#006a61",
+                      "secondary-fixed": "#dbe3f0",
+                      "background": "#051424",
+                      "tertiary-fixed-dim": "#c2c7ce",
+                      "on-background": "#d4e4fa",
+                      "surface-container-high": "#1c2b3c",
+                      "on-surface": "#d4e4fa",
+                      "on-error-container": "#ffdad6",
+                      "secondary-fixed-dim": "#bfc7d3",
+                      "on-primary-container": "#00302b",
+                      "on-secondary-fixed-variant": "#3f4751",
+                      "outline": "#879391",
+                      "error-container": "#93000a",
+                      "on-primary": "#003732",
+                      "error": "#ffb4ab",
+                      "primary": "#6bd8cb",
+                      "secondary-container": "#424a54",
+                      "primary-container": "#29a195",
+                      "tertiary": "#c2c7ce",
+                      "on-secondary": "#29313b",
+                      "primary-fixed-dim": "#6bd8cb",
+                      "surface-container-lowest": "#010f1f",
+                      "on-tertiary-container": "#252a30",
+                      "surface-container": "#122131",
+                      "surface-tint": "#6bd8cb",
+                      "tertiary-fixed": "#dee3ea",
+                      "surface": "#051424",
+                      "tertiary-container": "#8c9198",
+                      "on-secondary-fixed": "#141c25",
+                      "on-tertiary-fixed": "#171c21",
+                      "on-primary-fixed": "#00201d",
+                      "on-primary-fixed-variant": "#005049",
+                      "surface-dim": "#051424",
+                      "on-secondary-container": "#b1b9c5",
+                      "surface-container-low": "#0d1c2d",
+                      "inverse-on-surface": "#233143",
+                      "on-tertiary": "#2c3136",
+                      "on-tertiary-fixed-variant": "#42474d",
+                      "surface-bright": "#2c3a4c",
+                      "inverse-surface": "#d4e4fa"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "margin-mobile": "16px",
+                      "margin-desktop": "48px",
+                      "xs": "4px",
+                      "sm": "8px",
+                      "gutter": "16px",
+                      "xl": "32px",
+                      "md": "16px",
+                      "lg": "24px",
+                      "base": "4px"
+              },
+              "fontFamily": {
+                      "headline-md": [
+                              "Inter"
+                      ],
+                      "display-lg": [
+                              "Inter"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ],
+                      "label-md": [
+                              "Geist"
+                      ],
+                      "headline-lg-mobile": [
+                              "Inter"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "label-sm": [
+                              "Geist"
+                      ],
+                      "headline-sm": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-md": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "28px",
+                              {
+                                      "lineHeight": "34px",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-lg": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-sm": [
+                              "10px",
+                              {
+                                      "lineHeight": "12px",
+                                      "letterSpacing": "0.02em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-sm": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ]
+              }
+            },
+          },
+        }
+      </script>
+<style>
+        /* Custom styles for layout and specific overrides */
+        body {
+            background-color: #10151a; /* Base Level 0 */
+            color: #d4e4fa; /* on-background mapping roughly to #e8edf2 requested */
+        }
+        .card-bg {
+            background-color: #1a222b; /* Level 1 Card */
+        }
+        .overlay-bg {
+            background-color: #242f3b; /* Level 2 Overlay/Chips */
+        }
+        .accent-teal {
+            background-color: #0d9488;
+        }
+        .text-accent-teal {
+            color: #0d9488;
+        }
+        .border-accent-teal {
+            border-color: #0d9488;
+        }
+        
+        /* Subtle interactive border */
+        .interactive-card {
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Hide scrollbar for horizontal lists */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+      </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-[#10151a] min-h-screen text-on-background pb-28 md:pb-8 font-body-md relative antialiased">
+<!-- TopAppBar -->
+<header class="w-full top-0 sticky bg-background dark:bg-background flex justify-between items-center px-margin-mobile h-16 z-50">
+<button class="text-on-surface-variant dark:text-on-surface-variant hover:opacity-80 transition-opacity active:scale-95 duration-150 ease-in-out p-2 -ml-2 rounded-full">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">menu</span>
+</button>
+<div class="font-headline-md text-headline-md font-bold text-on-background dark:text-on-background tracking-tight">
+            NXTLVL Post
+        </div>
+<button class="hover:opacity-80 transition-opacity active:scale-95 duration-150 ease-in-out rounded-full overflow-hidden w-8 h-8 focus:outline-none focus:ring-2 focus:ring-primary">
+<img alt="User Avatar" class="w-full h-full object-cover" data-alt="A professional headshot of a young creator in a well-lit studio environment. High contrast lighting accentuates sharp features against a dark, moody background fitting a high-end corporate aesthetic. The overall tone is authoritative and polished, reflecting a precise, frictionless personal brand. Cool tones dominate the image." src="https://lh3.googleusercontent.com/aida-public/AB6AXuArvZuRZ3q3hy_v8ZMT0VWN-ZGhYMHUaYdpLEtzZinm3odxAK7JR54iJ8xEmG9STXEDzGP8WB4HwGxvU39na09Uvm2Bave8MHV2bsLisg4bJROuKDU3fxJR-9bP3zNTNw04s4snh2HewcjQcNv98X7vbXMpjR2HAPL9I4lOHZry-dcTO1OFcMeWziorHkLD1QOY2YSLY7l6n2Atq-k3jnjBl6ORuls-kxJ3TTcscimwfPkZo78iJb2yOpONzPeTFKyxUUEQTfgXqn2b"/>
+</button>
+</header>
+<!-- Main Content Canvas -->
+<main class="w-full max-w-3xl mx-auto px-margin-mobile mt-4 space-y-4">
+<!-- Expanded Batch Item (Newest) -->
+<article class="card-bg interactive-card rounded-lg overflow-hidden flex flex-col relative before:absolute before:left-0 before:top-0 before:bottom-0 before:w-[2px] before:bg-[#0d9488]">
+<!-- Header Section -->
+<div class="p-4 flex gap-4 cursor-pointer hover:bg-white/5 transition-colors">
+<div class="w-28 h-16 flex-shrink-0 rounded bg-surface-variant overflow-hidden relative">
+<img alt="Vanlife thumbnail" class="w-full h-full object-cover" data-alt="A cinematic, wide-angle shot of a custom camper van parked near a misty pine forest in the Pacific Northwest. Deep, moody dark-mode colors dominate, with subtle teal highlights emphasizing the rugged terrain. The lighting is low and atmospheric, suggesting early morning. High contrast and sharpness convey a professional, high-end editorial style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA1FQ-VCt7cWIAO4GJTzby9Nu9aLOU9OOhXtcswK2qfzmHs05kvscsxO0RBkdPS-j2erAdth2JzZ3UgpxZl1ScDwZKXiocGPDFOjHuVoCiFMoB87FNH6_JQhHvWqemKbeHQ4BfZ_3Mpu3Hk4MeqnPM1Sv-Q2knmC6xm86JbyKNl_g1BxBbeJYLhUqtIqoizQeTzK7yGeq7wNIj2BWRaUhX_5dRJj5lBfHRVojQnK8woi0rwE1dnRqf_njlbQiM7BpMjrgNqajGUGXlO"/>
+<div class="absolute inset-0 bg-black/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-white opacity-80" style="font-variation-settings: 'FILL' 1;">play_circle</span>
+</div>
+</div>
+<div class="flex-1 min-w-0 flex flex-col justify-center">
+<h2 class="font-body-lg text-body-lg font-bold text-on-surface truncate mb-1">Vanlife: 10 Hidden Gem Spots in the PNW</h2>
+<p class="font-label-md text-label-md text-secondary">Oct 24 • #vanlife • Scheduled</p>
+</div>
+<div class="flex items-center">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 0;">expand_less</span>
+</div>
+</div>
+<!-- Expanded Details -->
+<div class="px-4 pb-4 border-t border-white/5 pt-4">
+<!-- Hook Score Panel -->
+<div class="overlay-bg rounded-lg p-3 mb-4 flex items-start gap-3">
+<div class="flex-shrink-0 w-8 h-8 rounded-full accent-teal text-white flex items-center justify-center font-bold text-sm">
+                        8
+                    </div>
+<div class="flex-1">
+<div class="font-label-md text-label-md text-secondary uppercase tracking-wider mb-0.5">Hook Score</div>
+<p class="font-body-md text-body-md text-on-surface">Verdict: High engagement potential in the first 3 seconds.</p>
+</div>
+</div>
+<!-- B-Roll Strip -->
+<div class="mb-4">
+<h3 class="font-label-md text-label-md text-secondary mb-2 uppercase tracking-wide">Source Assets</h3>
+<div class="flex gap-2 overflow-x-auto no-scrollbar pb-2">
+<div class="w-20 h-20 flex-shrink-0 rounded bg-surface-variant overflow-hidden">
+<img alt="B-roll 1" class="w-full h-full object-cover" data-alt="A close-up shot of a steaming cup of coffee resting on a rugged wooden dashboard inside a van. The background shows a blurry, moody forest through the windshield. The lighting is natural and muted, fitting a high-end, precise aesthetic. Deep shadows and subtle highlights create a sense of calm utility." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBxKFiBFUYFShhBhbBgRe5i1RiBSeYAf__b23FeDyzNIGq384z3NNf482r2Bq1Zn2iH9Va8mJjTr4cW8okHVyTjJp6lC5Flla4IYZdycVfB_7JCBYb_2GuK2kOqhWU9zmleFe2feNSR1ksLWZyTrJbTVgqDt5xfzOIZ2pATr2BrkCgt1rdW0s7rdCsIRHQVx7oe9KQucb9pwL-DTndclJC_FV275sEODtvBWDfWb0ZtSjxO_czABZsQRDtm54GgoJb5HlJ95n6tLyZa"/>
+</div>
+<div class="w-20 h-20 flex-shrink-0 rounded bg-surface-variant overflow-hidden">
+<img alt="B-roll 2" class="w-full h-full object-cover" data-alt="A sweeping drone view over a misty, winding road nestled amidst dense, dark pine trees in the Pacific Northwest. The mood is solitary and adventurous, with cool, deep green and teal tones dominating the palette. The high-contrast imagery feels professional and cinematic, perfectly suited for a creator's library." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCpRXfPC-ioQ0bsG9w7a7fIPpvWt5NpG5LtHsWNoOJgCaANx71CxrxCU_yCnzywhnk68nzvXHnWhYkrmcPu7zbHwu5Dxyof6S3NyU79WPe6H7kA6sd4hVE4Oe7OUEQB8968iVAODSrcMjuV4yU0jaSXX0eAxuS-woKT16wSNXX91EtnRZ2X6b2FJXu2TtHrDUCbDRje7rXtbIcdQCoPmv20mqvMXM_t_ID8XwKxTfqyeFZqncDPhy0qI9UwnsZVleslmWZcAp6qmCzY"/>
+</div>
+<div class="w-20 h-20 flex-shrink-0 rounded bg-surface-variant overflow-hidden flex items-center justify-center border border-dashed border-outline-variant">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 0;">add</span>
+</div>
+</div>
+</div>
+<!-- Outputs / Downloads -->
+<div class="mb-4">
+<h3 class="font-label-md text-label-md text-secondary mb-2 uppercase tracking-wide">Rendered Outputs</h3>
+<div class="flex flex-wrap gap-2">
+<button class="overlay-bg hover:bg-surface-variant transition-colors rounded-full px-3 py-1.5 flex items-center gap-1.5 border border-white/5">
+<span class="material-symbols-outlined text-[16px] text-[#0d9488]" style="font-variation-settings: 'FILL' 0;">download</span>
+<span class="font-label-sm text-label-sm text-on-surface">9:16</span>
+</button>
+<button class="overlay-bg hover:bg-surface-variant transition-colors rounded-full px-3 py-1.5 flex items-center gap-1.5 border border-white/5">
+<span class="material-symbols-outlined text-[16px] text-[#0d9488]" style="font-variation-settings: 'FILL' 0;">download</span>
+<span class="font-label-sm text-label-sm text-on-surface">16:9</span>
+</button>
+<button class="overlay-bg hover:bg-surface-variant transition-colors rounded-full px-3 py-1.5 flex items-center gap-1.5 border border-white/5">
+<span class="material-symbols-outlined text-[16px] text-[#0d9488]" style="font-variation-settings: 'FILL' 0;">download</span>
+<span class="font-label-sm text-label-sm text-on-surface">Hook-card</span>
+</button>
+<button class="overlay-bg hover:bg-surface-variant transition-colors rounded-full px-3 py-1.5 flex items-center gap-1.5 border border-white/5">
+<span class="material-symbols-outlined text-[16px] text-[#0d9488]" style="font-variation-settings: 'FILL' 0;">download</span>
+<span class="font-label-sm text-label-sm text-on-surface">Trimmed</span>
+</button>
+</div>
+</div>
+<!-- Platform Cards Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
+<!-- Instagram -->
+<div class="overlay-bg rounded border border-white/5 p-3 flex flex-col justify-between">
+<div>
+<div class="flex justify-between items-start mb-2">
+<span class="font-label-md text-label-md font-bold text-on-surface">Instagram</span>
+<span class="material-symbols-outlined text-[18px] text-[#E1306C]" style="font-variation-settings: 'FILL' 1;">photo_camera</span>
+</div>
+<p class="font-body-md text-body-md text-secondary line-clamp-2 text-sm">Exploring the hidden gems of PNW... #vanlife #adventure</p>
+</div>
+<button class="mt-3 w-full py-1.5 rounded bg-[#10151a] hover:bg-white/5 text-[#0d9488] font-label-md text-label-md border border-[#0d9488]/30 transition-colors flex items-center justify-center gap-1">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 0;">content_copy</span> Copy
+                        </button>
+</div>
+<!-- TikTok -->
+<div class="overlay-bg rounded border border-white/5 p-3 flex flex-col justify-between">
+<div>
+<div class="flex justify-between items-start mb-2">
+<span class="font-label-md text-label-md font-bold text-on-surface">TikTok</span>
+<span class="material-symbols-outlined text-[18px] text-white" style="font-variation-settings: 'FILL' 1;">music_note</span>
+</div>
+<p class="font-body-md text-body-md text-secondary line-clamp-2 text-sm">Top 10 spots you missed in the PNW 🌲🚐</p>
+</div>
+<button class="mt-3 w-full py-1.5 rounded bg-[#10151a] hover:bg-white/5 text-[#0d9488] font-label-md text-label-md border border-[#0d9488]/30 transition-colors flex items-center justify-center gap-1">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 0;">content_copy</span> Copy
+                        </button>
+</div>
+</div>
+</div>
+</article>
+<!-- Collapsed Batch Items -->
+<article class="card-bg interactive-card rounded-lg overflow-hidden flex items-center p-4 gap-4 cursor-pointer hover:bg-white/5 transition-colors">
+<div class="w-28 h-16 flex-shrink-0 rounded bg-surface-variant overflow-hidden">
+<img alt="Tech setup thumbnail" class="w-full h-full object-cover" data-alt="A clean, minimalist desk setup featuring a modern monitor, sleek keyboard, and moody bias lighting. The environment is dark and professional, reflecting a high-end corporate developer aesthetic. Deep shadows contrast with subtle blue and teal LED glows. The composition is precise and frictionless, ideal for a tech creator's library." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD744wtQxcnBG2Yo5q8_zPjyKdhKCaWOFJHqCJyKmkhnquYhOle6gG4pnfsqJFC0jht2YUaTokXbS5xLoAF6gCKjPRHlyGd8Ain8XuZkQYdUrlJwEj0JmEx6WpY9u8v4N5Bwo0skmf1isDSFBoM1pu8NfsMk8CTSGnuvXGqDmoBbgpk5pPHF7ESeykft21TT7uEW_WL37W0aQ38KJb1obdU5s-cJXRHDDGEwa6YCbuC57_dA-Ly0SHezXPdw2AGSiSz5k28IBS1WYNu"/>
+</div>
+<div class="flex-1 min-w-0">
+<h2 class="font-body-lg text-body-lg font-bold text-on-surface truncate mb-1">Desk Setup Tour 2024: Productivity Hacks</h2>
+<p class="font-label-md text-label-md text-secondary">Oct 22 • #tech • Draft</p>
+</div>
+<div class="w-8 h-8 rounded-full overlay-bg flex-shrink-0 flex items-center justify-center border border-[#0d9488]/50">
+<span class="font-label-md text-label-md font-bold text-[#0d9488]">7</span>
+</div>
+</article>
+<article class="card-bg interactive-card rounded-lg overflow-hidden flex items-center p-4 gap-4 cursor-pointer hover:bg-white/5 transition-colors">
+<div class="w-28 h-16 flex-shrink-0 rounded bg-surface-variant overflow-hidden">
+<img alt="Data viz thumbnail" class="w-full h-full object-cover" data-alt="A close-up view of a sleek, dark-themed dashboard on a tablet displaying vibrant, abstract data visualizations. The aesthetic relies on deep space blacks and bright teal accents, suggesting authoritative analytics. The lighting is artificial and precise, highlighting the interface elements against a muted background. High-end corporate styling." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDgHBjb5Y-X5EVGZ03NVZgphepItpZJ0t4jKTHmfxfnd3wbhTEsMLEQjEqmAc8vTPUTHd12GbWH2J5_6pv3jIgWJ27tAkY3QgjRs2gSOllmMgm6uq7Qe64CxUUvQ0bx7eYtUumk60kki4ls_tyGlFPpe97kSeE0XeTOe4SAw8MtbNgJkc4pN6LXIHZDplC5i5V7htyyDoNEv4f7gAESPdS1o3O5pj3k9z1OYKeQBDA1eqSiUVnU-rYhXSN8cYk0sB7S0eNv7_0oAexY"/>
+</div>
+<div class="flex-1 min-w-0">
+<h2 class="font-body-lg text-body-lg font-bold text-on-surface truncate mb-1">How to Read Analytics Like a Pro</h2>
+<p class="font-label-md text-label-md text-secondary">Oct 20 • #education • Published</p>
+</div>
+<div class="w-8 h-8 rounded-full accent-teal flex-shrink-0 flex items-center justify-center shadow-[0_0_15px_rgba(13,148,136,0.3)]">
+<span class="font-label-md text-label-md font-bold text-white">9</span>
+</div>
+</article>
+</main>
+<!-- Floating Action Button -->
+<button class="fixed bottom-[88px] md:bottom-8 right-4 w-14 h-14 rounded-full accent-teal text-white flex items-center justify-center shadow-[0_4px_20px_rgba(0,0,0,0.4)] hover:scale-105 active:scale-95 transition-transform z-40 group">
+<span class="material-symbols-outlined text-[28px] group-hover:rotate-90 transition-transform duration-300" style="font-variation-settings: 'FILL' 0;">add</span>
+</button>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-2 pb-6 pt-2 bg-surface-container-low dark:bg-surface-container-low shadow-sm rounded-t-xl md:hidden">
+<!-- Active Tab: Library -->
+<a class="flex flex-col items-center justify-center bg-primary-container dark:bg-primary-container text-on-primary-container dark:text-on-primary-container rounded-xl px-4 py-1.5 active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">folder_open</span>
+<span class="font-label-md text-label-md">Library</span>
+</a>
+<!-- Inactive Tabs -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-secondary-fixed-dim px-4 py-1.5 hover:bg-surface-variant dark:hover:bg-surface-variant rounded-xl active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 0;">query_stats</span>
+<span class="font-label-md text-label-md">Analytics</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-secondary-fixed-dim px-4 py-1.5 hover:bg-surface-variant dark:hover:bg-surface-variant rounded-xl active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 0;">calendar_today</span>
+<span class="font-label-md text-label-md">Schedule</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-secondary-fixed-dim px-4 py-1.5 hover:bg-surface-variant dark:hover:bg-surface-variant rounded-xl active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 0;">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+</nav>
+</body></html>
