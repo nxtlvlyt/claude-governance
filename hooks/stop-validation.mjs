@@ -195,6 +195,50 @@ Emit the tool call you described, OR remove the claim and state the true state p
   }
 } catch { /* fail-open */ }
 
+// OPERATOR-AS-GATE / ATTEMPT-EVIDENCE GATE (2026-06-15; laguna code-witness REVISE-incorporated: null-guard added;
+// dual code-span strip KEPT per Fix-2 L170 — strips fenced AND inline spans, not redundant; narrowing DECLINED per
+// drift-and-ratchet.md "fire MORE, never narrow, false-positives accepted by design").
+// fm11-parallel: as fm11 DENIES a memory-assertion without a current-session Read, this DENIES a handoff-to-operator
+// claim without attempt-evidence. Closes the hole the defer-reflex uses: phrasing the handoff as a FACTUAL CONCLUSION
+// (identity-bound / your-task / on-you / only-you-can) — a statement (not a question) the deferral/stop-language clauses
+// miss. Receipt: muddytires apex was called the operator's dashboard task; it was doable via wrangler's OAuth token —
+// the shallow check was the tell. Identity-bound is NOT auto-exempt (that was the loophole). Attempt = a real autonomous
+// tool call THIS turn (Bash/PowerShell/WebFetch/WebSearch/mcp__ollama|gemini|gpt|grok|glm) OR a cited "attempted:" marker.
+// Release forms ("nothing needed from you") are the sanctioned close, never blocked. Strand-guard: FAIL-OPEN after 3.
+try {
+  const ogClean = lastAssistantText.replace(/```[\s\S]*?```/g, ' ').replace(/`[^`]*`/g, ' ');
+  const ogRelease = /\bnothing\s+(?:else\s+)?(?:needed|required|for you|on you|from you)\b/i.test(ogClean);
+  const ogHandoff = !ogRelease && (
+    /\byour task\b/i.test(ogClean) || /\bon (?:you|the operator)\b/i.test(ogClean)
+    || /\bidentity[- ]bound\b/i.test(ogClean) || /\bonly you can\b/i.test(ogClean)
+    || /\b(?:needs?|requires?)\s+your\b/i.test(ogClean) || /\bis yours to\b/i.test(ogClean)
+    || /\boperator(?:'s)?\s+(?:task|action|to do|dashboard|job)\b/i.test(ogClean)
+    || /\byour (?:dashboard|login|credential|account|go-ahead)\b/i.test(ogClean) || /\bdashboard action\b/i.test(ogClean)
+  );
+  const ogAttemptTool = (lastTurnToolUses || []).some(n => /^(Bash|PowerShell|WebFetch|WebSearch)$/.test(n) || /^mcp__(ollama|gemini|gpt|grok|glm)/i.test(n));
+  const ogAttemptMarker = /\battempted\s*:|\bexhausted\s*:|\battempt-evidence\b|autonomous path (?:tried|exhausted|hit)/i.test(lastAssistantText);
+  const ogTrigger = ogHandoff && !ogAttemptTool && !ogAttemptMarker;
+  const ogFile = inp.session_id ? join(os.homedir(), '.claude', 'state', `operatorgate-ratchet-${inp.session_id}.txt`) : null;
+  if (ogTrigger) {
+    let ogCount = 0;
+    if (ogFile && existsSync(ogFile)) { try { ogCount = parseInt(readFileSync(ogFile, 'utf8').trim(), 10) || 0; } catch { ogCount = 0; } }
+    if (ogCount >= 3) {
+      process.stderr.write(`stop-validation: operator-as-gate FAIL-OPEN after ${ogCount} consecutive blocks (strand guard)\n`);
+      if (ogFile) { try { writeFileSync(ogFile, '0'); } catch { /* ok */ } }
+    } else {
+      if (ogFile) { try { writeFileSync(ogFile, String(ogCount + 1)); } catch { /* ok */ } }
+      process.stdout.write(JSON.stringify({ decision: 'block', reason: `OPERATOR-AS-GATE / ATTEMPT-EVIDENCE GATE (~/.claude/hooks/stop-validation.mjs).
+
+This turn hands a task to the operator (your-task / on-you / identity-bound / only-you-can / needs-your-X / dashboard-action) WITHOUT attempt-evidence — the operator-as-gate drift recorded in failure_log.md + operator-as-gate-recurs-structurally.md.
+
+Before handing anything to the operator: SHOW the autonomous attempt (a Bash / API / CLI / search / dispatch tool call THIS turn that hit a real wall), OR cite it verbatim with an "attempted:" marker naming WHAT you tried and the EXACT wall. "Identity-bound" is NOT an auto-exemption — prove it (the muddytires apex was wrongly called the operator's task and turned out doable via the OAuth token). If genuinely released, say "nothing needed from you".` }));
+      process.exit(0);
+    }
+  } else if (ogFile && existsSync(ogFile)) {
+    try { writeFileSync(ogFile, '0'); } catch { /* ok */ } // reset consecutive counter on any clean/exempt turn
+  }
+} catch { /* fail-open */ }
+
 // Structural deferral-shape OR-clause (chain-approved 2026-05-29, 6/6 deliberation; granite C1/C3 blocking; laguna witness APPROVE).
 // Model-agnostic: catches the SHAPE of a stall the fixed word list misses (the false-negative that dominates across models).
 // ADDITIVE — fires MORE, never narrows the word list; NO quote/code normalizer (that is the documented bypass, drift-and-ratchet.md).
