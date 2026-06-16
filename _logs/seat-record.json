@@ -1,0 +1,18 @@
+{
+  "seats": {
+    "deepseek-v4-pro": {
+      "verdict": {
+        "pass": 1,
+        "miss": 0,
+        "fabrication": 0
+      }
+    },
+    "minimax-m3": {
+      "verdict": {
+        "pass": 0,
+        "miss": 0,
+        "fabrication": 1
+      }
+    }
+  }
+}
