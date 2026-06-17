@@ -239,6 +239,55 @@ Before handing anything to the operator: SHOW the autonomous attempt (a Bash / A
   }
 } catch { /* fail-open */ }
 
+// PARK-WITHOUT-RECEIPT GATE (2026-06-17; root-cause fix for the conductor park/throttle reflex — chain-verified,
+// feedback_conductor_park_reflex_rootcause.md; laguna code-witness APPROVE). Sibling to the operator-as-gate clause
+// above: as that DENIES a handoff-to-operator without attempt-evidence, this DENIES a "parked / quarantined /
+// blocked-pending" claim without a DEED (a mission queued THIS turn) or a verbatim FAILED-x2 receipt. Closes the
+// unguarded CONSTRUCT verb — the conductor's park decision surfaces as text ("quarantining X", "holding pending Y",
+// "blocked pending engine batch") but no gate had jurisdiction over deciding NOT to queue. Inverts the default:
+// PARKING costs the same proof as PROCEEDING. Additive (fire MORE, never narrow). Strand-guard: FAIL-OPEN after 3.
+// pkQueued is intentionally COARSE — any mission/AUTORUN write this turn clears it (a turn that queues anything is not
+// the pure-park failure mode); per-mission-ID correlation declined to avoid prose-parse false-positives. Receipt regex
+// kept STRICT on purpose: a missed receipt fails toward BLOCKING the park (the intended bias), never toward allowing it.
+try {
+  const pkClean = lastAssistantText.replace(/```[\s\S]*?```/g, ' ').replace(/`[^`]*`/g, ' ');
+  const pkPark = (
+    /\bquarantin\w+/i.test(pkClean)
+    || /\bpark(?:ed|ing)?\b[^.?!\n]{0,30}\b(?:this|the|that|it|mission|work|missions|pending|until)\b/i.test(pkClean)
+    || /\bhold(?:ing|s)?\b[^.?!\n]{0,20}\b(?:pending|until|back|off)\b/i.test(pkClean)
+    || /\bblocked?\s+pending\b/i.test(pkClean)
+    || /\b(?:can(?:'?t|not)|won'?t|will not)\s+(?:queue|fire|ship|run|proceed)\b[^.?!\n]{0,30}\b(?:until|without|pending)\b/i.test(pkClean)
+  );
+  // a DEED this turn: a mission file or AUTORUN written/edited (the queue act that parking avoids)
+  const pkQueued = (lastTurnToolUseBlocks || []).some(b => {
+    if (!/^(Write|Edit)$/.test(b.name || '')) return false;
+    const fp = String(b.input?.file_path || '');
+    return /AUTORUN\.md$/i.test(fp) || /[\\/]missions[\\/][^\\/]*\.mission\.txt$/i.test(fp);
+  });
+  // the ONLY sanctioned reason to park: a real second-attempt failure receipt, cited verbatim
+  const pkReceipt = /FAILED\s*\(?x?2\)?|FAILED-x2|failed\s+twice|attempt\s*2[^.?!\n]{0,30}fail/i.test(lastAssistantText);
+  const pkTrigger = pkPark && !pkQueued && !pkReceipt;
+  const pkFile = inp.session_id ? join(os.homedir(), '.claude', 'state', `parkgate-ratchet-${inp.session_id}.txt`) : null;
+  if (pkTrigger) {
+    let pkCount = 0;
+    if (pkFile && existsSync(pkFile)) { try { pkCount = parseInt(readFileSync(pkFile, 'utf8').trim(), 10) || 0; } catch { pkCount = 0; } }
+    if (pkCount >= 3) {
+      process.stderr.write(`stop-validation: park-gate FAIL-OPEN after ${pkCount} consecutive blocks (strand guard)\n`);
+      if (pkFile) { try { writeFileSync(pkFile, '0'); } catch { /* ok */ } }
+    } else {
+      if (pkFile) { try { writeFileSync(pkFile, String(pkCount + 1)); } catch { /* ok */ } }
+      process.stdout.write(JSON.stringify({ decision: 'block', reason: `PARK-WITHOUT-RECEIPT GATE (~/.claude/hooks/stop-validation.mjs).
+
+This turn PARKS / QUARANTINES / HOLDS a mission (or says it cannot queue/fire/ship pending something) WITHOUT either (a) a mission QUEUED this turn — a Write/Edit to AUTORUN.md or a *.mission.txt — or (b) a verbatim FAILED-x2 receipt. This is the conductor park/throttle reflex (feedback_conductor_park_reflex_rootcause.md): the default must be QUEUE, not PARK.
+
+Before parking anything: QUEUE the mission (append to AUTORUN / write the mission file) and let the engine prove whether it fails, OR cite the verbatim FAILED-x2 receipt from mission-events that justifies the block. A mission without a second FAILED receipt is a mission to FIRE.` }));
+      process.exit(0);
+    }
+  } else if (pkFile && existsSync(pkFile)) {
+    try { writeFileSync(pkFile, '0'); } catch { /* ok */ } // reset consecutive counter on any clean/exempt turn
+  }
+} catch { /* fail-open */ }
+
 // Structural deferral-shape OR-clause (chain-approved 2026-05-29, 6/6 deliberation; granite C1/C3 blocking; laguna witness APPROVE).
 // Model-agnostic: catches the SHAPE of a stall the fixed word list misses (the false-negative that dominates across models).
 // ADDITIVE — fires MORE, never narrows the word list; NO quote/code normalizer (that is the documented bypass, drift-and-ratchet.md).
