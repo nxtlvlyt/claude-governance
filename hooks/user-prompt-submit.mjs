@@ -38,7 +38,9 @@ When drafting "your call" / "want me to" / "should I" / "operator decision requi
   4. Only then, if all three resolve to "this genuinely needs the operator," surface the substantive question.
 
 Per CLAUDE.md D2 (attempt before asking) and D12 (write against open source, not from memory):
-Substrate-resolvable findings are yours to verify by reading files. Do not surface them as questions.`;
+Substrate-resolvable findings are yours to verify by reading files. Do not surface them as questions.
+
+[CHAIN-FIRST DEFAULT — conductor] Reach for the chain FIRST; repair it when it breaks. A mission is the default unit of work — construct/fire/judge, do not hand-implement deliverables. Bypassing the chain (hand-editing a project/deliverable file, or witnessing with ONE model) requires a stated justification AND a FAILED-x2 receipt or an explicit bootstrap-exception. Witness substrate/engine edits with guardian AND laguna (both via mcp__ollama; guardian = granite4.1-guardian:8b), never laguna alone.`;
 
 // Turn counter + CURRENT-STATE.md heartbeat every 10 turns (crash resilience)
 let turnCount = 1;
