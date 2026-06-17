@@ -1,1 +1,1 @@
-{"timestamp":"2026-06-17T15:15:32.520Z","path":"npm-global","outcome":"success","status":"success","version_from":"2.1.170","version_to":"2.1.179","error_code":null}
+{"timestamp":"2026-06-17T15:45:31.422Z","path":"npm-global","outcome":"failed","status":"install_failed","version_from":"2.1.170","version_to":"2.1.179","error_code":"update_apply_exe_locked"}
