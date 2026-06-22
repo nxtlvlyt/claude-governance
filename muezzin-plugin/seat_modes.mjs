@@ -68,7 +68,11 @@ const TABLE = {
     // verified by a DIFFERENT lab/infrastructure (diversity is the point; producer != verifier).
     validator: 'deepseek-v4-pro',
     auditor: 'minimax-m3',
-    witness: 'nemotron-3-super',                                   // keep witness strong (Opus-first via CLAUDE_SEAT_MAP)
+    // 2026-06-22: aligned with model_rijal.mjs:359 — ultra is the CHOSEN cloud
+    // witness (operator's 2026-06-09 ruling); super stays as established LOCAL
+    // fallback for the final-verdict channel. Prior 'nemotron-3-super' name here
+    // was a stale assignment from before the rijal cloud/local split.
+    witness: 'nemotron-3-ultra',
   },
   'local-heavy': {
     // ~ZERO CLAUDE: local + cloud ollama only. Architects = the 4090's locals + nemotron
