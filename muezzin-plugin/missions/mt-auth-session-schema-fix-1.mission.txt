@@ -1,0 +1,44 @@
+MISSION-CLASS: code-repo
+MISSION-ID: M-MUDDYTIRES.AUTH-SESSION-SCHEMA-FIX-1
+REPO-ROOT: E:\AI_Storage\muddytires-frontend-wt
+ALLOW-FILES:
+  - workers/auth-accounts.js
+REQUIRES: none (auth-accounts.js is committed; this is the only frontend-wt mission when fired — run it ALONE, no concurrent frontend-wt mission, the daemon does NOT honor REQUIRES so the conductor fires it solo)
+
+Niyyah: the token-auth worker was written against a session table that does not exist. The real database hashes session tokens and
+tracks revocation; the code assumed a plaintext-token table by a different name. So every signup and login throws. Make the worker speak
+the database's actual language — verified against the real schema, not an assumed one — so a traveller can finally make an account.
+
+Maqsad: fix workers/auth-accounts.js so signup/login/me/logout WORK against the REAL muddytires-accounts D1 schema. "Done" is: the worker
+creates + validates + revokes sessions against the actual `user_sessions` table, signup returns a token, login returns a token, /me with
+that Bearer token returns the user, logout revokes it — proven by node --check + (conductor) a live curl token-flow test returning 200s,
+not 1101. Committed. NOT deployed (conductor deploys the worker + runs the live token-flow test).
+
+Context (facts only — VERIFIED this session via `wrangler d1 execute muddytires-accounts --remote PRAGMA`):
+- REAL `user_sessions` schema: id, user_id, token_hash, created_at, expires_at, revoked. The token is stored HASHED in token_hash (NOT
+  plaintext), there is a `revoked` flag, and `id` is the row id (NOT the token). The current code WRONGLY uses table `sessions` with
+  columns (id, user_id, expires_at) and stores the raw token as `id` — table doesn't exist -> 1101 on every session op (4 references:
+  createSession INSERT line ~67, currentUser SELECT ~79, getUser SELECT ~97, logout DELETE ~170).
+- REAL `users` schema: id, email, password_hash, salt, role, status, created_at, last_login_at. register() currently INSERTs (email,
+  password_hash, created_at) storing `${salt}:${hash}` in password_hash. VERIFY this INSERT succeeds against the real table (role/status
+  may need values if NOT NULL without defaults) — if it throws, populate the real columns (use the dedicated `salt` column; set role/status
+  to sensible defaults like 'user'/'active').
+- THE FIX (behavior — the seat writes it, hashing included):
+  * createSession: generate a random token; HASH it (the existing hashPassword/crypto.subtle SHA-256 helper pattern is available); INSERT
+    INTO user_sessions (user_id, token_hash, created_at, expires_at, revoked) VALUES (?, <hash>, ?, ?, 0); RETURN the RAW token (client
+    holds raw, DB holds hash).
+  * getUser + currentUser: hash the presented token, SELECT ... JOIN users ON user_id WHERE token_hash = ? AND expires_at > ? AND
+    revoked = 0.
+  * logout: UPDATE user_sessions SET revoked = 1 WHERE token_hash = <hash of presented token> (or DELETE) — by the hashed token, not id.
+- The route fix (/signup accepted) is already in (conductor commit c9222b6) — do not revert it. The Authorization-in-Allow-Headers is
+  already correct. This mission is ONLY the session/users schema correctness.
+- COMMIT DISCIPLINE: explicit `git add workers/auth-accounts.js` — NEVER `git add .`. commit --no-verify.
+- Out of scope: the deploy + live test (conductor); the frontend (account.js/add-spot already send the Bearer token correctly); POI work.
+
+Done means (acceptance contract): all session ops use `user_sessions` with token_hash (hashed) + revoked; the users INSERT matches the
+real schema; node --check passes; committed via explicit per-file git add, --no-verify; NOT deployed. Receipt names the conductor
+deploy + live curl token-flow re-test (signup 201 + token, /me 200 with the user, login 200) as the proof.
+
+Constraints: code-repo in frontend-wt; writes ONLY workers/auth-accounts.js; match the REAL schema (verified above — do not assume);
+hash tokens (never store plaintext); explicit per-file git add (never -A); commit --no-verify; run SOLO (no concurrent frontend-wt
+mission — daemon ignores REQUIRES).

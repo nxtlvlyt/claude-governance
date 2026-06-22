@@ -1,0 +1,35 @@
+MISSION-CLASS: code-repo (small ADDITIVE edit to ONE worker file + redeploy the NON-PROD test worker + positive-assertion verify; live muddytires.ca / prod Pages / prod workers / pois+oracle data all UNTOUCHED)
+MISSION-ID: M-MUDDYTIRES.ORACLE-UI-CONTRACT.1
+REPO-ROOT: E:\AI_Storage\muddytires-oracle-wt
+ALLOW-FILES: workers/oracle-d1.js
+
+# WHY (substrate, verified 2026-06-17 01:05): the LIVE prod site E:\AI_Storage\muddytires-pages\index.html ALREADY has a full
+# Oracle UI — nnOracle() (line 120, the sourced-answer panel + "Ask the Oracle"), nnAsk() (line 121), nnFillOracle() (line 134)
+# — but ALL THREE fetch the dead `oracle.php` (PHP serves as plaintext on Pages post-migration) and ALL expect response shape
+# { ok:true, answers:[ {q, verdict, detail, source}, ... ] }. The LIVE D1 worker workers/oracle-d1.js (deployed at
+# https://muddytires-oracle-d1-test.regulativity.workers.dev, verified 13 camping_legal_rule + 155 park_boundaries) instead
+# returns { ok, location, camping, park, fire, services }. Its park/camping branches ALREADY carry {q,verdict,detail,source}
+# (oracle-d1.js ~lines 154-161). This mission makes the worker ALSO emit the answers[] array the existing UI contract expects —
+# purely ADDITIVE — so a later TRIVIAL frontend mission only has to repoint oracle.php -> the worker URL (3 occurrences).
+
+Niyyah: revive the muddytires Oracle for users by making the live grounding worker speak the EXACT response contract the
+already-built (but PHP-dead) prod UI expects — additively, without breaking the worker's current shape or touching anything live.
+
+Maqsad: ONE deliverable — workers/oracle-d1.js returns an ADDITIVE top-level `answers` array (ALONGSIDE its existing
+location/camping/park/fire/services keys) for GET ?lat=&lng=, where each element is { q, verdict (optional), detail, source }
+built from the worker's OWN already-computed branches: the park answer, the camping-rule answer (Crown-land legality), the
+fire answer (degraded honestly), and one element per nearby service. EVERY element carries its source (ISNAD); the fire
+element's source stays null and never says "safe" (TAQWA preserved). Redeploy the NON-PROD test worker (wrangler.oracle.toml,
+workers_dev) and PROVE it. Done means (positive-assertion, EXIT NON-ZERO on absence):
+1. A live GET to the redeployed test worker with an Ontario point (lat=45.8&lng=-78.4) returns ok:true AND a NON-EMPTY
+   answers[] whose elements each have q, detail, and a non-null source; the camping answer carries the Crown-land source_url;
+   the fire answer's source is null and never contains the word "safe".
+2. The worker's EXISTING keys (camping, park, fire, services) are STILL present in the same response (additive — nothing removed).
+3. /?count still returns camping_legal_rule:13, park_boundaries:155 (response-shaping only; no data/schema touch).
+If the worker can't be reached or answers[] is empty on that known-good point, FAIL HONESTLY with the URL + the raw response.
+
+Constraints: ADDITIVE (keep ALL current worker keys; only ADD answers[]); ONE file (workers/oracle-d1.js); redeploy ONLY the
+TEST worker via wrangler.oracle.toml (workers_dev) — NEVER the prod read/write workers, NEVER muddytires.ca / DNS / Pages,
+NEVER the pois / camping_legal_rule / park_boundaries data; positive-assertion verify against the REAL redeployed worker (not
+a local mock); commit workers/oracle-d1.js --no-verify. Keep the plan SMALL (single-file edit + deploy + verify + 1 doc line) —
+do NOT split, do NOT expand.

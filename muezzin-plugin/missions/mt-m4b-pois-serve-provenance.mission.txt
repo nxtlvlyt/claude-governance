@@ -1,0 +1,31 @@
+MISSION-CLASS: code-repo
+MISSION-ID: M-MUDDYTIRES.M4B-POIS-SERVE-PROVENANCE
+REPO-ROOT: E:\AI_Storage\muddytires-frontend-wt
+ALLOW-FILES:
+  - functions/pois.json.js
+REQUIRES: M4a applied (pois table has source_url/source_name/fetched_at/confidence). CONDUCTOR confirms M4a DONE before firing this (the daemon ignores REQUIRES).
+
+Niyyah: the provenance columns now exist in D1 but the POI API does not serve them, so the card layer has nothing to read. Additively include the four fields in the served GeoJSON properties — zero change to existing fields or the community path.
+
+Maqsad: edit functions/pois.json.js so the `pois` SELECTs and the toPoiFeature builder include source_url/source_name/fetched_at/confidence in each POI Feature's properties. Priority-A item M4 (serve half). Additive only.
+
+Context (facts only — VERIFIED via an Explore survey of this repo this session, file:line):
+- functions/pois.json.js uses EXPLICIT column SELECTs (NOT `SELECT *`). The two POIS selects are:
+    * list mode ~L72-76:    SELECT id, name, node_type, lat, lng, note, amenities, photo, contributor, meta_json FROM pois WHERE ... [typeClause][campClause]
+    * cluster/default ~L106-109: SELECT id, name, node_type, lat, lng, note, amenities, photo, contributor, meta_json FROM pois WHERE ... [typeClause][campClause] LIMIT 4000
+  ADD `, source_url, source_name, fetched_at, confidence` to BOTH of these pois SELECT column lists (after meta_json).
+- toPoiFeature(row, unameMap) ~L169-185 builds properties: { id, node_type, name, note, amenities, photo, contributor_username, by, meta }. ADD four keys: source_url: row.source_url, source_name: row.source_name, fetched_at: row.fetched_at, confidence: row.confidence.
+- DO NOT touch the community_spot SELECT (~L44-47) or the community/reviews paths. community_spot has no source_* columns; community spots carry CONTRIBUTOR provenance, not OSM source_*. Leaving their source_* undefined (-> null in JSON) is correct and honest.
+- After M4a the pois rows carry source_name='OpenStreetMap', source_url set, fetched_at NULL, confidence 'UNVERIFIED'. Serving them is purely additive — existing properties and behavior unchanged.
+- PREVIEW-ONLY: any deploy is to the d1-preview alias for verification, NEVER the apex.
+
+Steps:
+  1. (edit) Add `, source_url, source_name, fetched_at, confidence` to BOTH pois SELECT column lists (list mode ~L73 + cluster/default ~L107). Do NOT alter the community_spot SELECT.
+  2. (edit) In toPoiFeature, add source_url/source_name/fetched_at/confidence to the returned properties object (reading row.source_url / row.source_name / row.fetched_at / row.confidence).
+  3. (verify) node --check functions/pois.json.js  (must pass).
+  4. (verify) grep functions/pois.json.js to confirm both pois SELECTs and toPoiFeature now contain all four field names.
+  5. (commit) git add functions/pois.json.js ; git commit --no-verify -m "M4b: serve POI provenance fields (source_url/source_name/fetched_at/confidence) in pois.json GeoJSON"
+
+Done means (acceptance contract): functions/pois.json.js serves the four provenance fields in POI Feature properties for BOTH query modes; the community_spot path is untouched; node --check passes; committed via explicit per-file git add + --no-verify. Receipt shows a grep/diff proving the four fields are in both pois SELECTs and in toPoiFeature.
+
+Constraints: code-repo in frontend-wt; writes ONLY functions/pois.json.js; ADDITIVE (do not remove/rename existing properties; do not touch the community_spot path or other functions); preview-only (no apex deploy); explicit per-file git add (never -A); commit --no-verify.

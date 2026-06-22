@@ -1,0 +1,34 @@
+MISSION-CLASS: code-repo (render ONE PHP template to a static .html on a CLEAN worktree + positive-assertion verify + commit; SMALL file; NO deploy; live muddytires.ca / prod Pages / DNS UNTOUCHED)
+MISSION-ID: M-MUDDYTIRES.MIGRATE-ABOUT.1
+REPO-ROOT: E:\AI_Storage\muddytires-frontend-wt
+ALLOW-FILES: about.html
+
+# WHY (half-migration finding): about.php is still PHP (dead on Pages -> dead nav link). It is mostly static (1 php block:
+# brand/desc/url interpolation + canonical/og). Render it to static about.html so the nav works. Same .php->static pattern as
+# migrate-partners-1.
+
+Niyyah: finish the migration for the About page by rendering its own in-file content + template to static HTML, nav repointed,
+no content invented.
+
+# GROUND-IN TRIMMED 2026-06-17 (re-plan-loop fix): faithful .php->static RENDER — the 18KB COMPETITOR-MASTER + KB read-load was
+# dead weight (same class as partners-1). The no-fabrication discipline (render ONLY about.php's real copy) is already in the
+# Maqsad. Competitor-positioning grounding stays on the content/UI missions, not faithful conversions.
+
+Maqsad: ONE deliverable — about.html: a faithful STATIC render of about.php. Steps:
+1. READ about.php (REPO-ROOT). Author about.html as the fully-evaluated static HTML it would output (brand 'Muddy Tires',
+   the real About copy/sections from about.php, canonical/og filled in). ZERO PHP: no <?php, no <?=, no $variables.
+2. REPOINT the shared nav for the static site: index.html -> map.html (Live Map / Open map); guides.php -> guides.html;
+   about.php -> about.html (self); partners.php -> partners.html; landing.php -> index.html.
+3. VERIFY (positive-assertion, EXIT NON-ZERO on absence): about.html exists; ZERO php tags (grep '<?php' and '<?=' absent);
+   carries the real About copy from about.php (assert a distinctive sentence/heading from about.php is present — read it, don't
+   invent); nav has no 'href="index.html"' and no '.php"' nav links remaining.
+4. STAGE THEN COMMIT (about.html is a NEW untracked file — it MUST be `git add`-ed first or the commit is HOLLOW: "nothing added
+   to commit but untracked files present" was partners-1's FAILED-x2 cause). Run VERBATIM:
+   git add about.html; git commit --no-verify -m "migrate about.php -> static about.html (finish PHP->Pages migration)"
+   Then assert: git log -1 --name-only must list about.html (EXIT 1 if not).
+
+Done means: about.html is valid static HTML faithfully rendering about.php's real content with nav repointed; committed on
+branch oracle-frontend-swap; NO deploy; live untouched. If about.php can't be read, FAIL HONESTLY (do not invent About copy).
+
+Constraints: STATIC output (zero php tags); render ONLY about.php's real content (no fabrication — witness rejects invented
+copy); ONE small file; positive-assertion verify; commit --no-verify; NO deploy; live untouched; keep the plan small, no split.

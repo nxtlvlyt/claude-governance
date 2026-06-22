@@ -1,0 +1,61 @@
+MISSION-CLASS: research (authoring .md deliverables — INDEX/PATTERNS/cards — + ingest commands, on SMALL local card inputs; research-class is REQUIRED because it delivers .md artifacts per mission_lint RULE — build-program tripped md-deliverable-without-research-class when split)
+MISSION-ID: M-CORPUS.LIBRARY-INGEST.1
+REPO-ROOT: n/a (operates on missions/card-*/ + missions/*-knowledge/ card files, all local; writes to missions/_knowledge-base/)
+REQUIRES: AnythingLLM reachable at localhost:3001 + a valid API key (memory feedback_anythingllm_rag_config has the config; if the key is missing/unauthorized, HALT the ingest stage with the exact missing-credential receipt — do NOT fake an ingest).
+# Operator 2026-06-16 06:41 ("is the website-pipeline ingestion done?"): NO — the cards are mined (8 on disk) but never
+# assembled into a library or ingested into AnythingLLM, so the KB is NOT queryable. This is the FINISH the session
+# never reached (corpus-complete-1 is BLOCKED; the night went into the engine). Inputs are SMALL card files (21-263
+# lines each), so this avoids the large-repo fabrication that broke nfl-predictions.
+
+Niyyah: the paid-for knowledge is useless while it sits scattered and un-queryable. Make the 8 mined cards into ONE
+indexed library an agent reaches by a known path, AND ingest it where the operator can simply ASK "what can muddytires
+learn from our knowledge base" and get an answer cited to the cards. The operator's original goal, finally finished.
+
+Maqsad: a single queryable knowledge base from the mined cards — (a) a consolidated indexed library on disk, and (b)
+ingested into AnythingLLM and PROVEN by the operator's own example query returning a cited answer.
+
+STAGES (each receipted; SMALL single-subject steps — the engine's proven shape):
+# ROOT-CAUSE FIX 2026-06-16 (7 prior FAILs, all the same shape — diagnosed from the sandbox receipts, NOT guessed):
+#   (a) the architect re-emitted RELATIVE copy sources (Copy-Item missions/card-2boots/...) but the cards do NOT live
+#       under the sandbox cwd — a relative source copies NOTHING -> cards/ EMPTY ("cards:0" / the 09:37 witness flag).
+#   (b) the two website-knowledge-card.md sources collide on one flat filename -> the 2nd overwrites the 1st -> 7 not 8.
+#   (c) the seat then AUTHORED INDEX/PATTERNS against the empty/short dir, fabricating rows for cards that don't exist
+#       on disk -> the per-step witness CORRECTLY rejected (steps 2/3, repaired:0). The witness was right; the input was
+#       broken. So the fix is in STAGE 1's EXECUTION, not the design (the design APPROVED 4x). Below DICTATES the copy.
+1. ASSEMBLE — run this EXACT PowerShell verbatim. Do NOT rewrite the source paths to relative (that is failure (a)); the
+   cards live at these ABSOLUTE locations, never under the sandbox cwd. The dest is the SANDBOX-RELATIVE _knowledge-base\cards\
+   (writable, persists across this mission's steps). The last two sources share a filename — they are copied under DISTINCT
+   dest names (fixing failure (b)). These are FILES, never directories (EISDIR guard):
+     New-Item -ItemType Directory -Force _knowledge-base\cards | Out-Null
+     Copy-Item -LiteralPath 'C:\Users\marka\.claude\muezzin-plugin\missions\card-2boots\pattern-card-2boots.md'                   -Destination _knowledge-base\cards\ -Force
+     Copy-Item -LiteralPath 'C:\Users\marka\.claude\muezzin-plugin\missions\card-tidaltreasures\card-tidaltreasures.md'           -Destination _knowledge-base\cards\ -Force
+     Copy-Item -LiteralPath 'C:\Users\marka\.claude\muezzin-plugin\missions\card-vanlife-muddy\pattern-card-vanlife-muddytires.md' -Destination _knowledge-base\cards\ -Force
+     Copy-Item -LiteralPath 'C:\Users\marka\.claude\muezzin-plugin\missions\card-cgsports\card-cgsports-part-stack.md'            -Destination _knowledge-base\cards\ -Force
+     Copy-Item -LiteralPath 'C:\Users\marka\.claude\muezzin-plugin\missions\card-nxtlvl-portal\card-nxtlvl-portal-build.md'       -Destination _knowledge-base\cards\ -Force
+     Copy-Item -LiteralPath 'C:\Users\marka\.claude\muezzin-plugin\missions\card-regulativity\pattern-card-regulativity.md'       -Destination _knowledge-base\cards\ -Force
+     Copy-Item -LiteralPath 'C:\Users\marka\.claude\muezzin-plugin\missions\books-website-knowledge\website-knowledge-card.md'    -Destination _knowledge-base\cards\book-website-knowledge.md -Force
+     Copy-Item -LiteralPath 'C:\Users\marka\.claude\muezzin-plugin\missions\damm-books-assembly\website-knowledge-card.md'        -Destination _knowledge-base\cards\damm-website-knowledge.md -Force
+   Receipt: _knowledge-base\cards\ holds exactly 8 .md FILES.
+2. HARD GATE (the anti-empty-authoring gate — failure (c)'s cure): run verbatim —
+     if (((Get-ChildItem _knowledge-base\cards\*.md) | Measure-Object).Count -ne 8) { throw 'ASSEMBLE FAILED: cards/ does not hold 8 .md files — HALT; never author against an empty/short library' }
+   Receipt: the gate passes (exactly 8 cards present). If it throws, the mission FAILS HERE — that is correct; do NOT
+   proceed to author INDEX/PATTERNS against a broken library.
+3. AUTHOR INDEX.md (single deliverable): READ the 8 .md FILES from _knowledge-base\cards\*.md (they are now present) and
+   write one row per card — name, vertical, card path (the cards/<file>.md just copied), one-line "what it teaches" drawn
+   FROM the card's own text (never from memory/HEAD). Receipt: INDEX.md has 8 rows, each resolving to an existing cards/ file.
+4. AUTHOR PATTERNS.md (single synthesis deliverable): the CROSS-CUTTING patterns that recur across MULTIPLE cards
+   (reusable components, voice moves, design-token habits, anti-patterns) — the distilled wisdom that answers "what can
+   X learn from our KB". Cite which cards/ files each pattern generalizes from. Receipt: PATTERNS.md cites its sources.
+5. INGEST into AnythingLLM (command): author + run a small script that creates a workspace (suggested slug
+   "nxtlvl-knowledge") and uploads the _knowledge-base\ docs. If the API key is missing/unauthorized, HALT with the
+   exact missing-credential receipt (which scope/endpoint) — never fake it. Receipt: the workspace exists with the docs.
+6. PROVE queryable (command): run the operator's own example query "what can muddytires learn from our knowledge base"
+   against the workspace; capture the cited answer to QUERY-RECEIPT.md. Receipt: QUERY-RECEIPT.md holds a grounded answer.
+
+Done means: _knowledge-base\ exists with cards\ (8 cards) + INDEX.md (8 rows, each resolving to a real cards/ file) +
+PATTERNS.md (cited); the AnythingLLM workspace holds the docs; QUERY-RECEIPT.md holds a real cited answer to the example
+query. If the AnythingLLM credential is missing, stages 1-4 still COMPLETE (the library is built + readable) and stages
+5-6 HALT with a named missing-credential receipt — that is an honest partial, not a failure.
+
+Constraints: SMALL local card inputs only (no large repo reads — that caused fabrication); AnythingLLM key from the
+governance config, never committed; HALT-with-receipt if the credential is missing; commit --no-verify; NAS untouched.

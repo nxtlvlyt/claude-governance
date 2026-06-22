@@ -1,0 +1,14 @@
+MISSION: damm-fb-line-cites — repay fb-backlog's debts (#4,#5,#6)
+MISSION-CLASS: research
+Maqsad: fb-backlog-priority-card.md went DONE 14:38 but cites section-level (§F1) where
+its done-means required line-level, and carries unmarked external estimates ('24,000+').
+PLAN SHAPE: COMMAND steps stage both inputs:
+  Copy-Item '..\fb-backlog-priorities\fb-backlog-priority-card.md' .
+  Copy-Item '..\fb-backlog-priorities\MUDDYTIRES-TASKS.md' .
+  $i=0; Get-Content MUDDYTIRES-TASKS.md | ForEach-Object { $i++; "L$i`: $_" } | Set-Content MUDDYTIRES-TASKS.numbered.md
+Then ONE emit step authors fb-backlog-priority-card.v2.md: the SAME card content with
+every claim re-cited [MUDDYTIRES-TASKS.numbered.md Lnn] and every external number marked
+'external estimate, not in source' or dropped.
+Done means: the v2 card exists, content-equivalent, line-cited throughout. Arafat: zero
+section-level cites remain — one surviving §-cite fails (this WAS the parent's Arafat;
+it does not soften on repayment).

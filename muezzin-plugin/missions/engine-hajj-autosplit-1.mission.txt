@@ -1,0 +1,41 @@
+MISSION-CLASS: engine-bootstrap (core PLAN-phase feature — FRESH instance, witnessed, niyyah)
+MISSION-ID: M-ENGINE.HAJJ-AUTOSPLIT.1
+TARGET: deconstructor.mjs (the PLAN phase / deconstructPanel + validateMicroQueue path) + orchestrate.mjs (how a split flows to the queue)
+REQUIRES: FRESH oriented instance; witnessed (laguna); daemon idle. READ MISSION_ARCHITECTURE.md + MISSION_CONSTRUCTION.md FIRST — they are the spec; this mission only IMPLEMENTS what they already define.
+# Operator 2026-06-16 04:43: "we wrote a whole process about hajj missions... why doesn't our missions information
+# solve it [the mega-mission failure]?" CONDUCTOR VERIFIED this session: MISSION_ARCHITECTURE.md L7/L11/L18 SPECIFIES
+# mission-level auto-split (decomposition exceeds the size ceiling -> Architect SPLITS into sub-missions BEFORE a seat
+# sees it). The engine NEVER IMPLEMENTED it: deconstructor.mjs enforces only the MICRO-ACTION ceiling (1 impl file per
+# STEP, L70-78); the prompt (L124) merely FLAGS "needs splitting upstream" then plans the monolith anyway. THAT is why
+# corpus-complete-1 (16 steps) + resilience-2 (7 stages) plan as monoliths and fail, and why the conductor HAND-splits
+# them (doing the engine's job). This mission finishes the designed Hajj architecture so decomposition is MECHANICAL.
+
+Niyyah: the conductor should write a Maqsad and the ENGINE should decompose it — exactly what MISSION_CONSTRUCTION
+promises (Maqsad + niyyah only; the Architect decomposes). Today the conductor hand-splits oversized missions because
+the auto-split was designed but never built. Stop the hand-decomposition by building the process we already wrote.
+
+Maqsad: when the Architect's decomposition exceeds the size ceiling (a max micro-action count / sub-state budget,
+defined per MISSION_ARCHITECTURE.md L10-11), the engine AUTOMATICALLY splits the mission into coherent SUB-MISSIONS —
+each its own Maqsad + sub-state, each queued + planned + executed independently — instead of running an oversized
+micro_queue that fails. The conductor (or any author) writes one big Maqsad; the engine emits N right-sized missions.
+
+REQUIRED BEHAVIOR (implement against MISSION_ARCHITECTURE.md, do not reinvent):
+1. Define the SIZE CEILING concretely: a max micro-action count per mission (and/or a sub-state char/token budget). Pick
+   a value grounded in tonight's receipts — corpus-complete-1 failed at 16 steps; the single-card missions (3-5 steps)
+   succeeded. So the ceiling is ~ that boundary (make it a named constant, tunable).
+2. At PLAN time: if the decomposition exceeds the ceiling, the Architect (or a post-plan splitter) groups the steps into
+   coherent sub-missions (by stage/subject — e.g. resilience-2's 7 stages, corpus's per-source cards), each emitted as
+   its own mission file with its own Maqsad + REQUIRES + tartib ordering (a sub-mission may not start until its
+   predecessor's receipt exists, per MISSION_ARCHITECTURE).
+3. Those sub-missions FLOW TO THE QUEUE automatically (pairs with M-ENGINE.QUEUE-FLOW.1) — the parent mission is marked
+   SPLIT (not run), the children run in tartib order.
+4. Fallback: if splitting can't produce valid sub-missions, fail with a NAMED receipt (never silently run the monolith).
+
+Amanah: this is the keystone that makes the whole muezzin scale — it is the difference between "the conductor babysits
+every big mission" and "the conductor writes intent and the engine does the rest." Witness it; selftest the split
+(an over-ceiling plan yields N sub-missions in tartib; an under-ceiling plan runs as one, unchanged). Build against
+MISSION_ARCHITECTURE.md, not memory.
+
+Constraints: FRESH instance; witnessed; selftested (the existing deconstructor/orchestrate selftests must still pass +
+new split tests); do NOT change the micro-action ceiling that already works (this ADDS the mission-level ceiling above
+it); GR10; commit --no-verify; NAS untouched. PAIRS WITH M-ENGINE.QUEUE-FLOW.1 (the children need somewhere to flow).

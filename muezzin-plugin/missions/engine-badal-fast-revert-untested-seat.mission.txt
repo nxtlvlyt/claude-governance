@@ -1,0 +1,28 @@
+MISSION-CLASS: code-repo
+MISSION-ID: M-BADAL-FASTREVERT.1
+REPO-ROOT: C:\Users\marka\.claude\muezzin-plugin
+ALLOW-FILES:
+  - seat_record.mjs
+  - _tests/badal-fast-revert.test.mjs
+REQUIRES: code-repo
+
+Maqsad: Make the seat-fallback (badal) auto-revert a NON-DELIVERING UNTESTED seat to the proven floor immediately, instead of letting an unproven audition seat run as default indefinitely while it fails and burns usage. RECEIPTED ROOT CAUSE (operator complaint 2026-06-15: "the muezzin should have solved a model issue like this instead of letting missions fail and wasting usage"): seat_record.mjs badalSelect (lines 82-92) only escalates when the default seat is DISQUALIFIED by a weighted strike-ratio >= 0.5 (line 86: `disqualified = t && !own.eligible && /strike ratio/.test(own.reason)`). When the default seat has an EMPTY record (t is undefined — exactly a fresh audition seat, e.g. kimi-k2.7-code seated 2026-06-14), `disqualified` is FALSE, so badal NEVER reverts it. An untested seat that is actively failing keeps running as default with no auto-fallback — the one case that most needed the fallback is the one badal can't fire for.
+
+niyyah: close the empty-record hole so the muezzin self-heals a dead seat. Source open: seat_record.mjs (badalSelect :82-92, proxyEligible :35-42, ESCALATION_LADDER :81, the empty-record branch at :86-87) + the operator complaint. Guard against: over-broadening so a HEALTHY default seat is reverted on a single transient failure (only an UNTESTED seat WITH recorded failures and ZERO passes should fast-revert); breaking the existing ratio>=0.5 escalation path (it must still work); reverting when NO proven floor candidate is eligible (keep the existing "refuse untested substitute" safety).
+
+CONTEXT (verified this session at seat_record.mjs):
+- badalSelect(recordPath, rite, defaultModel): returns {model, escalated}. Currently returns the default unchanged unless `disqualified` (ratio>=0.5) AND a ladder candidate is proxyEligible.
+- proxyEligible requires pass>=1 AND ratio<0.5. ESCALATION_LADDER[0] = 'qwen3-coder-next' (the proven floor).
+- The hole: a default seat with NO record for the rite (t undefined) OR a record with 0 passes and >=1 failure is NOT "disqualified" by the ratio test, so it never triggers escalation.
+
+Done means (verifiable):
+1. badalSelect fast-reverts when the default seat is UNTESTED-AND-FAILING for the rite: it has ZERO passes AND at least one recorded failure (miss and/or fabrication) for that rite. In that case it escalates to the first proxyEligible ESCALATION_LADDER candidate (the proven floor), same as the disqualified path. Return shape includes escalated:true + a reason naming "untested-and-failing fast-revert".
+2. NO over-broadening: a default seat with a clean/empty-but-not-failing record (0 passes, 0 failures — never run yet) still runs as default (an audition needs a first attempt); only a seat that has FAILED with no offsetting pass fast-reverts. A healthy default (passes, ratio<0.5) is untouched.
+3. The existing ratio>=0.5 disqualification path AND the "refuse untested substitute when no proxy eligible" safety (line 92) BOTH still work unchanged.
+4. _tests/badal-fast-revert.test.mjs is green: (a) default with 0 pass + 1 miss + an eligible floor → escalates to the floor (escalated:true); (b) default with 0 pass + 0 failure → stays default (audition gets its first shot); (c) default with passes + ratio<0.5 → stays default; (d) default ratio>=0.5 (existing path) → still escalates; (e) untested-failing but NO eligible proxy → stays default with the blocked-reason (no untested substitute). Acceptance: `node _tests/badal-fast-revert.test.mjs` exits 0, AND `node seat_record.mjs` (its own inline selftests) exits 0 (no regression).
+
+Constraints: code-repo, muezzin-plugin repo only, the two ALLOW-FILES only, NAS UNTOUCHED. Surgical change to badalSelect's trigger condition + a helper; do not touch recordSeatOutcome or the fabrication-weight logic. If the engine cannot satisfy the witness, HOLD with a receipt (no blind relaunch). NOTE: needs a daemon restart to activate (module cache).
+
+Steps:
+1. edit seat_record.mjs - extend badalSelect so an untested-and-failing default seat (0 passes + >=1 recorded failure for the rite) fast-reverts to the first eligible ESCALATION_LADDER floor, preserving the ratio>=0.5 path and the no-eligible-proxy safety. Acceptance: `node seat_record.mjs` exits 0 incl. existing selftests.
+2. write _tests/badal-fast-revert.test.mjs - the five assertions in Done-means #4. Acceptance: `node _tests/badal-fast-revert.test.mjs` exits 0.

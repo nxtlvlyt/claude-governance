@@ -1,0 +1,22 @@
+{
+  "parent": "M-MUDDYTIRES.COMPETITOR-LANDSCAPE.2.S2",
+  "parentMissionFile": "C:\\Users\\marka\\.claude\\muezzin-plugin\\missions\\m28-2-competitor-landscape.S2.mission.txt",
+  "ceiling": 8,
+  "originalStepCount": 9,
+  "splitAt": "2026-06-16T22:09:40.139Z",
+  "subMissions": [
+    {
+      "id": "M-MUDDYTIRES.COMPETITOR-LANDSCAPE.2.S2.S1",
+      "file": "missions/m28-2-competitor-landscape.S1.mission.txt",
+      "requires": null,
+      "steps": 8
+    },
+    {
+      "id": "M-MUDDYTIRES.COMPETITOR-LANDSCAPE.2.S2.S2",
+      "file": "missions/m28-2-competitor-landscape.S2.mission.txt",
+      "requires": "M-MUDDYTIRES.COMPETITOR-LANDSCAPE.2.S2.S1",
+      "steps": 1
+    }
+  ],
+  "note": "PARENT marked SPLIT (not executed). Children run in tartib order; each REQUIRES its predecessor DONE. Queue flow: M-ENGINE.QUEUE-FLOW.1."
+}

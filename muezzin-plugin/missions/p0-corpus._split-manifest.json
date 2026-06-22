@@ -1,0 +1,28 @@
+{
+  "parent": "P0-CORPUS",
+  "parentMissionFile": "C:\\Users\\marka\\.claude\\muezzin-plugin\\missions\\p0-corpus.mission.txt",
+  "ceiling": 8,
+  "originalStepCount": 22,
+  "splitAt": "2026-06-17T15:02:45.185Z",
+  "subMissions": [
+    {
+      "id": "P0-CORPUS.S1",
+      "file": "missions/p0-corpus.S1.mission.txt",
+      "requires": null,
+      "steps": 8
+    },
+    {
+      "id": "P0-CORPUS.S2",
+      "file": "missions/p0-corpus.S2.mission.txt",
+      "requires": "P0-CORPUS.S1",
+      "steps": 8
+    },
+    {
+      "id": "P0-CORPUS.S3",
+      "file": "missions/p0-corpus.S3.mission.txt",
+      "requires": "P0-CORPUS.S2",
+      "steps": 6
+    }
+  ],
+  "note": "PARENT marked SPLIT (not executed). Children run in tartib order; each REQUIRES its predecessor DONE. Queue flow: M-ENGINE.QUEUE-FLOW.1."
+}

@@ -1,0 +1,37 @@
+MISSION-CLASS: code-repo
+MISSION-ID: M-MUDDYTIRES.PAGES-D1-BINDING-1
+REPO-ROOT: E:\AI_Storage\muddytires-frontend-wt
+ALLOW-FILES:
+  - wrangler.toml
+REQUIRES: mt-cors-fix-auth-1 (same repo; land first to avoid worktree collision)
+
+Niyyah: the POI map is the one piece that can light up for the trip — it needs no login, no cookie. But the Pages Function that serves
+the POIs has no database handle, so it answers every request with "db binding missing" and the map stays empty. Give the Pages project
+its D1 handle so the POIs the operator misses finally appear on the live map.
+
+Maqsad: bind D1 to the Cloudflare Pages project so functions/pois.json.js receives env.DB at runtime and the POI map loads. "Done" is:
+wrangler.toml at the repo root configures the Pages project `muddytires` with a D1 binding named DB -> database muddytires-pois (id
+2d4cc2f5-96f4-42e2-93c3-af1344a98139), in the correct Cloudflare-Pages wrangler format. Committed. NOT deployed (conductor runs
+`wrangler pages deploy` and verifies pois.json returns 200 with POI data, not 500 'db binding missing').
+
+Context (facts only — VERIFIED by the de-risk workflow; research the exact format, don't guess):
+- THE GAP (verified): functions/pois.json.js does `const db = env.DB; if(!db) return json({ok:false,error:'db binding missing'},500)`.
+  Pages Functions get bindings from the PAGES PROJECT config, not the worker tomls. There is NO wrangler.toml at the frontend-wt root, so
+  the deployed Pages project has no DB binding -> pois.json.js 500s -> map shows no pins.
+- THE FIX: author wrangler.toml at the repo root for Pages. RESEARCH the current correct format (SearXNG/WebFetch the Cloudflare Pages +
+  wrangler docs — the Pages d1_databases binding stanza; pages_build_output_dir or the Pages project name field). It must declare the
+  Pages project name `muddytires` and bind `DB` to `muddytires-pois` (database_id 2d4cc2f5-96f4-42e2-93c3-af1344a98139). Do NOT invent
+  toml keys — verify against docs.
+- This same binding also serves the future auth Pages Functions (mt-firstparty-auth-routing-1) — but THIS mission only adds the binding
+  config; it does not author those functions.
+- COMMIT DISCIPLINE: explicit `git add wrangler.toml` ONLY — NEVER `git add .` (loose files: about.html, .wrangler/, workers/, _maptwist-
+  locate.txt). commit --no-verify.
+- Out of scope: the deploy (conductor); functions/pois.json.js itself (already committed); the auth functions.
+
+Done means (acceptance contract): wrangler.toml at root binds env.DB -> muddytires-pois for the Pages project `muddytires`, in a format
+verified against current Cloudflare Pages docs; committed via explicit `git add wrangler.toml`, --no-verify; NOT deployed. Receipt names
+the conductor deploy + verify (pois.json 200 + map pins) step, and flags if the binding can ONLY be set via the dashboard (operator-
+identity-bound) rather than wrangler.toml.
+
+Constraints: code-repo in frontend-wt; writes ONLY wrangler.toml; research the format (don't guess); explicit single-file git add (never
+-A); commit --no-verify; receipt-backed halt if the binding genuinely requires dashboard-only config the token can't do.

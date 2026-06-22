@@ -1,0 +1,48 @@
+MISSION-CLASS: code-repo (EDIT one existing engine file via SEARCH/REPLACE)
+MISSION-ID: M-ENGINE.WINDOWED-EDIT-LARGE-FILE.1
+REPO-ROOT: C:\Users\marka\.claude\muezzin-plugin
+ALLOW-FILES: executor.mjs
+# (executor.mjs is ~540 lines — fits model context, so this edit is itself viable. The engine repo is clean as of
+#  commit e4151dc, so containment passes. This is engine-reliability work; it takes precedence per the conductor beat.)
+
+# RECEIPT (the bug this fixes, 2026-06-16): muddytires-declutter-1 step-2 EDIT failed —
+#   attempt-fail provider=ollama-cloud model=qwen3-coder-next kind=HTTP_400: "The prompt is too long: 265675,
+#   model maximum context length: 262144"
+# CAUSE: buildEditFraming (executor.mjs ~line 177-224) embeds the ENTIRE current file in the prompt ("CURRENT CONTENTS
+# of <file> ... ``` current ```"). For a 378KB file that is ~265K tokens > the model's 262K context -> HTTP 400, the
+# edit can't even be attempted, and the executor returns the file byte-identical (the witness correctly REJECTED the
+# no-op). So large files (e.g. muddytires index.html) can never be edited. This BLOCKS the entire muddytires declutter.
+
+Niyyah: let the engine edit files larger than a model's context window — by showing the seat only the regions it needs
+to anchor against, not the whole file. Correctness is preserved because applyEditBlocks (executor.mjs ~line 151) already
+validates every SEARCH against the FULL original (unique-or-fail-closed) regardless of what the prompt showed.
+
+Maqsad: ONE deliverable — edit executor.mjs so buildEditFraming(step, cwd, current) sends a WINDOWED view when the file
+is oversized, instead of embedding the whole file. Required behavior:
+1. Keep current behavior UNCHANGED for normal-sized files: if `current` is at/below a byte budget (define a const, e.g.
+   EDIT_FULL_FILE_MAX_BYTES = 180000), embed the full file exactly as today.
+2. When `current` exceeds that budget: instead of the whole file, build an ANCHOR-WINDOWED context:
+   - Derive candidate anchor terms from the step: identifier-like tokens (e.g. /[A-Za-z_][\w-]{3,}/) drawn from
+     step.description and step.validation_command (dedupe; drop common stopwords).
+   - For each anchor term found in `current`, extract a window of +/- ~40 lines around its FIRST occurrence; merge
+     overlapping windows; cap the total windowed bytes to the budget (most-relevant first).
+   - Emit those windows in the prompt with clear LINE-RANGE markers and a header stating: the file is large so only the
+     regions relevant to this edit are shown; SEARCH text MUST be copied verbatim from a shown region; SEARCH is still
+     validated for uniqueness against the WHOLE file by the engine.
+   - If NO anchor term locates any region (cannot window), do NOT fall back to sending the whole file (that 400s) —
+     return a framing/marker that makes the step FAIL HONESTLY with a clear "could not window large file for edit:
+     no anchor matched" message (a true negative, never a silent whole-file send).
+3. Do NOT change applyEditBlocks or extractEditBlocks — uniqueness/correctness validation against the full original
+   stays exactly as is. Only the PROMPT context that buildEditFraming shows the seat changes.
+4. Preserve all existing edit-discipline RULES/EXAMPLE/COMMON-MISTAKES framing text (the selftest asserts those phrases).
+
+Done means: executor.mjs still passes `node --check` and its existing selftest (node executor.mjs) ALL PASS, AND a NEW
+selftest case proves: (a) a SMALL `current` yields the full-file embed unchanged (assert the whole file text is present);
+(b) a LARGE `current` (> budget) yields a WINDOWED framing that CONTAINS the region around a step-derived anchor and does
+NOT contain a far-away unrelated region (assert the window worked); (c) the discipline phrases (RULES/EXAMPLE) still present.
+Verify with positive-assertion commands (each EXITS NON-ZERO on failure): `node --check executor.mjs` and `node executor.mjs`
+must exit 0 with ALL PASS including the new windowing cases.
+
+Constraints: EDIT via SEARCH/REPLACE only (executor.mjs is small — no whole-file re-emit needed); single file executor.mjs;
+commit --no-verify; positive-assertion verify (the selftest fails on absence); NAS untouched. Activation note for the
+conductor (NOT part of this mission): the daemon caches imports, so this fix takes effect only after a daemon restart.

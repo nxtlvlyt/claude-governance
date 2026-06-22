@@ -1,0 +1,23 @@
+MISSION-ID: M-MUDDYTIRES.NAV-REPOINT-STATIC.1.S2
+MISSION-CLASS: code-repo (COMMAND-BASED deterministic nav repoint on a CLEAN worktree + positive-assertion verify + commit; NO model emission; NO deploy; live muddytires.ca / prod Pages / DNS UNTOUCHED)
+REPO-ROOT: E:\AI_Storage\muddytires-frontend-wt
+ALLOW-FILES:
+  - index.html
+  - map.html
+  - landing.html
+  - partners.html
+PARENT: M-MUDDYTIRES.NAV-REPOINT-STATIC.1  (sub-mission 2 of 2, auto-split by the size ceiling)
+REQUIRES: predecessor M-MUDDYTIRES.NAV-REPOINT-STATIC.1.S1 DONE (tartib — sub-mission 2 runs after 1 of 2)
+
+Niyyah: (inherited from parent M-MUDDYTIRES.NAV-REPOINT-STATIC.1)
+
+Maqsad: this is part 2 of 2 of the parent objective below — a right-sized slice the engine can decompose under the size ceiling without overwhelming a seat. Achieve ONLY this slice's work; the sibling sub-missions own the rest.
+PARENT MAQSAD (the whole objective these sub-missions together serve): ONE deliverable — every about.php / partners.php / landing.php nav reference across the four static pages repointed to its
+
+THIS SUB-MISSION'S WORK (the parent decomposition's steps assigned to this slice — re-decompose them under the smaller budget; do not exceed the ceiling):
+  - Post-commit honest 'Done means' assertion: confirm HEAD is still oracle-frontend-swap and the four allow-files are no longer dirty (repoint fully committed). EXIT 1 on wrong branch or any uncommitted allow-file.
+
+Done means: step M-MUDDYTIRES.NAV-REPOINT-STATIC.1.S2.1 are all complete, each with its validation_command receipt passing (the deed witnessed, not asserted); and the parent's done-condition holds for this slice — zero about.php/partners.php/landing.php references remain in the four static pages; the repoint is committed on branch
+oracle-frontend-swap; NO deploy; live untouched. If the worktree is dirty/uncommittable, FAIL HONESTLY (do not force).
+
+Amanah: this slice was split from a larger mission so it stays inside the chain's reliable working capacity (Q2:286 / mizan). Discharge it with ihsan; its receipt unlocks the next sibling.

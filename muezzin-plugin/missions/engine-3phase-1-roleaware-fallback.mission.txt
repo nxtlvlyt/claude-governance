@@ -1,0 +1,22 @@
+MISSION-CLASS: code-repo
+MISSION-ID: M-ENGINE-3PHASE.1
+REPO-ROOT: C:\Users\marka\.claude\muezzin-plugin
+ALLOW-FILES:
+  - seat_dispatch.mjs
+REQUIRES: code-repo
+
+Maqsad: Wire ROLE-AWARE Claude fallback into the dispatch waterfall, so a seat's Claude-tier fallback is chosen by its ROLE (not only its model name). This is the "small real engine change, flagged not faked" the seat plan's MAP NOTE calls for, and the first sub-mission of the 3-phase seat-plan rebuild. It is also the live acceptance test of Foundation 0.4 (code-missions in named repos) — the muezzin editing the muezzin, witnessed and committed.
+
+niyyah: build the engine's own next piece AS a receipted code-repo mission (dogfooding 0.4), not by hand. Source open: the seat plan (SEAT-PLAN-OPERATOR-ORIGINAL.md MAP NOTE) + the 3-phase wiring plan. Guarding against: hand-implementing what a mission can do; and weakening any existing fallback (the change must be additive — unmapped roles keep the exact current CLAUDE_SEAT_MAP behavior).
+
+Done means (all verifiable):
+- seat_dispatch.mjs exports/contains a pure helper `claudeFallbackFor(model, role)` that returns the role-aware Claude model when one is defined, else the existing CLAUDE_SEAT_MAP[model] value (unchanged for every currently-mapped seat).
+- Role-aware table (at minimum): boundary_auditor + glm-5.1 -> 'haiku'; integrator + nemotron-3-ultra -> 'opus'. Every other (model, role) -> existing CLAUDE_SEAT_MAP[model].
+- `dispatchWithWaterfall` receives the seat's role (threaded from dispatchSeat, which already has seat.role) and the two existing bare `CLAUDE_SEAT_MAP[model]` lookups are replaced with `claudeFallbackFor(model, role)`.
+- The seat_dispatch.mjs argv-guarded self-test is EXTENDED with assertions: claudeFallbackFor('glm-5.1','boundary_auditor')==='haiku'; claudeFallbackFor('nemotron-3-ultra','integrator')==='opus'; claudeFallbackFor('deepseek-v4-pro','validator')==='sonnet' (unmapped role falls back to CLAUDE_SEAT_MAP); claudeFallbackFor('kimi-k2.6', undefined)==='opus' (no role => map).
+- `node seat_dispatch.mjs` self-test runs the offline assertions green (network-gated live-dispatch parts may be skipped); NO existing assertion regresses.
+
+Constraints: ADDITIVE only — do not change any existing CLAUDE_SEAT_MAP entry, do not alter the Ollama-first / route-window / local-fallback ordering, do not touch the NAS. Only seat_dispatch.mjs may be edited.
+
+Steps:
+1. edit seat_dispatch.mjs: add the pure `claudeFallbackFor(model, role)` helper + the role-aware table; thread `role` into dispatchWithWaterfall and replace the two `CLAUDE_SEAT_MAP[model]` lookups with it; extend the self-test with the assertions above. Acceptance: node seat_dispatch.mjs offline self-test is green and the four new role-aware assertions pass.

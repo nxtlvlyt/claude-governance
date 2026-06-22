@@ -1,0 +1,17 @@
+MISSION STUDIO-TOOLS-CARD
+MISSION-ID: 17
+MISSION-CLASS: research
+REQUIRES: none — all 8 inputs PRE-STAGED in this sandbox (MASTER-PLAN.md 11,355b, PIPELINE-REBOOT-BRIEF.md 10,525b, package.json, pyproject.toml, pnpm-workspace.yaml, README.md, deploy.sh, compile_layna.py — real files copied from E:\AI_Storage\website-pipeline).
+Niyyah: the operator asked "what about the tools the nxtlvl studio uses" and the honest answer was "implied across configs, documented nowhere" — a build seat cannot learn a stack from scattered configs, and an undocumented foundation fails the operator's foundations-first ruling.
+Maqsad: ONE artifact — studio-tools-card.md at the sandbox root. Read the staged files (plan ONLY reads of staged files + ONE step emitting the complete card; reads may be 'command' steps only if listing/verifying, never fetching). Sections required: (1) the stack inventory — every tool/framework/runtime the pipeline uses, each with the staged file + line that proves it (pnpm workspace layout, Python/uv, deploy target, CI), (2) what each tool is FOR in the factory (build, deploy, compile dossiers — note compile_layna.py's role from its own code), (3) gaps — tools the MASTER-PLAN names that have no config evidence yet (planned-not-installed), (4) the Layna-build readiness verdict: which tools #11 needs that exist vs missing, (5) OPEN QUESTIONS for the operator, one line each. Done = card exists, markdown-valid, every claim cited to a staged file.
+Context: all inputs read-only in this sandbox. The card is the only write target, cwd-relative.
+Amanah: entrusted; discharge with ihsan.
+
+NUMBERED-SOURCE REVISION 16:25 (after 4 attempts dying at hollow emission vs a
+file+line cite bar — the fb-backlog disease; fb-backlog went DONE right after this
+same revision): PLAN SHAPE NOW REQUIRED (gather then author):
+- COMMAND step stages + numbers each source it cites:
+    Get-ChildItem 'E:\AI_Storage\studio-tools' -Recurse -Name | Out-File studio-tree.txt
+    $i=0; Get-Content studio-tree.txt | ForEach-Object { $i++; "L$i: $_" } | Set-Content studio-tree.numbered.md
+- The emit step cites [<source>.numbered.txt Lnn] per claim;
+  claims without a line cite state 'inference, not in source'. ENABLES the bar.

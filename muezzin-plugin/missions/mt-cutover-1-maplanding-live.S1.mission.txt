@@ -1,0 +1,24 @@
+MISSION-ID: M-MUDDYTIRES.MT-CUTOVER-1-MAPLANDING-LIVE.S1.S1
+MISSION-CLASS: ops-deploy (PRODUCTION CUTOVER — wrangler pages deploy to the live muddytires Pages project; touches muddytires.ca; REVERSIBLE via Pages deployment history)
+PARENT: M-MUDDYTIRES.MT-CUTOVER-1-MAPLANDING-LIVE.S1  (sub-mission 1 of 2, auto-split by the size ceiling)
+REQUIRES: none (first sub-mission of 2 in tartib order)
+
+Niyyah: cut the PROVEN oracle-frontend-swap map+landing over to live muddytires.ca, reversibly. Capture the rollback ref BEFORE
+
+Maqsad: this is part 1 of 2 of the parent objective below — a right-sized slice the engine can decompose under the size ceiling without overwhelming a seat. Achieve ONLY this slice's work; the sibling sub-missions own the rest.
+PARENT MAQSAD (the whole objective these sub-missions together serve): this is part 1 of 2 of the parent objective below — a right-sized slice the engine can decompose under the size ceiling without overwhelming a seat. Achieve ONLY this slice's work; the sibling sub-missions own the rest.
+
+THIS SUB-MISSION'S WORK (the parent decomposition's steps assigned to this slice — re-decompose them under the smaller budget; do not exceed the ceiling):
+  - AUTH GATE (fail-closed): assert wrangler is authenticated as the operator markabass@gmail.com before any action; halt otherwise so a wrong account can never deploy.
+  - PROVEN-ARTIFACT GATE: assert worktree HEAD is branch oracle-frontend-swap at commit 2ad8764 (source of preview d5de7dc6); exit non-zero on any mismatch so an unproven tree never deploys.
+  - ROLLBACK REF CAPTURE (reversibility precondition, must precede deploy): create _logs and write the current production deployment list to _logs/mt-cutover-1.predeploy.txt; this file holds ROLLBACK_ID and its non-empty existence (containing a deployment id) is the gate that lets the deploy run.
+  - STAGE the servable static set into _deploy_stage by copying only the named assets (index/map/landing/quirky.html, about/partners/guides dirs, pois.json, robots.txt, img/, og-cover.png if present); workers/d1/.git/node_modules are excluded by never being named. Assert the three core files landed and no workers/.git leaked in.
+  - CONTENT SANITY GATE (landing-not-map): assert the STAGED _deploy_stage/index.html is the landing page (hero band markers: sourced legality / no-login / free) so the map is never published at the apex; exit non-zero if absent.
+  - RESOLVE PRODUCTION BRANCH: read the production branch from the project's existing Production deployment and write it to _logs/PRODUCTION_BRANCH.txt; fail-closed if empty so the apex is never corrupted by a wrong/empty branch in the deploy step.
+  - DEPLOY TO PRODUCTION (the only mutating step; reachable only after gates 1-6 passed): deploy _deploy_stage to the muddytires Pages project on the resolved production branch and capture stdout to _logs/mt-cutover-1.deploy.txt; witness asserts a pages.dev URL was emitted.
+  - LIVE VERIFY LANDING (fail-closed positive assertion): fetch https://muddytires.ca/ and require HTTP 200 AND new landing markers in the body; exit non-zero if the apex still serves old content.
+
+Done means: steps M-MUDDYTIRES.MT-CUTOVER-1-MAPLANDING-LIVE.S1.S1.1..M-MUDDYTIRES.MT-CUTOVER-1-MAPLANDING-LIVE.S1.S1.8 are all complete, each with its validation_command receipt passing (the deed witnessed, not asserted); and the parent's done-condition holds for this slice — steps M-MUDDYTIRES.MT-CUTOVER-1-MAPLANDING-LIVE.S1.1..M-MUDDYTIRES.MT-CUTOVER-1-MAPLANDING-LIVE.S1.8 are all complete, each with its validation_command receipt passing (the deed witnessed, not asserted); and the parent's done-condition holds for this slice — https://muddytires.ca/ serves the new landing and /map serves the new Oracle map (both 200, new-content-verified),
+the new deployment is Environment=Production, ROLLBACK_ID + revert steps are recorded. Backend Workers, D1, and accounts UNTOUCHED.
+
+Amanah: this slice was split from a larger mission so it stays inside the chain's reliable working capacity (Q2:286 / mizan). Discharge it with ihsan; its receipt unlocks the next sibling.

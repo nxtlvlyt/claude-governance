@@ -1,0 +1,35 @@
+MISSION-CLASS: code-repo
+MISSION-ID: M-WEBSITE-SECGATE.1
+REPO-ROOT: E:\AI_Storage\website-pipeline
+ALLOW-FILES:
+  - predeploy-security-scan.mjs
+  - tests/predeploy-security-scan.test.mjs
+  - deploy.sh
+  - deploy.cmd
+  - PREDEPLOY-SECURITY.md
+REQUIRES: code-repo
+
+Maqsad: Make the pre-deploy security check a STANDING, reusable gate in the website pipeline — not a thing the conductor catches by hand per site. Operator ruling 2026-06-15: "this kind of work should be part of our website pipeline work." It came from the muddytires migration, where a manual review caught two real issues before the public-edge deploy: (1) 19 PHP backend files staged into a static deploy dir — Cloudflare Pages serves .php as PLAINTEXT (it can't execute them) and has NO reliable per-file exclude, so they'd have leaked backend source; (2) a MapTiler client-side key in the frontend that wants domain-restriction. Every site we deploy (muddytires now; androidtv, portal, Layna later) should pass the SAME gate automatically.
+
+niyyah: turn the operator's "make it part of the pipeline" ruling into a reusable receipted capability, not a per-site manual catch (the conductor's job is to build the gate, not to be the gate). Source open: the muddytires findings + [[reference-static-deploy-security-checklist]] + the website-pipeline deploy path (root deploy.sh + deploy.cmd). Guard against: a scanner so strict it false-positives on legitimate static content (e.g. the word "token" in copy, a public client-side map key); a scanner that only warns instead of failing the deploy closed; wiring that a future deploy can silently skip.
+
+CONTEXT (verified this session):
+- Repo root E:\AI_Storage\website-pipeline carries deploy.sh AND deploy.cmd (the deploy entrypoints) + a tests/ dir + package.json (Node available; .mjs matches the muezzin hook runtime).
+- The reusable lesson is banked in memory ([[reference-static-deploy-security-checklist]]): Pages serves .php as plaintext + no reliable Pages exclude (confirmed jmasson.net / joshua.law) → the deploy dir must be static-only; client-side map keys are public-by-design → flag for domain-restriction, do NOT block on them; server-side env() keys are fine but their SOURCE must not ship.
+
+Done means (verifiable):
+1. predeploy-security-scan.mjs exists: a CLI that takes a target deploy directory and exits NONZERO (fail-closed) on a HARD violation, ZERO on pass, printing a clear report. Classifications:
+   - HARD FAIL (blocks deploy): any backend-source file in the deploy set (.php, .env, .py/.rb/.pl server files, *.sql, .htaccess) OR any server-secret pattern in a deployed file (x-api-key, anthropic-version, AIML_API_KEY/QDRANT_API_KEY/ANTHROPIC_API_KEY/SECRET/PRIVATE_KEY assignments, AWS-style keys).
+   - WARN (does NOT block, prints for operator follow-up): a client-side map/tile key in frontend JS/HTML (maptiler/mapbox/google-maps key= patterns) — these are public-by-design; the report tells the operator to domain-restrict them in the provider dashboard.
+   - PASS: static-only set, no hard violations.
+2. deploy.sh and deploy.cmd call predeploy-security-scan.mjs as their FIRST step against the directory they are about to upload, and ABORT the deploy if it exits nonzero (fail-closed) — no site reaches the edge without passing. Acceptance: read both deploy scripts; the scan invocation precedes any wrangler/upload command and a nonzero scan halts the script.
+3. PREDEPLOY-SECURITY.md documents the gate: what it checks, how to run it standalone (`node predeploy-security-scan.mjs <dir>`), the .php-as-plaintext + no-Pages-exclude rationale, and the client-key domain-restriction follow-up.
+4. tests/predeploy-security-scan.test.mjs is green: a CLEAN static fixture (html+json+img) PASSES (exit 0); a fixture with a .php file FAILS (nonzero); a fixture with an x-api-key/ANTHROPIC_API_KEY string FAILS; a fixture whose only finding is a client-side maptiler key= PASSES with a WARN line (exit 0, warning printed). Acceptance: `node tests/predeploy-security-scan.test.mjs` exits 0, all four assertions pass.
+
+Constraints: code-repo, website-pipeline repo only, the five ALLOW-FILES only, NAS UNTOUCHED. Do not delete or rewrite unrelated deploy logic — insert the gate as a guard, preserve the rest. If the engine cannot satisfy the witness, HOLD with a receipt (no blind relaunch).
+
+Steps:
+1. write predeploy-security-scan.mjs - the fail-closed scanner (HARD-FAIL backend-source + server-secret; WARN client-side map key; PASS static-only). Acceptance: runs against a dir, correct exit codes by class.
+2. edit deploy.sh + deploy.cmd - call the scan first, abort on nonzero. Acceptance: scan precedes upload in both; nonzero halts.
+3. write PREDEPLOY-SECURITY.md - document the gate + rationale + standalone usage. Acceptance: file present, covers checks + the .php/no-exclude + client-key follow-up.
+4. write tests/predeploy-security-scan.test.mjs - the four-fixture assertions. Acceptance: `node tests/predeploy-security-scan.test.mjs` exits 0.

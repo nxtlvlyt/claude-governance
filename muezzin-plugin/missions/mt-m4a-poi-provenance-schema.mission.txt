@@ -1,0 +1,40 @@
+MISSION-CLASS: code-repo
+MISSION-ID: M-MUDDYTIRES.M4A-POI-PROVENANCE-SCHEMA
+REPO-ROOT: E:\AI_Storage\muddytires-d1-wt
+ALLOW-FILES:
+  - d1/provenance-schema.sql
+REQUIRES: none (d1-wt repo; conductor fires solo; the daemon ignores REQUIRES)
+
+Niyyah: the site promises "sourced honesty" but the pois carry NO provenance — a traveller cannot see where a spot came from or how stale it is. Stamp the existing OpenStreetMap-sourced spots with their honest source plus a confidence baseline, ADDITIVELY, so the next mission's Isnad/Rukhsa card layer has real columns to read. Honesty over completeness: where freshness is genuinely unknown, leave it null and let the UI say "unconfirmed" — never fabricate a date.
+
+Maqsad: add the four additive provenance columns to the live D1 `pois` table and backfill the existing rows with their real source. This is priority-A item M4 (foundation for M5). NO frontend change in this mission (that is M4b/M4c).
+
+Context (facts only — VERIFIED by the conductor this session, 2026-06-19):
+- The live D1 `muddytires-pois` (id 2d4cc2f5-96f4-42e2-93c3-af1344a98139) holds 51,333 pois (verified by COUNT this session).
+- PRAGMA table_info(pois) verified the columns are EXACTLY: id, name, node_type, lat, lng, note, amenities, photo, contributor, meta_json (cid 0-9). The four provenance columns do NOT exist yet, so this ALTER is genuinely additive and is NOT a re-run. (If wrangler reports "duplicate column name", that means already-applied — report it in the receipt and STOP; do not loop.)
+- The existing pois are OpenStreetMap-sourced. So source_name = 'OpenStreetMap' and source_url = 'https://www.openstreetmap.org/copyright' (the ODbL attribution page). Honor OSM ODbL attribution.
+- fetched_at is left NULL deliberately: there is NO precise per-row fetch date and fabricating one violates TAQWA. A NULL fetched_at lets the M4c card render "freshness unconfirmed". Do not invent a date.
+- confidence defaults to 'UNVERIFIED': these are bulk-imported, not community-confirmed. M5 (Ijma) later promotes spots to HIGH on consensus. The enum (HIGH/MEDIUM/LOW/UNVERIFIED) is app-enforced; no CHECK constraint is added (keeps the SQLite ALTER simple and safe).
+- ADDITIVE + SAFE: ADD COLUMN (nullable) does not rewrite the table or change any field that functions/pois.json.js currently SELECTs, so the live map is unaffected until M4b/M4c land on preview and the operator promotes. This is why the additive schema may apply to the shared D1 now without violating the preview-only gate (no frontend deploy, nothing user-visible changes).
+- wrangler is authed and runs from this repo dir (verified this session). The DB resolves by name `muddytires-pois`. wrangler d1 execute runs non-interactively under the daemon (no TTY -> no confirm prompt); if a prompt ever appears, add --yes.
+
+EXACT d1/provenance-schema.sql to author (verbatim, exactly these five statements, nothing added):
+  ALTER TABLE pois ADD COLUMN source_url TEXT;
+  ALTER TABLE pois ADD COLUMN source_name TEXT;
+  ALTER TABLE pois ADD COLUMN fetched_at TEXT;
+  ALTER TABLE pois ADD COLUMN confidence TEXT DEFAULT 'UNVERIFIED';
+  UPDATE pois SET source_name='OpenStreetMap', source_url='https://www.openstreetmap.org/copyright' WHERE source_name IS NULL;
+
+Steps:
+  1. (author) Write d1/provenance-schema.sql containing EXACTLY the five statements above.
+  2. (command) Apply to remote, from REPO-ROOT (never System32):
+       wrangler d1 execute muddytires-pois --remote --file d1/provenance-schema.sql
+  3. (command/verify) wrangler d1 execute muddytires-pois --remote --command "SELECT COUNT(*) AS total, COUNT(source_name) AS stamped FROM pois"
+     -- MUST show total=51333 AND stamped=51333. If not, the backfill did not land -> FAIL with the numbers.
+  4. (command) Commit ONLY the allow-file:
+       git add d1/provenance-schema.sql
+       git commit --no-verify -m "M4a: additive POI provenance columns (source_url/source_name/fetched_at/confidence) + OSM ODbL backfill"
+
+Done means (acceptance contract): d1/provenance-schema.sql exists with exactly the five statements; the remote `pois` table has the four new columns (PRAGMA confirms); SELECT COUNT(source_name)=51333 (every row stamped 'OpenStreetMap'); committed via explicit per-file git add + --no-verify. The receipt states the verified total/stamped counts and the commit sha.
+
+Constraints: command-class in d1-wt; writes ONLY d1/provenance-schema.sql; ADDITIVE only (no DROP, no data deletion, no change to existing columns); NO frontend edit; explicit per-file git add (NEVER `git add .` / `-A` — the repo has untracked clupa/*.sql, load.sql, crownland-raw.geojson); commit --no-verify; receipt-backed halt if wrangler errors (e.g. duplicate-column = already applied -> report + stop, never loop).

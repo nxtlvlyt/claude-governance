@@ -1,0 +1,50 @@
+MISSION-CLASS: engine-bootstrap (EXECUTE-phase failure handling — FRESH instance, witnessed, niyyah)
+MISSION-ID: M-ENGINE.REPLAN-ISOLATION.1
+TARGET: orchestrate.mjs (the per-step execute loop + what happens on a step failure / the plan<-execute boundary)
+REQUIRES: FRESH oriented instance; witnessed (laguna); daemon idle. Read orchestrate.mjs's execute loop + the plan-retry path FIRST.
+# Operator 2026-06-16 04:47: "what was the root problem that made you refuse to fix the mission and how do we solve it?"
+# CONDUCTOR-VERIFIED ROOT (tonight's receipts): when ANY step fails, the engine RE-PLANS THE WHOLE MISSION and DISCARDS
+# completed steps. PROOF: card-nfl-predictions reached step 6/8, the seat emitted COMPLETELY EMPTY content on step 6
+# (04:34:27 "seat produced NO usable file content... (completely empty)" — a TRANSIENT), repair couldn't fill it, and
+# the engine threw away steps 1-5 and re-planned from scratch (plan start #2, 04:44:23). corpus-complete-1 showed the
+# same: step-3 fail -> full re-plan -> loop. On a 7-stage mega-mission this cascades catastrophically — which is WHY the
+# conductor refused to fire resilience-2 whole. hajj-autosplit shrinks the blast radius; THIS fixes the cascade itself.
+
+Niyyah: a single flaky step — a transient empty emission, one missing source — must not destroy a mission's completed
+work and trigger a full re-plan loop. Failure should be CONTAINED to the step, not amplified to the whole mission.
+
+Maqsad: a step failure is ISOLATED — the engine repairs/retries the FAILED STEP, and if it still can't, it FAILS that
+step (or its sub-mission) with a receipt while PRESERVING every completed step; it does NOT discard completed work and
+re-plan the entire mission. A mission that completed 5 of 8 steps then hit a transient must resume/repair from step 6,
+not restart from step 1.
+
+REQUIRED BEHAVIOR (verify the current path in orchestrate.mjs before changing):
+1. CHECKPOINT completed steps: the artifacts + receipts of steps that already passed PERSIST and are not re-done on a
+   later-step failure. (Today a re-plan re-runs everything — wasteful + non-convergent.)
+2. On a step failure after its repair rounds are exhausted: do NOT full-re-plan by default. Options to implement (pick
+   the cleanest, witnessed): (a) retry the SAME step with a fresh dispatch (a transient empty emission deserves a plain
+   retry, distinct from a content repair); (b) if a genuine plan flaw, re-plan ONLY the remaining steps from the failed
+   point, feeding the completed-step receipts as fixed context; (c) only full-re-plan if the whole approach is invalid.
+3. A TRANSIENT (empty emission / network) must be distinguished from a real defect (witness REJECT on bad content):
+   transient -> retry the step; real defect -> repair, then fail-the-step-with-receipt. Never silently loop.
+4. Bound it: a step gets K retries then the mission FAILS at that step with a receipt naming the step + reason — no
+   infinite re-plan loop, no discarded work.
+5. STATE CLEANUP BEFORE RETRY (laguna witness 2026-06-16, finding #1 — a real gap in the first draft): a failed step may
+   have left CORRUPTED PARTIAL STATE (a half-written file, a partial commit). Retrying the step is UNSAFE until that
+   partial state is rolled back to the step's pre-attempt checkpoint. So: before re-attempting a step, RESTORE the target
+   to its last-good checkpoint (the integrity-guard/rollback machinery in orchestrate already snapshots — use it). Never
+   retry onto dirty state.
+6. SUB-MISSION FAILURE OWNERSHIP (laguna finding #4 — the A/B boundary): this step-isolation policy is what an
+   auto-split SUB-MISSION (M-ENGINE.HAJJ-AUTOSPLIT.1) inherits — define it ONCE here and have sub-missions inherit it, so
+   "who owns retry/failure within a split child" is unambiguous: each sub-mission is a normal mission and gets THIS
+   step-isolation behavior; a sub-mission that fails-at-a-step fails just itself (its tartib successors hold), it does not
+   re-plan the parent. Build B and A to share this one failure-boundary definition.
+
+Amanah: this is the fragility fix beneath everything tonight — it is why big missions loop and why the conductor hand-
+splits. Witness it; selftest: a step-6 transient resumes from step 6 (not step 1); completed-step artifacts survive a
+later failure; a truly-stuck step fails-with-receipt without re-planning the world. Build against the real execute loop.
+
+Constraints: FRESH instance; witnessed; the existing per-step repair loop + witness preserved (this changes what
+happens AFTER repairs are exhausted, + adds checkpointing); GR10; commit --no-verify; NAS untouched. PAIRS WITH
+M-ENGINE.HAJJ-AUTOSPLIT.1 (autosplit shrinks blast radius; this contains the blast). Together they end the
+mega-mission failure class: small missions + isolated failures = convergence instead of loops.

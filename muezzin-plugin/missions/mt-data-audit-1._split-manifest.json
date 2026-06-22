@@ -1,0 +1,22 @@
+{
+  "parent": "M-MUDDYTIRES.MT-DATA-AUDIT-1",
+  "parentMissionFile": "C:\\Users\\marka\\.claude\\muezzin-plugin\\missions\\mt-data-audit-1.mission.txt",
+  "ceiling": 8,
+  "originalStepCount": 10,
+  "splitAt": "2026-06-18T20:57:20.999Z",
+  "subMissions": [
+    {
+      "id": "M-MUDDYTIRES.MT-DATA-AUDIT-1.S1",
+      "file": "missions/mt-data-audit-1.S1.mission.txt",
+      "requires": null,
+      "steps": 8
+    },
+    {
+      "id": "M-MUDDYTIRES.MT-DATA-AUDIT-1.S2",
+      "file": "missions/mt-data-audit-1.S2.mission.txt",
+      "requires": "M-MUDDYTIRES.MT-DATA-AUDIT-1.S1",
+      "steps": 2
+    }
+  ],
+  "note": "PARENT marked SPLIT (not executed). Children run in tartib order; each REQUIRES its predecessor DONE. Queue flow: M-ENGINE.QUEUE-FLOW.1."
+}

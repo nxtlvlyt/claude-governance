@@ -1,0 +1,23 @@
+MISSION-CLASS: code-repo
+MISSION-ID: M-IMPL-VOCAB-WEB.1
+REPO-ROOT: C:\Users\marka\.claude\muezzin-plugin
+ALLOW-FILES:
+  - deconstructor.mjs
+  - _tests/impl-vocab-web.test.mjs
+REQUIRES: code-repo
+
+Maqsad: Unblock the #1 goal (muddytires.ca static deploy) and ALL future website-deploy missions by widening the plan validator's notion of an "implementation file" to include web/static/config files. RECEIPTED ROOT CAUSE: muddytires-migrate-1 FAILED x2 at the PLAN phase (never reached deploy) — mission-events: `step N: an 'edit' micro-action must touch EXACTLY 1 implementation file (found impl:0) — split it`, on every edit step targeting index.html / landing.html / _headers / README.md. Cause: deconstructor.mjs:15 `IMPL_EXT` lists only CODE extensions (.mjs/.js/.ts/.py/.php/.sh/.bat/...); isImplFile() returns false for .html/.css/.json/_headers, so a static-web edit step counts impl:0 and the validator rejects the whole plan. This is the SAME class as the 2026-06-10 get-upgrade fix (deconstructor.mjs:13 comment: ".ps1/.psm1/.sh/.bat added... the validator's vocabulary was narrower than the work") — now for web files. It also blocks website-predeploy-security-gate (it edits deploy.cmd — .cmd is likewise missing).
+
+niyyah: fix the engine vocabulary at its root so the conductor stops blind-relaunching web missions into the same wall, and does not hand-patch deconstructor itself. Source open: deconstructor.mjs (IMPL_EXT:15, isImplFile:18, validateMicroAction:79-84, the research-deliverable path isResearchDeliverable:32 + the opts.research exception:81) + the muddytires receipt. Guard against: polluting the research-class path (where .md/.json are deliverables counted separately) — research behavior must stay byte-identical; and over-widening so that a genuine multi-file edit slips the size ceiling.
+
+Done means (verifiable):
+1. For code-repo missions, web/static/config files count as implementation targets so a single-file edit step PASSES the "EXACTLY 1 implementation file" rule. Add coverage for: .html .htm .css .scss .less .json .xml .svg .vue .astro .cmd .md .txt, AND extensionless web-config basenames (_headers, _redirects, robots.txt, wrangler.toml). (NOTE: .md/.txt as code-repo IMPLEMENTATION targets — docs/notes are legitimate edit targets IN A CODE REPO; this is distinct from the research-class deliverable path and must be added in a way that does not change research behavior, i.e. a code-repo-only widened set is the safer implementation here.) Implementation may either extend IMPL_EXT or make isImplFile context-aware via opts (a code-repo-only widened set is acceptable) — your choice, but:
+2. Research-class behavior is UNCHANGED: the existing research path (.md/.json/.txt/.csv as the deliverable, the implTargets===0 && deliverables===1 exception) must still pass and fail exactly as before. No research regression.
+3. The size ceiling still holds: an edit step naming TWO implementation files still errors (`size ceiling — at most 1 implementation file`). Widening the vocabulary must not relax the one-impl-file cap.
+4. _tests/impl-vocab-web.test.mjs is green and asserts: (a) a code-repo plan with an 'edit' step on index.html validates ok (impl counted = 1); (b) an 'edit' on _headers (extensionless) validates ok; (c) an 'edit' on deploy.cmd validates ok; (d) an 'edit' naming index.html AND style.css still errors on the size ceiling; (e) a research-class .md single-deliverable plan still validates ok (no regression). Acceptance: `node _tests/impl-vocab-web.test.mjs` exits 0; and the existing deconstructor self-tests / suite stay green.
+
+Constraints: code-repo, muezzin-plugin repo only, the two ALLOW-FILES only, NAS UNTOUCHED. Surgical change to the vocabulary/classifier — do not touch the one-writer rule, tartib, or the dispatch logic. If the engine cannot satisfy the witness, HOLD with a receipt (no blind relaunch).
+
+Steps:
+1. edit deconstructor.mjs - widen the implementation-file classifier to cover web/static/config files for code-repo missions (extend IMPL_EXT and/or make isImplFile context-aware), preserving the research path and the size ceiling. Acceptance: `node --check deconstructor.mjs` passes.
+2. write _tests/impl-vocab-web.test.mjs - the five assertions in Done-means #4. Acceptance: `node _tests/impl-vocab-web.test.mjs` exits 0.

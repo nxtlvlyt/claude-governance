@@ -1,0 +1,8 @@
+NEEDS-WORK
+
+- Missing **dynamic phase adaptation** (e.g., injecting new phases based on intermediate verdicts or emergent failure modes), a 2026 SOTA practice in resilient agentic loops (see: LangGraph conditional edge routing, Temporal signal workflows).
+- No **cross-mission context retention or meta-learning** — state is mission-scoped; no mechanism to accumulate verdict patterns or retry heuristics across missions for self-improvement (violates durable agent SOTA: persistent agent memory + skill refinement).
+- **Verdict semantics are under-specified** — "BLOCK/REVISE/REJECT" lacks formal ontology (e.g., severity tiers, escalation paths, or semantic grounding in mission goals), risking ambiguous gating and inconsistent loop behavior.
+- **No adversarial validation or red-teaming hook** — despite heterogeneous critics, there’s no protocol for stress-testing the orchestrator itself (e.g., injecting faulty verdicts or simulating seat collusion) — a gap in 2026 agentic trust frameworks.
+- **State file is centralized and not tamper-evident** — `muezzin-state.json` lacks integrity chaining (e.g., hash-linked entries or Merkle proofs), making silent corruption or replay attacks possible despite durability claims.
+- **Integrator compression is noted but not operationalized** — no detail on *how* deliberation is compressed (e.g., structured critique extraction, voting, or rationale distillation), leaving a critical SOTA claim (context engineering) unsubstantiated in mechanism.

@@ -1,0 +1,18 @@
+MISSION-ID: M-CORPUS.COMPLETE.1.S5
+MISSION-CLASS: build-program (multi-stage; decompose under the Hajj mission-architecture — Architect splits, no hand-authored steps)
+PARENT: M-CORPUS.COMPLETE.1  (sub-mission 5 of 5, auto-split by the size ceiling)
+REQUIRES: predecessor M-CORPUS.COMPLETE.1.S4 DONE (tartib — sub-mission 5 runs after 4 of 5)
+
+Niyyah: the factory's paid-for knowledge is useless while it is scattered and incomplete — six cards in six folders
+
+Maqsad: this is part 5 of 5 of the parent objective below — a right-sized slice the engine can decompose under the size ceiling without overwhelming a seat. Achieve ONLY this slice's work; the sibling sub-missions own the rest.
+PARENT MAQSAD (the whole objective these sub-missions together serve): a single, indexed, queryable knowledge base distilled from EVERY source in the P0-CORPUS census (the
+
+THIS SUB-MISSION'S WORK (the parent decomposition's steps assigned to this slice — re-decompose them under the smaller budget; do not exceed the ceiling):
+  - FINAL DONE-GATE — assert the mission is genuinely complete: INDEX.md and PATTERNS.md exist in the library AND the proof-query receipt exists with a card-cited answer. Nothing claims DONE without the grounded query receipt (guards the silent-ungrounded-done failure mode).
+
+Done means: step M-CORPUS.COMPLETE.1.S5.1 are all complete, each with its validation_command receipt passing (the deed witnessed, not asserted); and the parent's done-condition holds for this slice — the census's 17 sources are all carded (or explicitly skip-verdicted), the library INDEX
+resolves to every card, PATTERNS.md exists, and the AnythingLLM workspace answers the operator's example query with
+a cited answer. Nothing claims done without that query receipt.
+
+Amanah: this slice was split from a larger mission so it stays inside the chain's reliable working capacity (Q2:286 / mizan). Discharge it with ihsan; its receipt unlocks the next sibling.

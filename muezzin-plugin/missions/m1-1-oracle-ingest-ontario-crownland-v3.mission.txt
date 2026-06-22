@@ -1,0 +1,44 @@
+MISSION-CLASS: code-repo (data ingest into D1 via wrangler + positive-assertion verify; ADDITIVE — new table + one status doc; no live-site/index.html/pois touch)
+MISSION-ID: M-MUDDYTIRES.M1-1.ORACLE-INGEST-ONTARIO-CROWNLAND.V3
+REPO-ROOT: E:\AI_Storage\muddytires-d1-wt
+ALLOW-FILES: d1/crownland-ingest.md
+
+# SUPERSEDES v1+v2 (both FAILED x2). DIAGNOSIS CONFIRMED FROM RECEIPTS (not guessed): v2 got steps 1-4 right — preflight,
+# fetched 24 REAL Ontario CLUPA features from the live LIO ArcGIS service, created the table, built escaped SQL. Step 5
+# (load) failed with the EXACT error `statement too long: SQLITE_TOOBIG`: the generated load.sql was 13.9 MB because each
+# INSERT carried the feature's FULL polygon geometry_json (thousands of ring coordinates). D1/SQLite rejects statements
+# that large. ESCAPING WAS FINE — the full polygon is the only problem.
+# v3 FIX: store policy ATTRIBUTES + a computed BOUNDING BOX only. DO NOT store full polygon geometry (that needs R2, a
+# LATER mission — D1 cannot hold it in a statement). The attributes ARE the legality data; the bbox gives a coarse
+# point-lookup for the Oracle's first pass.
+
+Niyyah: land the real Ontario Crown-land POLICY data (designations + bbox) in our D1 — small, queryable, the first brick
+of the Oracle — sidestepping the SQLITE_TOOBIG wall by NOT shoving whole polygons into a row.
+
+Maqsad: ONE deliverable — D1 table `crown_land_policy` holding the 24 real Ontario CLUPA features as ATTRIBUTES + bbox,
+plus d1/crownland-ingest.md documenting the verified count + source. Steps (each positive-assertion, EXIT NON-ZERO on absence):
+1. PREFLIGHT: wrangler authed + muddytires-pois reachable --remote (SELECT 1).
+2. FETCH the small CLUPA subset from the live LIO ArcGIS service (v2 used:
+   ws.lioservices.lrc.gov.on.ca/arcgis2/rest/services/LIO_OPEN_DATA/LIO_Open06/MapServer/5/query, central-Ontario bbox,
+   25-record cap, f=json) into d1/clupa-raw.json. Assert features.length > 0.
+3. CREATE TABLE IF NOT EXISTS crown_land_policy (id INTEGER PRIMARY KEY, ogf_id INTEGER, area_name TEXT, designation TEXT,
+   category TEXT, aou_designation TEXT, bbox_minx REAL, bbox_miny REAL, bbox_maxx REAL, bbox_maxy REAL) --remote. Idempotent.
+4. BUILD d1/load.sql from d1/clupa-raw.json: for EACH feature emit ONE INSERT with:
+   - area_name = attributes.NAME_ENG, designation = attributes.DESIGNATION_ENG, category = attributes.CATEGORY_ENG,
+     aou_designation = attributes.AOU_DESIGNATION, ogf_id = attributes.OGF_ID
+   - bbox = the min/max of ALL x and y across geometry.rings (flatten the rings, compute minx/miny/maxx/maxy as 4 numbers)
+   - ESCAPE single quotes in every text value ('' doubling).
+   - ABSOLUTELY DO NOT include the raw geometry/rings in any column — only the 4 bbox numbers. (This is the SQLITE_TOOBIG fix.)
+   Prepend `DELETE FROM crown_land_policy;` for idempotency. Assert d1/load.sql is well under 1 MB (EXIT 1 if it's huge —
+   that means geometry leaked in).
+5. EXECUTE d1/load.sql --remote (wrangler d1 execute --file).
+6. VERIFY --remote (positive-assertion): SELECT COUNT(*) AS n FROM crown_land_policy, assert n > 0 (EXIT 1 if 0).
+7. WRITE d1/crownland-ingest.md: verified row count, source service URL + bbox, timestamp.
+8. COMMIT only d1/crownland-ingest.md --no-verify.
+
+Done means: crown_land_policy on remote muddytires-pois with n > 0 real Ontario CLUPA attribute+bbox rows; doc written;
+live site + pois untouched. If LIO is unreachable / 0 features, FAIL HONESTLY at step 2 with the URL.
+
+Constraints: ADDITIVE; positive-assertion verifies; **attributes + bbox ONLY, NEVER full geometry** (SQLITE_TOOBIG fix);
+escape single quotes; small bbox subset; load.sql must be < 1 MB; wrangler authed (HALT with scope if missing); commit
+--no-verify; NAS untouched.

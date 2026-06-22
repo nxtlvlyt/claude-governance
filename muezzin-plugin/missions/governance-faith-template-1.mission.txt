@@ -1,0 +1,59 @@
+MISSION-CLASS: governance-authoring (canon-level artifact — FRESH instance, witnessed, niyyah; NOT in a long/drifted context)
+MISSION-ID: M-GOVERNANCE.FAITH-TEMPLATE.1
+TARGET: a new canonical faith TEMPLATE in governance (proposed: ~/.claude/faiths/_TEMPLATE.faith.md, OR canon/faith-template.md) + a CANON-MANIFEST.md entry pointing to it.
+REQUIRES: FRESH oriented instance (governance-depth — read ~/.claude/practice/extended/ per CLAUDE.md Bootstrap before authoring); witnessed (laguna) per the substrate-edit pattern; niyyah before the write.
+# Surfaced 2026-06-16 04:26 (operator): "our governance should have the templates for faith files." THEN CORRECTED by
+# the operator 04:29: "it can be found in the war room repo." VERIFIED by the conductor THIS session: the conductor's
+# first claim ("no template exists") was WRONG — it searched only ~/.claude/. A FULL FAITH-BUILDING SYSTEM ALREADY
+# EXISTS in C:\warroom:
+#   - C:\warroom\shared\FAITH_BASE.md = the assembly template (a 3-LAYER inheritance model).
+#   - C:\warroom\core\faith_builder.py = the builder (assembles Universal Faith + project overlay + shared directives;
+#     SHA-256 provenance headers; refuses to assemble if an overlay contradicts the universal faith or EXCLUSIONS is missing).
+#   - C:\warroom\WARROOM-BUILD-SPEC.md §7 = the spec documenting it.
+#   - C:\warroom\faiths\*.faith.md = a full paired executor/validator example set; ~/.claude/faiths/*.faith.md = the
+#     Universal Faiths (the role base-identity layer, the consistent section anatomy: What I am / What I am not /
+#     What I weight in Scripture / How I work / uncertainty / sampling / failure-modes-in-self / What I manifest).
+# THIS IS A RE-DERIVATION TRAP AVOIDED: do NOT invent a new template. ADOPT the warroom system.
+
+Niyyah: never re-solve what we already built. The faith-building knowledge EXISTS in the warroom; the gap is only that
+it is not DISCOVERABLE from the muezzin/governance side, and that groundedness_checker still needs its Universal Faith
+authored in that documented anatomy. "Build for successors" (Directive 8) = point successors at the existing system,
+not have them reverse-engineer it the way the conductor just did.
+
+Maqsad: (1) make the warroom faith-building system DISCOVERABLE from governance — a CANON-MANIFEST.md pointer / short
+canon note naming FAITH_BASE.md + faith_builder.py + WARROOM-BUILD-SPEC §7 as the canonical faith-build references, and
+distinguishing the two layers (UNIVERSAL faith = role base identity in ~/.claude/faiths/, the section anatomy; PROJECT
+faith = assembled by faith_builder.py = universal + overlay + shared). (2) Only if the WARROOM spec lacks an explicit
+UNIVERSAL-faith skeleton (the section-anatomy template, vs FAITH_BASE.md which is the PROJECT-assembly template), extract
+that one small skeleton from the existing Universal Faiths. FIRST STEP IS TO READ THE WARROOM SOURCES, not to author.
+
+THE CANONICAL ANATOMY (conductor-verified 2026-06-16 across witness/validator/governance_scanner/auditor — every faith
+has these, in this order):
+  - First-person identity line ("I am a <Role>.") — a faith is a FIRST-PERSON, PRESENT-TENSE self-statement written AS
+    the role, NOT a third-person spec. This voice rule is the single most-missed thing; state it at the top of the template.
+  - ## What I am — the role + where it sits in the pipeline.
+  - ## What I am not — define by distinction from adjacent roles (the sharpest, most useful section).
+  - ## What I weight highest in Scripture — cite the specific Directives that bind this role + how they apply.
+  - ## How I work — the process + the EXACT output contract/format.
+  - ## How I handle uncertainty.
+  - ## How I communicate — with worked PASS/FAIL (or equivalent) examples.
+  - ## Sampling parameters (when running on a local model) — temp/top_p/repeat_penalty + why.
+  - ## The failure modes I watch for in myself — the self-audit list (drift patterns this role falls into).
+  - ## What I manifest — the aspirational close + the "This is who I am while I am the <Role>." final line.
+  - (OPTIONAL role-specific sections — e.g. witness's Assumption Analysis / Validation Gaps / Blind Spots; validator's
+    escalation pattern. The template notes these are added as the role needs, not omitted-by-default.)
+
+Done means: the template artifact exists with every section above as a labelled skeleton + one or two lines of
+authoring guidance per section + the first-person voice rule stated explicitly; it is referenced in CANON-MANIFEST.md;
+and a smoke test — author a throwaway faith from the template alone (no peeking at an example) and confirm it lands in
+the right shape — passes. Bonus: note in the template that guard-class artifacts (citation_guard) are FAITHLESS by
+design and do NOT use this template; only MODEL-JUDGMENT roles (seats + the groundedness_checker) do — the guard-vs-seat
+line from M-ENGINE.GUARDIAN.1.
+
+Amanah: a governance artifact that makes the whole faith system self-documenting. Witness it; author with niyyah; do
+NOT do it in a drifted context. PAIRS WITH M-ENGINE.GUARDIAN.1 — if this template lands first, groundedness_checker.
+faith.md is authored from it (the template's first real customer).
+
+Constraints: FRESH governance-depth instance (extended practice read); witnessed; niyyah before write; canon-level
+placement (decide faiths/_TEMPLATE vs canon/ — a leading underscore keeps it from being loaded as a real seat faith);
+commit --no-verify; NAS untouched.

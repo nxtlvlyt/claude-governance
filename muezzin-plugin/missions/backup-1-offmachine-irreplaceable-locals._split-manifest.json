@@ -1,0 +1,22 @@
+{
+  "parent": "M-BACKUP.OFFMACHINE.1",
+  "parentMissionFile": "C:\\Users\\marka\\.claude\\muezzin-plugin\\missions\\backup-1-offmachine-irreplaceable-locals.mission.txt",
+  "ceiling": 8,
+  "originalStepCount": 13,
+  "splitAt": "2026-06-16T07:16:59.906Z",
+  "subMissions": [
+    {
+      "id": "M-BACKUP.OFFMACHINE.1.S1",
+      "file": "missions/backup-1-offmachine-irreplaceable-locals.S1.mission.txt",
+      "requires": null,
+      "steps": 8
+    },
+    {
+      "id": "M-BACKUP.OFFMACHINE.1.S2",
+      "file": "missions/backup-1-offmachine-irreplaceable-locals.S2.mission.txt",
+      "requires": "M-BACKUP.OFFMACHINE.1.S1",
+      "steps": 5
+    }
+  ],
+  "note": "PARENT marked SPLIT (not executed). Children run in tartib order; each REQUIRES its predecessor DONE. Queue flow: M-ENGINE.QUEUE-FLOW.1."
+}

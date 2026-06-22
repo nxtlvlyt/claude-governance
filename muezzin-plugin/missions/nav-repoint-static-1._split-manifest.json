@@ -1,0 +1,22 @@
+{
+  "parent": "M-MUDDYTIRES.NAV-REPOINT-STATIC.1",
+  "parentMissionFile": "C:\\Users\\marka\\.claude\\muezzin-plugin\\missions\\nav-repoint-static-1.mission.txt",
+  "ceiling": 8,
+  "originalStepCount": 9,
+  "splitAt": "2026-06-17T11:01:36.333Z",
+  "subMissions": [
+    {
+      "id": "M-MUDDYTIRES.NAV-REPOINT-STATIC.1.S1",
+      "file": "missions/nav-repoint-static-1.S1.mission.txt",
+      "requires": null,
+      "steps": 8
+    },
+    {
+      "id": "M-MUDDYTIRES.NAV-REPOINT-STATIC.1.S2",
+      "file": "missions/nav-repoint-static-1.S2.mission.txt",
+      "requires": "M-MUDDYTIRES.NAV-REPOINT-STATIC.1.S1",
+      "steps": 1
+    }
+  ],
+  "note": "PARENT marked SPLIT (not executed). Children run in tartib order; each REQUIRES its predecessor DONE. Queue flow: M-ENGINE.QUEUE-FLOW.1."
+}

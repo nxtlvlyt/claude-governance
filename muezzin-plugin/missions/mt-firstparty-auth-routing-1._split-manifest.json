@@ -1,0 +1,22 @@
+{
+  "parent": "M-MUDDYTIRES.TOKEN-AUTH-1 (re-scoped from first-party-routing -> bearer-token, per the routing-design judge-panel)",
+  "parentMissionFile": "C:\\Users\\marka\\.claude\\muezzin-plugin\\missions\\mt-firstparty-auth-routing-1.mission.txt",
+  "ceiling": 8,
+  "originalStepCount": 9,
+  "splitAt": "2026-06-19T00:09:28.392Z",
+  "subMissions": [
+    {
+      "id": "M-MUDDYTIRES.TOKEN-AUTH-1 (re-scoped from first-party-routing -> bearer-token, per the routing-design judge-panel).S1",
+      "file": "missions/mt-firstparty-auth-routing-1.S1.mission.txt",
+      "requires": null,
+      "steps": 8
+    },
+    {
+      "id": "M-MUDDYTIRES.TOKEN-AUTH-1 (re-scoped from first-party-routing -> bearer-token, per the routing-design judge-panel).S2",
+      "file": "missions/mt-firstparty-auth-routing-1.S2.mission.txt",
+      "requires": "M-MUDDYTIRES.TOKEN-AUTH-1 (re-scoped from first-party-routing -> bearer-token, per the routing-design judge-panel).S1",
+      "steps": 1
+    }
+  ],
+  "note": "PARENT marked SPLIT (not executed). Children run in tartib order; each REQUIRES its predecessor DONE. Queue flow: M-ENGINE.QUEUE-FLOW.1."
+}

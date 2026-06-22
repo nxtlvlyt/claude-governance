@@ -1,0 +1,22 @@
+{
+  "parent": "M-MUDDYTIRES.MT-CUTOVER-1-MAPLANDING-LIVE.S1",
+  "parentMissionFile": "C:\\Users\\marka\\.claude\\muezzin-plugin\\missions\\mt-cutover-1-maplanding-live.S1.mission.txt",
+  "ceiling": 8,
+  "originalStepCount": 9,
+  "splitAt": "2026-06-18T03:27:41.738Z",
+  "subMissions": [
+    {
+      "id": "M-MUDDYTIRES.MT-CUTOVER-1-MAPLANDING-LIVE.S1.S1",
+      "file": "missions/mt-cutover-1-maplanding-live.S1.mission.txt",
+      "requires": null,
+      "steps": 8
+    },
+    {
+      "id": "M-MUDDYTIRES.MT-CUTOVER-1-MAPLANDING-LIVE.S1.S2",
+      "file": "missions/mt-cutover-1-maplanding-live.S2.mission.txt",
+      "requires": "M-MUDDYTIRES.MT-CUTOVER-1-MAPLANDING-LIVE.S1.S1",
+      "steps": 1
+    }
+  ],
+  "note": "PARENT marked SPLIT (not executed). Children run in tartib order; each REQUIRES its predecessor DONE. Queue flow: M-ENGINE.QUEUE-FLOW.1."
+}

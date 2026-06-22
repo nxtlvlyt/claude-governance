@@ -1,0 +1,53 @@
+MISSION: cgsports-sota-v3-frame — question the frame, not the finish
+MISSION-CLASS: research
+TIER: HAJJ
+REQUIRES: search
+
+Maqsad: The CGSports SOTA plan (N:\CGSports\SOTA-UPGRADE-PLAN.md §8.5) was upheld as
+finish-and-sharpen INSIDE v2's frame; the operator challenged whether the frame itself
+is SOTA. This mission produces the v3 FRAME answer — what a 2026-grade sports-prediction
+product looks like, and whether/how v2 migrates toward it — grounded in live search,
+not training memory.
+
+Niyyah: research the actual state of the art before recommending; a plan that polishes
+yesterday's frame with today's tools is drift wearing diligence's clothes.
+
+Work: ONE artifact, sota-v3-frame.md, with four sections:
+1. ML EVALUATION FRAME — closing-line value (CLV) as the success metric vs raw accuracy:
+   what it is, why the industry uses it, what adopting it requires of the existing
+   2.1M-row odds data (opening AND closing lines — verify the schema holds both).
+   Calibration (conformal/isotonic) + Kelly sizing: concretely, what changes in the
+   predict-and-display pipeline.
+2. MODEL CLASS SURVEY (search-grounded, 2025-2026 sources) — what is actually winning in
+   public sports-prediction work now: gradient-boosting + calibration stacks, sequence/
+   transformer models over game histories, LLM-assisted feature synthesis, ensembles.
+   For each: data demands vs what CGSports has, and an honest fit verdict.
+3. UNIFICATION — one platform pattern for ALL the operator's properties (CGSports,
+   tidaltreasures, portal/2boots, future Layna): shared auth, billing, deploy (tunnel +
+   edge front), content primitives. What the shared core is, what stays per-site, and
+   whether CGSports migrates first or last.
+4. MIGRATE-VS-OVERLAY COSTING — three options with effort + risk: (a) finish v2 as-is
+   then overlay v3 ML; (b) finish v2, migrate platform later; (c) v3 frame now, v2
+   becomes the data/backtest layer. A recommendation with reasoning, not a menu.
+
+OPERATOR DESIGN CONTRACT (his words, 2026-06-11 — every section must serve these):
+- "easy to manage easy to edit easy to fix and easy to add new sports"
+- "a unified modular system ... full control of fixing a bug that may be relative
+  across all sports" — ONE fix propagates to every sport; no per-sport copies of logic.
+- "all sports Pages look the same and when we build a new sport page it builds with
+  the same structure ... really just be plug and Play" — a sport is a CONFIG + thin
+  adapters; pages render from ONE template; a scaffolder stamps out a new sport.
+- gemma-4-31b via API key (AIMLAPI) is a first-class platform service (commentary,
+  explanations, previews), not a bolt-on.
+- Build NOW on the NAS; transfer to Cloudflare LATER (operator has no API key today;
+  nothing in the build may hard-depend on Cloudflare).
+- "a lot of this information you can find in the substrate already" — ROADMAP.md,
+  SUBSTRATE.md, STATE.md, the v2 contract layer, and V3-ARCHITECTURE.md (conductor
+  draft, N:\CGSports) are REQUIRED reading before authoring.
+
+Done means: sota-v3-frame.md exists with all four sections; every model-class and CLV
+claim carries a live-search citation (URL); every claim about v2's current state cites
+a repo file. The single essential criterion (Arafat): section 4 ends in ONE
+recommendation with its reasoning chain — a menu without a pick fails the mission —
+and that recommendation must satisfy the OPERATOR DESIGN CONTRACT above explicitly,
+point by point.

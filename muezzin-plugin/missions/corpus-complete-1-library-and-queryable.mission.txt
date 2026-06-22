@@ -1,0 +1,65 @@
+MISSION-CLASS: build-program (multi-stage; decompose under the Hajj mission-architecture — Architect splits, no hand-authored steps)
+MISSION-ID: M-CORPUS.COMPLETE.1
+REPO-ROOT: C:\Users\marka\.claude\muezzin-plugin (cards live under missions/card-*/ and missions/*-knowledge/; reference sources are read-only)
+REQUIRES: cloud architect budget OR local-architect routing (this is authoring/research-class, NOT code-repo — the engine does this reliably; it only needs a working planning seat). Search-grounded (SearXNG) for any external claim.
+PLANNING NOTE (avoid TOOL_LOOP_CAP — the 2026-06-16 01:58 re-plan loop burned cloud because the architect read repos during PLAN and blew the 7-round tool cap): plan from THIS mission text ALONE. Do NOT read the source repos, cards, or AnythingLLM during the PLAN phase — the gather steps clone/copy the repos and the card steps read them; the ingestion/proof steps touch AnythingLLM. Emit the micro_queue in a single pass with minimal tool calls. Every gather/clone step must TOLERATE-AND-CONTINUE on a missing source (a dead path is skipped + noted, never a hard fail that re-plans the whole mission).
+SOURCE-PATH CONTRACT (the 02:10 + 02:38 plans BOTH failed here — receipt: card step refused "Discovery Gate Violation — target dir missions/card-nxtlvl-portal is empty"; the plan cloned the repo to _clones/X but pointed the card step at the EMPTY OUTPUT dir card-X, so the seat correctly refused to fabricate a card with no source): each card-authoring step MUST be given the EXPLICIT path to where its source was cloned/copied, and read the source FROM THERE. Concretely: clone each repo to a clearly-named source dir (e.g. _src/<name>/), and the AUTHOR-card step for <name> reads _src/<name>/ and WRITES to missions/card-<name>/card-<name>.md. NEVER point an author step at its own empty output dir as if it held the source. If a clone FAILED (tolerate-and-continue), the card step for that source must SKIP with a noted gap, NOT attempt to author from an empty dir (which triggers the discovery-gate refusal → re-plan loop). Same rule for STAGE 2 assemble (read the real card files) and STAGE 3 ingest (read the assembled library).
+# Operator ask 2026-06-16 01:29 (verbatim intent): "this knowledge base needs to be 100% so any agent working on
+# any website could reach to it for context — for example I'd like to ask 'what can muddytires learn from our
+# knowledge base' but I can't because it's not completely done yet." This mission makes the KB COMPLETE,
+# CONSOLIDATED, and QUERYABLE. It is the finish of P0-CORPUS S1–S3 (see website-pipeline missions/P0-MISSIONS.md).
+
+Niyyah: the factory's paid-for knowledge is useless while it is scattered and incomplete — six cards in six folders
+that no agent can find, three of the operator's builds never mined at all, and nothing a question can be asked of.
+Make the knowledge base a real thing: every build carded, all of it in ONE indexed place an agent reaches by a known
+path, and ingested where the operator can simply ASK it a question and get an answer grounded in his own work.
+
+Maqsad: a single, indexed, queryable knowledge base distilled from EVERY source in the P0-CORPUS census (the
+verified 17-source list in missions/p0-corpus/sources.json — the 2026-06-16 update closed the private-repo gap and
+added CGSports + nfl-predictions), such that (a) any future agent or instance can read one library to ground a
+website build, and (b) the operator can ask a natural-language question like "what can muddytires learn from our
+knowledge base" and receive an answer cited to the cards.
+
+Amanah: entrusted; discharge with ihsan. Receipts per stage, not claims — a card that exists on disk, a library
+INDEX that resolves to every card, an AnythingLLM query that returns a grounded answer.
+
+STAGED PLAN (each stage its own sub-mission, receipted; tartib — a stage may not start until its predecessor's
+receipt exists):
+
+1. CARD THE THREE UNCARDED SOURCES — one pattern card each, same shape as the existing card-2boots /
+   card-tidaltreasures cards (what it does well, recurring components, design tokens, copy/voice patterns, vertical
+   fit, what a future build should reuse vs avoid), grounded in the actual repo:
+   - nxtlvl-portal  (github nxtlvlyt/nxtlvl-portal, PRIVATE — gh is authed as nxtlvlyt with repo scope; clone/read read-only; also repo-read copy at E:\AI_Storage\_repo_read\nxtlvl-portal)
+   - CGSports       (github nxtlvlyt/CGSports, PRIVATE — gh is authed; clone read-only from GitHub. DO NOT use N:\CGSports — that NAS-mapped drive is DOWN/unreachable and caused the 01:39 step-3 hard-fail; clone from GitHub ONLY.)
+   - nfl-predictions(github nxtlvlyt/nfl-predictions, PRIVATE)
+   Receipt: three card-*.md files on disk with evidence (file refs).
+   NOTE: also REDO the thin card-regulativity card (21 lines) to full depth — it is the one existing card below bar.
+
+2. ASSEMBLE THE LIBRARY (this is CORPUS.S3, never done) — consolidate ALL cards into ONE place:
+   missions/_knowledge-base/ with:
+   - INDEX.md — one row per source: name, vertical, card path, one-line "what it teaches".
+   - the normalized cards (copied/linked, consistent headings).
+   - PATTERNS.md — the CROSS-CUTTING synthesis: the recurring components, voice moves, design-token habits, and
+     anti-patterns that show up across MULTIPLE builds (this is the part that lets an agent answer "what can X learn
+     from our KB" — it is the distilled wisdom, not just a pile of cards).
+   Receipt: _knowledge-base/INDEX.md resolves to every card; PATTERNS.md cites the cards it generalizes from.
+
+3. MAKE IT QUERYABLE — ingest the library into AnythingLLM (running at localhost:3001; a workspace already exists —
+   business-books) as a dedicated workspace (suggested: "nxtlvl-knowledge" or fold into the existing one), so a
+   natural-language question retrieves against the cards. Then PROVE it: run the operator's own example query
+   "what can muddytires learn from our knowledge base" against the workspace and capture the grounded answer as the
+   receipt. (AnythingLLM API needs the valid key — it is in the governance/AnythingLLM config per memory
+   feedback_anythingllm_rag_config; the census made a live API call this session, so the credential exists.)
+
+4. PUBLISH THE POINTER — so "any agent working on any website can reach it": write a short, stable pointer (a
+   memory reference entry + a line in the website-pipeline docs) naming the library path AND the AnythingLLM
+   workspace + how to query it. Receipt: the pointer exists and names a path that resolves.
+
+Amanah (restated): done = the census's 17 sources are all carded (or explicitly skip-verdicted), the library INDEX
+resolves to every card, PATTERNS.md exists, and the AnythingLLM workspace answers the operator's example query with
+a cited answer. Nothing claims done without that query receipt.
+
+Constraints: authoring/research-class (no code-repo edits) — runs on the reliable authoring engine; search-grounded
+for external claims (SearXNG first); read-only against all source repos (gh read-only; NAS UNTOUCHED); cloud-budget
+aware — if cloud architects are exhausted, route Phase-1 to local (nemotron/qwen/granite are free on the 4090) OR
+hold until the weekly reset rather than burning the protected Claude tier; commit --no-verify.

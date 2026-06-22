@@ -1,0 +1,29 @@
+MISSION-ID: M-MUDDYTIRES.DB-MIGRATE-POIS-1.S2
+MISSION-CLASS: code-repo
+REPO-ROOT: E:\AI_Storage\muddytires-d1-wt
+ALLOW-FILES:
+  - d1/pois-load.sql
+  - d1/poi-migration-plan.md
+PARENT: M-MUDDYTIRES.DB-MIGRATE-POIS-1  (sub-mission 2 of 3, auto-split by the size ceiling)
+REQUIRES: predecessor M-MUDDYTIRES.DB-MIGRATE-POIS-1.S1 DONE (tartib — sub-mission 2 runs after 1 of 3)
+
+Niyyah: the database that held every place the community gathered still lives on the NAS — a 1.4GB MariaDB the static Cloudflare site
+
+Maqsad: this is part 2 of 3 of the parent objective below — a right-sized slice the engine can decompose under the size ceiling without overwhelming a seat. Achieve ONLY this slice's work; the sibling sub-missions own the rest.
+PARENT MAQSAD (the whole objective these sub-missions together serve): produce the concrete migration that moves the POI data off the NAS into Cloudflare D1 `pois`, so the live map's markers return.
+
+THIS SUB-MISSION'S WORK (the parent decomposition's steps assigned to this slice — re-decompose them under the smaller budget; do not exceed the ceiling):
+  - MANDATORY DE-RISK GATE: SELECT COUNT(*) on the restored backup `vanlife_db.pois`. If it reads cleanly and >0 the backup is good and the dying NAS does not lose the data. Exit 1 on error/zero — that is the receipt-backed HALT (a fresh live NAS export is operator-identity-bound and risky; never the chain's call, never invented rows).
+  - Capture the restored source `pois` SHOW CREATE TABLE to a scratch file — the source-side column/type map used to translate MariaDB types to the D1 column set (geometry/POINT dropped; lat/lng REAL). Positive-assert the DDL came back.
+  - Capture the source `pois` row count to a scratch file — the 'source' side of the GAP equation the plan doc states. Positive-assert the captured value is a number.
+  - Dump the source `pois` rows to a TSV intermediate, selecting only the columns that map to the live D1 schema (from step 3/10 crosswalk). Mechanical bulk extraction routed to engine/cheap-seat, not Claude. Positive-assert at least one data row beyond the header.
+  - GENERATE the ALLOW-FILE d1/pois-load.sql mechanically from the TSV dump (header-driven column tuple, idempotent leading DELETE FROM pois then one INSERT per row, single-quotes escaped). This is generated bulk output, so a command — not a model edit. Positive-assert the file contains real INSERT INTO pois statements.
+  - Validate d1/pois-load.sql is a valid SQLite/D1 load by executing it against the LOCAL D1 only (never --remote — production stays untouched). Exit 1 on any parse/constraint error so an invalid file fails the witness.
+  - Author the ALLOW-FILE d1/poi-migration-plan.md (model-written prose, single complete emission): state the measured POI GAP (live D1 counts vs source count), the EXACT operator-gated remaining commands (load: wrangler d1 execute muddytires-pois --remote --file d1/pois-load.sql; conditional redeploy), the oracle-method provenance, and the receipt-backed HALT branch. Gap numbers come from the captured scratch files, not invented.
+  - Tear down the throwaway MariaDB container (extracted scratch files are left in place in case the operator re-runs before loading). Positive-assert the container is gone.
+
+Done means: steps M-MUDDYTIRES.DB-MIGRATE-POIS-1.S2.1..M-MUDDYTIRES.DB-MIGRATE-POIS-1.S2.8 are all complete, each with its validation_command receipt passing (the deed witnessed, not asserted); and the parent's done-condition holds for this slice — (acceptance contract): d1/poi-migration-plan.md names the POI gap (D1 pois count vs NAS source count) + the exact operator-
+gated load+deploy commands; d1/pois-load.sql is a valid SQLite load for the POI rows (or the plan states precisely why extraction is
+blocked and what's needed). Both committed via explicit `git add` of only those two files, --no-verify; NOT loaded into live D1. A
+
+Amanah: this slice was split from a larger mission so it stays inside the chain's reliable working capacity (Q2:286 / mizan). Discharge it with ihsan; its receipt unlocks the next sibling.

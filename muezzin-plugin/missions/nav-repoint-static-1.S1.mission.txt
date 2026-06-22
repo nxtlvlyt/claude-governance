@@ -1,0 +1,30 @@
+MISSION-ID: M-MUDDYTIRES.NAV-REPOINT-STATIC.1.S1
+MISSION-CLASS: code-repo (COMMAND-BASED deterministic nav repoint on a CLEAN worktree + positive-assertion verify + commit; NO model emission; NO deploy; live muddytires.ca / prod Pages / DNS UNTOUCHED)
+REPO-ROOT: E:\AI_Storage\muddytires-frontend-wt
+ALLOW-FILES:
+  - index.html
+  - map.html
+  - landing.html
+  - partners.html
+PARENT: M-MUDDYTIRES.NAV-REPOINT-STATIC.1  (sub-mission 1 of 2, auto-split by the size ceiling)
+REQUIRES: none (first sub-mission of 2 in tartib order)
+
+Niyyah: (inherited from parent M-MUDDYTIRES.NAV-REPOINT-STATIC.1)
+
+Maqsad: this is part 1 of 2 of the parent objective below — a right-sized slice the engine can decompose under the size ceiling without overwhelming a seat. Achieve ONLY this slice's work; the sibling sub-missions own the rest.
+PARENT MAQSAD (the whole objective these sub-missions together serve): ONE deliverable — every about.php / partners.php / landing.php nav reference across the four static pages repointed to its
+
+THIS SUB-MISSION'S WORK (the parent decomposition's steps assigned to this slice — re-decompose them under the smaller budget; do not exceed the ceiling):
+  - Fail-closed precondition: assert HEAD is on branch oracle-frontend-swap before any mutation, so the later commit cannot land on the wrong branch (agreed by all three reads; the mission's commit step assumes but never asserts the branch).
+  - Fail-closed Discovery Gate: assert the three replacement targets (about.html, partners.html, index.html) AND the four allow-files physically exist, so the repoint cannot silently trade a .php 404 for an .html 404 (Architects 1 & 2 agree this is the key false-green guard).
+  - Repoint index.html: LITERAL .Replace of about.php->about.html, partners.php->partners.html, landing.php->index.html; witness asserts NO surviving about/partners/landing .php ref in index.html (exit 1 if any remain). One file only (size ceiling).
+  - Repoint map.html: same LITERAL .Replace map; witness asserts no surviving about/partners/landing .php ref in map.html (exit 1 if any remain). One file only.
+  - Repoint landing.html: same LITERAL .Replace map; witness asserts no surviving about/partners/landing .php ref in landing.html (exit 1 if any remain). One file only.
+  - Repoint partners.html: same LITERAL .Replace map; witness asserts no surviving about/partners/landing .php ref in partners.html (exit 1 if any remain). One file only.
+  - Positive cross-file assertion: scan all four allow-files (scoped to allow-files, NOT *.html, per Architect 2's tightening) and EXIT 1 if any about/partners/landing .php nav ref survives anywhere.
+  - Commit the repoint on oracle-frontend-swap with --no-verify; witness asserts the latest commit's subject IS this nav-repoint commit (exit 1 if absent) so a missing/failed commit cannot read as green. NO deploy. Reads the four allow-files; does not author them.
+
+Done means: steps M-MUDDYTIRES.NAV-REPOINT-STATIC.1.S1.1..M-MUDDYTIRES.NAV-REPOINT-STATIC.1.S1.8 are all complete, each with its validation_command receipt passing (the deed witnessed, not asserted); and the parent's done-condition holds for this slice — zero about.php/partners.php/landing.php references remain in the four static pages; the repoint is committed on branch
+oracle-frontend-swap; NO deploy; live untouched. If the worktree is dirty/uncommittable, FAIL HONESTLY (do not force).
+
+Amanah: this slice was split from a larger mission so it stays inside the chain's reliable working capacity (Q2:286 / mizan). Discharge it with ihsan; its receipt unlocks the next sibling.

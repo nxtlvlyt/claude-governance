@@ -1,0 +1,13 @@
+MISSION-ID: P0-CORPUS-S0.S1.S2
+PARENT: P0-CORPUS-S0.S1  (sub-mission 2 of 2, auto-split by the size ceiling)
+REQUIRES: predecessor P0-CORPUS-S0.S1.S1 DONE (tartib — sub-mission 2 runs after 1 of 2)
+
+Niyyah: hand-picked source lists miss things; the factory's knowledge must start from discovery, not memory.
+
+Maqsad: this is part 2 of 2 of the parent objective below — a right-sized slice the engine can decompose under the size ceiling without overwhelming a seat. Achieve ONLY this slice's work; the sibling sub-missions own the rest.
+PARENT MAQSAD (the whole objective these sub-missions together serve): this is part 1 of 2 of the parent objective below — a right-sized slice the engine can decompose under the size ceiling without overwhelming a seat. Achieve ONLY this slice's work; the sibling sub-missions own the rest.
+
+THIS SUB-MISSION'S WORK (the parent decomposition's steps assigned to this slice — re-decompose them under the smaller budget; do not exceed the ceiling):
+  - Final slice gate: confirm discovery/ holds all seven expected evidence artifacts so sibling S2 has a complete capture set to synthesize sources.json. Any missing file makes the joined boolean string contain 'False' and the step fails, turning 'S2's inputs exist' from an assumption into a receipt and discharging this slice's amanah.
+
+Amanah: this slice was split from a larger mission so it stays inside the chain's reliable working capacity (Q2:286 / mizan). Discharge it with ihsan; its receipt unlocks the next sibling.

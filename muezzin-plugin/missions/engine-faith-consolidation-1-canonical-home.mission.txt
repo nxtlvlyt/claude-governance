@@ -1,0 +1,40 @@
+MISSION-CLASS: engine-bootstrap (engine config + governance faiths — FRESH instance, witnessed, niyyah)
+MISSION-ID: M-ENGINE.FAITH-CONSOLIDATION.1
+TARGET: seat_dispatch.mjs:26 (FAITH_DIR) + ~/.claude/faiths/ (the canonical home) + the orphaned C:\Users\marka\.agents\faiths
+REQUIRES: FRESH oriented instance; witnessed (laguna); daemon idle (FAITH_DIR change is live-affecting — every seat dispatch reads it).
+# Surfaced 2026-06-16 04:33 (operator: "do we need to port this faith information into the Claude repo?"). Conductor
+# VERIFIED this session: the muezzin's getFaith reads FAITH_DIR = 'C:/Users/marka/.agents/faiths' (seat_dispatch.mjs:26)
+# — the ORPHANED agy-brain directory (the agy CLI is CLOSED). It is messy (duplicate architect.faith.md + architect_faith
+# .md variants, a stray test_canon.txt, last touched Jun 5-6). The CLEAN, current, governed faiths already live in
+# ~/.claude/faiths/ (11 files). NOT identical sets: the muezzin dispatches role 'local_witness_validator' whose faith
+# exists ONLY in .agents/faiths, not in ~/.claude/faiths — so a naive FAITH_DIR repoint would BREAK the witness seat.
+# The warroom faith_builder.py/FAITH_BASE.md is a SEPARATE project-assembly layer the muezzin does NOT use (it reads
+# universal faiths directly) — do NOT port the builder; this is purely about WHERE the muezzin reads its seat identities.
+
+Niyyah: the engine's seats must not draw their identity from a CLOSED system's directory that no one governs and that
+could be cleaned up out from under them. Give the faiths ONE canonical, governed home — the Claude repo — and point the
+engine at it. (This is also where a new groundedness_checker faith must land to actually be used — M-ENGINE.GUARDIAN.1.)
+
+Maqsad: ~/.claude/faiths/ is the SINGLE canonical home for every seat faith the muezzin dispatches, and FAITH_DIR points
+there — no live dependency on .agents/faiths.
+
+STEPS (receipted; reconcile BEFORE repointing — a repoint onto a missing faith breaks a seat):
+1. DIFF the three locations for the roles the muezzin actually dispatches (architect, auditor, executor, integrator,
+   validator, local_witness_validator, + any guard/witness roles): which faiths exist in ~/.claude/faiths, which only
+   in .agents/faiths, which differ. Receipt: a diff table.
+2. PORT the gaps INTO ~/.claude/faiths: the faiths the muezzin needs that live only in .agents (at minimum
+   local_witness_validator.faith.md) — reviewed, not blindly copied (the .agents copies may be stale/duplicate). Resolve
+   the dot-vs-underscore duplicate variants to ONE canonical file per role. Receipt: every muezzin-dispatched role has a
+   clean faith in ~/.claude/faiths.
+3. REPOINT seat_dispatch.mjs:26 FAITH_DIR from 'C:/Users/marka/.agents/faiths' to the ~/.claude/faiths path. Keep a
+   one-line fallback ONLY if a role is missing (log it loudly, never silently dispatch faithless). Receipt: getFaith
+   selftest resolves every muezzin role from the new path; node --check clean.
+4. LIVE-VERIFY: one real seat dispatch (or the offline getFaith test) confirms the faith loads from the Claude repo.
+   Receipt: a dispatch reading the canonical faith.
+
+Amanah: this de-fragilizes the engine's identity layer. Witness it; reconcile before repoint; never leave a seat
+faithless. PAIRS WITH M-ENGINE.GUARDIAN.1 (groundedness_checker.faith.md lands in this canonical home) + M-GOVERNANCE.
+FAITH-TEMPLATE.1 (the template documents the home this points at).
+
+Constraints: FRESH instance; witnessed; daemon idle for the FAITH_DIR change; do NOT delete .agents/faiths (leave the
+orphan in place, just stop depending on it); GR10; commit --no-verify; NAS untouched.

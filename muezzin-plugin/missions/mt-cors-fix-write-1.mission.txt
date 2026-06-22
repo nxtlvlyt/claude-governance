@@ -1,0 +1,34 @@
+MISSION-CLASS: code-repo
+MISSION-ID: M-MUDDYTIRES.CORS-FIX-WRITE-1
+REPO-ROOT: E:\AI_Storage\muddytires-d1-wt
+ALLOW-FILES:
+  - workers/contribute-d1.js
+REQUIRES: none
+
+Niyyah: posting a stop works on the server, but the same wildcard-CORS bug means a logged-in browser can't actually send the post —
+the traveller's first "I camped here" would vanish silently. Let the worker accept the credentialed post from the real site.
+
+Maqsad: fix the CORS bug in the write/contribute worker so a logged-in (credentialed) POST /spot from https://muddytires.ca succeeds in
+a real browser. "Done" is: every response (including the OPTIONS preflight at ~line 73) sets Access-Control-Allow-Origin to the
+REQUEST's Origin when allowed (echo it, never `*`), Access-Control-Allow-Credentials: true, and Vary: Origin. node --check passes;
+committed. NOT deployed.
+
+Context (facts only — verified this session):
+- THE BUG: workers/contribute-d1.js lines ~36-38 define a STATIC CORS object with `'Access-Control-Allow-Origin': '*'` and no
+  Allow-Credentials; OPTIONS (~line 73) returns 204 with that static CORS. add-spot-worker.js POSTs with credentials:'include' and the
+  flow is login-gated (it calls /me first), so the credentialed request is REQUIRED — and browsers block it against wildcard ACAO.
+- THE FIX SHAPE: build CORS headers PER-REQUEST from the request Origin. Define a small allow-list (at minimum https://muddytires.ca;
+  this worker may not yet have an allowedOrigins helper — add a minimal one). If the request Origin is allowed: ACAO=<that origin>,
+  Access-Control-Allow-Credentials: 'true', Vary: 'Origin', keep Allow-Methods/Allow-Headers. Apply to the OPTIONS 204 preflight AND
+  every GET/POST/error response so none emit the static `*`.
+- COMMIT DISCIPLINE (backend-read lesson, paid for this session): the d1-wt worktree has PRE-EXISTING untracked d1/*.sql + *.json +
+  *.geojson data files that are NOT this mission's. Stage ONLY `workers/contribute-d1.js` (explicit `git add workers/contribute-d1.js`)
+  — NEVER `git add .` / `-A`. commit --no-verify. (A broad add here is exactly what failed backend-read-endpoints-1.)
+- Out of scope: any deploy; the auth worker (separate mission/repo); the d1/*.sql data files; the read/write endpoint logic itself.
+
+Done means (acceptance contract): workers/contribute-d1.js returns, on EVERY response incl. the OPTIONS preflight, ACAO=echoed-allowed-
+Origin (never `*`) + Allow-Credentials: true + Vary: Origin, with https://muddytires.ca allowed; node --check passes; committed via
+explicit `git add workers/contribute-d1.js` only, --no-verify; NOT deployed. Foreign Origins still rejected.
+
+Constraints: code-repo, writes ONLY workers/contribute-d1.js; explicit single-file git add (NEVER -A — untracked data files must stay
+untracked); commit --no-verify; deeds proven by receipts.

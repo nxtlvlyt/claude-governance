@@ -1,0 +1,39 @@
+MISSION-CLASS: code-repo (data ingest into D1 via wrangler + positive-assertion verify; ADDITIVE — new table, no live-site touch, no edit to index.html)
+MISSION-ID: M-MUDDYTIRES.M1-1.ORACLE-INGEST-ONTARIO-CROWNLAND
+REPO-ROOT: E:\AI_Storage\muddytires-d1-wt
+ALLOW-FILES: d1/crownland-ingest.md
+# (ADDITIVE: creates a NEW D1 table crown_land_policy + writes ONE status doc. Does NOT touch index.html, pois, or the live site.)
+
+# PHASE-1 ORACLE MOAT, step 1 (SOTA-MISSION-ROADMAP.md). The SOTA differentiator is sourced Canadian Crown-land legality.
+# This is the FIRST executable build mission toward it — a DATA-INGEST mission (the engine's reliable zone, like the
+# d1-healthcheck that earned APPROVE). Point-in-polygon Oracle logic is a LATER mission (M1.3); this one just lands the data.
+
+# CONFIRMED SOURCE (SearXNG-verified 2026-06-16): Ontario GeoHub "Crown land use policy area (provincial)" —
+# an ArcGIS REST FeatureServer that returns GeoJSON. Query a SMALL bounding box (a known central-Ontario Crown-land area)
+# so the payload stays tractable — do NOT pull the whole province in v1.
+
+Niyyah: land real Ontario Crown-land policy data in our own D1, sourced from the authoritative government open dataset, and
+prove it is queryable — the first brick of the Oracle that no competitor has. Fail honestly if the source or load fails.
+
+Maqsad: ONE deliverable — a populated D1 table `crown_land_policy` holding a small, real subset of Ontario CLUPA Crown-land
+policy areas, plus d1/crownland-ingest.md documenting the verified row count and source. Steps (each a positive-assertion
+receipt — EXIT NON-ZERO on absence):
+1. FETCH a small GeoJSON subset from the Ontario GeoHub ArcGIS REST API for the "Crown land use policy area (provincial)"
+   layer, using a bounding-box query (a known Crown-land area in central Ontario) with f=geojson and a modest record cap.
+   Find the live FeatureServer query URL from geohub.lio.gov.on.ca/datasets/lio::crown-land-use-policy-area-provincial
+   (its "API Explorer"/GeoServices link). Assert the response is valid GeoJSON with features.length > 0 (EXIT 1 if 0).
+2. CREATE TABLE IF NOT EXISTS crown_land_policy in the muddytires-pois D1 (--remote): columns id, area_name, designation,
+   policy_summary, geometry_json (TEXT). Idempotent.
+3. LOAD the fetched features into crown_land_policy (area_name + designation/policy from the GeoJSON properties; geometry
+   stored as GeoJSON text).
+4. VERIFY (positive-assertion, remote): SELECT COUNT(*) AS n FROM crown_land_policy on --remote, assert n > 0 (EXIT 1 if 0).
+5. WRITE d1/crownland-ingest.md: the verified row count, the source FeatureServer URL + bbox used, and the timestamp —
+   each number confirmed by the fail-on-absence query above.
+
+Done means: crown_land_policy exists on the remote muddytires-pois D1 with n > 0 real Ontario CLUPA rows, d1/crownland-ingest.md
+documents it, and the live site + pois table are untouched. If the GeoHub source is unreachable or returns 0 features, FAIL
+HONESTLY at step 1 with the exact URL tried (a true negative — surface it, do not fabricate rows).
+
+Constraints: ADDITIVE (new table + one doc; no live-site/index.html/pois changes); positive-assertion verifies (fail on
+absence); wrangler authed (if a D1 scope is missing, HALT with the exact scope); SOTA-search the live FeatureServer URL if
+the exact query path isn't obvious; commit --no-verify; NAS untouched; SMALL bbox subset only (no province-wide pull in v1).

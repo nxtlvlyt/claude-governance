@@ -1,0 +1,58 @@
+MISSION-CLASS: code-repo
+MISSION-ID: M-MUDDYTIRES.DB-MIGRATE-POIS-1
+REPO-ROOT: E:\AI_Storage\muddytires-d1-wt
+ALLOW-FILES:
+  - d1/poi-migration-plan.md
+  - d1/pois-load.sql
+REQUIRES: none
+
+Niyyah: the database that held every place the community gathered still lives on the NAS — a 1.4GB MariaDB the static Cloudflare site
+can no longer reach. The map looks emptied of it. Move that truth to where the live site can serve it: produce the honest, exact path
+to load the POIs into Cloudflare D1, grounded in how the oracle tables were already moved — not invented, not half-done. Leave the
+irreversible live load for the operator's hand; prepare everything up to it.
+
+Maqsad: produce the concrete migration that moves the POI data off the NAS into Cloudflare D1 `pois`, so the live map's markers return.
+"Done" is: (1) d1/poi-migration-plan.md stating the POI GAP (current row count in remote D1 `pois` vs the NAS source count) and the
+EXACT remaining steps with their commands, and (2) d1/pois-load.sql — a valid SQLite/D1 load for the POI rows — IF the POIs are
+extractable by the same method the oracle tables used. Both committed; NOT loaded into live D1 (that load + any redeploy are
+operator-confirmed steps named in the receipt). This runs in the d1-wt repo, PARALLEL to the frontend POI-restore work (different repo,
+no worktree collision).
+
+Context (facts only — the seats navigate the how; GROUND every claim in substrate, do not invent):
+- DESTINATION verified + ALREADY PARTLY LOADED: remote D1 `muddytires-pois` (id 2d4cc2f5-96f4-42e2-93c3-af1344a98139, account
+  markabass@gmail.com) has a `pois` table that is NOT empty — the deployed oracle worker returns real rows from it (live bbox queries
+  yield OSM water_fill + dump_station POIs with real coordinates, "via muddytires pois", per RECEIPTS-ORACLE.md). So this is GAP-FILL,
+  not a from-scratch load: determine the EXACT current row count + node_type breakdown via a direct `wrangler d1 execute muddytires-pois
+  --remote --command "SELECT node_type, COUNT(*) FROM pois GROUP BY node_type"` (the `/?count` endpoint only reports the oracle tables,
+  not pois — query D1 directly). The gap = what the NAS site had that D1's pois is MISSING.
+- THE ESTABLISHED METHOD (read it, then reuse it): d1/RECEIPTS-ORACLE.md + d1/ORACLE-MIGRATION-SCOPE.md document how the oracle tables
+  were moved — camping_legal_rule (13 rows, from d1/oracle-data/camping_legal_rule.json) and park_boundaries (155, from
+  d1/oracle-data/park_boundaries.geojson) loaded into the same D1. Learn HOW that data was extracted from the NAS and apply the same
+  approach to the `pois` table. If d1/oracle-data/ holds the extraction tooling/notes, follow it.
+- SOURCE — BACKUP ONLY, the NAS is in CRITICAL CONDITION (operator, 2026-06-18): do NOT depend on, ping, or risk a live export from the
+  NAS — a live dump could push a failing NAS over. The ONLY source you use is the off-NAS backup:
+  E:\AI_Storage\muddytires-db-backup\mariadb10-vanlife_db-20260615.tar.gz (1.4GB, Jun 15, present + verified on disk). It is a PHYSICAL
+  MariaDB datadir (.frm + .ibd, NOT a SQL dump, per ORACLE-MIGRATION-SCOPE.md §0), so reading the pois rows needs a LOCAL/CONTAINER
+  MariaDB to mount the datadir + dump the `pois` table → translate to D1 SQLite. FIRST DE-RISK (deterministic): verify the backup's
+  `pois` table reads cleanly (mount + SELECT COUNT(*)) — this confirms the backup is good and the NAS dying does NOT lose the data. If
+  the backup's pois is unreadable/corrupt, HALT with a receipt: a fresh live export is operator-identity-bound AND risky on a critical
+  NAS — that escalation is the operator's call, never the chain's. NEVER invent POI rows or guess NAS credentials.
+- BUDGET (operator offer 2026-06-18, "use a local model so it runs long + cheap"): run the heavy extraction/translation/SQL-gen grind on
+  CHEAP cloud-Ollama / local seats, not Claude — Claude seats only judge. This is long, mechanical work; route it accordingly.
+- SCHEMA: D1/SQLite has NO geometry type (ORACLE-MIGRATION-SCOPE.md headline) — POI lat/lng are plain REAL columns; any spatial filter is
+  re-engineered as bbox BETWEEN bounds (the frontend pois.json calls already pass bbox). Match the existing `pois` table's columns
+  exactly (read them from the live D1 schema, do not assume).
+- COMMIT DISCIPLINE (backend-read lesson, paid for this session): the d1-wt worktree has PRE-EXISTING untracked d1/*.sql files
+  (clupa-data.sql, load.sql, etc.) that are NOT this mission's. Stage ONLY the two ALLOW-FILES explicitly (`git add d1/poi-migration-plan.md
+  d1/pois-load.sql`) — NEVER `git add .` / `git add -A`. Commit --no-verify.
+- Out of scope: any live D1 write/load; any redeploy; any NAS write; touching the frontend repo or map.html; the oracle tables (done).
+
+Done means (acceptance contract): d1/poi-migration-plan.md names the POI gap (D1 pois count vs NAS source count) + the exact operator-
+gated load+deploy commands; d1/pois-load.sql is a valid SQLite load for the POI rows (or the plan states precisely why extraction is
+blocked and what's needed). Both committed via explicit `git add` of only those two files, --no-verify; NOT loaded into live D1. A
+receipt names the two remaining operator-confirmed steps: (1) load pois-load.sql into the production D1 `pois`, (2) redeploy if needed.
+Receipt-backed HALT (never an invented dataset or guessed credential) if the POI source isn't reachable/extractable in substrate.
+
+Constraints (boundaries, not mechanics): code-repo in d1-wt (SEPARATE repo — parallel-safe); writes ONLY d1/poi-migration-plan.md +
+d1/pois-load.sql (NEW additive files); READ-ONLY on D1 and the NAS; NO live load/deploy (operator-gated); explicit per-file `git add`
+(never -A) + commit --no-verify; deeds proven by receipts; receipt-backed halt if substrate lacks the source.

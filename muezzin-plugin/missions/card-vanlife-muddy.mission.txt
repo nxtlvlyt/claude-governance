@@ -1,0 +1,16 @@
+MISSION CORPUS-S1-CARD-VANLIFE-MUDDYTIRES
+MISSION-CLASS: research
+Niyyah: two exemplar builds whose design choices should teach the factory's design seats — unmined exemplars are wasted tuition.
+Maqsad: ONE deliverable — pattern-card-vanlife-muddytires.md in this sandbox, two halves: (A) VANLIFE — from the local project at C:\vanlife: what kind of build it is, its structure, design tokens, copy voice, and any reusable components, all file-cited; (B) MUDDYTIRES — from the LIVE site https://www.muddytires.ca (use curl -L to follow redirects) only (its source location is a known census gap): page structure, visual language, voice, what it does well, what the factory would improve — based on fetching the live HTML. Plus a shared section: PATTERNS COMMON TO BOTH worth promoting to the library. Done = card exists, markdown-valid, claims cited (file paths for vanlife; quoted page evidence for muddytires).
+Context: C:\vanlife READ-ONLY (absolute paths in context_dependencies only). muddytires.ca fetched read-only (a 'command' step may curl it into the sandbox first, then analyze the local copy). The card is the only write target, cwd-relative.
+Amanah: entrusted; discharge with ihsan.
+
+
+CONTEXT NOTE (conductor, 2026-06-10 15:10 — CORRECTED, both inputs verified real on disk):
+TWO files are ALREADY STAGED in this sandbox. Do NOT plan any fetch or directory-listing
+step (executor seats cannot run commands — every prior failure was exactly that). Plan
+ONLY reads of these two files + ONE step that emits the complete card:
+  - muddytires.html (23,628 bytes — the real live homepage, verified) = your Half B source.
+  - vanlife-tree.txt (real recursive file listing of C:\vanlife) = your Half A structure source;
+    read the actual files it names under C:\vanlife (read-only) for design tokens/voice/components.
+Emit pattern-card-vanlife-muddytires.md COMPLETE in one step from these.
