@@ -1,5 +1,4 @@
 {
-  "model": "sonnet",
   "hooks": {
     "SessionStart": [
       {
@@ -130,5 +129,6 @@
     ]
   },
   "skipDangerousModePermissionPrompt": true,
+  "theme": "dark",
   "skipAutoPermissionPrompt": true
 }
