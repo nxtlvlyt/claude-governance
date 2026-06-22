@@ -123,10 +123,19 @@ export function execReceipt(cmd, cwd) {
   // validation commands; cmd.exe judged the work in the wrong language). PowerShell runs
   // exe-based commands (node/curl/findstr) and cmd-alias styles (type/dir) too. The command
   // rides an ARG ARRAY (execFileSync) — no string-interpolation quoting surface.
+  //
+  // NON-INTERACTIVE ENV (2026-06-22): wrangler and other CLIs probe TTY/env for prompts;
+  // without these, `wrangler pages deploy` and friends will hang asking about telemetry,
+  // login, or color choices. CI=true is the universal "I am a robot, do not prompt" hint;
+  // WRANGLER_SEND_METRICS=false silences wrangler's first-run metrics question; FORCE_COLOR=0
+  // keeps ANSI escapes out of receipts (they corrupt the 2000-char captured out).
+  // stdio[0]='ignore' attaches /dev/null to stdin — any prompt reads EOF and either errors
+  // cleanly or defaults, instead of blocking until the 120s timeout.
+  const childEnv = { ...process.env, CI: 'true', WRANGLER_SEND_METRICS: 'false', FORCE_COLOR: '0' };
   try {
     const out = process.platform === 'win32'
-      ? execFileSync('pwsh.exe', ['-NoProfile', '-NonInteractive', '-Command', cmd], { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: 120000 })  // pwsh (PS7) not powershell (5.1): seats chain with && — proven live
-      : execSync(cmd, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: 120000 });
+      ? execFileSync('pwsh.exe', ['-NoProfile', '-NonInteractive', '-Command', cmd], { cwd, env: childEnv, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: 120000 })  // pwsh (PS7) not powershell (5.1): seats chain with && — proven live
+      : execSync(cmd, { cwd, env: childEnv, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: 120000 });
     return { type: 'exec', ref: cmd, ok: true, exit: 0, out: String(out).slice(0, 2000) };
   } catch (e) {
     return { type: 'exec', ref: cmd, ok: false, exit: e.status ?? 1, out: (String(e.stdout || '') + String(e.stderr || '')).slice(0, 2000) };
