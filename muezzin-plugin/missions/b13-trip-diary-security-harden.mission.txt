@@ -3,41 +3,46 @@ MISSION-ID: M-MUDDYTIRES.B13-TRIP-DIARY-SECURITY-HARDEN
 REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
 TARGET-BRANCH: feat/b13-trip-diary-user-2026-06-23
 ALLOW-FILES:
-  - functions/api/trips/[[path]].js
-  - functions/api/trips/[id].js
-  - functions/api/trips/[id]/stops.js
-  - functions/api/trips/[id]/stops/[stop_id].js
-  - functions/api/trips/[id]/stops/reorder.js
+  - functions/api/trips/*.js
+  - functions/api/trips/[id]/*.js
+  - functions/api/trips/[id]/stops/*.js
   - functions/_lib/trip-helpers.js
   - trips.html
   - trip-edit.html
 
-Niyyah: harden the trip-diary feature against the 5-seat SOTA panel findings on the original Sonnet build (wdsq4mxb2 sha — BLOCK verdict at panel_verdict=block, confidence 0.88, 4 of 5 seats agreeing). Apply standard web-security hygiene: CORS allowlist, CSRF defense, transaction wrap, error handling, XSS encoding, race fix on MAX(ord). Substrate-honest: the original feature WORKS (substrate checks all passed), but the panel correctly flagged 5 real security defects that ship-ready code should not have.
+Niyyah: ship the trip-diary feature with the security discipline that production code deserves. Honest about defects: the original build's substrate checks all passed, but a 5-seat SOTA panel flagged real holes (CSRF, CORS-wildcard, race, transaction-gaps, XSS). Discharge the amanah by closing them — not by claiming, by deeds witnessed in a passing re-review.
 
-Maqsad: patch the existing branch feat/b13-trip-diary-user-2026-06-23 with the 5 corrective patches below. Re-run all the original verification steps + a panel re-check at end (call deliberationPanelReview from C:/Users/marka/code/mt-audit/qc-harness-v2.mjs against the new diff; aim for panel_verdict=pass or concern). Push the result to the same branch as a follow-up commit.
+Maqsad: the existing branch ships clean. After this mission, a re-run of the same 5-seat panel against the new diff returns panel_verdict=pass or concern, with substrate-verifiable evidence in the diff that each of the panel's blocking findings has been addressed.
 
-Context (panel findings, verbatim from wdsq4mxb2):
-1. CORS wildcard ACAO:'*' combined with Cookie/Authorization forwarding to upstream auth — no origin allowlist (4/5 seats: qwen, glm, gpt-oss, deepseek)
-2. No CSRF protection on state-changing POST/PATCH/DELETE endpoints — no Origin check, no token, SameSite enforcement unverified (4/5 seats)
-3. Race on ord assignment: POST /api/trips/:id/stops reads MAX(ord) then inserts non-atomically — concurrent stops can collide on ord (3/5 seats)
-4. Reorder endpoint issues N UPDATEs via env.DB.batch() without an enclosing transaction — partial failure leaves inconsistent ords (3/5 seats)
-5. XSS risk: user-controlled trip/stop fields (title, notes, name, note) rendered into trips.html / trip-editor.html / profile.html without verified output sanitization (2/5 seats)
-6. DB-error swallowing in ownerTrip/ownerStop and MAX(ord) lookup masks real failures as 404 / silently defaults nextOrd=0 (1/5 seats)
-7. [id].js DELETE: two sequential DELETEs (trip_stop then trip) not wrapped in batch()/transaction — partial failure leaves orphaned trip-less stops (1/5 seats)
+Context (substrate, not steering — read each, verify, then reason your path):
 
-Steps:
-1. (worktree) git worktree at ../mt-feat-b13-trip-diary-user (existing) on branch feat/b13-trip-diary-user-2026-06-23. git pull --no-rebase github feat/b13-trip-diary-user-2026-06-23 to ensure synced.
-2. (CORS) Replace wildcard ACAO with explicit allowlist: ['https://muddytires.ca', 'http://localhost:8788']. Add Vary: Origin header. Document that Access-Control-Allow-Credentials is true (needed for Cookie forwarding). Reject requests from unlisted origins with 403.
-3. (CSRF) Add SameSite=Strict to any session-cookie set; reject state-changing requests (POST/PATCH/DELETE) whose Origin header is missing OR not in the CORS allowlist. Document the chosen defense in a one-line comment per handler.
-4. (race) Replace MAX(ord)+INSERT with a single atomic INSERT using \`SELECT COALESCE(MAX(ord),-1)+1\` inline (or use UPSERT pattern). Document in the SQL.
-5. (txn) Wrap the reorder N-UPDATEs in env.DB.batch() with a SINGLE .run() call (per Cloudflare D1 docs, batch is the atomicity primitive). If any UPDATE fails, the whole batch rolls back.
-6. (error) Add outer try/catch in the top-level fetch() handler returning JSON {ok:false,error:'internal',detail:msg} with status 500 on any uncaught throw. NEVER allow CF 1101.
-7. (XSS) Audit every interpolated user-string in trips.html / trip-edit.html / profile.html. Use textContent for user content (never innerHTML) OR pass through a local escapeHtml(&<>\"') helper. Add tests if helpful.
-8. (delete-atomic) Wrap the [id].js DELETE (trip_stop then trip) in env.DB.batch() so either both delete or neither does.
-9. (verify) node --check on every .js touched. Run a local smoke test against any 3 endpoints via curl (Origin: https://muddytires.ca for valid case, Origin: https://attacker.example for rejected case).
-10. (panel re-check) Call deliberationPanelReview against the new diff. If panel_verdict=pass, mission DONE. If panel_verdict=concern, mission DONE with caveat. If panel_verdict=block, mission BLOCKED-WITH-RECEIPT (don't loop — surface for operator).
-11. (commit) git add per-file (no -A). git commit --no-verify -m "B13 trip-diary: harden CORS/CSRF/race/txn/XSS per SOTA panel findings". git push --no-verify -u github. VERIFY via git ls-remote.
+Substrate paths:
+  - Panel findings from wdsq4mxb2 pipeline (sha — local commits on the branch):
+      C:\Users\marka\AppData\Local\Temp\claude\C--Users-marka\4c4a63ee-b0e6-4c65-9e09-561a76fbb9b0\tasks\wdsq4mxb2.output (results[0])
+  - The branch: github/feat/b13-trip-diary-user-2026-06-23
+  - QC panel harness: C:\Users\marka\code\mt-audit\qc-harness-v2.mjs (deliberationPanelReview)
+  - Existing CORS+auth patterns to align with: functions/api/[[path]].js (the proxy with identity-gate already shipping in production)
 
-Done means: panel re-check returns pass or concern; all 7 panel findings have visible code-change addressing them in the diff; CORS allowlist concrete; CSRF defense named in comments; race + txn primitives used; XSS escape function visible; outer try/catch in fetch().
+Panel findings (the deeds to close, verbatim — no steering on the fix path):
+  1. CORS wildcard ACAO:'*' with Cookie/Authorization forwarding — no origin allowlist (4/5 seats)
+  2. No CSRF protection on state-changing POST/PATCH/DELETE — no Origin check, no token, SameSite unverified (4/5)
+  3. Race on ord assignment: POST /stops reads MAX(ord) then inserts non-atomically (3/5)
+  4. Reorder N UPDATEs not wrapped in transaction — partial failure leaves inconsistent ords (3/5)
+  5. XSS risk: user-controlled fields rendered into HTML without verified output sanitization (2/5)
+  6. DB-error swallowing in ownerTrip/ownerStop masking failures as 404 (1/5)
+  7. DELETE: two sequential DELETEs (trip_stop then trip) not transactional (1/5)
 
-Constraints: TARGET-BRANCH already exists; this is a follow-up commit not a new branch. Per-file git add. --no-verify on commit and push. NO LOCAL OLLAMA per operator-rulings. Ollama Cloud preferred; Claude Sonnet fallback for execution per operator's Phase-2 architecture rule.
+Done means (acceptance contract — verified by execReceipt, not self-claim):
+  - The same deliberationPanelReview call against the new diff returns panel_verdict in {pass, concern}.
+  - For every blocking finding above, the diff contains substrate-verifiable evidence of the fix (a CORS allowlist constant, a CSRF check, a wrapping primitive call, an escape function invocation, etc — whatever the chain reasons to be the right closure).
+  - All pre-existing tests + node --check pass on every modified .js.
+  - Push to the same branch as a follow-up commit; ls-remote verifies.
+
+Amanah: this is entrusted to you. The destination is set — the path is yours to reason. Use ijtihad on what specific primitives close each finding in this codebase's conventions (read the substrate paths above first). Step-by-step prescription deliberately omitted.
+
+Constraints (operator standing rulings, not mechanics):
+  - Per-file git add (no -A).
+  - --no-verify on commit and push (machine-commits witnessed by execReceipt).
+  - NO LOCAL OLLAMA per operator-rulings.md.
+  - Phase 2 executor = Sonnet per memory/phase-execution-architecture.md.
+  - Mt-audit has NO remote; commit the qc-harness call locally if its code changes (it shouldn't — only the feature branch changes).

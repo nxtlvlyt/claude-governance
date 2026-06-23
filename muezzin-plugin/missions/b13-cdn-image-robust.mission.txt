@@ -6,28 +6,30 @@ ALLOW-FILES:
   - js/poi-photos.js
   - map.html
 
-Niyyah: harden the cdn-image variants feature against the SOTA-panel findings on the original Sonnet build (wdsq4mxb2 — BLOCK with 3 explicit blocks + 1 concern, confidence 0.8875). The substantive findings: (1) silent failure modes if CF Image Resizing isn't enabled on the zone, (2) brittle inline-style fingerprint that silently drops variants on minification, (3) catch(_){} swallowing errors against the executor's own "surfaces regressions loudly" intent. Substrate-honest: the feature works in the happy path but degrades silently in real failure modes.
+Niyyah: the CDN-image variant feature should surface its own failures, not absorb them. The panel found that the original build degrades silently when Cloudflare Image Resizing isn't enabled, brittle string-matching drops variants on whitespace changes, and catch(_){} contradicts the executor's own "surfaces regressions loudly" comment. Honest failure modes > silent partial success.
 
-Maqsad: patch the existing branch feat/b13-cdn-image-2026-06-23 with the corrective patches. Re-fire panel for pass/concern.
+Maqsad: when CF Image Resizing is unavailable OR a code change breaks the variant emission, the failure surfaces in the browser console + the QC Console gate sees it. Same panel re-run returns pass/concern.
 
-Context (panel findings, verbatim from wdsq4mxb2):
-1. No runtime guard if Cloudflare Image Resizing is not enabled on the zone — once variant URL is emitted, broken images render with no JS-side fallback (qwen, deepseek)
-2. Brittle inline-style fingerprint in applyVariants() — exact substring match on 'max-width:170px' / 'height:120px' silently drops CDN variants on any minification/whitespace/case change (qwen, deepseek)
-3. selfCheck IIFE wraps its check in catch(_){} — contradicts the comment 'surfaces regressions loudly' (glm)
-4. popupopen rewrite swallows errors with catch(_){} — CDN-variant rewrite failures are silent, no telemetry (glm)
-5. cdnVariant(key,width) calls encodeURI(key) with no null-guard — encodeURI(null) returns 'null' producing a silently-wrong URL (glm)
+Context (substrate paths):
+  - Panel findings: C:\Users\marka\AppData\Local\Temp\claude\C--Users-marka\4c4a63ee-b0e6-4c65-9e09-561a76fbb9b0\tasks\wdsq4mxb2.output (results[7])
+  - Branch: github/feat/b13-cdn-image-2026-06-23
+  - Cloudflare Image Resizing docs: https://developers.cloudflare.com/images/transform-images/
+  - QC panel harness: C:\Users\marka\code\mt-audit\qc-harness-v2.mjs
 
-Steps:
-1. (worktree) Existing worktree at ../mt-feat-b13-cdn-image on branch feat/b13-cdn-image-2026-06-23. git pull to sync.
-2. (null-guard) cdnVariant(key, width): if !key || typeof key !== 'string' return ''. Document the null-input contract.
-3. (robust selector) Replace inline-style substring match with attribute selectors on the IMG itself or a data-attribute marker (data-mt-poi-photo). Set the marker server-side OR on first render so applyVariants() targets a stable selector, not whitespace-sensitive style strings.
-4. (catch noise → telemetry) Replace catch(_){} with catch(e){ console.warn('mt-cdn-variant:', e.message); } so failures appear in console for the Console QC gate. Surfaces regressions loudly as documented.
-5. (CF Image Resizing runtime guard) On first popup open, fetch ONE small variant URL (e.g. /cdn-cgi/image/width=10,format=auto/photo/sentinel.jpg). If it returns 5xx or non-image content-type, set window.__mtCdnImagesAvailable=false and skip variant rewriting for the session. Operator gets a clear "CF Image Resizing not enabled" hint in console.
-6. (selfCheck honest) The selfCheck IIFE: remove the catch(_) swallow. If selfCheck throws, log the error AND set __mtCdnImagesAvailable=false. Honest failure mode > silent success-claim.
-7. (test) Manual smoke: load /map.html locally, open a popup with a photo, check Network tab for /cdn-cgi/image/... URL. Verify console shows the sentinel probe + the warn if it fails.
-8. (panel re-check) Call deliberationPanelReview against the new diff.
-9. (commit) per-file git add, --no-verify, push, ls-remote verify.
+Panel findings (deeds to close, verbatim):
+  1. No runtime guard if CF Image Resizing not enabled — broken images render silently
+  2. Brittle inline-style fingerprint in applyVariants() — substring match drops variants on minification
+  3. selfCheck IIFE catch(_){} contradicts its own "surfaces regressions loudly" comment
+  4. popupopen rewrite swallows errors with catch(_){} — CDN-variant rewrite failures silent
+  5. cdnVariant(key,width) calls encodeURI(key) with no null-guard — encodeURI(null)='null'
 
-Done means: panel re-check pass/concern; null-guard in cdnVariant; robust selector via data-attribute; catches log to console; CF Image Resizing runtime guard with sentinel probe; selfCheck failures surface loudly.
+Done means:
+  - A first-load runtime probe verifies CF Image Resizing is actually responding; if not, the feature degrades to direct R2 URLs with a single console warn (not silent).
+  - Variant selection uses a stable selector (data-attribute, class, or marker) — not brittle string substring matching.
+  - Catches log to console (warn at minimum) so the QC Console gate sees them. The "surfaces regressions loudly" comment becomes true.
+  - cdnVariant null-input contract documented + enforced.
+  - Same panel re-fire returns pass/concern; node --check passes; push + ls-remote verify.
 
-Constraints: TARGET-BRANCH already exists. Per-file git add. --no-verify. The feature is purely client-side; no D1 schema impact.
+Amanah: yours to reason the closure. The chain picks the selector strategy, the probe shape, the logging level.
+
+Constraints: per-file git add, --no-verify, NO LOCAL OLLAMA, Sonnet executor.

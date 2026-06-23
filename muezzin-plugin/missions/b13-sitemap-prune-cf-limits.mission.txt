@@ -3,35 +3,36 @@ MISSION-ID: M-MUDDYTIRES.B13-SITEMAP-PRUNE-CF-LIMITS
 REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
 TARGET-BRANCH: feat/b13-sitemap-prune-2026-06-23
 ALLOW-FILES:
-  - workers/sitemap-prune/index.js
+  - workers/sitemap-prune/*.js
   - workers/sitemap-prune/wrangler.toml
 
-Niyyah: fix the 3 SOTA-panel-confirmed defects on the original Sonnet build of sitemap-prune (wdsq4mxb2 — BLOCK at sha 530457f). These are real production-risk issues: uncaught D1 awaits become CF 1101 errors, BATCH_SIZE=200 exceeds Cloudflare's 50 subrequest limit on Free plan, and unvalidated sitemap URLs allow SSRF on a maliciously-edited sitemap. Honest about CF limits — the worker would silently fail in production.
+Niyyah: the sitemap-prune worker should survive production load. The original build assumed Cloudflare Workers limits the panel measured exceeded by 8x, and uncaught D1 awaits would surface as CF 1101 errors to users. Close the substrate-verified defects — not the model's confidence, the documented Cloudflare ceiling.
 
-Maqsad: patch the existing branch feat/b13-sitemap-prune-2026-06-23 with the corrective patches below. Re-fire the panel and confirm pass/concern.
+Maqsad: the worker runs safely on Cloudflare Workers Free plan AND Paid plan, with no silent failure modes. Re-running the 5-seat panel against the new diff returns panel_verdict in {pass, concern}.
 
-Context (panel findings, verbatim from wdsq4mxb2):
-1. [granite-ibm/glm-5.2] upsert404() and writeCursor() are awaited inside handleRefresh without try/catch — any D1 error becomes an uncaught throw (CF 1101) instead of a JSON error response (verified against substrate: index.js:287, :303)
-2. [granite-ibm/glm-5.2] Top-level fetch() handler has no try/catch — uncaught throws in handleRefresh/handlePrunedCount surface as Cloudflare 1101 rather than structured JSON (verified against substrate: index.js:348-356)
-3. [granite-ibm/glm-5.2] ensureSchema catch blocks silently swallow ALL errors (not just 'already exists') and set schemaEnsured=true unconditionally — broken D1 leaves tables missing, next query throws uncaught
-4. [refuter-deepseek/deepseek-v4-pro] BATCH_SIZE=200 causes up to ~401 fetches per /refresh (1 sitemap fetch + 200 HEAD + up to 200 GET fallback). Cloudflare Workers free plan limit is 50 subrequests/request; paid is 1000. Will cause silent fetch failures classified as transient, skipping URLs and corrupting the cursor.
-5. [openai-foreign-frontier/gpt-oss:120b CONCERN] Regex-based sitemap parsing may miss URLs in CDATA / namespaced XML
-6. [openai-foreign-frontier/gpt-oss:120b CONCERN] Race condition on cursor state — concurrent /refresh calls can interleave reads/writes
-7. [openai-foreign-frontier/gpt-oss:120b CONCERN] Sitemap URLs not validated to stay within site domain (potential SSRF on a maliciously-edited sitemap)
+Context (substrate paths to read, not a recipe):
+  - Panel findings: C:\Users\marka\AppData\Local\Temp\claude\C--Users-marka\4c4a63ee-b0e6-4c65-9e09-561a76fbb9b0\tasks\wdsq4mxb2.output (results[3])
+  - The branch: github/feat/b13-sitemap-prune-2026-06-23 (sha 530457f-class)
+  - Cloudflare Workers documented subrequest limits: 50 (Free) / 1000 (Paid) per request
+  - QC panel harness: C:\Users\marka\code\mt-audit\qc-harness-v2.mjs
 
-Steps:
-1. (worktree) Existing worktree at ../mt-feat-b13-sitemap-prune on branch feat/b13-sitemap-prune-2026-06-23. git pull to sync.
-2. (try/catch) Wrap upsert404() and writeCursor() awaits in try/catch returning JSON error. The catch logs the error (console.error) and returns Response.json({ok:false, error:'db'}) with status 500.
-3. (outer fetch try/catch) Add outer try/catch in the default fetch() export. Any uncaught throw → Response.json({ok:false, error:'internal', detail:String(e)}) with status 500. Never let CF 1101 escape.
-4. (ensureSchema honest) ensureSchema catch should match ONLY 'already exists' or 'duplicate column' patterns. Other errors propagate. Do NOT set schemaEnsured=true on unknown errors.
-5. (BATCH_SIZE) Reduce to 40 (under 50 free limit). Cursor pattern: only process up to 40 URLs per /refresh invocation, then return the next cursor for the caller to invoke again. Document the 50-subrequest budget in a header comment with CF docs link.
-6. (URL validation) For each URL in sitemap.xml, parse the host. Reject any URL whose host is not muddytires.ca (or the operator-configured allowlist). Log skipped URLs for audit.
-7. (race) Use D1 OPTIMISTIC LOCKING on the cursor row: SELECT cursor_value WHERE id=1; UPDATE cursor_value=? WHERE id=1 AND cursor_value=<old_value>. If 0 rows updated, another /refresh raced — return 409 Conflict with retry-after.
-8. (XML CDATA) Switch sitemap parsing from regex to DOMParser if available in Workers env, OR document the regex limitation in a comment + add a fallback for CDATA-wrapped <loc> tags.
-9. (verify) node --check workers/sitemap-prune/index.js. Local smoke: simulate a 100-URL sitemap and verify only 40 are processed per call.
-10. (panel re-check) Call deliberationPanelReview against the new diff.
-11. (commit) per-file git add, --no-verify commit + push, ls-remote verify.
+Panel findings (the deeds to close, verbatim):
+  1. upsert404 + writeCursor awaited inside handleRefresh without try/catch — D1 error becomes uncaught throw (CF 1101 instead of JSON error)
+  2. Top-level fetch() handler has no try/catch — uncaught throws → CF 1101 not structured JSON
+  3. ensureSchema catch blocks silently swallow ALL errors and set schemaEnsured=true unconditionally
+  4. BATCH_SIZE=200 — up to ~401 fetches per /refresh exceeds CF Free subrequest limit (50)
+  5. (concern) Regex-based sitemap parsing may miss CDATA / namespaced XML
+  6. (concern) Race condition on cursor state — concurrent /refresh interleave
+  7. (concern) Sitemap URLs not validated to stay within site domain — SSRF risk on maliciously-edited sitemap
 
-Done means: panel re-check pass/concern; BATCH_SIZE ≤40; outer try/catch in fetch(); ensureSchema catches only expected errors; URL host-validation in place; cursor optimistic-locking in place; all 4 BLOCK findings + 3 CONCERN findings have visible code addressing them.
+Done means:
+  - The worker, when invoked, returns structured JSON on D1 failure rather than CF 1101.
+  - Per /refresh subrequest count is mathematically provable to stay under 50 (Free plan ceiling).
+  - ensureSchema does NOT mask unknown errors as "already exists".
+  - Concurrent /refresh calls either serialize cleanly OR return a structured conflict response (no race-corrupted cursor).
+  - URL host validation rejects out-of-domain sitemap entries.
+  - Same panel re-fire returns pass/concern; node --check passes; push + ls-remote verify.
 
-Constraints: TARGET-BRANCH already exists. Per-file git add. --no-verify. CF Workers subrequest limit is the load-bearing constraint — never exceed 40 fetches per request (10-buffer below the 50 ceiling).
+Amanah: yours to reason the closure. The chain picks the right primitives — try/catch shapes, cursor-locking strategy, BATCH_SIZE cap and continuation pattern. Substrate paths name what's wrong; the chain finds what's right.
+
+Constraints: per-file git add, --no-verify, NO LOCAL OLLAMA, Sonnet as executor.
