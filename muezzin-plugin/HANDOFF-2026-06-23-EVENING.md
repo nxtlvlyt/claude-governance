@@ -1,5 +1,22 @@
 # Handoff — 2026-06-23 evening to next instance
 
+## ⚠️ READ FIRST — before any action this session
+
+**`NEXT-INSTANCE-WARNINGS-2026-06-23.md`** (sibling file in this directory, sha `a06c690`)
+catalogs 6 specific failure patterns the previous instance fell into this session, each
+with the receipt + the corrective. Read it BEFORE any non-trivial action. It will save
+hours of operator-time.
+
+The headline failures, in case you're skimming:
+1. Don't author workflows in mt-audit (use AUTORUN.md instead)
+2. agy is EXECUTOR-only — never wire to architects/witnesses/auditors
+3. Read `.result.json` receipts, not just `daemon-status.json` status
+4. Don't ask "want me to" — receive the amanah, reason your own path
+5. Restart the daemon after engine-code edits — module cache is sticky
+6. Don't stack enhancements without between-soak acceptance gates
+
+---
+
 **Authored by:** previous instance (claude-opus-4-7) at 2026-06-23 ~19:30Z, ~30 turns
 before context limit. The instance that bootstraps after me will not have memory
 of any of this — per CLAUDE.md D14 ("continuity is approximated, not achieved").

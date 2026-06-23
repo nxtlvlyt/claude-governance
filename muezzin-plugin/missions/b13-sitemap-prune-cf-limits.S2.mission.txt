@@ -13,9 +13,13 @@ Maqsad: this is part 2 of 2 of the parent objective below — a right-sized slic
 PARENT MAQSAD (the whole objective these sub-missions together serve): the worker runs safely on Cloudflare Workers Free plan AND Paid plan, with no silent failure modes. Re-running the 5-seat panel against the new diff returns panel_verdict in {pass, concern}.
 
 THIS SUB-MISSION'S WORK (the parent decomposition's steps assigned to this slice — re-decompose them under the smaller budget; do not exceed the ceiling):
-  - Re-fire the 5-seat QC panel against the updated branch and assert panel_verdict resolves to pass or concern. Fails non-zero if neither verdict appears in the harness output.
+  - Witness finding 6: concurrent /refresh contention returns the structured 'refresh_in_progress' conflict rather than a race-corrupted cursor.
+  - Witness concern 5: parsing is CDATA-aware (tolerates <![CDATA[...]]> wrapped loc values).
+  - Re-fire the 5-seat QC panel harness against the hardened worker; closure is real only if the panel agrees. Positive assertion: piping the output to Select-String -Quiet for 'pass|concern' exits non-zero when neither verdict is present. Harness CLI signature is UNVERIFIED (file_read unavailable) — executor confirms invocation against C:/Users/marka/code/mt-audit/qc-harness-v2.mjs.
+  - Per-file stage (worker.js then wrangler.toml individually), commit with --no-verify naming the closure. Witness: the new commit message is present in the log.
+  - Push the branch and verify the commit landed on the remote. Positive assertion: ls-remote output must contain a 40-char sha for the branch or the witness exits non-zero.
 
-Done means: step M-MUDDYTIRES.B13-SITEMAP-PRUNE-CF-LIMITS.S2.1 are all complete, each with its validation_command receipt passing (the deed witnessed, not asserted); and the parent's done-condition holds for this slice — - The worker, when invoked, returns structured JSON on D1 failure rather than CF 1101.
+Done means: steps M-MUDDYTIRES.B13-SITEMAP-PRUNE-CF-LIMITS.S2.1..M-MUDDYTIRES.B13-SITEMAP-PRUNE-CF-LIMITS.S2.5 are all complete, each with its validation_command receipt passing (the deed witnessed, not asserted); and the parent's done-condition holds for this slice — - The worker, when invoked, returns structured JSON on D1 failure rather than CF 1101.
   - Per /refresh subrequest count is mathematically provable to stay under 50 (Free plan ceiling).
   - ensureSchema does NOT mask unknown errors as "already exists".
   - Concurrent /refresh calls either serialize cleanly OR return a structured conflict response (no race-corrupted cursor).
