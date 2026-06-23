@@ -13,6 +13,7 @@ import { execSync, execFile, execFileSync } from 'node:child_process';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { validateVerdictContract, VERDICTS } from './verdict_merge.mjs';
+import { dispatchAgy, agyAvailable, resolveAgyModel } from './agy_dispatch.mjs';
 
 // DISPATCH HEARTBEAT (bug #5, 2026-06-10): two lanes hung 39-46 min SILENT — legal
 // retry math (3 heals x doubling timeouts up to 10 min + waits) was invisible from
@@ -166,6 +167,40 @@ const CLAUDE_SEAT_MAP = {
   'nemotron-3-super': 'opus',
 };
 const CLAUDE_TIMEOUT_MS = 8 * 60 * 1000;
+const AGY_TIMEOUT_MS = 8 * 60 * 1000;
+
+// AGY LANE (2026-06-23, lock pending in MUEZZIN-SEAT-PLAN-LOCKED.md "Pending revision"):
+// When env USE_AGY_EXECUTOR=true OR route file declares prefer:"agy", the dispatch tries
+// agy FIRST (before namedClaude and the cloud waterfall). Burns agy's separate 4-hour
+// rolling quota; spares the weekly direct-API Claude budget for the heaviest phase.
+// OFF BY DEFAULT — existing waterfall behavior unchanged when flag not set.
+function routePrefersAgy(model) {
+  if (process.env.USE_AGY_EXECUTOR === 'true' && agyAvailable()) return true;
+  try {
+    const r = JSON.parse(readFileSync(ROUTE_FILE, 'utf8'));
+    if (r.prefer === 'agy' && Date.parse(r.until) > Date.now() && agyAvailable()) return true;
+  } catch { /* absent/invalid = no agy preference */ }
+  return false;
+}
+
+async function attemptAgy(body, seatOrModel, timeoutMs, cwd) {
+  const agyModel = resolveAgyModel(seatOrModel);
+  const prompt = body.messages.map((m) => `[${m.role}]\n${m.content}`).join('\n\n');
+  const r = await dispatchAgy(prompt, {
+    model: agyModel,
+    timeoutMs,
+    cwd,
+    printTimeout: '5m',
+  });
+  if (!r.ok) {
+    throw new WaterfallError(r.error?.kind || 'AGY_FAILED', 'agy', agyModel,
+      r.error?.detail || `agy exited ${r.exitCode}`);
+  }
+  // Trust the deed (files on disk) over stdout — agy --print frequently returns exit 0
+  // with empty stdout due to planner-loop swallow. The runner's execReceipt is the deed.
+  const content = r.stdout.trim() || '(empty stdout — agy planner-mode; verify via execReceipt)';
+  return { content, toolTrace: [], provider: 'agy', model: agyModel };
+}
 
 // ROUTE PREFERENCE (operator ruling 2026-06-10: "we are not using our claude and ollama
 // usage together in a smart way" — receipt: Ollama ran dry while 75% of the Claude window
@@ -447,6 +482,24 @@ export async function dispatchWithWaterfall(baseBody, { cwd } = {}) {
   // attempt, then the normal cloud waterfall as fallback. preferTried suppresses the
   // post-cloud claude tier so a failed preferred attempt is never double-charged.
   let preferTried = false;
+  // -- AGY LANE: when USE_AGY_EXECUTOR=true OR route prefer:"agy", try agy first.
+  // Burns agy's separate 4-hour quota instead of the weekly Claude budget. On any
+  // failure (binary missing, timeout, non-zero exit, etc) falls through to the
+  // existing namedClaude/cloud/local waterfall — same safe rail as the Claude tier.
+  if (routePrefersAgy(baseBody.model) && remaining() > 30000) {
+    preferTried = true;   // suppress post-cloud claude tier (same anti-double-charge logic as routePrefersClaude path)
+    const agyModel = resolveAgyModel(baseBody.model);
+    hb(`attempt-start provider=agy-${agyModel} (USE_AGY_EXECUTOR or route prefer) timeout=${Math.min(AGY_TIMEOUT_MS, remaining())}ms`);
+    const ta = Date.now();
+    try {
+      const out = await attemptAgy(baseBody, baseBody.model, Math.min(AGY_TIMEOUT_MS, remaining()), cwd);
+      hb(`attempt-ok provider=agy-${agyModel} ms=${Date.now() - ta} chars=${out.content.length}`);
+      return { ...out, provider: `agy-${agyModel}`, heals: 0 };
+    } catch (e) {
+      hb(`attempt-fail provider=agy-${agyModel} ms=${Date.now() - ta} kind=${e.kind || e.name}: ${String(e.message).slice(0, 120)} — falling through to existing waterfall`);
+      /* fall through to existing namedClaude / cloud / local waterfall */
+    }
+  }
   // DIRECTLY-NAMED CLAUDE SEAT first (seating-modes): a seat whose model IS a Claude family
   // name (opus/sonnet/haiku/claude-*, from seat_modes anthropic-heavy) dispatches Claude-FIRST.
   // Honors the kill switch (MUEZZIN_CLAUDE_TIER=off -> skip, fall straight to the waterfall, so
