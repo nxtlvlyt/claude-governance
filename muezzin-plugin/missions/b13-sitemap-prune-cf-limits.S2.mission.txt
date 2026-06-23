@@ -2,21 +2,24 @@ MISSION-ID: M-MUDDYTIRES.B13-SITEMAP-PRUNE-CF-LIMITS.S2
 MISSION-CLASS: code-repo
 REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
 ALLOW-FILES:
-  - workers/sitemap-prune/index.js
+  - workers/sitemap-prune/*.js
   - workers/sitemap-prune/wrangler.toml
 PARENT: M-MUDDYTIRES.B13-SITEMAP-PRUNE-CF-LIMITS  (sub-mission 2 of 2, auto-split by the size ceiling)
 REQUIRES: predecessor M-MUDDYTIRES.B13-SITEMAP-PRUNE-CF-LIMITS.S1 DONE (tartib — sub-mission 2 runs after 1 of 2)
 
-Niyyah: fix the 3 SOTA-panel-confirmed defects on the original Sonnet build of sitemap-prune (wdsq4mxb2 — BLOCK at sha 530457f). These are real production-risk issues: uncaught D1 awaits become CF 1101 errors, BATCH_SIZE=200 exceeds Cloudflare's 50 subrequest limit on Free plan, and unvalidated sitemap URLs allow SSRF on a maliciously-edited sitemap. Honest about CF limits — the worker would silently fail in production.
+Niyyah: the sitemap-prune worker should survive production load. The original build assumed Cloudflare Workers limits the panel measured exceeded by 8x, and uncaught D1 awaits would surface as CF 1101 errors to users. Close the substrate-verified defects — not the model's confidence, the documented Cloudflare ceiling.
 
 Maqsad: this is part 2 of 2 of the parent objective below — a right-sized slice the engine can decompose under the size ceiling without overwhelming a seat. Achieve ONLY this slice's work; the sibling sub-missions own the rest.
-PARENT MAQSAD (the whole objective these sub-missions together serve): patch the existing branch feat/b13-sitemap-prune-2026-06-23 with the corrective patches below. Re-fire the panel and confirm pass/concern.
+PARENT MAQSAD (the whole objective these sub-missions together serve): the worker runs safely on Cloudflare Workers Free plan AND Paid plan, with no silent failure modes. Re-running the 5-seat panel against the new diff returns panel_verdict in {pass, concern}.
 
 THIS SUB-MISSION'S WORK (the parent decomposition's steps assigned to this slice — re-decompose them under the smaller budget; do not exceed the ceiling):
-  - Witness CDATA-aware sitemap parsing (finding #5): the CDATA handling is present.
-  - Per-file git add of the single changed file and commit with --no-verify (mission constraint). Witness the commit landed.
-  - Push the branch and confirm the remote ref now exists with a real SHA (positive assertion: ls-remote prints a 40-hex SHA only when the branch is present on origin).
+  - Re-fire the 5-seat QC panel against the updated branch and assert panel_verdict resolves to pass or concern. Fails non-zero if neither verdict appears in the harness output.
 
-Done means: steps M-MUDDYTIRES.B13-SITEMAP-PRUNE-CF-LIMITS.S2.1..M-MUDDYTIRES.B13-SITEMAP-PRUNE-CF-LIMITS.S2.3 are all complete, each with its validation_command receipt passing (the deed witnessed, not asserted); and the parent's done-condition holds for this slice — panel re-check pass/concern; BATCH_SIZE ≤40; outer try/catch in fetch(); ensureSchema catches only expected errors; URL host-validation in place; cursor optimistic-locking in place; all 4 BLOCK findings + 3 CONCERN findings have visible code addressing them.
+Done means: step M-MUDDYTIRES.B13-SITEMAP-PRUNE-CF-LIMITS.S2.1 are all complete, each with its validation_command receipt passing (the deed witnessed, not asserted); and the parent's done-condition holds for this slice — - The worker, when invoked, returns structured JSON on D1 failure rather than CF 1101.
+  - Per /refresh subrequest count is mathematically provable to stay under 50 (Free plan ceiling).
+  - ensureSchema does NOT mask unknown errors as "already exists".
+  - Concurrent /refresh calls either serialize cleanly OR return a structured conflict response (no race-corrupted cursor).
+  - URL host validation rejects out-of-domain sitemap entries.
+  - Same panel re-fire returns pass/concern; node --check passes; push + ls-remote verify.
 
 Amanah: this slice was split from a larger mission so it stays inside the chain's reliable working capacity (Q2:286 / mizan). Discharge it with ihsan; its receipt unlocks the next sibling.
