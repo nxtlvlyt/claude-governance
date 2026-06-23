@@ -92,6 +92,11 @@ export async function dispatchAgy(prompt, opts = {}) {
     };
   }
 
+  // FIX (2026-06-23T20:00Z, v0.4 soak surfaced ENAMETOOLONG live): the prompt cannot ride
+  // argv on Windows when it exceeds the OS arg-length cap (~32K chars). The existing
+  // claude-cmd path in seat_dispatch.mjs:222-264 solves this by piping prompt via stdin.
+  // agy accepts a prompt via stdin when stdin is attached (default behavior of --print
+  // when no positional prompt is supplied). Mirror that pattern here.
   const args = [
     '--model', model,
     '--print',
@@ -99,7 +104,7 @@ export async function dispatchAgy(prompt, opts = {}) {
     '--dangerously-skip-permissions',
   ];
   if (cwd) args.push('--add-dir', cwd);
-  args.push(prompt);
+  // NB: prompt passed via stdin below — NOT pushed to args (would ENAMETOOLONG on long missions).
 
   return new Promise((resolve) => {
     let stdout = '', stderr = '', resolved = false, child;
@@ -115,10 +120,20 @@ export async function dispatchAgy(prompt, opts = {}) {
         cwd: cwd || process.cwd(),
         windowsHide: true,
         env: { ...process.env, GIT_TERMINAL_PROMPT: '0' },
+        stdio: ['pipe', 'pipe', 'pipe'],   // explicit pipe stdin so we can write prompt
       });
     } catch (e) {
       return finish({ ok: false, exitCode: -1, stdout: '', stderr: '',
         error: { kind: 'SPAWN_ERROR', detail: String(e?.message || e) } });
+    }
+
+    // Write the prompt via stdin (no argv-length limit), then close so agy proceeds.
+    try {
+      child.stdin?.on('error', () => { /* child may have died first; close cb will report */ });
+      child.stdin?.write(prompt);
+      child.stdin?.end();
+    } catch (e) {
+      // stdin write failure is non-fatal here — child's exit will be captured below
     }
 
     const killer = setTimeout(() => finish({
