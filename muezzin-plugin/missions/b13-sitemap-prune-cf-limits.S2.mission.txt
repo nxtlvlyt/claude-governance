@@ -1,0 +1,22 @@
+MISSION-ID: M-MUDDYTIRES.B13-SITEMAP-PRUNE-CF-LIMITS.S2
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - workers/sitemap-prune/index.js
+  - workers/sitemap-prune/wrangler.toml
+PARENT: M-MUDDYTIRES.B13-SITEMAP-PRUNE-CF-LIMITS  (sub-mission 2 of 2, auto-split by the size ceiling)
+REQUIRES: predecessor M-MUDDYTIRES.B13-SITEMAP-PRUNE-CF-LIMITS.S1 DONE (tartib — sub-mission 2 runs after 1 of 2)
+
+Niyyah: fix the 3 SOTA-panel-confirmed defects on the original Sonnet build of sitemap-prune (wdsq4mxb2 — BLOCK at sha 530457f). These are real production-risk issues: uncaught D1 awaits become CF 1101 errors, BATCH_SIZE=200 exceeds Cloudflare's 50 subrequest limit on Free plan, and unvalidated sitemap URLs allow SSRF on a maliciously-edited sitemap. Honest about CF limits — the worker would silently fail in production.
+
+Maqsad: this is part 2 of 2 of the parent objective below — a right-sized slice the engine can decompose under the size ceiling without overwhelming a seat. Achieve ONLY this slice's work; the sibling sub-missions own the rest.
+PARENT MAQSAD (the whole objective these sub-missions together serve): patch the existing branch feat/b13-sitemap-prune-2026-06-23 with the corrective patches below. Re-fire the panel and confirm pass/concern.
+
+THIS SUB-MISSION'S WORK (the parent decomposition's steps assigned to this slice — re-decompose them under the smaller budget; do not exceed the ceiling):
+  - Witness CONCERN#5: CDATA-aware sitemap parsing / documented limitation. Asserts a CDATA reference is present (fails non-zero if absent).
+  - Land the change: per-file git add of ONLY the ALLOW-FILE index.js (never git add . / -A), --no-verify commit (mission-permitted), and push to the existing branch. Engine runs the deed; witness asserts the new local commit carries the sitemap-prune subject (fails non-zero if the commit subject is absent).
+  - Verify the remote branch ref actually advanced to the pushed commit (remote-reaching positive assertion, not a local file check). Asserts the local HEAD sha appears in origin's ls-remote output (fails non-zero if the sha is absent from the remote).
+
+Done means: steps M-MUDDYTIRES.B13-SITEMAP-PRUNE-CF-LIMITS.S2.1..M-MUDDYTIRES.B13-SITEMAP-PRUNE-CF-LIMITS.S2.3 are all complete, each with its validation_command receipt passing (the deed witnessed, not asserted); and the parent's done-condition holds for this slice — panel re-check pass/concern; BATCH_SIZE ≤40; outer try/catch in fetch(); ensureSchema catches only expected errors; URL host-validation in place; cursor optimistic-locking in place; all 4 BLOCK findings + 3 CONCERN findings have visible code addressing them.
+
+Amanah: this slice was split from a larger mission so it stays inside the chain's reliable working capacity (Q2:286 / mizan). Discharge it with ihsan; its receipt unlocks the next sibling.

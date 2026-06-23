@@ -1,0 +1,22 @@
+{
+  "parent": "M-MUDDYTIRES.B13-TRIP-DIARY-SECURITY-HARDEN",
+  "parentMissionFile": "C:\\Users\\marka\\.claude\\muezzin-plugin\\missions\\b13-trip-diary-security-harden.mission.txt",
+  "ceiling": 8,
+  "originalStepCount": 12,
+  "splitAt": "2026-06-23T17:28:36.959Z",
+  "subMissions": [
+    {
+      "id": "M-MUDDYTIRES.B13-TRIP-DIARY-SECURITY-HARDEN.S1",
+      "file": "missions/b13-trip-diary-security-harden.S1.mission.txt",
+      "requires": null,
+      "steps": 8
+    },
+    {
+      "id": "M-MUDDYTIRES.B13-TRIP-DIARY-SECURITY-HARDEN.S2",
+      "file": "missions/b13-trip-diary-security-harden.S2.mission.txt",
+      "requires": "M-MUDDYTIRES.B13-TRIP-DIARY-SECURITY-HARDEN.S1",
+      "steps": 4
+    }
+  ],
+  "note": "PARENT marked SPLIT (not executed). Children run in tartib order; each REQUIRES its predecessor DONE. Queue flow: M-ENGINE.QUEUE-FLOW.1."
+}

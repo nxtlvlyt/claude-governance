@@ -1,0 +1,32 @@
+MISSION-ID: M-MUDDYTIRES.B13-TRIP-DIARY-SECURITY-HARDEN.S1
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - functions/_lib/trip-helpers.js
+  - functions/api/trips/[[path]].js
+  - functions/api/trips/[id].js
+  - functions/api/trips/[id]/stops.js
+  - functions/api/trips/[id]/stops/[stop_id].js
+  - functions/api/trips/[id]/stops/reorder.js
+  - trips.html
+PARENT: M-MUDDYTIRES.B13-TRIP-DIARY-SECURITY-HARDEN  (sub-mission 1 of 2, auto-split by the size ceiling)
+REQUIRES: none (first sub-mission of 2 in tartib order)
+
+Niyyah: harden the trip-diary feature against the 5-seat SOTA panel findings on the original Sonnet build (wdsq4mxb2 sha — BLOCK verdict at panel_verdict=block, confidence 0.88, 4 of 5 seats agreeing). Apply standard web-security hygiene: CORS allowlist, CSRF defense, transaction wrap, error handling, XSS encoding, race fix on MAX(ord). Substrate-honest: the original feature WORKS (substrate checks all passed), but the panel correctly flagged 5 real security defects that ship-ready code should not have.
+
+Maqsad: this is part 1 of 2 of the parent objective below — a right-sized slice the engine can decompose under the size ceiling without overwhelming a seat. Achieve ONLY this slice's work; the sibling sub-missions own the rest.
+PARENT MAQSAD (the whole objective these sub-missions together serve): patch the existing branch feat/b13-trip-diary-user-2026-06-23 with the 5 corrective patches below. Re-run all the original verification steps + a panel re-check at end (call deliberationPanelReview from C:/Users/marka/code/mt-audit/qc-harness-v2.mjs against the new diff; aim for panel_verdict=pass or concern). Push the result to the same branch as a follow-up commit.
+
+THIS SUB-MISSION'S WORK (the parent decomposition's steps assigned to this slice — re-decompose them under the smaller budget; do not exceed the ceiling):
+  - Sync the existing worktree to the remote tip of the target branch so the hardening commit builds on current branch state (all 3 architects agree this is step 1). Engine-executed command: pull then assert HEAD is on the target branch.
+  - Add shared security primitives to trip-helpers.js (consumed by every route file): ALLOWED_ORIGINS=['https://muddytires.ca','http://localhost:8788']; corsHeaders(origin) that echoes a validated origin + 'Vary: Origin' + 'Access-Control-Allow-Credentials: true' and returns null for unlisted origins (finding #1); checkCORS(request)->403 for present-but-unlisted Origin (#1); checkCSRF(request)->403 for POST/PATCH/DELETE whose Origin is missing or unlisted, full scheme+host+port match (#2); escapeHtml(&<>"') helper (#5); and fix ownerTrip/ownerStop so real DB errors throw/surface rather than swallow into 404/null (#6). All 3 architects converge on centralizing primitives here since _middleware.js is not in ALLOW-FILES.
+  - Wire the catch-all router [[path]].js to the helpers: import checkCORS/checkCSRF/corsHeaders; handle OPTIONS preflight (allowlisted ACAO only, 403 otherwise); call checkCORS at top of the handler and return 403 early; call checkCSRF before any state-mutating dispatch with a one-line comment naming the defense (#1,#2); wrap the whole handler body in try/catch returning {ok:false,error:'internal',detail:msg} status 500 so CF 1101 never leaks (#6).
+  - Trip-level handler [id].js: apply CORS/CSRF/outer-try-catch wiring from the helpers, and replace the two sequential DELETEs (trip_stop WHERE trip_id=? then trip WHERE id=?) with a single env.DB.batch([stmt1,stmt2]).run() so both delete or neither does (#7). Ownership validated before the batch (D1 batch only rolls back on a real DB exception, not on zero affected rows — live-verified by 2 architects).
+  - Stops list/create handler [id]/stops.js: apply CORS/CSRF/outer-catch wiring, and replace the SELECT MAX(ord)-then-INSERT with a single atomic statement INSERT INTO trip_stop (trip_id,name,note,ord) VALUES (?,?,?,(SELECT COALESCE(MAX(ord),-1)+1 FROM trip_stop WHERE trip_id=?)) so ord computation and insert are one atomic SQLite operation (#3). Also surface ownerStop/MAX-lookup DB errors instead of silently defaulting nextOrd=0 (#6). Add an SQL comment noting the inline-atomic pattern.
+  - Single-stop handler [id]/stops/[stop_id].js (GET/PATCH/DELETE): apply the same CORS/CSRF preflight and outer try/catch wiring from the helpers. No ord-race or batch change needed here — security wiring only (#1,#2,#6).
+  - Reorder handler reorder.js: apply CORS/CSRF/outer-catch wiring, and replace the N individual UPDATE .run() calls with one env.DB.batch(stmts).run() where stmts is the full array of prepared 'UPDATE trip_stop SET ord=? WHERE id=? AND trip_id=?' statements — single atomic batch, all-or-nothing rollback on failure (#4).
+  - XSS hardening in trips.html: route every user-controlled trip/stop field (title, notes, name, note) through textContent for plain text or escapeHtml() where HTML structure is needed; remove raw innerHTML interpolation of user data (#5). Add a one-line comment naming the chosen approach. NOTE for integrator/operator: the panel finding also named profile.html, but profile.html is NOT in ALLOW-FILES, so it is scoped OUT of this mission and must be hardened in a separate mission.
+
+Done means: steps M-MUDDYTIRES.B13-TRIP-DIARY-SECURITY-HARDEN.S1.1..M-MUDDYTIRES.B13-TRIP-DIARY-SECURITY-HARDEN.S1.8 are all complete, each with its validation_command receipt passing (the deed witnessed, not asserted); and the parent's done-condition holds for this slice — panel re-check returns pass or concern; all 7 panel findings have visible code-change addressing them in the diff; CORS allowlist concrete; CSRF defense named in comments; race + txn primitives used; XSS escape function visible; outer try/catch in fetch().
+
+Amanah: this slice was split from a larger mission so it stays inside the chain's reliable working capacity (Q2:286 / mizan). Discharge it with ihsan; its receipt unlocks the next sibling.
