@@ -13,9 +13,9 @@ Maqsad: this is part 2 of 2 of the parent objective below — a right-sized slic
 PARENT MAQSAD (the whole objective these sub-missions together serve): patch the existing branch feat/b13-sitemap-prune-2026-06-23 with the corrective patches below. Re-fire the panel and confirm pass/concern.
 
 THIS SUB-MISSION'S WORK (the parent decomposition's steps assigned to this slice — re-decompose them under the smaller budget; do not exceed the ceiling):
-  - Witness CONCERN#5: CDATA-aware sitemap parsing / documented limitation. Asserts a CDATA reference is present (fails non-zero if absent).
-  - Land the change: per-file git add of ONLY the ALLOW-FILE index.js (never git add . / -A), --no-verify commit (mission-permitted), and push to the existing branch. Engine runs the deed; witness asserts the new local commit carries the sitemap-prune subject (fails non-zero if the commit subject is absent).
-  - Verify the remote branch ref actually advanced to the pushed commit (remote-reaching positive assertion, not a local file check). Asserts the local HEAD sha appears in origin's ls-remote output (fails non-zero if the sha is absent from the remote).
+  - Witness CDATA-aware sitemap parsing (finding #5): the CDATA handling is present.
+  - Per-file git add of the single changed file and commit with --no-verify (mission constraint). Witness the commit landed.
+  - Push the branch and confirm the remote ref now exists with a real SHA (positive assertion: ls-remote prints a 40-hex SHA only when the branch is present on origin).
 
 Done means: steps M-MUDDYTIRES.B13-SITEMAP-PRUNE-CF-LIMITS.S2.1..M-MUDDYTIRES.B13-SITEMAP-PRUNE-CF-LIMITS.S2.3 are all complete, each with its validation_command receipt passing (the deed witnessed, not asserted); and the parent's done-condition holds for this slice — panel re-check pass/concern; BATCH_SIZE ≤40; outer try/catch in fetch(); ensureSchema catches only expected errors; URL host-validation in place; cursor optimistic-locking in place; all 4 BLOCK findings + 3 CONCERN findings have visible code addressing them.
 
