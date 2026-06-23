@@ -2,8 +2,8 @@
   "parent": "M-MUDDYTIRES.B13-SITEMAP-PRUNE-CF-LIMITS",
   "parentMissionFile": "C:\\Users\\marka\\.claude\\muezzin-plugin\\missions\\b13-sitemap-prune-cf-limits.mission.txt",
   "ceiling": 8,
-  "originalStepCount": 13,
-  "splitAt": "2026-06-23T23:11:06.679Z",
+  "originalStepCount": 9,
+  "splitAt": "2026-06-23T23:16:59.997Z",
   "subMissions": [
     {
       "id": "M-MUDDYTIRES.B13-SITEMAP-PRUNE-CF-LIMITS.S1",
@@ -15,7 +15,7 @@
       "id": "M-MUDDYTIRES.B13-SITEMAP-PRUNE-CF-LIMITS.S2",
       "file": "missions/b13-sitemap-prune-cf-limits.S2.mission.txt",
       "requires": "M-MUDDYTIRES.B13-SITEMAP-PRUNE-CF-LIMITS.S1",
-      "steps": 5
+      "steps": 1
     }
   ],
   "note": "PARENT marked SPLIT (not executed). Children run in tartib order; each REQUIRES its predecessor DONE. Queue flow: M-ENGINE.QUEUE-FLOW.1."
