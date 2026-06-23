@@ -174,7 +174,23 @@ const AGY_TIMEOUT_MS = 8 * 60 * 1000;
 // agy FIRST (before namedClaude and the cloud waterfall). Burns agy's separate 4-hour
 // rolling quota; spares the weekly direct-API Claude budget for the heaviest phase.
 // OFF BY DEFAULT — existing waterfall behavior unchanged when flag not set.
+//
+// CRITICAL — EXECUTOR-CLASS SEATS ONLY (2026-06-23T23:05Z fix): agy's --print mode has a
+// planner-loop swallow that emits short non-structured-JSON output (substrate-verified
+// `chars=57` failures with error "no valid JSON micro_queue in the seat output"). This
+// is fine for the EXECUTOR seat (its deliverable is files on disk, not structured JSON
+// stdout — execReceipt verifies the deed). But it BREAKS architects/witnesses/auditors
+// that MUST emit structured JSON. Restrict agy routing to executor-class model names.
+// Per the locked seat plan: executor is qwen3-coder-next (or kimi-k2.7-code / sonnet).
+const AGY_EXECUTOR_SEATS = new Set([
+  'qwen3-coder-next',  // canonical Phase-2 executor
+  'kimi-k2.7-code',    // alternate executor
+  'sonnet',            // direct-Claude executor via seating-modes (anthropic-heavy mode)
+]);
 function routePrefersAgy(model) {
+  // Gate 1: only executor-class seats — architects/witnesses/auditors stay on existing waterfall
+  if (!AGY_EXECUTOR_SEATS.has(model)) return false;
+  // Gate 2: env or route file declares the agy preference + agy binary present
   if (process.env.USE_AGY_EXECUTOR === 'true' && agyAvailable()) return true;
   try {
     const r = JSON.parse(readFileSync(ROUTE_FILE, 'utf8'));
