@@ -1,3 +1,4 @@
+# BLOCKED pending engine batch — recursion-guard slice-ceiling bug in groupSteps/buildSubMissionText. Parent splits into S1 (8 steps, at ceiling) + S2; S1 re-decomposes to 9 steps which trips the recursion guard ("refusing to re-split a child"). 119 plans, 0 steps executed in mission lifetime. Fix is engine-side: smaller first-level slice so child re-decomp has headroom under ceiling. See conduct-cycle.mjs ledger entries 2026-06-23 17:28Z → 2026-06-24 03:52Z.
 MISSION-CLASS: code-repo
 MISSION-ID: M-MUDDYTIRES.B13-SITEMAP-PRUNE-CF-LIMITS
 REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22

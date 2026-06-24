@@ -1,3 +1,4 @@
+# BLOCKED pending engine batch — same recursion-guard class as parent. S1 packs 7 substantive sub-tasks in its THIS SUB-MISSION'S WORK section which architect decomposes to 9 micro-actions, over the 8-ceiling, recursion guard fires. Engine-side fix: groupSteps must size first-level slices with headroom. Will unblock when engine batch lands.
 MISSION-ID: M-MUDDYTIRES.B13-SITEMAP-PRUNE-CF-LIMITS.S1
 MISSION-CLASS: code-repo
 REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22

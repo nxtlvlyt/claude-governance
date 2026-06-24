@@ -1,3 +1,4 @@
+# BLOCKED pending engine batch — sibling of S1, same recursion-guard class. Will unblock when engine batch lands the slice-ceiling fix.
 MISSION-ID: M-MUDDYTIRES.B13-SITEMAP-PRUNE-CF-LIMITS.S2
 MISSION-CLASS: code-repo
 REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
