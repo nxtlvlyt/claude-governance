@@ -49,6 +49,12 @@ This is the canonical project-context file. Any conductor session bootstrapping 
 
 ## ⚠️ REQUIRED READS BEFORE ANY NON-TRIVIAL ACTION (in order)
 
+0. **`NEXT-INSTANCE-WARNINGS-2026-06-24.md`** — NEWEST. 5 documented failure patterns from
+   the 2026-06-23 evening → 2026-06-24 morning session: "chain producing big plans" is not
+   productivity (steps>0 is); workflow-synthesized patch + active firing = APPLY NOW (don't
+   defer); ledger DONE can be deceptive (check steps column); sleeping with unfixed engine
+   bugs is the conductor's failure; conductor-direct authorized when chain false-fails x2.
+
 1. **`NEXT-INSTANCE-WARNINGS-2026-06-23.md`** (sha `a06c690`) — 6 documented failure
    patterns the previous instance fell into 2026-06-23, with receipts + correctives.
    The structural counter-substrate. Read this BEFORE any plugin edit.
