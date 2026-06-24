@@ -89,8 +89,9 @@ export function recordFix(base, { cls, fix, requeue = [] }, now = Date.now()) {
 import { execSync as _execSyncSight } from 'child_process';
 export function checkSearxngSight({ probe } = {}) {
   try {
+    const _searxngBase = (process.env.SEARXNG_URL || 'http://nxtbeast:8080').replace(/\/+$/, '');
     const body = probe ? probe() : _execSyncSight(
-      'curl -s -m 8 "http://localhost:8080/search?q=github&format=json"',
+      `curl -s -m 8 "${_searxngBase}/search?q=github&format=json"`,
       { timeout: 10000, stdio: ['ignore', 'pipe', 'pipe'] }).toString();
     if (!body || !body.trim()) return { ok: false, reason: 'empty response (wedged or down)' };
     const j = JSON.parse(body);

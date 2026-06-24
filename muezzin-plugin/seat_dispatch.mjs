@@ -27,7 +27,7 @@ function hb(line) {
 const FAITH_DIR = 'C:/Users/marka/.agents/faiths';
 const FETCH_TIMEOUT_MS = 180000;
 const MAX_CLOUD_HEALS = 3;            // operator spec: 3 reattempts to fix the cloud failure before local
-const SEARXNG_URL = 'http://localhost:8080/search';
+const SEARXNG_URL = (process.env.SEARXNG_URL || 'http://nxtbeast:8080').replace(/\/+$/, '') + '/search';
 
 // cloud first, then local. Cloud key: antigravity uses OLLAMA_API_KEY; this env also has OLLAMA_CLOUD_API_KEY.
 const PROVIDERS = [

@@ -17,7 +17,7 @@
  * @param {string} url base SearxNG URL (default local instance)
  * @returns {Promise<{ ok:boolean, results:number, blocked_engines:Array, verdict:'OK'|'BLOCK', reason:string }>}
  */
-export async function searxngPreflight(url = 'http://localhost:8080') {
+export async function searxngPreflight(url = process.env.SEARXNG_URL || 'http://nxtbeast:8080') {
   const base = String(url).replace(/\/+$/, '');            // tolerate a trailing slash
   const target = `${base}/search?format=json&q=test`;
 
