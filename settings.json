@@ -37,6 +37,11 @@
           },
           {
             "type": "command",
+            "command": "node \"C:\\Users\\marka\\.claude\\hooks\\steps-zero-stall-gate.mjs\"",
+            "timeout": 10
+          },
+          {
+            "type": "command",
             "command": "node \"C:\\Users\\marka\\.claude\\hooks\\session-hash-chain.mjs\"",
             "timeout": 90
           },
@@ -117,6 +122,11 @@
           {
             "type": "command",
             "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File \"C:\\Users\\marka\\.claude\\hooks\\pre-tool-use-chain-timing.ps1\"",
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "node \"C:\\Users\\marka\\.claude\\hooks\\conduct-cycle-first-call-gate.mjs\"",
             "timeout": 10
           }
         ]
