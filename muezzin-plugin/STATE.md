@@ -97,26 +97,53 @@ long drifted feature-build session.
 
 ---
 
-## CURRENT STATE (2026-06-23T23:30Z, session-end)
+## CURRENT STATE (2026-06-24T05:10Z, session-end)
 
-**Daemon:** PID 44836 running v0.4 with the executor-only agy lane (sha `d85c3ea`).
-First valid `micro_queue` produced at 23:11Z after sha `d85c3ea` corrected a regression
-the previous instance introduced earlier this session.
+**Daemon:** PID 47968 (restarted 04:13Z after SearXNG endpoint fix). Lanes still
+on b13-sitemap parent + S1 — but the chain has REGENERATED S1/S2 with fresh
+content because:
+- 04:25Z conductor switched repo to `feat/b13-sitemap-prune-2026-06-23` (the
+  TARGET-BRANCH the mission spec specified but the engine ignored)
+- 04:30Z+ chain saw `workers/sitemap-prune/index.js` for the first time → real
+  micro_queue produced → auto-splitter regenerated S1 (5 steps) + S2 (4 steps)
+  overwriting the `# BLOCKED` markers the conductor had placed
 
-**Queue:** 10+ missions queued including:
-- b13-* sub-missions (S1 → S2 with REQUIRES chain)
-- qc-feature-catalog-fill-2026-06-23.mission.txt (overnight catalog completion)
-- engine-cycle-detector-2026-06-23.mission.txt — RETIRED as superseded by Build #3
+**Fixes landed this session:**
+1. `seat_dispatch.mjs:30` + `searxng_preflight.mjs:20` + `conduct-cycle.mjs:93`
+   — SEARXNG_URL env-var default `http://nxtbeast:8080` (chain seats grounded;
+   confirmed plans went from 57-char garbage to 14-17KB substantive)
+2. `ollama_vision_verdict.mjs` (new) — Ollama Cloud gemini-3-flash-preview
+   multimodal verdict path; **agy --print is dead** (returns empty for
+   everything, substrate-verified 04:55Z)
+3. `mt-qc-worktree/scripts/e2e-runner.mjs` — swapped agy → ollamaVisionVerdict;
+   end-to-end proof: vehicle picker bug verdict came back as `concern` with
+   structured per-gate findings, naming the missing `#mt-pd-gear` selector
+4. AUTORUN.md — 37 stale annotations replaced with workflow-driven
+   FIX:/SUPERSEDED:/BLOCKED: keywords; conduct-cycle DIAGNOSE count 66 → 29
+5. 5 mission files (vanlife-editor-A-proofzoom + 4 engine-*) got Done means
+   clauses appended → MIQAT lint no longer refuses
 
-**Acceptance bar:** the 8h+ unsupervised soak per `BUILD_STATE.md`. Started
-2026-06-23T23:05Z (last clean restart). Target 2026-06-24T07:05Z.
+**Two diagnostic workflows fired this session** (2.5M Claude tokens; should
+have routed to Ollama for the read-and-classify shape):
+- `wf_98e34934-dcf` — 40 FAILED missions diagnosed (45% misspec, not engine bugs)
+- `wf_8d6fff25-16c` — TARGET-BRANCH bug spec'd; patch ready for `orchestrate.mjs:457`
+  with dirty-tree HALT + missing-branch HALT + post-checkout baseline re-capture.
+  Also requires `mission_class.mjs` to extract `TARGET-BRANCH` (currently doesn't).
+  **NOT YET APPLIED** — would kill current b13 in-flight cycle; do between-soak.
+
+**Open blockers** (prioritized):
+1. ~29 missions still need diagnose-and-annotate (workflow missed them in initial scan)
+2. 5 damm entries open (damm-west-corrections×2, engine-windowed-edit-large-file×2,
+   mt-auth-session-schema-fix-1) — need dispositions
+3. mt-cutover-fuel-chip-fix queued in AUTORUN; runs when a lane frees
+4. TARGET-BRANCH engine patch needs application (workflow already designed it)
+5. Hook-encode the proactive-conductor enforcement (governance event; next clean session)
 
 **Production state of muddytires.ca:**
-- `github/master` at sha `00ca348` (pre-everything baseline, 2 commits total)
-- `integration/apex-2026-06-22` is 290 commits ahead of master, NOT YET DEPLOYED
-- Live site serves whatever was deployed before this session
-- Bugs operator reported 2026-06-23 still present on live (vehicle picker UX,
-  fuel-chip suppression, carbon-chip missing because unmerged branch)
+- `github/master` still at sha `00ca348` (untouched)
+- `integration/apex-2026-06-22` still 290 commits ahead, undeployed
+- Live site bugs all still present; visual proof captured this session
+  (e2e-shots/vehicle-profile-picker-final.png) confirms vehicle picker bug
 
 ---
 
