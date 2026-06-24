@@ -32,6 +32,11 @@
           },
           {
             "type": "command",
+            "command": "node \"C:\\Users\\marka\\.claude\\hooks\\perform-fix-gate.mjs\"",
+            "timeout": 20
+          },
+          {
+            "type": "command",
             "command": "node \"C:\\Users\\marka\\.claude\\hooks\\session-hash-chain.mjs\"",
             "timeout": 90
           },
