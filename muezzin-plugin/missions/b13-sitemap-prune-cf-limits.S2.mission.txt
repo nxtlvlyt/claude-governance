@@ -13,9 +13,10 @@ Maqsad: this is part 2 of 2 of the parent objective below — a right-sized slic
 PARENT MAQSAD (the whole objective these sub-missions together serve): the worker runs safely on Cloudflare Workers Free plan AND Paid plan, with no silent failure modes. Re-running the 5-seat panel against the new diff returns panel_verdict in {pass, concern}.
 
 THIS SUB-MISSION'S WORK (the parent decomposition's steps assigned to this slice — re-decompose them under the smaller budget; do not exceed the ceiling):
-  - Re-fire the 5-seat QC panel against the new diff; Maqsad requires panel_verdict in {pass, concern}. Witness fails non-zero if neither verdict token appears in output. (Harness CLI flags unverified — file_read unavailable; integrator/executor confirms the exact qc-harness-v2.mjs invocation.)
+  - Witness the push reached the remote (reaches the remote resource, not a local Test-Path): ls-remote must show the target branch ref or exit non-zero.
+  - Closing verdict: re-fire the 5-seat QC panel harness (absolute read-only reference) against the pushed branch; mission is Done only if panel_verdict is pass or concern. Witness fails (non-zero) when neither verdict appears.
 
-Done means: step M-MUDDYTIRES.B13-SITEMAP-PRUNE-CF-LIMITS.S2.1 are all complete, each with its validation_command receipt passing (the deed witnessed, not asserted); and the parent's done-condition holds for this slice — - The worker, when invoked, returns structured JSON on D1 failure rather than CF 1101.
+Done means: steps M-MUDDYTIRES.B13-SITEMAP-PRUNE-CF-LIMITS.S2.1..M-MUDDYTIRES.B13-SITEMAP-PRUNE-CF-LIMITS.S2.2 are all complete, each with its validation_command receipt passing (the deed witnessed, not asserted); and the parent's done-condition holds for this slice — - The worker, when invoked, returns structured JSON on D1 failure rather than CF 1101.
   - Per /refresh subrequest count is mathematically provable to stay under 50 (Free plan ceiling).
   - ensureSchema does NOT mask unknown errors as "already exists".
   - Concurrent /refresh calls either serialize cleanly OR return a structured conflict response (no race-corrupted cursor).
