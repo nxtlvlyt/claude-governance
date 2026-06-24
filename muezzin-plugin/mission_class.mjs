@@ -80,6 +80,17 @@ export function parseMissionClass(text) {
     if (raw) repoRoot = raw;
   }
 
+  // TARGET-BRANCH (b13-sitemap-prune root fix, 2026-06-24): the branch the code-repo work
+  // must land on. Without this, the engine reads whatever HEAD points to — which is
+  // whatever the last mission (or operator) left checked out, producing wrong-tree reads
+  // and false-failure decompositions. Consumed by orchestrate.mjs's code-repo prelude.
+  let targetBranch = null;
+  const tb = t.match(/TARGET-BRANCH:\s*([^\r\n]+)/i);
+  if (tb) {
+    const raw = tb[1].trim().replace(/^["']|["']$/g, '');
+    if (raw) targetBranch = raw;
+  }
+
   // ALLOW-FILES — either a single-line comma list or a following bullet/line block.
   const allowFiles = [];
   // [ \t]* (NOT \s*) after the colon: \s* greedily eats the newline + the next line's
@@ -113,7 +124,7 @@ export function parseMissionClass(text) {
   // never carry a poisoned allowlist into resolveRepoTarget).
   const cleaned = [...new Set(allowFiles)].filter((p) => p && !/^([a-zA-Z]:|\/|\\\\)/.test(p) && !p.split('/').includes('..'));
 
-  return { class: klass, repoRoot: klass === 'code-repo' ? repoRoot : (repoRoot || null), allowFiles: cleaned };
+  return { class: klass, repoRoot: klass === 'code-repo' ? repoRoot : (repoRoot || null), allowFiles: cleaned, targetBranch };
 }
 
 // resolveRepoTarget(repoRoot, allowFiles, relOrAbs) -> { ok:true, absPath } | { ok:false, reason }

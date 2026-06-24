@@ -454,6 +454,33 @@ export async function orchestrate(mission, cwd, {
     const rr = assertRepoRoot(repoRoot);
     if (!rr.ok) return { ok: false, phase: 'sandbox', reason: `code-repo REPO-ROOT invalid: ${rr.error}`, steps: [] };
     baselineHead = rr.baseline;
+
+    // TARGET-BRANCH ENFORCEMENT (b13-sitemap-prune-cf-limits root fix, 2026-06-24): a mission's REPO-ROOT
+    // is just a directory — git's HEAD is whatever the prior mission (or the operator) last left checked
+    // out. If the mission's declared TARGET-BRANCH does not match HEAD, every read below (resetAllowFiles,
+    // preflightAllowlistClean, the architect's planning input) sees the WRONG tree and the deconstructor
+    // decomposes into a from-scratch plan the recursion guard then trips. Refuse at the boundary BEFORE
+    // any allow-file reset or worktree read. REVERSIBLE-ONLY: a dirty worktree HALTS WITH RECEIPT (never
+    // stash, never overwrite). Branch-existence is fail-closed: missing local ref => halt, never auto-create.
+    const targetBranch = mc.targetBranch;
+    if (targetBranch) {
+      let currentBranch = '';
+      try { currentBranch = execSync('git rev-parse --abbrev-ref HEAD', { cwd: repoRoot, stdio: ['ignore', 'pipe', 'pipe'], timeout: 30000, env: { ...process.env, GIT_TERMINAL_PROMPT: '0' } }).toString().trim(); }
+      catch (e) { return { ok: false, phase: 'sandbox', reason: `code-repo TARGET-BRANCH: cannot read HEAD of '${repoRoot}': ${e.message}`, steps: [] }; }
+      if (currentBranch !== targetBranch) {
+        let porc = '';
+        try { porc = execSync('git status --porcelain', { cwd: repoRoot, stdio: ['ignore', 'pipe', 'pipe'], timeout: 30000, env: { ...process.env, GIT_TERMINAL_PROMPT: '0' } }).toString().trim(); }
+        catch (e) { return { ok: false, phase: 'sandbox', reason: `code-repo TARGET-BRANCH: cannot read worktree status of '${repoRoot}': ${e.message}`, steps: [] }; }
+        if (porc) return { ok: false, phase: 'sandbox', reason: `code-repo TARGET-BRANCH: refusing checkout '${currentBranch}' -> '${targetBranch}' — worktree is dirty:\n${porc}\n(commit, stash, or clean before queuing; the engine will NOT silently overwrite uncommitted work)`, steps: [] };
+        try { execSync(`git rev-parse --verify ${JSON.stringify('refs/heads/' + targetBranch)}`, { cwd: repoRoot, stdio: ['ignore', 'pipe', 'pipe'], timeout: 30000, env: { ...process.env, GIT_TERMINAL_PROMPT: '0' } }); }
+        catch { return { ok: false, phase: 'sandbox', reason: `code-repo TARGET-BRANCH: branch '${targetBranch}' does not exist locally in '${repoRoot}' (refusing to auto-create — fetch it or fix the mission TARGET-BRANCH directive)`, steps: [] }; }
+        try { execSync(`git checkout ${JSON.stringify(targetBranch)}`, { cwd: repoRoot, stdio: ['ignore', 'pipe', 'pipe'], timeout: 60000, env: { ...process.env, GIT_TERMINAL_PROMPT: '0' } }); }
+        catch (e) { return { ok: false, phase: 'sandbox', reason: `code-repo TARGET-BRANCH: checkout '${targetBranch}' failed: ${e.message}`, steps: [] }; }
+        try { baselineHead = execSync('git rev-parse HEAD', { cwd: repoRoot, stdio: ['ignore', 'pipe', 'pipe'], timeout: 30000, env: { ...process.env, GIT_TERMINAL_PROMPT: '0' } }).toString().trim(); }
+        catch (e) { return { ok: false, phase: 'sandbox', reason: `code-repo TARGET-BRANCH: post-checkout baseline read failed: ${e.message}`, steps: [] }; }
+      }
+    }
+
     // RETRY OWN-OUTPUT RESET (spam-loop root fix, 2026-06-16): BEFORE the containment
     // pre-flight, clean the mission's OWN declared ALLOW-FILES back to committed truth. A
     // PRIOR attempt's per-step rollback uses `git checkout`, which restores a TRACKED
