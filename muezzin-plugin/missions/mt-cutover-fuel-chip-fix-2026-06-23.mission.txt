@@ -1,0 +1,51 @@
+MISSION-CLASS: ops-deploy (PRODUCTION CUTOVER — wrangler pages deploy to live muddytires Pages project; touches muddytires.ca; REVERSIBLE via Pages deployment history)
+MISSION-ID: M-MUDDYTIRES.MT-CUTOVER-FUEL-CHIP-FIX-2026-06-23
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+DEPLOY-PROJECT: muddytires   (Pages; domains muddytires.pages.dev + muddytires.ca; direct-upload, Git Provider = No)
+PROVEN-ARTIFACT: branch feat/plan-day-fuel-chip-always-when-vehicle-set-2026-06-23 @ commit 340b98e (the fuel-chip-always-when-vehicle-set fix)
+
+# WHY: Operator reported 2026-06-23 "the price of gas is not pulling in." Substrate diagnosis: pass-6 declutter rule
+# (sha 1c79520) suppressed the fuel chip for single-day trips <=50km — too aggressive for users with vehicle profile set.
+# Conductor-direct fix at sha 340b98e: showFuel = true if (multi-day OR vehicle profile set OR distance > 50km). Pure JS
+# edit, node --check passes, single-file change. Now cut it over to live muddytires.ca via the proven cutover pattern.
+
+Niyyah: cut the verified fuel-chip-visibility fix over to live muddytires.ca, reversibly. Capture rollback ref BEFORE deploy.
+Run the 8-gate SOTA QC on the branch before staging. Prove the cutover by fetching the live apex AFTER + confirming the
+new fuel-chip behavior reaches users with vehicle profiles configured. Never declare success without live verification.
+
+GROUND IN (read before acting — REQUIRED):
+- Cutover precedent: missions/mt-cutover-1-maplanding-live.mission.txt (2026-06-18T03:11Z DONE) — copy its step structure.
+- `wrangler whoami` must show markabass@gmail.com with pages(write). If not, HALT WITH RECEIPT (wrong/expired token).
+- The branch feat/plan-day-fuel-chip-always-when-vehicle-set-2026-06-23 already pushed to github; sha 340b98e on remote.
+
+Maqsad: muddytires.ca's planner status bar shows the fuel-cost chip on single-day sub-50km trips when a vehicle profile is
+configured (the operator-noticed bug closes). Backend Workers + accounts UNTOUCHED. Other features UNTOUCHED.
+
+Steps:
+1. PRECHECK: checkout feat/plan-day-fuel-chip-always-when-vehicle-set-2026-06-23. Verify `git rev-parse HEAD` starts 340b98e.
+   If not, HALT WITH RECEIPT.
+2. SOTA QC GATE (the 8 gates — Endpoint, Leak, Console, Panel, Sentry, VisReg, Lighthouse, Bundle): run via
+   qc-harness-v2.mjs against the deployed-preview URL of this branch. Use scripts/qc-deploy-preview.mjs to get a
+   preview URL first. If ANY gate returns BLOCK, HALT WITH RECEIPT (operator decides whether to override).
+3. MERGE: git checkout integration/apex-2026-06-22; git merge --no-ff feat/plan-day-fuel-chip-always-when-vehicle-set-2026-06-23.
+   If conflict, HALT WITH RECEIPT.
+4. ROLLBACK REF (capture BEFORE deploy): `wrangler pages deployment list --project-name muddytires > _logs/mt-cutover-fuel-chip-fix.predeploy.txt`.
+   Extract the most recent Environment=Production deployment id into ROLLBACK_ID.
+5. STAGE the deploy dir (the worktree's servable static set per cutover-1 precedent).
+6. DEPLOY TO PRODUCTION: `wrangler pages deploy <staged-dir> --project-name muddytires --branch <PRODUCTION_BRANCH> --commit-dirty=true`.
+   Capture deployment id + url to receipt.
+7. VERIFY LIVE (positive-assertion, EXIT NON-ZERO ON ABSENCE — this gate protects production):
+   - `curl -sS https://muddytires.ca/js/plan-day.js | grep -c "hasVehicleProfile"` MUST be >= 1 (the new function is the
+     proof the fuel-chip fix is live).
+   - `curl -sS -o /dev/null -w "%{http_code}" https://muddytires.ca/map` == 200.
+   - Confirm Environment == Production on new deployment.
+8. RECORD rollback instructions into _logs/mt-cutover-fuel-chip-fix.receipt.md.
+
+Done means: https://muddytires.ca/js/plan-day.js serves the fuel-chip-fix code (grep "hasVehicleProfile" returns >=1); new
+deployment is Environment=Production; ROLLBACK_ID + revert steps recorded; the operator can plan a sub-50km single-day
+trip with a vehicle profile set and see the gas-cost chip render.
+
+Constraints: REVERSIBLE-ONLY (rollback ref captured BEFORE deploy); fuel-chip ONLY (no other behavioral changes — verify
+git diff integration/apex-2026-06-22 = exactly the showFuel block + comment in plan-day.js); fail-closed live-verify gate
+(no success claim without live grep-confirmed fix); deterministic command-class (no authoring); SOTA-QC gate runs FIRST
+and BLOCKS proceedings if any gate verdicts BLOCK.
