@@ -14,10 +14,11 @@ const cwd = process.cwd();
 
 let reminder = `RE-ANCHOR (~/.claude/hooks/user-prompt-submit.mjs, per CLAUDE.md D12).
 
-[FOREIGN-FRONTIER VALIDATORS] - mandatory for clearing stop-language / stalls:
-- mcp__gemini-worker, mcp__gpt-worker, mcp__grok-worker, mcp__glm-worker - independent second reads, framing audits, governance validation.
-- mcp__gemini-api-worker - alternate Gemini transport when worker hangs.
-- WebSearch / WebFetch - live external info, current model/tool availability, current docs.
+[COMPLIANT DISPATCH CHANNELS] (per ~/.claude/rules/operator-rulings.md 2026-06-09):
+- mcp__ollama-* — local-model dispatch (laguna, qwen, granite, nemotron) running on nxtbeast over Tailscale.
+- WebFetch — live external info, current docs, attributed-source fetches.
+NEVER: mcp__gemini-worker, mcp__gpt-worker, mcp__grok-worker, mcp__glm-worker (operator forbids closed-frontier worker dispatch outside Ollama).
+NOT in compliant list: WebSearch (per operator-rulings' narrowing — use WebFetch for substantive external retrieval).
 
 [LOCAL MECHANICAL DELEGATION] - context-saving offload; mcp__ollama dispatches ALSO satisfy the stop hook (stop-validation.mjs isFF — mcp__ollama* is valid dispatch — frontier NOT required when local Ollama dispatch is present):
 - Agent (subagent_type=Explore for code search; general-purpose for autonomous multi-step work; specialized agents per their descriptions).
@@ -33,7 +34,7 @@ let reminder = `RE-ANCHOR (~/.claude/hooks/user-prompt-submit.mjs, per CLAUDE.md
 Per ~/.claude/canon/delegation-and-stall-discipline.md (stop-language trigger):
 When drafting "your call" / "want me to" / "should I" / "operator decision required" / "stopping here for clean break" - that is the canon-trigger to:
   1. Verify against substrate (does source on disk already answer this?).
-  2. If unclear, use mcp__ollama-mcp__ollama_chat with laguna-xs.2:q4_K_M (MCP dispatch - satisfies stop hook) or a FOREIGN-FRONTIER validator via MCP workers (mcp__gemini-worker / mcp__gpt-worker / mcp__grok-worker / mcp__glm-worker - satisfies stop hook). Dispatching qwen/granite/nemotron via Invoke-RestMethod does NOT satisfy the stop hook - those calls appear as PowerShell tool use, not mcp__ollama-*.
+  2. If unclear, dispatch a compliant channel: mcp__ollama-mcp__ollama_chat with laguna-xs.2:q4_K_M (MCP dispatch - satisfies stop hook) or WebFetch for live external info. Forbidden: mcp__gemini/gpt/grok/glm workers (per ~/.claude/rules/operator-rulings.md). Dispatching qwen/granite/nemotron via Invoke-RestMethod does NOT satisfy the stop hook because it appears as PowerShell tool use, not mcp__ollama-*.
   3. If mechanical and spec is known, dispatch an Agent or local Ollama tool.
   4. Only then, if all three resolve to "this genuinely needs the operator," surface the substantive question.
 

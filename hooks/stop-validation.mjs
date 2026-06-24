@@ -120,8 +120,10 @@ for (const pat of stopLanguagePatterns) {
 if (!matchedPattern) process.exit(0); // no stop-language, allow
 
 // Check for foreign-frontier dispatch in last turn
-const isFF = (name) => /^mcp__(gemini|gpt|grok|glm|ollama)/i.test(name) ||
-  name === 'WebSearch' || name === 'WebFetch';
+// 2026-06-24: narrowed per operator-rulings.md ("NEVER dispatch mcp gpt/grok/gemini/glm
+// workers... compliant channels are mcp__ollama-* and WebFetch"). Was implementing canon's
+// wider allowlist; operator-rulings is the override per its meta-clause.
+const isFF = (name) => /^mcp__ollama/i.test(name) || name === 'WebFetch';
 
 const foreignFrontierFired = lastTurnToolUses.some(isFF);
 
@@ -373,7 +375,7 @@ Per ~/.claude/practice/extended/drift-and-ratchet.md: when foreign-frontier disp
 
 blockOutput(`${ratchetHeader}DELEGATION CANON ENFORCEMENT (~/.claude/canon/delegation-and-stall-discipline.md).
 
-Stop-language detected in this turn ('${matchedPattern}') WITHOUT a foreign-frontier dispatch (mcp__gemini-worker / mcp__gpt-worker / mcp__grok-worker / mcp__glm-worker / mcp__ollama-* / WebSearch / WebFetch) in the same turn's tool calls.
+Stop-language detected in this turn ('${matchedPattern}') WITHOUT a compliant dispatch (mcp__ollama-* / WebFetch) in the same turn's tool calls.
 
 Per canon (cited-but-not-applied failure mode): citing the canon at session start does not equal applying it at trigger time. The hook is the structural enforcement layer.
 
