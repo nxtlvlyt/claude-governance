@@ -49,6 +49,13 @@ This is the canonical project-context file. Any conductor session bootstrapping 
 
 ## ⚠️ REQUIRED READS BEFORE ANY NON-TRIVIAL ACTION (in order)
 
+-1. **`~/.claude/state/hermes-status-2026-06-24-EOD.md`** — END-OF-DAY 2026-06-24 status.
+   Hermes work-in-flight: hallucinated-path hook BUILT + registered in `%LOCALAPPDATA%\hermes\`
+   (needs --accept-hooks on first launch to allowlist). Default model switched granite4.1:30b.
+   Brief at `~/.claude/state/hermes-brief-2026-06-24-v2.md`. Tomorrow's job: test `hermes chat`
+   invocation (NOT `-z` mode which proved broken). CRITICAL: DO NOT restart muezzin daemon —
+   it burned 27,456 claude-* dispatches today for zero output, ~70-80% of today's budget burn.
+
 0. **`NEXT-INSTANCE-WARNINGS-2026-06-24.md`** — NEWEST. 5 documented failure patterns from
    the 2026-06-23 evening → 2026-06-24 morning session: "chain producing big plans" is not
    productivity (steps>0 is); workflow-synthesized patch + active firing = APPLY NOW (don't
