@@ -88,6 +88,21 @@ const stopLanguagePatterns = [
   /ready (?:when you are|to (?:proceed|continue|ship))/i,
   /\bstanding by\b/i,
   /let me know if you/i,
+  // 2026-06-24 bypass-class additions (operator-caught: "when ready" sequencing,
+  // tomorrow-deferrals, "going quiet" promise-as-action, framework-as-ceremony).
+  // Each was used multiple times today as a different way to defer action while
+  // looking like proper handoff. Mechanical block so the bypass class dies, not
+  // just this instance's use of it.
+  /\bwhen (?:you'?re )?ready\b/i,
+  /\btomorrow'?s? (?:session|brief|instance|conductor|claude|turn|run|sweep)/i,
+  /\b(?:going|stay(?:ing)?) (?:quiet|silent)\b/i,
+  /\bi'?ll do better\b/i,
+  /\bnext (?:conductor )?(?:turn|session|instance) (?:can|will|should|is|gets)/i,
+  /\bfor (?:now|the moment),? (?:I'?ll|let me|stopping)/i,
+  // Framework-vocabulary-as-gate-clearing (per state/framework-as-ceremony-2026-06-24.md).
+  // Block the announcement/promise forms; past-tense citations with substrate receipts
+  // remain allowed since they don't match these specific phrasings.
+  /\b(?:niyyah declared|surrender articulated|wudu (?:performed|complete|done)|tying the camel|temporal wudu)\b/i,
 ];
 
 let matchedPattern = null;
