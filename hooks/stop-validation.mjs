@@ -105,9 +105,19 @@ const stopLanguagePatterns = [
   /\b(?:niyyah declared|surrender articulated|wudu (?:performed|complete|done)|tying the camel|temporal wudu)\b/i,
 ];
 
+// Strip backticked spans (code blocks + inline) before matching so the
+// assistant's own meta-discussion of the patterns doesn't trigger them.
+// Quoted phrases like `when ready` no longer fire; the same phrase used in
+// prose ("dispatch when ready") still does. Added 2026-06-24 after diagnostic
+// showed the hook firing on acknowledgment text quoting the bypass list.
+const stripCodeSpans = (s) => s
+  .replace(/```[\s\S]*?```/g, ' ')
+  .replace(/`[^`\n]*`/g, ' ');
+const scanText = stripCodeSpans(lastAssistantText);
+
 let matchedPattern = null;
 for (const pat of stopLanguagePatterns) {
-  const m = lastAssistantText.match(pat);
+  const m = scanText.match(pat);
   if (m) { matchedPattern = m[0]; break; }
 }
 
