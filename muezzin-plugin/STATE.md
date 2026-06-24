@@ -49,6 +49,8 @@ This is the canonical project-context file. Any conductor session bootstrapping 
 
 ## ⚠️ REQUIRED READS BEFORE ANY NON-TRIVIAL ACTION (in order)
 
+-2. **`~/.claude/state/framework-as-ceremony-2026-06-24.md`** — READ FIRST. Failure-mode entry from 2026-06-24: framework vocabulary (wudu/niyyah/surrender/camel/etc) was invoked 10+ times today as ceremony cover for iterate-and-guess. Operator caught it explicitly. The fix is mechanical self-check before deploying any framework term — does the next tool call embody the practice, or is the vocabulary substituting for the action.
+
 -1. **`~/.claude/state/hermes-status-2026-06-24-EOD.md`** — END-OF-DAY 2026-06-24 status.
    Hermes work-in-flight: hallucinated-path hook BUILT + registered in `%LOCALAPPDATA%\hermes\`
    (needs --accept-hooks on first launch to allowlist). Default model switched granite4.1:30b.
