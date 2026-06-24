@@ -27,3 +27,5 @@ Amanah: this is entrusted to you. Reason your own path to the Maqsad with ihsan;
 Constraints: code-repo, the post-intake app only (apps/post-intake/), NAS UNTOUCHED (never N:/P:/W:), serial inference, no secret values printed. The deed is witnessed by an execution receipt (it runs / renders), never by self-attestation.
 
 # SEQUENCE NOTE (conductor): this is rung A of the operator's editor ladder. B (rebuilt 5s hook), C (per-stage management plane), and the QC-ledger + hook-performance self-learning loop follow, each its own Maqsad mission, each gated on the prior's receipt. Stage B consumes Stage A's proof-region data (dependency). Author B only after A lands.
+
+Done means: js/vanlife-editor.js exposes a proof-zoom mode the operator can toggle from the editor toolbar; the mode is observable in a browser (zoom rectangle renders); changelog notes the addition with file:line.

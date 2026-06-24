@@ -38,3 +38,5 @@ FAITH-TEMPLATE.1 (the template documents the home this points at).
 
 Constraints: FRESH instance; witnessed; daemon idle for the FAITH_DIR change; do NOT delete .agents/faiths (leave the
 orphan in place, just stop depending on it); GR10; commit --no-verify; NAS untouched.
+
+Done means: ~/.claude/faiths/ is the sole FAITH_DIR target; seat_dispatch.mjs FAITH_DIR points there; every dispatched role resolves its faith from that path; one live dispatch confirms (any role) end-to-end.

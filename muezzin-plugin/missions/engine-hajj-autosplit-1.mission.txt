@@ -39,3 +39,5 @@ MISSION_ARCHITECTURE.md, not memory.
 Constraints: FRESH instance; witnessed; selftested (the existing deconstructor/orchestrate selftests must still pass +
 new split tests); do NOT change the micro-action ceiling that already works (this ADDS the mission-level ceiling above
 it); GR10; commit --no-verify; NAS untouched. PAIRS WITH M-ENGINE.QUEUE-FLOW.1 (the children need somewhere to flow).
+
+Done means: deconstructor.mjs exports SIZE_CEILING (or equivalent) plus a post-plan splitter; over-ceiling plans emit N tartib-ordered sub-mission files with the parent marked SPLIT (not run); inline selftests cover both the split-fired and under-ceiling no-op branches; existing selftests still pass.

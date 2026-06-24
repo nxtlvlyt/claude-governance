@@ -37,3 +37,5 @@ Constraints: FRESH instance only (drift kills careful engine edits); witnessed (
 # AUTHORING/RESEARCH dispatches that legitimately need to read many source files (e.g. 7 → ~20), OR make it
 # adaptive (don't fail a dispatch that is still making PROGRESS reading distinct files vs one truly looping on the
 # same call). Keep a hard ceiling so a genuine infinite tool-loop still trips. Witness + selftest the new cap.
+
+Done means: a code-repo EDIT mission completes end-to-end on a clean repo with a witnessed receipt AND a measured drop in cloud dispatches per plan vs. the prior baseline.

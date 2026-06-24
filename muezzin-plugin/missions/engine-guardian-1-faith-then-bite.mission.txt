@@ -58,3 +58,5 @@ must precede the teeth. Receipts: the faith file + selftests + a live repair-tri
 Constraints: FRESH instance; witnessed; faith authored in the shape of the existing model-judgment faiths; Guardian
 stays LOCAL + free (no mode-swap); GR10; commit --no-verify; NAS untouched. Stage 2 does NOT fire until Stage 1 lands
 and the false-positive evidence supports blocking.
+
+Done means: Stage-1 — ~/.claude/faiths/groundedness_checker.faith.md exists in first-person matching governance_scanner anatomy. Stage-2 — the gate fires only when false-positive evidence supports promotion; selftest covers both stages.
