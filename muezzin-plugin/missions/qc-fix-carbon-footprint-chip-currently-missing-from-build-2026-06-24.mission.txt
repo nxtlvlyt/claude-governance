@@ -8,10 +8,12 @@ ALLOW-FILES:
 
 Niyyah: close the QC block named "Carbon-footprint chip (CURRENTLY MISSING FROM BUILD)" identified by the 2026-06-24 visual e2e QC walk.
 
-Maqsad: the named feature exhibits the gemini-verified failure mode: GATE: Mechanical Check — FAIL: Grep count for "computeCO2" and "treesEquiv" in js/plan-day.js is 0, confirming the feature logic is absent from the build. Restore the feature to the behavior specified in docs/FEATURE-CATALOG-2026-06-23.md.
+Maqsad: the named feature exhibits the gemini-verified failure mode: GATE: Mechanical Check — FAIL: Grep count for "computeCO2" and "treesEquiv" in js/plan-day.js is 0, confirming the feature logic is absent from the build.
+GATE: Visual Presence — FAIL: No carbon-footprint chip is visible in the bottom status bar or the "PLAN MY DAY" interface in either screenshot.
+G. Restore the feature to the behavior specified in docs/FEATURE-CATALOG-2026-06-23.md.
 
 Done means: e2e-runner walk for this feature returns verdict in {clean, concern}; the failing gate from the QC report passes; no other features regress.
 
 Amanah: this slice is part of the muddytires.ca QC-block backlog. Discharge with ihsan.
 
-MODEL-ROUTING: TIER_CLOUD_CODE — /model coder (qwen3-coder:480b) for the fix authoring.
+MODEL-ROUTING: TIER_CLOUD_CODE — qwen3-coder:480b or kimi-k2.7-code for fix authoring.

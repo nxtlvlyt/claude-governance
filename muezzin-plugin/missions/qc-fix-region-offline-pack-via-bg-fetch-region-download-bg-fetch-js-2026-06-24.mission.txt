@@ -1,0 +1,18 @@
+MISSION-CLASS: code-repo
+MISSION-ID: M-MUDDYTIRES.QC-FIX-REGION-OFFLINE-PACK-VIA-BG-FETCH-REGION-DOWNLOAD-BG-FETCH-JS-2026-06-24
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+TARGET-BRANCH: feat/qc-fix-region-offline-pack-via-bg-fetch-region-download-bg-fetch-js-2026-06-24
+ALLOW-FILES:
+  - js/*.js
+  - workers/**/*.js
+
+Niyyah: close the QC block named "Region offline pack via bg-fetch (region-download-bg-fetch.js)" identified by the 2026-06-24 visual e2e QC walk.
+
+Maqsad: the named feature exhibits the gemini-verified failure mode: GATE: `window.__mtRegionDownload(regionId)` triggers a background fetch — FAIL: No visual feedback or state change is observed in the final screenshot compared to the initial.
+GATE: Service worker progress events update pack chip — FAIL: The `#mt-offline-pack-chip` element is not visible in the fina. Restore the feature to the behavior specified in docs/FEATURE-CATALOG-2026-06-23.md.
+
+Done means: e2e-runner walk for this feature returns verdict in {clean, concern}; the failing gate from the QC report passes; no other features regress.
+
+Amanah: this slice is part of the muddytires.ca QC-block backlog. Discharge with ihsan.
+
+MODEL-ROUTING: TIER_CLOUD_CODE — qwen3-coder:480b or kimi-k2.7-code for fix authoring.

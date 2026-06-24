@@ -1,0 +1,19 @@
+MISSION-CLASS: code-repo
+MISSION-ID: M-MUDDYTIRES.QC-FIX-DAY-RHYTHM-PLANNING-VISUALIZER-DAY-RHYTHM-JS-2026-06-24
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+TARGET-BRANCH: feat/qc-fix-day-rhythm-planning-visualizer-day-rhythm-js-2026-06-24
+ALLOW-FILES:
+  - js/*.js
+  - workers/**/*.js
+
+Niyyah: close the QC block named "Day-rhythm planning visualizer (day-rhythm.js)" identified by the 2026-06-24 visual e2e QC walk.
+
+Maqsad: the named feature exhibits the gemini-verified failure mode: GATE: #bar-handle — FAIL: No draggable handle is visible on the bottom status bar in either screenshot.
+GATE: Segments render — FAIL: No rest/drive segments or icons are visible, likely due to the plan having zero destinations.
+GATE: Horizontal bar — PASS: A horizontal status bar is present at the b. Restore the feature to the behavior specified in docs/FEATURE-CATALOG-2026-06-23.md.
+
+Done means: e2e-runner walk for this feature returns verdict in {clean, concern}; the failing gate from the QC report passes; no other features regress.
+
+Amanah: this slice is part of the muddytires.ca QC-block backlog. Discharge with ihsan.
+
+MODEL-ROUTING: TIER_CLOUD_CODE — qwen3-coder:480b or kimi-k2.7-code for fix authoring.
