@@ -45,7 +45,14 @@ if (!transcriptPath || !existsSync(transcriptPath)) {
 
 // Read last 30 entries
 const allLines = readFileSync(transcriptPath, 'utf8').split('\n');
-const lines = allLines.slice(-30);
+// 2026-06-24: widened from -30 to -200 after diagnostic showed session-marker
+// dilution. The 30-line slice was dominated by queue-operation / bridge-session
+// / permission-mode / attachment entries, leaving only 1-2 substantive message
+// entries visible — recent tool_uses (WebFetch, Agent) got crowded out, producing
+// false "no compliant dispatch" failures. The boundary detection still terminates
+// at the real-user-message correctly; this just gives the loop enough entries
+// to find them.
+const lines = allLines.slice(-200);
 
 // Walk in reverse to find last assistant entry
 let lastAssistantText = '';
