@@ -72,6 +72,16 @@ for (let i = lines.length - 1; i >= 0; i--) {
       }
     }
   } else if (foundAssistant && entry.type === 'user') {
+    // Distinguish real user messages from tool_results — both are user-type
+    // in the JSONL, but only real user messages mark a turn boundary. Walking
+    // backward and breaking on the first tool_result misses earlier same-turn
+    // tool_use entries (e.g. WebFetch) and produces false "no compliant
+    // dispatch" failures. Added 2026-06-24 after diagnostic showed WebFetch
+    // calls invisible to lastTurnToolUses.
+    const content = entry.message?.content;
+    if (Array.isArray(content) && content.some(b => b.type === 'tool_result')) {
+      continue;
+    }
     break;
   }
 }
