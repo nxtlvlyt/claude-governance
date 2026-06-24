@@ -1,5 +1,44 @@
 # STATE.md — muezzin-plugin (this project's contextualization of CLAUDE.md)
 
+## ⛔ THE FIRST TOOL CALL OF EVERY CONDUCTOR TURN
+
+```
+cd ~/.claude/muezzin-plugin && node conduct-cycle.mjs
+```
+
+**This is non-negotiable**. The previous instance (2026-06-23) missed this script
+for 7 hours and re-derived its output by hand from `status.json` / `result.json` /
+heartbeat tails — wasting your weekly Claude budget on what the script delivers
+deterministically. Operator pushed back 4+ times before the instance ran it.
+
+The script is `conduct-cycle.mjs` (frozen-into-code judgment per operator ruling
+2026-06-10: *"this process needs to be so good a LOCAL model could be in your seat.
+Judgment drains out of the seat into this script"*). It produces a board-format
+report + REQUIRED ACTIONS with thresholds:
+- status heartbeat >5 min stale → daemon DEAD/HUNG → emit restart command
+- no dispatch heartbeat >20 min while lanes run → STALL flag
+- FAILED missions → diagnose action with retro + result paths named
+- claude-tier heartbeat lines with no 429 in window → investigate flag
+- 3+ EMPTY_CONTENT_THINKING fails → known quota-burn class
+
+Reading status.json before running this script IS a drift signal — record it via
+`conductor_driftlog.mjs`. The script reads everything you need.
+
+## Other deterministic conductor scripts (run when relevant, never re-derive by hand)
+
+| Script | Purpose |
+|---|---|
+| `node conduct-cycle.mjs` | The proactive sweep (see above) — every turn |
+| `node conduct-cycle.mjs --json` | Same data, JSON for tooling |
+| `node conduct-cycle.mjs --selftest` | Offline fixture tests |
+| `node conduct-cycle.mjs --record cls=<class> fix=<text> requeue=a,b,c` | Record a landed fix → triggers requeue-on-fix-landed for the named missions |
+| `node doctor.mjs` | Health check on env + creds + governance + Ollama Cloud ping |
+| `node muezzin-daemon.mjs --selftest` | Daemon module self-test |
+| `node orchestrate-cli.mjs "<mission Maqsad+niyyah>"` | One-shot mission via /muezzin |
+| `node run-mission.mjs <mission-file> <cwd>` | Detached single-mission launcher |
+
+## Required reads (in order, after conduct-cycle.mjs first run)
+
 Per `~/.claude/CLAUDE.md`: *"STATE.md contextualizes the directives here for a specific
 project. It is written at session end, read at session start, and updated throughout."*
 

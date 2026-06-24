@@ -44,28 +44,42 @@ architects; opus + nemotron-3-super for witnesses; haiku + minimax-m3 for audito
 
 ---
 
-## 3. READ RECEIPTS BEFORE ASSUMING PROGRESS
+## 3. RUN `conduct-cycle.mjs` AS YOUR FIRST TOOL CALL (NOT ad-hoc cat/tail)
 
-**Failure pattern:** previous instance saw `daemon-status.json` reporting `state:
-running, lanes: 2` and assumed progress was happening. Over 3 hours, the same mission
-looped 46 times in FAILED(plan) and the conductor didn't notice until the operator
-asked "you've been sleeping for a while" + "any updates?". The receipts existed on
-disk the whole time and went unread.
+**Failure pattern (worst conductor miss this session):** previous instance saw
+`daemon-status.json` reporting `state: running, lanes: 2` and assumed progress was
+happening. Over 3 hours, the same mission looped 46 times in FAILED(plan) and the
+conductor didn't notice until the operator asked "you've been sleeping for a while"
++ "any updates?". Worse: a deterministic script that does the ENTIRE sweep with
+thresholds + REQUIRED ACTIONS exists at `conduct-cycle.mjs` in this plugin and the
+previous instance NEVER RAN IT for 7 hours. Re-derived its output by hand from
+`status.json` / `result.json` / heartbeat tails throughout. Operator pushed back
+4+ times before the instance discovered the script.
 
 **Receipt:** `missions/b13-sitemap-prune-cf-limits.mission.result.json` showed `{ok:
 false, phase: "plan", errors: ["no valid JSON micro_queue in the seat output"]}` from
-17:28Z onward. The conductor didn't `cat` that file until ~23:00Z — 5.5 hours after
-the substrate already named the bug.
+17:28Z onward. `conduct-cycle.mjs` would have surfaced this in 2 seconds. Instead
+the conductor `cat`'d that file at ~23:00Z — 5.5 hours after the substrate named
+the bug.
 
-**Corrective:** the FIRST tool call in any conductor turn must be reading the most
-recent receipts:
+**Corrective:** the FIRST tool call in any conductor turn must be:
+
 ```bash
-cat missions/_logs/daemon-status.json
-tail -20 missions/_logs/MISSION-LEDGER.md
-ls -lat missions/*.result.json | head -5 | awk '{print $NF}' | xargs -I{} sh -c 'echo "=== {} ==="; cat {}'
+cd ~/.claude/muezzin-plugin && node conduct-cycle.mjs
 ```
-NOT just status.json — that's the LIES file (a model's claim of "running"). The
-result.json + ledger is the DEED file. Always read both.
+
+NOT `cat daemon-status.json`. NOT `tail dispatch-heartbeat.log`. NOT `ls *.result.json`.
+The script does ALL of that with thresholds (5min status-stale, 20min lane-stall,
+3+ EMPTY_CONTENT_THINKING quota-burn) and emits REQUIRED ACTIONS with exact commands.
+Per operator ruling 2026-06-10 embedded in the script header: *"this process needs
+to be so good a LOCAL model could be in your seat. Judgment drains out of the seat
+into this script."*
+
+When you land a fix that unblocks missions, record it via:
+```bash
+node conduct-cycle.mjs --record cls=<failure-class> fix=<text> requeue=mission-a,mission-b
+```
+This triggers the daemon's existing requeue-on-fix-landed mechanism (sha `98a3c13`).
 
 ---
 

@@ -10,7 +10,9 @@ hours of operator-time.
 The headline failures, in case you're skimming:
 1. Don't author workflows in mt-audit (use AUTORUN.md instead)
 2. agy is EXECUTOR-only — never wire to architects/witnesses/auditors
-3. Read `.result.json` receipts, not just `daemon-status.json` status
+3. **FIRST TOOL CALL OF EVERY TURN: `node conduct-cycle.mjs`** — never re-derive its
+   output by hand from status.json + result.json + heartbeat tails. The script does
+   the whole sweep with thresholds + REQUIRED ACTIONS. Missed it for 7 hours.
 4. Don't ask "want me to" — receive the amanah, reason your own path
 5. Restart the daemon after engine-code edits — module cache is sticky
 6. Don't stack enhancements without between-soak acceptance gates
