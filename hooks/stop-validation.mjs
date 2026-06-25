@@ -120,6 +120,13 @@ const stopLanguagePatterns = [
   // Block the announcement/promise forms; past-tense citations with substrate receipts
   // remain allowed since they don't match these specific phrasings.
   /\b(?:niyyah declared|surrender articulated|wudu (?:performed|complete|done)|tying the camel|temporal wudu)\b/i,
+  // 2026-06-25 soft-deferral additions (operator-caught — softer than the loud
+  // 'want me to' class but same drift: promise/predict in surface text instead
+  // of just having done the work). Past-tense facts only.
+  /\bwill (?:verify|report|fire|land|complete|finish|do|run|check|update|continue)\b/i,
+  /\bETA:?\s/i,
+  /\bonce (?:it |the |x |this |that |X)/i,
+  /\b(?:author|dispatch|queu|run|verif|ship|check)ing\s+(?:[a-z]+\s+){0,4}now\b/i,
   // 2026-06-24 ask-instead-of-act additions (operator-caught — D2 violation class).
   // Triggered when I drafted "How do you want to handle: X or Y?" instead of
   // executing the decision myself. The kept patterns catch 'want me to' /
