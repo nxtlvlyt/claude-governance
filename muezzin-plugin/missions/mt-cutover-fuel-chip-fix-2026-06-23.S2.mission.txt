@@ -1,0 +1,17 @@
+MISSION-ID: M-MUDDYTIRES.MT-CUTOVER-FUEL-CHIP-FIX-2026-06-23.S2
+PARENT: M-MUDDYTIRES.MT-CUTOVER-FUEL-CHIP-FIX-2026-06-23
+TARTIB-INDEX: 2 of 2
+REQUIRES: M-MUDDYTIRES.MT-CUTOVER-FUEL-CHIP-FIX-2026-06-23.S1 (tartib — this sub-mission may not start until M-MUDDYTIRES.MT-CUTOVER-FUEL-CHIP-FIX-2026-06-23.S1's receipt exists)
+STEPS: 6
+
+PARENT MAQSAD: (see parent mission)
+
+Maqsad: sub-mission 2 of 2 — ROLLBACK REF (capture BEFORE deploy — REVERSIBLE-ONLY constraint): snapshot all muddytires Pages deployments to a log and assert a Production deployment is present (the rollback target). No Production deployment captured -> exit non-zero -> HALT (never deploy without a rollback ref). through RECORD the rollback receipt: compose _logs/mt-cutover-fuel-chip-fix.receipt.md from the predeploy snapshot (rollback target) and the new deploy output, with commit sha 340b98e and the rollback method (Pages deployment history per mission; wrangler rollback command best-effort). Witness asserts the receipt contains 'rollback', else exit non-zero.
+
+Steps:
+  9. ROLLBACK REF (capture BEFORE deploy — REVERSIBLE-ONLY constraint): snapshot all muddytires Pages deployments to a log and assert a Production deployment is present (the rollback target). No Production deployment captured -> exit non-zero -> HALT (never deploy without a rollback ref). [command] _logs/mt-cutover-fuel-chip-fix.predeploy.txt
+  10. STAGE the servable static set into _stage/ per the mt-cutover-1-maplanding-live precedent. Witness asserts the fix is present in the artifact about to ship (not just in git). NOTE: build/copy invocation is UNVERIFIED (file_read unavailable — confirm exact staging from the precedent); the witness is the safety regardless of how the dir is assembled. [command] _stage/js/plan-day.js
+  11. DEPLOY TO PRODUCTION: wrangler pages deploy _stage targeting the resolved production branch (read from step 8's file — matching the production branch is what routes to Production for direct-upload projects). Captures deploy output; assert a *.pages.dev deployment URL was emitted, else exit non-zero -> HALT WITH RECEIPT (403 => token lacks pages(write)). [command] _logs/mt-cutover-fuel-chip-fix.deploy.txt
+  12. CONFIRM PRODUCTION (guards the Preview-vs-Production failure mode): re-query deployments and assert the newest deployment's environment is 'production'. If it shows 'preview', the upload landed wrong -> exit non-zero -> HALT WITH RECEIPT (re-deploy on the correct branch). NOTE: assumes --json lists newest-first with an 'environment' field — UNVERIFIED. [verify] _logs/mt-cutover-fuel-chip-fix.postdeploy.txt
+  13. LIVE VERIFY (fail-closed, exit-non-zero-on-absence — protects production): assert the live apex serves the fix (https://muddytires.ca/js/plan-day.js Content contains 'hasVehicleProfile') AND https://muddytires.ca/map returns HTTP 200. Either absent -> exit non-zero, NO success claim. CDN edge-cache may lag the first fetch. [verify] _logs/mt-cutover-fuel-chip-fix.live.txt
+  14. RECORD the rollback receipt: compose _logs/mt-cutover-fuel-chip-fix.receipt.md from the predeploy snapshot (rollback target) and the new deploy output, with commit sha 340b98e and the rollback method (Pages deployment history per mission; wrangler rollback command best-effort). Witness asserts the receipt contains 'rollback', else exit non-zero. [command] _logs/mt-cutover-fuel-chip-fix.receipt.md

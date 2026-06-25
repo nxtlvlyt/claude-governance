@@ -1,0 +1,21 @@
+{
+  "parentId": "M-MUDDYTIRES.MT-CUTOVER-FUEL-CHIP-FIX-2026-06-23",
+  "ceiling": 8,
+  "originalStepCount": 14,
+  "groupCount": 2,
+  "children": [
+    {
+      "id": "M-MUDDYTIRES.MT-CUTOVER-FUEL-CHIP-FIX-2026-06-23.S1",
+      "file": "missions/mt-cutover-fuel-chip-fix-2026-06-23.S1.mission.txt",
+      "steps": 8,
+      "requires": null
+    },
+    {
+      "id": "M-MUDDYTIRES.MT-CUTOVER-FUEL-CHIP-FIX-2026-06-23.S2",
+      "file": "missions/mt-cutover-fuel-chip-fix-2026-06-23.S2.mission.txt",
+      "steps": 6,
+      "requires": "M-MUDDYTIRES.MT-CUTOVER-FUEL-CHIP-FIX-2026-06-23.S1"
+    }
+  ],
+  "ts": "2026-06-25T20:42:48.978Z"
+}
