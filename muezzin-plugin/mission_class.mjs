@@ -189,10 +189,30 @@ export function resolveRepoTarget(repoRoot, allowFiles, relOrAbs) {
   if (isSecretTarget(base))
     return { ok: false, reason: `code-repo target rejected: '${base}' matches the secrets denylist (.env/*.pem/*.key/id_rsa/credentials*/secrets*) — never a write target in any class` };
 
-  // rule 6 — the repo-relative form MUST be allowlisted (exact match after normalize)
+  // rule 6 — the repo-relative form MUST be allowlisted (glob-aware match, 2026-06-25 senior fix:
+  // briefs declare ALLOW-FILES as globs like `js/*.js` and `workers/**/*.js`. The prior
+  // `allow.includes(wantRel)` was a literal-string equality check, so every glob-declared
+  // target was rejected even when it clearly matched. Today's qc-* missions all reached
+  // the executor with the right target (e.g. `js/profile.js`) and were rejected against
+  // `[js/*.js, workers/**/*.js]` because `js/profile.js` !== `js/*.js`. Fix: expand each
+  // allow entry to a regex (`*` → `[^/]*`, `**` → `.*`, literal `.` etc.) and test match.)
   const wantRel = normalizeRel(relFromRoot);
   const allow = (allowFiles || []).map(normalizeRel);
-  if (!allow.includes(wantRel))
+  const globToRe = (g) => {
+    let re = '';
+    for (let i = 0; i < g.length; i++) {
+      const c = g[i];
+      if (c === '*') {
+        if (g[i + 1] === '*') { re += '.*'; i++; if (g[i + 1] === '/') { i++; } }
+        else { re += '[^/]*'; }
+      } else if (c === '?') { re += '[^/]'; }
+      else if ('.+^$(){}|[]\\'.includes(c)) { re += '\\' + c; }
+      else { re += c; }
+    }
+    return new RegExp('^' + re + '$');
+  };
+  const allowed = allow.some((g) => g === wantRel || (g.includes('*') || g.includes('?')) && globToRe(g).test(wantRel));
+  if (!allowed)
     return { ok: false, reason: `code-repo target rejected: '${wantRel}' is not in ALLOW-FILES (declared: ${allow.length ? allow.join(', ') : '(none)'}) — only declared files may be written` };
 
   return { ok: true, absPath };
