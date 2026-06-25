@@ -69,7 +69,13 @@ export function emitSubMissions(plan, ctx = {}, io = {}) {
   if (!missionsDir) return { ok: false, reason: 'emitSubMissions: no missionsDir in ctx' };
   if (!plan.groups || !plan.groups.length) return { ok: false, reason: 'emitSubMissions: plan has no groups' };
 
-  const parentBase = (parentMissionFile || `${parentId}.mission.txt`).replace(/\.mission\.txt$/i, '');
+  // BUG 1 FIX (2026-06-25, path-doubling): the daemon passes an ABSOLUTE parentMissionFile
+  // (path.resolve(HERE, raw) at fire time). Stripping only `.mission.txt` left parentBase as
+  // an absolute path like `C:\Users\...\missions\b13-...`; filename then became absolute too,
+  // and `path.join(missionsDir, absoluteFilename)` on Windows DOUBLED the prefix —
+  // exactly `mkdir 'C:\...\missions\C:\...\missions'` in the b13 retro. Reduce to BASENAME
+  // first so `filename` and `rel` are always relative; the join below is safe.
+  const parentBase = path.basename(parentMissionFile || `${parentId}.mission.txt`).replace(/\.mission\.txt$/i, '');
   const files = [];
   const queued = [];
 
@@ -104,7 +110,11 @@ export function emitSubMissions(plan, ctx = {}, io = {}) {
       ``,
     ].join('\n');
 
-    const filePath = path.join(missionsDir, filename);
+    // BUG 1 GUARD (2026-06-25): on Windows, path.join(prefix, absolutePath) produces a
+    // doubled-prefix string instead of replacing — the b13 mkdir doubling. parentBase is
+    // now a basename (above), so `filename` will be relative, but guard anyway: if anything
+    // upstream passes an already-absolute path, honor it instead of doubling the prefix.
+    const filePath = path.isAbsolute(filename) ? filename : path.join(missionsDir, filename);
     writeFile(filePath, childText);
 
     files.push({
@@ -120,8 +130,10 @@ export function emitSubMissions(plan, ctx = {}, io = {}) {
     }
   }
 
-  // Write the _split-manifest.json handoff record.
-  const manifestPath = path.join(missionsDir, `${parentBase}._split-manifest.json`);
+  // Write the _split-manifest.json handoff record. (parentBase is now a basename — see
+  // BUG 1 fix above; the join is safe.)
+  const manifestName = `${parentBase}._split-manifest.json`;
+  const manifestPath = path.isAbsolute(manifestName) ? manifestName : path.join(missionsDir, manifestName);
   const manifest = {
     parentId: plan.parentId,
     ceiling: plan.ceiling,

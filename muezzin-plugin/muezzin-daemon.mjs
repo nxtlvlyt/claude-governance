@@ -11,6 +11,14 @@
 //   'FAILED <line>' (one retry before FAILED). Append new lines anytime — the daemon
 //   picks them up on its next poll. Conductor/operator curates; daemon executes.
 //
+//   Terminal statuses: DONE (succeeded), FAILED (failed after retries), SPLIT (Hajj
+//   auto-split decomposed it — children carry the work), and PARKED (operator-marked
+//   permanently blocked — never re-fired, never auto-promoted, never resurrected).
+//   A PARKED line is the conductor's single-mark alternative to FAILED-prefixing every
+//   AUTORUN occurrence of a broken mission. Added 2026-06-25 after a 54-line FAILED-spam
+//   incident: write `PARKED missions/x.mission.txt  <!-- reason -->` once and the engine
+//   will never pick that path again — the file stays on disk for triage / re-queue.
+//
 // Run: node muezzin-daemon.mjs            (foreground)
 //      Start-Process node muezzin-daemon.mjs  (standing)
 // Self-test: node muezzin-daemon.mjs --selftest
@@ -228,13 +236,14 @@ function renderBoard(s) {
     const ledgerLines = existsSync(AUTORUN) ? readFileSync(AUTORUN, 'utf8').split(/\r?\n/).filter((l) => l.trim() && !l.trim().startsWith('#')) : [];
     const done = ledgerLines.filter((l) => statusOf(l) === 'DONE').length;
     const failed = ledgerLines.filter((l) => statusOf(l) === 'FAILED').length;
+    const parked = ledgerLines.filter((l) => statusOf(l) === 'PARKED').length;
     const ev = existsSync(EVENTS) ? readFileSync(EVENTS, 'utf8').trim().split('\n').slice(-8) : [];
     const hbPath = path.join(LOGDIR, 'dispatch-heartbeat.log');
     const hb = existsSync(hbPath) ? readFileSync(hbPath, 'utf8').trim().split('\n').slice(-5) : [];
     const lines = [
       `# MUEZZIN STATUS BOARD  (auto-rendered by daemon PID ${process.pid} — always current)`,
       `Updated: ${new Date().toISOString()}  |  state: ${s.state || '?'}  |  lanes: ${(s.lanes || []).length}/${MAX_LANES}  |  queued: ${q.pending.length}`,
-      `TOTALS this queue: ${done} DONE · ${failed} FAILED · ${(s.lanes || []).length} running · ${q.pending.length} pending   (cumulative history: _logs/MISSION-LEDGER.md)`,
+      `TOTALS this queue: ${done} DONE · ${failed} FAILED · ${(s.lanes || []).length} running · ${q.pending.length} pending${parked ? ` · ${parked} PARKED` : ''}   (cumulative history: _logs/MISSION-LEDGER.md)`,
       ``,
       `## Lanes now (with phase)`,
       ...((s.lanes || []).length ? (s.lanes || []).map((l) => `- ${l} — ${lanePhase(l)}`) : ['- (idle)']),
@@ -289,11 +298,14 @@ function nextUpLine() {
 }
 
 // scoreboard line for pushes (operator: every push must carry the counts, not just an event)
+// BUG 3 (2026-06-25): PARKED is a terminal status — count it as its own class so it doesn't
+// inflate the "pending" tally. Pending = total - all terminal/active classes.
 function scoreLine() {
   try {
     const lines = readFileSync(AUTORUN, 'utf8').split(/\r?\n/).filter((l) => l.trim() && !l.trim().startsWith('#'));
     const n = (s) => lines.filter((l) => l.trim().startsWith(s)).length;
-    return `${n('DONE')} done · ${n('RUNNING')} running · ${lines.length - n('DONE') - n('RUNNING') - n('FAILED')} pending · ${n('FAILED')} failed`;
+    const pending = lines.length - n('DONE') - n('RUNNING') - n('FAILED') - n('SPLIT') - n('PARKED');
+    return `${n('DONE')} done · ${n('RUNNING')} running · ${pending} pending · ${n('FAILED')} failed${n('PARKED') ? ` · ${n('PARKED')} parked` : ''}`;
   } catch { return ''; }
 }
 
@@ -307,7 +319,11 @@ function scoreLine() {
 // is a SETTLED outcome — the parent is NOT re-fired (its children carry the work). Added
 // to STATUS_RE so a SPLIT line is excluded from pending, strips cleanly in missionPath,
 // and reports 'SPLIT' in statusOf (board/scoreboard render it as its own class).
-const STATUS_RE = /^(DONE|FAILED|RUNNING|SPLIT)\b/;
+// PARKED (2026-06-25): operator-marked permanent block. Same parser treatment as DONE/
+// FAILED/SPLIT — settled, never re-fired, excluded from pending, excluded from auto-
+// promotion. The single-mark alternative to FAILED-prefixing every AUTORUN occurrence
+// of a broken mission (the 54-line spam fix). The file stays on disk for triage.
+const STATUS_RE = /^(DONE|FAILED|RUNNING|SPLIT|PARKED)\b/;
 function missionPath(line) {
   let s = String(line).replace(/<!--.*?-->/g, '').trim();
   while (STATUS_RE.test(s)) s = s.replace(STATUS_RE, '').trim(); // strip STACKED statuses (tonight's corruption)
@@ -388,28 +404,49 @@ function setMark(raw, status) {
 // auto-promotion — a dead mission can no longer be resurrected into a loop.
 //
 // PURE: takes the two texts + a reader is unnecessary (no file reads here). Returns a Set
-// of terminal mission basenames (no `.mission.txt` suffix), slash-agnostic.
+// of terminal mission identifiers. BUG 2 FIX (2026-06-25, full-path exclusion): IDs are
+// stored as full mission-file paths (e.g. 'missions/b13-...S2.mission.txt'), not as bare
+// stems. A base mission (`b13-sitemap-prune-cf-limits`) and its split children
+// (`b13-sitemap-prune-cf-limits.S2`) are SEPARATE paths and require SEPARATE terminal
+// entries — marking the base FAILED no longer over-blocks the splits, AND a FAILED split
+// no longer silently re-promotes via the daemon-restart / path-drift edge case. The bare
+// basename (without `.mission.txt`) is ALSO recorded so callers comparing by stem still
+// match — the path layer is the source of truth, the stem is a back-compat alias.
+// BUG 3: PARKED counts the same as DONE/FAILED/SPLIT.
 function terminalMissionIds(autorunText, ledgerText) {
   const ids = new Set();
-  const addBase = (rel) => {
+  const addPath = (rel) => {
     if (!rel) return;
-    const base = String(rel).split(/[\\/]/).pop().replace(/\.mission\.txt$/i, '').trim();
+    // Normalize slashes so 'missions/x.mission.txt' and 'missions\\x.mission.txt' collide
+    // to the same key. Trim and ensure the .mission.txt suffix-form is canonical.
+    const normalized = String(rel).replace(/\\/g, '/').trim();
+    if (!normalized) return;
+    ids.add(normalized);
+    // also record the basename WITHOUT suffix (back-compat alias for stem-based callers).
+    const base = normalized.split('/').pop().replace(/\.mission\.txt$/i, '').trim();
     if (base) ids.add(base);
   };
-  // (1) AUTORUN status lines: any line whose status is a SETTLED outcome.
+  // (1) AUTORUN status lines: any line whose status is a SETTLED outcome
+  //     (DONE, FAILED, SPLIT, or PARKED — operator-marked permanent block, 2026-06-25).
   for (const line of String(autorunText || '').split(/\r?\n/)) {
     const t = line.trim();
     if (t.startsWith('#')) continue;
     const st = statusOf(t);
-    if (st === 'DONE' || st === 'FAILED' || st === 'SPLIT') addBase(missionPath(t));
+    if (st === 'DONE' || st === 'FAILED' || st === 'SPLIT' || st === 'PARKED') addPath(missionPath(t));
   }
   // (2) MISSION-LEDGER.md rows: `| <ts> | <name> | DONE|FAILED(...)|... | ... |`.
   // The verdict column is DONE or FAILED(<phase>); a SPLIT is recorded as DONE-shaped but
   // either way the row's presence with a settled verdict makes the mission terminal.
+  // The ledger stores BASENAME (stem) not full path, so emit a missions/<name>.mission.txt
+  // shape AND the bare stem so both lookups hit. PARKED is included for completeness even
+  // though parkings are usually authored only in AUTORUN.
   for (const line of String(ledgerText || '').split(/\r?\n/)) {
     const cells = line.split('|').map((c) => c.trim());
-    // cells: ['', ts, name, verdict, ...] — verdict starts with DONE or FAILED.
-    if (cells.length >= 4 && /^(DONE|FAILED|SPLIT)\b/.test(cells[3] || '')) addBase(cells[2]);
+    // cells: ['', ts, name, verdict, ...] — verdict starts with DONE, FAILED, SPLIT, or PARKED.
+    if (cells.length >= 4 && /^(DONE|FAILED|SPLIT|PARKED)\b/.test(cells[3] || '')) {
+      const name = cells[2];
+      if (name) addPath(`missions/${name}.mission.txt`);
+    }
   }
   return ids;
 }
@@ -495,10 +532,21 @@ function pickPromotion(autorunText, missionFiles, missionsDir, readText, ledgerT
   for (const f of missionFiles) {
     const rel = `missions/${f}`;
     if (mentionedInQueue(autorunText, rel)) continue;          // already triaged — OFF LIMITS
+    // BUG 2 FIX (2026-06-25): match terminal exclusion by FULL PATH first, with stem as a
+    // back-compat fallback. A base mission and its split children (`.S1`, `.S2`, ...) are
+    // DIFFERENT paths and EACH needs its own terminal entry to be excluded — so a FAILED
+    // base no longer over-blocks the splits, but a FAILED split is robustly excluded even
+    // if mentionedInQueue's basename regex misses an unusual line format. BUG 3: PARKED
+    // is counted in terminalIds (terminalMissionIds includes PARKED), so a PARKED path is
+    // excluded here too without further logic.
     const base = f.replace(/\.mission\.txt$/i, '');
-    if (terminalIds.has(base)) continue;                        // terminal (FAILED x2 / DONE / SPLIT) — DEAD, never re-promote
+    if (terminalIds.has(rel) || terminalIds.has(base)) continue;   // terminal (FAILED x2 / DONE / SPLIT / PARKED) — DEAD, never re-promote
     let txt = '';
-    try { txt = readText(path.join(missionsDir, f)); } catch { continue; }
+    // BUG 1 GUARD (2026-06-25): on Windows, path.join(prefix, absolutePath) doubles instead
+    // of replacing — the b13 mkdir failure pattern. `f` is normally a basename from
+    // readdirSync but harden the join here too so any caller passing an absolute path is
+    // honored, not corrupted.
+    try { txt = readText(path.isAbsolute(f) ? f : path.join(missionsDir, f)); } catch { continue; }
     const gate = promotionHold(txt, doneIds);
     if (gate.hold) continue;                                    // held/blocked/unsatisfied-deps — SKIP
     return { rel, file: f };
@@ -953,6 +1001,71 @@ if (process.argv.includes('--selftest')) {
     // and if the dead mission is the ONLY candidate, pickPromotion returns null (no resurrection).
     const pickOnlyDead = pickPromotion(emptyAutorun, ['muddytires-d1-healthcheck-1.mission.txt'], '/fake/missions', loopRead, ledger);
     ck(pickOnlyDead === null, 'TERMINAL: a FAILED-x2 mission as the ONLY candidate => null (a dead mission is never resurrected, even with nothing else to run)');
+
+    // ── BUG 2 FIX REGRESSION (2026-06-25, split-path separation) ─────────────────
+    // SETUP: a base mission foo-bar exists alongside its split children foo-bar.S1 and
+    // foo-bar.S2. AUTORUN has FAILED entries for the BASE only — NOT for S1/S2. The OLD
+    // logic stem-matched by 'foo-bar' alone, leaving S1/S2 unblocked (they're separate
+    // stems) — but the user wants split paths to be PROPERLY treated as separate: a FAILED
+    // base must not over-block its splits, AND a FAILED split must be honored on its own.
+    //
+    // PROPERTY 1: with only the base FAILED, the splits are STILL promotable (the base
+    // FAILED does not over-reach into the splits — they have their own lifecycle).
+    const splitDisk = {
+      'missions/foo-bar.mission.txt': 'MISSION-ID: F\nREQUIRES: none\nMaqsad: base',
+      'missions/foo-bar.S1.mission.txt': 'MISSION-ID: F.S1\nREQUIRES: none\nMaqsad: split 1',
+      'missions/foo-bar.S2.mission.txt': 'MISSION-ID: F.S2\nREQUIRES: none\nMaqsad: split 2',
+    };
+    const splitFiles = ['foo-bar.mission.txt', 'foo-bar.S1.mission.txt', 'foo-bar.S2.mission.txt'];
+    const splitRead = (p) => { const rel = 'missions/' + p.split(/[\\/]/).pop(); if (rel in splitDisk) return splitDisk[rel]; throw new Error('ENOENT'); };
+    const baseOnlyFailed = '# q\nFAILED missions/foo-bar.mission.txt  <!-- base only -->';
+    const pickBaseFailed = pickPromotion(baseOnlyFailed, splitFiles, '/fake/missions', splitRead, '');
+    ck(pickBaseFailed && (pickBaseFailed.file === 'foo-bar.S1.mission.txt' || pickBaseFailed.file === 'foo-bar.S2.mission.txt'),
+       'BUG 2: with only the BASE marked FAILED, a split child IS promotable (full-path exclusion — base FAILED does not over-block splits)');
+
+    // PROPERTY 2: once a SPLIT is ALSO marked FAILED by its full path, it is excluded;
+    // only the other split remains promotable. This is the contract the user specified:
+    // "match by FULL PATH ... both need their own FAILED entries to be blocked."
+    const baseAndS1Failed = '# q\nFAILED missions/foo-bar.mission.txt  <!-- base -->\nFAILED missions/foo-bar.S1.mission.txt  <!-- S1 -->';
+    const pickAfterS1Failed = pickPromotion(baseAndS1Failed, splitFiles, '/fake/missions', splitRead, '');
+    ck(pickAfterS1Failed && pickAfterS1Failed.file === 'foo-bar.S2.mission.txt',
+       'BUG 2: a FAILED split is excluded by full path; the remaining split is promoted (each split needs its own terminal entry)');
+
+    // PROPERTY 3: once ALL of base + S1 + S2 are FAILED, NO candidate is promotable —
+    // no resurrection via stem mismatch.
+    const allSplitsFailed = '# q\nFAILED missions/foo-bar.mission.txt\nFAILED missions/foo-bar.S1.mission.txt\nFAILED missions/foo-bar.S2.mission.txt';
+    const pickAllFailed = pickPromotion(allSplitsFailed, splitFiles, '/fake/missions', splitRead, '');
+    ck(pickAllFailed === null,
+       'BUG 2: with base + S1 + S2 all marked FAILED, nothing is promotable (full-path exclusion catches every entry — no S3 resurrection)');
+
+    // ── BUG 3 PARKED status (2026-06-25, operator-marked permanent block) ────────
+    // STATUS_RE / statusOf / missionPath must treat PARKED as a terminal status the same as
+    // DONE/FAILED/SPLIT. pickPromotion excludes a PARKED-marked path from promotion.
+    ck(statusOf('PARKED missions/baz.mission.txt  <!-- broken indefinitely -->') === 'PARKED', 'BUG 3: statusOf reads PARKED as a terminal status');
+    ck(missionPath('PARKED missions/baz.mission.txt  <!-- ts -->') === 'missions/baz.mission.txt', 'BUG 3: missionPath strips the PARKED status + comment cleanly');
+    // pending-extraction skips PARKED lines (same as DONE/FAILED/SPLIT).
+    ck(pend('PARKED missions/baz.mission.txt  <!-- ts -->').length === 0, 'BUG 3: a PARKED line is NOT pending (the parked mission is never re-fired)');
+
+    // pickPromotion: a PARKED-marked baz must NOT be promoted, even when its file is on
+    // disk and would otherwise be a candidate. The fresh-ready mission is picked instead.
+    const parkedDisk = {
+      'missions/baz.mission.txt': 'MISSION-ID: B\nREQUIRES: none\nMaqsad: parked indefinitely',
+      'missions/other-ready.mission.txt': 'MISSION-ID: O\nREQUIRES: none\nMaqsad: ready to run',
+    };
+    const parkedFiles = ['baz.mission.txt', 'other-ready.mission.txt'];
+    const parkedRead = (p) => { const rel = 'missions/' + p.split(/[\\/]/).pop(); if (rel in parkedDisk) return parkedDisk[rel]; throw new Error('ENOENT'); };
+    const parkedAutorun = '# q\nPARKED missions/baz.mission.txt  <!-- broken — engine batch -->';
+    const pickWithParked = pickPromotion(parkedAutorun, parkedFiles, '/fake/missions', parkedRead, '');
+    ck(pickWithParked && pickWithParked.file === 'other-ready.mission.txt', 'BUG 3: a PARKED-marked mission is excluded from promotion; the other ready mission is picked');
+
+    // and if PARKED is the ONLY candidate, pickPromotion returns null (no spurious append).
+    const pickParkedOnly = pickPromotion(parkedAutorun, ['baz.mission.txt'], '/fake/missions', parkedRead, '');
+    ck(pickParkedOnly === null, 'BUG 3: a PARKED mission as the ONLY candidate => null (parking is permanent until the operator un-parks)');
+
+    // terminalMissionIds includes a PARKED AUTORUN line as terminal (full path + stem alias).
+    const parkedIds = terminalMissionIds('# q\nPARKED missions/baz.mission.txt  <!-- ts -->', '');
+    ck(parkedIds.has('missions/baz.mission.txt'), 'BUG 3: terminalMissionIds stores a PARKED line by FULL PATH (the bug-2 form)');
+    ck(parkedIds.has('baz'), 'BUG 3: terminalMissionIds also stores a PARKED line by bare stem (back-compat alias)');
   }
 
   // ──────────────────────────────────────────────────────────────────────────
