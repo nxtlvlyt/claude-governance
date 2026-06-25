@@ -1,0 +1,17 @@
+MISSION-CLASS: code-repo
+MISSION-ID: M-MUDDYTIRES.QC-CONCERN-PLEDGE-HTML-FREE-FOREVER-COMMITMENT-2026-06-25
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+TARGET-BRANCH: feat/qc-concern-pledge-html-free-forever-commitment-2026-06-25
+ALLOW-FILES:
+  - js/*.js
+  - workers/**/*.js
+
+Niyyah: address the QC CONCERN named "pledge.html free-forever commitment" from the 2026-06-25 walk.
+
+Maqsad: GATE: Hero h1 — PASS: Text "Free forever on the map." is present and prominent in the hero section. GATE: Pledge card — PASS. GATE: Signature block — FAIL: The signature block (.sig-block) is not visible in the provided screenshots as they only capture the top of the page. The signature is positioned below the visible viewport — either it is genuinely missing from the DOM, or it sits too far down to count as part of the pledge commitment. Move the .sig-block up into the pledge card / initial viewport so the signature is part of the pledge surface, not a hidden detail. Restore behavior to that specified in docs/FEATURE-CATALOG-2026-06-23.md.
+
+Done means: e2e-runner walk returns {clean}; the concern is resolved; no other features regress.
+
+Amanah: this slice is part of the muddytires.ca quality-uplift backlog.
+
+MODEL-ROUTING: TIER_CLOUD_CODE — kimi-k2.7-code or deepseek-v4-pro for fix authoring.

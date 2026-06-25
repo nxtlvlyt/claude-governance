@@ -1,0 +1,17 @@
+MISSION-CLASS: code-repo
+MISSION-ID: M-MUDDYTIRES.QC-CONCERN-POI-PROVENANCE-MODAL-POI-PROVENANCE-JS-2026-06-25
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+TARGET-BRANCH: feat/qc-concern-poi-provenance-modal-poi-provenance-js-2026-06-25
+ALLOW-FILES:
+  - js/*.js
+  - workers/**/*.js
+
+Niyyah: address the QC CONCERN named "POI provenance modal (poi-provenance.js)" from the 2026-06-25 walk.
+
+Maqsad: GATE: Clicking "How do we know?" in a popup invokes `window.mtOpenProvenance(id)` — FAIL: No POI popup or "How do we know?" link is visible in either screenshot to initiate the action. GATE: Modal opens with full Isnad/Rukhsa chain — FAIL: The modal (`#mt-prov-modal`) is not visible in the final screenshot for inspection. Confirm poi-provenance.js exposes window.mtOpenProvenance(id), that every POI popup includes a "How do we know?" link wired to that function, and that calling it renders #mt-prov-modal with the full Isnad/Rukhsa chain. Restore behavior to that specified in docs/FEATURE-CATALOG-2026-06-23.md.
+
+Done means: e2e-runner walk returns {clean}; the concern is resolved; no other features regress.
+
+Amanah: this slice is part of the muddytires.ca quality-uplift backlog.
+
+MODEL-ROUTING: TIER_CLOUD_CODE — kimi-k2.7-code or deepseek-v4-pro for fix authoring.

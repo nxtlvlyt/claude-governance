@@ -1,0 +1,17 @@
+MISSION-CLASS: code-repo
+MISSION-ID: M-MUDDYTIRES.QC-CONCERN-PWA-INSTALL-BANNER-PWA-INSTALL-JS-2026-06-25
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+TARGET-BRANCH: feat/qc-concern-pwa-install-banner-pwa-install-js-2026-06-25
+ALLOW-FILES:
+  - js/*.js
+  - workers/**/*.js
+
+Niyyah: address the QC CONCERN named "PWA install banner (pwa-install.js)" from the 2026-06-25 walk.
+
+Maqsad: GATE: Install button appears if installable — FAIL: No install button (`#mt-pwa-install`) is visible in either screenshot, though this may be due to environment limitations on `beforeinstallprompt`. GATE: Offline badge surfaces when navigator.onLine === false — PASS: The badge is correctly absent while the application is online. GATE: Pack-ready badge surfaces when offline pack is saved — FAIL (truncated). The beforeinstallprompt event is environment-dependent so the install button may legitimately not appear in headless Chromium, but the gate still expects the script to load and the button container to be mountable. Verify pwa-install.js is loaded, that #mt-pwa-install exists in the DOM (hidden until beforeinstallprompt fires), and that the pack-ready badge surfaces correctly when an offline pack is saved. Restore behavior to that specified in docs/FEATURE-CATALOG-2026-06-23.md.
+
+Done means: e2e-runner walk returns {clean}; the concern is resolved; no other features regress.
+
+Amanah: this slice is part of the muddytires.ca quality-uplift backlog.
+
+MODEL-ROUTING: TIER_CLOUD_CODE — kimi-k2.7-code or deepseek-v4-pro for fix authoring.

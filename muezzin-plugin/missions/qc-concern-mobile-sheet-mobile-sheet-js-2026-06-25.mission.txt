@@ -1,0 +1,17 @@
+MISSION-CLASS: code-repo
+MISSION-ID: M-MUDDYTIRES.QC-CONCERN-MOBILE-SHEET-MOBILE-SHEET-JS-2026-06-25
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+TARGET-BRANCH: feat/qc-concern-mobile-sheet-mobile-sheet-js-2026-06-25
+ALLOW-FILES:
+  - js/*.js
+  - workers/**/*.js
+
+Niyyah: address the QC CONCERN named "Mobile sheet (mobile-sheet.js)" from the 2026-06-25 walk.
+
+Maqsad: GATE: On mobile, popup is replaced by bottom sheet — FAIL: Screenshots show a desktop environment (wide aspect ratio) where the mobile sheet is not active or visible. GATE: Sheet is draggable — FAIL: No sheet or handle (`#mtSheetHandle`) is visible in the provided screenshots to verify interaction. GATE: window.__mtSheet exposes open/close API — FAIL: Presence cannot be verified visually. The walk runs at 1440x900 (desktop), so the mobile sheet is correctly inactive there — but the gate still expected window.__mtSheet to expose an open/close API regardless of viewport. Confirm mobile-sheet.js loads and exposes window.__mtSheet with open/close methods on every viewport, and that the sheet activates correctly when window.innerWidth crosses the mobile threshold. Restore behavior to that specified in docs/FEATURE-CATALOG-2026-06-23.md.
+
+Done means: e2e-runner walk returns {clean}; the concern is resolved; no other features regress.
+
+Amanah: this slice is part of the muddytires.ca quality-uplift backlog.
+
+MODEL-ROUTING: TIER_CLOUD_CODE — kimi-k2.7-code or deepseek-v4-pro for fix authoring.

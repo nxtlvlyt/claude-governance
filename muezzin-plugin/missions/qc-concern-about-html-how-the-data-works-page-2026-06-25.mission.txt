@@ -1,0 +1,17 @@
+MISSION-CLASS: code-repo
+MISSION-ID: M-MUDDYTIRES.QC-CONCERN-ABOUT-HTML-HOW-THE-DATA-WORKS-PAGE-2026-06-25
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+TARGET-BRANCH: feat/qc-concern-about-html-how-the-data-works-page-2026-06-25
+ALLOW-FILES:
+  - js/*.js
+  - workers/**/*.js
+
+Niyyah: address the QC CONCERN named "about.html \"How the data works\" page" from the 2026-06-25 walk.
+
+Maqsad: Hero h1 "Built on data you can check", hero image, and sticky nav all PASS, but the walk downgraded the verdict to concern based on a soft-fail gate that was truncated in the report. The about page renders structurally but at least one expected-visual gate from docs/FEATURE-CATALOG-2026-06-23.md did not pass. Re-read the catalog entry for this feature, identify which expected-visual or expected-behavior gate was missed (e.g. methodology accordion, sources strip, isnad-chain diagram, freshness ledger), and restore the missing piece so every gate PASSes. Restore behavior to that specified in docs/FEATURE-CATALOG-2026-06-23.md.
+
+Done means: e2e-runner walk returns {clean}; the concern is resolved; no other features regress.
+
+Amanah: this slice is part of the muddytires.ca quality-uplift backlog.
+
+MODEL-ROUTING: TIER_CLOUD_CODE — kimi-k2.7-code or deepseek-v4-pro for fix authoring.

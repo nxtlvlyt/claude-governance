@@ -1,0 +1,17 @@
+MISSION-CLASS: code-repo
+MISSION-ID: M-MUDDYTIRES.QC-CONCERN-CHAIN-OVERNIGHT-POLICY-CHAIN-OVERNIGHT-POLICY-JS-2026-06-25
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+TARGET-BRANCH: feat/qc-concern-chain-overnight-policy-chain-overnight-policy-js-2026-06-25
+ALLOW-FILES:
+  - js/*.js
+  - workers/**/*.js
+
+Niyyah: address the QC CONCERN named "Chain overnight policy (chain-overnight-policy.js)" from the 2026-06-25 walk.
+
+Maqsad: GATE: `window.mtChainPolicy` is a function — FAIL: Mechanical state cannot be verified as no console logs or debugger state are provided in the screenshots. GATE: `window.__mtChainPolicyTable` is an object — FAIL: Mechanical state cannot be verified from the visual evidence provided. GATE: Policy chip inside chain popup — FAIL: No Leaflet popup is open in the final screenshot to validate the chip. Confirm chain-overnight-policy.js exposes window.mtChainPolicy (function) and window.__mtChainPolicyTable (object) at load time, and that clicking a chain POI surfaces a Leaflet popup containing the policy chip. Restore behavior to that specified in docs/FEATURE-CATALOG-2026-06-23.md.
+
+Done means: e2e-runner walk returns {clean}; the concern is resolved; no other features regress.
+
+Amanah: this slice is part of the muddytires.ca quality-uplift backlog.
+
+MODEL-ROUTING: TIER_CLOUD_CODE — kimi-k2.7-code or deepseek-v4-pro for fix authoring.

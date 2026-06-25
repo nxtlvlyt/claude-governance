@@ -1,0 +1,17 @@
+MISSION-CLASS: code-repo
+MISSION-ID: M-MUDDYTIRES.QC-CONCERN-OPERATORS-HTML-BUSINESS-CLAIM-PAGE-2026-06-25
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+TARGET-BRANCH: feat/qc-concern-operators-html-business-claim-page-2026-06-25
+ALLOW-FILES:
+  - js/*.js
+  - workers/**/*.js
+
+Niyyah: address the QC CONCERN named "operators.html business-claim page" from the 2026-06-25 walk.
+
+Maqsad: GATE: Page 200, form visible — FAIL: The page loaded, but the claim form is not visible in the screenshots (likely below the fold or requires interaction). GATE: Tier comparison block, claim form, no clutter — FAIL: Neither the tier comparison block (#tiers) nor the claim form (#claim-form) are visible in the provided captures. Either the page structure has the tier block + claim form positioned far below the hero so the initial 1440x900 viewport never sees them, or the elements are missing/unmounted. Pull the tier comparison and claim form up into the initial viewport (or render them inline near the hero), and verify both #tiers and #claim-form are present in the DOM at first paint. Restore behavior to that specified in docs/FEATURE-CATALOG-2026-06-23.md.
+
+Done means: e2e-runner walk returns {clean}; the concern is resolved; no other features regress.
+
+Amanah: this slice is part of the muddytires.ca quality-uplift backlog.
+
+MODEL-ROUTING: TIER_CLOUD_CODE — kimi-k2.7-code or deepseek-v4-pro for fix authoring.
