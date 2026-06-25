@@ -74,6 +74,39 @@ export async function ollamaVisionVerdict(promptText, imagePaths, opts = {}) {
 
   if (!resp.ok) {
     const t = await resp.text().catch(() => '');
+    // 2026-06-25: on 429 from Ollama Cloud, fall back to local nxtbeast multimodal.
+    // gemma4 series supports vision; runs on Tailscale-accessible nxtbeast Ollama.
+    if (resp.status === 429 && !opts._isFallback) {
+      try {
+        const localUrl = 'http://nxtbeast:11434/v1/chat/completions';
+        const localBody = { ...body, model: 'gemma4:31b' };
+        const localResp = await fetch(localUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(localBody),
+          signal: AbortSignal.timeout(opts.timeoutMs || 120000),
+        });
+        if (localResp.ok) {
+          const localJson = await localResp.json();
+          const localMsg = localJson?.choices?.[0]?.message || {};
+          const localText = (localMsg.content || '').trim() || (localMsg.reasoning || '').trim();
+          if (localText) {
+            const vm = localText.match(/VERDICT:\s*(clean|concern|block)/i);
+            return {
+              ok: true,
+              verdict: vm ? vm[1].toLowerCase() : 'concern',
+              response: localText,
+              model: 'gemma4:31b@nxtbeast (cloud-429 fallback)',
+              images_sent: imagePaths.length,
+              elapsedMs: Date.now() - t0,
+            };
+          }
+        }
+        return { ok: false, verdict: 'error', error: `CLOUD_429_AND_LOCAL_FAIL_HTTP_${localResp.status}`, elapsedMs: Date.now() - t0 };
+      } catch (fbErr) {
+        return { ok: false, verdict: 'error', error: `CLOUD_429_AND_LOCAL_FAIL: ${fbErr.message}`, elapsedMs: Date.now() - t0 };
+      }
+    }
     return { ok: false, verdict: 'error', error: `HTTP_${resp.status}`, raw: t.slice(0, 400), elapsedMs: Date.now() - t0 };
   }
 
