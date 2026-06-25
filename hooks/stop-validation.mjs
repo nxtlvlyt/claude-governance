@@ -29,6 +29,39 @@ try {
 
 if (!inp) process.exit(0);
 
+// === HERMES-IDLE GATE (2026-06-25) ===
+// Blocks turn-end if Hermes has no running processes AND the queue has pending
+// work. Operator-caught: Claude kept saying "still good" without verifying that
+// the dispatcher loop was actually advancing. The adhan pattern requires
+// external structure, not Claude memory — this is that structure.
+{
+  try {
+    const { execSync } = await import('node:child_process');
+    let hermesCount = 0;
+    try {
+      const tasklist = execSync('tasklist /FI "IMAGENAME eq hermes.exe" /NH', { encoding: 'utf8', timeout: 5000 });
+      hermesCount = (tasklist.match(/hermes\.exe/g) || []).length;
+    } catch { /* fail-open on tasklist error */ }
+
+    const queuePath = join(os.homedir(), '.claude', 'state', 'hermes-queue.txt');
+    let queueDepth = 0;
+    if (existsSync(queuePath)) {
+      const lines = readFileSync(queuePath, 'utf8').split('\n');
+      queueDepth = lines.filter(l => l.trim() && !l.trim().startsWith('#')).length;
+    }
+
+    if (hermesCount === 0 && queueDepth > 0) {
+      process.stdout.write(JSON.stringify({
+        decision: 'block',
+        reason: `HERMES-IDLE GATE — ${hermesCount} hermes processes running, ${queueDepth} queue entries pending.\n\nThe continuous-dispatch loop has broken. Fire the dispatcher before stopping:\n\n  bash /c/Users/marka/.claude/state/conductor-tools/dispatch-next.sh\n\nThe self-perpetuating watcher only applies to NEW dispatches. If a prior dispatch exited before the watcher fix landed, manual re-dispatch is required to re-arm the chain.`
+      }));
+      process.exit(0);
+    }
+  } catch (e) {
+    process.stderr.write(`hermes-idle gate: error ${e.message}; failing open\n`);
+  }
+}
+
 // Locate transcript
 let transcriptPath = null;
 if (inp.transcript_path) {
