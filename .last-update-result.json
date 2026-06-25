@@ -1,1 +1,1 @@
-{"timestamp":"2026-06-25T17:16:16.173Z","path":"npm-global","outcome":"success","status":"success","version_from":"2.1.153","version_to":"2.1.191","error_code":null}
+{"timestamp":"2026-06-25T17:46:15.107Z","path":"npm-global","outcome":"failed","status":"install_failed","version_from":"2.1.153","version_to":"2.1.191","error_code":null}
