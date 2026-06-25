@@ -9,6 +9,7 @@
 
 import { dispatchSeat, recognizeClaudeModel } from './seat_dispatch.mjs';
 import { pickArchitects } from './seat_modes.mjs';
+export const SIZE_CEILING = 8; // hajj-autosplit ceiling: missions over this are auto-decomposed (per engine-hajj-autosplit-1.mission.txt)
 
 // .ps1/.psm1/.sh/.bat added 2026-06-10: get-upgrade FAILED x2 because installer scripts
 // weren't "implementation" — the validator's vocabulary was narrower than the work.
