@@ -2,32 +2,61 @@
 // run the step's validation_command via execReceipt (the MUEZZIN's OWN witnessed deed, not the seat's word),
 // commit on a passing receipt, roll back + HALT on a failing one (never advance past a failed step — the agy fix).
 // Capacity (one step) + tartib (gate before advancing) + deeds-not-claims (receipt) + git (surgical rollback).
+//
+// NOTE (2026-06-25): this module is NOT on the daemon's hot path. The daemon imports
+// `orchestrate.mjs` (muezzin-daemon.mjs:608), which has its own per-step execReceipt loop
+// with mission-class-aware writeRoot routing (orchestrate.mjs:438). runMicroQueue here is
+// retained for its selftest contract (and for any future caller that wants a thin runner
+// without the full orchestrate machinery). The `writeRoot` opt below mirrors orchestrate's
+// behavior so a code-repo-aware caller of this function can route execReceipt into the
+// declared REPO-ROOT instead of the sandbox cwd — keeping the contract uniform across the
+// two runners. Default writeRoot=cwd preserves byte-for-byte behavior with every existing caller.
 
 import { execReceipt } from './seat_dispatch.mjs';
 import { commitStep, rollbackStep } from './git_steps.mjs';
 import { validateMicroQueue } from './deconstructor.mjs';
+import { parseMissionClass } from './mission_class.mjs';
 
-// runMicroQueue(queue, { cwd, maxRepairsPerStep, repairFn }) -> { ok, steps, stoppedAt? }
-// repairFn(step, receipt) is an optional async hook (e.g. dispatch a repair seat with the captured error);
-// if absent or exhausted, a failed step rolls back and the run HALTS. Queue is re-validated defensively.
-export async function runMicroQueue(queue, { cwd, maxRepairsPerStep = 0, repairFn = null } = {}) {
+// runMicroQueue(queue, { cwd, writeRoot, maxRepairsPerStep, repairFn, missionText }) -> { ok, steps, stoppedAt? }
+//   cwd:       the sandbox dir (events / diagnostics live here).
+//   writeRoot: the dir execReceipt runs in + commits target. Default = cwd (research/sandbox
+//              behavior, byte-for-byte). For a code-repo run, set writeRoot to the declared
+//              REPO-ROOT — mirroring orchestrate.mjs:438. If omitted but `missionText` is
+//              passed, the runner derives writeRoot from parseMissionClass (code-repo ->
+//              repoRoot, else cwd) so a caller can hand the mission text alone and stay
+//              correct.
+//   repairFn(step, receipt) is an optional async hook (e.g. dispatch a repair seat with the captured error);
+//   if absent or exhausted, a failed step rolls back and the run HALTS. Queue is re-validated defensively.
+export async function runMicroQueue(queue, { cwd, writeRoot, maxRepairsPerStep = 0, repairFn = null, missionText = '' } = {}) {
   const v = validateMicroQueue(queue);
   if (!v.ok) return { ok: false, error: 'invalid micro_queue: ' + v.errors.join('; '), steps: [] };
 
+  // CODE-REPO-AWARENESS (2026-06-25): when missionText is supplied and declares code-repo,
+  // route writes/witness/commit into the declared REPO-ROOT — mirroring orchestrate.mjs:438.
+  // An explicit writeRoot opt wins over the derived value (operator/caller override).
+  let effectiveWriteRoot = writeRoot;
+  if (!effectiveWriteRoot && missionText) {
+    try {
+      const mc = parseMissionClass(missionText);
+      if (mc.class === 'code-repo' && mc.repoRoot) effectiveWriteRoot = mc.repoRoot;
+    } catch { /* parse failure -> fall through to cwd default (research behavior) */ }
+  }
+  if (!effectiveWriteRoot) effectiveWriteRoot = cwd;
+
   const steps = [];
   for (const step of queue.steps) {
-    let receipt = execReceipt(step.validation_command, cwd);   // the muezzin runs the witness ITSELF
+    let receipt = execReceipt(step.validation_command, effectiveWriteRoot);   // the muezzin runs the witness ITSELF (in REPO-ROOT for code-repo, else cwd)
     let repaired = 0;
     while (!receipt.ok && repairFn && repaired < maxRepairsPerStep) {
       repaired++;
       await repairFn(step, receipt);                           // repair, then RE-witness the same step
-      receipt = execReceipt(step.validation_command, cwd);
+      receipt = execReceipt(step.validation_command, effectiveWriteRoot);
     }
     if (receipt.ok) {
-      const c = commitStep(cwd, `${step.step_index}: ${String(step.description).slice(0, 60)}`, step.target_files);
+      const c = commitStep(effectiveWriteRoot, `${step.step_index}: ${String(step.description).slice(0, 60)}`, step.target_files);
       steps.push({ step: step.step_index, ok: true, witness: step.validation_command, sha: c.sha, repaired });
     } else {
-      rollbackStep(cwd, step.target_files);                    // surgical single-step rollback — not whole-phase
+      rollbackStep(effectiveWriteRoot, step.target_files);     // surgical single-step rollback — not whole-phase
       steps.push({ step: step.step_index, ok: false, witness: step.validation_command, error: String(receipt.out || '').slice(0, 200), repaired });
       return { ok: false, stoppedAt: step.step_index, steps };  // HALT — never advance past a failed step
     }

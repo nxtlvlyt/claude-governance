@@ -1484,6 +1484,50 @@ if (process.argv[1]?.endsWith('orchestrate.mjs')) {
       ck(!/^.M |^M/.test(porcelain) || porcelain === '' || porcelain.includes('?? src/mod.mjs'), 'code-repo e2e (3): no TRACKED file was modified/committed (repo HEAD tree intact)');
       fs.rmSync(repo, { recursive: true, force: true }); fs.rmSync(sbx, { recursive: true, force: true });
     }
+
+    // (4) CWD CONTRACT LOCK (2026-06-25 root-cause investigation): a code-repo command/verify
+    // step's validation_command MUST execute with cwd=REPO-ROOT, NOT cwd=sandbox. This is the
+    // contract the failing qc-concern-fuel-cost-chip-in-status-bar mission depended on (its
+    // step 1 PowerShell `Get-ChildItem -Path js,workers ...` resolves ONLY from REPO-ROOT).
+    // The substrate-witness deed: the step's validation_command prints process.cwd() via Node;
+    // the captured receipt MUST contain the repoRoot path string, NOT the sandbox path.
+    // This is the regression test the operator can grep to prove this bug is fixed.
+    {
+      const repo = mkRepo(); const sbx = sandboxFor();
+      // commit a probe directory that exists ONLY at REPO-ROOT — `dir probe` will fail from
+      // anywhere else. Belt-and-suspenders alongside the explicit cwd print below.
+      fs.mkdirSync(path.join(repo, 'probe'), { recursive: true });
+      fs.writeFileSync(path.join(repo, 'probe', 'sentinel'), 'i live in repo-root\n');
+      execSync('git add -A', { cwd: repo, stdio: 'pipe' });
+      execSync('git commit -q --no-verify -m probe', { cwd: repo, stdio: 'pipe' });
+      const mission = `MISSION-CLASS: code-repo\nREPO-ROOT: ${repo}\nALLOW-FILES:\n  - src/mod.mjs\nMaqsad: prove cwd routing. Done means: cwd-receipt names repoRoot.`;
+      // Use a Node one-liner so the test is shell-edition-agnostic: node prints its cwd to
+      // stdout, the engine captures it into receipt.out, the step is recorded onto the result.
+      // The probe step also reads ./probe/sentinel — exit 0 ONLY when run from REPO-ROOT.
+      const q = { mission_id: 'CR4', steps: [
+        { step_index: 1, description: 'CWD probe', action_type: 'command', target_files: [], context_dependencies: [],
+          validation_command: 'node -e "const fs=require(\'fs\'); process.stdout.write(\'CWD=\'+process.cwd()+\' SENTINEL=\'+(fs.existsSync(\'probe/sentinel\')?\'yes\':\'no\'))"' },
+      ] };
+      const cwdRes = await orchestrate(mission, sbx, { deconstructFn: async () => ({ ok: true, queue: q }), implementFn: async () => { throw new Error('no executor on a command step'); }, maxRepairs: 0, verdictFn: approveVerdict, witnessFn: okWitness });
+      ck(cwdRes.ok === true, 'code-repo e2e (4) CWD CONTRACT: command step runs successfully');
+      const step1 = cwdRes.steps?.[0];
+      ck(step1 && step1.ok === true && step1.engineExec === true, 'code-repo e2e (4): step 1 is engine-executed (command class)');
+      const out = String(step1?.execOut || '');
+      // RECEIPT-LEVEL ASSERTION: the captured stdout must name the REPO-ROOT path AND prove
+      // the sentinel file (only present at REPO-ROOT) was reachable. Both string-folds are
+      // case-insensitive: Windows resolves the path under either casing and either matches
+      // the substrate's writeRoot resolution. A SANDBOX-cwd execution would print the sandbox
+      // path AND fail to find probe/sentinel — neither would be present in this receipt.
+      const repoNorm = path.resolve(repo).toLowerCase().replace(/\\/g, '/');
+      const outNorm = out.toLowerCase().replace(/\\/g, '/');
+      ck(outNorm.includes('cwd=' + repoNorm), `code-repo e2e (4): receipt body proves execReceipt cwd=REPO-ROOT (got: ${out.slice(0, 200)})`);
+      ck(/sentinel=yes/i.test(out), `code-repo e2e (4): the REPO-ROOT-only sentinel file was reachable (got: ${out.slice(0, 200)})`);
+      // belt-and-suspenders: assert the receipt does NOT name the sandbox path (where the
+      // bug would route the cwd if writeRoot were computed wrong).
+      const sbxNorm = path.resolve(sbx).toLowerCase().replace(/\\/g, '/');
+      ck(!outNorm.includes('cwd=' + sbxNorm), 'code-repo e2e (4): receipt body does NOT name the SANDBOX path (writeRoot routing intact)');
+      fs.rmSync(repo, { recursive: true, force: true }); fs.rmSync(sbx, { recursive: true, force: true });
+    }
   }
 
   // ---- REPLAN ISOLATION (M-ENGINE.REPLAN-ISOLATION.1, 2026-06-16): a single flaky step is

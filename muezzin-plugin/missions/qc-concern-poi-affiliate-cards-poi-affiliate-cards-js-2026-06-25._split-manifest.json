@@ -1,0 +1,21 @@
+{
+  "parentId": "M-MUDDYTIRES.QC-CONCERN-POI-AFFILIATE-CARDS-POI-AFFILIATE-CARDS-JS-2026-06-25",
+  "ceiling": 8,
+  "originalStepCount": 9,
+  "groupCount": 2,
+  "children": [
+    {
+      "id": "M-MUDDYTIRES.QC-CONCERN-POI-AFFILIATE-CARDS-POI-AFFILIATE-CARDS-JS-2026-06-25.S1",
+      "file": "missions/qc-concern-poi-affiliate-cards-poi-affiliate-cards-js-2026-06-25.S1.mission.txt",
+      "steps": 8,
+      "requires": null
+    },
+    {
+      "id": "M-MUDDYTIRES.QC-CONCERN-POI-AFFILIATE-CARDS-POI-AFFILIATE-CARDS-JS-2026-06-25.S2",
+      "file": "missions/qc-concern-poi-affiliate-cards-poi-affiliate-cards-js-2026-06-25.S2.mission.txt",
+      "steps": 1,
+      "requires": "M-MUDDYTIRES.QC-CONCERN-POI-AFFILIATE-CARDS-POI-AFFILIATE-CARDS-JS-2026-06-25.S1"
+    }
+  ],
+  "ts": "2026-06-25T21:40:59.509Z"
+}
