@@ -120,6 +120,14 @@ const stopLanguagePatterns = [
   // Block the announcement/promise forms; past-tense citations with substrate receipts
   // remain allowed since they don't match these specific phrasings.
   /\b(?:niyyah declared|surrender articulated|wudu (?:performed|complete|done)|tying the camel|temporal wudu)\b/i,
+  // 2026-06-24 ask-instead-of-act additions (operator-caught — D2 violation class).
+  // Triggered when I drafted "How do you want to handle: X or Y?" instead of
+  // executing the decision myself. The kept patterns catch 'want me to' /
+  // 'should I' / 'your call' but missed the option-presenting forms below.
+  /\bhow do you want\b/i,
+  /\bdo you want me to\b/i,
+  /\bwhich (?:do|would) you (?:want|prefer)\b/i,
+  /\bor (?:preserve|skip|reset|keep|do|use|pick)\b[^?]*\?\s*$/im,
 ];
 
 // Strip backticked spans (code blocks + inline) before matching so the
