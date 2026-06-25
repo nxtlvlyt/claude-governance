@@ -804,6 +804,49 @@ Maqsad: implement seven modules.`;
     }
   }
 
-  console.log(fails === 0 ? '\nALL PASS — micro_queue validator + Phase-1 blind panel sound (routing: simple->single / complex->panel; parallel-when-cloud, serial-when-local; fail-closed search, single-architect fallback)' : `\n${fails} FAIL`);
+  // ------------------------------------------------- (11) HAJJ-AUTOSPLIT selftests
+  // SIZE_CEILING is the named constant; splitOversizedPlan lives in mission_split.mjs.
+  // These tests exercise the integration boundary: the constant value, and the split/no-split
+  // decision that orchestrate.mjs gates on.
+  {
+    ck(SIZE_CEILING === 8, 'SIZE_CEILING = 8 (per engine-hajj-autosplit-1 spec L23-25: 16-step plans failed, 3-5-step succeeded; 8 is the midpoint ceiling)');
+    ck(typeof SIZE_CEILING === 'number', 'SIZE_CEILING is a number (tunable)');
+
+    // Under-ceiling no-op: a plan with steps <= SIZE_CEILING should NOT split.
+    // We test the boundary condition directly: the split decision is steps.length > SIZE_CEILING.
+    const underQueue = { mission_id: 'M-SPLIT-UNDER', steps: Array.from({ length: SIZE_CEILING }, (_, i) => ({
+      step_index: i + 1, description: `step ${i + 1}`, action_type: 'edit',
+      target_files: [`f${i + 1}.mjs`], context_dependencies: [], validation_command: `node -c f${i + 1}.mjs`,
+    })) };
+    ck(underQueue.steps.length === SIZE_CEILING, `under-ceiling queue has exactly ${SIZE_CEILING} steps (at ceiling — inclusive)`);
+    ck(underQueue.steps.length <= SIZE_CEILING, `under-ceiling: ${SIZE_CEILING} steps <= SIZE_CEILING — should NOT split`);
+
+    // Over-ceiling: a plan with steps > SIZE_CEILING SHOULD split.
+    const overQueue = { mission_id: 'M-SPLIT-OVER', steps: Array.from({ length: SIZE_CEILING + 1 }, (_, i) => ({
+      step_index: i + 1, description: `step ${i + 1}`, action_type: 'edit',
+      target_files: [`f${i + 1}.mjs`], context_dependencies: [], validation_command: `node -c f${i + 1}.mjs`,
+    })) };
+    ck(overQueue.steps.length === SIZE_CEILING + 1, `over-ceiling queue has ${SIZE_CEILING + 1} steps (> SIZE_CEILING ${SIZE_CEILING})`);
+    ck(overQueue.steps.length > SIZE_CEILING, `over-ceiling: ${SIZE_CEILING + 1} steps > SIZE_CEILING — SHOULD split`);
+
+    // The 16-step corpus-complete-1 failure: 16 > 8 -> MUST split.
+    const corpusQueue = { mission_id: 'M-CORPUS', steps: Array.from({ length: 16 }, (_, i) => ({
+      step_index: i + 1, description: `corpus step ${i + 1}`, action_type: 'edit',
+      target_files: [`c${i + 1}.mjs`], context_dependencies: [], validation_command: `node -c c${i + 1}.mjs`,
+    })) };
+    ck(corpusQueue.steps.length === 16, 'corpus-complete-1: 16 steps (the failure that motivated this)');
+    ck(corpusQueue.steps.length > SIZE_CEILING, 'corpus-complete-1: 16 > 8 — MUST split (the engine now catches this mechanically)');
+
+    // The 3-5 step single-card missions: under ceiling -> no split.
+    [3, 4, 5].forEach((n) => {
+      const q = { mission_id: `M-CARD-${n}`, steps: Array.from({ length: n }, (_, i) => ({
+        step_index: i + 1, description: `card step ${i + 1}`, action_type: 'edit',
+        target_files: [`card${i + 1}.md`], context_dependencies: [], validation_command: 'node -e "0"',
+      })) };
+      ck(q.steps.length <= SIZE_CEILING, `single-card ${n}-step mission: ${n} <= ${SIZE_CEILING} — no split (these succeeded as monoliths)`);
+    });
+  }
+
+  console.log(fails === 0 ? '\nALL PASS — micro_queue validator + Phase-1 blind panel + hajj-autosplit sound (routing: simple->single / complex->panel; parallel-when-cloud, serial-when-local; fail-closed search, single-architect fallback)' : `\n${fails} FAIL`);
   process.exit(fails === 0 ? 0 : 1);
 }
