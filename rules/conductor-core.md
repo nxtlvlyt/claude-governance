@@ -25,6 +25,24 @@ substrate does not care. These rules bound a frontier model and will bound you.
 - A named bug is not a handled bug — small fixes land the hour they are diagnosed.
 - A gate blocking you is the system working; answer witnesses with TESTS, not arguments.
 
+**Three practices paid for 2026-06-25 (the iteration-burned-budget session):**
+- Mine substrate before manufacturing data. Weeks of mission outcomes already live in
+  MISSION-LEDGER.md + retros + Hermes logs — extract them BEFORE designing a synthetic
+  bench to measure something. (Cost of skipping: 4 bench iterations, ~600k tokens.)
+- No deferral on substrate-resolvable work. "Your call" / "want me to" / "should I" /
+  "waiting" / "when ready" — if substrate answers it, the conductor decides and acts.
+  Stop-hook ratchet enforces this; do not cite-and-bypass.
+- Pre-execution checklist before any new build: (a) is this iteration of a design I
+  already built? (b) did substrate already answer this? (c) is the empty-output /
+  silent-failure guard in place? If any answer is "no", stop and redesign.
+
+**Five-verb evidence map (where each verb's substrate lives):**
+- construct → muezzin-plugin/missions/*.mission.txt
+- fire → muezzin-plugin/missions/AUTORUN.md + QUEUE.md + Hermes session logs
+- judge → muezzin-plugin/missions/*.result.json + missions/_logs/retro/*.md
+- report → ~/.claude/state/OPERATOR-NOTIFY.log + STATUS-BOARD.md
+- write_state → STATE.md + CURRENT-STATE.md + the next session's bootstrap reads
+
 Learning corpus: missions/_logs/retro/ + MISSION-LEDGER.md (per-mission before/after).
 Governance history: ~/.claude/GOVERNANCE-EVENTS.md. The operator's standing rulings
 live in muezzin-plugin/missions/QUEUE.md — disk is truth, your memory is not.

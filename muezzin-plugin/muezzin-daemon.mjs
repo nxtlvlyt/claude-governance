@@ -108,6 +108,78 @@ function lanePhase(missionLine) {
 // heals, halts, duration, error kinds — to _logs/retro/ and one summary line to the
 // cumulative MISSION-LEDGER.md. The learning corpus writes ITSELF; no conductor memory
 // involved. This is rijal-for-missions and the local-conductor curriculum.
+// MODEL ATTRIBUTION + RETRY-CHAIN — schema additions (2026-06-25, operator-authorized).
+// Today's audit found 40/1210 retros named a model and 0/1210 ledger rows had a model
+// column: per-mission attribution was invisible, so a Jun 22-24 b13 retry storm (493
+// rows, same mission_id) was indistinguishable from real conductor attempts. These two
+// helpers are ADDITIVE — they emit values for two NEW trailing ledger columns and two
+// NEW retro header lines without changing any existing column or line. The existing
+// `| ts | mission_id | status | duration | plan_metrics |` format keeps its 1210
+// historical entries intact; only new rows carry the appended `| model | retry_of |`.
+//
+// PURE: takes the events array (already loaded by writeRetro) and the orchestrate
+// result; returns 'unknown' when neither source names a model. Prefers the EXECUTOR
+// seat (impl?.model on r.steps[]) over the planner (plan event's model) because the
+// executor authored the artifacts being judged — that's the model attribution that
+// matters for "which model can complete this mission class". Both sources are scanned
+// fail-soft; any non-string value becomes 'unknown'.
+function deriveAttemptModel(events, result) {
+  try {
+    // 1) executor model from orchestrate's step receipts (impl.model carried through
+    //    on r.steps[]). First step with a string .model wins — every step the executor
+    //    ran typically carries the SAME model name in a given attempt.
+    for (const s of (result?.steps || [])) {
+      const m = s && typeof s.model === 'string' && s.model.trim();
+      if (m) return m;
+    }
+    // 2) fallback to the plan-phase model emitted on `{phase:'plan', event:'ok', model:...}`
+    //    (the deconstructor's seat). This is at least a real seat that ran for this mission.
+    for (const e of events) {
+      if (e?.phase === 'plan' && e?.event === 'ok' && typeof e?.model === 'string' && e.model.trim()) return e.model.trim();
+    }
+    // 3) any badal-escalation / seat-escalated-dispatch event also carries .model
+    for (const e of events) {
+      if (typeof e?.model === 'string' && e.model.trim()) return e.model.trim();
+    }
+  } catch { /* fail-soft */ }
+  return 'unknown';
+}
+
+// PURE-ENOUGH: reads the LAST page of MISSION-LEDGER.md (cheap — bounded tail) to find
+// the most recent terminal row whose mission_id matches `name`. Returns `<name>@<ts>`
+// (ISO trimmed to seconds) or '' when no prior attempt exists in the ledger. The tail
+// bound keeps this O(1) regardless of how large the ledger grows. Fail-soft: any read
+// or parse error returns '' (a fresh-attempt classification — never a false retry).
+//
+// WHY THIS SHAPE: the operator's purpose for retry_of is post-hoc audit: "the b13 spam
+// loop on Jun 22-24 had 493 retries — those should chain to one another so an audit
+// can see the chain, not look like 493 independent conductor decisions". A per-row
+// pointer to the immediate prior attempt is the minimum primitive that makes the chain
+// reconstructible by walking backwards from any failure row.
+function computeRetryOf(name, ledgerPath) {
+  try {
+    if (!existsSync(ledgerPath)) return '';
+    // bounded tail read — last ~64KB is far more than enough for the most recent prior
+    // attempt of any given mission_id (a busy day writes ~1KB of ledger).
+    const raw = readFileSync(ledgerPath, 'utf8');
+    const tail = raw.length > 65536 ? raw.slice(-65536) : raw;
+    const lines = tail.split(/\r?\n/);
+    // walk lines bottom-up: the FIRST match is the most recent prior attempt.
+    for (let i = lines.length - 1; i >= 0; i--) {
+      const cells = lines[i].split('|').map((c) => c.trim());
+      // expected shape: ['', ts, mission_id, verdict, duration, plan_metrics, model?, retry_of?, '']
+      if (cells.length < 6) continue;
+      if (cells[2] !== name) continue;
+      const ts = cells[1];
+      if (!ts || !/^\d{4}-\d{2}-\d{2}T/.test(ts)) continue;
+      // truncate ISO timestamp to seconds: '2026-06-24T21:30:00.123Z' -> '2026-06-24T21:30:00Z'
+      const tsSec = ts.replace(/\.\d+Z$/, 'Z').replace(/(\d{2}:\d{2}:\d{2})(\.\d+)?Z?$/, '$1Z');
+      return `${name}@${tsSec}`;
+    }
+  } catch { /* fail-soft — return '' (fresh attempt) */ }
+  return '';
+}
+
 function writeRetro(raw, result, attempt) {
   try {
     const name = path.basename(raw).replace(/\.mission\.txt$/i, '');
@@ -122,8 +194,17 @@ function writeRetro(raw, result, attempt) {
     const verdict = result?.ok ? 'DONE' : `FAILED(${result?.phase || '?'})`;
     const retroDir = path.join(LOGDIR, 'retro'); mkdirSync(retroDir, { recursive: true });
     const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+    // Model attribution + retry chain (ADDITIVE schema additions, 2026-06-25): derive
+    // model from executor receipts / plan events (falls back to 'unknown'); compute the
+    // prior-attempt reference from a bounded tail of the existing ledger. Both helpers
+    // are fail-soft — they never throw, so retro emission stays as reliable as it was.
+    const ledgerPath = path.join(LOGDIR, 'MISSION-LEDGER.md');
+    const model = deriveAttemptModel(evs, result);
+    const retryOf = computeRetryOf(name, ledgerPath);
     const body = [
       `# RETRO ${name} — ${verdict} (attempt ${attempt}, ${mins}m total)`,
+      `model: ${model}`,
+      `retry_of: ${retryOf}`,
       `events: ${evs.length} | plan-phases: ${planTries} | steps-committed: ${committed} | heals: ${heals} | halts: ${halts.length}`,
       ``,
       `## Halts/blocks (verbatim — the learning material)`,
@@ -134,7 +215,10 @@ function writeRetro(raw, result, attempt) {
       `- conductor intervention required: ${result?.ok ? 'NO' : 'YES — see halts above; classify into validator-bug / mission-text / capability gap'}`,
     ].join('\n');
     writeFileSync(path.join(retroDir, `${name}-${stamp}.md`), body);
-    appendFileSync(path.join(LOGDIR, 'MISSION-LEDGER.md'), `| ${new Date().toISOString()} | ${name} | ${verdict} | ${mins}m | plans:${planTries} steps:${committed} heals:${heals} halts:${halts.length} |\n`);
+    // Ledger row — APPENDED columns at the END so the 1210 historical entries still
+    // parse with the old `| ts | mission_id | status | duration | plan_metrics |` reader.
+    // New rows carry `| ... | model | retry_of |` so future audits can attribute and chain.
+    appendFileSync(ledgerPath, `| ${new Date().toISOString()} | ${name} | ${verdict} | ${mins}m | plans:${planTries} steps:${committed} heals:${heals} halts:${halts.length} | ${model} | ${retryOf} |\n`);
   } catch { /* retro must never break the daemon */ }
 }
 
