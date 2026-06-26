@@ -8,11 +8,23 @@ import { execSync } from 'node:child_process';
 import { readFileSync, existsSync } from 'node:fs';
 import { homedir } from 'node:os';
 import path from 'node:path';
+// PREFLIGHT deps (ENGINE-READINESS, 2026-06-26): the active seat table + the well-tested
+// SearXNG reachability probe. Importing these runs NO side effects (each module's self-test
+// is guarded by `argv endsWith <module>.mjs`).
+import { activeSeats, readMode, resolveMode, MODES } from './seat_modes.mjs';
+import { searxngPreflight } from './searxng_preflight.mjs';
 
 const ENV_KEYS = ['OLLAMA_API_KEY', 'OLLAMA_CLOUD_API_KEY', 'GOOGLE_PLACES_API_KEY', 'AIMLAPI_KEY'];
 const OLLAMA_CLOUD_BASE = 'https://ollama.com/v1';
+const OLLAMA_LOCAL_TAGS = 'http://localhost:11434/api/tags';
 const CLOUD_TIMEOUT_MS = 10000;
 const GOV_FILES = ['~/.claude/practice/core.md', '~/.claude/CANON-MANIFEST.md'];
+// SearXNG endpoints: seats actually hit SEAT_SEARXNG (seat_dispatch.mjs SEARXNG_URL =
+// http://localhost:8080/search) — that is the fire-critical one. CANON_SEARXNG is the
+// searxng_preflight.mjs default (nxtbeast:8080); reported for the discrepancy case where
+// the localhost tunnel is down but the backend itself is reachable on the LAN.
+const SEAT_SEARXNG_URL = 'http://localhost:8080';
+const CANON_SEARXNG_URL = process.env.SEARXNG_URL || 'http://nxtbeast:8080';
 
 function checkNode() {
   try {
@@ -127,6 +139,117 @@ function checkGovernance() {
     else found.push({ file: rel, present: false });
   }
   return found;
+}
+
+// ============================================================ PREFLIGHT (fire-readiness)
+// Checks the conductor runs BEFORE firing a mission, so a run never fires into a missing
+// prerequisite (no pwsh, dead search, dead local ollama) or — the costliest — a model name
+// that 404s on every provider. Each returns { ok, detail, ... } for the board renderer.
+
+async function fetchJson(url, opts = {}, timeoutMs = 8000) {
+  const ctl = new AbortController();
+  const timer = setTimeout(() => ctl.abort(), timeoutMs);
+  try {
+    const res = await fetch(url, { ...opts, signal: ctl.signal });
+    if (!res.ok) return { ok: false, status: res.status };
+    return { ok: true, data: await res.json() };
+  } catch (e) {
+    return { ok: false, error: e.name === 'AbortError' ? 'timeout' : e.message };
+  } finally { clearTimeout(timer); }
+}
+
+// ollama-local reachable + its model list (needed for the local fallback, local-only models,
+// and per-seat availability resolution). Non-fatal if down WHEN cloud is up, but reported loud.
+async function checkOllamaLocal() {
+  const r = await fetchJson(OLLAMA_LOCAL_TAGS, {}, 6000);
+  if (!r.ok) return { ok: false, names: new Set(), detail: `unreachable (${r.error || 'HTTP ' + r.status}) — local fallback + local-only models unavailable` };
+  const names = new Set((r.data?.models || []).map((m) => m.name));
+  return { ok: true, names, detail: `up — ${names.size} local models` };
+}
+
+// the cloud model CATALOG (OpenAI-compatible /v1/models) — the authority for whether a cloud
+// seat name will resolve or 404. Distinct from the cloud reachability PING above.
+async function fetchCloudModels() {
+  const key = process.env.OLLAMA_API_KEY || process.env.OLLAMA_CLOUD_API_KEY;
+  if (!key) return { ok: false, ids: new Set(), detail: 'no OLLAMA_API_KEY — cannot list cloud catalog' };
+  const r = await fetchJson(`${OLLAMA_CLOUD_BASE}/models`, { headers: { Authorization: `Bearer ${key}` } }, CLOUD_TIMEOUT_MS);
+  if (!r.ok) return { ok: false, ids: new Set(), detail: `cloud catalog fetch failed (${r.error || 'HTTP ' + r.status})` };
+  const ids = new Set((r.data?.data || []).map((m) => m.id));
+  return { ok: true, ids, detail: `cloud catalog — ${ids.size} models` };
+}
+
+// pwsh availability. NOTE the witness-shell fix (seat_dispatch execReceipt, 2026-06-26): PS7
+// is preferred but its absence is NO LONGER fatal — execReceipt falls back to Windows
+// PowerShell 5.1 and translates &&/|| chains. So pwsh7-absent is a WARN, not a FAIL; only
+// BOTH shells missing is fire-critical.
+function checkPwsh() {
+  try {
+    execSync('pwsh.exe -NoProfile -NonInteractive -Command "$null"', { stdio: 'ignore', timeout: 15000 });
+    return { ok: true, pwsh7: true, detail: 'pwsh.exe (PowerShell 7) present — native &&/|| chaining in code receipts' };
+  } catch {
+    try {
+      execSync('powershell.exe -NoProfile -NonInteractive -Command "$null"', { stdio: 'ignore', timeout: 15000 });
+      return { ok: true, pwsh7: false, detail: 'pwsh.exe ABSENT — using Windows PowerShell 5.1 fallback (execReceipt translates &&/||). Install PS7 for native: winget install --id Microsoft.PowerShell -e' };
+    } catch {
+      return { ok: false, pwsh7: false, detail: 'NEITHER pwsh.exe NOR powershell.exe found — code receipts CANNOT be verified; every code mission fails' };
+    }
+  }
+}
+
+function checkGitBinary() {
+  try { return { ok: true, detail: execSync('git --version', { encoding: 'utf8', timeout: 10000 }).trim() }; }
+  catch { return { ok: false, detail: 'git not found on PATH' }; }
+}
+
+// SearXNG: the engine seats hit SEAT_SEARXNG_URL (localhost:8080) — that is what makes search
+// fire-critical (operator ruling: planning/research seats are search-grounded fail-closed).
+// We probe BOTH the seat URL and the canonical backend so a localhost-tunnel-down /
+// backend-LAN-up discrepancy is surfaced explicitly instead of read as "search is gone".
+async function checkSearxng() {
+  const seat = await searxngPreflight(SEAT_SEARXNG_URL);
+  const canon = await searxngPreflight(CANON_SEARXNG_URL);
+  const seatOK = seat.verdict === 'OK';
+  if (seatOK) return { ok: true, detail: `seat URL ${SEAT_SEARXNG_URL} OK (${seat.reason})` };
+  // seat URL unusable — is the canonical backend up? If so, this is a tunnel/config gap, not a dead backend.
+  if (canon.verdict === 'OK')
+    return { ok: false, detail: `seat URL ${SEAT_SEARXNG_URL} DOWN (${seat.reason}) BUT ${CANON_SEARXNG_URL} is UP — start the localhost:8080 tunnel OR repoint seat_dispatch SEARXNG_URL at the backend before firing search-grounded seats` };
+  return { ok: false, detail: `SearXNG unusable on BOTH ${SEAT_SEARXNG_URL} (${seat.reason}) and ${CANON_SEARXNG_URL} (${canon.reason}) — search-grounded seats will BLOCK` };
+}
+
+// Resolve whether a seat model name can be served by SOME provider. A name that resolves
+// NOWHERE is the 404-on-fire case this preflight exists to catch.
+function resolveModelProvider(name, cloudIds, localNames, claudeOK) {
+  if (/^(opus|sonnet|haiku|claude-)/i.test(name)) return claudeOK ? 'claude' : null;
+  if (cloudIds.has(name)) return 'cloud';
+  if (localNames.has(name)) return 'local';
+  const bare = name.replace(/:cloud$/, '').replace(/-cloud$/, '');   // waterfall heals these suffixes
+  if (cloudIds.has(bare)) return 'cloud';
+  if (localNames.has(name + ':cloud')) return 'local';
+  return null;
+}
+
+// The set of seat models to validate. If a mode is active, validate THAT mode's seats (what
+// will actually fire). If no mode is set, validate the UNION of every mode's seats as a
+// defensive superset (the engine's hardcoded defaults are a subset of these names).
+function gatherSeatModels() {
+  const mode = readMode();
+  const seats = activeSeats();
+  const out = [];
+  const push = (role, v) => Array.isArray(v) ? v.forEach((m, i) => out.push({ role: `${role}[${i}]`, model: m })) : out.push({ role, model: v });
+  if (seats) {
+    for (const [role, v] of Object.entries(seats)) push(role, v);
+    return { mode: mode || '(active)', models: out };
+  }
+  // no mode -> defensive union across all modes (deduped by model name)
+  const seen = new Set();
+  for (const mname of MODES) {
+    const t = resolveMode(mname); if (!t) continue;
+    for (const [role, v] of Object.entries(t)) {
+      const vals = Array.isArray(v) ? v : [v];
+      for (const m of vals) if (!seen.has(m)) { seen.add(m); out.push({ role: `${mname}.${role}`, model: m }); }
+    }
+  }
+  return { mode: '(default — checking union of all modes)', models: out };
 }
 
 // Run all checks
