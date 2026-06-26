@@ -19,11 +19,12 @@ const OLLAMA_CLOUD_BASE = 'https://ollama.com/v1';
 const OLLAMA_LOCAL_TAGS = 'http://localhost:11434/api/tags';
 const CLOUD_TIMEOUT_MS = 10000;
 const GOV_FILES = ['~/.claude/practice/core.md', '~/.claude/CANON-MANIFEST.md'];
-// SearXNG endpoints: seats actually hit SEAT_SEARXNG (seat_dispatch.mjs SEARXNG_URL =
-// http://localhost:8080/search) — that is the fire-critical one. CANON_SEARXNG is the
-// searxng_preflight.mjs default (nxtbeast:8080); reported for the discrepancy case where
-// the localhost tunnel is down but the backend itself is reachable on the LAN.
-const SEAT_SEARXNG_URL = 'http://localhost:8080';
+// SearXNG endpoints: SEAT_SEARXNG mirrors seat_dispatch.mjs's resolution EXACTLY (SEARXNG_URL
+// base, else the localhost tunnel) — that is the URL seats actually hit, so it is the
+// fire-critical one. CANON_SEARXNG is the searxng_preflight.mjs default (nxtbeast:8080),
+// reported for the discrepancy case where the localhost tunnel is down but the backend itself
+// is reachable on the LAN/Tailscale.
+const SEAT_SEARXNG_URL = process.env.SEARXNG_URL || 'http://localhost:8080';
 const CANON_SEARXNG_URL = process.env.SEARXNG_URL || 'http://nxtbeast:8080';
 
 function checkNode() {

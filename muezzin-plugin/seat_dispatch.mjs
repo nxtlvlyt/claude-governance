@@ -27,7 +27,13 @@ function hb(line) {
 const FAITH_DIR = 'C:/Users/marka/.agents/faiths';
 const FETCH_TIMEOUT_MS = 180000;
 const MAX_CLOUD_HEALS = 3;            // operator spec: 3 reattempts to fix the cloud failure before local
-const SEARXNG_URL = 'http://localhost:8080/search';
+// SearXNG endpoint. Honor SEARXNG_URL (a BASE url, exactly as searxng_preflight.mjs does) so
+// the dispatch and the pre-flight/doctor agree on ONE backend; fall back to the localhost
+// tunnel when unset. (2026-06-26 ENGINE-READINESS: doctor preflight surfaced this was
+// hardcoded to localhost:8080 while SEARXNG_URL pointed at the nxtbeast backend over
+// Tailscale — search-grounded seats were querying a dead tunnel while a live backend sat
+// unused. Honoring the env var is the same rail searxng_preflight already runs on.)
+const SEARXNG_URL = `${(process.env.SEARXNG_URL || 'http://localhost:8080').replace(/\/+$/, '')}/search`;
 
 // cloud first, then local. Cloud key: antigravity uses OLLAMA_API_KEY; this env also has OLLAMA_CLOUD_API_KEY.
 const PROVIDERS = [
