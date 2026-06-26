@@ -270,6 +270,23 @@ checks.git = checkGit();
 
 checks.gov = checkGovernance();
 
+// ---- PREFLIGHT (fire-readiness) ----
+const ollamaLocal = await checkOllamaLocal();
+const cloudCatalog = await fetchCloudModels();
+const pwsh = checkPwsh();
+const gitBin = checkGitBinary();
+const searxng = await checkSearxng();
+
+// per-seat model availability — the anti-404 check
+const { mode: activeMode, models: seatModels } = gatherSeatModels();
+const claudeOK = checks.claude.ok;
+const modelRows = seatModels.map((s) => ({ ...s, provider: resolveModelProvider(s.model, cloudCatalog.ids, ollamaLocal.names, claudeOK) }));
+const unresolved = modelRows.filter((r) => !r.provider);
+// If we could not fetch the cloud catalog, model resolution is UNRELIABLE (a real cloud model
+// would look unresolved) — flag that explicitly instead of a false 404 alarm.
+const catalogReliable = cloudCatalog.ok;
+const modelsOK = catalogReliable && unresolved.length === 0;
+
 // Render two-column PASS/FAIL board
 const board = [];
 const renderCheck = (label, obj, crit = false) => {
@@ -295,13 +312,61 @@ for (const g of checks.gov) renderCheck(`Governance ${path.basename(g.file)}`, {
 console.log('\n=== BOARD ===\n');
 for (const line of board) console.log(line);
 
+// ---- PREFLIGHT board (fire-readiness) ----
+const pf = [];
+const renderPf = (label, obj, crit = false) => {
+  const status = obj.ok ? 'PASS' : (crit ? 'FAIL' : 'WARN');
+  pf.push(`[${status}] ${label.padEnd(30)} ${obj.detail || ''}`);
+  return obj.ok;
+};
+renderPf('Ollama-local reachable', ollamaLocal);                 // WARN if down (cloud can still serve)
+renderPf('Cloud model catalog', cloudCatalog, true);            // FAIL: needed to validate seats won't 404
+renderPf('pwsh / witness shell', pwsh, pwsh.ok ? false : true); // WARN if only 5.1 (fallback active); FAIL if neither shell
+renderPf('Git binary', gitBin);
+renderPf('SearXNG (seat URL)', searxng, true);                   // FAIL: search-grounded seats fail-closed
+// model availability rows
+if (!catalogReliable) {
+  pf.push(`[WARN] ${'Seat model availability'.padEnd(30)} cloud catalog unavailable — cannot confirm models won't 404 (mode=${activeMode})`);
+} else if (unresolved.length === 0) {
+  pf.push(`[PASS] ${'Seat model availability'.padEnd(30)} all ${modelRows.length} seat models resolve (mode=${activeMode})`);
+} else {
+  pf.push(`[FAIL] ${'Seat model availability'.padEnd(30)} ${unresolved.length}/${modelRows.length} seat models 404 on ALL providers (mode=${activeMode})`);
+}
+for (const r of modelRows) {
+  const tag = r.provider ? `-> ${r.provider}` : '-> UNRESOLVED (404 on cloud+local+claude)';
+  pf.push(`        ${String(r.role).padEnd(16)} ${String(r.model).padEnd(22)} ${tag}`);
+}
+
+console.log('\n=== PREFLIGHT (fire-readiness) ===\n');
+for (const line of pf) console.log(line);
+
 // Compute conduct-critical gate: node OK AND (>=1 of {Ollama Cloud, Claude} reachable) AND governance present
 const nodeOK = checks.node.ok;
 const cloudOrClaudeOK = checks.cloud.ok || checks.claude.ok;
 const govOK = checks.gov.every((g) => g.present);
 
-const criticalPass = nodeOK && cloudOrClaudeOK && govOK;
+const conductPass = nodeOK && cloudOrClaudeOK && govOK;
 
-console.log(`\nRESULT: ${criticalPass ? 'PASS' : 'FAIL'} (conduct-critical: node=${nodeOK ? 'OK' : 'FAIL'}, cloud/claude=${cloudOrClaudeOK ? 'OK' : 'FAIL'}, governance=${govOK ? 'OK' : 'FAIL'})`);
+// Fire-readiness gate (ENGINE-READINESS, 2026-06-26): on top of conduct-critical, a mission
+// must not fire without a working witness shell, a usable search backend, and every active
+// seat model resolvable. Ollama-local / pwsh7 / git-sync are WARN-only (cloud serves, 5.1
+// fallback exists). OLLAMA_API_KEY is implied by cloudOrClaude + catalog.
+const witnessShellOK = pwsh.ok;            // true even on 5.1 fallback; false only if NO shell
+const searxngOK = searxng.ok;
+const firePass = conductPass && witnessShellOK && searxngOK && modelsOK;
 
-process.exit(criticalPass ? 0 : 1);
+console.log(`\nRESULT: ${firePass ? 'PASS' : 'FAIL'}`);
+console.log(`  conduct-critical: node=${nodeOK ? 'OK' : 'FAIL'}, cloud/claude=${cloudOrClaudeOK ? 'OK' : 'FAIL'}, governance=${govOK ? 'OK' : 'FAIL'}`);
+console.log(`  fire-readiness:   witness-shell=${witnessShellOK ? 'OK' : 'FAIL'}, searxng=${searxngOK ? 'OK' : 'FAIL'}, seat-models=${modelsOK ? 'OK' : (catalogReliable ? 'FAIL' : 'UNKNOWN')}`);
+if (!firePass) {
+  const reasons = [];
+  if (!nodeOK) reasons.push('node down');
+  if (!cloudOrClaudeOK) reasons.push('no cloud/claude provider');
+  if (!govOK) reasons.push('governance files missing');
+  if (!witnessShellOK) reasons.push('no PowerShell (code receipts cannot run)');
+  if (!searxngOK) reasons.push(`searxng unusable: ${searxng.detail}`);
+  if (!modelsOK) reasons.push(catalogReliable ? `seat models 404: ${unresolved.map((u) => u.model).join(', ')}` : 'cloud catalog unavailable (model check inconclusive)');
+  console.log(`  RED: ${reasons.join(' | ')}`);
+}
+
+process.exit(firePass ? 0 : 1);
