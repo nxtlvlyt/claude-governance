@@ -8,6 +8,13 @@ import { execSync } from 'child_process';
 import path from 'path';
 import { orchestrate } from './orchestrate.mjs';
 
+// Mark this process (and every child git commit it spawns) as an engine run, so the
+// repo's post-commit auto-push hook SKIPS per-step commits — the engine pushes ONCE
+// at the end (autoPushAfterMission). Without this guard a multi-step mission would
+// trigger one push per step. The post-commit hook handles all NON-engine commits
+// (conductor-direct, human, other CLIs); this handles engine missions.
+process.env.MUEZZIN_ENGINE_RUN = '1';
+
 // auto-push — runs in the ENGINE (below every CLI), so missions fired by agy,
 // hermes, Claude, the daemon, or a human all back up identically. A mission
 // commits locally; without this, the work strands on whatever machine ran it
