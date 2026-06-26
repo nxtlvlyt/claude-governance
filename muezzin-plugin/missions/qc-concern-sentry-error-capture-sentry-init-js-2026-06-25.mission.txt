@@ -4,6 +4,13 @@ REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
 TARGET-BRANCH: feat/qc-concern-sentry-error-capture-sentry-init-js-2026-06-25
 ALLOW-FILES:
   - js/*.js
+  - js/sentry-init.js
+  - catalog-ref.md
+  - sentry-init-orig.js
+  - mission-events.jsonl
+  - panel-architect-granite4.1_8b.raw.txt
+  - panel-architect-nemotron-3-super.raw.txt
+  - panel-architect-qwen3.5_9b.raw.txt
 
 Niyyah: address the QC CONCERN named "Sentry error capture (sentry-init.js)" from the 2026-06-25 walk.
 
