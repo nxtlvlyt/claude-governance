@@ -188,7 +188,7 @@ if (process.argv[1]?.endsWith('seat_modes.mjs') && process.argv.includes('--self
     ckT('local-heavy: NO architect is a Claude model (local+cloud ollama only)', s.architects.every((m) => !isClaude(m)));
     ckT('local-heavy: executor is NOT a Claude primary (the 4090 / cloud ollama)', !isClaude(s.executor));
     ckT('local-heavy: integrator + verdict + witness are all NON-Claude (≈zero Claude)', [s.integrator, s.validator, s.auditor, s.witness].every((m) => !isClaude(m)));
-    ckT('local-heavy: witness = qwen3.6:27b (LOCAL, no Opus pull)', s.witness === 'qwen3.6:27b');
+    ckT('local-heavy: witness = qwen3.5:9b (LOCAL, no Opus pull)', s.witness === 'qwen3.5:9b');
   }
 
   // 4. SAFE DEFAULT: unknown / absent mode -> null (consumers keep today's hardcoded seats).

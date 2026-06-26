@@ -1758,7 +1758,7 @@ if (process.argv[1]?.endsWith('orchestrate.mjs')) {
     // the machine's live route file, which legitimately carries a real mode).
     ck(await witnessModelUnder('__none__') === 'nemotron-3-super', 'SEATING MODE absent: witness = today-default nemotron-3-super (Opus-first via map — safe default)');
     ck(await witnessModelUnder('anthropic-heavy') === 'nemotron-3-super', 'SEATING MODE anthropic-heavy: witness stays strong (nemotron-3-super -> Opus)');
-    ck(await witnessModelUnder('local-heavy') === 'qwen3.6:27b', 'SEATING MODE local-heavy: witness is LOCAL (qwen3.6:27b — no Opus pull)');
+    ck(await witnessModelUnder('local-heavy') === 'qwen3.5:9b', 'SEATING MODE local-heavy: witness is LOCAL (qwen3.5:9b — no Opus pull)');
 
     // verdict panel seats: anthropic-heavy keeps them OPEN-weight (ollama CHECKS the Claude work);
     // no mode -> today's deepseek/minimax. (the exact rule defaultVerdictPhase applies.)

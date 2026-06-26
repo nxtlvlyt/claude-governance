@@ -35,6 +35,13 @@ const PROVIDERS = [
   { id: 'ollama-local', url: 'http://localhost:11434/v1/chat/completions', envKeys: [] },
 ];
 
+// LOCAL-ONLY MODELS (cloud-budget cut): models that exist ONLY on the local ollama —
+// ollama-cloud 404s on them, so the waterfall would burn all MAX_CLOUD_HEALS adaptive
+// heals on guaranteed-miss cloud attempts before the local fallback ever runs (granite4.1:8b
+// receipted 4 wasted cloud heals). These dispatch straight to ollama-local. Mirrors the
+// namedClaude cloud-skip rail: never re-dispatch a name to a provider that cannot serve it.
+const LOCAL_ONLY_MODELS = new Set(['granite4.1:8b']);
+
 class WaterfallError extends Error {
   constructor(kind, provider, model, msg) { super(msg); this.kind = kind; this.provider = provider; this.model = model; }
 }
@@ -555,6 +562,24 @@ export async function dispatchWithWaterfall(baseBody, { cwd } = {}) {
       return { ...out, provider: `claude-${preferModel}`, heals: 0 };
     } catch (e) {
       hb(`attempt-fail provider=claude-${preferModel} (preferred) ms=${Date.now() - tp} kind=${e.kind || e.name}: ${String(e.message).slice(0, 120)}`);
+    }
+  }
+  // -- LOCAL-ONLY SHORT-CIRCUIT: a local-only model (granite4.1:8b) skips the cloud waterfall
+  // entirely — ollama-cloud 404s on it, so every cloud heal is a guaranteed miss. Dispatch
+  // straight to ollama-local (PROVIDERS[1]) and surface a WaterfallError on failure rather
+  // than falling through to a cloud loop that cannot serve this model.
+  if (LOCAL_ONLY_MODELS.has(baseBody.model)) {
+    const localOnly = PROVIDERS[1];
+    hb(`attempt-start provider=${localOnly.id} model=${baseBody.model} (LOCAL-ONLY short-circuit — cloud skipped)`);
+    const tLo = Date.now();
+    try {
+      const out = await attemptProvider(localOnly, baseBody, Math.max(60000, Math.min(FETCH_TIMEOUT_MS, remaining())));
+      hb(`attempt-ok provider=${localOnly.id} model=${baseBody.model} (local-only) ms=${Date.now() - tLo} chars=${out.content.length}`);
+      return { ...out, provider: 'ollama-local', heals: 0 };
+    } catch (e) {
+      hb(`attempt-fail provider=${localOnly.id} model=${baseBody.model} (local-only) ms=${Date.now() - tLo} kind=${e.kind || e.name}: ${String(e.message).slice(0, 120)}`);
+      throw new WaterfallError(e.kind || 'LOCAL_ONLY_FAILED', 'ollama-local', baseBody.model,
+        `local-only model '${baseBody.model}' failed on ollama-local (cloud skipped — not a cloud model): ${String(e.message).slice(0, 160)}`);
     }
   }
   // -- cloud, with up to MAX_CLOUD_HEALS adaptive heal attempts
