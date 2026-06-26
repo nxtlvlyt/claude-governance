@@ -20,7 +20,7 @@
 //                     cloud models verify the Claude work (deepseek/minimax) + strong witness.
 //                     Diversity is the point: Sonnet executes, OPEN models verify.
 //   local-heavy     — ~zero Claude when usage is high: P1 architects = local+cloud ollama
-//                     (qwen3.6:27b / granite4.1:30b / nemotron-3-super), integrator =
+//                     (qwen3.6:27b / granite4.1:8b / nemotron-3-super), integrator =
 //                     ollama-cloud deepseek-v4-pro, executor = local kimi-coder/qwen,
 //                     verdict + witness = local/cloud ollama.
 //
@@ -78,12 +78,12 @@ const TABLE = {
     // ~ZERO CLAUDE: local + cloud ollama only. Architects = the 4090's locals + nemotron
     // super (cloud) as the breadth seat; all ollama names -> cloud-first, local fallback,
     // NEVER the Claude tier (no name here maps to a Claude model as PRIMARY).
-    architects: ['qwen3.6:27b', 'granite4.1:30b', 'nemotron-3-super'],
+    architects: ['qwen3.5:9b', 'granite4.1:8b', 'nemotron-3-super'],
     integrator: 'deepseek-v4-pro',                                 // ollama-cloud integrator
     executor: 'kimi-k2.7-code',                                    // local kimi-coder / qwen — the 4090 (cloud-first name, local fallback)
     validator: 'deepseek-v4-pro',                                  // ollama verdict
     auditor: 'minimax-m3',                                         // ollama verdict
-    witness: 'qwen3.6:27b',                                        // LOCAL witness (no Opus pull) — local-first floor
+    witness: 'qwen3.5:9b',                                        // LOCAL witness (no Opus pull) — local-first floor
   },
   'reasoning-heavy': {
     // HARDER-WORK PROFILE (operator design 2026-06-17). EXECUTOR CORRECTED glm-5.2 -> kimi-k2.7-code after the operator's

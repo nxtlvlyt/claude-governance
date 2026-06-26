@@ -36,7 +36,7 @@
 //                    verdict). Canon says "all verdicts correct".
 //                    correct_runs=7.
 //
-//   granite4.1:30b — 7 runs, "verdicts correct" per canon. Gap 6 = PARSE_ERROR
+//   granite4.1:8b — 7 runs, "verdicts correct" per canon. Gap 6 = PARSE_ERROR
 //                    but raw content was APPROVE (correct verdict).
 //                    correct_runs=7.
 //
@@ -208,8 +208,8 @@ export const registry = {
     ]
   },
 
-  "granite4.1:30b": {
-    id: "granite4.1:30b",
+  "granite4.1:8b": {
+    id: "granite4.1:8b",
     role: ["governance-audit"],
     qualifying_runs: 7,
     correct_runs: 7, // canon: "verdicts correct" — Gap 6 PARSE_ERROR raw content was APPROVE
