@@ -167,6 +167,9 @@ const CLAUDE_SEAT_MAP = {
   'nemotron-3-super': 'opus',
 };
 
+// Role-aware Claude fallback: some seats carry a heavy or light role duty that
+// overrides the generic model->fallback map. Boundary auditor is a fast check
+// (HAIKU); integrator handles final synthesis and needs Opus-level reasoning.
 function claudeFallbackFor(model, role) {
   if (role === 'boundary_auditor' && model === 'glm-5.1') return 'haiku';
   if (role === 'integrator' && model === 'nemotron-3-ultra') return 'opus';
@@ -733,6 +736,14 @@ if (process.argv[1]?.endsWith('seat_dispatch.mjs') && process.argv.includes('--s
   check('recognizeClaudeModel: ollama name (qwen3.6:27b) NOT recognized -> null', recognizeClaudeModel('qwen3.6:27b'), null);
   check('recognizeClaudeModel: empty -> null', recognizeClaudeModel(''), null);
 
+  // 7b. ROLE-AWARE FALLBACK: overrides the generic CLAUDE_SEAT_MAP for specific
+  // role/model pairs. boundary_auditor on glm-5.1 -> haiku; integrator on
+  // nemotron-3-ultra -> opus; everything else follows the generic map.
+  check('claudeFallbackFor: boundary_auditor + glm-5.1 -> haiku', claudeFallbackFor('glm-5.1', 'boundary_auditor'), 'haiku');
+  check('claudeFallbackFor: integrator + nemotron-3-ultra -> opus', claudeFallbackFor('nemotron-3-ultra', 'integrator'), 'opus');
+  check('claudeFallbackFor: no-role falls back to generic map (glm-5.1 -> sonnet)', claudeFallbackFor('glm-5.1', undefined), 'sonnet');
+  check('claudeFallbackFor: unmatched role still uses generic map', claudeFallbackFor('kimi-k2.6', 'boundary_auditor'), 'opus');
+
   // 8. CLAUDE-NAMED SEAT NEVER DISPATCHES TO OLLAMA (bug fix 2026-06-10: live heartbeat
   //    "attempt-fail provider=ollama-local ms=7: 404: model 'sonnet' not found"). A seat
   //    whose model is a Claude family name tries the Claude tier first; when THAT fails, the
@@ -781,14 +792,6 @@ if (process.argv[1]?.endsWith('seat_dispatch.mjs') && process.argv.includes('--s
                     || (outcome.kind === 'threw' && outcome.provider === 'claude');
     check(`claude-named seat terminates on Claude tier, never ollama (got ${outcome.kind}/${outcome.provider})`, okTerminal, true);
   })();
-
-  // 9. ROLE-AWARE CLAUDE FALLBACK: boundary_auditor on glm-5.1 -> haiku; integrator on
-  //    nemotron-3-ultra -> opus; an unmapped role keeps the base CLAUDE_SEAT_MAP entry;
-  //    an undefined role falls through to the base table without panic.
-  check('claudeFallbackFor boundary_auditor + glm-5.1 -> haiku', claudeFallbackFor('glm-5.1', 'boundary_auditor'), 'haiku');
-  check('claudeFallbackFor integrator + nemotron-3-ultra -> opus', claudeFallbackFor('nemotron-3-ultra', 'integrator'), 'opus');
-  check('claudeFallbackFor unmapped role keeps base map (qwen3-coder-next -> sonnet)', claudeFallbackFor('qwen3-coder-next', 'auditor'), 'sonnet');
-  check('claudeFallbackFor undefined role uses base map (kimi-k2.6 -> opus)', claudeFallbackFor('kimi-k2.6', undefined), 'opus');
 
   console.log(`[selftest] ${pass} passed, ${fail} failed`);
   process.exit(fail ? 1 : 0);
