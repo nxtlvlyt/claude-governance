@@ -8,10 +8,9 @@
 //   - verification seats emit a JSON verdict_contract, validated by the keystone's validateVerdictContract
 // This is the INPUT HALF of the keystone: it produces the verdicts that verdict_merge/keystone_flow consume.
 
-import { readFileSync, appendFileSync, mkdirSync, existsSync } from 'fs';
+import { readFileSync, appendFileSync, mkdirSync } from 'fs';
 import { execSync, execFile, execFileSync } from 'node:child_process';
 import { dirname, join } from 'node:path';
-import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { validateVerdictContract, VERDICTS } from './verdict_merge.mjs';
 import { dispatchAgy, agyAvailable, resolveAgyModel } from './agy_dispatch.mjs';
@@ -28,7 +27,7 @@ function hb(line) {
 const FAITH_DIR = 'C:/Users/marka/.agents/faiths';
 const FETCH_TIMEOUT_MS = 180000;
 const MAX_CLOUD_HEALS = 3;            // operator spec: 3 reattempts to fix the cloud failure before local
-const SEARXNG_URL = (process.env.SEARXNG_URL || 'http://nxtbeast:8080').replace(/\/+$/, '') + '/search';
+const SEARXNG_URL = 'http://localhost:8080/search';
 
 // cloud first, then local. Cloud key: antigravity uses OLLAMA_API_KEY; this env also has OLLAMA_CLOUD_API_KEY.
 const PROVIDERS = [
@@ -117,58 +116,6 @@ function readFileText(p) {
   try { return readFileSync(p, 'utf8').slice(0, 20000); } catch (e) { return `Error reading ${p}: ${e.message}`; }
 }
 
-// WINDOWS SHELL RESOLUTION (silent-ENOENT root fix, 2026-06-25 — substrate-proven below):
-// the prior `execFileSync('pwsh.exe', ...)` call assumed PowerShell 7 was installed. On a
-// machine where pwsh.exe is NOT in PATH (van laptop Hermes, this session), spawnSync throws
-// ENOENT — and the catch block captures e.stdout + e.stderr (both empty) but NOT e.message,
-// so every execReceipt returned `{ok:false, exit:1, out:""}`. Result: every code-repo mission
-// failed step 1 with an empty-error engine-exec-fail event, indistinguishable from a normal
-// command-fail. This is the ACTUAL root cause of today's spam-loop, NOT a CWD bug — the
-// orchestrate.mjs:759/883/889 callsites already pass `writeRoot` correctly (substrate-verified
-// via parseMissionClass + line-438 writeRoot definition). The fix:
-//   (1) Lazily resolve once which Windows PowerShell exe IS present — pwsh.exe (PS7)
-//       preferred (the `&&` chaining the architects emit is PS7-only), powershell.exe (5.1)
-//       as fallback (Get-ChildItem/Select-String/all common cmdlets work in BOTH editions).
-//   (2) If neither exists, surface a LOUD error in the receipt so it never looks like a
-//       silent command-fail again (failures must carry their cause, never empty stdout).
-//   (3) On a spawn ENOENT (e.code === 'ENOENT'), include e.message in `out` so the same
-//       class of failure is never silent for ANY future missing-shell shape.
-// Exported `resolveWindowsShell` so the selftest can lock the resolution contract without
-// mocking child_process. Memoized to once-per-process (the shell on disk does not appear
-// between calls).
-let _windowsShellCache;
-export function resolveWindowsShell({ env = process.env, exists = (p) => { try { return existsSync(p); } catch { return false; } }, probe = null, reset = false } = {}) {
-  if (reset) _windowsShellCache = undefined;
-  if (_windowsShellCache !== undefined) return _windowsShellCache;
-  if (process.platform !== 'win32') return (_windowsShellCache = null);
-  // PROBE shape: a function taking an exe name (or absolute path) and returning true if it
-  // can be spawned successfully. Default probe attempts a fast `-Command exit` so the shell
-  // either runs (present) or throws ENOENT (absent). Custom probe lets the selftest control.
-  const tryShell = probe || ((exe) => {
-    try { execFileSync(exe, ['-NoProfile', '-NonInteractive', '-Command', 'exit 0'], { stdio: 'ignore', timeout: 5000 }); return true; }
-    catch (e) { return e?.code === 'ENOENT' ? false : true; }   // ENOENT = exe missing; any other error means the exe RAN (and failed for an unrelated reason)
-  });
-  // 1) pwsh.exe in PATH (PS7 — the architect-emitted `&&` chaining works here, preserved behavior on machines with PS7 installed)
-  if (tryShell('pwsh.exe')) return (_windowsShellCache = 'pwsh.exe');
-  // 2) Known PS7 install locations (winget / msi default), in case PATH wasn't refreshed
-  const pf = env.ProgramFiles || 'C:\\Program Files';
-  const pfx = env['ProgramFiles(x86)'] || 'C:\\Program Files (x86)';
-  for (const guess of [path.join(pf, 'PowerShell', '7', 'pwsh.exe'), path.join(pfx, 'PowerShell', '7', 'pwsh.exe')]) {
-    if (exists(guess) && tryShell(guess)) return (_windowsShellCache = guess);
-  }
-  // 3) Windows PowerShell 5.1 fallback — built-in on every modern Windows. `Get-ChildItem`,
-  //    `Select-String`, `Get-Content`, redirection, and `;` chaining all behave the same;
-  //    the only material loss vs PS7 is `&&`/`||` pipeline-chain operators (parser error in
-  //    5.1). When 5.1 is the only shell, an architect-emitted `&&` will fail loudly with a
-  //    parser error in stderr — that is a captured, debuggable failure, NOT the silent
-  //    empty-error class this fix closes.
-  if (tryShell('powershell.exe')) return (_windowsShellCache = 'powershell.exe');
-  const sysRoot = env.SystemRoot || env.windir || 'C:\\Windows';
-  const ps51 = path.join(sysRoot, 'System32', 'WindowsPowerShell', 'v1.0', 'powershell.exe');
-  if (exists(ps51) && tryShell(ps51)) return (_windowsShellCache = ps51);
-  return (_windowsShellCache = null);   // NEITHER pwsh nor powershell available — execReceipt will surface this loudly per call
-}
-
 // the muezzin runs a verification command ITSELF and captures the receipt — the witness for a CODE claim
 // (node -c / bash -n / docker build / a test). ok=true ONLY on exit 0. This is the deed; the seat's word is not.
 export function execReceipt(cmd, cwd) {
@@ -178,10 +125,6 @@ export function execReceipt(cmd, cwd) {
   // exe-based commands (node/curl/findstr) and cmd-alias styles (type/dir) too. The command
   // rides an ARG ARRAY (execFileSync) — no string-interpolation quoting surface.
   //
-  // SHELL RESOLUTION (2026-06-25 root-cause fix, see resolveWindowsShell above): prefer pwsh
-  // (PS7, supports `&&`) but FALL BACK to powershell.exe (5.1) so a machine without PS7 does
-  // not silently fail every receipt. Resolved once per process and cached.
-  //
   // NON-INTERACTIVE ENV (2026-06-22): wrangler and other CLIs probe TTY/env for prompts;
   // without these, `wrangler pages deploy` and friends will hang asking about telemetry,
   // login, or color choices. CI=true is the universal "I am a robot, do not prompt" hint;
@@ -190,33 +133,13 @@ export function execReceipt(cmd, cwd) {
   // stdio[0]='ignore' attaches /dev/null to stdin — any prompt reads EOF and either errors
   // cleanly or defaults, instead of blocking until the 120s timeout.
   const childEnv = { ...process.env, CI: 'true', WRANGLER_SEND_METRICS: 'false', FORCE_COLOR: '0' };
-  if (process.platform === 'win32') {
-    const shell = resolveWindowsShell();
-    if (!shell) {
-      // NEITHER pwsh nor powershell available. Never silent — surface the cause in the
-      // receipt body so the operator/conductor can read the actual cause from missions/_logs.
-      return { type: 'exec', ref: cmd, ok: false, exit: 127, out: 'execReceipt: no PowerShell available (neither pwsh.exe nor powershell.exe found in PATH or known install locations). Install PowerShell 7 (winget install Microsoft.PowerShell) or ensure powershell.exe is in PATH.' };
-    }
-    try {
-      const out = execFileSync(shell, ['-NoProfile', '-NonInteractive', '-Command', cmd], { cwd, env: childEnv, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: 120000 });
-      return { type: 'exec', ref: cmd, ok: true, exit: 0, out: String(out).slice(0, 2000) };
-    } catch (e) {
-      // FAIL-LOUD: include e.message when stdout+stderr are empty (the ENOENT class that
-      // produced today's silent receipts). A spawn-level ENOENT, EACCES, or timeout has
-      // empty std streams but the message names the cause.
-      const stdParts = String(e.stdout || '') + String(e.stderr || '');
-      const body = stdParts.trim() ? stdParts : `execReceipt error: ${e.code || e.name || 'unknown'}: ${e.message || '(no message)'}`;
-      return { type: 'exec', ref: cmd, ok: false, exit: e.status ?? 1, out: body.slice(0, 2000) };
-    }
-  }
-  // POSIX path unchanged.
   try {
-    const out = execSync(cmd, { cwd, env: childEnv, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: 120000 });
+    const out = process.platform === 'win32'
+      ? execFileSync('pwsh.exe', ['-NoProfile', '-NonInteractive', '-Command', cmd], { cwd, env: childEnv, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: 120000 })  // pwsh (PS7) not powershell (5.1): seats chain with && — proven live
+      : execSync(cmd, { cwd, env: childEnv, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: 120000 });
     return { type: 'exec', ref: cmd, ok: true, exit: 0, out: String(out).slice(0, 2000) };
   } catch (e) {
-    const stdParts = String(e.stdout || '') + String(e.stderr || '');
-    const body = stdParts.trim() ? stdParts : `execReceipt error: ${e.code || e.name || 'unknown'}: ${e.message || '(no message)'}`;
-    return { type: 'exec', ref: cmd, ok: false, exit: e.status ?? 1, out: body.slice(0, 2000) };
+    return { type: 'exec', ref: cmd, ok: false, exit: e.status ?? 1, out: (String(e.stdout || '') + String(e.stderr || '')).slice(0, 2000) };
   }
 }
 
@@ -243,6 +166,13 @@ const CLAUDE_SEAT_MAP = {
   // standing_prefer lists nemotron-3-super) → nemotron-3-super (Ollama) → qwen3.6 local.
   'nemotron-3-super': 'opus',
 };
+
+function claudeFallbackFor(model, role) {
+  if (role === 'boundary_auditor' && model === 'glm-5.1') return 'haiku';
+  if (role === 'integrator' && model === 'nemotron-3-ultra') return 'opus';
+  return CLAUDE_SEAT_MAP[model];
+}
+
 const CLAUDE_TIMEOUT_MS = 8 * 60 * 1000;
 const AGY_TIMEOUT_MS = 8 * 60 * 1000;
 
@@ -567,7 +497,7 @@ async function attemptProvider(provider, body, timeoutMs) {
 // The whole waterfall now fits inside TOTAL_BUDGET_MS; each attempt gets the smaller of
 // its own timeout and what remains. Budget exhaustion throws into the normal heal path.
 const TOTAL_BUDGET_MS = 12 * 60 * 1000;
-export async function dispatchWithWaterfall(baseBody, { cwd } = {}) {
+export async function dispatchWithWaterfall(baseBody, { cwd, role } = {}) {
   let lastErr;
   const deadline = Date.now() + TOTAL_BUDGET_MS;
   const remaining = () => deadline - Date.now();
@@ -621,7 +551,7 @@ export async function dispatchWithWaterfall(baseBody, { cwd } = {}) {
         `claude-named seat '${namedClaude}' failed and has no ollama equivalent (Anthropic-only name) — not re-dispatching to ollama: ${String(e.message).slice(0, 160)}`);
     }
   }
-  const preferModel = (!namedClaude && routePrefersClaude(baseBody.model)) ? CLAUDE_SEAT_MAP[baseBody.model] : null;
+  const preferModel = (!namedClaude && routePrefersClaude(baseBody.model)) ? claudeFallbackFor(baseBody.model, role) : null;
   if (preferModel && remaining() > 30000) {
     preferTried = true;
     hb(`attempt-start provider=claude-${preferModel} (PREFERRED — route window) timeout=${Math.min(CLAUDE_TIMEOUT_MS, remaining())}ms`);
@@ -660,7 +590,7 @@ export async function dispatchWithWaterfall(baseBody, { cwd } = {}) {
   }
   // -- CLAUDE TIER (#29): mapped seats only, only when cloud failed, never when disabled,
   // and never re-tried when the preferred-route attempt already failed this dispatch.
-  const claudeModel = (process.env.MUEZZIN_CLAUDE_TIER === 'off' || preferTried) ? null : CLAUDE_SEAT_MAP[baseBody.model];
+  const claudeModel = (process.env.MUEZZIN_CLAUDE_TIER === 'off' || preferTried) ? null : claudeFallbackFor(baseBody.model, role);
   if (claudeModel && remaining() > 30000) {
     hb(`attempt-start provider=claude-${claudeModel} (claude tier for ${baseBody.model}) timeout=${Math.min(CLAUDE_TIMEOUT_MS, remaining())}ms`);
     const t2 = Date.now();
@@ -723,7 +653,7 @@ export async function dispatchSeat(seat, framing, { wantVerdict = true } = {}) {
   // there (2026-06-11: confirmed gap — executor set seat.cwd but this call dropped it, so
   // the claude executor ran toolless → "file_read unavailable" → empty emissions). Verdict/
   // witness seats have no cwd and stay tool-light, unchanged.
-  try { r = await dispatchWithWaterfall(body, { cwd: seat.cwd }); }
+  try { r = await dispatchWithWaterfall(body, { cwd: seat.cwd, role: seat.role }); }
   catch (e) {                                            // failed seat -> BLOCK (6/7-agent canon: absence is not APPROVE)
     return { seat: seat.role, verdict: 'BLOCK', findings: [{ id: 'DISPATCH', severity: 'high', description: e.message }], _failed: true };
   }
@@ -852,49 +782,13 @@ if (process.argv[1]?.endsWith('seat_dispatch.mjs') && process.argv.includes('--s
     check(`claude-named seat terminates on Claude tier, never ollama (got ${outcome.kind}/${outcome.provider})`, okTerminal, true);
   })();
 
-  // 9. WINDOWS SHELL RESOLUTION (2026-06-25 silent-ENOENT root fix): the prior code spawned
-  //    `pwsh.exe` unconditionally. On a machine without PowerShell 7 installed, every
-  //    execReceipt failed with `{ok:false, exit:1, out:""}` (ENOENT stdout/stderr are empty)
-  //    — indistinguishable from a normal command-fail. The fix: lazily resolve which shell
-  //    is present (pwsh.exe preferred, powershell.exe fallback), and surface a loud failure
-  //    when neither exists. These tests inject probes/existence so they pass on any host.
-  await (async () => {
-    // (a) pwsh present -> chosen, even if powershell is also present.
-    const pickPwsh = resolveWindowsShell({ exists: () => true, probe: (exe) => exe === 'pwsh.exe' || exe.endsWith('pwsh.exe') || exe === 'powershell.exe', reset: true });
-    if (process.platform === 'win32') check('resolveWindowsShell: pwsh.exe present -> chosen', pickPwsh, 'pwsh.exe');
-    else check('resolveWindowsShell: non-Windows -> null (no shell to resolve)', pickPwsh, null);
-    // (b) pwsh missing but powershell.exe present -> fall back to 5.1.
-    const pickPosh = resolveWindowsShell({ exists: () => true, probe: (exe) => exe === 'powershell.exe', reset: true });
-    if (process.platform === 'win32') check('resolveWindowsShell: pwsh missing, powershell.exe present -> falls back to powershell.exe', pickPosh, 'powershell.exe');
-    else check('resolveWindowsShell: non-Windows fallback path -> null', pickPosh, null);
-    // (c) neither shell present -> null (execReceipt surfaces a LOUD error from this).
-    const pickNone = resolveWindowsShell({ exists: () => false, probe: () => false, reset: true });
-    if (process.platform === 'win32') check('resolveWindowsShell: neither shell present -> null (execReceipt fails loud, not silent)', pickNone, null);
-    else check('resolveWindowsShell: non-Windows null path', pickNone, null);
-    // (d) MEMOIZATION: a second call without reset returns the cached value (probe never re-runs).
-    let probeCalls = 0;
-    resolveWindowsShell({ exists: () => true, probe: () => { probeCalls++; return true; }, reset: true });
-    resolveWindowsShell({ exists: () => true, probe: () => { probeCalls++; return true; } });   // no reset -> cached
-    if (process.platform === 'win32') check('resolveWindowsShell: memoized across calls (probe runs once per process)', probeCalls, 1);
-    else check('resolveWindowsShell: non-Windows memoization no-op', probeCalls, 0);
-    // RESTORE: a real probe so the post-selftest world resolves to the real shell.
-    resolveWindowsShell({ reset: true });
-  })();
-
-  // 10. EXECRECEIPT FAILURE-LOUDNESS REGRESSION (2026-06-25): a spawn-level ENOENT or a
-  //     missing-shell failure must NOT return an empty `out` body. Today's silent failures
-  //     all looked like `{ok:false, exit:1, out:""}` — visually identical to a real
-  //     command-fail. After the fix, the receipt body NAMES the cause.
-  if (process.platform === 'win32') {
-    // The integration check: on this host (whether pwsh exists or not), execReceipt of a
-    // PATENTLY INVALID command must produce a non-empty `out`. We use a command that
-    // PowerShell will reject (a non-existent cmdlet) so the receipt carries either the
-    // captured stderr (when a shell ran) or the spawn-error message (when no shell exists).
-    const r = execReceipt('Get-NoSuchCmdletXyz-2026', process.cwd());
-    check('execReceipt: a failing receipt carries a NON-EMPTY out (loud, never silent)', r.ok === false && String(r.out || '').trim().length > 0, true);
-  } else {
-    check('execReceipt: non-Windows loudness check (skipped)', true, true);
-  }
+  // 9. ROLE-AWARE CLAUDE FALLBACK: boundary_auditor on glm-5.1 -> haiku; integrator on
+  //    nemotron-3-ultra -> opus; an unmapped role keeps the base CLAUDE_SEAT_MAP entry;
+  //    an undefined role falls through to the base table without panic.
+  check('claudeFallbackFor boundary_auditor + glm-5.1 -> haiku', claudeFallbackFor('glm-5.1', 'boundary_auditor'), 'haiku');
+  check('claudeFallbackFor integrator + nemotron-3-ultra -> opus', claudeFallbackFor('nemotron-3-ultra', 'integrator'), 'opus');
+  check('claudeFallbackFor unmapped role keeps base map (qwen3-coder-next -> sonnet)', claudeFallbackFor('qwen3-coder-next', 'auditor'), 'sonnet');
+  check('claudeFallbackFor undefined role uses base map (kimi-k2.6 -> opus)', claudeFallbackFor('kimi-k2.6', undefined), 'opus');
 
   console.log(`[selftest] ${pass} passed, ${fail} failed`);
   process.exit(fail ? 1 : 0);
