@@ -123,6 +123,53 @@ function readFileText(p) {
   try { return readFileSync(p, 'utf8').slice(0, 20000); } catch (e) { return `Error reading ${p}: ${e.message}`; }
 }
 
+// WITNESS-SHELL RESOLUTION (2026-06-26, ENGINE-READINESS): execReceipt hard-coded
+// 'pwsh.exe' (PowerShell 7). PS7 was chosen because architects write PS-flavored
+// validation commands (Get-ChildItem etc.) AND because seats chain steps with the
+// `&&` / `||` pipeline operators, which Windows PowerShell 5.1 ('powershell.exe')
+// does NOT support (parser error: "'&&' is not a valid statement separator"). But
+// pwsh.exe is NOT guaranteed installed — a stock Windows ships only 5.1. When pwsh
+// was absent, execFileSync('pwsh.exe', …) threw ENOENT on EVERY validation_command,
+// so NO code receipt could ever be verified and every code mission failed. Fix:
+// resolve the witness shell ONCE (cached), preferring pwsh.exe; fall back to
+// powershell.exe (5.1). On the 5.1 fallback, translate the unsupported `&&`/`||`
+// chain operators into a $?-guarded sequence (translateChainForPS5) so chained
+// validation commands keep their short-circuit-on-failure semantics.
+let _witnessShell = null;   // { exe, isPwsh } — resolved on first execReceipt call, then cached
+function resolveWitnessShell() {
+  if (_witnessShell) return _witnessShell;
+  try {
+    // fast no-op probe: pwsh exits 0 immediately. stdio ignored; bounded so a wedged
+    // shell can't hang the first dispatch.
+    execFileSync('pwsh.exe', ['-NoProfile', '-NonInteractive', '-Command', '$null'], { stdio: 'ignore', timeout: 15000 });
+    _witnessShell = { exe: 'pwsh.exe', isPwsh: true };
+  } catch {
+    _witnessShell = { exe: 'powershell.exe', isPwsh: false };   // PS7 missing -> Windows PowerShell 5.1
+  }
+  return _witnessShell;
+}
+
+// Translate PS7 `&&`/`||` chain operators for Windows PowerShell 5.1, which lacks them.
+// Builds a RIGHT-NESTED $?-guarded sequence so BOTH short-circuit AND exit-code
+// propagation are preserved (verified live: a skipped branch leaves the prior command's
+// non-zero exit as the process exit, so ok=true still means "every step ran and passed").
+// A FLAT if-chain would be wrong — a not-taken `if` resets $? to $true. This nesting is
+// exact for pure-`&&` or pure-`||` chains (the seat-validation pattern); a mixed `&& ||`
+// command follows the nesting rather than shell left-associativity (rare, and pwsh — the
+// primary path — handles it natively). A literal `&&` inside a quoted string is not
+// special-cased (validation commands are simple chains); pwsh covers that case too.
+export function translateChainForPS5(cmd) {
+  const tokens = String(cmd).split(/\s+(&&|\|\|)\s+/);   // [cmd, op, cmd, op, cmd, ...]
+  if (tokens.length === 1) return cmd;                   // no chain operators — pass through
+  const build = (i) => {
+    const part = tokens[i];
+    if (i + 1 >= tokens.length) return part;             // last command, no trailing operator
+    const guard = tokens[i + 1] === '&&' ? '$?' : '-not $?';
+    return `${part}; if (${guard}) { ${build(i + 2)} }`;
+  };
+  return build(0);
+}
+
 // the muezzin runs a verification command ITSELF and captures the receipt — the witness for a CODE claim
 // (node -c / bash -n / docker build / a test). ok=true ONLY on exit 0. This is the deed; the seat's word is not.
 export function execReceipt(cmd, cwd) {
@@ -141,9 +188,16 @@ export function execReceipt(cmd, cwd) {
   // cleanly or defaults, instead of blocking until the 120s timeout.
   const childEnv = { ...process.env, CI: 'true', WRANGLER_SEND_METRICS: 'false', FORCE_COLOR: '0' };
   try {
-    const out = process.platform === 'win32'
-      ? execFileSync('pwsh.exe', ['-NoProfile', '-NonInteractive', '-Command', cmd], { cwd, env: childEnv, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: 120000 })  // pwsh (PS7) not powershell (5.1): seats chain with && — proven live
-      : execSync(cmd, { cwd, env: childEnv, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: 120000 });
+    let out;
+    if (process.platform === 'win32') {
+      const shell = resolveWitnessShell();   // pwsh.exe if present, else powershell.exe (5.1) — cached
+      // On the 5.1 fallback only, rewrite `&&`/`||` (which 5.1 cannot parse) into a
+      // $?-guarded sequence. pwsh runs the command verbatim (it supports the operators).
+      const runCmd = shell.isPwsh ? cmd : translateChainForPS5(cmd);
+      out = execFileSync(shell.exe, ['-NoProfile', '-NonInteractive', '-Command', runCmd], { cwd, env: childEnv, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: 120000 });
+    } else {
+      out = execSync(cmd, { cwd, env: childEnv, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: 120000 });
+    }
     return { type: 'exec', ref: cmd, ok: true, exit: 0, out: String(out).slice(0, 2000) };
   } catch (e) {
     return { type: 'exec', ref: cmd, ok: false, exit: e.status ?? 1, out: (String(e.stdout || '') + String(e.stderr || '')).slice(0, 2000) };
@@ -799,6 +853,15 @@ if (process.argv[1]?.endsWith('seat_dispatch.mjs') && process.argv.includes('--s
                     || (outcome.kind === 'threw' && outcome.provider === 'claude');
     check(`claude-named seat terminates on Claude tier, never ollama (got ${outcome.kind}/${outcome.provider})`, okTerminal, true);
   })();
+
+  // 9. PS5.1 CHAIN TRANSLATION (2026-06-26, ENGINE-READINESS): when the witness shell
+  //    falls back to Windows PowerShell 5.1, `&&`/`||` (unparseable in 5.1) become a
+  //    RIGHT-NESTED $?-guarded sequence preserving short-circuit + exit propagation.
+  check('translateChainForPS5: no operator -> unchanged', translateChainForPS5('node -c x.mjs'), 'node -c x.mjs');
+  check('translateChainForPS5: single && -> guarded', translateChainForPS5('a && b'), 'a; if ($?) { b }');
+  check('translateChainForPS5: triple && -> right-nested (NOT flat — a not-taken if resets $?)',
+    translateChainForPS5('a && b && c'), 'a; if ($?) { b; if ($?) { c } }');
+  check('translateChainForPS5: || -> negated guard', translateChainForPS5('a || b'), 'a; if (-not $?) { b }');
 
   console.log(`[selftest] ${pass} passed, ${fail} failed`);
   process.exit(fail ? 1 : 0);
