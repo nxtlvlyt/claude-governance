@@ -14,7 +14,8 @@
 // repair-trigger (like citation_guard) is a later, evidence-backed step.
 
 const GUARDIAN_MODEL = 'granite4.1-guardian:8b';
-const OLLAMA_URL = 'http://localhost:11434/api/chat';
+// OPERATOR RULING 2026-06-26: local guardian model runs on nxtbeast, not the laptop.
+const OLLAMA_URL = 'http://nxtbeast:11434/api/chat';
 
 export const GUARDIAN_SYSTEM =
   'You are a groundedness checker. Given CONTEXT (the only sources available) and a ' +

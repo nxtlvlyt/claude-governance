@@ -16,7 +16,8 @@ import { searxngPreflight } from './searxng_preflight.mjs';
 
 const ENV_KEYS = ['OLLAMA_API_KEY', 'OLLAMA_CLOUD_API_KEY', 'GOOGLE_PLACES_API_KEY', 'AIMLAPI_KEY'];
 const OLLAMA_CLOUD_BASE = 'https://ollama.com/v1';
-const OLLAMA_LOCAL_TAGS = 'http://localhost:11434/api/tags';
+// OPERATOR RULING 2026-06-26: local models live on nxtbeast only, never the laptop.
+const OLLAMA_LOCAL_TAGS = 'http://nxtbeast:11434/api/tags';
 const CLOUD_TIMEOUT_MS = 10000;
 const GOV_FILES = ['~/.claude/practice/core.md', '~/.claude/CANON-MANIFEST.md'];
 // SearXNG endpoints: SEAT_SEARXNG mirrors seat_dispatch.mjs's resolution EXACTLY (SEARXNG_URL

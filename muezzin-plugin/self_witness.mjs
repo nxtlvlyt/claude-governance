@@ -39,7 +39,9 @@ import { fileURLToPath } from 'node:url';
 import { checkGroundedness, guardianDispatch, GUARDIAN_SYSTEM } from './guardian_guard.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const OLLAMA_BASE = 'http://localhost:11434';
+// OPERATOR RULING 2026-06-26: the local GPU (4090) is on nxtbeast, not the laptop —
+// the GR10 VRAM/concurrency witness must probe where the models actually run.
+const OLLAMA_BASE = 'http://nxtbeast:11434';
 const LAGUNA_MODEL = 'laguna-xs.2:q4_K_M';   // 33B structural reviewer (spec: structural witness)
 const SELF_WITNESS_LOG = join(HERE, 'missions', '_logs', 'self-witness.jsonl');
 

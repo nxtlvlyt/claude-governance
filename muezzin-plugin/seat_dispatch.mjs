@@ -38,7 +38,11 @@ const SEARXNG_URL = `${(process.env.SEARXNG_URL || 'http://localhost:8080').repl
 // cloud first, then local. Cloud key: antigravity uses OLLAMA_API_KEY; this env also has OLLAMA_CLOUD_API_KEY.
 const PROVIDERS = [
   { id: 'ollama-cloud', url: 'https://ollama.com/v1/chat/completions', envKeys: ['OLLAMA_API_KEY', 'OLLAMA_CLOUD_API_KEY'] },
-  { id: 'ollama-local', url: 'http://localhost:11434/v1/chat/completions', envKeys: [] },
+  // OPERATOR RULING 2026-06-26: NO local models on the laptop — all local-Ollama
+  // traffic targets nxtbeast over Tailscale (the home 4090). localhost is dead in
+  // van season; a fallback to it would fail-closed. Matches the vision fallback's
+  // nxtbeast:11434 and the SEARXNG_URL → nxtbeast convention.
+  { id: 'ollama-local', url: 'http://nxtbeast:11434/v1/chat/completions', envKeys: [] },
 ];
 
 // LOCAL-ONLY MODELS (cloud-budget cut): models that exist ONLY on the local ollama —
@@ -235,6 +239,13 @@ const CLAUDE_SEAT_MAP = {
 };
 const CLAUDE_TIMEOUT_MS = 8 * 60 * 1000;
 const AGY_TIMEOUT_MS = 8 * 60 * 1000;
+
+// OPERATOR RULING 2026-06-26: this conductor NEVER runs Claude models. Claude is OFF
+// by default and only enabled by an explicit MUEZZIN_CLAUDE_TIER=on opt-in (e.g. the
+// nxtbeast dual-budget context, operator ruling 2026-06-10). This INVERTS the prior
+// default (Claude on unless ...=off): the laptop/agy conductor is Claude-free unless
+// someone deliberately turns it on. All three Claude entry points below gate on this.
+const CLAUDE_TIER_ENABLED = process.env.MUEZZIN_CLAUDE_TIER === 'on';
 
 // AGY LANE (2026-06-23, lock pending in MUEZZIN-SEAT-PLAN-LOCKED.md "Pending revision"):
 // When env USE_AGY_EXECUTOR=true OR route file declares prefer:"agy", the dispatch tries
@@ -587,7 +598,7 @@ export async function dispatchWithWaterfall(baseBody, { cwd } = {}) {
   // name (opus/sonnet/haiku/claude-*, from seat_modes anthropic-heavy) dispatches Claude-FIRST.
   // Honors the kill switch (MUEZZIN_CLAUDE_TIER=off -> skip, fall straight to the waterfall, so
   // a Claude-named seat still runs on cloud/local if Claude is disabled — never a hard-fail).
-  const namedClaude = (process.env.MUEZZIN_CLAUDE_TIER === 'off') ? null : recognizeClaudeModel(baseBody.model);
+  const namedClaude = !CLAUDE_TIER_ENABLED ? null : recognizeClaudeModel(baseBody.model);
   if (namedClaude && remaining() > 30000) {
     preferTried = true;   // suppress the post-cloud claude tier (no double-charge on a failed named-claude attempt)
     hb(`attempt-start provider=claude-${namedClaude} (NAMED claude seat — seating mode) timeout=${Math.min(CLAUDE_TIMEOUT_MS, remaining())}ms`);
@@ -611,7 +622,7 @@ export async function dispatchWithWaterfall(baseBody, { cwd } = {}) {
         `claude-named seat '${namedClaude}' failed and has no ollama equivalent (Anthropic-only name) — not re-dispatching to ollama: ${String(e.message).slice(0, 160)}`);
     }
   }
-  const preferModel = (!namedClaude && routePrefersClaude(baseBody.model)) ? CLAUDE_SEAT_MAP[baseBody.model] : null;
+  const preferModel = (CLAUDE_TIER_ENABLED && !namedClaude && routePrefersClaude(baseBody.model)) ? CLAUDE_SEAT_MAP[baseBody.model] : null;
   if (preferModel && remaining() > 30000) {
     preferTried = true;
     hb(`attempt-start provider=claude-${preferModel} (PREFERRED — route window) timeout=${Math.min(CLAUDE_TIMEOUT_MS, remaining())}ms`);
@@ -668,7 +679,7 @@ export async function dispatchWithWaterfall(baseBody, { cwd } = {}) {
   }
   // -- CLAUDE TIER (#29): mapped seats only, only when cloud failed, never when disabled,
   // and never re-tried when the preferred-route attempt already failed this dispatch.
-  const claudeModel = (process.env.MUEZZIN_CLAUDE_TIER === 'off' || preferTried) ? null : CLAUDE_SEAT_MAP[baseBody.model];
+  const claudeModel = (!CLAUDE_TIER_ENABLED || preferTried) ? null : CLAUDE_SEAT_MAP[baseBody.model];
   if (claudeModel && remaining() > 30000) {
     hb(`attempt-start provider=claude-${claudeModel} (claude tier for ${baseBody.model}) timeout=${Math.min(CLAUDE_TIMEOUT_MS, remaining())}ms`);
     const t2 = Date.now();
@@ -826,7 +837,7 @@ if (process.argv[1]?.endsWith('seat_dispatch.mjs') && process.argv.includes('--s
       // record any model name sent to an ollama provider endpoint
       try {
         const u = String(url);
-        if (u.includes('ollama.com') || u.includes('localhost:11434')) {
+        if (u.includes('ollama.com') || u.includes(':11434')) {   // :11434 = any ollama-local host (nxtbeast or localhost)
           const parsed = JSON.parse(opts?.body || '{}');
           ollamaModelsSeen.push(parsed.model);
         }
