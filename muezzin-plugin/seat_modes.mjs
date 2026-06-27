@@ -83,7 +83,7 @@ const TABLE = {
     executor: 'kimi-k2.7-code',                                    // local kimi-coder / qwen — the 4090 (cloud-first name, local fallback)
     validator: 'deepseek-v4-pro',                                  // ollama verdict
     auditor: 'minimax-m3',                                         // ollama verdict
-    witness: 'qwen3.5:9b',                                        // LOCAL witness (no Opus pull) — local-first floor
+    witness: 'laguna-xs.2:q4_K_M',                                // OPERATOR 2026-06-26: laguna IS the structural witness (self_witness.mjs:43 "spec: structural witness"; rulings = code review/structural analysis). qwen3.5:9b was a drift. 33B structural reviewer, local on nxtbeast. The old "no Opus pull" rationale is moot — Claude tier is disabled this session, so there is no Opus to pull.
   },
   'reasoning-heavy': {
     // HARDER-WORK PROFILE (operator design 2026-06-17). EXECUTOR CORRECTED glm-5.2 -> kimi-k2.7-code after the operator's
