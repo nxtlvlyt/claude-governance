@@ -1,0 +1,32 @@
+MISSION engine-hajj-template-headless-and-visual-qc
+MISSION-CLASS: code-repo
+REPO-ROOT: C:/Users/marka/.claude/muezzin-plugin
+TARGET-BRANCH: main
+ALLOW-FILES:
+  - mission_split.mjs
+  - mission_lint.mjs
+REQUIRES: none
+
+Niyyah: This session proved "verified" must mean the live page actually renders — WebFetch
+and code-present checks repeatedly lied; only a headless-browser render caught the truth,
+and visual judgment caught a suppressed attribution control. The hajj template must carry
+that lesson so every future web/UI sub-mission is held to a render-verified Done-means.
+
+Maqsad: The hajj autosplit template (mission_split.mjs sub-mission builder) emits web/UI
+sub-missions whose Done-means REQUIRES a headless-browser render verification (the feature
+visibly renders/works on the served page), and recognizes a mission-level VISUAL-QC-REQUIRED
+signal that routes the sub-mission through the existing visual witness for SOTA visual QC.
+Done serves a chain that cannot mark UI work done without rendering it.
+
+Context (unbiased facts, absolute paths, no prescribed implementation):
+- mission_split.mjs currently has NO headless/render/visual references — sub-missions inherit
+  no render-verification Done-means.
+- Visual QC infra exists but is unintegrated: visual_witness.mjs (header notes it is PENDING
+  an operator-signed MUEZZIN-SEAT-PLAN-LOCKED.md addendum) + ollama_vision_verdict.mjs
+  (gemini-3-flash-preview cloud, gemma4:12b local fallback).
+- mission_lint.mjs is the shape gate (MIQAT-refuses missions lacking Done-means).
+
+Done means: (1) the sub-mission template emits a headless-render Done-means clause for web/UI
+work; (2) a VISUAL-QC-REQUIRED mission header is parsed and honored; (3) mission_lint validates
+the new flag. Verify by splitting a sample web mission and confirming the sub-missions carry the
+render Done-means and the flag is honored.
