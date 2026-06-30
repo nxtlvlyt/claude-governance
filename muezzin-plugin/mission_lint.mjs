@@ -82,16 +82,29 @@ export function lintMission(text) {
     }
   }
 
-  // RULE 7 — DEPLOY WITHOUT COMMIT (2026-06-30 receipt): muddytires' Cloudflare Pages project
-  // has no git linkage ("Git Provider: No") — `wrangler pages deploy` / `wrangler deploy`
-  // ships whatever is on disk straight to production, independent of git entirely. This
-  // already happened: MT_ATTRIB_FIX6 went live via a deploy run from a mission worktree that
-  // was later cleaned up, landing in ZERO branches anywhere — confirmed by searching every
-  // local + remote branch. A future mission can trivially repeat this (it is the OBVIOUS way
-  // to "ship the fix") and the chain's own seats never read STATE.md, so a note there cannot
-  // prevent a recurrence — only a mechanical refusal at the miqat can. A mission whose
-  // commands deploy via wrangler MUST also commit via git somewhere in the same mission, or
-  // it is refused here, cost zero, before it ever runs.
+  // RULE 7 — VISUAL-QC-REQUIRED WITHOUT RENDER-WITNESS (operator 2026-06-09): a mission
+  // declares VISUAL-QC-REQUIRED but the Done-means clause lacks headless-browser/Playwright/
+  // puppeteer/headless render/browser render verification language. Such a mission is
+  // unverifiable — a visual QC cannot be performed without evidence of a render verification.
+  const hasVisualQcHeader = /^.*VISUAL-QC-REQUIRED.*$/im.test(t);
+  const hasRenderWitness = /\b(headless\s*browser|playwright|puppeteer|headless\s*render|browser\s*render)\b/i.test(t);
+  const hasDoneMeans = /done\s*(means|=)|done-means/i.test(t);
+  if (hasVisualQcHeader && hasDoneMeans && !hasRenderWitness) {
+    add('visual-qc-without-render-done-means', 'mission declares VISUAL-QC-REQUIRED header but Done-means clause lacks headless-browser/Playwright/puppeteer/headless render/browser render verification language — visual QC cannot be verified without render evidence');
+  }
+
+  // RULE 8 — DEPLOY WITHOUT COMMIT (2026-06-30 receipt; RESTORED 2026-06-30 21:58Z after a
+  // live chain run accidentally deleted this rule + its tests while adding RULE 7 above,
+  // editing in place rather than appending — caught via git diff on the chain's own commit,
+  // not assumed). muddytires' Cloudflare Pages project has no git linkage ("Git Provider:
+  // No") — `wrangler pages deploy` / `wrangler deploy` ships whatever is on disk straight to
+  // production, independent of git entirely. This already happened: MT_ATTRIB_FIX6 went live
+  // via a deploy run from a mission worktree that was later cleaned up, landing in ZERO
+  // branches anywhere — confirmed by searching every local + remote branch. A future mission
+  // can trivially repeat this (it is the OBVIOUS way to "ship the fix") and the chain's own
+  // seats never read STATE.md, so a note there cannot prevent a recurrence — only a mechanical
+  // refusal at the miqat can. A mission whose commands deploy via wrangler MUST also commit
+  // via git somewhere in the same mission, or it is refused here, cost zero, before it runs.
   const deploysViaWrangler = /\bwrangler\s+(pages\s+)?deploy\b/i.test(t);
   const commitsViaGit = /\bgit\s+commit\b/i.test(t);
   if (deploysViaWrangler && !commitsViaGit) {
@@ -159,25 +172,50 @@ if (process.argv[1] && process.argv[1].endsWith('mission_lint.mjs')) {
   const sa = lintMission(secretAllow);
   ck(!sa.ok && sa.problems.filter((p) => p.rule === 'code-repo-secret-target').length >= 2, 'code-repo: secret/.git ALLOW-FILES entries FLAGGED (code-repo-secret-target)');
 
-  // ---- RULE 7: DEPLOY WITHOUT COMMIT (2026-06-30, MT_ATTRIB_FIX6 receipt) ----
+  // RULE 7: visual-qc-without-render-done-means — VISUAL-QC-REQUIRED header but Done-means lacks render witness
+
+  // a mission with VISUAL-QC-REQUIRED header but no render witness in Done-means -> refused
+  const visualQcNoRender = 'MISSION: x\nVISUAL-QC-REQUIRED\nMaqsad: verify UI. Done means: UI rendered and matches snapshot.';
+  ck(!lintMission(visualQcNoRender).ok && lintMission(visualQcNoRender).problems.some((p) => p.rule === 'visual-qc-without-render-done-means'), 'RULE 7: VISUAL-QC-REQUIRED header without render witness in Done-means REFUSED');
+
+  // a mission with VISUAL-QC-REQUIRED header AND render witness language in Done-means -> passes
+  const visualQcWithRender = 'MISSION: x\nVISUAL-QC-REQUIRED\nMaqsad: verify UI. Done means: UI rendered via Playwright and matches snapshot.';
+  ck(lintMission(visualQcWithRender).ok, 'RULE 7: VISUAL-QC-REQUIRED header with Playwright render witness passes');
+
+  // a mission without VISUAL-QC-REQUIRED header should not trigger this rule even with render language
+  const noVisualQcHeader = 'MISSION: x\nMaqsad: verify UI via puppeteer. Done means: UI rendered via puppeteer and matches snapshot.';
+  ck(lintMission(noVisualQcHeader).ok, 'RULE 7: mission without VISUAL-QC-REQUIRED header passes even with render witness language');
+
+  // a mission with VISUAL-QC-REQUIRED header but no Done-means clause should NOT trigger this rule
+  // (because the rule only fires when both VISUAL-QC-REQUIRED is present AND Done-means exists).
+  // FIXED 2026-06-30: the original assertion checked .ok overall, which is ALWAYS false here
+  // regardless of RULE 7 (this mission also has no Done-means at all, so RULE 4 always fires
+  // independently) — checking .ok made the test fail unconditionally, masking whether RULE 7
+  // itself behaved correctly. Check for the ABSENCE of the specific rule instead.
+  const visualQcNoDoneMeans = 'MISSION: x\nVISUAL-QC-REQUIRED\nMaqsad: verify UI.';
+  ck(!lintMission(visualQcNoDoneMeans).problems.some((p) => p.rule === 'visual-qc-without-render-done-means'), 'RULE 7: VISUAL-QC-REQUIRED header without Done-means clause does not trigger visual-qc-without-render-done-means');
+
+  // ---- RULE 8: DEPLOY WITHOUT COMMIT (2026-06-30, MT_ATTRIB_FIX6 receipt; restored after a
+  // live chain run deleted it while adding RULE 7 above) ----
   // a wrangler pages deploy with no git commit anywhere -> refused.
   const deployNoCommit = 'MISSION-CLASS: ops-deploy\nMISSION-ID: X\nREPO-ROOT: C:\\proj\\x\nMaqsad: ship it. Done means: live.\n```pwsh\nwrangler pages deploy . --project-name=x\n```';
   const dnc = lintMission(deployNoCommit);
-  ck(!dnc.ok && dnc.problems.some((p) => p.rule === 'deploy-without-commit'), 'RULE 7: wrangler pages deploy with NO git commit anywhere REFUSED (the exact MT_ATTRIB_FIX6 failure shape)');
+  ck(!dnc.ok && dnc.problems.some((p) => p.rule === 'deploy-without-commit'), 'RULE 8: wrangler pages deploy with NO git commit anywhere REFUSED (the exact MT_ATTRIB_FIX6 failure shape)');
 
   // `wrangler deploy` (bare worker deploy, no "pages") with no commit -> also refused.
   const workerDeployNoCommit = 'MISSION-CLASS: ops-deploy\nMISSION-ID: X\nREPO-ROOT: C:\\proj\\x\nMaqsad: ship a worker. Done means: live.\n```pwsh\nwrangler deploy -c wrangler.toml\n```';
-  ck(!lintMission(workerDeployNoCommit).ok && lintMission(workerDeployNoCommit).problems.some((p) => p.rule === 'deploy-without-commit'), 'RULE 7: bare "wrangler deploy" (worker, no "pages") with no commit ALSO refused');
+  ck(!lintMission(workerDeployNoCommit).ok && lintMission(workerDeployNoCommit).problems.some((p) => p.rule === 'deploy-without-commit'), 'RULE 8: bare "wrangler deploy" (worker, no "pages") with no commit ALSO refused');
 
   // a deploy PAIRED with a git commit step -> passes (the fix this rule asks for).
   const deployWithCommit = 'MISSION-CLASS: ops-deploy\nMISSION-ID: X\nREPO-ROOT: C:\\proj\\x\nMaqsad: ship it. Done means: live.\n```pwsh\ngit add .\ngit commit -m "ship the fix" --no-verify\nwrangler pages deploy . --project-name=x\n```';
-  ck(lintMission(deployWithCommit).ok, 'RULE 7: wrangler deploy PAIRED with a git commit step passes — git and Cloudflare never diverge');
+  ck(lintMission(deployWithCommit).ok, 'RULE 8: wrangler deploy PAIRED with a git commit step passes — git and Cloudflare never diverge');
 
   // wrangler d1 execute (a DATA command, not a deploy) must NOT trip this rule even with
   // zero commits — it never bypasses git the way a pages/worker deploy does.
   const d1Mission = 'MISSION-CLASS: ops-deploy\nMISSION-ID: X\nREPO-ROOT: C:\\proj\\x\nMaqsad: load data. Done means: rows exist.\n```pwsh\nwrangler d1 execute mydb --remote --command "SELECT 1"\n```';
-  ck(lintMission(d1Mission).ok, 'RULE 7: "wrangler d1 execute" is a data command, never flagged as a deploy-without-commit');
+  ck(lintMission(d1Mission).ok, 'RULE 8: "wrangler d1 execute" is a data command, never flagged as a deploy-without-commit');
 
   console.log(`\n${fail ? fail + ' FAIL' : 'ALL PASS — mission miqat: flawed work orders refused at the boundary, zero cycles burned'}`);
   process.exit(fail ? 1 : 0);
 }
+
