@@ -1,6 +1,6 @@
 MISSION-CLASS: code-repo
 MISSION-ID: M-WEBSITE-SECGATE.1
-REPO-ROOT: E:\AI_Storage\website-pipeline
+REPO-ROOT: C:\Users\marka\code\CGSports
 ALLOW-FILES:
   - predeploy-security-scan.mjs
   - tests/predeploy-security-scan.test.mjs
