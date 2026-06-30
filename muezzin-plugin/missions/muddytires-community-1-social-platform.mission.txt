@@ -1,0 +1,107 @@
+MISSION-CLASS: build-program (product direction — scope then decompose; PHASE after the Cloudflare foundation)
+MISSION-ID: M-MUDDYTIRES.COMMUNITY.1
+REQUIRES: muddytires on Cloudflare (resilience-2: D1 + Workers + R2) as the foundation; user accounts/auth
+# OPERATOR IDEA 2026-06-16: evolve muddytires from a spots MAP into a vanlife COMMUNITY PLATFORM — users log in,
+# share spots, AND manage their social media from it: connect their socials, and muddytires auto-posts their
+# vanlife content to ALL their platforms for them. Verdict: NOT far-fetched — proven category + it FUSES the two
+# existing projects (the muddytires community IS the target audience for the operator's social-content pipeline).
+
+Niyyah: make muddytires the HOME BASE for vanlife couples/creators — not just where they find spots, but where they live online: community, their shared spots, and a built-in "create once, post everywhere" social engine. The audience we build the map for is exactly the audience for the social tool — that's the flywheel.
+
+Maqsad: a logged-in vanlifer can (a) be part of the community + share spots, (b) connect their social accounts once, and (c) have muddytires distribute their content (reels/photos/captions) to all their platforms on a schedule — the content PREP already exists (the operator's post-intake / editor pipeline); this adds the DISTRIBUTION + community layer.
+
+Context (grounded 2026-06-16 web search — sources in the conductor message):
+- Auto-posting is a MATURE category. UNIFIED posting APIs exist (Ayrshare, Post-for-me, Blotato, posteverywhere) — build on ONE of these rather than integrating 8 platforms. Platforms treat auto-posts identically to manual (no algorithm penalty).
+- THE GATE is app-review/approval per platform (Meta/Instagram/Facebook/Threads free but App-Review gated; TikTok sandbox audit; LinkedIn MDP partner approval; YouTube quota units). Some costs: X ~$0.20/post-with-URL; Reddit ~$12k/yr commercial (SKIP); Bluesky/Pinterest free rate-capped. Instagram Basic Display deprecated Dec 2024 — use the Graph/Content Publishing APIs (often business/creator accounts only).
+- FUSION: the operator ALREADY built the content-PREP half — the post-intake pipeline (muddytires.ca/post), social-seo-playbook (per-platform keyword/hook rules), the EDITOR-LADDER (proof-zoom / rebuilt-hook / management-plane), the vanlife-editor missions. THIS mission adds: community/auth front-end + the connect-and-distribute back-end. They are two halves of one product.
+- This answers the MONETIZATION question (resilience-2 strawman #5): FREE spots map + community; PAID "post to all your socials" creator tier (the niche social scheduler for vanlifers). Niche-vertical social tools are a proven SaaS.
+
+STRAWMAN STAGES (operator confirms):
+1. Accounts/auth + community profiles on Cloudflare (D1 users, Workers auth or Cloudflare Access).
+2. Connect-socials: OAuth per platform via a UNIFIED API (Ayrshare-class) → store tokens encrypted (Workers secrets / encrypted D1). Start with the free/easy platforms (Bluesky, Pinterest, YouTube), add Meta/TikTok as their app-reviews clear.
+3. Distribute: the editor pipeline's output (caption + reel + thumbnail per platform) → scheduled post via the unified API. Reuse social-seo-playbook for per-platform shaping.
+4. Community: shared spots feed, creator profiles, follow/connect (the "couples connect their socials" social graph).
+
+HONEST RISKS: app-review timelines (weeks, Meta/TikTok); secure social-token storage (security-sensitive); per-platform format quirks (partly solved by the playbook); this is a real SaaS product, sequenced AFTER the map is solid on Cloudflare. Don't bundle into resilience-2 — this is the phase on top of it.
+
+Amanah: the operator's biggest-leverage idea — the community + the social engine are what turn muddytires from a utility into a destination. Scope it fully before building; receipts per stage (a real post lands on a real connected account).
+
+# ── STAGE 0: CHEAPEST MVP TEST (operator + wife first, before ANY platform build) — operator ask 2026-06-16 ──
+# Goal = validate the CORE loop (one content piece → auto-posted everywhere) with 2 real users for ~$0-50/mo,
+# BEFORE building auth/community/Cloudflare. Lean-startup: prove the value, then build.
+# - DO NOT build the platform/auth/D1 for the test — that is for scale, not validation.
+# - REUSE the existing content-PREP (post-intake pipeline + social-seo-playbook + editor) — the expensive half is done.
+# - RENT the distribution: a UNIFIED posting API (Ayrshare / Post-for-me) — connect operator + wife socials once;
+#   it absorbs per-platform OAuth + much of the approval pain (don't build 8 integrations for a test).
+# - DODGE app-review: with only 2 users, run each platform app in DEVELOPER/SANDBOX mode (operator=dev, wife=test
+#   user) — no public App Review needed (that's the trick that makes 2-person testing free; public launch needs weeks).
+# - COST: free platforms first (YouTube/Pinterest/Bluesky/Meta-dev-mode); X ~$0.20/post; SKIP Reddit ($12k/yr).
+# - THE TEST (2 weeks): real vanlife content → [prep → unified API → all socials]. Measure ONLY: (a) time saved,
+#   (b) reach held. Pass → build the muddytires-branded version (Stages 1-4). Fail → learned for ~$0.
+# Confirm the specific unified-API free/starter tier + each platform's dev-mode posting rules at signup (changes fast).
+# CONCRETE (web-verified 2026-06-16): operator's REQUIRED platforms = Facebook, Instagram, TikTok, YouTube — all GATED
+# (NOT the free-easy ones), so self-built dev-mode is painful (TikTok audit, YouTube app-verification). CHEAPEST PATH =
+# rent an ALREADY-APPROVED unified API: **Post for Me — $10/mo, UNLIMITED connected accounts** (covers FB/IG/TikTok/YT +
+# X/LinkedIn/Threads/Pinterest/Bluesky). The provider already passed each platform's App Review → operator SKIPS all of it.
+# Connect BOTH operator + wife accounts (all 4 platforms each) to ONE workspace = $10/mo total, not per-platform/per-person.
+# Alts ~$19/mo: WoopSocial, PostEverywhere, Zernio. NOTE: IG/FB API posting requires Business/Creator accounts + a FB Page
+# (true for EVERY tool). COLLABORATION (operator + wife): for the TEST = share the one workspace (both connect + both post);
+# the RICHER collab (separate logins, shared drafts, approve-before-post, his/her content split) = custom layer built AFTER
+# the $10 test proves value. NET cheapest test ≈ $10/mo + existing content-prep, all 4 platforms, both users, this week.
+# ── UNIT ECONOMICS (operator asked "is it $10 per customer?" 2026-06-16) — RENT-TO-VALIDATE, BUILD-TO-SCALE ──
+# $10/mo is the TEST cost (operator+wife), NOT per-customer. At customer scale, two models:
+#  (A) Keep renting the unified API: the cheap $10 PERSONAL tier is NOT licensed for multi-tenant RESELL → must move to
+#      the provider's API/RESELLER tier, which scales ~per-account/per-post → cost GROWS per customer → eats margin. OK to
+#      start, bad at scale. CONFIRM each provider's reseller/multi-tenant terms before relying on it for paying users.
+#  (B) Build OWN integrations (do the Meta/TikTok/YouTube app-reviews once): platform APIs are mostly FREE (Meta/IG/TikTok/
+#      YT free; X ~$0.20/post passes through) + Cloudflare hosting = pennies/customer → per-customer marginal cost ≈ $0 →
+#      almost all of what you charge is MARGIN. Higher upfront (the app-review gauntlet + dev), near-zero variable cost.
+# DECISION: rent (A) for Stage-0 validation; once there are paying customers, build (B) to kill the per-customer fee.
+# Operator's CUSTOMER price (e.g. $15-30/mo creator tier) is separate from cost — after (B) it's nearly pure margin.
+# ── LOCKED DECISIONS (operator ratified 2026-06-16) ──
+# ACCESS MODEL: (1) COMMUNITY = OPEN — anyone signs up, posts SPOTS + REVIEWS. (2) SOCIAL-MEDIA MANAGEMENT = PRIVATE to
+#   operator + wife only (owner accounts) — NOT a customer/SaaS feature yet. So the unit-economics resale concern is
+#   deferred; the $10 Post-for-me test is just for the two of them. Auth must support: open community role + a restricted
+#   owner role that alone sees the social-posting tool.
+# SOCIAL-ASSIST ENGINE STATUS (verified 2026-06-16): the live /post tool (muddytires.ca/post/index.php) is DOWN on the
+#   static deploy (returns the map homepage, not the tool — it is dynamic, static Pages can't run it). NOT lost: the
+#   engine source (post-intake processor.mjs + the editor pipeline) is in github.com/nxtlvlyt/website-pipeline (backed up).
+#   It returns when wired into Cloudflare as the engine behind the operator+wife social tool. Capability dormant, not lost.
+# VIDEO TRANSCODE = BROWSER ffmpeg.wasm (CLIENT-SIDE), ratified: Cloudflare Workers CANNOT run ffmpeg (CPU/time limits),
+#   so server transcode would need a paid external service (Mux/Coconut/VM) — the most expensive compute in a video tool.
+#   ffmpeg.wasm runs the transcode in the USER's browser → ~$0 server compute + no external dependency + keeps the whole
+#   backend in the cheap Cloudflare stack (Workers+D1+R2). Trade-off: slower + device-limited (fine for short reels; not
+#   big 4K/long files). The editor's reformat/clip/caption-burn steps run client-side; server only stores the result in R2.
+# ── COMPUTE RESILIENCE (operator insight 2026-06-16: "it used my computer's resources — if my computer dies so do these
+#   features"). CORRECT. Code backup (website-pipeline on GitHub) ≠ the AI RUNNING. Today the social-assist AI runs on the
+#   operator's LOCAL machine (local Whisper, local VLM, local Flux thumbnails). To be truly resilient + run anywhere, the
+#   COMPUTE moves to cloud. VERIFIED Cloudflare Workers AI has every piece (some the SAME models):
+#     - Audio understanding  → Workers AI Whisper (whisper-large-v3-turbo)
+#     - Descriptions/captions→ Workers AI LLM (Llama/Qwen/Mistral) OR operator's Gemini (AI Ultra)
+#     - Vision analysis      → Workers AI vision (llama-3.2-vision / llava)
+#     - THUMBNAILS           → Workers AI **Flux-2-Klein** = literally the operator's existing thumbnail model (playbook-locked)
+#     - Video transcode      → browser ffmpeg.wasm (client-side, above)
+#   So the rebuilt social tool runs ENTIRELY on Cloudflare compute → operator's computer AND the NAS can both die, features
+#   keep running. TRADE-OFF: Workers AI = PAY-PER-USE (vs local = free electricity). Cents for operator+wife; for a future
+#   customer tier, price the per-inference cost in. NOTE: the dji_test editor (29G, C:-local, NO git remote) — code is one
+#   disk-failure from gone; back up the editor CODE to GitHub (exclude the 29G footage → R2/Drive separately).
+# ── COMPUTE COST LADDER (operator asked re: Vast/Salad 2026-06-16) — pick by VOLUME, switch as you grow ──
+# NOW (operator+wife, sporadic / low volume) = CHEAPEST:
+#   - Captions + vision → GEMINI via the operator's Google AI ULTRA (ALREADY PAID → ~$0 marginal). The single cheapest lever.
+#   - Whisper (audio) + Flux thumbnails → Cloudflare Workers AI per-inference (scales to ZERO, cents idle). Or local until resilience needed.
+#   - Video → browser ffmpeg.wasm ($0).
+# AT CUSTOMER SCALE (continuous load) = rent cheap GPU running OWN models: Vast.ai / Salad (cheapest $/GPU-hr, but you manage it +
+#   pay for idle) OR Modal/Runpod (SERVERLESS GPU, per-second, scale-to-zero = cheap GPU without idle waste — the middle ground).
+# RULE: per-inference / already-paid (Gemini-Ultra, Workers AI) for LOW/sporadic volume; rented-GPU (Vast/Salad/Modal) only when load
+#   is continuous enough to keep a GPU busy. Vast/Salad are a SCALE answer, NOT a 2-person answer. Verify live $/hr + per-inference rates at decision time.
+# ── REFERENCE IMPLEMENTATION (operator insight 2026-06-16: the website-pipeline IS the context/blueprint for these features) ──
+# The social features are a PORT, not a from-scratch build. The BUILD INSTANCE MUST READ these as the spec (do NOT re-derive —
+# this is the p0-corpus / "never re-solve what a past build solved" principle):
+#   - github.com/nxtlvlyt/website-pipeline  apps/post-intake/processor.mjs — the proven engine: Whisper transcription,
+#     visionDescribe, caption/description generation, composePackage (per-platform packaging), thumbnails, chunked upload.
+#   - apps/post-intake/playbook.md (social-SEO: keyword-over-hashtag, hook rules) + design-contract.md + EDITOR-LADDER.md.
+#   - dji_test editor handbooks (EDITOR_FRAMEWORK / UNIVERSAL_EDITOR_HANDBOOK / editor.faith / QC_LEDGER) + the Flux-2-Klein
+#     thumbnail recipe + proof-zoom/QC logic. [dji_test is C:-local, un-backed — see COMPUTE RESILIENCE note above.]
+# ~80% of the HOW (prompts, package composition, SEO, thumbnail recipe) is already solved + documented in these. The PORT
+# translates that proven logic onto the Cloudflare runtime (Workers + Workers AI + D1 + R2). Maturing the website-pipeline IS
+# the R&D that de-risks this build: pipeline = prototype, muddytires social tool = productized cloud-native version of it.

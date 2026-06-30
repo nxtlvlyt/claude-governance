@@ -1,0 +1,18 @@
+MISSION-ID: m28-1c-ioverlander-parts.S1
+PARENT: m28-1c-ioverlander-parts
+TARTIB-INDEX: 1 of 2
+REQUIRES: none (first in tartib order)
+STEPS: 7
+
+PARENT MAQSAD: (see parent mission)
+
+Maqsad: sub-mission 1 of 2 — Fetch iOverlander subscriptions and iOS App Store pages into local HTML, then analyze competitor profile using those and SearXNG searches for Android details.
+
+Steps:
+  1. Fetch iOverlander subscriptions page into local HTML for later citation [command] ioverlander-subscriptions.html
+  2. Fetch iOverlander iOS App Store page into local HTML for later citation [command] ios-app-store.html
+  3. Copy reference MUDDYTIRES-TASKS.md into sandbox for overlap analysis [command] MUDDYTIRES-TASKS.md
+  4. Create line-numbered MUDDYTIRES-TASKS.numbered.md with Lnn prefixes for precise citations [command] MUDDYTIRES-TASKS.numbered.md
+  5. Emit part-1-product.md: Section 1 What iOverlander is (platforms, pricing, business model), citing staged subscriptions/iOS App Store HTML files and using SearXNG search results for Android details [edit] part-1-product.md
+  6. Emit part-2-strengths.md: Section 2 What it does well, live-web-search grounded with URL cites [edit] part-2-strengths.md
+  7. Emit part-3-weaknesses.md: Section 3 Where it falls down, every weakness URL-cited or marked inference [edit] part-3-weaknesses.md

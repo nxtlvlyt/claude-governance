@@ -1,0 +1,25 @@
+{
+  "seats": {
+    "deepseek-v4-pro": {
+      "verdict": {
+        "pass": 8,
+        "miss": 0,
+        "fabrication": 1
+      }
+    },
+    "kimi-k2.7-code": {
+      "emission": {
+        "pass": 13,
+        "miss": 4,
+        "fabrication": 0
+      }
+    },
+    "minimax-m3": {
+      "verdict": {
+        "pass": 7,
+        "miss": 0,
+        "fabrication": 0
+      }
+    }
+  }
+}

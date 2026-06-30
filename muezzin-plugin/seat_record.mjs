@@ -73,21 +73,27 @@ export function findFabricatedAbsenceClaims(findings, cwd) {
 
 // BADAL SWITCH (dispatch-time consumption — "the record's worthless until something
 // consumes it at routing"). Ladder order respects the budget ruling (L4 seats last,
-// never for jobs the default can hold). Escalation fires ONLY when the default seat is
-// DISQUALIFIED on the rite (weighted ratio >= 0.5) AND a ladder candidate is
-// proxyEligible (has completed that rite itself). An untested candidate is never
-// promoted to proxy — if nobody qualifies, the default keeps the rite (visible in the
-// record; the conductor's beat can see a disqualified seat with no eligible proxy).
+// never for jobs the default can hold). Escalation fires when the default seat is
+// DISQUALIFIED on the rite (weighted ratio >= 0.5, OR untested-and-failing: 0 passes
+// and >=1 miss/fabrication) AND a ladder candidate is proxyEligible (has completed
+// that rite itself). An untested candidate is never promoted to proxy — if nobody
+// qualifies, the default keeps the rite (visible in the record; the conductor's beat
+// can see a disqualified seat with no eligible proxy).
 export const ESCALATION_LADDER = ['kimi-k2.7-code', 'kimi-k2.6', 'deepseek-v4-pro'];
 export function badalSelect(recordPath, rite, defaultModel) {
   const record = loadSeatRecord(recordPath);
   const own = proxyEligible(record, defaultModel, rite);
   const t = record?.seats?.[defaultModel]?.[rite];
-  const disqualified = t && !own.eligible && own.reason && /strike ratio/.test(own.reason);
+  const strikeRatioDisq = t && !own.eligible && own.reason && /strike ratio/.test(own.reason);
+  const untestedFailingDisq = t && (t.pass || 0) === 0 && ((t.miss || 0) + (t.fabrication || 0)) >= 1;
+  const disqualified = strikeRatioDisq || untestedFailingDisq;
   if (!disqualified) return { model: defaultModel, escalated: false };
   for (const cand of ESCALATION_LADDER) {
     if (cand === defaultModel) continue;
-    if (proxyEligible(record, cand, rite).eligible) return { model: cand, escalated: true, from: defaultModel, why: own.reason };
+    if (proxyEligible(record, cand, rite).eligible) {
+      const why = strikeRatioDisq ? own.reason : `untested-and-failing fast-revert (0 passes + recorded failure for '${rite}')`;
+      return { model: cand, escalated: true, from: defaultModel, why };
+    }
   }
   return { model: defaultModel, escalated: false, blocked: `default disqualified (${own.reason}) but NO eligible proxy on record — badal refused an untested substitute` };
 }
@@ -135,6 +141,11 @@ if (process.argv[1] && process.argv[1].endsWith('seat_record.mjs')) {
   recordSeatOutcome(rec2, 'kimi-k2.6', 'emission', 'pass');                  // kimi completes its own Hajj
   const esc = badalSelect(rec2, 'emission', 'qwen3-coder-next');
   ck(esc.escalated === true && esc.model === 'kimi-k2.6', 'badal: disqualified default + PROVEN proxy -> escalate to the proxy');
+
+  // fast-revert: an untested failing default (0 passes + any failure) auto-reverts
+  recordSeatOutcome(rec2, 'fresh-model', 'emission', 'miss');
+  const untestedFailing = badalSelect(rec2, 'emission', 'fresh-model');
+  ck(untestedFailing.escalated === true && untestedFailing.model === 'kimi-k2.6', 'badal: untested-and-failing default (0 passes + miss) -> escalate to first eligible proxy');
 
   rmSync(dir, { recursive: true, force: true });
   console.log(`\n${fail ? fail + ' FAIL' : 'ALL PASS — badal track record + absence-claim detector sound'}`);

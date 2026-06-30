@@ -34,7 +34,7 @@
 // the result of a live network call.
 
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, writeFileSync, rmSync, readdirSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
@@ -84,6 +84,19 @@ function verifyCode(targetPath, src) {
   // temp copy of `src`. The temp file keeps the artifact's real extension so module resolution
   // (.mjs vs .cjs vs .js) matches how the engine will load it.
   const probeDir = mkdtempSync(path.join(tmpdir(), 'rtv_'));
+
+  // Copy adjacent .mjs/.js/.json files to temp directory so relative imports resolve correctly
+  try {
+    const srcDir = path.dirname(targetPath);
+    const files = readdirSync(srcDir, { withFileTypes: true });
+    for (const f of files) {
+      if (f.isFile() && (f.name.endsWith('.mjs') || f.name.endsWith('.js') || f.name.endsWith('.json'))) {
+        if (f.name === path.basename(targetPath)) continue;
+        writeFileSync(path.join(probeDir, f.name), readFileSync(path.join(srcDir, f.name)));
+      }
+    }
+  } catch (e) { console.error('[RTV-COPY-ERROR]', e); }
+
   const ext = (path.extname(String(targetPath)) || '.mjs').toLowerCase();
   const artifactPath = path.join(probeDir, 'rtv_artifact' + ext);
   writeFileSync(artifactPath, src, 'utf8');

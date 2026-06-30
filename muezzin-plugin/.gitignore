@@ -20,3 +20,9 @@ missions/MISSION-STATUS.md
 # the ENTIRE _logs tree is daemon runtime: ledgers, queues, seat-record, retros,
 # daemon stdout/stderr, the status board, heartbeats, event streams. None is source.
 missions/_logs/
+
+# local untracked files and folders
+_checkpoint.json
+_prior-attempt/
+*.raw.txt
+mission-events.jsonl

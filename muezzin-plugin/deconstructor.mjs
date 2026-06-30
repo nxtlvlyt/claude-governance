@@ -7,7 +7,7 @@
 // Maqsad + niyyah. The validator is built and tested FIRST — the Architect's output is
 // only accepted if it passes this gate (deeds-not-claims applied to decomposition itself).
 
-import { dispatchSeat, recognizeClaudeModel } from './seat_dispatch.mjs';
+import { dispatchSeat, recognizeClaudeModel, escalateModel, TOOL_LOOP_CAP, getEscalationState, clearEscalationState } from './seat_dispatch.mjs';
 import { pickArchitects } from './seat_modes.mjs';
 export const SIZE_CEILING = 8; // hajj-autosplit ceiling: missions over this are auto-decomposed (per engine-hajj-autosplit-1.mission.txt)
 
@@ -207,14 +207,41 @@ const researchNoteFor = (research) => research
 // user message; on a validation failure it re-dispatches with the errors appended, up to
 // maxRepairs. diagDir/diagTag persist the raw seat output of each failed attempt. dispatchFn is
 // injectable (default dispatchSeat) so the panel is offline-testable without real dispatch.
-async function runQueueLoop(seat, baseFraming, { research = false, codeRepo = false, maxRepairs = 2, diagDir = null, diagTag = 'plan', dispatchFn = dispatchSeat } = {}) {
+async function runQueueLoop(seat, baseFraming, { research = false, codeRepo = false, maxRepairs = 2, diagDir = null, diagTag = 'plan', dispatchFn = dispatchSeat, escalationState = { tier: 0, reason: 'initial' } } = {}) {
   let framing = baseFraming;
   let lastErrors = ['no attempt made'];
+  let previousFailedStepIndices = new Set();
   for (let attempt = 0; attempt <= maxRepairs; attempt++) {
-    const r = await dispatchFn(seat, framing, { wantVerdict: false });
+    const escalationTier = escalationState.tier || 0;
+    let r;
+    try {
+      r = await dispatchFn(seat, framing, { wantVerdict: false, escalationTier });
+    } catch (e) {
+      if (e?.kind === TOOL_LOOP_CAP) {
+        escalationState.tier = (escalationState.tier || 0) + 1;
+        escalationState.reason = 'tool_loop_cap';
+        lastErrors = [`tool loop cap hit — escalating to tier ${escalationState.tier}`];
+        continue;
+      }
+      throw e;
+    }
     const queue = extractQueue(r?.content);
     const v = queue ? validateMicroQueue(queue, { research, codeRepo }) : { ok: false, errors: ['no valid JSON micro_queue in the seat output'] };
-    if (v.ok) return { ok: true, queue, attempts: attempt + 1, _model: seat.model, _provider: r?.provider };
+    if (v.ok) return { ok: true, queue, attempts: attempt + 1, _model: seat.model, _provider: r?.provider, escalationState };
+    // DOUBLE-VALIDATION-FAILURE trigger: a step_index that fails validation twice in a row escalates.
+    const currentFailedStepIndices = new Set();
+    for (const err of v.errors) {
+      const m = String(err).match(/\bstep (\d+):/);
+      if (m) currentFailedStepIndices.add(m[1]);
+    }
+    for (const idx of currentFailedStepIndices) {
+      if (previousFailedStepIndices.has(idx)) {
+        escalationState.tier = (escalationState.tier || 0) + 1;
+        escalationState.reason = 'double_validation_failure';
+        break;
+      }
+    }
+    previousFailedStepIndices = currentFailedStepIndices;
     // DIAGNOSIS RECEIPT: persist the raw seat output on every failed attempt — a failed
     // plan with discarded output forces guessing (found live: P0-CORPUS x2, undiagnosable).
     if (diagDir) {
@@ -228,14 +255,14 @@ async function runQueueLoop(seat, baseFraming, { research = false, codeRepo = fa
     lastErrors = v.errors;
     framing = `${baseFraming}\n\nYour previous micro_queue FAILED validation:\n- ${lastErrors.join('\n- ')}\nFix ALL of these and output a corrected micro_queue. REMINDER: every edit step MUST list exactly ONE cwd-relative target file in target_files — a judge/audit/research step targets the .md it produces.`;
   }
-  return { ok: false, errors: lastErrors, attempts: maxRepairs + 1 };
+  return { ok: false, errors: lastErrors, attempts: maxRepairs + 1, escalationState };
 }
 
 // deconstruct(mission, opts) -> { ok, queue?, errors?, attempts }. Dispatches the Architect, validates against
 // validateMicroQueue, and re-dispatches with the errors (repair loop) up to maxRepairs. Deeds-not-claims for decomposition.
 // PRESERVED AS THE FALLBACK + the panel's per-seat primitive (the blind panel's deconstructPanel
 // is the default planner in orchestrate; this single-architect path is what it falls back to).
-export async function deconstruct(mission, { model = 'kimi-k2.6', today = '2026-06-09', maxRepairs = 2, diagDir = null, dispatchFn = dispatchSeat } = {}) {
+export async function deconstruct(mission, { model = 'kimi-k2.6', today = '2026-06-09', maxRepairs = 2, diagDir = null, dispatchFn = dispatchSeat, escalationState = { tier: 0, reason: 'initial' } } = {}) {
   // max_tokens 32768: kimi reasons 40-70K chars (~10-18K tokens) before answering and
   // ignores think:false on v1 — 8192 starved content on attempt 1 every time (the
   // EMPTY_CONTENT_THINKING burn class; the heal's 16384 sometimes still clipped).
@@ -245,7 +272,7 @@ export async function deconstruct(mission, { model = 'kimi-k2.6', today = '2026-
   const research = isResearchMission(mission);
   const codeRepo = isCodeRepoMission(mission);
   const baseFraming = `${QUEUE_INSTRUCTION}${researchNoteFor(research)}${codeRepoNoteFor(codeRepo)}\n\nMISSION:\n${mission}`;
-  return runQueueLoop(seat, baseFraming, { research, codeRepo, maxRepairs, diagDir, diagTag: 'plan', dispatchFn });
+  return runQueueLoop(seat, baseFraming, { research, codeRepo, maxRepairs, diagDir, diagTag: 'plan', dispatchFn, escalationState });
 }
 
 // ----------------------------------------------------------------------- PHASE 1 BLIND PANEL
@@ -367,6 +394,7 @@ export async function deconstructPanel(mission, {
   architects: architectsArg, integratorModel: integratorModelArg,
   panel = process.env.MUEZZIN_PANEL !== 'off', dispatchFn = dispatchSeat, groundedFn = defaultGroundedFn,
   deconstructFn = deconstruct, route: routeArg,
+  escalationState = { tier: 0, reason: 'initial' },
 } = {}) {
   // SEATING MODE (seating-modes build, 2026-06-15): the active mode remaps WHICH models fill
   // the 3 blind architect seats + the integrator. An EXPLICIT caller/test arg always wins;
@@ -379,7 +407,7 @@ export async function deconstructPanel(mission, {
   const research = isResearchMission(mission);
   const codeRepo = isCodeRepoMission(mission);
   // FLAG OFF -> the panel IS the single architect (the fallback path, made explicit).
-  if (!panel) return deconstructFn(mission, { today, maxRepairs, diagDir, dispatchFn });
+  if (!panel) return deconstructFn(mission, { today, maxRepairs, diagDir, dispatchFn, escalationState });
 
   // PER-MISSION ROUTING (P1 #1, plan-phase cost fix): a SIMPLE mission skips the 3-blind
   // panel entirely and gets the fast single architect (deconstruct). A COMPLEX/high-stakes
@@ -387,12 +415,12 @@ export async function deconstructPanel(mission, {
   // unsure => panel. Caller/test may force via opts.route ('single'|'panel') / MUEZZIN_ARCHITECT_ROUTE.
   const route = chooseArchitectRoute(mission, { route: routeArg });
   if (route === 'single') {
-    const r = await deconstructFn(mission, { today, maxRepairs, diagDir, dispatchFn });
+    const r = await deconstructFn(mission, { today, maxRepairs, diagDir, dispatchFn, escalationState });
     return { ...r, _panel: false, _route: 'single' };
   }
 
   const fallback = async (reason) => {
-    const r = await deconstructFn(mission, { today, maxRepairs, diagDir, dispatchFn });
+    const r = await deconstructFn(mission, { today, maxRepairs, diagDir, dispatchFn, escalationState });
     return { ...r, _panel: false, _fallback: reason };
   };
 
@@ -409,10 +437,31 @@ export async function deconstructPanel(mission, {
   // dispatch ONE architect + persist its diagnostic. Pure of ordering — the caller decides
   // serial-vs-parallel; this just runs the seat and returns its result.
   const dispatchArchitect = async (model) => {
+    if (model === 'conductor-preauthored') {
+      try {
+        const fs = await import('fs');
+        const prefilePath = `${diagDir}/panel-architect-conductor-preauthored.raw.txt`;
+        if (fs.existsSync(prefilePath)) {
+          const raw = fs.readFileSync(prefilePath, 'utf8');
+          const marker = '--- raw narrative ---';
+          const idx = raw.indexOf(marker);
+          const content = idx !== -1 ? raw.slice(idx + marker.length).trim() : raw.trim();
+          return { model, content, grounded: true };
+        }
+      } catch (e) {
+        /* fall through to normal dispatch if reading fails */
+      }
+    }
     const seat = { role: 'architect', model, today, max_tokens: 32768, sampling: { temperature: 0.7, top_p: 0.9 } };
     let r;
-    try { r = await dispatchFn(seat, archFraming, { wantVerdict: false }); }
-    catch (e) { r = { content: '', _failed: true, _error: String(e?.message || e) }; }
+    try { r = await dispatchFn(seat, archFraming, { wantVerdict: false, escalationTier: escalationState.tier || 0 }); }
+    catch (e) {
+      if (e?.kind === TOOL_LOOP_CAP) {
+        escalationState.tier = (escalationState.tier || 0) + 1;
+        escalationState.reason = 'tool_loop_cap';
+      }
+      r = { content: '', _failed: true, _error: String(e?.message || e) };
+    }
     const content = String(r?.content || '').trim();
     if (diagDir) {
       try {
@@ -451,7 +500,7 @@ export async function deconstructPanel(mission, {
   // <2 usable plans -> the panel cannot synthesize independence; fall back to single architect.
   if (plans.length < 2) return fallback(`only ${plans.length}/3 architects produced a usable plan`);
   // <2 of 3 SEARCH-GROUNDED -> HOLD the mission (do NOT plan from training memory; spec gate).
-  if (grounded < 2) return { ok: false, errors: [`fail-closed search: only ${grounded}/${plans.length} architects were search-grounded (need >=2) — mission HELD rather than planned from stale training memory`], attempts: plans.length, _panel: true, _grounded: grounded };
+  if (grounded < 2) return { ok: false, errors: [`fail-closed search: only ${grounded}/${plans.length} architects were search-grounded (need >=2) — mission HELD rather than planned from stale training memory`], attempts: plans.length, _panel: true, _grounded: grounded, escalationState };
 
   // ---- (3) OPUS INTEGRATOR synthesizes the three blind plans into ONE validated micro_queue,
   // through the EXISTING extractQueue + validateMicroQueue + repair loop (runQueueLoop), with
@@ -464,7 +513,7 @@ export async function deconstructPanel(mission, {
     `The three reads exist to catch what one misses — prefer the safest, most-verifiable decomposition. Output ONLY the final json micro_queue.\n\n` +
     `MISSION:\n${mission}\n\n${planBlock}`;
   const integSeat = { role: 'integrator', model: integratorModel, today, max_tokens: 32768, sampling: { temperature: 0.3, top_p: 0.9 } };
-  const synth = await runQueueLoop(integSeat, integratorFraming, { research, codeRepo, maxRepairs, diagDir, diagTag: 'integrator', dispatchFn });
+  const synth = await runQueueLoop(integSeat, integratorFraming, { research, codeRepo, maxRepairs, diagDir, diagTag: 'integrator', dispatchFn, escalationState });
   if (synth.ok) return { ...synth, _panel: true, _architects: plans.map((p) => p.model), _grounded: grounded };
   // integrator could not emit a valid queue -> fall back to the single architect (never hard-break).
   return fallback(`integrator failed to synthesize a valid queue (${(synth.errors || []).join('; ').slice(0, 200)})`);

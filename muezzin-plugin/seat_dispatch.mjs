@@ -27,34 +27,19 @@ function hb(line) {
 const FAITH_DIR = 'C:/Users/marka/.agents/faiths';
 const FETCH_TIMEOUT_MS = 180000;
 const MAX_CLOUD_HEALS = 3;            // operator spec: 3 reattempts to fix the cloud failure before local
-// SearXNG endpoint. Honor SEARXNG_URL (a BASE url, exactly as searxng_preflight.mjs does) so
-// the dispatch and the pre-flight/doctor agree on ONE backend; fall back to the localhost
-// tunnel when unset. (2026-06-26 ENGINE-READINESS: doctor preflight surfaced this was
-// hardcoded to localhost:8080 while SEARXNG_URL pointed at the nxtbeast backend over
-// Tailscale — search-grounded seats were querying a dead tunnel while a live backend sat
-// unused. Honoring the env var is the same rail searxng_preflight already runs on.)
-const SEARXNG_URL = `${(process.env.SEARXNG_URL || 'http://localhost:8080').replace(/\/+$/, '')}/search`;
+const SEARXNG_URL = process.env.SEARXNG_URL || 'http://localhost:8080/search';
 
 // cloud first, then local. Cloud key: antigravity uses OLLAMA_API_KEY; this env also has OLLAMA_CLOUD_API_KEY.
 const PROVIDERS = [
   { id: 'ollama-cloud', url: 'https://ollama.com/v1/chat/completions', envKeys: ['OLLAMA_API_KEY', 'OLLAMA_CLOUD_API_KEY'] },
-  // OPERATOR RULING 2026-06-26: NO local models on the laptop — all local-Ollama
-  // traffic targets nxtbeast over Tailscale (the home 4090). localhost is dead in
-  // van season; a fallback to it would fail-closed. Matches the vision fallback's
-  // nxtbeast:11434 and the SEARXNG_URL → nxtbeast convention.
   { id: 'ollama-local', url: 'http://nxtbeast:11434/v1/chat/completions', envKeys: [] },
 ];
-
-// LOCAL-ONLY MODELS (cloud-budget cut): models that exist ONLY on the local ollama —
-// ollama-cloud 404s on them, so the waterfall would burn all MAX_CLOUD_HEALS adaptive
-// heals on guaranteed-miss cloud attempts before the local fallback ever runs (granite4.1:8b
-// receipted 4 wasted cloud heals). These dispatch straight to ollama-local. Mirrors the
-// namedClaude cloud-skip rail: never re-dispatch a name to a provider that cannot serve it.
-const LOCAL_ONLY_MODELS = new Set(['granite4.1:8b']);
 
 class WaterfallError extends Error {
   constructor(kind, provider, model, msg) { super(msg); this.kind = kind; this.provider = provider; this.model = model; }
 }
+
+export const TOOL_LOOP_CAP = 'TOOL_LOOP_CAP';
 
 const searchToolDef = {
   type: 'function',
@@ -133,51 +118,39 @@ function readFileText(p) {
   try { return readFileSync(p, 'utf8').slice(0, 20000); } catch (e) { return `Error reading ${p}: ${e.message}`; }
 }
 
-// WITNESS-SHELL RESOLUTION (2026-06-26, ENGINE-READINESS): execReceipt hard-coded
-// 'pwsh.exe' (PowerShell 7). PS7 was chosen because architects write PS-flavored
-// validation commands (Get-ChildItem etc.) AND because seats chain steps with the
-// `&&` / `||` pipeline operators, which Windows PowerShell 5.1 ('powershell.exe')
-// does NOT support (parser error: "'&&' is not a valid statement separator"). But
-// pwsh.exe is NOT guaranteed installed — a stock Windows ships only 5.1. When pwsh
-// was absent, execFileSync('pwsh.exe', …) threw ENOENT on EVERY validation_command,
-// so NO code receipt could ever be verified and every code mission failed. Fix:
-// resolve the witness shell ONCE (cached), preferring pwsh.exe; fall back to
-// powershell.exe (5.1). On the 5.1 fallback, translate the unsupported `&&`/`||`
-// chain operators into a $?-guarded sequence (translateChainForPS5) so chained
-// validation commands keep their short-circuit-on-failure semantics.
-let _witnessShell = null;   // { exe, isPwsh } — resolved on first execReceipt call, then cached
-function resolveWitnessShell() {
-  if (_witnessShell) return _witnessShell;
-  try {
-    // fast no-op probe: pwsh exits 0 immediately. stdio ignored; bounded so a wedged
-    // shell can't hang the first dispatch.
-    execFileSync('pwsh.exe', ['-NoProfile', '-NonInteractive', '-Command', '$null'], { stdio: 'ignore', timeout: 15000 });
-    _witnessShell = { exe: 'pwsh.exe', isPwsh: true };
-  } catch {
-    _witnessShell = { exe: 'powershell.exe', isPwsh: false };   // PS7 missing -> Windows PowerShell 5.1
-  }
-  return _witnessShell;
-}
-
-// Translate PS7 `&&`/`||` chain operators for Windows PowerShell 5.1, which lacks them.
-// Builds a RIGHT-NESTED $?-guarded sequence so BOTH short-circuit AND exit-code
-// propagation are preserved (verified live: a skipped branch leaves the prior command's
-// non-zero exit as the process exit, so ok=true still means "every step ran and passed").
-// A FLAT if-chain would be wrong — a not-taken `if` resets $? to $true. This nesting is
-// exact for pure-`&&` or pure-`||` chains (the seat-validation pattern); a mixed `&& ||`
-// command follows the nesting rather than shell left-associativity (rare, and pwsh — the
-// primary path — handles it natively). A literal `&&` inside a quoted string is not
-// special-cased (validation commands are simple chains); pwsh covers that case too.
-export function translateChainForPS5(cmd) {
-  const tokens = String(cmd).split(/\s+(&&|\|\|)\s+/);   // [cmd, op, cmd, op, cmd, ...]
-  if (tokens.length === 1) return cmd;                   // no chain operators — pass through
-  const build = (i) => {
-    const part = tokens[i];
-    if (i + 1 >= tokens.length) return part;             // last command, no trailing operator
-    const guard = tokens[i + 1] === '&&' ? '$?' : '-not $?';
-    return `${part}; if (${guard}) { ${build(i + 2)} }`;
-  };
-  return build(0);
+// Sanitize tool_calls from model responses before the tool-call loop matches names.
+// Drops entries with empty / null / undefined / whitespace-only function names (logged),
+// trims valid names, and always returns parseable arguments ({} on missing / malformed).
+function sanitizeToolCalls(toolCalls) {
+  if (!Array.isArray(toolCalls)) return [];
+  return toolCalls.map((tc, idx) => {
+    const fn = tc?.function || {};
+    let name = fn.name;
+    if (name === undefined || name === null) {
+      hb(`sanitize-tool-call drop idx=${idx} reason=name_missing raw=${JSON.stringify(tc).slice(0, 160)}`);
+      return null;
+    }
+    name = String(name).trim();
+    if (!name) {
+      hb(`sanitize-tool-call drop idx=${idx} reason=name_empty raw=${JSON.stringify(tc).slice(0, 160)}`);
+      return null;
+    }
+    let args = fn.arguments;
+    if (args === undefined || args === null) {
+      args = '{}';
+    } else if (typeof args === 'object') {
+      args = JSON.stringify(args);
+    } else if (typeof args !== 'string') {
+      hb(`sanitize-tool-call bad-args idx=${idx} name=${name} reason=non_json_type type=${typeof args}`);
+      args = '{}';
+    }
+    let parsed = {};
+    try { parsed = JSON.parse(args); } catch (e) {
+      hb(`sanitize-tool-call bad-args idx=${idx} name=${name} reason=parse_error error=${e.message} raw=${String(args).slice(0, 160)}`);
+      parsed = {};
+    }
+    return { ...tc, function: { ...fn, name, arguments: JSON.stringify(parsed) } };
+  }).filter(Boolean);
 }
 
 // the muezzin runs a verification command ITSELF and captures the receipt — the witness for a CODE claim
@@ -198,16 +171,9 @@ export function execReceipt(cmd, cwd) {
   // cleanly or defaults, instead of blocking until the 120s timeout.
   const childEnv = { ...process.env, CI: 'true', WRANGLER_SEND_METRICS: 'false', FORCE_COLOR: '0' };
   try {
-    let out;
-    if (process.platform === 'win32') {
-      const shell = resolveWitnessShell();   // pwsh.exe if present, else powershell.exe (5.1) — cached
-      // On the 5.1 fallback only, rewrite `&&`/`||` (which 5.1 cannot parse) into a
-      // $?-guarded sequence. pwsh runs the command verbatim (it supports the operators).
-      const runCmd = shell.isPwsh ? cmd : translateChainForPS5(cmd);
-      out = execFileSync(shell.exe, ['-NoProfile', '-NonInteractive', '-Command', runCmd], { cwd, env: childEnv, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: 120000 });
-    } else {
-      out = execSync(cmd, { cwd, env: childEnv, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: 120000 });
-    }
+    const out = process.platform === 'win32'
+      ? execFileSync('pwsh.exe', ['-NoProfile', '-NonInteractive', '-Command', cmd], { cwd, env: childEnv, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: 120000 })  // pwsh (PS7) not powershell (5.1): seats chain with && — proven live
+      : execSync(cmd, { cwd, env: childEnv, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: 120000 });
     return { type: 'exec', ref: cmd, ok: true, exit: 0, out: String(out).slice(0, 2000) };
   } catch (e) {
     return { type: 'exec', ref: cmd, ok: false, exit: e.status ?? 1, out: (String(e.stdout || '') + String(e.stderr || '')).slice(0, 2000) };
@@ -240,13 +206,6 @@ const CLAUDE_SEAT_MAP = {
 const CLAUDE_TIMEOUT_MS = 8 * 60 * 1000;
 const AGY_TIMEOUT_MS = 8 * 60 * 1000;
 
-// OPERATOR RULING 2026-06-26: this conductor NEVER runs Claude models. Claude is OFF
-// by default and only enabled by an explicit MUEZZIN_CLAUDE_TIER=on opt-in (e.g. the
-// nxtbeast dual-budget context, operator ruling 2026-06-10). This INVERTS the prior
-// default (Claude on unless ...=off): the laptop/agy conductor is Claude-free unless
-// someone deliberately turns it on. All three Claude entry points below gate on this.
-const CLAUDE_TIER_ENABLED = process.env.MUEZZIN_CLAUDE_TIER === 'on';
-
 // AGY LANE (2026-06-23, lock pending in MUEZZIN-SEAT-PLAN-LOCKED.md "Pending revision"):
 // When env USE_AGY_EXECUTOR=true OR route file declares prefer:"agy", the dispatch tries
 // agy FIRST (before namedClaude and the cloud waterfall). Burns agy's separate 4-hour
@@ -264,8 +223,14 @@ const AGY_EXECUTOR_SEATS = new Set([
   'qwen3-coder-next',  // canonical Phase-2 executor
   'kimi-k2.7-code',    // alternate executor
   'sonnet',            // direct-Claude executor via seating-modes (anthropic-heavy mode)
+  'gemini-3.5-flash',  // Gemini flash alias
+  'gemini-3-ultra',    // Gemini ultra alias
+  'gemini',            // generic Gemini alias
 ]);
 function routePrefersAgy(model) {
+  const m = String(model || '').toLowerCase();
+  // Frontier agy Gemini models MUST route via agy (they are proprietary and not Ollama-compatible)
+  if ((m === 'gemini-3.5-flash' || m === 'gemini-3-ultra' || m === 'gemini') && agyAvailable()) return true;
   // Gate 1: only executor-class seats — architects/witnesses/auditors stay on existing waterfall
   if (!AGY_EXECUTOR_SEATS.has(model)) return false;
   // Gate 2: env or route file declares the agy preference + agy binary present
@@ -336,6 +301,25 @@ export function recognizeClaudeModel(model) {
   if (/^claude-/.test(m)) return m;   // explicit claude-<...> ids pass through verbatim
   return null;
 }
+
+// MODEL ESCALATION TIERS: per-base ordered escalation chains.
+// tier 0 = local coder, tier 1 = cloud coder, tier 2 = premium.
+const MODEL_ESCALATION_TIERS = {
+  'qwen3-coder-next': ['qwen3-coder-next', 'kimi-k2.7-code', 'sonnet'],
+  'qwen3.6:27b': ['qwen3.6:27b', 'kimi-k2.7-code', 'sonnet'],
+};
+
+const escalationHits = new Map();
+
+export function escalateModel(baseModel, tier) {
+  const chain = MODEL_ESCALATION_TIERS[baseModel] || [baseModel];
+  const idx = Math.max(0, Math.min(Number(tier) || 0, chain.length - 1));
+  return chain[idx];
+}
+
+export function getEscalationState() { return Object.fromEntries(escalationHits); }
+export function clearEscalationState() { escalationHits.clear(); }
+
 function attemptClaude(body, claudeModel, timeoutMs, cwd) {
   return new Promise((resolve, reject) => {
     // SEARCH LIVES ON THIS TRANSPORT TOO (operator 2026-06-10: "you are refusing to give
@@ -513,16 +497,17 @@ async function attemptProvider(provider, body, timeoutMs) {
     if (m.content) accumulated += m.content + '\n';
     const rz = m.reasoning ?? m.reasoning_content; if (rz) reasoning += rz;
 
-    if (m.tool_calls?.length) {
+    const toolCalls = sanitizeToolCalls(m.tool_calls);
+    if (toolCalls.length) {
       // termination belt (laguna witness finding 1): some servers emit tool_calls even
       // with no tools declared (offerTools=false). Past the adaptive cap — i.e. past
       // BASE without progress, or past the hard ceiling — that would spin forever, so
       // throw into the bounded heal path instead. `offerTools` already encodes the
       // mayContinueToolLoop decision for this round.
       if (!offerTools)
-        throw new WaterfallError('TOOL_LOOP_CAP', provider.id, body.model, `tool_calls emitted past round cap (${rounds} rounds${rounds > HARD_TOOL_ROUND_CEILING ? '; hard ceiling' : '; no new distinct reads — looping'})`);
+        throw new WaterfallError(TOOL_LOOP_CAP, provider.id, body.model, `tool_calls emitted past round cap (${rounds} rounds${rounds > HARD_TOOL_ROUND_CEILING ? '; hard ceiling' : '; no new distinct reads — looping'})`);
       let addedDistinct = false;   // did THIS round read/query something not seen before?
-      for (const tc of m.tool_calls) {
+      for (const tc of toolCalls) {
         let content = `Unknown tool ${tc.function?.name}`;
         // distinct-progress signature: tool name + raw args. A repeated identical call
         // (same query / same path) does NOT count as progress; a new one does.
@@ -536,6 +521,8 @@ async function attemptProvider(provider, body, timeoutMs) {
           // standing rule: SearXNG first, Anthropic WebSearch when SearXNG is down).
           if (content === 'BLIND_BACKEND')
             throw new WaterfallError('SEARCH_BLIND', provider.id, body.model, 'searxng zero on control query — backend blind (engine suspensions); dispatch fails over to a WebSearch-capable tier');
+          if (content.startsWith('Search error:'))
+            throw new WaterfallError('SEARCH_FAILED', provider.id, body.model, `SearXNG query failed: ${content}`);
         } else if (tc.function?.name === 'file_read') {
           let p = ''; try { p = JSON.parse(tc.function.arguments).path; } catch { }
           content = readFileText(p);
@@ -598,7 +585,7 @@ export async function dispatchWithWaterfall(baseBody, { cwd } = {}) {
   // name (opus/sonnet/haiku/claude-*, from seat_modes anthropic-heavy) dispatches Claude-FIRST.
   // Honors the kill switch (MUEZZIN_CLAUDE_TIER=off -> skip, fall straight to the waterfall, so
   // a Claude-named seat still runs on cloud/local if Claude is disabled — never a hard-fail).
-  const namedClaude = !CLAUDE_TIER_ENABLED ? null : recognizeClaudeModel(baseBody.model);
+  const namedClaude = (process.env.MUEZZIN_CLAUDE_TIER === 'off') ? null : recognizeClaudeModel(baseBody.model);
   if (namedClaude && remaining() > 30000) {
     preferTried = true;   // suppress the post-cloud claude tier (no double-charge on a failed named-claude attempt)
     hb(`attempt-start provider=claude-${namedClaude} (NAMED claude seat — seating mode) timeout=${Math.min(CLAUDE_TIMEOUT_MS, remaining())}ms`);
@@ -622,7 +609,7 @@ export async function dispatchWithWaterfall(baseBody, { cwd } = {}) {
         `claude-named seat '${namedClaude}' failed and has no ollama equivalent (Anthropic-only name) — not re-dispatching to ollama: ${String(e.message).slice(0, 160)}`);
     }
   }
-  const preferModel = (CLAUDE_TIER_ENABLED && !namedClaude && routePrefersClaude(baseBody.model)) ? CLAUDE_SEAT_MAP[baseBody.model] : null;
+  const preferModel = (!namedClaude && routePrefersClaude(baseBody.model)) ? CLAUDE_SEAT_MAP[baseBody.model] : null;
   if (preferModel && remaining() > 30000) {
     preferTried = true;
     hb(`attempt-start provider=claude-${preferModel} (PREFERRED — route window) timeout=${Math.min(CLAUDE_TIMEOUT_MS, remaining())}ms`);
@@ -633,24 +620,6 @@ export async function dispatchWithWaterfall(baseBody, { cwd } = {}) {
       return { ...out, provider: `claude-${preferModel}`, heals: 0 };
     } catch (e) {
       hb(`attempt-fail provider=claude-${preferModel} (preferred) ms=${Date.now() - tp} kind=${e.kind || e.name}: ${String(e.message).slice(0, 120)}`);
-    }
-  }
-  // -- LOCAL-ONLY SHORT-CIRCUIT: a local-only model (granite4.1:8b) skips the cloud waterfall
-  // entirely — ollama-cloud 404s on it, so every cloud heal is a guaranteed miss. Dispatch
-  // straight to ollama-local (PROVIDERS[1]) and surface a WaterfallError on failure rather
-  // than falling through to a cloud loop that cannot serve this model.
-  if (LOCAL_ONLY_MODELS.has(baseBody.model)) {
-    const localOnly = PROVIDERS[1];
-    hb(`attempt-start provider=${localOnly.id} model=${baseBody.model} (LOCAL-ONLY short-circuit — cloud skipped)`);
-    const tLo = Date.now();
-    try {
-      const out = await attemptProvider(localOnly, baseBody, Math.max(60000, Math.min(FETCH_TIMEOUT_MS, remaining())));
-      hb(`attempt-ok provider=${localOnly.id} model=${baseBody.model} (local-only) ms=${Date.now() - tLo} chars=${out.content.length}`);
-      return { ...out, provider: 'ollama-local', heals: 0 };
-    } catch (e) {
-      hb(`attempt-fail provider=${localOnly.id} model=${baseBody.model} (local-only) ms=${Date.now() - tLo} kind=${e.kind || e.name}: ${String(e.message).slice(0, 120)}`);
-      throw new WaterfallError(e.kind || 'LOCAL_ONLY_FAILED', 'ollama-local', baseBody.model,
-        `local-only model '${baseBody.model}' failed on ollama-local (cloud skipped — not a cloud model): ${String(e.message).slice(0, 160)}`);
     }
   }
   // -- cloud, with up to MAX_CLOUD_HEALS adaptive heal attempts
@@ -679,7 +648,7 @@ export async function dispatchWithWaterfall(baseBody, { cwd } = {}) {
   }
   // -- CLAUDE TIER (#29): mapped seats only, only when cloud failed, never when disabled,
   // and never re-tried when the preferred-route attempt already failed this dispatch.
-  const claudeModel = (!CLAUDE_TIER_ENABLED || preferTried) ? null : CLAUDE_SEAT_MAP[baseBody.model];
+  const claudeModel = (process.env.MUEZZIN_CLAUDE_TIER === 'off' || preferTried) ? null : CLAUDE_SEAT_MAP[baseBody.model];
   if (claudeModel && remaining() > 30000) {
     hb(`attempt-start provider=claude-${claudeModel} (claude tier for ${baseBody.model}) timeout=${Math.min(CLAUDE_TIMEOUT_MS, remaining())}ms`);
     const t2 = Date.now();
@@ -713,17 +682,27 @@ function extractJson(text) {
 
 // dispatch a SEAT. seat = { role, model, today, sampling? }. framing = the mission text the seat judges.
 // wantVerdict=true appends the verdict-contract instruction and returns a validated contract (or a BLOCK on failure — "absence is not APPROVE").
-export async function dispatchSeat(seat, framing, { wantVerdict = true } = {}) {
+export async function dispatchSeat(seat, framing, { wantVerdict = true, envManifest = null, escalationTier = 0 } = {}) {
+  const effectiveModel = escalateModel(seat.model, escalationTier);
+  if (effectiveModel !== seat.model) {
+    hb(`escalation role=${seat.role} base=${seat.model} tier=${escalationTier} effective=${effectiveModel}`);
+    escalationHits.set(seat.model, { tier: escalationTier, effective: effectiveModel, at: new Date().toISOString() });
+  }
   const faith = getFaith(seat.role);
   const contractLine = wantVerdict
     ? `\n\nYou MUST end your reply with ONE json code block — the verdict contract:\n` +
       '```json\n{"seat":"' + seat.role + '","verdict":"APPROVE|REVISE|REJECT|BLOCK","findings":[{"id":"F1","severity":"high|med|low","description":"..."}],"closed_concerns":[]}\n```\n' +
       `verdict MUST be exactly one of ${VERDICTS.join(', ')}. findings = [] if none.`
     : '';
-  const system = `${faith}\n\n[RESTRAINT] You are a seat in a deliberation chain. Judge only what the framing gives you; ` +
+  let system = `${faith}\n\n[RESTRAINT] You are a seat in a deliberation chain. Judge only what the framing gives you; ` +
     `do not write project files. ${systemAnchor(seat.today)}${contractLine}`;
+  if (envManifest) {
+    const manifestText = typeof envManifest === 'string' ? envManifest : JSON.stringify(envManifest, null, 2);
+    system = `${manifestText.trim()}\n\n${system}`;
+    hb(`dispatch envManifest-injected role=${seat.role} model=${seat.model || 'unknown'} chars=${manifestText.length}`);
+  }
   const body = {
-    model: seat.model,
+    model: effectiveModel,
     messages: [{ role: 'system', content: system }, { role: 'user', content: framing }],
     // Explicit output budget + thinking off by default: most roster seats carry the
     // 'thinking' tag, and an unset budget let reasoning silently starve content
@@ -837,7 +816,7 @@ if (process.argv[1]?.endsWith('seat_dispatch.mjs') && process.argv.includes('--s
       // record any model name sent to an ollama provider endpoint
       try {
         const u = String(url);
-        if (u.includes('ollama.com') || u.includes(':11434')) {   // :11434 = any ollama-local host (nxtbeast or localhost)
+        if (u.includes('ollama.com') || u.includes('localhost:11434')) {
           const parsed = JSON.parse(opts?.body || '{}');
           ollamaModelsSeen.push(parsed.model);
         }
@@ -870,15 +849,6 @@ if (process.argv[1]?.endsWith('seat_dispatch.mjs') && process.argv.includes('--s
                     || (outcome.kind === 'threw' && outcome.provider === 'claude');
     check(`claude-named seat terminates on Claude tier, never ollama (got ${outcome.kind}/${outcome.provider})`, okTerminal, true);
   })();
-
-  // 9. PS5.1 CHAIN TRANSLATION (2026-06-26, ENGINE-READINESS): when the witness shell
-  //    falls back to Windows PowerShell 5.1, `&&`/`||` (unparseable in 5.1) become a
-  //    RIGHT-NESTED $?-guarded sequence preserving short-circuit + exit propagation.
-  check('translateChainForPS5: no operator -> unchanged', translateChainForPS5('node -c x.mjs'), 'node -c x.mjs');
-  check('translateChainForPS5: single && -> guarded', translateChainForPS5('a && b'), 'a; if ($?) { b }');
-  check('translateChainForPS5: triple && -> right-nested (NOT flat — a not-taken if resets $?)',
-    translateChainForPS5('a && b && c'), 'a; if ($?) { b; if ($?) { c } }');
-  check('translateChainForPS5: || -> negated guard', translateChainForPS5('a || b'), 'a; if (-not $?) { b }');
 
   console.log(`[selftest] ${pass} passed, ${fail} failed`);
   process.exit(fail ? 1 : 0);

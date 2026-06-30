@@ -1,0 +1,21 @@
+{
+  "parentId": "M28-1C-IOVERLANDER-PARTS",
+  "ceiling": 8,
+  "originalStepCount": 12,
+  "groupCount": 2,
+  "children": [
+    {
+      "id": "M28-1C-IOVERLANDER-PARTS.S1",
+      "file": "missions/M28-1C-IOVERLANDER-PARTS.S1.mission.txt",
+      "steps": 8,
+      "requires": null
+    },
+    {
+      "id": "M28-1C-IOVERLANDER-PARTS.S2",
+      "file": "missions/M28-1C-IOVERLANDER-PARTS.S2.mission.txt",
+      "steps": 4,
+      "requires": "M28-1C-IOVERLANDER-PARTS.S1"
+    }
+  ],
+  "ts": "2026-06-28T04:04:07.541Z"
+}

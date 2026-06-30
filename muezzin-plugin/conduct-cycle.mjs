@@ -19,7 +19,7 @@
 //   claude-tier heartbeat lines with no 429 in the same window -> investigate flag
 //   3+ EMPTY_CONTENT_THINKING fails in window -> known quota-burn class (QUEUE fix item)
 
-import { readFileSync, writeFileSync, existsSync, mkdirSync, rmSync } from 'fs';
+import { readFileSync, writeFileSync, existsSync, mkdirSync, rmSync, appendFileSync } from 'fs';
 import { execSync } from 'child_process';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -31,6 +31,8 @@ const T = {
   LANE_STALL_MS: 20 * 60 * 1000,
   HB_WINDOW_MS: 30 * 60 * 1000,
   THINKING_BURN_COUNT: 3,
+  TASK_STUCK_MS: 5 * 60 * 1000,
+  LOOP_CAP_REPEATS: 3,
 };
 
 const RESTART_CMD =
@@ -64,6 +66,30 @@ function parseAutorun(text) {
 function statusOfLine(line) { const m = String(line).trim().match(STATUS_RE); return m ? m[1] : null; }
 const stemOf = (p) => path.basename(String(p)).replace(/\.mission\.txt$/i, '');
 
+// STUCK-LANE detection: a lane with a recorded start_ts that has exceeded the task
+// stuck threshold. Lanes may be strings (legacy) or {path, start_ts} objects.
+export function detectStuckLanes(status, now = Date.now()) {
+  if (!status || !Array.isArray(status.lanes)) return [];
+  return status.lanes.map((lane, i) => {
+    const isString = typeof lane === 'string';
+    const p = isString ? lane : (lane?.path || '');
+    const start = isString ? NaN : Date.parse(lane?.start_ts || '');
+    const ageMs = Number.isFinite(start) ? now - start : NaN;
+    return { index: i, path: p, start_ts: isString ? undefined : lane?.start_ts, ageMs, stuck: Number.isFinite(ageMs) && ageMs > T.TASK_STUCK_MS };
+  }).filter((x) => x.stuck);
+}
+
+// LOOP-CAP detection: a mission stem appearing LOOP_CAP_REPEATS or more times anywhere
+// in the AUTORUN ledger is a loop and must be capped before it burns quota indefinitely.
+export function detectLoopCaps(autorun, cap = T.LOOP_CAP_REPEATS) {
+  const counts = {};
+  for (const p of [...autorun.done, ...autorun.failed, ...autorun.running, ...autorun.pending]) {
+    const s = stemOf(p);
+    counts[s] = (counts[s] || 0) + 1;
+  }
+  return Object.entries(counts).filter(([_, c]) => c >= cap).map(([stem, count]) => ({ stem, count }));
+}
+
 // FIX-LEDGER — the conductor's diagnosis receipt that a fix LANDED. Each entry names the
 // failure class, the fix, and the missions that fix unblocks. This is what makes
 // requeue-on-fix-landed MECHANICAL without being blind: the daemon faith forbids blind
@@ -89,14 +115,29 @@ export function recordFix(base, { cls, fix, requeue = [] }, now = Date.now()) {
 import { execSync as _execSyncSight } from 'child_process';
 export function checkSearxngSight({ probe } = {}) {
   try {
-    const _searxngBase = (process.env.SEARXNG_URL || 'http://nxtbeast:8080').replace(/\/+$/, '');
-    const body = probe ? probe() : _execSyncSight(
-      `curl -s -m 8 "${_searxngBase}/search?q=github&format=json"`,
-      { timeout: 10000, stdio: ['ignore', 'pipe', 'pipe'] }).toString();
-    if (!body || !body.trim()) return { ok: false, reason: 'empty response (wedged or down)' };
-    const j = JSON.parse(body);
-    const n = Array.isArray(j?.results) ? j.results.length : 0;
-    return n > 0 ? { ok: true, results: n } : { ok: false, reason: 'zero results on a control query that cannot honestly be empty' };
+    const urls = [];
+    if (process.env.SEARXNG_URL) urls.push(process.env.SEARXNG_URL.replace(/\/+$/, ''));
+    urls.push('http://localhost:8080');
+    urls.push('http://100.103.44.13:8080');
+    urls.push('http://nxtbeast:8080');
+
+    let lastError = null;
+    for (const base of urls) {
+      try {
+        const urlBase = base.endsWith('/search') ? base : `${base}/search`;
+        const body = probe ? probe() : _execSyncSight(
+          `curl -s -m 8 "${urlBase}?q=github&format=json"`,
+          { timeout: 10000, stdio: ['ignore', 'pipe', 'pipe'] }).toString();
+        if (body && body.trim()) {
+          const j = JSON.parse(body);
+          const n = Array.isArray(j?.results) ? j.results.length : 0;
+          if (n > 0) return { ok: true, results: n };
+        }
+      } catch (e) {
+        lastError = e;
+      }
+    }
+    return { ok: false, reason: lastError ? `probe failed: ${String(lastError?.message || lastError).slice(0, 80)}` : 'zero results' };
   } catch (e) {
     return { ok: false, reason: `probe failed: ${String(e?.message || e).slice(0, 80)}` };
   }
@@ -157,7 +198,7 @@ export function sweep(base = HERE, now = Date.now(), routeFile = path.join(proce
   // lanes + stall detection: a lane is stalled when the GLOBAL dispatch heartbeat has
   // gone quiet past the stall window while lanes claim to be running.
   if (daemonAlive && status.lanes.length) {
-    for (const lane of status.lanes) report.push(`lane: ${lane}`);
+    for (const lane of status.lanes) report.push(`lane: ${typeof lane === 'string' ? lane : (lane?.path || String(lane))}`);
     if (hb.lastAgeMs > T.LANE_STALL_MS) {
       report.push(`STALL FLAG: last dispatch heartbeat ${mins(hb.lastAgeMs)}m ago with ${status.lanes.length} lanes running (limit ${mins(T.LANE_STALL_MS)}m)`);
       actions.push({
@@ -167,6 +208,20 @@ export function sweep(base = HERE, now = Date.now(), routeFile = path.join(proce
         rule: 'restart ONLY if heartbeat tail shows no in-flight attempt; an in-flight long call is work, not a hang',
       });
     }
+  }
+
+  // STUCK-TASK detection: a lane that has been RUNNING longer than TASK_STUCK_MS is
+  // mechanically hung. The faith approves killing it and requeuing the task.
+  const stuckLanes = detectStuckLanes(status, now);
+  if (stuckLanes.length) {
+    for (const sl of stuckLanes) report.push(`STUCK-TASK: ${sl.path} stuck for ${mins(sl.ageMs)}m (limit ${mins(T.TASK_STUCK_MS)}m)`);
+    actions.push({
+      id: 'STUCK-TASK', class: 'mechanical', approved_by_faith: true,
+      why: `${stuckLanes.length} lane(s) have been RUNNING for over ${mins(T.TASK_STUCK_MS)}m — a task that cannot finish in 5 min is hung and must be killed`,
+      command: `taskkill /PID ${status?.pid ?? pidfile} /F /T`,
+      stuck_paths: stuckLanes.map((x) => x.path),
+      rule: 'heal() will kill the process tree and bare the RUNNING lines so the daemon re-fires them; logged to daemon-events.log',
+    });
   }
 
   // FAILED missions: never refire blind — diagnosis paths are pre-named.
@@ -208,6 +263,19 @@ export function sweep(base = HERE, now = Date.now(), routeFile = path.join(proce
         rule: 'diagnose, then annotate with FIX: <conductor-performable fix> OR "pending engine batch" OR "SUPERSEDED/RESOLVED: <why>" — a bare FAILED mark is not a finished judgment',
       });
     }
+  }
+
+  // LOOP-CAP detection: a mission stem that appears LOOP_CAP_REPEATS or more times
+  // across all AUTORUN statuses is a quota-burn loop and must be mechanically capped.
+  const loopCaps = detectLoopCaps(autorun);
+  if (loopCaps.length) {
+    for (const lp of loopCaps) report.push(`LOOP-CAP: ${lp.stem} appears ${lp.count} times in AUTORUN (cap ${T.LOOP_CAP_REPEATS})`);
+    actions.push({
+      id: 'LOOP-CAP', class: 'mechanical', approved_by_faith: true,
+      why: `${loopCaps.length} mission(s) appear ${T.LOOP_CAP_REPEATS}+ times in the ledger — a looping task must be capped, not allowed to burn quota indefinitely`,
+      loop_stems: loopCaps.map((x) => x.stem),
+      rule: 'operator must diagnose the root cause before requeue; heal() may retire duplicate lines beyond the cap',
+    });
   }
 
   // REQUEUE-ON-FIX-LANDED: the other half of the faith rule "healing a class must
@@ -400,13 +468,35 @@ export function heal(base = HERE, now = Date.now(), { exec = (cmd) => execSync(c
     }
   }
 
+  const logs = path.join(base, 'missions', '_logs');
   const restart = r.actions.find((a) => a.id === 'RESTART-DAEMON');
   if (restart) {
-    const status = readJson(path.join(base, 'missions', '_logs', 'daemon-status.json'));
-    const lanesRunning = status && Array.isArray(status.lanes) && status.lanes.length > 0;
+    const status = readJson(path.join(logs, 'daemon-status.json'));
+    const lanesRunning = status && Array.isArray(status.lanes) && status.lanes.length > 0 && r.daemonAlive;
     if (lanesRunning) performed.push({ action: 'restart-skipped', why: 'lanes running — refusing to kill a live mission' });
     else { exec(restart.command); performed.push({ action: 'restart-daemon' }); }
   }
+
+  // STUCK-TASK healer: kill the hung process tree and bare the RUNNING lines.
+  const stuckAction = r.actions.find((a) => a.id === 'STUCK-TASK');
+  if (stuckAction) {
+    exec(stuckAction.command);
+    const apath = path.join(base, 'missions', 'AUTORUN.md');
+    const lines = readText(apath).split(/\r?\n/);
+    let changed = false;
+    for (let i = 0; i < lines.length; i++) {
+      const l = lines[i];
+      if (statusOfLine(l) !== 'RUNNING') continue;
+      const p = l.trim().replace(STATUS_RE, '').replace(/<!--.*?-->/g, '').trim();
+      if (!p || !stuckAction.stuck_paths.some((sp) => sp === p || stemOf(sp) === stemOf(p))) continue;
+      lines[i] = `${p}  <!-- ${new Date(now).toISOString()} REQUEUE: stuck task killed (auto, once) -->`;
+      performed.push({ action: 'stuck-requeue', stem: stemOf(p) });
+      changed = true;
+    }
+    if (changed) writeFileSync(apath, lines.join('\n'));
+    appendFileSync(path.join(logs, 'daemon-events.log'), `SWEEP-HEAL ${new Date(now).toISOString()} STUCK-TASK pid=${stuckAction.command.match(/\/PID\s+(\S+)/)?.[1] ?? '?'} paths=${stuckAction.stuck_paths.join(',')}\n`);
+  }
+
   return { performed, report: r.report, actions: r.actions };
 }
 
@@ -547,6 +637,35 @@ function selftest() {
     const fresh = sweep(tmp, now, noRoute, { sightFn: () => ({ ok: true, results: 9 }), cgAgeFn: () => ({ ok: true, minutes: 10 }) });
     ck(!fresh.actions.some((a) => a.id === 'CG-INCREMENT-DUE'), 'fresh CG repo -> no nag (the gate has a dead-band, not a drumbeat)');
   }
+
+  // fixture 1h: STUCK-TASK detection + heal() kills and requeues.
+  writeFileSync(path.join(logs, 'daemon-status.json'), JSON.stringify({ pid: 77777, state: 'running', lanes: [{ path: 'missions/stuck.mission.txt', start_ts: new Date(now - 6 * 60000).toISOString() }], queued: 0, ts: new Date(now).toISOString() }));
+  writeFileSync(path.join(logs, 'daemon.pid'), '77777');
+  writeFileSync(path.join(tmp, 'missions', 'AUTORUN.md'), '# q\nRUNNING missions/stuck.mission.txt  <!-- t -->\n');
+  writeFileSync(path.join(logs, 'dispatch-heartbeat.log'), `${new Date(now - 1 * 60000).toISOString()} attempt-ok provider=ollama-cloud model=kimi-k2.6 heal=0 ms=1 chars=10\n`);
+  r = sweep(tmp, now, noRoute, sightOk);
+  ck(r.actions.some((a) => a.id === 'STUCK-TASK' && a.class === 'mechanical' && a.approved_by_faith && /77777/.test(a.command)), 'stuck lane -> STUCK-TASK mechanical action with taskkill command');
+  ck(r.report.some((l) => /STUCK-TASK.*stuck.mission.txt/.test(l)), 'stuck lane surfaces on report');
+  const killed = [];
+  const hStuck = heal(tmp, now, { exec: (cmd) => { killed.push(cmd); } });
+  ck(hStuck.performed.some((p) => p.action === 'stuck-requeue' && p.stem === 'stuck'), 'heal(): stuck task bared and marked for requeue');
+  ck(killed.some((cmd) => /taskkill.*\/PID\s+77777.*\/F.*\/T/.test(cmd)), 'heal(): taskkill issued for stuck lane');
+  const afterStuck = parseAutorun(readText(path.join(tmp, 'missions', 'AUTORUN.md')));
+  ck(afterStuck.pending.includes('missions/stuck.mission.txt'), 'heal(): RUNNING line bared to pending');
+  const events = readText(path.join(logs, 'daemon-events.log'));
+  ck(events.includes('SWEEP-HEAL') && events.includes('STUCK-TASK') && events.includes('stuck.mission.txt'), 'heal(): SWEEP-HEAL event logged to daemon-events.log');
+
+  // fixture 1i: detectStuckLanes and detectLoopCaps direct checks + LOOP-CAP sweep.
+  const dl = detectStuckLanes({ pid: 1, lanes: [{ path: 'missions/a.mission.txt', start_ts: new Date(now - 6 * 60000).toISOString() }, { path: 'missions/b.mission.txt', start_ts: new Date(now - 2 * 60000).toISOString() }, 'missions/c.mission.txt'] }, now);
+  ck(dl.length === 1 && dl[0].path === 'missions/a.mission.txt' && dl[0].stuck, 'detectStuckLanes flags only lanes over TASK_STUCK_MS');
+  const lc = detectLoopCaps(parseAutorun('DONE missions/loop.mission.txt\nFAILED missions/loop.mission.txt\nRUNNING missions/loop.mission.txt\n'));
+  ck(lc.length === 1 && lc[0].stem === 'loop' && lc[0].count === 3, 'detectLoopCaps caps a stem appearing LOOP_CAP_REPEATS times');
+  const lc2 = detectLoopCaps(parseAutorun('DONE missions/once.mission.txt\nFAILED missions/twice.mission.txt\n'));
+  ck(lc2.length === 0, 'detectLoopCaps ignores stems below cap');
+  writeFileSync(path.join(logs, 'daemon-status.json'), JSON.stringify({ pid: process.pid, state: 'running', lanes: [], queued: 0, ts: new Date(now).toISOString() }));
+  writeFileSync(path.join(tmp, 'missions', 'AUTORUN.md'), '# q\nDONE missions/loop.mission.txt\nFAILED missions/loop.mission.txt\nRUNNING missions/loop.mission.txt\n');
+  r = sweep(tmp, now, noRoute, sightOk);
+  ck(r.actions.some((a) => a.id === 'LOOP-CAP' && a.class === 'mechanical' && a.approved_by_faith), 'sweep emits LOOP-CAP mechanical action for looping stem');
 
   // fixture 2: healthy daemon (our own pid alive, fresh status), clean ledger
   writeFileSync(path.join(logs, 'daemon-status.json'), JSON.stringify({ pid: process.pid, state: 'running', lanes: [], queued: 0, ts: new Date(now).toISOString() }));

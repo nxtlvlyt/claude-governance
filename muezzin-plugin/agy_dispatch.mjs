@@ -50,6 +50,10 @@ const SEAT_TO_AGY_MODEL = {
   'kimi-k2.7-code': 'claude-sonnet-4-6',    // alternate executor → same
   'sonnet': 'claude-sonnet-4-6',             // direct sonnet alias
   'opus': 'claude-opus-4-5',                 // when an Opus-class seat escalates
+  'gemini-3.5-flash': 'gemini-3.5-flash',   // Gemini flash alias
+  'gemini-3-ultra': 'gemini-3-ultra',        // Gemini ultra alias
+  'gemini-3-flash-preview': 'gemini',        // Map preview alias to generic gemini in agy
+  'gemini': 'gemini',                        // generic Gemini alias
 };
 
 export function agyAvailable() {

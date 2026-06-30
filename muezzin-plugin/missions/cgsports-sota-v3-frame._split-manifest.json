@@ -1,0 +1,21 @@
+{
+  "parentId": "cgsports-sota-v3-frame",
+  "ceiling": 8,
+  "originalStepCount": 15,
+  "groupCount": 2,
+  "children": [
+    {
+      "id": "cgsports-sota-v3-frame.S1",
+      "file": "missions/cgsports-sota-v3-frame.S1.mission.txt",
+      "steps": 8,
+      "requires": null
+    },
+    {
+      "id": "cgsports-sota-v3-frame.S2",
+      "file": "missions/cgsports-sota-v3-frame.S2.mission.txt",
+      "steps": 7,
+      "requires": "cgsports-sota-v3-frame.S1"
+    }
+  ],
+  "ts": "2026-06-27T06:59:26.940Z"
+}

@@ -24,10 +24,11 @@ export function splitOversizedPlan(mission, queue, opts = {}) {
   // Under ceiling — run as one mission, unchanged.
   if (n <= ceiling) return { split: false };
 
-  // Extract parent mission ID from the queue or the mission text.
+  // Extract parent mission ID and class from the queue or the mission text.
   const parentId = queue?.mission_id
     || (String(mission || '').match(/MISSION-ID:\s*(\S+)/i) || [])[1]
     || null;
+  const parentClass = (String(mission || '').match(/MISSION-CLASS:\s*(\S+)/i) || [])[1] || null;
 
   if (!parentId) {
     return { fail: true, reason: 'unsplittable: no MISSION-ID in queue or mission text — cannot mint child mission IDs' };
@@ -48,6 +49,8 @@ export function splitOversizedPlan(mission, queue, opts = {}) {
   return {
     split: true,
     parentId,
+    parentClass,
+    _parentMission: mission,
     ceiling,
     originalStepCount: n,
     groupCount: groups.length,
@@ -96,6 +99,7 @@ export function emitSubMissions(plan, ctx = {}, io = {}) {
 
     const childText = [
       `MISSION-ID: ${childId}`,
+      `MISSION-CLASS: ${plan.parentClass || 'code-repo'}`,
       `PARENT: ${parentId}`,
       `TARTIB-INDEX: ${group.index} of ${plan.groupCount}`,
       requiresClause,

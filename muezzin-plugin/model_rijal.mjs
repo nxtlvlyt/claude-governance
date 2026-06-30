@@ -262,7 +262,7 @@ export const registry = {
 
   "nemotron-3-super": {
     id: "nemotron-3-super",
-    role: ["final-verdict"],
+    role: ["final-verdict", "auditor"],
     qualifying_runs: 8,
     correct_runs: 8, // canon: "all correct verdicts" across P6 + Gaps 1-7
     established: true,
@@ -348,16 +348,23 @@ export const registry = {
   },
 
   "deepseek-v4-pro": {
-    id: "deepseek-v4-pro", role: ["architect", "auditor", "governance-scanner"],
+    id: "deepseek-v4-pro", role: ["architect", "auditor", "governance-scanner", "code-review"],
     chosen: true, selection_basis: "2026-06-09 — SOTA reasoning index + variance; WON the live scanner test 3/3 format-clean + 3/3 correct (minimax 2/3, glm 1/3 over-flagged) -> scanner seat earned by a run, not a benchmark",
     qualifying_runs: 0, correct_runs: 0, established: false, adala_record: []
   },
 
   "nemotron-3-ultra": {
     id: "nemotron-3-ultra", role: ["architect", "witness"],
-    chosen: true,
+    chosen: false,
     selection_basis: "2026-06-09 — chosen and KEPT over nemotron-3-super: today's pick stands. super's record was earned in the OLD LOCAL chain, not this cloud muezzin; an old-context record does not override a current-evidence cloud choice.",
     qualifying_runs: 0, correct_runs: 0, established: false, adala_record: []
+  },
+
+  "gemini-3.5-flash": {
+    id: "gemini-3.5-flash", role: ["architect", "witness", "integrator"],
+    chosen: true,
+    selection_basis: "2026-06-28 — agy Vertex AI frontier model, kept in local fallback",
+    qualifying_runs: 0, correct_runs: 0, established: true, adala_record: []
   },
 
   "qwen3-coder-next": {
@@ -526,13 +533,13 @@ if (process.argv[1]?.endsWith("model_rijal.mjs")) {
   {
     const winner = selectSeat("architect");
     assert(
-      "chosen cloud architect (kimi-k2.6) selected over old established gemma/qwen — day's roster is primary",
-      winner?.chosen === true && winner?.id === "kimi-k2.6"
+      "chosen cloud architect (gemini-3.5-flash) selected over old established gemma/qwen — day's roster is primary",
+      winner?.chosen === true && winner?.id === "gemini-3.5-flash"
     );
   }
 
   // ------------------------------------------------------------------
-  // Test 2: today's pick STANDS — nemotron-3-ultra (chosen) is the witness;
+  // Test 2: today's pick STANDS — gemini-3.5-flash (chosen) is the witness;
   //         super does NOT override it. AND the old record is PRESERVED as a
   //         fallback (selectSeat('final-verdict') still returns super).
   // ------------------------------------------------------------------
@@ -542,8 +549,8 @@ if (process.argv[1]?.endsWith("model_rijal.mjs")) {
     console.log(`INFO: witness seat = ${witness?.id} (chosen=${witness?.chosen}, established=${witness?.established})`);
     console.log(`INFO: old nemotron-3-super preserved as fallback = ${fallback?.id} (${fallback?.correct_runs}/${fallback?.qualifying_runs} correct)`);
     assert(
-      "nemotron-3-ultra (today's chosen pick) is the witness — NOT reverted to super",
-      witness?.id === "nemotron-3-ultra" && witness?.chosen === true
+      "gemini-3.5-flash (today's chosen pick) is the witness — NOT reverted to super",
+      witness?.id === "gemini-3.5-flash" && witness?.chosen === true
     );
     assert(
       "old nemotron-3-super record preserved as established fallback for 'final-verdict'",
@@ -617,13 +624,13 @@ if (process.argv[1]?.endsWith("model_rijal.mjs")) {
 
   // ------------------------------------------------------------------
   // Test 6: selectSeatByChannel('witness', 'cloud') returns the chosen cloud
-  //         seat (nemotron-3-ultra), flagged unestablished_narrator (earning).
+  //         seat (gemini-3.5-flash), which is established (kept in local fallback).
   // ------------------------------------------------------------------
   {
     const seat = selectSeatByChannel('witness', 'cloud');
     assert(
-      "selectSeatByChannel('witness','cloud') returns chosen cloud seat (nemotron-3-ultra), unestablished_narrator:true",
-      seat?.id === 'nemotron-3-ultra' && seat.established === false && seat.unestablished_narrator === true
+      "selectSeatByChannel('witness','cloud') returns chosen cloud seat (gemini-3.5-flash), unestablished_narrator:false",
+      seat?.id === 'gemini-3.5-flash' && seat.established === true && seat.unestablished_narrator === false
     );
     console.log(`INFO: cloud witness seat = ${seat?.id} (established=${seat?.established}, unestablished_narrator=${seat?.unestablished_narrator})`);
   }

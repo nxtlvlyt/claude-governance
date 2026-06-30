@@ -78,12 +78,15 @@ export async function ollamaVisionVerdict(promptText, imagePaths, opts = {}) {
     // gemma4 series supports vision; runs on Tailscale-accessible nxtbeast Ollama.
     if (resp.status === 429 && !opts._isFallback) {
       try {
-        const localUrl = 'http://nxtbeast:11434/v1/chat/completions';
-        const localBody = { ...body, model: 'gemma4:31b' };
-        const localResp = await fetch(localUrl, {
+        const fallbackUrl = OLLAMA_URL;
+        const fallbackBody = { ...body, model: 'gemma4:31b' };
+        const localResp = await fetch(fallbackUrl, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(localBody),
+          headers: { 
+            'Authorization': `Bearer ${apiKey}`,
+            'Content-Type': 'application/json' 
+          },
+          body: JSON.stringify(fallbackBody),
           signal: AbortSignal.timeout(opts.timeoutMs || 120000),
         });
         if (localResp.ok) {
@@ -96,15 +99,15 @@ export async function ollamaVisionVerdict(promptText, imagePaths, opts = {}) {
               ok: true,
               verdict: vm ? vm[1].toLowerCase() : 'concern',
               response: localText,
-              model: 'gemma4:31b@nxtbeast (cloud-429 fallback)',
+              model: 'gemma4:31b (cloud-429 fallback)',
               images_sent: imagePaths.length,
               elapsedMs: Date.now() - t0,
             };
           }
         }
-        return { ok: false, verdict: 'error', error: `CLOUD_429_AND_LOCAL_FAIL_HTTP_${localResp.status}`, elapsedMs: Date.now() - t0 };
+        return { ok: false, verdict: 'error', error: `CLOUD_429_AND_FALLBACK_FAIL_HTTP_${localResp.status}`, elapsedMs: Date.now() - t0 };
       } catch (fbErr) {
-        return { ok: false, verdict: 'error', error: `CLOUD_429_AND_LOCAL_FAIL: ${fbErr.message}`, elapsedMs: Date.now() - t0 };
+        return { ok: false, verdict: 'error', error: `CLOUD_429_AND_FALLBACK_FAIL: ${fbErr.message}`, elapsedMs: Date.now() - t0 };
       }
     }
     return { ok: false, verdict: 'error', error: `HTTP_${resp.status}`, raw: t.slice(0, 400), elapsedMs: Date.now() - t0 };

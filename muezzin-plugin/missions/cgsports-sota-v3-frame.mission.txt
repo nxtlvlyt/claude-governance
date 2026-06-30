@@ -30,6 +30,8 @@ Work: ONE artifact, sota-v3-frame.md, with four sections:
    then overlay v3 ML; (b) finish v2, migrate platform later; (c) v3 frame now, v2
    becomes the data/backtest layer. A recommendation with reasoning, not a menu.
 
+PLAN SHAPE: (1) Copy the core CGSports reference files (SOTA-UPGRADE-PLAN.md, V3-ARCHITECTURE.md, SUBSTRATE.md, ROADMAP.md, and STATE.md) from C:\Users\marka\code\CGSports\ into the current sandbox root using literal Copy-Item commands; (2) edit steps author the v3 FRAME research report in sota-v3-frame.md with the four sections specified in Work; (3) ONE command step validates with Select-String that sota-v3-frame.md exists, has all four sections, and contains the required citations and one recommendation.
+
 OPERATOR DESIGN CONTRACT (his words, 2026-06-11 — every section must serve these):
 - "easy to manage easy to edit easy to fix and easy to add new sports"
 - "a unified modular system ... full control of fixing a bug that may be relative
@@ -42,12 +44,6 @@ OPERATOR DESIGN CONTRACT (his words, 2026-06-11 — every section must serve the
 - Build NOW on the NAS; transfer to Cloudflare LATER (operator has no API key today;
   nothing in the build may hard-depend on Cloudflare).
 - "a lot of this information you can find in the substrate already" — ROADMAP.md,
-  SUBSTRATE.md, STATE.md, the v2 contract layer, and V3-ARCHITECTURE.md (conductor
-  draft, N:\CGSports) are REQUIRED reading before authoring.
+  SUBSTRATE.md, STATE.md, the v2 contract layer, and V3-ARCHITECTURE.md (staged from local CGSports repo) are REQUIRED reading before authoring.
 
-Done means: sota-v3-frame.md exists with all four sections; every model-class and CLV
-claim carries a live-search citation (URL); every claim about v2's current state cites
-a repo file. The single essential criterion (Arafat): section 4 ends in ONE
-recommendation with its reasoning chain — a menu without a pick fails the mission —
-and that recommendation must satisfy the OPERATOR DESIGN CONTRACT above explicitly,
-point by point.
+Done means: sota-v3-frame.md exists with all four sections; every model-class and CLV claim carries a live-search citation (URL); every claim about v2's current state cites a repository file that has been staged. The single essential criterion (Arafat): section 4 ends in ONE recommendation with its reasoning chain — a menu without a pick fails the mission — and that recommendation must satisfy the OPERATOR DESIGN CONTRACT above explicitly, point by point.

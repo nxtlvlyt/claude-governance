@@ -76,6 +76,25 @@ export function parseLagunaVerdict(text) {
   return { verdict: null, notes: t.replace(/\s+/g, ' ').trim().slice(0, 400) };
 }
 
+// PURE: strip JSON tool-call artifacts that local models sometimes emit instead of prose.
+// Objects containing a 'tool_calls' key or both 'name' + 'arguments' keys are not verdicts;
+// they are removed, and whitespace-only content is collapsed to ''. Returns { content, sanitized }.
+export function sanitizeWitnessContent(raw) {
+  let content = String(raw ?? '');
+  let sanitized = false;
+  try {
+    const obj = JSON.parse(content);
+    if (obj && typeof obj === 'object' && !Array.isArray(obj)) {
+      if ('tool_calls' in obj || ('name' in obj && 'arguments' in obj)) {
+        content = '';
+        sanitized = true;
+      }
+    }
+  } catch { /* not JSON — leave content as-is */ }
+  if (!content.trim()) content = '';
+  return { content, sanitized };
+}
+
 // PURE: bounded laguna prompt. The verdict does not need the whole artifact, and a huge
 // prompt risks the model's context (same discipline as buildGuardianPrompt).
 export function buildLagunaPrompt(artifactText, contextText, { maxArt = 9000, maxCtx = 7000 } = {}) {
@@ -109,10 +128,10 @@ export async function lagunaDispatch(system, prompt, { model = LAGUNA_MODEL, num
         if (!line.trim()) continue;
         let obj; try { obj = JSON.parse(line); } catch { continue; }
         content += obj?.message?.content ?? '';
-        if (obj.done) return content;
+        if (obj.done) return sanitizeWitnessContent(content).content;
       }
     }
-    return content;
+    return sanitizeWitnessContent(content).content;
   } finally { clearTimeout(timer); }
 }
 
@@ -121,7 +140,10 @@ export async function lagunaDispatch(system, prompt, { model = LAGUNA_MODEL, num
 export async function checkStructure(artifactText, contextText, { dispatch = lagunaDispatch, system = LAGUNA_SYSTEM } = {}) {
   try {
     const raw = await dispatch(system, buildLagunaPrompt(artifactText, contextText));
-    return { ...parseLagunaVerdict(raw), ran: true };
+    const { content, sanitized } = sanitizeWitnessContent(raw);
+    const parsed = parseLagunaVerdict(content);
+    if (sanitized) parsed.notes = `[sanitized: tool-call wrapper removed] ${parsed.notes}`.trim();
+    return { ...parsed, ran: true };
   } catch (e) {
     return { verdict: null, notes: `laguna-unavailable: ${String(e?.message).slice(0, 120)}`, ran: false };
   }
@@ -400,6 +422,27 @@ if (process.argv[1] && process.argv[1].endsWith('self_witness.mjs')) {
   ck(parseLagunaVerdict('<verdict>BLOCK</verdict>').verdict === 'REJECT', 'parse: BLOCK normalizes to REJECT');
   ck(parseLagunaVerdict('the model rambled with no verdict').verdict === null, 'parse: no verdict -> null (no signal, never a block)');
   ck(parseLagunaVerdict(null).verdict === null, 'parse: null input -> null, no throw');
+
+  // ---- sanitizeWitnessContent -----------------------------------------------------------
+  const swEmpty = sanitizeWitnessContent('');
+  ck(swEmpty.content === '' && swEmpty.sanitized === false, 'sanitize: empty string -> empty, not sanitized');
+  const swWs = sanitizeWitnessContent('   \n\t  ');
+  ck(swWs.content === '' && swWs.sanitized === false, 'sanitize: whitespace-only -> empty, not sanitized');
+  const swNormal = sanitizeWitnessContent('<verdict>APPROVE</verdict> reasoning is sound');
+  ck(swNormal.content === '<verdict>APPROVE</verdict> reasoning is sound' && swNormal.sanitized === false, 'sanitize: normal verdict prose unchanged');
+  const swTool1 = sanitizeWitnessContent(JSON.stringify({ name: 'witness', arguments: { text: 'foo' } }));
+  ck(swTool1.content === '' && swTool1.sanitized === true, 'sanitize: strips name+arguments tool-call wrapper');
+  const swTool2 = sanitizeWitnessContent(JSON.stringify({ tool_calls: [{ name: 'witness', arguments: { text: 'foo' } }] }));
+  ck(swTool2.content === '' && swTool2.sanitized === true, 'sanitize: strips tool_calls wrapper');
+  // verify the parser still works on sanitized normal text for every verdict class
+  ck(parseLagunaVerdict(sanitizeWitnessContent('<verdict>APPROVE</verdict> ok').content).verdict === 'APPROVE', 'sanitize: parse still extracts APPROVE after sanitization');
+  ck(parseLagunaVerdict(sanitizeWitnessContent('<verdict>REVISE</verdict> gap').content).verdict === 'REVISE', 'sanitize: parse still extracts REVISE after sanitization');
+  ck(parseLagunaVerdict(sanitizeWitnessContent('<verdict>REJECT</verdict> bad').content).verdict === 'REJECT', 'sanitize: parse still extracts REJECT after sanitization');
+  // verify the diagnostic note flag lands in checkStructure when a tool-call wrapper fires
+  const csSanitized = await checkStructure('art', 'ctx', {
+    dispatch: async () => JSON.stringify({ name: 'witness', arguments: { text: '<verdict>APPROVE</verdict>' } }),
+  });
+  ck(csSanitized.verdict === null && csSanitized.notes.includes('[sanitized: tool-call wrapper removed]'), 'checkStructure: sanitized wrapper sets diagnostic notes flag');
 
   // ---- prompt builder bounded ----
   const lp = buildLagunaPrompt('art body', 'ctx body');

@@ -1,0 +1,15 @@
+MISSION-ID: M28-1C-IOVERLANDER-PARTS.S2
+PARENT: M28-1C-IOVERLANDER-PARTS
+TARTIB-INDEX: 2 of 2
+REQUIRES: M28-1C-IOVERLANDER-PARTS.S1 (tartib — this sub-mission may not start until M28-1C-IOVERLANDER-PARTS.S1's receipt exists)
+STEPS: 4
+
+PARENT MAQSAD: (see parent mission)
+
+Maqsad: sub-mission 2 of 2 — Emit part-4-overlap.md: Section 4 Overlap map with F1-through-F11 rows citing MUDDYTIRES-TASKS.numbered.md through Final verification that assembled card contains all five section headers, F1-F11 rows, and Demand 1/2/3 labels
+
+Steps:
+  9. Emit part-4-overlap.md: Section 4 Overlap map with F1-through-F11 rows citing MUDDYTIRES-TASKS.numbered.md [edit] part-4-overlap.md
+  10. Emit part-5-wedge.md: Section 5 Gap verdict with three labeled demands grounded in earlier parts [edit] part-5-wedge.md
+  11. Assemble competitor-card-ioverlander.md by concatenating header and all five part files [command] competitor-card-ioverlander.md
+  12. Final verification that assembled card contains all five section headers, F1-F11 rows, and Demand 1/2/3 labels [verify] competitor-card-ioverlander.md

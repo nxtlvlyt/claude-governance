@@ -40,7 +40,7 @@ import { readFileSync } from 'fs';
 
 const ROUTE_FILE = 'C:/Users/marka/.claude/state/muezzin-route.json';
 
-export const MODES = ['balance', 'anthropic-heavy', 'local-heavy', 'reasoning-heavy'];
+export const MODES = ['balance', 'anthropic-heavy', 'local-heavy', 'reasoning-heavy', 'gemini-heavy'];
 
 // THE TABLE. Each mode -> the model NAME each seat is handed. seat_dispatch resolves the
 // name to a provider via its waterfall, so a Claude name (opus/sonnet/haiku) dispatches
@@ -55,7 +55,7 @@ const TABLE = {
     executor: 'kimi-k2.7-code',                                    // 2026-06-17: qwen3-coder-next->kimi-k2.7-code (guardian+laguna APPROVE). seat-record: kimi ratio 0.43 (5 fewer fab) beats qwen 0.484; canon/bake-off = reliable Phase-2 executor; the 2026-06-15 qwen-revert ("kimi auditioning, no completions") is stale — kimi now has 16 recorded. Sonnet fallback via CLAUDE_SEAT_MAP
     validator: 'deepseek-v4-pro',                                  // ollama-cloud verdict (today)
     auditor: 'minimax-m3',                                         // ollama-cloud verdict (today)
-    witness: 'nemotron-3-super',                                   // Opus-first witness via CLAUDE_SEAT_MAP (today)
+    witness: 'gemini-3-flash-preview',                             // Google Gemini (superior Witness per benchmark)
   },
   'anthropic-heavy': {
     // CLAUDE IN THE PHASES (SEAT-PLAN-OPERATOR-ORIGINAL.md outage panel = the anthropic-heavy
@@ -78,9 +78,9 @@ const TABLE = {
     // ~ZERO CLAUDE: local + cloud ollama only. Architects = the 4090's locals + nemotron
     // super (cloud) as the breadth seat; all ollama names -> cloud-first, local fallback,
     // NEVER the Claude tier (no name here maps to a Claude model as PRIMARY).
-    architects: ['qwen3.5:9b', 'granite4.1:8b', 'nemotron-3-super'],
+    architects: ['glm-5.1', 'deepseek-v4-pro', 'nemotron-3-super'],
     integrator: 'deepseek-v4-pro',                                 // ollama-cloud integrator
-    executor: 'kimi-k2.7-code',                                    // local kimi-coder / qwen — the 4090 (cloud-first name, local fallback)
+    executor: 'kimi-k2.7-code',                                    // Ollama Cloud executor (ornith:35b local fallback)
     validator: 'deepseek-v4-pro',                                  // ollama verdict
     auditor: 'minimax-m3',                                         // ollama verdict
     witness: 'laguna-xs.2:q4_K_M',                                // OPERATOR 2026-06-26: laguna IS the structural witness (self_witness.mjs:43 "spec: structural witness"; rulings = code review/structural analysis). qwen3.5:9b was a drift. 33B structural reviewer, local on nxtbeast. The old "no Opus pull" rationale is moot — Claude tier is disabled this session, so there is no Opus to pull.
@@ -99,6 +99,17 @@ const TABLE = {
     validator: 'sonnet',                                           // Claude verdict (stronger per-seat than open deepseek for hard work)
     auditor: 'opus',                                               // Opus final auditor (sharpest judgment on difficult work)
     witness: 'opus',                                               // Opus per-step witness (catch bad steps early) — producer(glm)!=verifier(Claude), diversity preserved
+  },
+  'gemini-heavy': {
+    // ALL SIX SEATS route to gemini-3-flash-preview. The architects seat uses three
+    // identical preview instances so the entire phase-1 panel, synthesis, execution,
+    // verdict, and smell-test are driven by the same Gemini model.
+    architects: ['gemini-3-flash-preview', 'gemini-3-flash-preview', 'gemini-3-flash-preview'],
+    integrator: 'gemini-3-flash-preview',
+    executor: 'gemini-3-flash-preview',
+    validator: 'gemini-3-flash-preview',
+    auditor: 'gemini-3-flash-preview',
+    witness: 'gemini-3-flash-preview',
   },
 };
 
@@ -169,7 +180,7 @@ if (process.argv[1]?.endsWith('seat_modes.mjs') && process.argv.includes('--self
     const s = resolveMode('balance');
     ckT('balance: 3 architects, NONE a Claude model (ollama-cloud, stretch Claude only at fallback)', s.architects.length === 3 && s.architects.every((m) => !isClaude(m)));
     ck('balance: executor = kimi-k2.7-code (2026-06-17: better-recorded than qwen, canon Phase-2 executor)', s.executor, 'kimi-k2.7-code');
-    ckT('balance: witness = nemotron-3-super (Opus-first via map — strong witness)', s.witness === 'nemotron-3-super');
+    ckT('balance: witness = gemini-3-flash-preview (Google Gemini witness)', s.witness === 'gemini-3-flash-preview');
   }
 
   // 2. ANTHROPIC-HEAVY: architects = Claude opus/sonnet/haiku; executor = sonnet; verdict = OPEN.
@@ -188,7 +199,7 @@ if (process.argv[1]?.endsWith('seat_modes.mjs') && process.argv.includes('--self
     ckT('local-heavy: NO architect is a Claude model (local+cloud ollama only)', s.architects.every((m) => !isClaude(m)));
     ckT('local-heavy: executor is NOT a Claude primary (the 4090 / cloud ollama)', !isClaude(s.executor));
     ckT('local-heavy: integrator + verdict + witness are all NON-Claude (≈zero Claude)', [s.integrator, s.validator, s.auditor, s.witness].every((m) => !isClaude(m)));
-    ckT('local-heavy: witness = qwen3.5:9b (LOCAL, no Opus pull)', s.witness === 'qwen3.5:9b');
+    ckT('local-heavy: witness = laguna-xs.2:q4_K_M (LOCAL, no Opus pull)', s.witness === 'laguna-xs.2:q4_K_M');
   }
 
   // 4. SAFE DEFAULT: unknown / absent mode -> null (consumers keep today's hardcoded seats).
@@ -214,6 +225,19 @@ if (process.argv[1]?.endsWith('seat_modes.mjs') && process.argv.includes('--self
     ck('pickArchitects: no mode -> passed fallbacks (PANEL defaults)', fb, { architects: ['a', 'b', 'c'], integrator: 'INTEG' });
     const ah = pickArchitects(['a', 'b', 'c'], 'INTEG', { MUEZZIN_MODE: 'anthropic-heavy' }, noRead);
     ck('pickArchitects: anthropic-heavy -> opus/sonnet/haiku + opus integrator', ah, { architects: ['opus', 'sonnet', 'haiku'], integrator: 'opus' });
+  }
+
+  // 7. GEMINI-HEAVY: every named seat maps to gemini-3-flash-preview.
+  {
+    const s = resolveMode('gemini-heavy');
+    ck('gemini-heavy: architects = all gemini-3-flash-preview', s.architects, ['gemini-3-flash-preview', 'gemini-3-flash-preview', 'gemini-3-flash-preview']);
+    ck('gemini-heavy: integrator = gemini-3-flash-preview', s.integrator, 'gemini-3-flash-preview');
+    ck('gemini-heavy: executor = gemini-3-flash-preview', s.executor, 'gemini-3-flash-preview');
+    ck('gemini-heavy: validator = gemini-3-flash-preview', s.validator, 'gemini-3-flash-preview');
+    ck('gemini-heavy: auditor = gemini-3-flash-preview', s.auditor, 'gemini-3-flash-preview');
+    ck('gemini-heavy: witness = gemini-3-flash-preview', s.witness, 'gemini-3-flash-preview');
+    ck('readMode: MUEZZIN_MODE=gemini-heavy wins', readMode({ MUEZZIN_MODE: 'gemini-heavy' }, noRead), 'gemini-heavy');
+    ck('pickSeat: gemini-heavy validator -> gemini-3-flash-preview', pickSeat('validator', 'FB', { MUEZZIN_MODE: 'gemini-heavy' }, noRead), 'gemini-3-flash-preview');
   }
 
   console.log(`[selftest] ${pass} passed, ${fail} failed`);

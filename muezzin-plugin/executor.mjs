@@ -15,6 +15,7 @@
 
 import { readFileSync, mkdirSync, writeFileSync, statSync, readdirSync, existsSync } from 'fs';
 import path from 'path';
+import { builtinModules } from 'node:module';
 import { dispatchSeat } from './seat_dispatch.mjs';
 import { badalSelect } from './seat_record.mjs';
 import { pickSeat } from './seat_modes.mjs';
@@ -28,6 +29,72 @@ import { resolveRepoTarget } from './mission_class.mjs';
 // the prior inline regex (same pattern, same /i flag, same String() coercion).
 export function isProseTarget(p) {
   return /\.(html?|md|markdown|txt)$/i.test(String(p || ''));
+}
+
+// ENVIRONMENT MANIFEST (2026-06-18): a grounded, read-only snapshot of the runtime + workspace
+// so the executor seat can author code that matches the ACTUAL Node.js version, available globals,
+// built-in modules, installed npm dependencies, and workspace layout. Prevents hallucinated
+// imports (node:fetch, node:websocket, node:global, etc.) and version-incompatible APIs.
+export function buildEnvironmentManifest(cwd, repoRoot) {
+  const base = repoRoot || cwd;
+
+  // ---- globals present in this Node.js process ----
+  const globalNames = [
+    'fetch', 'console', 'process', 'Buffer', 'AbortController', 'AbortSignal',
+    'TextEncoder', 'TextDecoder', 'URL', 'URLSearchParams', 'FormData',
+    'Headers', 'Request', 'Response', 'structuredClone', 'crypto', 'performance',
+    'setImmediate', 'setInterval', 'setTimeout', 'clearImmediate', 'clearInterval', 'clearTimeout',
+    'atob', 'btoa', 'WebSocket', 'Blob', 'File', 'ReadableStream', 'WritableStream',
+    'TransformStream', 'WebAssembly', 'Atomics', 'SharedArrayBuffer'
+  ];
+  const globals = {};
+  for (const g of globalNames) {
+    try { globals[g] = typeof globalThis[g]; }
+    catch (e) { globals[g] = `<<unreadable: ${e.message}>>`; }
+  }
+
+  // ---- valid node: built-ins in this runtime ----
+  const nodeBuiltins = Array.from(builtinModules || []).map((m) => `node:${m}`);
+
+  // ---- explicit denylist: these node: pseudo-modules do NOT exist; redirect to globals ----
+  const denylist = {
+    'node:fetch': 'global fetch (available when typeof globalThis.fetch === "function")',
+    'node:websocket': null,
+    'node:global': 'globalThis',
+    'node:console': 'global console',
+    'node:process': 'global process',
+    'node:buffer': 'global Buffer'
+  };
+
+  // ---- npm dependencies (graceful: missing package.json is NOT fatal) ----
+  let npmDependencies = {};
+  try {
+    const pkgPath = path.join(base, 'package.json');
+    const pkg = JSON.parse(readFileSync(pkgPath, 'utf8'));
+    npmDependencies = {
+      ...(pkg.dependencies || {}),
+      ...(pkg.devDependencies || {}),
+      ...(pkg.peerDependencies || {})
+    };
+  }
+  catch (e) { npmDependencies = { _note: `package.json not readable at ${base}: ${e.message}` }; }
+
+  // ---- workspace directory listing (the cwd the step runs in) ----
+  let workspaceListing = [];
+  try {
+    workspaceListing = readdirSync(cwd, { withFileTypes: true })
+      .map((d) => (d.isDirectory() ? `${d.name}/` : d.name)).slice(0, 200);
+  }
+  catch (e) { workspaceListing = [`<<unreadable: ${e.message}>>`]; }
+
+  return {
+    nodeVersion: process.version,
+    globals,
+    nodeBuiltins,
+    denylist,
+    npmDependencies,
+    workspaceListing
+  };
 }
 
 // Read a context dependency. Relative = inside the sandbox; ABSOLUTE = allowed READ-ONLY
@@ -279,6 +346,10 @@ export async function implementStep(step, cwd, { dispatch = dispatchSeat, model 
   const target = step?.target_files?.[0];
   if (!target) return { ok: false, error: 'step has no target_files[0] to write' };
 
+  // Build a grounded environment snapshot and pass it through to every dispatch so the
+  // emission seat knows the ACTUAL runtime it is authoring for.
+  const envManifest = buildEnvironmentManifest(cwd, repoRoot);
+
   // BADAL SWITCH (dispatch-time, 2026-06-11): unless a model is explicitly forced, the
   // emission seat is chosen from the track record — a disqualified default escalates to
   // a PROVEN proxy only; an untested candidate is never promoted (badal rule).
@@ -303,7 +374,7 @@ export async function implementStep(step, cwd, { dispatch = dispatchSeat, model 
     // targets (.html/.md/.txt) to the faithful seat (sonnet) — removes the fabrication surface for content; CODE/config emission
     // stays on the local coder (kimi via the mode) to conserve Claude budget. Per-seat record auto-separates prose vs code quality.
     const proseTarget = isProseTarget(step.target_files?.[0]);
-    const floor = proseTarget ? 'sonnet' : pickSeat('executor', 'kimi-k2.7-code');
+    const floor = (proseTarget && process.env.MUEZZIN_CLAUDE_TIER === 'on') ? 'sonnet' : pickSeat('executor', 'kimi-k2.7-code');
     try { badal = badalSelect(path.join(path.dirname(cwd), '_logs', 'seat-record.json'), 'emission', floor); model = badal.model; }
     catch { model = floor; }
   }
@@ -354,7 +425,7 @@ export async function implementStep(step, cwd, { dispatch = dispatchSeat, model 
       const wholeFileSafe = orig.length <= EDIT_FULL_FILE_MAX_BYTES;
       if (!(fullReauthorIntent && wholeFileSafe)) {
         const editFraming = buildEditFraming(step, readBase, orig);
-        const er = await dispatch(seat, editFraming, { wantVerdict: false });
+        const er = await dispatch(seat, editFraming, { wantVerdict: false, envManifest });
         const blocks = extractEditBlocks(er?.content);
         if (!blocks.length) return { ok: false, error: `edit-mode: seat emitted no SEARCH/REPLACE blocks for ${target} (raw ${String(er?.content ?? '').length} chars) — refusing to write (fail-closed, no whole-file fallback)` };
         const applied = applyEditBlocks(orig, blocks);
@@ -369,7 +440,7 @@ export async function implementStep(step, cwd, { dispatch = dispatchSeat, model 
 
   const framing = buildFraming(step, readBase);
 
-  const r = await dispatch(seat, framing, { wantVerdict: false });
+  const r = await dispatch(seat, framing, { wantVerdict: false, envManifest });
   const content = extractCodeBlock(r?.content);
   // EMPTY-ARTIFACT GREMLIN — FOUND IN CODE 2026-06-10: extractCodeBlock returns '' (an
   // EMPTY STRING, not null) for an empty fenced block ```\n``` — and `content == null`
@@ -414,7 +485,7 @@ export async function implementStep(step, cwd, { dispatch = dispatchSeat, model 
       `do NOT repeat bytes already emitted, do NOT restart the file. ` +
       `End with the line ${SENTINEL} as the last line inside the block. ` +
       `If the file was ALREADY complete, output a code block containing ONLY the line ${SENTINEL}.`;
-    const cr = await dispatch(seat, contFraming, { wantVerdict: false });
+    const cr = await dispatch(seat, contFraming, { wantVerdict: false, envManifest });
     const cBody = extractCodeBlock(cr?.content);
     if (cBody == null) break;                       // continuation refused/empty — stop, fail below with receipt
     const s = stripSentinel(cBody);

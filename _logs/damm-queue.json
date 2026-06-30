@@ -1,0 +1,46 @@
+{
+  "entries": [
+    {
+      "mission": "muezzin-plugin",
+      "finding": "Section A status column uses 'DIVERGENT' instead of mission-required verbatim text: 'DIVERGENT — no third independent check available in this sandbox; operator review required'. All four rows affected.",
+      "from": "validator",
+      "ts": "2026-06-27T06:43:30.185Z",
+      "repaid": false
+    },
+    {
+      "mission": "muezzin-plugin",
+      "finding": "Section B 'Claim as written' ('unveiled in 1976') is asserted without a staged-source citation or explicit inference marker, violating Done-means requirement.",
+      "from": "validator",
+      "ts": "2026-06-27T06:43:30.185Z",
+      "repaid": false
+    },
+    {
+      "mission": "muezzin-plugin",
+      "finding": "DIVERGENT marker text in Section A is truncated. Mission contract specifies the full marker: 'DIVERGENT — no third independent check available in this sandbox; operator review required'. All four Status cells contain only 'DIVERGENT'. The qualifier portion is operationally significant — it signals to operators why reconciliation was withheld (no third check available) rather than implying a third check was attempted and failed. Repair: replace 'DIVERGENT' with the full specified marker string in all four rows.",
+      "from": "auditor",
+      "ts": "2026-06-27T06:43:30.185Z",
+      "repaid": false
+    },
+    {
+      "mission": "muezzin-plugin",
+      "finding": "Section B 'Claim as written' does not match the parent NOTES claim as specified in the mission contract. Mission quotes the parent claim as 'the 1975 computerized-design engineering story...'. Artifact represents it as 'The Vegreville Pysanka was unveiled in 1976.' — a different claim (1976 unveiling vs. 1975 engineering narrative). This misrepresents what the parent file actually said and undermines the corrections audit trail. Repair: quote the parent's actual claim text from quirky-pois-west-NOTES.md, not a paraphrase that invents a different claim.",
+      "from": "auditor",
+      "ts": "2026-06-27T06:43:30.185Z",
+      "repaid": false
+    },
+    {
+      "mission": "muezzin-plugin",
+      "finding": "Section B corrected NOTES sentence extends beyond the mission-specified scope with unsourced descriptive content. Mission asks for 'the corrected NOTES sentence asserting that the Pysanka was unveiled on July 2, 1975'. Artifact adds 'marking the official opening of the landmark Ukrainian Easter egg sculpture in Vegreville, Alberta — the world's largest pysanka' without citation. Done-means requires every claim to carry a staged-source citation or an explicit inference marker. Repair: either remove the unsupported descriptors or add an inference marker (e.g., '[inference — not from staged source]').",
+      "from": "auditor",
+      "ts": "2026-06-27T06:43:30.185Z",
+      "repaid": false
+    },
+    {
+      "mission": "muezzin-plugin",
+      "finding": "Done-means #1 requires the escalation return shape to include a reason naming 'untested-and-failing fast-revert'. In badalSelect (seat_record.mjs :86-93), the why field is unconditionally set to own.reason, which for the fast-revert branch is the generic proxyEligible string 'no passed \\'${rite}\\' on record — badal rule: the proxy must have completed its own Hajj first'. That string does not name 'untested-and-failing fast-revert', so the conductor's beat cannot distinguish a fast-revert from a ratio>=0.5 disqualification by reading the return value. Test (a) in badal-fast-revert.test.mjs was authored to match the implementation's string ('no passed \\'rite\\' on record') rather than the contract's required string, so the green test does not validate the Done-means reason contract. Remediation: in badalSelect, set why based on which disqualification branch fired (e.g. why: strikeRatioDisq ? own.reason : `untested-and-failing fast-revert (0 passes + recorded failure for '${rite}')`), and update test (a) to assert the 'untested-and-failing fast-revert' substring. Core fast-revert BEHAVIOR is correct; this is an observability/contract gap, not a behavioral one.",
+      "from": "auditor",
+      "ts": "2026-06-30T11:30:13.979Z",
+      "repaid": false
+    }
+  ]
+}

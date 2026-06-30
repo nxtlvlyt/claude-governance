@@ -1,0 +1,23 @@
+MISSION-ID: cgsports-sota-v3-frame.S2
+PARENT: cgsports-sota-v3-frame
+TARTIB-INDEX: 2 of 2
+REQUIRES: cgsports-sota-v3-frame.S1 (tartib — this sub-mission may not start until cgsports-sota-v3-frame.S1's receipt exists)
+STEPS: 8
+
+PARENT MAQSAD: (see parent mission)
+
+Maqsad: sub-mission 2 of 2 — Copy core CGSports reference files and fetch search results for unified platform into search-unify.html, author the 4 report sections, assemble sota-v3-frame.md, clean up reference files, and verify the final artifact.
+
+Steps:
+  1. Copy reference files (SOTA-UPGRADE-PLAN.md, V3-ARCHITECTURE.md, SUBSTRATE.md, ROADMAP.md, STATE.md) from C:\Users\marka\code\CGSports\ into the sandbox root and fetch live search results for unified modular platform architecture shared auth billing edge deploy into search-unify.html. [command] search-unify.html
+  2. Emit part-1-clv.md: Section 1 ML EVALUATION FRAME covering CLV vs accuracy, calibration and Kelly sizing, schema requirements for 2.1M-row odds data, and concrete pipeline changes. Cite live URLs extracted from search-clv.html and search-calib.html. [edit] part-1-clv.md
+  3. Emit part-2-models.md: Section 2 MODEL CLASS SURVEY covering gradient-boosting stacks, sequence/transformer models, LLM-assisted feature synthesis, and ensembles. Give fit verdicts. Cite live URLs extracted from search-models.html. [edit] part-2-models.md
+  4. Emit part-3-unify.md: Section 3 UNIFICATION describing one platform pattern for all operator properties with shared auth, billing, deploy tunnel plus edge front, and content primitives. Cite live URLs from search-unify.html. [edit] part-3-unify.md
+  5. Emit part-4-migrate.md: Section 4 MIGRATE-VS-OVERLAY COSTING presenting three options with effort and risk, ending in ONE explicit recommendation satisfying the operator design contract. [edit] part-4-migrate.md
+  6. Assemble sota-v3-frame.md by emitting the complete final document containing all four sections in order, drawn from the four part-files, with coherent flow and citations. [edit] sota-v3-frame.md
+  7. Clean up the copied CGSports reference files (SOTA-UPGRADE-PLAN.md, V3-ARCHITECTURE.md, SUBSTRATE.md, ROADMAP.md, STATE.md) from the sandbox root using Remove-Item. [command] cleanup-reference-files
+  8. Final verification that sota-v3-frame.md exists, contains all four sections with citations, and ends with a single recommendation satisfying the operator design contract. [verify] sota-v3-frame.md
+
+Done means: sota-v3-frame.md exists in the sandbox root, contains all four sections with citations, and ends with a single recommendation satisfying the Operator Design Contract.
+
+Done means: sota-v3-frame.md exists in the sandbox root, contains all four sections with citations, and ends with a single recommendation satisfying the Operator Design Contract.

@@ -1,11 +1,16 @@
-// visual_witness.mjs — visual-regression witness via agy (Google Antigravity) + Gemini
+// visual_witness.mjs — visual-regression witness via Ollama Cloud's gemini-3-flash-preview
 //
-// Operator's standing rule (2026-06-23): "agy/Gemini is unlimited via Antigravity AND
-// specifically suited to VISUAL QC ... I only really find Gemini useful for visual
-// quality control it's not really that good at coding". This module is the substrate
-// embodiment of that rule: a visual-witness seat that calls agy with a vision-capable
-// Gemini model to compare deployed-preview screenshots vs the baseline screenshots
-// captured by capture-visreg-baseline.mjs (sister script, also dormant).
+// Uses ollamaVisionVerdict from ./ollama_vision_verdict.mjs to compare deployed-preview
+// screenshots against the baseline screenshots captured by capture-visreg-baseline.mjs.
+// This replaces the agy (Google Antigravity) path because agy CLI --print returns empty
+// stdout even for trivial prompts (substrate-verified 2026-06-24), making the agy
+// visual-witness path non-functional on this install. Ollama Cloud's
+// gemini-3-flash-preview is multimodal and accessible via the standard
+// /v1/chat/completions endpoint using OpenAI-style image_url content blocks.
+//
+// Aligned with operator-rulings.md: "use Ollama" — this is Ollama Cloud, allowed.
+// NOT a frontier-worker dispatch; this is the Ollama-routed Gemini model on the
+// operator's plan, which is the sanctioned access path.
 //
 // PENDING the operator sign-off on a MUEZZIN-SEAT-PLAN-LOCKED.md addendum adding visual
 // witness as a Phase-3 boundary auditor. Not yet wired into orchestrate.mjs / verdict_merge.mjs.
@@ -18,13 +23,6 @@
 // - Visual-witness fits the plugin's "deeds-not-claims" model: screenshot bytes ARE a
 //   real execution receipt, not a model's claim
 //
-// Why agy specifically (not gemini-3-flash-preview via Ollama Cloud):
-// - Operator pays for unlimited-quota Antigravity; using Ollama Cloud's gemini-flash
-//   for this would burn Ollama quota for capability you already have free
-// - Antigravity's Gemini 3.x has full multimodal vision (frontier-class); the
-//   Ollama-routed gemini-3-flash-preview is the flash tier (smaller/weaker for visual)
-// - The 72-screenshot baseline at qc-baseline/ was captured for THIS witness
-//
 // Receipt shape (returned by witnessVisualDiff):
 //   {
 //     ok: boolean,           // true if the witness ran successfully (regardless of verdict)
@@ -36,17 +34,36 @@
 //     error?: { kind, detail }       // populated when ok=false
 //   }
 
-import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
+import { existsSync, readdirSync } from 'node:fs';
 import path from 'node:path';
-import { dispatchAgy, agyAvailable } from './agy_dispatch.mjs';
+import { ollamaVisionVerdict } from './ollama_vision_verdict.mjs';
 
 const HERE = path.dirname(import.meta.url.replace(/^file:\/+/, '')).replace(/\\/g, '/');
 const BASELINE_DIR = path.join(HERE, 'qc-baseline');
-const DEFAULT_MODEL = 'gemini-3.5-flash'; // agy default — frontier multimodal for visual
+const DEFAULT_MODEL = 'gemini-3-flash-preview'; // Ollama Cloud multimodal vision default
 
-// Build the substantive prompt agy needs (vs trivial prompt that triggers planner-loop
-// swallow per the agy_dispatch.mjs docs). For visual witness, "compare these N pairs of
-// images and list any regression" IS substantive.
+// ---- inlined from self_witness.mjs to avoid circular dependency ---------------------------
+// PURE: strip JSON tool-call artifacts that local models sometimes emit instead of prose.
+// Objects containing a 'tool_calls' key or both 'name' + 'arguments' keys are not verdicts;
+// they are removed, and whitespace-only content is collapsed to ''. Returns { content, sanitized }.
+function sanitizeWitnessContent(raw) {
+  let content = String(raw ?? '');
+  let sanitized = false;
+  try {
+    const obj = JSON.parse(content);
+    if (obj && typeof obj === 'object' && !Array.isArray(obj)) {
+      if ('tool_calls' in obj || ('name' in obj && 'arguments' in obj)) {
+        content = '';
+        sanitized = true;
+      }
+    }
+  } catch { /* not JSON — leave content as-is */ }
+  if (!content.trim()) content = '';
+  return { content, sanitized };
+}
+
+// Build the substantive prompt the vision model needs. For visual witness,
+// "compare these N pairs of images and list any regression" IS substantive.
 
 function buildVisualPrompt(pagePairs) {
   const intro =
@@ -68,20 +85,20 @@ function buildVisualPrompt(pagePairs) {
   return intro + refs;
 }
 
-// Parse agy's response into a structured verdict. Per the agy_dispatch.mjs caveat,
-// stdout may be empty even when the model successfully ran. In that case the verdict
-// is reported as 'error' kind=EMPTY_RESPONSE — the caller can decide whether to retry
-// or escalate.
+// Parse the vision model's response into a structured verdict. If the model returns
+// an empty response, the verdict is reported as 'error' kind=EMPTY_RESPONSE — the
+// caller can decide whether to retry or escalate.
 
-function parseVisualResponse(stdout, pagePairs) {
-  if (!stdout || stdout.trim().length === 0) {
+function parseVisualResponse(responseText, pagePairs) {
+  const { content } = sanitizeWitnessContent(responseText);
+  if (!content) {
     return {
       verdict: 'error',
-      pages_compared: pagePairs.map(p => ({ ...p, diff_summary: '(no response)', finding: null })),
+      pages_compared: pagePairs.map(p => ({ ...p, diff_summary: '(model returned no parseable visual analysis)', finding: null })),
       blocking_findings: [],
     };
   }
-  const lines = stdout.split(/\r?\n/);
+  const lines = content.split(/\r?\n/);
   const findings = [];
   for (const p of pagePairs) {
     const tag = `${p.slug}/${p.viewport}`;
@@ -122,8 +139,8 @@ export function inventoryBaseline(baselineDir = BASELINE_DIR) {
   return pairs;
 }
 
-// witnessVisualDiff — capture preview screenshots, dispatch agy to compare them
-// against baselines, parse the verdict, return structured receipt.
+// witnessVisualDiff — capture preview screenshots, dispatch ollamaVisionVerdict to compare
+// them against baselines, parse the verdict, return structured receipt.
 //
 // previewPathFn: function(slug, viewport) -> absolute path to a captured preview screenshot
 // (the caller's responsibility — orchestrate.mjs after deploying a preview).
@@ -132,11 +149,11 @@ export async function witnessVisualDiff(previewPathFn, opts = {}) {
   const t0 = Date.now();
   const model = opts.model || DEFAULT_MODEL;
 
-  if (!agyAvailable()) {
+  if (!(process.env.OLLAMA_API_KEY || process.env.OLLAMA_CLOUD_API_KEY)) {
     return {
       ok: false, verdict: 'error', pages_compared: [], blocking_findings: [],
       elapsedMs: Date.now() - t0, model,
-      error: { kind: 'AGY_BINARY_MISSING', detail: 'agy.exe not present; install or configure path' },
+      error: { kind: 'NO_API_KEY', detail: 'set OLLAMA_API_KEY or OLLAMA_CLOUD_API_KEY' },
     };
   }
 
@@ -162,22 +179,23 @@ export async function witnessVisualDiff(previewPathFn, opts = {}) {
   }
 
   const prompt = buildVisualPrompt(pairs);
-  const r = await dispatchAgy(prompt, {
+  const imagePaths = pairs.flatMap(p => [p.baseline_path, p.preview_path]);
+  const r = await ollamaVisionVerdict(prompt, imagePaths, {
     model,
     timeoutMs: opts.timeoutMs || 5 * 60 * 1000,
-    printTimeout: '5m',
-    cwd: opts.cwd,
   });
 
-  if (!r.ok && r.error?.kind !== 'NONZERO_EXIT') {
+  const responseText = sanitizeWitnessContent(r?.response).content;
+
+  if (!r.ok) {
     return {
-      ok: false, verdict: 'error', pages_compared: pairs.map(p => ({ ...p, diff_summary: '(dispatch failed)', finding: null })),
+      ok: false, verdict: 'error', pages_compared: pairs.map(p => ({ ...p, diff_summary: '(vision verdict failed)', finding: null })),
       blocking_findings: [], elapsedMs: Date.now() - t0, model,
-      error: r.error,
+      error: { kind: r.error || 'VISION_VERDICT_FAIL', detail: r.raw || '' },
     };
   }
 
-  const parsed = parseVisualResponse(r.stdout, pairs);
+  const parsed = parseVisualResponse(responseText, pairs);
   return {
     ok: parsed.verdict !== 'error',
     verdict: parsed.verdict,
@@ -185,14 +203,14 @@ export async function witnessVisualDiff(previewPathFn, opts = {}) {
     blocking_findings: parsed.blocking_findings,
     elapsedMs: Date.now() - t0,
     model,
-    ...(parsed.verdict === 'error' ? { error: { kind: 'EMPTY_RESPONSE', detail: 'agy returned no parseable response (planner-loop swallow likely)' } } : {}),
+    ...(parsed.verdict === 'error' ? { error: { kind: 'EMPTY_RESPONSE', detail: 'vision model returned no parseable response' } } : {}),
   };
 }
 
 // argv-guarded self-test: verifies the module loads + inventories baselines + builds
-// a prompt without invoking agy (no quota burn). Per plugin convention.
+// a prompt without invoking the vision model (no quota burn). Per plugin convention.
 
-if (import.meta.url === `file://${process.argv[1].replace(/\\/g, '/')}` && process.argv.includes('--selftest')) {
+if (process.argv[1]?.endsWith('visual_witness.mjs') && process.argv.includes('--selftest')) {
   (async () => {
     const baselines = inventoryBaseline();
     console.log(`baseline inventory: ${baselines.length} pages`);
@@ -203,10 +221,16 @@ if (import.meta.url === `file://${process.argv[1].replace(/\\/g, '/')}` && proce
     const samplePairs = baselines.slice(0, 3).map(b => ({ ...b, preview_path: b.baseline_path /* self-test: compare baseline to itself */ }));
     const prompt = buildVisualPrompt(samplePairs);
     console.log(`prompt length: ${prompt.length} chars (sample for 3 pairs)`);
-    const parsed = parseVisualResponse('site1/desktop: CLEAN\nsite2/mobile: CONCERN: minor color drift\nsite3/tablet: CLEAN\nVERDICT: concern', samplePairs);
+    const testResponseText = [
+      `${samplePairs[0].slug}/${samplePairs[0].viewport}: CLEAN`,
+      `${samplePairs[1].slug}/${samplePairs[1].viewport}: CONCERN: minor color drift`,
+      `${samplePairs[2].slug}/${samplePairs[2].viewport}: CLEAN`,
+      'VERDICT: concern'
+    ].join('\n');
+    const parsed = parseVisualResponse(testResponseText, samplePairs);
     console.log('parse test verdict:', parsed.verdict, 'findings:', parsed.pages_compared.map(p => p.finding));
     if (parsed.verdict === 'concern' && parsed.pages_compared.filter(f => f.finding === 'clean').length === 2 && parsed.pages_compared.filter(f => f.finding === 'concern').length === 1) {
-      console.log('PASS: inventory + prompt-build + response-parse all OK (no agy call made)');
+      console.log('PASS: inventory + prompt-build + response-parse all OK (no vision call made)');
       process.exit(0);
     } else {
       console.error('FAIL: parse test did not return expected structure');
