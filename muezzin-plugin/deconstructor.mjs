@@ -8,7 +8,7 @@
 // only accepted if it passes this gate (deeds-not-claims applied to decomposition itself).
 
 import { dispatchSeat, recognizeClaudeModel, escalateModel, TOOL_LOOP_CAP, getEscalationState, clearEscalationState } from './seat_dispatch.mjs';
-import { pickArchitects } from './seat_modes.mjs';
+import { pickArchitects, isLocalOnlySeat } from './seat_modes.mjs';
 export const SIZE_CEILING = 8; // hajj-autosplit ceiling: missions over this are auto-decomposed (per engine-hajj-autosplit-1.mission.txt)
 
 // .ps1/.psm1/.sh/.bat added 2026-06-10: get-upgrade FAILED x2 because installer scripts
@@ -266,7 +266,7 @@ export async function deconstruct(mission, { model = 'kimi-k2.6', today = '2026-
   // max_tokens 32768: kimi reasons 40-70K chars (~10-18K tokens) before answering and
   // ignores think:false on v1 — 8192 starved content on attempt 1 every time (the
   // EMPTY_CONTENT_THINKING burn class; the heal's 16384 sometimes still clipped).
-  const seat = { role: 'architect', model, today, max_tokens: 32768, sampling: { temperature: 0.7, top_p: 0.9 } };
+  const seat = { role: 'architect', model, today, max_tokens: 32768, sampling: { temperature: 0.7, top_p: 0.9 }, localOnly: isLocalOnlySeat('architect', model) };
   // MISSION-CLASS: research → md/json deliverables count as the edit target; absolute
   // paths allowed in context_dependencies (read-only). Declared in the mission text.
   const research = isResearchMission(mission);
@@ -452,7 +452,7 @@ export async function deconstructPanel(mission, {
         /* fall through to normal dispatch if reading fails */
       }
     }
-    const seat = { role: 'architect', model, today, max_tokens: 32768, sampling: { temperature: 0.7, top_p: 0.9 } };
+    const seat = { role: 'architect', model, today, max_tokens: 32768, sampling: { temperature: 0.7, top_p: 0.9 }, localOnly: isLocalOnlySeat('architect', model) };
     let r;
     try { r = await dispatchFn(seat, archFraming, { wantVerdict: false, escalationTier: escalationState.tier || 0 }); }
     catch (e) {

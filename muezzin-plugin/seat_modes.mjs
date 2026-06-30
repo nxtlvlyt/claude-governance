@@ -37,6 +37,7 @@
 // every mode's per-phase resolution with no network and no dispatch.
 
 import { readFileSync } from 'fs';
+import { recognizeClaudeModel } from './seat_dispatch.mjs';
 
 const ROUTE_FILE = 'C:/Users/marka/.claude/state/muezzin-route.json';
 
@@ -169,20 +170,29 @@ export function pickSeat(role, fallbackModel, env = process.env, readFn) {
   return (typeof v === 'string' && v) ? v : fallbackModel;
 }
 
-// LOCAL-ONLY CHECKING SEATS (claude-local-hybrid gap fix, 2026-06-30): the mode's whole point is
-// "Claude reasons, nxtbeast-LOCAL checks" (see the mode's own header comment above) -- but
-// pickSeat only resolves a model NAME; the actual dispatch (seat_dispatch.mjs's PROVIDERS
-// waterfall) tries Ollama Cloud first for every ollama-named seat regardless of mode, so the
-// checking seats were silently spending cloud quota instead of the already-owned nxtbeast GPU.
-// Operator-confirmed 2026-06-30: these seats' tokens are local/free, not Claude/cloud-budgeted,
-// so the GR10 serialization cost (no two local models at once) is the right trade here. This is
-// a real per-seat flag, additive to dispatchWithWaterfall -- NOT the PROVIDERS-reorder band-aid
+// LOCAL-ONLY SEATS (claude-local-hybrid gap fix, 2026-06-30; widened same day per explicit
+// operator correction): the mode's whole point is "Claude reasons, nxtbeast-LOCAL checks /
+// breadth-fills" -- but pickSeat/pickArchitects only resolve model NAMES; the actual dispatch
+// (seat_dispatch.mjs's PROVIDERS waterfall) tries Ollama Cloud first for every ollama-named seat
+// regardless of mode, so every non-Claude seat was silently spending cloud quota instead of the
+// already-owned nxtbeast GPU. Operator ruling: the ONLY model this mode may pull from Ollama
+// Cloud is gemini-3-flash-preview for visual QC (a separate, hardcoded call in
+// ollama_vision_verdict.mjs that never goes through this function at all) -- every other
+// non-Claude seat, INCLUDING the architects panel's breadth seats, must be local-only. This is a
+// real per-seat flag, additive to dispatchWithWaterfall -- NOT the PROVIDERS-reorder band-aid
 // tried and reverted earlier the same night (that broke healCloud's index assumptions elsewhere).
-// Scoped to validator/auditor/witness only: the architects panel (breadth seat B reuses the same
-// qwen3.6:27b model) stays on the normal cloud-first waterfall -- the mode's "ALL checking" claim
-// is about the 3 judgment seats, not phase-1 breadth.
-export function isLocalOnlySeat(role, env = process.env, readFn) {
-  return readMode(env, readFn) === 'claude-local-hybrid' && ['validator', 'auditor', 'witness'].includes(role);
+// validator/auditor/witness are always local-only in this mode (they are never Claude-named
+// here). 'architect' is local-only ONLY when its specific model isn't a Claude name -- the panel
+// shares role:'architect' across all 3 seats (deconstructor.mjs), so architect A
+// (claude-sonnet-5) must be excluded by MODEL, not just role, or it would 404 trying to reach a
+// model literally named claude-sonnet-5 on nxtbeast. integrator/executor need no entry here:
+// they are always claude-sonnet-5 in this mode, never ollama-named, so this function is never
+// even consulted for them at the real call sites.
+export function isLocalOnlySeat(role, model, env = process.env, readFn) {
+  if (readMode(env, readFn) !== 'claude-local-hybrid') return false;
+  if (['validator', 'auditor', 'witness'].includes(role)) return true;
+  if (role === 'architect') return !recognizeClaudeModel(model);
+  return false;
 }
 
 // pickArchitects(fallbackArr, fallbackInteg, env, readFn) -> { architects, integrator } for
@@ -275,19 +285,22 @@ if (process.argv[1]?.endsWith('seat_modes.mjs') && process.argv.includes('--self
     ck('pickSeat: gemini-heavy validator -> gemini-3-flash-preview', pickSeat('validator', 'FB', { MUEZZIN_MODE: 'gemini-heavy' }, noRead), 'gemini-3-flash-preview');
   }
 
-  // 8. LOCAL-ONLY CHECKING SEATS: only claude-local-hybrid's validator/auditor/witness are
-  // local-only; every other mode+role combination is NOT (including claude-local-hybrid's own
-  // architects, and every role under every other mode).
+  // 8. LOCAL-ONLY SEATS: claude-local-hybrid's validator/auditor/witness are ALWAYS local-only;
+  // its architect seats are local-only PER-MODEL (the non-Claude breadth seats B/C, never
+  // architect A's claude-sonnet-5); integrator/executor are never ollama-named so always false;
+  // every role under every OTHER mode is false.
   {
     const hybridEnv = { MUEZZIN_MODE: 'claude-local-hybrid' };
-    ckT('isLocalOnlySeat: claude-local-hybrid validator -> true', isLocalOnlySeat('validator', hybridEnv, noRead));
-    ckT('isLocalOnlySeat: claude-local-hybrid auditor -> true', isLocalOnlySeat('auditor', hybridEnv, noRead));
-    ckT('isLocalOnlySeat: claude-local-hybrid witness -> true', isLocalOnlySeat('witness', hybridEnv, noRead));
-    ckT('isLocalOnlySeat: claude-local-hybrid architects (breadth, not checking) -> false', !isLocalOnlySeat('architects', hybridEnv, noRead));
-    ckT('isLocalOnlySeat: claude-local-hybrid integrator -> false', !isLocalOnlySeat('integrator', hybridEnv, noRead));
-    ckT('isLocalOnlySeat: claude-local-hybrid executor -> false', !isLocalOnlySeat('executor', hybridEnv, noRead));
-    ckT('isLocalOnlySeat: anthropic-heavy validator -> false (different mode)', !isLocalOnlySeat('validator', { MUEZZIN_MODE: 'anthropic-heavy' }, noRead));
-    ckT('isLocalOnlySeat: no mode -> false', !isLocalOnlySeat('validator', { MUEZZIN_MODE: '__none__' }, noRead));
+    ckT('isLocalOnlySeat: claude-local-hybrid validator -> true', isLocalOnlySeat('validator', 'qwen3.6:27b', hybridEnv, noRead));
+    ckT('isLocalOnlySeat: claude-local-hybrid auditor -> true', isLocalOnlySeat('auditor', 'granite4.1:30b', hybridEnv, noRead));
+    ckT('isLocalOnlySeat: claude-local-hybrid witness -> true', isLocalOnlySeat('witness', 'qwen3.6:27b', hybridEnv, noRead));
+    ckT('isLocalOnlySeat: claude-local-hybrid architect B (qwen3.6:27b, non-Claude) -> true', isLocalOnlySeat('architect', 'qwen3.6:27b', hybridEnv, noRead));
+    ckT('isLocalOnlySeat: claude-local-hybrid architect C (gemma4:31b, non-Claude) -> true', isLocalOnlySeat('architect', 'gemma4:31b', hybridEnv, noRead));
+    ckT('isLocalOnlySeat: claude-local-hybrid architect A (claude-sonnet-5) -> false (Claude seat, would 404 on nxtbeast)', !isLocalOnlySeat('architect', 'claude-sonnet-5', hybridEnv, noRead));
+    ckT('isLocalOnlySeat: claude-local-hybrid integrator -> false', !isLocalOnlySeat('integrator', 'claude-sonnet-5', hybridEnv, noRead));
+    ckT('isLocalOnlySeat: claude-local-hybrid executor -> false', !isLocalOnlySeat('executor', 'claude-sonnet-5', hybridEnv, noRead));
+    ckT('isLocalOnlySeat: anthropic-heavy validator -> false (different mode)', !isLocalOnlySeat('validator', 'deepseek-v4-pro', { MUEZZIN_MODE: 'anthropic-heavy' }, noRead));
+    ckT('isLocalOnlySeat: no mode -> false', !isLocalOnlySeat('validator', 'deepseek-v4-pro', { MUEZZIN_MODE: '__none__' }, noRead));
   }
 
   console.log(`[selftest] ${pass} passed, ${fail} failed`);

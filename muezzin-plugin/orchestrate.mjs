@@ -269,8 +269,8 @@ export async function defaultVerdictPhase(mission, cwd, steps) {
   const auditorModel = pickSeat('auditor', 'minimax-m3');
   // LOCAL-ONLY (claude-local-hybrid, 2026-06-30): see seat_modes.mjs's isLocalOnlySeat for why —
   // these checking seats skip the cloud-first waterfall entirely under that mode.
-  const validatorLocalOnly = isLocalOnlySeat('validator');
-  const auditorLocalOnly = isLocalOnlySeat('auditor');
+  const validatorLocalOnly = isLocalOnlySeat('validator', validatorModel);
+  const auditorLocalOnly = isLocalOnlySeat('auditor', auditorModel);
   const seats = isUmrah
     ? [{ role: 'validator', model: validatorModel, today, max_tokens: 16384, sampling: { temperature: 0.3, top_p: 0.9 }, localOnly: validatorLocalOnly }]
     : [
@@ -352,7 +352,7 @@ export async function defaultWitness(step, cwd, artifact, sources = '', dispatch
   // mode / unknown -> today's nemotron-3-super (safe default). The witness LOGIC is unchanged.
   const witnessModel = pickSeat('witness', 'nemotron-3-super');
   // LOCAL-ONLY (claude-local-hybrid, 2026-06-30): see seat_modes.mjs's isLocalOnlySeat.
-  const seat = { role: 'local_witness_validator', model: witnessModel, today: new Date().toISOString().slice(0, 10), max_tokens: 4096, sampling: { temperature: 0.2, top_p: 0.9 }, localOnly: isLocalOnlySeat('witness') };
+  const seat = { role: 'local_witness_validator', model: witnessModel, today: new Date().toISOString().slice(0, 10), max_tokens: 4096, sampling: { temperature: 0.2, top_p: 0.9 }, localOnly: isLocalOnlySeat('witness', witnessModel) };
   // STAGED SOURCES (CLASS 1, witness-wall fix): the witness used to get ONLY the step
   // goal + artifact and never the citation sources, so it could not resolve a `[file Lnn]`
   // citation and (correctly, given its blindness) flagged every one "unverifiable" — an
@@ -1715,10 +1715,14 @@ if (process.argv[1]?.endsWith('orchestrate.mjs')) {
     };
     ck(await witnessLocalOnlyUnder('claude-local-hybrid') === true, 'LOCAL-ONLY WIRING: claude-local-hybrid witness seat carries localOnly:true');
     ck(await witnessLocalOnlyUnder('anthropic-heavy') === false, 'LOCAL-ONLY WIRING: anthropic-heavy witness seat carries localOnly:false (different mode)');
-    ck(await withMode('claude-local-hybrid', async () => isLocalOnlySeat('validator')) === true
-      && await withMode('claude-local-hybrid', async () => isLocalOnlySeat('auditor')) === true,
+    ck(await withMode('claude-local-hybrid', async () => isLocalOnlySeat('validator', 'qwen3.6:27b')) === true
+      && await withMode('claude-local-hybrid', async () => isLocalOnlySeat('auditor', 'granite4.1:30b')) === true,
       'LOCAL-ONLY WIRING: claude-local-hybrid validator+auditor resolve localOnly:true (the same call orchestrate.mjs makes at seat construction)');
-    ck(await withMode('__none__', async () => isLocalOnlySeat('validator')) === false,
+    ck(await withMode('claude-local-hybrid', async () => isLocalOnlySeat('architect', 'claude-sonnet-5')) === false,
+      'LOCAL-ONLY WIRING: claude-local-hybrid architect A (claude-sonnet-5) resolves localOnly:false (never 404s on nxtbeast)');
+    ck(await withMode('claude-local-hybrid', async () => isLocalOnlySeat('architect', 'qwen3.6:27b')) === true,
+      'LOCAL-ONLY WIRING: claude-local-hybrid architect B (qwen3.6:27b) resolves localOnly:true (operator-widened scope)');
+    ck(await withMode('__none__', async () => isLocalOnlySeat('validator', 'deepseek-v4-pro')) === false,
       'LOCAL-ONLY WIRING: no mode -> validator localOnly:false');
   }
 
