@@ -174,7 +174,18 @@ function dirtySet(repoRoot) {
     .map((l) => l.replace(/^[\sMADRCU?!]+/, '').trim())          // strip the XY status prefix
     .map((p) => p.replace(/^"|"$/g, '').replace(/\\/g, '/'))     // unquote + normalize slashes
     .map((p) => { const arrow = p.split(' -> '); return arrow.length === 2 ? arrow[1] : p; })  // renames: take the new path
-    .filter(Boolean);
+    .filter(Boolean)
+    // ENGINE-OWNED ARTIFACTS (containment-drift fix, 2026-06-30): mission-events.jsonl,
+    // _checkpoint.json, and _prior-attempt/ are the engine's OWN per-run bookkeeping inside
+    // the mission's sandbox cwd — they are written by orchestrate.mjs itself (mission-events
+    // at every emit(), the checkpoint on REPLAN, prior-attempt by the stale-sandbox sweep
+    // above), never by a mission's own steps, and are never declared in any mission's
+    // ALLOW-FILES. preflightAllowlistClean runs BEFORE mission-events.jsonl is created, so it
+    // never lands in baselineDirty; without this exemption the per-step
+    // assertCleanOutsideAllowlist guard then sees the engine's own log as a fresh
+    // off-allowlist write and fails the step with containment-drift — the engine tripping its
+    // own gate. Same exemption set the stale-sandbox-archive sweep already uses (line ~502).
+    .filter((p) => p !== 'mission-events.jsonl' && p !== '_checkpoint.json' && !p.startsWith('_prior-attempt'));
   return [...new Set(dirty)];
 }
 

@@ -1686,8 +1686,8 @@ if (process.argv[1]?.endsWith('orchestrate.mjs')) {
     // "absent mode" = an INVALID sentinel env -> readMode null (deterministic; not polluted by
     // the machine's live route file, which legitimately carries a real mode).
     ck(await witnessModelUnder('__none__') === 'nemotron-3-super', 'SEATING MODE absent: witness = today-default nemotron-3-super (Opus-first via map — safe default)');
-    ck(await witnessModelUnder('anthropic-heavy') === 'nemotron-3-super', 'SEATING MODE anthropic-heavy: witness stays strong (nemotron-3-super -> Opus)');
-    ck(await witnessModelUnder('local-heavy') === 'qwen3.6:27b', 'SEATING MODE local-heavy: witness is LOCAL (qwen3.6:27b — no Opus pull)');
+    ck(await witnessModelUnder('anthropic-heavy') === 'nemotron-3-ultra', 'SEATING MODE anthropic-heavy: witness stays strong (nemotron-3-ultra, 2026-06-22 cloud/local split — was nemotron-3-super)');
+    ck(await witnessModelUnder('local-heavy') === 'laguna-xs.2:q4_K_M', 'SEATING MODE local-heavy: witness is LOCAL (laguna-xs.2:q4_K_M, operator 2026-06-26 — was qwen3.6:27b)');
 
     // verdict panel seats: anthropic-heavy keeps them OPEN-weight (ollama CHECKS the Claude work);
     // no mode -> today's deepseek/minimax. (the exact rule defaultVerdictPhase applies.)
