@@ -239,6 +239,34 @@ literal mechanism behind the Sonnet-conductor ruling above.
 
 ---
 
+## STANDING LESSON (2026-06-30, generalizes beyond tonight): wrangler deploys bypass git
+entirely for muddytires — `wrangler pages project list` shows "Git Provider: No". A fix can
+be deployed straight from any worktree's disk state via `wrangler pages deploy`, live on
+production, and committed to ZERO branches anywhere. This is not hypothetical: it already
+happened — `MT_ATTRIB_FIX6` (the attribution-control fix) was live on muddytires.ca, searched
+every local + remote branch of `C:\Users\marka\code\muddytires-pages`, found in NONE of them.
+The deploy almost certainly ran from `mt-chain-wt`, a mission worktree that's since been
+cleaned up — taking the only git-tracked copy of that diff with it.
+
+**Why this matters for every future conductor/chain, not just tonight:** a mission whose
+Maqsad assumes "this bug needs fixing" can FAIL even when the user-facing bug is already
+gone, because the mission's REPO-ROOT (any persistent checkout) genuinely doesn't have the
+fix — checking live production HTML, not git, is sometimes the only way to learn the real
+state. `mt-12-map-attribution-render.mission.txt` hit exactly this and was marked
+SUPERSEDED-MOOT rather than re-fired for that reason.
+
+**What's been done about it:** the FIX6 diff was recovered from the live HTML and committed
+on a new branch `backport-attrib-fix6` (off `main`, in `code/muddytires-pages`, via an
+isolated `git worktree` so the existing dirty `d1-standup` checkout was never touched).
+NOT pushed to the remote, NOT merged into main — that's a deliberate stop, not an oversight;
+push/merge touches the shared remote and wasn't asked for.
+
+**Open question for next session / the operator:** should `mission_lint.mjs` (or a wrapper
+around the wrangler-deploy step) refuse/flag a deploy that isn't preceded by a git commit, so
+this class of drift becomes structurally impossible rather than something a conductor has to
+happen to notice? Not built tonight — flagging as real, valuable, unstarted work, same as the
+visual-QC wiring gap.
+
 ## PRIORITY ORDER FOR NEXT SESSION
 
 1. **Open on Sonnet** (`/model sonnet`) per the standing ruling above.
