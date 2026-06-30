@@ -82,6 +82,22 @@ export function lintMission(text) {
     }
   }
 
+  // RULE 7 — DEPLOY WITHOUT COMMIT (2026-06-30 receipt): muddytires' Cloudflare Pages project
+  // has no git linkage ("Git Provider: No") — `wrangler pages deploy` / `wrangler deploy`
+  // ships whatever is on disk straight to production, independent of git entirely. This
+  // already happened: MT_ATTRIB_FIX6 went live via a deploy run from a mission worktree that
+  // was later cleaned up, landing in ZERO branches anywhere — confirmed by searching every
+  // local + remote branch. A future mission can trivially repeat this (it is the OBVIOUS way
+  // to "ship the fix") and the chain's own seats never read STATE.md, so a note there cannot
+  // prevent a recurrence — only a mechanical refusal at the miqat can. A mission whose
+  // commands deploy via wrangler MUST also commit via git somewhere in the same mission, or
+  // it is refused here, cost zero, before it ever runs.
+  const deploysViaWrangler = /\bwrangler\s+(pages\s+)?deploy\b/i.test(t);
+  const commitsViaGit = /\bgit\s+commit\b/i.test(t);
+  if (deploysViaWrangler && !commitsViaGit) {
+    add('deploy-without-commit', 'mission runs a wrangler deploy command but contains no "git commit" step anywhere in its text — production can go live with content that exists in NO git branch (confirmed live receipt: MT_ATTRIB_FIX6 deployed straight from a since-deleted worktree, in zero branches). Every deploy step needs a paired commit in the SAME mission so git and Cloudflare never diverge.');
+  }
+
   return { ok: problems.length === 0, problems };
 }
 
@@ -142,6 +158,25 @@ if (process.argv[1] && process.argv[1].endsWith('mission_lint.mjs')) {
   const secretAllow = 'MISSION-CLASS: code-repo\nREPO-ROOT: C:\\proj\\x\nALLOW-FILES:\n  - .env\n  - config/server.key\n  - .git/config\nMaqsad: x. Done means: y.';
   const sa = lintMission(secretAllow);
   ck(!sa.ok && sa.problems.filter((p) => p.rule === 'code-repo-secret-target').length >= 2, 'code-repo: secret/.git ALLOW-FILES entries FLAGGED (code-repo-secret-target)');
+
+  // ---- RULE 7: DEPLOY WITHOUT COMMIT (2026-06-30, MT_ATTRIB_FIX6 receipt) ----
+  // a wrangler pages deploy with no git commit anywhere -> refused.
+  const deployNoCommit = 'MISSION-CLASS: ops-deploy\nMISSION-ID: X\nREPO-ROOT: C:\\proj\\x\nMaqsad: ship it. Done means: live.\n```pwsh\nwrangler pages deploy . --project-name=x\n```';
+  const dnc = lintMission(deployNoCommit);
+  ck(!dnc.ok && dnc.problems.some((p) => p.rule === 'deploy-without-commit'), 'RULE 7: wrangler pages deploy with NO git commit anywhere REFUSED (the exact MT_ATTRIB_FIX6 failure shape)');
+
+  // `wrangler deploy` (bare worker deploy, no "pages") with no commit -> also refused.
+  const workerDeployNoCommit = 'MISSION-CLASS: ops-deploy\nMISSION-ID: X\nREPO-ROOT: C:\\proj\\x\nMaqsad: ship a worker. Done means: live.\n```pwsh\nwrangler deploy -c wrangler.toml\n```';
+  ck(!lintMission(workerDeployNoCommit).ok && lintMission(workerDeployNoCommit).problems.some((p) => p.rule === 'deploy-without-commit'), 'RULE 7: bare "wrangler deploy" (worker, no "pages") with no commit ALSO refused');
+
+  // a deploy PAIRED with a git commit step -> passes (the fix this rule asks for).
+  const deployWithCommit = 'MISSION-CLASS: ops-deploy\nMISSION-ID: X\nREPO-ROOT: C:\\proj\\x\nMaqsad: ship it. Done means: live.\n```pwsh\ngit add .\ngit commit -m "ship the fix" --no-verify\nwrangler pages deploy . --project-name=x\n```';
+  ck(lintMission(deployWithCommit).ok, 'RULE 7: wrangler deploy PAIRED with a git commit step passes — git and Cloudflare never diverge');
+
+  // wrangler d1 execute (a DATA command, not a deploy) must NOT trip this rule even with
+  // zero commits — it never bypasses git the way a pages/worker deploy does.
+  const d1Mission = 'MISSION-CLASS: ops-deploy\nMISSION-ID: X\nREPO-ROOT: C:\\proj\\x\nMaqsad: load data. Done means: rows exist.\n```pwsh\nwrangler d1 execute mydb --remote --command "SELECT 1"\n```';
+  ck(lintMission(d1Mission).ok, 'RULE 7: "wrangler d1 execute" is a data command, never flagged as a deploy-without-commit');
 
   console.log(`\n${fail ? fail + ' FAIL' : 'ALL PASS — mission miqat: flawed work orders refused at the boundary, zero cycles burned'}`);
   process.exit(fail ? 1 : 0);
