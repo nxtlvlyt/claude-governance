@@ -116,9 +116,16 @@ const TABLE = {
     // qwen3.6:27b 6/6 (best - caught all bugs, no over-flag); laguna/ornith/granite30b 5/6;
     // nemotron-3-super 3/6 (FAILED real bugs); granite-guardian 0/6 (safety classifier, not reviewer).
     // Claude does reasoning seats; nxtbeast-LOCAL open-weight does ALL checking; Ollama Cloud = gemini QC only.
-    architects: ['opus', 'qwen3.6:27b', 'gemma4:31b'],
-    integrator: 'sonnet',
-    executor: 'sonnet',
+    // UPDATED 2026-06-30 (same-day): Claude Sonnet 5 released — verified live via WebFetch
+    // (anthropic.com/news/claude-sonnet-5, API id 'claude-sonnet-5', confirmed accepted by the
+    // claude CLI). Operator ruling: Sonnet 5 replaces Opus AND Sonnet 4.6 across the chain's
+    // Claude seats ("higher quality output... instead of Opus or sonnet 4.6"). recognizeClaudeModel()
+    // in seat_dispatch.mjs pass-throughs any 'claude-*' name verbatim, so this is additive — no
+    // seat_dispatch.mjs change needed. Bare 'opus'/'sonnet' aliases elsewhere are UNCHANGED (other
+    // modes); only claude-local-hybrid is updated here per the explicit operator directive.
+    architects: ['claude-sonnet-5', 'qwen3.6:27b', 'gemma4:31b'],
+    integrator: 'claude-sonnet-5',
+    executor: 'claude-sonnet-5',
     validator: 'qwen3.6:27b',
     auditor: 'granite4.1:30b',
     witness: 'qwen3.6:27b', // eval-driven swap: laguna over-flags (5/6, false-rejected a correct fix); qwen is the only calibrated checker (6/6)

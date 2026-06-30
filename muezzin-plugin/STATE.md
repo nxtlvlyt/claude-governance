@@ -112,15 +112,28 @@ long drifted feature-build session.
 
 ## CURRENT STATE (2026-06-30T~19:30Z, end of session — read this before the stale sections below)
 
-**Standing operator ruling: the muezzin CONDUCTOR runs on Sonnet (4.6), not Opus.**
+**Standing operator ruling: the muezzin CONDUCTOR runs on Sonnet, not Opus.**
 Reason (operator's words): "sonnet is smarter than Opus [for the conductor] because it
 will actually use tools instead of pretending to know something." Tonight's session ran
 on Opus and the operator's diagnosis was correct — nearly every false claim tonight
 (deepseek-v4-pro called "local" when it's cloud-roster; `local-heavy` assumed
 localhost-only when it routes cloud-first; the attribution root cause guessed twice
-before finally being introspected) was Opus asserting from memory instead of reaching
-for a tool. Full reasoning: `~/.claude/projects/C--Users-marka/memory/conductor-runs-on-sonnet.md`.
-**Open the conductor on Sonnet (`/model sonnet`) before doing conductor work.**
+before finally being introspected; even claiming "Sonnet 5 doesn't exist" without
+checking — it does, see below) was Opus asserting from memory instead of reaching for
+a tool. Full reasoning: `~/.claude/projects/C--Users-marka/memory/conductor-runs-on-sonnet.md`.
+**Open the conductor on Sonnet (`/model sonnet`, which should resolve to the newest
+available Sonnet) before doing conductor work — verify which version with `/model`,
+don't assume.**
+
+**Claude Sonnet 5 released same-day (2026-06-30), verified live via WebFetch — NOT
+the operator's memory error it first appeared to be.** API id `claude-sonnet-5`
+(confirmed accepted by the `claude` CLI, exit 0). Per the operator's explicit
+directive, `claude-local-hybrid`'s architect/integrator/executor seats in
+`seat_modes.mjs` were updated from `opus`/bare-`sonnet` to `claude-sonnet-5`
+(additive change — `recognizeClaudeModel()` in `seat_dispatch.mjs` pass-throughs any
+`claude-*` name verbatim, no dispatch-logic change needed). Other modes
+(`anthropic-heavy` etc.) still use the bare `opus`/`sonnet`/`haiku` aliases —
+unchanged, out of scope for tonight's directive.
 
 **nxtbeast is back up** (was down most of the session; ssh/ollama/SearXNG/AnythingLLM
 all confirmed UP). The operator's standing routing while budget-conscious: Claude does
