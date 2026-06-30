@@ -21,7 +21,7 @@ import { checkGroundedness } from './guardian_guard.mjs';
 import { findFabricatedAbsenceClaims, recordSeatOutcome } from './seat_record.mjs';
 import { searxngPreflight } from './searxng_preflight.mjs';
 import { mergeVerdicts } from './verdict_merge.mjs';
-import { pickSeat } from './seat_modes.mjs';
+import { pickSeat, isLocalOnlySeat } from './seat_modes.mjs';
 import { runtimeVerify } from './runtime_verify.mjs';
 import { readFileSync, existsSync, appendFileSync, mkdirSync, renameSync, writeFileSync, readdirSync, statSync } from 'fs';
 import { execSync } from 'child_process';
@@ -267,11 +267,15 @@ export async function defaultVerdictPhase(mission, cwd, steps) {
   // is unchanged — only the model names move.
   const validatorModel = pickSeat('validator', 'deepseek-v4-pro');
   const auditorModel = pickSeat('auditor', 'minimax-m3');
+  // LOCAL-ONLY (claude-local-hybrid, 2026-06-30): see seat_modes.mjs's isLocalOnlySeat for why —
+  // these checking seats skip the cloud-first waterfall entirely under that mode.
+  const validatorLocalOnly = isLocalOnlySeat('validator');
+  const auditorLocalOnly = isLocalOnlySeat('auditor');
   const seats = isUmrah
-    ? [{ role: 'validator', model: validatorModel, today, max_tokens: 16384, sampling: { temperature: 0.3, top_p: 0.9 } }]
+    ? [{ role: 'validator', model: validatorModel, today, max_tokens: 16384, sampling: { temperature: 0.3, top_p: 0.9 }, localOnly: validatorLocalOnly }]
     : [
-      { role: 'validator', model: validatorModel, today, max_tokens: 16384, sampling: { temperature: 0.3, top_p: 0.9 } },
-      { role: 'auditor', model: auditorModel, today, max_tokens: 16384, sampling: { temperature: 0.3, top_p: 0.9 } },
+      { role: 'validator', model: validatorModel, today, max_tokens: 16384, sampling: { temperature: 0.3, top_p: 0.9 }, localOnly: validatorLocalOnly },
+      { role: 'auditor', model: auditorModel, today, max_tokens: 16384, sampling: { temperature: 0.3, top_p: 0.9 }, localOnly: auditorLocalOnly },
     ];
   // SERIAL on purpose (laguna finding 1 weighed and declined): the waterfall's local
   // fallback tail means parallel seats could land on local Ollama CONCURRENTLY — GR10
@@ -347,7 +351,8 @@ export async function defaultWitness(step, cwd, artifact, sources = '', dispatch
   // STRONG witness, "keep witness strong"); local-heavy uses a LOCAL witness (no Opus pull). No
   // mode / unknown -> today's nemotron-3-super (safe default). The witness LOGIC is unchanged.
   const witnessModel = pickSeat('witness', 'nemotron-3-super');
-  const seat = { role: 'local_witness_validator', model: witnessModel, today: new Date().toISOString().slice(0, 10), max_tokens: 4096, sampling: { temperature: 0.2, top_p: 0.9 } };
+  // LOCAL-ONLY (claude-local-hybrid, 2026-06-30): see seat_modes.mjs's isLocalOnlySeat.
+  const seat = { role: 'local_witness_validator', model: witnessModel, today: new Date().toISOString().slice(0, 10), max_tokens: 4096, sampling: { temperature: 0.2, top_p: 0.9 }, localOnly: isLocalOnlySeat('witness') };
   // STAGED SOURCES (CLASS 1, witness-wall fix): the witness used to get ONLY the step
   // goal + artifact and never the citation sources, so it could not resolve a `[file Lnn]`
   // citation and (correctly, given its blindness) flagged every one "unverifiable" — an
@@ -1695,6 +1700,26 @@ if (process.argv[1]?.endsWith('orchestrate.mjs')) {
       'SEATING MODE absent: verdict panel = today-default deepseek-v4-pro + minimax-m3 (safe default)');
     ck(await withMode('anthropic-heavy', () => ps('validator', 'deepseek-v4-pro')) === 'deepseek-v4-pro' && await withMode('anthropic-heavy', () => ps('auditor', 'minimax-m3')) === 'minimax-m3',
       'SEATING MODE anthropic-heavy: verdict panel stays OPEN-weight deepseek+minimax (ollama cloud CHECKS the Claude work — diversity is the point)');
+
+    // LOCAL-ONLY WIRING (2026-06-30): claude-local-hybrid's witness seat object must actually
+    // CARRY localOnly:true (proving the wiring reaches the real seat construction site at
+    // defaultWitness, not just the isLocalOnlySeat unit in seat_modes.mjs). The validator/
+    // auditor sites in defaultVerdictPhase call the exact same isLocalOnlySeat('validator'/
+    // 'auditor') — already proven true/false per-mode by seat_modes.mjs's own selftest;
+    // checked directly here too since that is the literal call orchestrate.mjs makes.
+    const witnessLocalOnlyUnder = async (env) => {
+      let lo = null;
+      const cap = async (seat) => { lo = seat.localOnly; return { verdict: 'APPROVE', findings: [] }; };
+      await withMode(env, () => defaultWitness({ description: 'w', target_files: ['x.md'] }, dir, 'art', '', cap));
+      return lo;
+    };
+    ck(await witnessLocalOnlyUnder('claude-local-hybrid') === true, 'LOCAL-ONLY WIRING: claude-local-hybrid witness seat carries localOnly:true');
+    ck(await witnessLocalOnlyUnder('anthropic-heavy') === false, 'LOCAL-ONLY WIRING: anthropic-heavy witness seat carries localOnly:false (different mode)');
+    ck(await withMode('claude-local-hybrid', async () => isLocalOnlySeat('validator')) === true
+      && await withMode('claude-local-hybrid', async () => isLocalOnlySeat('auditor')) === true,
+      'LOCAL-ONLY WIRING: claude-local-hybrid validator+auditor resolve localOnly:true (the same call orchestrate.mjs makes at seat construction)');
+    ck(await withMode('__none__', async () => isLocalOnlySeat('validator')) === false,
+      'LOCAL-ONLY WIRING: no mode -> validator localOnly:false');
   }
 
   fs.rmSync(dir, { recursive: true, force: true });

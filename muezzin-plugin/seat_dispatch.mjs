@@ -555,10 +555,29 @@ async function attemptProvider(provider, body, timeoutMs) {
 // The whole waterfall now fits inside TOTAL_BUDGET_MS; each attempt gets the smaller of
 // its own timeout and what remains. Budget exhaustion throws into the normal heal path.
 const TOTAL_BUDGET_MS = 12 * 60 * 1000;
-export async function dispatchWithWaterfall(baseBody, { cwd } = {}) {
+export async function dispatchWithWaterfall(baseBody, { cwd, localOnly = false } = {}) {
   let lastErr;
   const deadline = Date.now() + TOTAL_BUDGET_MS;
   const remaining = () => deadline - Date.now();
+  // LOCAL-ONLY SEAT (claude-local-hybrid checking seats, 2026-06-30): a real per-seat flag,
+  // additive — NOT a PROVIDERS reorder (that band-aid was tried and reverted the same night;
+  // it broke healCloud/Claude-tier index assumptions elsewhere in this file). When set, skip
+  // every cloud/agy/claude-tier lane below and dispatch straight to ollama-local. This is for
+  // seats whose tokens are local/free and where the operator has accepted the GR10
+  // serialization cost in exchange for never spending cloud quota on a checking call.
+  if (localOnly) {
+    const local = PROVIDERS[1];
+    hb(`attempt-start provider=${local.id} model=${baseBody.model} (LOCAL-ONLY seat — cloud/agy/claude-tier skipped)`);
+    const t0 = Date.now();
+    try {
+      const out = await attemptProvider(local, baseBody, Math.max(60000, Math.min(FETCH_TIMEOUT_MS, remaining())));
+      hb(`attempt-ok provider=${local.id} model=${baseBody.model} ms=${Date.now() - t0} chars=${out.content.length} tokens=${out.usage?.prompt || 0}+${out.usage?.completion || 0}`);
+      return { ...out, provider: local.id, heals: 0 };
+    } catch (e) {
+      hb(`attempt-fail provider=${local.id} ms=${Date.now() - t0}: ${String(e.message).slice(0, 120)}`);
+      throw new WaterfallError(e.kind || 'LOCAL_ONLY_FAILED', local.id, baseBody.model, `local-only seat failed, no cloud fallback by design: ${e.message}`);
+    }
+  }
   // -- ROUTE-PREFERENCE WINDOW: Claude first when declared (use-it-or-lose-it); one
   // attempt, then the normal cloud waterfall as fallback. preferTried suppresses the
   // post-cloud claude tier so a failed preferred attempt is never double-charged.
@@ -721,7 +740,7 @@ export async function dispatchSeat(seat, framing, { wantVerdict = true, envManif
   // there (2026-06-11: confirmed gap — executor set seat.cwd but this call dropped it, so
   // the claude executor ran toolless → "file_read unavailable" → empty emissions). Verdict/
   // witness seats have no cwd and stay tool-light, unchanged.
-  try { r = await dispatchWithWaterfall(body, { cwd: seat.cwd }); }
+  try { r = await dispatchWithWaterfall(body, { cwd: seat.cwd, localOnly: !!seat.localOnly }); }
   catch (e) {                                            // failed seat -> BLOCK (6/7-agent canon: absence is not APPROVE)
     return { seat: seat.role, verdict: 'BLOCK', findings: [{ id: 'DISPATCH', severity: 'high', description: e.message }], _failed: true };
   }
@@ -848,6 +867,33 @@ if (process.argv[1]?.endsWith('seat_dispatch.mjs') && process.argv.includes('--s
     const okTerminal = (outcome.kind === 'resolved' && String(outcome.provider).startsWith('claude-'))
                     || (outcome.kind === 'threw' && outcome.provider === 'claude');
     check(`claude-named seat terminates on Claude tier, never ollama (got ${outcome.kind}/${outcome.provider})`, okTerminal, true);
+  })();
+
+  // 9. LOCAL-ONLY SEAT (claude-local-hybrid checking seats, 2026-06-30): localOnly:true must
+  //    issue ZERO requests to any non-local endpoint (cloud, claude tier, agy) and dispatch
+  //    straight to the local provider — proving the flag actually bypasses the waterfall
+  //    rather than just being accepted and ignored.
+  await (async () => {
+    const realFetch = globalThis.fetch;
+    const urlsSeen = [];
+    globalThis.fetch = async (url, opts) => {
+      urlsSeen.push(String(url));
+      const parsed = (() => { try { return JSON.parse(opts?.body || '{}'); } catch { return {}; } })();
+      return { ok: true, status: 200, async json() { return { choices: [{ message: { content: `ok model=${parsed.model}` } }], usage: { prompt_tokens: 1, completion_tokens: 1 } }; }, async text() { return 'ok'; } };
+    };
+    let outcome;
+    try {
+      const r = await dispatchWithWaterfall({ model: 'qwen3.6:27b', messages: [{ role: 'user', content: 'x' }] }, { localOnly: true });
+      outcome = { kind: 'resolved', provider: r.provider };
+    } catch (e) { outcome = { kind: 'threw', provider: e.provider }; }
+    globalThis.fetch = realFetch;
+
+    const cloudHits = urlsSeen.filter((u) => u.includes('ollama.com')).length;
+    const localHits = urlsSeen.filter((u) => u.includes('nxtbeast')).length;
+    check('localOnly seat: ZERO requests to ollama-cloud', cloudHits, 0);
+    check('localOnly seat: exactly ONE request to ollama-local (nxtbeast)', localHits, 1);
+    check('localOnly seat: total fetch calls = 1 (no agy/claude-tier/heal attempts)', urlsSeen.length, 1);
+    check('localOnly seat: resolves with provider=ollama-local', outcome.kind === 'resolved' && outcome.provider, 'ollama-local');
   })();
 
   console.log(`[selftest] ${pass} passed, ${fail} failed`);
