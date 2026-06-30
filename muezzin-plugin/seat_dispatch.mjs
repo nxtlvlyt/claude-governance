@@ -31,8 +31,10 @@ const SEARXNG_URL = process.env.SEARXNG_URL || 'http://localhost:8080/search';
 
 // cloud first, then local. Cloud key: antigravity uses OLLAMA_API_KEY; this env also has OLLAMA_CLOUD_API_KEY.
 const PROVIDERS = [
-  { id: 'ollama-cloud', url: 'https://ollama.com/v1/chat/completions', envKeys: ['OLLAMA_API_KEY', 'OLLAMA_CLOUD_API_KEY'] },
+  // 2026-06-30 (operator: seats must NOT bill Ollama Cloud — reserved for gemini QC). nxtbeast-LOCAL
+  // FIRST so open-weight seats resolve free on nxtbeast; cloud kept only as emergency fallback.
   { id: 'ollama-local', url: 'http://nxtbeast:11434/v1/chat/completions', envKeys: [] },
+  { id: 'ollama-cloud', url: 'https://ollama.com/v1/chat/completions', envKeys: ['OLLAMA_API_KEY', 'OLLAMA_CLOUD_API_KEY'] },
 ];
 
 class WaterfallError extends Error {

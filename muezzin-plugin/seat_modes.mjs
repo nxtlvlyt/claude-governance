@@ -40,7 +40,7 @@ import { readFileSync } from 'fs';
 
 const ROUTE_FILE = 'C:/Users/marka/.claude/state/muezzin-route.json';
 
-export const MODES = ['balance', 'anthropic-heavy', 'local-heavy', 'reasoning-heavy', 'gemini-heavy'];
+export const MODES = ['balance', 'anthropic-heavy', 'local-heavy', 'reasoning-heavy', 'gemini-heavy', 'claude-local-hybrid'];
 
 // THE TABLE. Each mode -> the model NAME each seat is handed. seat_dispatch resolves the
 // name to a provider via its waterfall, so a Claude name (opus/sonnet/haiku) dispatches
@@ -110,6 +110,18 @@ const TABLE = {
     validator: 'gemini-3-flash-preview',
     auditor: 'gemini-3-flash-preview',
     witness: 'gemini-3-flash-preview',
+  },
+  'claude-local-hybrid': {
+    // DATA-DRIVEN 2026-06-30 seat eval (scratchpad/eval_seats.py, 6 tasks, objective):
+    // qwen3.6:27b 6/6 (best - caught all bugs, no over-flag); laguna/ornith/granite30b 5/6;
+    // nemotron-3-super 3/6 (FAILED real bugs); granite-guardian 0/6 (safety classifier, not reviewer).
+    // Claude does reasoning seats; nxtbeast-LOCAL open-weight does ALL checking; Ollama Cloud = gemini QC only.
+    architects: ['opus', 'qwen3.6:27b', 'gemma4:31b'],
+    integrator: 'sonnet',
+    executor: 'sonnet',
+    validator: 'qwen3.6:27b',
+    auditor: 'granite4.1:30b',
+    witness: 'laguna-xs.2:q4_K_M',
   },
 };
 
