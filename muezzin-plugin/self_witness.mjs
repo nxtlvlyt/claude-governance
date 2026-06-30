@@ -1,7 +1,19 @@
-// self_witness.mjs — conductor-self-witness gate: BOTH-witness (laguna + guardian) for
-// OUT-OF-CHAIN work, made structural (M-ENGINE.CONDUCTOR-SELF-WITNESS.1, operator standing
+// self_witness.mjs — conductor-self-witness gate: BOTH-witness (DEFAULT ornith:9b + guardian)
+// for OUT-OF-CHAIN work, made structural (M-ENGINE.CONDUCTOR-SELF-WITNESS.1, operator standing
 // ruling 2026-06-16: "any work outside the chain needs to be witnessed by both Laguna AND
 // guardian").
+//
+// DEFAULT MODEL RULING SUPERSEDED 2026-06-30 (operator's explicit word: "we change that to
+// ornith and guardian"): the 2026-06-26 ruling below naming laguna-xs.2:q4_K_M as the default
+// structural witness is REPLACED — ornith:9b is now the default (checkStructure's `dispatch`
+// param, witnessArtifact's `structureModel` param, and --check-commit's --model default all
+// changed). Reason: same-session live evidence — ornith:9b parsed its verdict tag cleanly on
+// every run (laguna twice emitted a typo'd "</verduct" tag parseLagunaVerdict cannot match),
+// gave the most specific/substantive verdict notes of any model tested, ran fastest end-to-end
+// (6.9s vs laguna's 13.2s), and at ~6GB fits ALONGSIDE granite4.1-guardian:8b (14GB total) with
+// NO GR10 serialization needed at all — removing the whole laguna unload-then-guardian dance
+// for the common case. laguna-xs.2:q4_K_M, ornith:35b, and ornith9bDispatch/ornith35bDispatch
+// all remain available via --model override; nothing was removed, only the default moved.
 //
 // THE HOLE THIS CLOSES: the daemon's SEATS are auto-witnessed (seat_dispatch). The
 // conductor's OWN hand-authored artifacts — a freshly-constructed .mission.txt, a
@@ -11,18 +23,22 @@
 // the same independent-witness discipline the seats already have.
 //
 // THE TWO WITNESSES ARE COMPLEMENTARY, NOT REDUNDANT (spec lines 28-31):
-//   - laguna (granite-class structural, laguna-xs.2:q4_K_M): "is the REASONING sound,
-//     correctly scoped, faithful to its cited receipts?" — logic flaws, gaps, overlaps.
+//   - structural (DEFAULT ornith:9b, dense qwen35 base; laguna-xs.2:q4_K_M still available via
+//     --model laguna): "is the REASONING sound, correctly scoped, faithful to its cited
+//     receipts?" — logic flaws, gaps, overlaps.
 //   - guardian (granite4.1-guardian:8b groundedness): "is every factual CLAIM supported by
 //     the cited CONTEXT?" — fabricated/unsupported claims, invented receipts, mis-cites.
 //
-// GR10-SAFE (spec lines 40-52): laguna (33B, ~22GB VRAM) + guardian (8B, ~7GB) do NOT
-// co-reside on a 24GB GPU. So the pair runs STRICTLY SERIALLY: check /api/ps, run laguna,
-// STOP laguna + POLL /api/ps to clear, then run guardian. NEVER concurrent. If the GPU is
-// already oversubscribed by another (daemon/seat) load when we arrive, we YIELD — emit a
-// 'witness-queued: GPU busy' receipt and return ok:null rather than force a concurrent
-// load (the historical ollama scheduler deadlock). In anthropic-heavy mode the daemon's
-// seats run on Claude (cloud) so the local GPU is usually free for this pair.
+// GR10-SAFE (spec lines 40-52, ORIGINALLY written for laguna+guardian — still fully correct
+// for that pair, and for ornith:35b+guardian; the NEW default ornith:9b (~6GB) + guardian
+// (~7GB) = ~13GB, well under the 24GB ceiling, so the pair can in principle co-reside — the
+// GR10 admission/serialize machinery below is UNCHANGED and still runs for every model
+// (fail-safe: it only ever refuses an unsafe concurrent load, never assumes one is safe). So
+// check /api/ps, run the structural model, STOP it + POLL /api/ps to clear, then run guardian.
+// NEVER concurrent. If the GPU is already oversubscribed by another (daemon/seat) load when we
+// arrive, we YIELD — emit a 'witness-queued: GPU busy' receipt and return ok:null rather than
+// force a concurrent load (the historical ollama scheduler deadlock). In anthropic-heavy mode
+// the daemon's seats run on Claude (cloud) so the local GPU is usually free for this pair.
 //
 // NON-BLOCKING FIRST (HARD RAIL, spec line 35 + 55): this gate FLAGS — it emits a receipt
 // into the self-witness log + mission-events. It MUST NOT halt a mission or block the
@@ -171,7 +187,7 @@ export async function ornith9bDispatch(system, prompt, opts = {}) {
 
 // checkStructure(artifact, context, opts) -> { verdict, notes, ran }. dispatch injected for
 // testability. Fail-soft: any throw -> { verdict: null, ran: false } (never blocks).
-export async function checkStructure(artifactText, contextText, { dispatch = lagunaDispatch, system = LAGUNA_SYSTEM } = {}) {
+export async function checkStructure(artifactText, contextText, { dispatch = ornith9bDispatch, system = LAGUNA_SYSTEM } = {}) {
   try {
     const raw = await dispatch(system, buildLagunaPrompt(artifactText, contextText));
     const { content, sanitized } = sanitizeWitnessContent(raw);
@@ -410,8 +426,8 @@ export async function witnessArtifact(text, context = {}, opts = {}) {
     probe = psProbe,
     unload = (m) => pollUntilUnloaded(m),
     emit = emitReceipt,
-    structureModel = LAGUNA_MODEL,
-    lagunaNeedBytes = 22 * 1024 * 1024 * 1024,   // ~laguna 33B q4 resident
+    structureModel = ORNITH_9B_MODEL,
+    lagunaNeedBytes = ORNITH_9B_NEED_BYTES,   // default model is now ornith:9b (~6GB); laguna/ornith:35b callers must override this too
     guardianModel = 'granite4.1-guardian:8b',
     guardianNeedBytes = 7 * 1024 * 1024 * 1024,
   } = opts;
@@ -546,8 +562,8 @@ if (process.argv[1] && process.argv[1].endsWith('self_witness.mjs') && !process.
   // GR10 SERIALIZATION: laguna BEFORE unload BEFORE guardian — never concurrent.
   const iL = calls.indexOf('laguna'), iU = calls.findIndex((x) => x.startsWith('unload:')), iG = calls.indexOf('guardian');
   ck(iL >= 0 && iU > iL && iG > iU, 'witnessArtifact: GR10 SERIAL — laguna -> unload -> guardian (never concurrent)');
-  // default structureModel -> unload targets LAGUNA_MODEL (unchanged behavior, backward compat)
-  ck(calls.includes('unload:laguna-xs.2:q4_K_M'), 'witnessArtifact: default structureModel -> unload targets laguna-xs.2:q4_K_M');
+  // default structureModel -> unload targets ORNITH_9B_MODEL (new default per 2026-06-30 ruling)
+  ck(calls.includes('unload:ornith:9b'), 'witnessArtifact: default structureModel -> unload targets ornith:9b (new default)');
 
   // ---- REGRESSION GUARD for the ornith-install bug (2026-06-30): structureModel override
   // must reach BOTH the admission check AND the unload call — not just be silently ignored
@@ -693,7 +709,7 @@ if (process.argv.includes('--check-commit')) {
     const argv = process.argv;
     const argAfter = (flag, dflt) => { const i = argv.indexOf(flag); return i >= 0 && argv[i + 1] ? argv[i + 1] : dflt; };
     const sha = argAfter('--sha', 'HEAD');
-    const modelArg = argAfter('--model', 'laguna');
+    const modelArg = argAfter('--model', 'ornith9b');
     const { execSync } = await import('node:child_process');
     let diff, subject;
     try {
