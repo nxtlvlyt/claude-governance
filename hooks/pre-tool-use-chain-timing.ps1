@@ -40,6 +40,16 @@ if (-not $command) { exit 0 }
 # Pass safe unload operations unconditionally — ollama stop is maintenance, not inference.
 if ($command -match 'ollama\s+stop') { exit 0 }
 
+# RECALIBRATED 2026-06-30 (operator: the per-session token resets on compaction and forces
+# his presence). The lockout this guards (2026-05-11) was THIS LAPTOP's CPU pegging. None of
+# these can lock the laptop, so none should ever gate:
+#   - read-only metadata endpoints (never inference)
+if ($command -match '/api/tags|/api/show|/api/ps|/api/version|/api/embeddings') { exit 0 }
+#   - remote dispatch (nxtbeast / Tailscale) runs on ANOTHER machine, cannot freeze this one
+if ($command -match 'nxtbeast|100\.103\.44\.13') { exit 0 }
+#   - operator STANDING authorization file (set once) — no per-session token, survives compaction
+if (Test-Path "$env:USERPROFILE\.claude\state\chain-timing-standing-ok") { exit 0 }
+
 # Dispatch scripts always indicate chain inference dispatch.
 $isChainDispatch = $false
 if ($command -match 'dispatch-seat|python.*dispatch') { $isChainDispatch = $true }
