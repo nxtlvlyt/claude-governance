@@ -43,18 +43,26 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 // the GR10 VRAM/concurrency witness must probe where the models actually run.
 const OLLAMA_BASE = 'http://nxtbeast:11434';
 const LAGUNA_MODEL = 'laguna-xs.2:q4_K_M';   // 33B structural reviewer (spec: structural witness)
-// ORNITH (installed 2026-06-30, operator-requested): an ALTERNATIVE structural-witness model,
-// same size class as laguna (~21GB measured resident, vs laguna's ~22GB) and same GR10
-// serialization requirement with guardian — NOT a replacement for the operator-designated
-// default above. Measured this session: cleaner verdict-tag output than laguna (laguna
-// twice emitted a typo'd "</verduct" closing tag that parseLagunaVerdict cannot match;
-// ornith's tag parsed clean both times). Use via ornithDispatch / pass model:'ornith:35b'
-// to lagunaDispatch directly, and pass structureModel: ORNITH_MODEL to witnessArtifact so
-// its admission-check + unload steps target the right model (see structureModel below —
-// without it, witnessArtifact silently checked/unloaded LAGUNA_MODEL regardless of which
-// model structureFn actually dispatched, a real bug found and fixed alongside this install).
-const ORNITH_MODEL = 'ornith:35b';
-export const ORNITH_NEED_BYTES = 22 * 1024 * 1024 * 1024;   // ~21.4GB measured resident + margin
+// ORNITH (installed 2026-06-30, operator-requested): ALTERNATIVE structural-witness models —
+// NOT a replacement for the operator-designated default above. Two real, distinct sizes exist
+// (confirmed via /api/show: different digests, different sizes — not the same weights retagged):
+//   - ornith:35b — qwen35moe (MoE) base, ~21GB resident, same VRAM class + GR10 serialization
+//     requirement as laguna. Measured: cleaner verdict-tag output than laguna (laguna twice
+//     emitted a typo'd "</verduct" closing tag parseLagunaVerdict cannot match; ornith:35b's
+//     tag parsed clean both times).
+//   - ornith:9b — qwen35 (dense) base, ~6GB resident, fits ALONGSIDE granite4.1-guardian:8b
+//     (6+8=14GB) with NO serialization needed at all. Measured: fastest of every model tested
+//     this session (6.9s end-to-end vs laguna's 13.2s), AND the most specific/substantive
+//     verdict notes (referenced the actual reasoning content, not generic boilerplate).
+// Use via ornith35bDispatch/ornith9bDispatch (or pass model:'ornith:35b'/'ornith:9b' to
+// lagunaDispatch directly), and pass the matching structureModel to witnessArtifact so its
+// admission-check + unload steps target the right model (see structureModel below — without
+// it, witnessArtifact silently checked/unloaded LAGUNA_MODEL regardless of which model
+// structureFn actually dispatched, a real bug found and fixed alongside the 35b install).
+const ORNITH_35B_MODEL = 'ornith:35b';
+const ORNITH_9B_MODEL = 'ornith:9b';
+export const ORNITH_NEED_BYTES = 22 * 1024 * 1024 * 1024;   // ornith:35b — ~21.4GB measured resident + margin
+export const ORNITH_9B_NEED_BYTES = 6 * 1024 * 1024 * 1024;   // ornith:9b — ~5.6GB measured resident + margin
 const SELF_WITNESS_LOG = join(HERE, 'missions', '_logs', 'self-witness.jsonl');
 
 // VRAM ceiling: a 24GB RTX 4090. laguna (33B q4) ≈ 22GB resident. We must not dispatch a
@@ -147,14 +155,18 @@ export async function lagunaDispatch(system, prompt, { model = LAGUNA_MODEL, num
   } finally { clearTimeout(timer); }
 }
 
-// ornithDispatch: same transport as lagunaDispatch, defaulted to ORNITH_MODEL instead of
-// LAGUNA_MODEL. A named, reusable alternative — pass as checkStructure's `dispatch` option
-// (with witnessArtifact's `structureModel: ornithModel()` so admission+unload track the
-// right model) instead of laguna's default. Exported as a function, not a bare constant,
-// so callers never need to know the literal model string.
-export function ornithModel() { return ORNITH_MODEL; }
-export async function ornithDispatch(system, prompt, opts = {}) {
-  return lagunaDispatch(system, prompt, { ...opts, model: ORNITH_MODEL });
+// ornith35bDispatch / ornith9bDispatch: same transport as lagunaDispatch, defaulted to the
+// matching ORNITH_*_MODEL instead of LAGUNA_MODEL. Named, reusable alternatives — pass as
+// checkStructure's `dispatch` option (with witnessArtifact's `structureModel: ornith35bModel()`
+// / `ornith9bModel()` so admission+unload track the right model) instead of laguna's default.
+// Exported as functions, not bare constants, so callers never need to know the literal string.
+export function ornith35bModel() { return ORNITH_35B_MODEL; }
+export async function ornith35bDispatch(system, prompt, opts = {}) {
+  return lagunaDispatch(system, prompt, { ...opts, model: ORNITH_35B_MODEL });
+}
+export function ornith9bModel() { return ORNITH_9B_MODEL; }
+export async function ornith9bDispatch(system, prompt, opts = {}) {
+  return lagunaDispatch(system, prompt, { ...opts, model: ORNITH_9B_MODEL });
 }
 
 // checkStructure(artifact, context, opts) -> { verdict, notes, ran }. dispatch injected for
@@ -382,15 +394,15 @@ export function buildAfterContext(missionText, r, { artifact = 'unknown', artifa
 //   structureModel: the model name structureFn actually dispatches (default LAGUNA_MODEL).
 //     BUG FOUND + FIXED 2026-06-30 (installing ornith surfaced it): the admission check and
 //     the unload call both used to hardcode LAGUNA_MODEL regardless of which model
-//     structureFn actually used. Pass a custom structureFn (e.g. ornith via ornithDispatch)
+//     structureFn actually used. Pass a custom structureFn (e.g. ornith via ornith35bDispatch)
 //     WITHOUT also passing the matching structureModel, and the unload step polls for
 //     LAGUNA_MODEL's absence — which was never resident — so it returns immediately having
-//     unloaded NOTHING, leaving the real model (e.g. ornith, ~21GB) resident when guardian's
-//     own admission check runs next. Guardian then correctly self-protects by skipping (its
-//     own admission check IS correct — it computes real residentVram, not a name match) —
-//     but the structural witness silently never freed the GPU it was supposed to. Live
-//     receipt: ornithDispatch + default opts -> guardian skipped ("GPU still busy after
-//     laguna unload"); same call + structureModel: ornithModel() -> guardian runs clean.
+//     unloaded NOTHING, leaving the real model (e.g. ornith:35b, ~21GB) resident when
+//     guardian's own admission check runs next. Guardian then correctly self-protects by
+//     skipping (its own admission check IS correct — it computes real residentVram, not a
+//     name match) — but the structural witness silently never freed the GPU it was supposed
+//     to. Live receipt: ornith35bDispatch + default opts -> guardian skipped ("GPU still busy
+//     after laguna unload"); same call + structureModel: ornith35bModel() -> guardian clean.
 export async function witnessArtifact(text, context = {}, opts = {}) {
   const {
     structureFn = (a, c) => checkStructure(a, c),
@@ -559,6 +571,24 @@ if (process.argv[1] && process.argv[1].endsWith('self_witness.mjs')) {
   // laguna-already-resident case above.
   const psOrnith = summarizePs({ models: [{ name: 'ornith:35b', size_vram: 21 * GB }] });
   ck(wouldOversubscribe(psOrnith, 'ornith:35b', ORNITH_NEED_BYTES) === false, 'GR10: ornith already resident -> no new load -> ok (structureModel-aware admission check)');
+
+  // ---- ornith:9b (installed 2026-06-30): dense, ~6GB — small enough to fit ALONGSIDE
+  // guardian (6+8=14GB) with no serialization needed. Same regression-guard shape as 35b.
+  const calls4 = [];
+  const fakeProbe9bFree = async () => { calls4.push('probe'); return summarizePs({ models: [] }); };
+  const fakeStruct9b = async () => { calls4.push('struct'); return { verdict: 'APPROVE', ran: true }; };
+  const fakeGround9b = async () => { calls4.push('guardian'); return { grounded: true, ran: true }; };
+  const fakeUnload9b = async (m) => { calls4.push(`unload:${m}`); };
+  await witnessArtifact('text', { artifact: 'M-ORNITH9B' }, {
+    structureFn: fakeStruct9b, groundFn: fakeGround9b, probe: fakeProbe9bFree,
+    unload: fakeUnload9b, emit: (r) => r, structureModel: 'ornith:9b',
+  });
+  ck(calls4.includes('unload:ornith:9b'), 'REGRESSION GUARD: structureModel:"ornith:9b" -> unload targets ornith:9b');
+
+  // ornith:9b (6GB) + guardian (8GB) already resident = 14GB, well under the 24GB ceiling —
+  // must NOT yield (unlike laguna/ornith:35b which genuinely can't coexist with guardian).
+  const psBothSmall = summarizePs({ models: [{ name: 'granite4.1-guardian:8b', size_vram: 8 * GB }] });
+  ck(wouldOversubscribe(psBothSmall, 'ornith:9b', ORNITH_9B_NEED_BYTES) === false, 'GR10: ornith:9b (6GB) fits alongside an already-resident 8GB guardian (14GB total) — no yield needed, unlike the 21GB+8GB pair');
 
   // ---- witnessArtifact YIELD path: GPU oversubscribed -> queue, no dispatch ----
   const calls2 = [];
