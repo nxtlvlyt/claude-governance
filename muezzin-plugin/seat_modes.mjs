@@ -121,7 +121,7 @@ const TABLE = {
     executor: 'sonnet',
     validator: 'qwen3.6:27b',
     auditor: 'granite4.1:30b',
-    witness: 'laguna-xs.2:q4_K_M',
+    witness: 'qwen3.6:27b', // eval-driven swap: laguna over-flags (5/6, false-rejected a correct fix); qwen is the only calibrated checker (6/6)
   },
 };
 
