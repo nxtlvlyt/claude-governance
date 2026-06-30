@@ -12,7 +12,7 @@ import { splitOversizedPlan, emitSubMissions } from './mission_split.mjs';
 import { isCommandClassMission, buildLiteralCommandQueue } from './command_queue.mjs';
 import { implementStep, isProseTarget } from './executor.mjs';
 import { execReceipt, dispatchSeat } from './seat_dispatch.mjs';
-import { commitStep, rollbackStep, ensureSandboxRepo, assertRepoRoot, assertCleanOutsideAllowlist, preflightAllowlistClean, resetAllowFiles, stageFiles } from './git_steps.mjs';
+import { commitStep, rollbackStep, ensureSandboxRepo, assertRepoRoot, assertCleanOutsideAllowlist, preflightAllowlistClean, resetAllowFiles, stageFiles, commitTouchesFiles } from './git_steps.mjs';
 import { makeRepairFn } from './repair.mjs';
 import { parseMissionClass } from './mission_class.mjs';
 import { checkReceiptIntegrity } from './integrity_guard.mjs';
@@ -630,14 +630,22 @@ export async function orchestrate(mission, cwd, {
     // RESUME: a step already committed by a prior run is carried forward, NOT re-run. Its
     // artifact + commit persist in the sandbox; we re-attach its receipt so the verdict phase
     // sees a witnessed deed (the daemon-restart resume the spec demands — completed steps survive).
+    // TRUST-BOUNDARY CHECK (2026-06-30 receipt): a checkpoint's sha is NEVER trusted blind — verify
+    // it actually touched its claimed target(s) first. Real failure this closes: a checkpoint
+    // recorded a step as committed at a sha that belonged to a completely unrelated commit (the
+    // repo's HEAD at checkpoint-write time, not this step's own deed) — readCheckpoint only checked
+    // mission_id, so the resume silently skipped real work for two full mission attempts while the
+    // claimed target file never received its intended change. A failed check falls through to the
+    // normal step-execution path below — the step actually runs instead of being skipped on faith.
     const resumed = resumeDone.get(step.step_index);
-    if (resumed) {
+    if (resumed && commitTouchesFiles(writeRoot, resumed.sha, resumed.targets || [])) {
       emit({ phase: 'step', event: 'resumed', step: step.step_index, sha: resumed.sha });
       const rTarget = (resumed.targets || [])[0];
       if (rTarget) writtenThisRun.add(rTarget);
       steps.push({ step: step.step_index, ok: true, sha: resumed.sha, repaired: 0, targets: resumed.targets || [], resumed: true });
       continue;
     }
+    if (resumed) emit({ phase: 'step', event: 'resume-rejected', step: step.step_index, sha: resumed.sha, reason: 'checkpoint sha does not touch its claimed target files — re-running for real' });
 
     // SAME-STEP RETRY LOOP (REPLAN ISOLATION step 2+4): a TRANSIENT failure (flaky empty
     // emission / network) re-attempts THIS step a bounded `stepRetries` times — a fresh
@@ -1575,6 +1583,7 @@ if (process.argv[1]?.endsWith('orchestrate.mjs')) {
       const cpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ri_cp_'));
       execSync('git init -q', { cwd: cpDir, stdio: 'pipe' }); execSync('git config user.email t@t.local', { cwd: cpDir, stdio: 'pipe' }); execSync('git config user.name t', { cwd: cpDir, stdio: 'pipe' });
       fs.writeFileSync(path.join(cpDir, 'seed'), 'x'); execSync('git add -A', { cwd: cpDir, stdio: 'pipe' }); execSync('git commit -q --no-verify -m init', { cwd: cpDir, stdio: 'pipe' });
+      const initSha = execSync('git rev-parse HEAD', { cwd: cpDir, stdio: 'pipe' }).toString().trim();   // touches ONLY 'seed' — used below as a deliberately-wrong sha
       const cpQ = { mission_id: 'M-CP', steps: ri3Steps() };
       const run1Calls = {};
       const failAt3 = async (step) => { run1Calls[step.step_index] = (run1Calls[step.step_index] || 0) + 1; if (step.step_index === 3) return { ok: false, error: 'witness rejected', model: 'm' }; fs.writeFileSync(path.join(cpDir, step.target_files[0]), `export const v = ${step.step_index};\n`); return { ok: true, model: 'm' }; };
@@ -1592,6 +1601,27 @@ if (process.argv[1]?.endsWith('orchestrate.mjs')) {
       ck(run2Calls[1] === undefined && run2Calls[2] === undefined, 'REPLAN/checkpoint: steps 1-2 were NOT re-implemented on the retry (resumed from the checkpoint — the discarded-work bug is dead)');
       ck(run2Calls[3] === 1, 'REPLAN/checkpoint: ONLY step 3 re-ran on the clean-pass retry');
       ck(r2.steps.filter((s) => s.resumed).length === 2 && r2.steps.length === 3, 'REPLAN/checkpoint: the result carries the 2 resumed steps + the 1 freshly-run step');
+
+      // CORRUPTED CHECKPOINT (2026-06-30 receipt, the exact live failure shape): a checkpoint
+      // entry's sha that does NOT touch its claimed target must NOT be trusted — the step
+      // re-runs for real instead of being silently skipped. step 1 gets a deliberately-wrong
+      // sha (initSha touches only 'seed', never r1.mjs); step 2 keeps its real, valid sha as
+      // a control — it must STILL resume correctly, proving the fix is per-entry, not a
+      // blanket distrust of the whole checkpoint.
+      const corrupted = JSON.parse(fs.readFileSync(path.join(cpDir, '_checkpoint.json'), 'utf8'));
+      corrupted.completed[0].sha = initSha;
+      fs.writeFileSync(path.join(cpDir, '_checkpoint.json'), JSON.stringify(corrupted, null, 2));
+      const run3Calls = {};
+      const allGood3 = async (step) => { run3Calls[step.step_index] = (run3Calls[step.step_index] || 0) + 1; fs.writeFileSync(path.join(cpDir, step.target_files[0]), `export const v = ${step.step_index};\n`); return { ok: true, model: 'm' }; };
+      const r3 = await orchestrate('M-CP run3', cpDir, { deconstructFn: async () => ({ ok: true, queue: cpQ }), implementFn: allGood3, maxRepairs: 0, stepRetries: 0, verdictFn: approveVerdict, witnessFn: okWitness });
+      ck(r3.ok === true && r3.phase === 'done', 'CORRUPTED CHECKPOINT: run 3 (with a tampered step-1 sha) still reaches DONE');
+      ck(run3Calls[1] === 1, 'CORRUPTED CHECKPOINT: step 1 (wrong sha, touches only "seed") is RE-RUN for real, not silently resumed');
+      ck(run3Calls[2] === undefined, 'CORRUPTED CHECKPOINT: step 2 (valid sha, the control) STILL resumes correctly — the fix is per-entry, not a blanket distrust');
+      const resumedStep2 = r3.steps.find((s) => s.step === 2);
+      ck(resumedStep2 && resumedStep2.resumed === true, 'CORRUPTED CHECKPOINT: step 2 is marked resumed:true in the result (legitimate resume unaffected)');
+      const rerunStep1 = r3.steps.find((s) => s.step === 1);
+      ck(rerunStep1 && !rerunStep1.resumed && rerunStep1.sha !== initSha, 'CORRUPTED CHECKPOINT: step 1 is NOT marked resumed and produced a FRESH sha (the tampered sha never reached the result)');
+
       fs.rmSync(cpDir, { recursive: true, force: true });
     }
   }

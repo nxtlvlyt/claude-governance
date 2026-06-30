@@ -60,6 +60,36 @@ export function commitStep(cwd, label, files = []) {
 }
 
 /**
+ * Verify a commit at `sha` actually changed at least one of `files` (repo-relative or
+ * resolvable paths). Used at the checkpoint-RESUME trust boundary (orchestrate.mjs), never
+ * inside commitStep itself — this does NOT touch the no-op-commit handling above (the
+ * fb-backlog 2026-06-11 fix for a legitimate identical-content re-run stays untouched).
+ *
+ * Real receipt this closes (2026-06-30): engine-hajj-template-headless-and-visual-qc's
+ * _checkpoint.json recorded step 1 as committed at a sha that — confirmed via git log —
+ * never touched mission_split.mjs at all (it was an unrelated conductor commit to a
+ * different file that happened to be the repo's HEAD when the checkpoint was written). The
+ * resume logic only checked `cp.mission_id` matched; it never verified the sha's OWN diff
+ * touched the claimed target. Step 1 was silently skipped as "done" for two full mission
+ * attempts while mission_split.mjs never received its intended change.
+ *
+ * Fail-closed: any git error (unreachable sha, garbage input) -> false. An unverifiable sha
+ * is never trusted as evidence a step's deed actually landed.
+ * @returns {boolean}
+ */
+export function commitTouchesFiles(cwd, sha, files = []) {
+  if (!sha || !files.length) return false;
+  try {
+    const out = execSync(`git diff-tree --no-commit-id --name-only -r ${quote(sha)}`, gitOpts(cwd)).toString();
+    const changed = new Set(out.split(/\r?\n/).map((l) => l.trim()).filter(Boolean));
+    const targets = files.map((f) => String(f).replace(/\\/g, '/').replace(/^\.\//, '').trim()).filter(Boolean);
+    return targets.some((t) => changed.has(t));
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Stage the given files into the index WITHOUT committing. Used by the command-step path so a
  * planner-authored `git commit` command is not HOLLOW on a NEW untracked allow-file. Raw `git
  * commit` (and even `git commit -a`) NEVER stages an untracked path, so a freshly-rendered file
@@ -512,6 +542,21 @@ function selfTest() {
     assert(committedNames.includes("file.txt") && !committedNames.includes("uninvolved.txt"), "code-repo commit staged ONLY the allowlisted file (never '.', uninvolved untracked file excluded)");
     assert(execSync("git rev-parse HEAD", { cwd: tmp, stdio: "pipe" }).toString().trim() !== baselineHead, "code-repo commit advanced HEAD");
     fs.rmSync(path.join(tmp, "uninvolved.txt"), { force: true });
+
+    // commitTouchesFiles: the checkpoint-resume trust-boundary check (2026-06-30 receipt).
+    {
+      const realSha = execSync("git rev-parse HEAD", { cwd: tmp, stdio: "pipe" }).toString().trim();
+      assert(commitTouchesFiles(tmp, realSha, ["file.txt"]) === true,
+        "commitTouchesFiles: a real commit that DID touch the claimed file -> true");
+      assert(commitTouchesFiles(tmp, realSha, ["some-other-file.mjs"]) === false,
+        "commitTouchesFiles: a real commit that did NOT touch the claimed file -> false (the exact bug: a checkpoint pointed at an unrelated commit)");
+      assert(commitTouchesFiles(tmp, "0000000000000000000000000000000000000000", ["file.txt"]) === false,
+        "commitTouchesFiles: an unreachable/garbage sha -> false (fail-closed, never trusted)");
+      assert(commitTouchesFiles(tmp, realSha, []) === false,
+        "commitTouchesFiles: no claimed targets -> false (nothing to verify against)");
+      assert(commitTouchesFiles(tmp, null, ["file.txt"]) === false,
+        "commitTouchesFiles: no sha -> false");
+    }
   } finally {
     // Clean up the temp dir regardless of outcome.
     try {
