@@ -459,7 +459,7 @@ export async function witnessArtifact(text, context = {}, opts = {}) {
 }
 
 // ============================================================ selftests (no live model) ====
-if (process.argv[1] && process.argv[1].endsWith('self_witness.mjs')) {
+if (process.argv[1] && process.argv[1].endsWith('self_witness.mjs') && !process.argv.includes('--check-commit')) {
   let pass = 0, fail = 0;
   const ck = (c, m) => { console.log(`${c ? 'PASS' : 'FAIL'}  ${m}`); c ? pass++ : fail++; };
   const GB = 1024 * 1024 * 1024;
@@ -672,4 +672,52 @@ if (process.argv[1] && process.argv[1].endsWith('self_witness.mjs')) {
 
   console.log(`\n${fail ? fail + ' FAIL' : 'ALL PASS — self_witness: laguna+guardian BOTH-witness, GR10-serial, non-blocking, fail-soft, BEFORE+AFTER passes'}`);
   process.exit(fail ? 1 : 0);
+}
+
+// ============================================================ --check-commit (live, real models)
+// `node self_witness.mjs --check-commit [--sha <sha>] [--model laguna|ornith35b|ornith9b]`
+//
+// OPERATOR STANDING RULING (2026-06-16, this file's own header): "any work outside the chain
+// needs to be witnessed by both Laguna AND guardian." The conductor's own hand-authored engine
+// edits are exactly that category — but running the live pipeline required hand-assembling a
+// node -e script each time, so it kept not happening (receipt: 2026-06-30, multiple hand-edited
+// commits shipped tonight with zero live witness call, despite the standing ruling and despite
+// ornith:9b/35b being installed specifically for this). Gated on an explicit flag so it never
+// collides with the bare-invocation offline selftest above. Default model is laguna (the
+// operator-designated default per the 2026-06-26 ruling); --model overrides for a faster/
+// alternative check. Default sha is HEAD (the most recent commit) — exactly what "did I check
+// my own last commit" means in practice. Always exits 0 (informational/non-blocking, matching
+// this whole file's design — a flag is printed clearly, never a hard failure).
+if (process.argv.includes('--check-commit')) {
+  (async () => {
+    const argv = process.argv;
+    const argAfter = (flag, dflt) => { const i = argv.indexOf(flag); return i >= 0 && argv[i + 1] ? argv[i + 1] : dflt; };
+    const sha = argAfter('--sha', 'HEAD');
+    const modelArg = argAfter('--model', 'laguna');
+    const { execSync } = await import('node:child_process');
+    let diff, subject;
+    try {
+      diff = execSync(`git show ${sha}`, { encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 });
+      subject = execSync(`git log -1 --format=%s ${sha}`, { encoding: 'utf8' }).trim();
+    } catch (e) {
+      console.error(`could not read commit ${sha}: ${e.message}`);
+      process.exit(0);
+    }
+    const dispatchByModel = { laguna: lagunaDispatch, ornith35b: ornith35bDispatch, ornith9b: ornith9bDispatch };
+    const modelNameByArg = { laguna: LAGUNA_MODEL, ornith35b: ORNITH_35B_MODEL, ornith9b: ORNITH_9B_MODEL };
+    const dispatch = dispatchByModel[modelArg];
+    if (!dispatch) { console.error(`unknown --model "${modelArg}" — use laguna | ornith35b | ornith9b`); process.exit(0); }
+    console.log(`--check-commit ${sha} ("${subject}") — structural=${modelArg}, then guardian`);
+    const t0 = Date.now();
+    const r = await witnessArtifact(diff, { contextText: `Commit ${sha}: ${subject}` }, {
+      structureFn: (a, c) => checkStructure(a, c, { dispatch }),
+      structureModel: modelNameByArg[modelArg],
+      lagunaNeedBytes: modelArg === 'ornith9b' ? ORNITH_9B_NEED_BYTES : modelArg === 'ornith35b' ? ORNITH_NEED_BYTES : 22 * 1024 * 1024 * 1024,
+    });
+    console.log(`elapsed ${Date.now() - t0}ms — yielded=${r.yielded} ok=${r.ok}`);
+    console.log(`  laguna(structural): ${r.laguna?.verdict ?? '(no signal)'}${r.laguna?.notes ? ' — ' + r.laguna.notes.slice(0, 200) : ''}`);
+    console.log(`  guardian(groundedness): ${r.guardian?.grounded === null ? '(no signal)' : r.guardian?.grounded} ${r.guardian?.raw ? '— ' + String(r.guardian.raw).slice(0, 150) : ''}`);
+    if (r.ok === false) console.log('FLAG — see notes above (non-blocking; this is informational, not a gate)');
+    process.exit(0);
+  })();
 }
