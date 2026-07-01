@@ -167,6 +167,5 @@ Done means:
     missing catalog entry — not merely by asserting the pre-existing product code "looks
     fine," which is true of the JS file in isolation but was never sufficient on its own.
 
-Amanah: this slice is part of the muddytires.ca quality-uplift backlog.
 Context: Sandbox writes only, target repo working tree only.
-Amanah: entrusted; discharge with ihsan.
+Amanah: this slice is part of the muddytires.ca quality-uplift backlog; entrusted, discharge with ihsan.
