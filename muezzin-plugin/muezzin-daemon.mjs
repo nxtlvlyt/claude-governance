@@ -27,6 +27,7 @@ import { readFileSync, writeFileSync, existsSync, appendFileSync, mkdirSync, rmS
 import { lintMission } from './mission_lint.mjs';
 import { parseMissionClass } from './mission_class.mjs';
 import { witnessArtifact, buildAfterContext } from './self_witness.mjs';
+import { heal as conductCycleHeal } from './conduct-cycle.mjs';
 import path from 'path';
 import os from 'os';
 import { fileURLToPath } from 'url';
@@ -685,6 +686,16 @@ async function mainLoop() {
   // spammed his phone with zero information). Pushes are OUTCOME-ONLY: DONE/FAILED.
   const attempts = new Map();
   const lanes = new Map(); // raw line -> promise
+  // AUTO-HEAL CADENCE (2026-07-01 receipt): conduct-cycle.mjs's heal() -- STUCK-TASK kill,
+  // REQUEUE-ON-FIX-LANDED, CHAIN-ON-DONE, RESTART-DAEMON -- was fully correct but only ever
+  // ran when a conductor invoked `node conduct-cycle.mjs --heal` by hand. Every action heal()
+  // actually executes is already `class: 'mechanical', approved_by_faith: true` in sweep()'s
+  // own action list (judgment-class actions like DIAGNOSE-* are report-only, heal() never
+  // touches those) -- so this is completing already-approved automation, not a new judgment
+  // call. 5-minute cadence matches TASK_STUCK_MS (a lane isn't even eligible to be flagged
+  // stuck before 5 minutes elapse, so checking more often than that buys nothing).
+  const HEAL_INTERVAL_MS = 5 * 60 * 1000;
+  let lastHealTs = 0;
   // 2026-07-01 receipt: conduct-cycle.mjs's detectStuckLanes() has been dead code since it
   // was written -- it needs a lane shape of {path, start_ts} to compute how long a lane has
   // been running, but this daemon has only ever written bare-string lanes (lanes.keys()) to
@@ -827,6 +838,13 @@ async function mainLoop() {
 
   while (true) {
     try {
+      if (Date.now() - lastHealTs >= HEAL_INTERVAL_MS) {
+        lastHealTs = Date.now();
+        try {
+          const healed = conductCycleHeal(HERE, Date.now());
+          if (healed.performed?.length) evt(`AUTO-HEAL: ${healed.performed.map((p) => `${p.action}${p.stem ? `(${p.stem})` : ''}`).join(', ')}`);
+        } catch (e) { evt(`AUTO-HEAL error (continuing, next cycle in ${HEAL_INTERVAL_MS / 60000}m): ${e.message}`); }
+      }
       const { pending } = readQueue();
       for (const { raw } of pending) {
         if (lanes.size >= MAX_LANES) break;
