@@ -1,0 +1,23 @@
+MISSION-ID: mt-integrate-b13-aria-live.S1
+MISSION-CLASS: code-repo
+PARENT: mt-integrate-b13-aria-live
+TARTIB-INDEX: 1 of 2
+VISUAL-QC-REQUIRED
+REQUIRES: none (first in tartib order)
+STEPS: 8
+
+PARENT MAQSAD: Land commit dad942d ("feat(b13-aria-live): WCAG 4.1.3 text-only mirror for
+
+Maqsad: sub-mission 1 of 2 — Record target-repo baseline: confirm css/aria-live-mirror.css and js/aria-live-mirror.js do not already exist on disk, and log current branch/HEAD for the before-picture. through Confirm docs/QC-PIPELINE-SOTA-2026-06-23.md is present in the target repo (whether pre-existing ancestor or landed by step 2).
+
+Steps:
+  1. Record target-repo baseline: confirm css/aria-live-mirror.css and js/aria-live-mirror.js do not already exist on disk, and log current branch/HEAD for the before-picture. [command] .
+  2. Land the docs commit 375e40b onto HEAD, citing its source sha (-x); if it is already an ancestor the cherry-pick will report empty and must be resolved with --skip, never --allow-empty. Assert the docs file exists afterward regardless of which path was taken. [command] docs/QC-PIPELINE-SOTA-2026-06-23.md
+  3. Land the feature commit dad942d onto HEAD (cherry-pick -x so the resulting commit cites the source sha). This single git operation adds css/aria-live-mirror.css and js/aria-live-mirror.js and modifies map.html; js/aria-live-mirror.js is the substantive new implementation file this step is scoped to. [command] js/aria-live-mirror.js
+  4. Syntax-check the landed js/aria-live-mirror.js file. [verify] js/aria-live-mirror.js
+  5. Confirm js/aria-live-mirror.js content is the real feature (MutationObserver-based mirror with the window.__mtAriaLiveMirror debug surface), not a stub, by reading the on-disk file. [verify] js/aria-live-mirror.js
+  6. Confirm css/aria-live-mirror.css landed with the sr-only/clip visually-hidden class by reading the on-disk file. [verify] css/aria-live-mirror.css
+  7. Confirm map.html contains both the new <link> stylesheet / <script defer> tags AND the pre-existing tags (e.g. plan-day.js) — both sides present, neither dropped. [verify] map.html
+  8. Confirm docs/QC-PIPELINE-SOTA-2026-06-23.md is present in the target repo (whether pre-existing ancestor or landed by step 2). [verify] docs/QC-PIPELINE-SOTA-2026-06-23.md
+
+Done means: ., docs/QC-PIPELINE-SOTA-2026-06-23.md, js/aria-live-mirror.js, css/aria-live-mirror.css, map.html exist/are updated as specified — verify by headless-browser render, not by reading the code

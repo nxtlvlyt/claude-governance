@@ -110,6 +110,99 @@ deliverable-type-aware QC + faith file edits must be ratified in a FRESH oriente
 governance session that has read `~/.claude/practice/extended/` first. NOT in a
 long drifted feature-build session.
 
+## 15-MIN CONDUCTOR BEAT (2026-07-01T~15:40Z) — verdict-gate shipped, real worktree-cascade found+fixed, daemon health mixed (not fully solved)
+
+Fresh session (compaction boundary), full Fajr done (practice/core.md, CANON-MANIFEST.md,
+faiths/conductor.faith.md all read this session before acting).
+
+**`~/.claude/hooks/autorun-verdict-gate.mjs` shipped and REALLY tested** (not just
+syntax-checked): built the 10-case fixture the design agent specified (hard block, clears
+on real per-mission Read, global-log exclusion, cross-mission guard, naming-drift
+tolerance x2, compaction reset, no-op guard, soft-warn with/without operator signal) and
+ran every case with real `node` invocations piping real stdin JSON + fixture transcripts.
+All 10 pass exactly as specified, zero stderr noise. Already registered in settings.json
+(Edit|Write matcher). This closes the "PARKED b13-aria-live on a global-log misread"
+failure class from earlier today — a future instance literally cannot repeat it without
+tripping this gate.
+
+**conduct-cycle.mjs `DIAGNOSE-<stem>` path bug fixed** (commit `9d62670`): the design
+agent that built the gate above also found the action's own `read_first` paths were
+wrong — `<stem>.result.json` (real name: `.mission.result.json`) and a fixed
+`<stem>.retro.md` (real name: timestamp-suffixed, `retro/<stem>-<stamp>.md`).
+`existsSync()` silently dropped both phantom paths, so DIAGNOSE actions could ship an
+empty/short `read_first` with nothing flagging it. Fixed with a directory-scan for the
+real retro filename; added 2 new selftest assertions with a real fixture; full suite
+(52 checks) green before and after.
+
+**Cron re-armed the FAITH-SPECIFIED way, not the workaround**: `conductor.faith.md` names
+`CronCreate` explicitly ("the call must come from outside the one who prays"). A prior
+STATE.md note (search "SESSION CONTINUATION") explains a past instance tried
+`mcp__claude_ai_Claude_Code_Remote__create_trigger`, got disconnected cloud sandboxes with
+no access to this machine, and fell back to self-rearming `ScheduleWakeup` — which is
+bound to that one chat session and dies at any real session boundary (today, for
+instance). `CronCreate` is a DIFFERENT tool from `create_trigger` — it fires prompts into
+THIS session on a real schedule without needing a separate environment. Armed job
+`0b16f3c8`, `3,18,33,48 * * * *` (offset off :00/:15/:30/:45), session-only per the
+faith's own framing ("session crons die with sessions" — re-arm each fresh session, this
+is by design not a gap). If you're a fresh instance and `CronList` comes back empty, that is
+expected — re-arm it, don't treat it as a discovered bug.
+
+**`mt-integrate-b13-aria-live` planning SUCCEEDED** (15:11:04Z) after 8 straight failed
+plan-start attempts stretching back to 12:05Z, every one killed mid-plan by the OLD 5-min
+stuck timer — direct, receipted confirmation that `TASK_STUCK_MS` was the real root cause
+(not the mission's content, which is what got it wrongly PARKED earlier today). Produced
+an 11-step plan, split into S1 (8 steps) + S2 (3 steps, requires S1), both queued. This is
+the first real e2e-with-visual-QC candidate — not yet resolved DONE as of this write,
+watch for it.
+
+**Daemon health: genuinely improved, NOT fully solved — say so plainly.** Supervisor log:
+crash cadence went from every ~10 min (06:45–07:41, six deaths) to a single crash at
+09:36:41, ~1h55m later — the `TASK_STUCK_MS` fix is real and working. But that second
+crash left ZERO trace: no `daemon-events.log` entry (the STUCK-TASK healer always logs a
+SWEEP-HEAL line; this crash didn't produce one), empty stderr, near-empty stdout — a
+DIFFERENT, still-unexplained failure signature. Do not declare this class of bug closed.
+Current PID 39924 (started 09:36:44), actively working, `daemon-supervisor.ps1` catching
+every death and restarting within seconds either way — operational impact is bounded
+(brief interruption, not downtime), but the underlying cause of crash #2 is still unknown.
+Next beat: if a third silent crash happens, that's 2 data points on the NEW signature —
+worth a real investigation then, not yet (one occurrence isn't a pattern).
+
+**Real systemic bug found AND fixed in the muddytires FAILED backlog — not just diagnosed
+on paper.** `node conduct-cycle.mjs` surfaced ~90 open `DIAGNOSE-<stem>` judgment actions
+(the mt-feat/qc-concern/qc-fix batch queued earlier this session, now FAILED x2). Sampled
+several `.mission.result.json` files instead of guessing: 19 of the 38 `qc-concern-*`/
+`qc-fix-*` missions failed on the IDENTICAL error — `code-repo TARGET-BRANCH: refusing
+checkout ... worktree is dirty` against the shared `REPO-ROOT`
+(`C:\Users\marka\code\mt-integration-2026-06-22`), left dirty by whichever mission ran
+first in that batch (`_disc-layerctl.txt` untracked, or uncommitted `js/fire-ban-layer.js`
+/`js/site-search.js` edits). One mission file (`qc-concern-fire-ban-layer-*`) had already
+named this exact root cause in its own Context section from an earlier diagnosis pass.
+Verified live via `git status` in that worktree — genuinely clean now (transient, cleared
+condition, not a defect in these 19 missions). Recorded the diagnosis in
+`missions/_logs/fix-ledger.json` (`node conduct-cycle.mjs --record --class
+worktree-dirty-cascade ...`) and requeued mechanically via `node conduct-cycle.mjs --heal`
+— the FAILED lines are bared, daemon already picked one up
+(`qc-concern-pwa-install-banner-...` started 15:36:52Z, same minute as the heal). Used the
+ledger/heal path deliberately, not a hand-edit to AUTORUN.md: `autorun-verdict-gate.mjs`
+only recognizes evidence read via the `Read` tool, and per the conductor faith the seat's
+job is to run the deterministic script, not hand-author judgment prose.
+
+**Structural gap named, not built**: nothing in the engine proactively detects/cleans a
+dirty shared worktree — it's a real recurring risk (the CURRENTLY running lane could leave
+it dirty again for the next mission in queue). Worth a mechanical heal action mirroring
+STUCK-TASK in a future beat. Not built this turn — naming it is the honest stopping point,
+not silently absorbing it.
+
+**~70 more `DIAGNOSE-<stem>` actions remain genuinely untouched** in the REQUIRED ACTIONS
+list (`node conduct-cycle.mjs` output, saved this session) — this was NOT a marathon
+diagnosis pass, it was one systemic pattern found and fixed. Do not re-diagnose the 19
+`worktree-dirty-cascade` stems above; do not treat the remaining ~70 as urgent-priority
+over the operator's stated tier ordering (chain reliability > e2e-unproven > UI/UX) — some
+of these are old history (`engine-*`, `m01-1-*`) already closed by conduct-cycle.mjs's own
+"superseded/resolved" classification and don't need action at all; the actionable
+`mt-integrate-*`/`qc-*` ones are real backlog the 15-min cron beat should chip at
+incrementally, one systemic pattern at a time, not by brute-force per-mission narration.
+
 ## 15-MIN CONDUCTOR BEAT (2026-07-01T~14:50Z) — quiet, routine
 
 Same PID (35864, ~69min uptime), no new deaths. 3 real completions landed between the

@@ -19,7 +19,7 @@
 //   claude-tier heartbeat lines with no 429 in the same window -> investigate flag
 //   3+ EMPTY_CONTENT_THINKING fails in window -> known quota-burn class (QUEUE fix item)
 
-import { readFileSync, writeFileSync, existsSync, mkdirSync, rmSync, appendFileSync } from 'fs';
+import { readFileSync, writeFileSync, existsSync, mkdirSync, rmSync, appendFileSync, readdirSync } from 'fs';
 import { execSync } from 'child_process';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -266,9 +266,20 @@ export function sweep(base = HERE, now = Date.now(), routeFile = path.join(proce
       actions.push({
         id: `DIAGNOSE-${stem}`, class: 'judgment', approved_by_faith: false,
         why: 'FAILED x2 needs diagnosis from receipts, never a blind relaunch (conductor faith)',
+        // real on-disk names, not guesses: the result file is `<stem>.mission.result.json`
+        // (not `.result.json`), and the retro file carries a timestamp suffix
+        // (`<stem>-<stamp>.md`), not a fixed `.retro.md` -- fixed 2026-07-01 after
+        // autorun-verdict-gate.mjs's own evidence-candidate logic caught this drift.
         read_first: [
-          path.join(base, 'missions', stem + '.result.json'),
-          path.join(logs, 'retro', stem + '.retro.md'),
+          path.join(base, 'missions', stem + '.mission.result.json'),
+          ...(() => {
+            const retroDir = path.join(logs, 'retro');
+            try {
+              return readdirSync(retroDir)
+                .filter((f) => f.startsWith(`${stem}-`))
+                .map((f) => path.join(retroDir, f));
+            } catch { return []; }
+          })(),
           path.join(base, 'missions', stem, 'mission-events.jsonl'),
         ].filter(existsSync),
         rule: 'diagnose, then annotate with FIX: <conductor-performable fix> OR "pending engine batch" OR "SUPERSEDED/RESOLVED: <why>" — a bare FAILED mark is not a finished judgment',
@@ -602,6 +613,19 @@ function selftest() {
   ck(r.actions.some((a) => a.id === 'DIAGNOSE-broken' && a.class === 'judgment'), 'FAILED mission gets diagnose action, not a refire');
   ck(r.report.some((l) => l.includes('claude-tier') && l.includes('NO 429')), 'claude-without-429 flag raised');
   ck(r.autorun.pending.length === 1, 'pending parse correct');
+
+  // fixture 1a: DIAGNOSE-<stem> read_first must use the REAL on-disk names (2026-07-01
+  // fix — was `<stem>.result.json`/fixed `.retro.md`, neither of which ever exists on
+  // disk; real names are `<stem>.mission.result.json` and a timestamp-suffixed retro file).
+  mkdirSync(path.join(logs, 'retro'), { recursive: true });
+  writeFileSync(path.join(tmp, 'missions', 'broken.mission.result.json'), '{"ok":false}');
+  writeFileSync(path.join(logs, 'retro', 'broken-2026-07-01T00-00-00-000Z.md'), '# retro');
+  r = sweep(tmp, now, noRoute, sightOk);
+  const diagBroken = r.actions.find((a) => a.id === 'DIAGNOSE-broken');
+  ck(!!diagBroken?.read_first?.some((p) => p.endsWith('broken.mission.result.json')), 'DIAGNOSE read_first finds the real .mission.result.json name');
+  ck(!!diagBroken?.read_first?.some((p) => p.endsWith('broken-2026-07-01T00-00-00-000Z.md')), 'DIAGNOSE read_first finds the real timestamp-suffixed retro file');
+  rmSync(path.join(tmp, 'missions', 'broken.mission.result.json'), { force: true });
+  rmSync(path.join(logs, 'retro', 'broken-2026-07-01T00-00-00-000Z.md'), { force: true });
 
   // fixture 1b: SELF-HEAL — a FAILED annotation NAMING a fix becomes a PERFORM order;
   // one parked on the engine batch is report-only (legitimate); a bare one still diagnoses.
