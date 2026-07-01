@@ -41,13 +41,17 @@ while ($true) {
   }
 
   Write-Log "starting wrangler pages dev"
-  Push-Location $RepoRoot
-  # --show-interactive-dev-session=false keeps it non-interactive; log stdout+stderr for diagnosis
-  $p = Start-Process -FilePath 'npx' `
-    -ArgumentList @('wrangler','pages','dev','.','--port',"$Port",'--ip','127.0.0.1','--show-interactive-dev-session=false') `
+  # ROOT-CAUSE FIX (2026-07-01): Start-Process 'npx'/'wrangler' fails instantly with
+  # "cannot find the file specified" because those are .cmd shims, not .exe — Start-Process
+  # does not resolve PATH shims the way a shell does. This is the SAME bug the missions'
+  # own render-witness steps hit. Invoke through cmd.exe /c with the full .cmd path so the
+  # batch shim actually runs. (cmd.exe IS a real executable Start-Process can launch.)
+  $wrangler = 'C:\Users\marka\AppData\Roaming\npm\wrangler.cmd'
+  $cmdLine = "`"$wrangler`" pages dev . --port $Port --ip 127.0.0.1 --show-interactive-dev-session=false"
+  $p = Start-Process -FilePath 'cmd.exe' `
+    -ArgumentList @('/c', $cmdLine) `
     -WorkingDirectory $RepoRoot -NoNewWindow -PassThru `
     -RedirectStandardOutput $OutLog -RedirectStandardError "$OutLog.err"
-  Pop-Location
 
   Wait-Process -Id $p.Id
   $deaths.Add((Get-Date))
