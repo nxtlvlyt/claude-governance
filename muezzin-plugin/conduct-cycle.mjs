@@ -310,6 +310,15 @@ export function sweep(base = HERE, now = Date.now(), routeFile = path.join(proce
     if (e.requeued) continue;
     for (const s of (e.requeue || [])) {
       if (!failedStems.has(s)) continue;
+      // 2026-07-01 real incident: 10 of 19 stems fed to --record/--requeue this session
+      // had mission.txt files already deleted (retired long before, for an unrelated
+      // reason) -- the requeue fired anyway and wasted a cycle on FAILED(missing file).
+      // A dead stem is not silently dropped here (no-silent-caps) -- it's named on the
+      // report so the conductor sees it, then skipped rather than requeued.
+      if (!existsSync(path.join(base, 'missions', `${s}.mission.txt`))) {
+        report.push(`REQUEUE SKIPPED (file missing): ${s} — ledger entry names this stem but its mission.txt does not exist on disk; regenerate the mission file before requeuing`);
+        continue;
+      }
       actions.push({
         id: `REQUEUE-${s}`, class: 'mechanical', approved_by_faith: true,
         why: `fix landed (${e.fix || e.class}) — class '${e.class}' is healed; the faith requires requeuing the healed, ONCE`,
@@ -649,6 +658,7 @@ function selftest() {
   // a mechanical requeue; heal() bares the line (daemon re-fires) + flips it ONCE.
   writeFileSync(path.join(tmp, 'missions', 'AUTORUN.md'),
     '# q\nFAILED missions/healed.mission.txt  <!-- pending engine batch -->\nFAILED missions/other.mission.txt  <!-- t -->\n');
+  writeFileSync(path.join(tmp, 'missions', 'healed.mission.txt'), 'MISSION-CLASS: test\n');
   recordFix(tmp, { cls: 'fabricated-citation', fix: 'citation_guard gate', requeue: ['healed'] }, now);
   r = sweep(tmp, now, noRoute, sightOk);
   ck(r.actions.some((a) => a.id === 'REQUEUE-healed' && a.class === 'mechanical' && a.approved_by_faith), 'fix-landed: a FAILED mission in the ledger becomes a mechanical requeue');
@@ -668,6 +678,16 @@ function selftest() {
   // once-only: a second sweep sees the entry requeued and emits NO requeue action.
   r = sweep(tmp, now, noRoute, sightOk);
   ck(!r.actions.some((a) => String(a.id).startsWith('REQUEUE-')), 'once-only: a requeued ledger entry never fires again (no auto-loop)');
+
+  // fixture 1c-missing: REQUEUE-ON-FIX-LANDED must NOT requeue a stem whose mission.txt
+  // was deleted (2026-07-01 real incident: 10 of 19 stems fed to --record/--heal this
+  // session had already-retired mission files; the requeue fired anyway and wasted a
+  // cycle on FAILED(missing file)). The skip must be reported, not silently dropped.
+  writeFileSync(path.join(tmp, 'missions', 'AUTORUN.md'), '# q\nFAILED missions/ghost.mission.txt  <!-- t -->\n');
+  recordFix(tmp, { cls: 'test-class', fix: 'test fix', requeue: ['ghost'] }, now);
+  r = sweep(tmp, now, noRoute, sightOk);
+  ck(!r.actions.some((a) => a.id === 'REQUEUE-ghost'), 'REQUEUE is skipped when the mission.txt file does not exist on disk');
+  ck(r.report.some((l) => l.includes('REQUEUE SKIPPED') && l.includes('ghost')), 'the skip is named on the report, not silently dropped');
 
   // fixture 1c2: CHAIN-ON-DONE — a DONE mission declaring ON-DONE pulls its follow-on
   // into the queue mechanically; once-only; missing target file is report-only.
