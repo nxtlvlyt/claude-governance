@@ -213,7 +213,17 @@ if (!matchedPattern) process.exit(0); // no stop-language, allow
 // 2026-06-24: narrowed per operator-rulings.md ("NEVER dispatch mcp gpt/grok/gemini/glm
 // workers... compliant channels are mcp__ollama-* and WebFetch"). Was implementing canon's
 // wider allowlist; operator-rulings is the override per its meta-clause.
-const isFF = (name) => /^mcp__ollama/i.test(name) || name === 'WebFetch';
+//
+// 2026-07-01: added 'Agent' as a recognized compliant dispatch. Root cause of a real,
+// verified dead end: the required-action text below (step 3) has always told the
+// instance "if mechanical, dispatch an Agent" as a valid fallback -- but this check
+// never accepted Agent tool_use, so following that exact instruction never stopped the
+// ratchet from climbing. Confirmed live in a muezzin-plugin session: mcp__ollama-* is
+// not connected in some session types at all (ToolSearch returned zero matches), so
+// Agent was the only channel actually available, and the hook kept firing regardless.
+// This is additive, not a loosening: detection of stop-language (matchedPattern) is
+// unchanged; only a channel the hook's own guidance already promised is now honored.
+const isFF = (name) => /^mcp__ollama/i.test(name) || name === 'WebFetch' || name === 'Agent';
 
 const foreignFrontierFired = lastTurnToolUses.some(isFF);
 
