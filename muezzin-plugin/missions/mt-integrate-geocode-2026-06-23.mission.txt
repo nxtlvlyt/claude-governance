@@ -1,0 +1,153 @@
+MISSION mt-integrate-geocode-2026-06-23
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+TARGET-BRANCH: main
+ALLOW-FILES:
+  - functions/api/geocode.js
+  - functions/api/reverse-geocode.js
+REQUIRES: none
+
+Niyyah: The feature "mt-feat-geocode-2026-06-23" (commit c53ffb0, sitting in the
+source worktree C:\Users\marka\code\mt-feat-geocode-2026-06-23) has never been
+integrated into this repo's TARGET-BRANCH. This mission's entire job is mechanical
+integration — land the commit onto main's current tip without losing either side's
+changes, and prove the result is syntactically sound and committed. Nothing this
+mission does constitutes a judgment that the two new endpoints' CODE is correct,
+safe, or behaves as designed (e.g. that the Photon-backed /api/geocode and
+/api/reverse-geocode handlers really degrade to ok:true/null-fields on a Photon
+5xx/timeout instead of 500ing, that the 7-day KV TTL and 'geo:fwd:'/'geo:rev:' key
+namespacing actually avoid colliding with the existing 'ov:' Overpass rows in
+env.MT_OVERPASS_CACHE, or that the confidence/rounding math is right). That
+determination belongs to this mission's own witness + verdict-panel run, which
+inspects the integrated result after this mission produces it — not to the act of
+integration itself. Authoring or executing this mission is not verification of the
+feature's code.
+
+Maqsad: The commit "c53ffb0 feat(geocode): add /api/geocode and /api/reverse-geocode
+(Photon, 7d KV cache)" is cherry-picked or merged from the source worktree onto
+TARGET-BRANCH main of C:\Users\marka\code\mt-integration-2026-06-22, with any
+conflicts resolved by keeping BOTH sides — this repo's existing unrelated changes
+AND this feature's two new files, never silently dropping either — every .js/.mjs
+file this integration touches passes `node --check`, the result is committed with a
+clear message, and the target repo's working tree is left clean with respect to
+everything this mission touches.
+
+Context (verified against live substrate 2026-07-01, absolute paths, no prescribed
+resolution beyond "keep both sides"):
+- Source worktree: C:\Users\marka\code\mt-feat-geocode-2026-06-23 — confirmed this
+  session via `git log --oneline` to carry commit c53ffb0 at the tip, parent ed6e33c
+  ("Merge remote-tracking branch 'github/feat/admin-tasks' into
+  integration/apex-2026-06-22"). Do not rewrite that worktree, only read/cherry-pick
+  FROM it.
+- Confirmed diff stat for c53ffb0 (`git show --stat`, this session): 2 files
+  changed, 529 insertions(+), 0 deletions(-) — both brand-new files, no existing
+  file is modified: functions/api/geocode.js (272 lines) and
+  functions/api/reverse-geocode.js (257 lines). Per the commit message: GET
+  /api/geocode?q=address returns {ok, q, lat, lng, confidence} and GET
+  /api/reverse-geocode?lat=&lng= returns {ok, lat, lng, address, province,
+  country}; both read/write env.MT_OVERPASS_CACHE under the 'geo:fwd:'/'geo:rev:'
+  key namespaces with a 7-day TTL, distinct from the existing 'ov:' Overpass rows;
+  both return ok:true with null fields plus an X-Geocode-Cache: MISS_* header on
+  network/5xx/timeout/non-JSON failures rather than 500ing, reserving 400 for
+  malformed input. No .html file is touched by this commit.
+- Target repo TARGET-BRANCH main, this session's HEAD (`git log main --oneline -1`):
+  5e19874. Confirmed via `git cat-file -e main:functions/api/geocode.js` and
+  `git cat-file -e main:functions/api/reverse-geocode.js` (both fail — path does
+  not exist) that neither file exists on main yet, though the parent directory
+  functions/api/ already exists on main with other unrelated files in it — so the
+  two-file add should apply as a clean addition alongside those, not a directory
+  collision. A dry-run `git checkout main && git cherry-pick -n c53ffb0` performed
+  in this session applied cleanly with ZERO conflicts (`git status --porcelain`
+  showed exactly `A  functions/api/geocode.js` and
+  `A  functions/api/reverse-geocode.js`, nothing else staged or modified), then was
+  reset (`git reset --hard main`) before this mission was authored, so main is
+  unchanged. If a collision is nonetheless reported at fire time (main having since
+  gained its own same-named file), resolve it by keeping BOTH files' content rather
+  than overwriting either.
+- The source worktree and the target repo are worktrees of the SAME underlying git
+  repository (confirmed via `git worktree list`, and `git cat-file -t c53ffb0`
+  succeeding directly inside the target repo) — commit c53ffb0 is already a
+  reachable object in the target repo without any fetch/remote-add step;
+  `git cherry-pick c53ffb0` works directly.
+- The repo's checked-out HEAD at the time this Context was written (28cbc72, branch
+  feat/qc-concern-sentry-error-capture-sentry-init-js-2026-06-25) is NOT main and
+  carries pre-existing untracked litter unrelated to this feature (api-index-response.json,
+  docs/e2e-report-2026-07-01.json, e2e-shots/, feature-catalog-entry.txt,
+  scripts/e2e-runner.mjs) — confirmed this same untracked litter is still present
+  after checking out main in this session's dry run, so it is untracked repo-wide
+  litter, not branch-scoped; switching to TARGET-BRANCH main will not collide with
+  it. This mission's "clean working tree" claim is scoped to the files it touches
+  (the two ALLOW-FILES entries and anything a merge conflict forces it to touch) —
+  it does not require deleting, committing, or otherwise disturbing pre-existing
+  untracked litter left by unrelated work, since that litter is out of this
+  mission's scope and not this mission's to clean up.
+- This diff touches zero .html files, so no visual-QC header or render-witness
+  step is required by this mission (the visual-QC header used by other
+  integration missions is deliberately omitted here). It touches exactly two .js
+  files, both new adds, so the node --check requirement below is expected to
+  cover precisely those two files unless a conflict resolution forces a change to
+  some other .js/.mjs file this repo already has.
+- None of the above — the diff stat, the clean dry-run, the endpoint contracts
+  described in the commit message — has been verified by running the actual
+  endpoints, a witness, or a test; it is reporting diff contents and a dry-run git
+  mechanics check only. That the code genuinely behaves as the commit message
+  claims is exactly what this mission's own downstream witness + verdict-panel run
+  is for.
+
+Steps:
+  1. In the source worktree C:\Users\marka\code\mt-feat-geocode-2026-06-23, confirm
+     commit c53ffb0 exists and capture its patch (e.g. `git show c53ffb0` or
+     `git format-patch -1 c53ffb0`) without modifying that worktree. [command]
+     capture-patch
+  2. In the target repo C:\Users\marka\code\mt-integration-2026-06-22, check out
+     TARGET-BRANCH main at its current HEAD, then apply the captured commit via
+     `git cherry-pick c53ffb0` (the commit is already a reachable object in this
+     repo — no remote/fetch step is needed) or an equivalent merge of that single
+     commit. [command] integrate-commit
+  3. If the cherry-pick reports a conflict on either ALLOW-FILES entry or any other
+     path, resolve each conflicted hunk by hand so the resolved content contains
+     BOTH the target's pre-existing content AND this feature's new content — never
+     `--ours` / `--theirs` and never a resolution that deletes either side's lines.
+     [edit] resolve-conflicts
+  4. Confirm which files this integration actually touched or conflict-resolved
+     (`git diff --name-only` against the merge-base) and filter to *.js/*.mjs; run
+     `node --check` on every such file (expected: functions/api/geocode.js and
+     functions/api/reverse-geocode.js) and confirm each exits 0. [command]
+     node-check-all
+  5. Stage and commit the integrated result on TARGET-BRANCH main with a clear
+     message identifying the integrated feature and its origin commit (e.g.
+     referencing "mt-feat-geocode-2026-06-23" and "c53ffb0"). Confirm
+     `git status --porcelain` afterward shows no modified or staged entries related
+     to this mission's touched files — any pre-existing untracked litter noted in
+     Context above is left exactly as found, neither committed nor deleted.
+     [command] commit-and-verify-clean
+
+Done means:
+  - `git log` on TARGET-BRANCH main in C:\Users\marka\code\mt-integration-2026-06-22
+    shows a commit whose message names "mt-feat-geocode-2026-06-23" and/or
+    "c53ffb0".
+  - functions/api/geocode.js and functions/api/reverse-geocode.js both exist in the
+    target repo at TARGET-BRANCH main's HEAD with non-trivial content (read the
+    file content to confirm, not assumed): geocode.js implements a handler for
+    GET /api/geocode reading a `q` query param and reading/writing
+    env.MT_OVERPASS_CACHE under a 'geo:fwd:'-prefixed key; reverse-geocode.js
+    implements a handler for GET /api/reverse-geocode reading `lat`/`lng` query
+    params and reading/writing env.MT_OVERPASS_CACHE under a 'geo:rev:'-prefixed
+    key.
+  - If a conflict occurred during integration, both sides' content are confirmed
+    present in the resolved files by reading the resolved lines, not assumed.
+  - `node --check` exits 0 on functions/api/geocode.js and
+    functions/api/reverse-geocode.js, and on any other .js/.mjs file this
+    integration touched or conflict-resolved.
+  - `git status --porcelain` in the target repo, on TARGET-BRANCH main, shows no
+    modified or staged entries at the end of the mission — pre-existing untracked
+    litter unrelated to this feature (documented in Context above) is not this
+    mission's to clean up and is left untouched either way.
+  - Nothing in this mission's own receipts is treated as proof the two endpoints'
+    code is correct, that the KV cache namespacing is collision-free in practice,
+    or that failure modes degrade the way the commit message claims — that
+    judgment is deferred entirely to this mission's downstream witness and
+    verdict-panel run against the integrated result.
+
+Context: Sandbox writes only, target repo working tree only.
+Amanah: entrusted; discharge with ihsan.

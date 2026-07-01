@@ -1,0 +1,126 @@
+MISSION mt-integrate-email-redaction-docs-2026-06-23
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - docs/EMAIL-REDACTION-PATTERN-2026-06-23.md
+REQUIRES: none
+
+Niyyah: Commit c5a739f (docs: canonical API-boundary email-redaction pattern, slug
+mt-feat-email-redaction-docs-2026-06-23) is a real, already-committed docs-only feature
+that has not yet reached the integration repo's current HEAD. This mission's entire
+job is mechanical integration — get that commit (or an equivalent of its content) onto
+the target repo's current HEAD without silently dropping either side of any conflict,
+prove the result is syntactically sound, and leave the tree clean. Nothing in this text,
+and nothing about this mission's own authorship or execution, constitutes a judgment
+that the email-redaction contract the doc describes (server-side redaction at the API
+boundary, the resolvePublicUsernames + delete row.contributor pattern, the claim that
+zero functions/api/** handlers leak the raw contributor email) is itself correct,
+complete, or an accurate description of what the referenced code actually does. That
+determination belongs entirely to this mission's own witness + verdict-panel run, which
+reviews the integrated result after this mission produces it.
+
+Maqsad: Cherry-pick (or merge, if a cherry-pick alone cannot land it cleanly) commit
+c5a739f onto the current HEAD of the target repo, keeping BOTH the target's pre-existing
+unrelated changes and the feature's full docs/EMAIL-REDACTION-PATTERN-2026-06-23.md
+content on any conflict — never silently drop either side — run node --check on every
+.js/.mjs file the integrated commit touches or that any conflict resolution modifies,
+commit the result with a clear message, and leave the target repo's working tree clean.
+
+Context (verified against live substrate this session, absolute paths):
+- Confirmed diff stat for c5a739f (git show --stat, this session): 1 file changed, 305
+  insertions(+), 0 deletions(-) — a single new file,
+  docs/EMAIL-REDACTION-PATTERN-2026-06-23.md. No file is deleted or modified elsewhere.
+  No .html file appears anywhere in this diff, so this mission carries no visual-QC /
+  render-witness gate.
+- git status --short in the source worktree C:\Users\marka\code\mt-feat-email-redaction-docs-2026-06-23
+  returned no output at authoring time — that worktree's tree is clean, with c5a739f as
+  its tip commit on top of base ed6e33c.
+- The target repo's current HEAD (confirmed this session) is NOT on main — it is on
+  branch feat/qc-concern-sentry-error-capture-sentry-init-js-2026-06-25, and ed6e33c
+  (the feature's stated base) IS an ancestor of that HEAD. c5a739f itself is NOT yet an
+  ancestor of the target repo's current HEAD (git merge-base --is-ancestor c5a739f HEAD
+  fails), confirming the integration gap this mission exists to close.
+- The commit object c5a739f already exists inside the target repo's own object database
+  (git cat-file -e c5a739f succeeds there) — it is reachable locally via branch
+  feat/email-redaction-docs-2026-06-23 and remote ref
+  remotes/github/feat/email-redaction-docs-2026-06-23, independent of whether the named
+  source worktree C:\Users\marka\code\mt-feat-email-redaction-docs-2026-06-23 still
+  exists on disk when this mission fires. If the source worktree is gone, resolve
+  c5a739f directly from the target repo's own history or from either of those refs — a
+  missing source-worktree directory is not by itself a mission failure when the commit
+  is otherwise resolvable.
+- The doc's content references functions/pois.json.js and
+  functions/api/poi/[id]/provenance.js as the canonical implementation reference; both
+  files exist on the target repo's current HEAD (confirmed this session via git cat-file
+  -e). This mission does not modify, and is not evidence about the correctness of,
+  either referenced source file — it only lands the documentation file itself.
+- The target repo's working tree may carry unrelated pre-existing untracked files from
+  other in-flight work (confirmed this session: several untracked files unrelated to
+  this feature). This mission's containment is scoped to
+  docs/EMAIL-REDACTION-PATTERN-2026-06-23.md only (see ALLOW-FILES) and must not disturb
+  anything else.
+
+Steps:
+  1. In the target repo C:\Users\marka\code\mt-integration-2026-06-22, on its current
+     HEAD, check whether c5a739f is already present via
+     `git merge-base --is-ancestor c5a739f HEAD` (exit 0 means already integrated).
+     [command] check-already-integrated
+  2. If step 1 reports NOT already integrated: locate the commit — first check the
+     source worktree C:\Users\marka\code\mt-feat-email-redaction-docs-2026-06-23 for
+     c5a739f; if that path does not exist, resolve c5a739f directly from the target
+     repo's own object database (it is already there) or from branch
+     feat/email-redaction-docs-2026-06-23 / remote ref
+     remotes/github/feat/email-redaction-docs-2026-06-23. Then apply it via
+     `git cherry-pick c5a739f` on the current HEAD. [command] integrate-commit
+  3. If cherry-pick reports a conflict on docs/EMAIL-REDACTION-PATTERN-2026-06-23.md or
+     any other ALLOW-FILES entry, resolve each conflicted hunk by hand so the resolved
+     content contains BOTH the target's pre-existing change AND the feature's full doc
+     content — never `--ours` / `--theirs` and never a resolution that deletes either
+     side's content. If the cherry-pick instead reports the change is already applied or
+     produces an empty commit, skip creating a commit for this step and proceed — that
+     outcome is a pass, not a failure. [edit] resolve-conflicts
+  4. List every .js and .mjs file the applied commit touched (via git diff-tree against
+     the cherry-picked sha) plus every .js/.mjs file any conflict resolution in step 3
+     modified. Run `node --check` on each file found and confirm exit 0; an empty list
+     (the confirmed diff stat touches none) is a stated pass, not a silent skip.
+     [command] node-check-changed-js
+  5. Stage and commit the integrated result in the target repo with a clear message
+     identifying the integrated feature and its origin commit (referencing
+     "email-redaction-docs" and "c5a739f") — unless step 1 already found the commit
+     present, in which case no new commit is needed. Either way, confirm `git status`
+     afterward shows a clean working tree for this mission's own scope.
+     [command] commit-and-verify-clean
+
+Done means:
+  - docs/EMAIL-REDACTION-PATTERN-2026-06-23.md exists in the target repo's working tree
+    on its current HEAD and contains, at minimum, the phrase "canonical API-boundary
+    email-redaction pattern" or "Email Redaction Pattern", the string
+    "resolvePublicUsernames", and a reference to "functions/pois.json.js" — verified by
+    reading the file, not by trusting the diff.
+  - Every .js/.mjs file touched by the integrated commit (per git diff-tree
+    --no-commit-id --name-only -r on the landed sha) plus every .js/.mjs file any
+    conflict resolution modified passes `node --check` with exit code 0; the receipt
+    states how many files were checked, and zero is an acceptable, explicitly-stated
+    count for this docs-only diff rather than a silent skip.
+  - `git log` on the target repo's current HEAD shows a commit carrying the message
+    "docs: canonical API-boundary email-redaction pattern" (either c5a739f itself or the
+    exact cherry-pick/merge commit carrying it forward) — confirmed via
+    `git log --oneline | grep c5a739f` or an equivalent match on the message, not
+    assumed.
+  - `git status --porcelain` in the target repo returns empty for this mission's own
+    scope — no staged, unstaged, or untracked leftovers introduced by this mission's own
+    steps (pre-existing unrelated untracked files noted in Context are out of scope and
+    are not this mission's responsibility to clean).
+  - If cherry-pick reported a conflict, the committed result still contains BOTH the
+    target's pre-existing unrelated content and the complete
+    docs/EMAIL-REDACTION-PATTERN-2026-06-23.md content (all 305 lines' worth of
+    material) — neither side silently dropped.
+  - None of the above constitutes a judgment that the email-redaction contract
+    documented in docs/EMAIL-REDACTION-PATTERN-2026-06-23.md is itself correct, complete,
+    or an accurate account of what functions/pois.json.js and
+    functions/api/poi/[id]/provenance.js actually do — that determination belongs to
+    this mission's own witness + verdict-panel run downstream, not to this mission's
+    authorship or mechanical execution.
+
+Context: Sandbox writes only, target repo working tree only.
+Amanah: entrusted; discharge with ihsan.
