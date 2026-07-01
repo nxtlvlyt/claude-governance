@@ -1,0 +1,18 @@
+MISSION-ID: mt-integrate-lighthouse-fix1-extensionless-verification-docs.S2
+MISSION-CLASS: code-repo
+PARENT: mt-integrate-lighthouse-fix1-extensionless-verification-docs
+TARTIB-INDEX: 2 of 2
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - docs/AUDIT-LIGHTHOUSE-FIX1-2026-06-23.md
+REQUIRES: mt-integrate-lighthouse-fix1-extensionless-verification-docs.S1 (tartib — this sub-mission may not start until mt-integrate-lighthouse-fix1-extensionless-verification-docs.S1's receipt exists)
+STEPS: 1
+
+PARENT MAQSAD: Both c184a60 and 375e40b are cherry-picked (or merged, if a cherry-pick alone
+
+Maqsad: sub-mission 2 of 2 — Confirm the working tree is clean with respect to docs/ (no leftovers introduced by this mission) and that git log shows c184a60's Lighthouse Fix 1 commit message landed. through Confirm the working tree is clean with respect to docs/ (no leftovers introduced by this mission) and that git log shows c184a60's Lighthouse Fix 1 commit message landed.
+
+Steps:
+  9. Confirm the working tree is clean with respect to docs/ (no leftovers introduced by this mission) and that git log shows c184a60's Lighthouse Fix 1 commit message landed. [verify] docs/AUDIT-LIGHTHOUSE-FIX1-2026-06-23.md
+
+Done means: docs/AUDIT-LIGHTHOUSE-FIX1-2026-06-23.md exist/are updated as specified
