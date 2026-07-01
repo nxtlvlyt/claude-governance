@@ -1,4 +1,5 @@
 {
+  "model": "claude-fable-5",
   "hooks": {
     "SessionStart": [
       {
@@ -155,6 +156,5 @@
   },
   "skipDangerousModePermissionPrompt": true,
   "theme": "dark",
-  "skipAutoPermissionPrompt": true,
-  "model": "sonnet"
+  "skipAutoPermissionPrompt": true
 }
