@@ -207,6 +207,93 @@ for (const pat of stopLanguagePatterns) {
   }
 }
 
+// FM-11 ADVISORY WATCH (2026-07-01) — non-blocking BY DESIGN, not a lighter placeholder for a
+// future block. Built via a workflow that first designed a hard-BLOCK version, then
+// adversarially red-teamed it three ways, then verified empirically (constructed transcripts,
+// a real spliced copy of this file, an isolated fake $HOME) that BLOCK is categorically unsound:
+// natural-language text-matching cannot distinguish a live operator-boundedness assertion from
+// meta-discussion/self-correction/governance-review, and this operator's own workflow (audits,
+// retrospectives -- routine work product here) trips that false-positive class hardest, blocking
+// exactly the honest self-correction behavior this exists to encourage. So: log suspected
+// overcalls with Read-evidence metadata for periodic conductor review; never block on it.
+try {
+  const operatorBoundPatterns = [
+    /\boperator[-\s]+bound\b/i,
+    /\b(?:needs?|requires?)\s+(?:the\s+)?operator(?:'s)?\s+(?:judgment|judgement|input|call|decision|approval|sign[- ]?off|weigh[- ]?in)\b/i,
+    /\b(?:needs?|requires?)\s+your\s+(?:judgment|judgement|call|input|decision|approval|sign[- ]?off|weigh[- ]?in)\b/i,
+    /\b(?:this|that|it)(?:'s| is)\s+(?:on|for)\s+(?:the\s+)?operator\b/i,
+    /\b(?:up to|deferred?\s+to|deferring\s+to)\s+(?:the\s+)?operator\b/i,
+    /\boperator\s+(?:needs?\s+to|should|must|has\s+to)\s+(?:decide|weigh in|judge|approve)\b/i,
+    /\b(?:flag(?:ging)?|surfac(?:e|ing))\s+(?:this|that)\s+for\s+(?:the\s+)?operator\b/i,
+    /\brequires?\s+(?:a\s+)?human\s+(?:judgment|judgement|decision|call)\b/i,
+  ];
+  // NFKC + zero-width-strip closes the cheap evasion case; Cyrillic/homoglyph substitution is
+  // a known, deliberately-unfixed residual gap (see design notes) -- the threat model here is
+  // ordinary LLM phrasing drift, not a deliberate adversary evading its own advisory logger.
+  const deZW = (s) => s.normalize('NFKC').replace(/[​-‍﻿]/g, '');
+  const scanTextFM11 = stripCodeSpans(deZW(lastAssistantText));
+  let fm11Matched = null;
+  for (const p of operatorBoundPatterns) {
+    const m = scanTextFM11.match(p);
+    if (m) { fm11Matched = m[0]; break; }
+  }
+  if (fm11Matched) {
+    const normSlashFM11 = (p) => String(p).replace(/\\/g, '/').toLowerCase();
+    const pathEndsWithFM11 = (haystack, suffix) => normSlashFM11(haystack).endsWith(normSlashFM11(suffix));
+    const REQUIRED_FM11_SUFFIXES = ['.claude/rules/operator-rulings.md', '/claude.md'];
+
+    // session-wide forward walk (NOT the lines.slice(-200) window used above) -- staleness is
+    // fine here because nothing blocks on it; a Read from earlier this session still counts.
+    // Reset on compact_boundary since pre-compaction tool_use history is a different substrate
+    // (MEMORY.md-advisory territory, not a live tool call) per FM-11's own definition.
+    const toolResultErrorById = new Map();   // tool_use_id -> is_error (real field, verified against a live transcript, not assumed)
+    for (const line of allLines) {
+      if (!line.trim()) continue;
+      let entry;
+      try { entry = JSON.parse(line); } catch { continue; }
+      if (entry.type !== 'user') continue;
+      const content = entry.message?.content;
+      if (!Array.isArray(content)) continue;
+      for (const block of content) {
+        if (block.type === 'tool_result' && block.tool_use_id) {
+          toolResultErrorById.set(block.tool_use_id, !!block.is_error);
+        }
+      }
+    }
+    let readEvidencePath = null;
+    let anyQualifyingRead = false;
+    for (const line of allLines) {
+      if (!line.trim()) continue;
+      let entry;
+      try { entry = JSON.parse(line); } catch { continue; }
+      if (entry.type === 'system' && entry.subtype === 'compact_boundary') { toolResultErrorById.clear(); anyQualifyingRead = false; readEvidencePath = null; continue; }
+      if (entry.type !== 'assistant') continue;
+      const content = entry.message?.content;
+      if (!Array.isArray(content)) continue;
+      for (const block of content) {
+        if (block.type !== 'tool_use' || block.name !== 'Read') continue;
+        const fp = block.input?.file_path;
+        if (typeof fp !== 'string' || !REQUIRED_FM11_SUFFIXES.some((sfx) => pathEndsWithFM11(fp, sfx))) continue;
+        if (toolResultErrorById.get(block.id) === true) continue;   // this specific Read failed -- doesn't count as evidence
+        readEvidencePath = fp;
+        anyQualifyingRead = true;
+      }
+    }
+
+    const logLine = {
+      ts: new Date().toISOString(),
+      session_id: inp.session_id || null,
+      matched_phrase: fm11Matched,
+      read_evidence_path: readEvidencePath,
+      any_qualifying_read_this_session: anyQualifyingRead,
+    };
+    appendFileSync(join(os.homedir(), '.claude', 'state', 'fm11-advisory.jsonl'), JSON.stringify(logLine) + '\n');
+  }
+} catch (e) {
+  // advisory-only: never let a logging failure affect the actual stop decision
+  try { process.stderr.write(`fm11-advisory: log write failed (${e.message}); continuing\n`); } catch {}
+}
+
 if (!matchedPattern) process.exit(0); // no stop-language, allow
 
 // Check for foreign-frontier dispatch in last turn
