@@ -203,6 +203,17 @@ const CLAUDE_SEAT_MAP = {
   // standing_prefer lists nemotron-3-super) → nemotron-3-super (Ollama) → qwen3.6 local.
   'nemotron-3-super': 'opus',
 };
+// ROLE-AWARE Claude fallback (M-ENGINE-3PHASE.1, landed conductor-direct 2026-07-01 after
+// FAILED x2 through the chain): the flat map above cannot express "same model, two roles,
+// two different Claude fallbacks" (SEAT-PLAN-OPERATOR-ORIGINAL.md MAP NOTE). Role wins
+// when mapped; everything unmapped falls through to the flat map unchanged.
+const ROLE_CLAUDE_FALLBACK = {
+  boundary_auditor: { 'glm-5.1': 'haiku' },
+  integrator: { 'nemotron-3-ultra': 'opus' },
+};
+export function claudeFallbackFor(model, role) {
+  return (role && ROLE_CLAUDE_FALLBACK[role]?.[model]) || CLAUDE_SEAT_MAP[model];
+}
 const CLAUDE_TIMEOUT_MS = 8 * 60 * 1000;
 const AGY_TIMEOUT_MS = 8 * 60 * 1000;
 
@@ -555,7 +566,7 @@ async function attemptProvider(provider, body, timeoutMs) {
 // The whole waterfall now fits inside TOTAL_BUDGET_MS; each attempt gets the smaller of
 // its own timeout and what remains. Budget exhaustion throws into the normal heal path.
 const TOTAL_BUDGET_MS = 12 * 60 * 1000;
-export async function dispatchWithWaterfall(baseBody, { cwd, localOnly = false } = {}) {
+export async function dispatchWithWaterfall(baseBody, { cwd, localOnly = false, role = undefined } = {}) {
   let lastErr;
   const deadline = Date.now() + TOTAL_BUDGET_MS;
   const remaining = () => deadline - Date.now();
@@ -628,7 +639,7 @@ export async function dispatchWithWaterfall(baseBody, { cwd, localOnly = false }
         `claude-named seat '${namedClaude}' failed and has no ollama equivalent (Anthropic-only name) — not re-dispatching to ollama: ${String(e.message).slice(0, 160)}`);
     }
   }
-  const preferModel = (!namedClaude && routePrefersClaude(baseBody.model)) ? CLAUDE_SEAT_MAP[baseBody.model] : null;
+  const preferModel = (!namedClaude && routePrefersClaude(baseBody.model)) ? claudeFallbackFor(baseBody.model, role) : null;
   if (preferModel && remaining() > 30000) {
     preferTried = true;
     hb(`attempt-start provider=claude-${preferModel} (PREFERRED — route window) timeout=${Math.min(CLAUDE_TIMEOUT_MS, remaining())}ms`);
@@ -667,7 +678,7 @@ export async function dispatchWithWaterfall(baseBody, { cwd, localOnly = false }
   }
   // -- CLAUDE TIER (#29): mapped seats only, only when cloud failed, never when disabled,
   // and never re-tried when the preferred-route attempt already failed this dispatch.
-  const claudeModel = (process.env.MUEZZIN_CLAUDE_TIER === 'off' || preferTried) ? null : CLAUDE_SEAT_MAP[baseBody.model];
+  const claudeModel = (process.env.MUEZZIN_CLAUDE_TIER === 'off' || preferTried) ? null : claudeFallbackFor(baseBody.model, role);
   if (claudeModel && remaining() > 30000) {
     hb(`attempt-start provider=claude-${claudeModel} (claude tier for ${baseBody.model}) timeout=${Math.min(CLAUDE_TIMEOUT_MS, remaining())}ms`);
     const t2 = Date.now();
@@ -740,7 +751,7 @@ export async function dispatchSeat(seat, framing, { wantVerdict = true, envManif
   // there (2026-06-11: confirmed gap — executor set seat.cwd but this call dropped it, so
   // the claude executor ran toolless → "file_read unavailable" → empty emissions). Verdict/
   // witness seats have no cwd and stay tool-light, unchanged.
-  try { r = await dispatchWithWaterfall(body, { cwd: seat.cwd, localOnly: !!seat.localOnly }); }
+  try { r = await dispatchWithWaterfall(body, { cwd: seat.cwd, localOnly: !!seat.localOnly, role: seat.role }); }
   catch (e) {                                            // failed seat -> BLOCK (6/7-agent canon: absence is not APPROVE)
     return { seat: seat.role, verdict: 'BLOCK', findings: [{ id: 'DISPATCH', severity: 'high', description: e.message }], _failed: true };
   }
@@ -895,6 +906,13 @@ if (process.argv[1]?.endsWith('seat_dispatch.mjs') && process.argv.includes('--s
     check('localOnly seat: total fetch calls = 1 (no agy/claude-tier/heal attempts)', urlsSeen.length, 1);
     check('localOnly seat: resolves with provider=ollama-local', outcome.kind === 'resolved' && outcome.provider, 'ollama-local');
   })();
+
+  // 10. ROLE-AWARE Claude fallback (M-ENGINE-3PHASE.1): role wins when mapped,
+  //     unmapped roles and no-role fall through to the flat map unchanged.
+  check('roleaware: glm-5.1 as boundary_auditor falls to haiku', claudeFallbackFor('glm-5.1', 'boundary_auditor'), 'haiku');
+  check('roleaware: nemotron-3-ultra as integrator falls to opus', claudeFallbackFor('nemotron-3-ultra', 'integrator'), 'opus');
+  check('roleaware: deepseek-v4-pro as validator (unmapped role) keeps flat-map sonnet', claudeFallbackFor('deepseek-v4-pro', 'validator'), 'sonnet');
+  check('roleaware: kimi-k2.6 with no role keeps flat-map opus', claudeFallbackFor('kimi-k2.6', undefined), 'opus');
 
   console.log(`[selftest] ${pass} passed, ${fail} failed`);
   process.exit(fail ? 1 : 0);

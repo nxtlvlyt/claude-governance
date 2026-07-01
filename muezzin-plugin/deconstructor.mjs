@@ -715,6 +715,30 @@ Context: Node + TypeScript project; DB schema in prisma/schema.prisma; tests run
     ck(!validateMicroQueue(r.queue).ok, 'PANEL research: that same queue is REJECTED without the research flag (regression guard — the flag truly threaded)');
   }
 
+  // (7b) CODE-REPO OPTS SURVIVE THE INTEGRATOR PATH (M-ENGINE-3PHASE.2 Done-means gap,
+  // closed 2026-07-01): the false-green floor (proven above via DIRECT validateMicroQueue
+  // calls) must also fire when the queue arrives THROUGH the panel integrator — proving
+  // the codeRepo flag threads all the way down, mirroring test (7)'s research proof.
+  {
+    const crMission = 'MISSION-CLASS: code-repo\nREPO-ROOT: C:\\fake\\repo\nALLOW-FILES:\n  - d1/schema.sql\nMaqsad: land the pois table on the remote edge DB.';
+    const fgQueueJson = '```json\n' + JSON.stringify({ mission_id: 'M-CRP', steps: [
+      { step_index: 1, description: 'Witness the pois table now exists in sqlite_master on the REMOTE edge DB', action_type: 'verify', target_files: [], context_dependencies: [], validation_command: 'Test-Path d1/schema.sql' },
+    ] }) + '\n```';
+    const fgFixedJson = '```json\n' + JSON.stringify({ mission_id: 'M-CRP2', steps: [
+      { step_index: 1, description: 'Witness the pois table now exists in sqlite_master on the REMOTE edge DB', action_type: 'verify', target_files: [], context_dependencies: [], validation_command: "wrangler d1 execute muddytires-pois --remote --command \"SELECT name FROM sqlite_master WHERE name='pois'\"" },
+    ] }) + '\n```';
+    // reject case: hollow remote witness -> integrator's validateMicroQueue must REJECT it
+    // via the false-green floor; with maxRepairs:0 the panel falls back. deconstructFn is
+    // INJECTED (fake) so the fallback never hits real dispatch offline.
+    const rejDispatch = async (seat) => seat.role === 'integrator' ? { content: fgQueueJson } : groundedArch;
+    const rRej = await deconstructPanel(crMission, { dispatchFn: rejDispatch, maxRepairs: 0, route: 'panel', deconstructFn: async () => ({ ok: false, errors: ['fallback-reached'] }) });
+    ck(rRej._panel === false || rRej.ok === false, 'PANEL code-repo: a hollow remote-claiming queue through the INTEGRATOR is rejected (codeRepo flag threaded — false-green floor fired inside the panel)');
+    // pass case: the same claim with a REAL wrangler --remote witness survives the integrator.
+    const okDispatch = async (seat) => seat.role === 'integrator' ? { content: fgFixedJson } : groundedArch;
+    const rOk = await deconstructPanel(crMission, { dispatchFn: okDispatch, maxRepairs: 0, route: 'panel' });
+    ck(rOk.ok === true && rOk._panel === true, 'PANEL code-repo: the same remote claim with a real wrangler --remote witness PASSES through the integrator (floor rejects only the hollow witness)');
+  }
+
   // (8) SEATING MODE remaps the architect seats (seating-modes build): with MUEZZIN_MODE=
   // anthropic-heavy, the 3 blind architects are dispatched as opus/sonnet/haiku (Claude IN
   // the phase); with no mode they stay the today-default kimi/deepseek/minimax. The panel
