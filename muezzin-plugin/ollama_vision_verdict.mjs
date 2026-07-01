@@ -17,6 +17,15 @@ import path from 'node:path';
 
 const OLLAMA_URL = 'https://ollama.com/v1/chat/completions';
 const DEFAULT_MODEL = 'gemini-3-flash-preview';
+// LOCAL-FIRST (2026-07-01, operator-ratified): live-tested against real qc-baseline
+// screenshots (12/12 correct — identical-pair + different-pair discrimination), gemma4:31b
+// on nxtbeast beat both qwen3.6:27b (failed outright, called two different real pages
+// identical) and the cloud gemini-3-flash-preview path (which also has a known
+// EMPTY_CONTENT_THINKING bug, see below). Ollama Cloud is also rate-limited on this account
+// as of 2026-07-01 for ~4 days. Try local FIRST now, unconditionally — not just as a 429
+// fallback — cloud stays as the safety net if nxtbeast is ever unreachable.
+const LOCAL_URL = 'http://nxtbeast:11434/v1/chat/completions';
+const LOCAL_MODEL = 'gemma4:31b';
 
 // Convert a PNG path to a data URL Ollama Cloud accepts as image content
 function pngToDataUrl(filePath) {
@@ -46,6 +55,42 @@ export async function ollamaVisionVerdict(promptText, imagePaths, opts = {}) {
     ];
   } catch (e) {
     return { ok: false, verdict: 'error', error: `IMAGE_ENCODE_FAIL: ${e.message}`, elapsedMs: Date.now() - t0 };
+  }
+
+  // LOCAL-FIRST attempt (see LOCAL_URL/LOCAL_MODEL comment above) — unconditional, not
+  // gated on a prior cloud failure. Falls through to the cloud path below on any local
+  // failure (unreachable, empty response, non-200), so cloud remains the real safety net.
+  if (!opts._skipLocalFirst) {
+    try {
+      const localBody = {
+        model: LOCAL_MODEL,
+        messages: [{ role: 'user', content }],
+        temperature: opts.temperature ?? 0.2,
+        max_tokens: opts.maxTokens ?? 2000,
+      };
+      const localResp = await fetch(LOCAL_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(localBody),
+        signal: AbortSignal.timeout(opts.timeoutMs || 120000),
+      });
+      if (localResp.ok) {
+        const localJson = await localResp.json();
+        const localMsg = localJson?.choices?.[0]?.message || {};
+        const localText = (localMsg.content || '').trim() || (localMsg.reasoning || '').trim();
+        if (localText) {
+          const vm = localText.match(/VERDICT:\s*(clean|concern|block)/i);
+          return {
+            ok: true,
+            verdict: vm ? vm[1].toLowerCase() : 'concern',
+            response: localText,
+            model: `${LOCAL_MODEL}@nxtbeast`,
+            images_sent: imagePaths.length,
+            elapsedMs: Date.now() - t0,
+          };
+        }
+      }
+    } catch { /* nxtbeast unreachable or errored -- fall through to cloud below */ }
   }
 
   const body = {
@@ -182,7 +227,7 @@ if (_selfMatches && process.argv.includes('--selftest')) {
       console.error('FAIL: no sample image at', sample);
       process.exit(1);
     }
-    console.log('sending sample image to', DEFAULT_MODEL, '...');
+    console.log('sending sample image to', LOCAL_MODEL, `(local-first, cloud fallback ${DEFAULT_MODEL})`, '...');
     const r = await ollamaVisionVerdict(
       'Describe this screenshot in one short sentence. End with: VERDICT: clean',
       [sample],
