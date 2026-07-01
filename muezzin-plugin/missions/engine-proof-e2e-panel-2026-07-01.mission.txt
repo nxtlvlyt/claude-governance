@@ -1,0 +1,28 @@
+MISSION-CLASS: code-repo
+MISSION-ID: M-ENGINE-PROOF-E2E.1
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - ENGINE-PROOF-2026-07-01.md
+REQUIRES: none
+
+Niyyah: Every individual infra bug blocking the claude-local-hybrid panel (env var,
+containment, checkpoint-resume, integrator bridge, EXPORT-REGRESSION, the agy_dispatch
+argv crash, the PARENT MAQSAD leak) has been fixed across tonight's session, but no
+mission has yet completed the full architect-panel -> integrator -> executor ->
+validator/auditor path cleanly, without manual intervention. This mission exists purely
+to prove that path end-to-end with a deliberately trivial, unambiguous task — the
+smallest possible surface area that still exercises every seat in the panel.
+
+Maqsad: Create ENGINE-PROOF-2026-07-01.md in the repo root containing the exact line
+"panel proof: architects, integrator, executor, and verdict panel all completed this
+mission cleanly." Done serves proof the full chain can complete a real mission without
+a conductor's hand.
+
+Context (unbiased facts, absolute paths):
+- .assetsignore in this repo excludes *.md from the Cloudflare Pages deploy set, so this
+  file is never served on the live site — zero production risk regardless of outcome.
+- REPO-ROOT is a real, existing git repo, verified present on disk.
+
+Done means: ENGINE-PROOF-2026-07-01.md exists in the repo root and contains, verbatim,
+the line "panel proof: architects, integrator, executor, and verdict panel all completed
+this mission cleanly."
