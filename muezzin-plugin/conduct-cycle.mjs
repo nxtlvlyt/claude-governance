@@ -472,7 +472,13 @@ export function heal(base = HERE, now = Date.now(), { exec = (cmd) => execSync(c
   const restart = r.actions.find((a) => a.id === 'RESTART-DAEMON');
   if (restart) {
     const status = readJson(path.join(logs, 'daemon-status.json'));
-    const lanesRunning = status && Array.isArray(status.lanes) && status.lanes.length > 0 && r.daemonAlive;
+    // NOTE: RESTART-DAEMON only ever exists when sweep() found !daemonAlive -- so
+    // gating this on `r.daemonAlive` (as a prior version did) made the guard dead
+    // code: it could never be true here, and heal() would ALWAYS force-restart even
+    // with a live lane running. The guard must key on the lane claim alone, since a
+    // dead-looking pid with a claimed lane is exactly the ambiguous case (zombie vs.
+    // genuinely stuck) where killing blind risks a live mission.
+    const lanesRunning = status && Array.isArray(status.lanes) && status.lanes.length > 0;
     if (lanesRunning) performed.push({ action: 'restart-skipped', why: 'lanes running — refusing to kill a live mission' });
     else { exec(restart.command); performed.push({ action: 'restart-daemon' }); }
   }
@@ -576,6 +582,13 @@ function selftest() {
   r = sweep(tmp, now, noRoute, sightOk);
   ck(r.actions.some((a) => a.id === 'REQUEUE-healed' && a.class === 'mechanical' && a.approved_by_faith), 'fix-landed: a FAILED mission in the ledger becomes a mechanical requeue');
   ck(!r.actions.some((a) => a.id === 'REQUEUE-other'), 'a FAILED mission NOT in the ledger is not requeued (no blind relaunch)');
+  // this fixture tests the ledger-requeue path, not restart behavior -- reset the daemon
+  // to healthy (fixture 1's dead-pid/stale/lanes-nonempty status otherwise leaks forward
+  // and would spuriously demand a restart the exec stub below is not expecting). Both
+  // daemon-status.json AND daemon.pid must be reset -- sweep()'s daemonAlive check reads
+  // the pidfile independently of the status blob.
+  writeFileSync(path.join(logs, 'daemon-status.json'), JSON.stringify({ pid: process.pid, state: 'running', lanes: [], queued: 0, ts: new Date(now).toISOString() }));
+  writeFileSync(path.join(logs, 'daemon.pid'), String(process.pid));
   const healed = heal(tmp, now, { exec: () => { throw new Error('must not restart a healthy daemon'); } });
   ck(healed.performed.some((p) => p.action === 'requeue' && p.stem === 'healed'), 'heal(): requeue performed');
   const after = parseAutorun(readText(path.join(tmp, 'missions', 'AUTORUN.md')));

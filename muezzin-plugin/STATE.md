@@ -110,6 +110,55 @@ deliverable-type-aware QC + faith file edits must be ratified in a FRESH oriente
 governance session that has read `~/.claude/practice/extended/` first. NOT in a
 long drifted feature-build session.
 
+## SESSION CONTINUATION (2026-07-01T~00:30Z) — read this FIRST, then the ~19:30Z section below
+
+- Phase: same session continued past the ~19:30Z snapshot below (chain-completion
+  attempts, then a pass over WIP left uncommitted from earlier in the night).
+- Completed (all committed, all self-witnessed by ornith9b — see
+  `missions/_logs/post-commit-witness.log`):
+  - `integrity_guard.mjs`: new EXPORT-REGRESSION rule (commit `aad8ede`) closing the
+    exact hole that let a chain step twice destroy `mission_lint.mjs` tonight (a
+    step description matching `isWriteTestStep`'s test-intent regex exempted the
+    WHOLE step, including unrelated dropped exports). The witness itself caught a
+    real gap in that same commit (declaration-only regex missed `export { a, b }`
+    re-export lists) — fixed in a follow-up commit (`bf03d38`). This is the
+    automation working as designed: it found a bug in the bug-fix, same session.
+  - `conduct-cycle.mjs` (commit `cf75868`): multi-URL SearXNG probe (was hardcoded to
+    the bare `nxtbeast` hostname). While verifying it, found the module's own
+    `--selftest` was crashing at HEAD (pre-existing, confirmed via `git stash`
+    isolation) — two bugs, both in `heal()`'s daemon-restart path: (1) a stale test
+    fixture leaking a dead-daemon status across unrelated fixture blocks, and (2) a
+    **real production bug**: the "never restart while a lane is running" guard was
+    gated on `r.daemonAlive`, which the `RESTART-DAEMON` action's own precondition
+    (`!daemonAlive`) made permanently false — the guard was dead code and `heal()`
+    would have ALWAYS force-restarted the daemon even with a live mission lane
+    running. Both fixed; 32/32 self-test assertions pass.
+  - `ollama_vision_verdict.mjs` (commit `3184b90`): an uncommitted in-progress edit
+    from earlier tonight had silently turned the cloud-429 fallback from
+    "retry on nxtbeast-local" into "retry the same cloud endpoint with a different
+    model" — verified live that nxtbeast:11434 answers HTTP 200 right now, so that
+    was a regression (likely a leftover workaround from when nxtbeast was down
+    earlier tonight, never reverted). Restored local-first, cloud-retry-as-last-resort.
+  - `seat_record.mjs`/`badal-fast-revert.test.mjs` (commit `966d4ee`): the
+    untested-and-failing fast-revert path now names its own escalation reason instead
+    of reusing the strike-ratio path's reason string.
+  - `model_rijal.mjs` (commit `8c5ea14`): additive `code-review` role tag on
+    deepseek-v4-pro.
+  - Two mission docs (commit `dbd79fa`): corrected stale `E:\AI_Storage\*` REPO-ROOT
+    paths left over from a repo migration (verified the new paths exist on disk);
+    dropped a mission step calling `wrangler pages domain` (not a real subcommand).
+  - `.gitignore` (commit `184ab97`): excluded `.wrangler/` local deploy cache.
+- Decisions: all of the above were uncommitted WIP found sitting in the working tree
+  (not from this continuation's own hand) — each was verified against its own
+  self-test (or, where none existed, against `node --check` + a live reachability
+  probe) before committing, rather than committed blind or discarded blind.
+- Issues: none of this WIP was a fabrication — every file's change was real and
+  mostly correct; the vision-verdict regression and the conduct-cycle dead-code
+  safety bug are the two findings worth flagging loudly to the operator.
+- Next session starts with: the PRIORITY ORDER list below is now current as of this
+  paragraph (items 1-3 from the ~19:30Z snapshot are DONE, superseded by this
+  section) — start at item 1 there.
+
 ## CURRENT STATE (2026-06-30T~19:30Z, end of session — read this before the stale sections below)
 
 **Standing operator ruling: the muezzin CONDUCTOR runs on Sonnet, not Opus.**
@@ -269,22 +318,37 @@ visual-QC wiring gap.
 
 ## PRIORITY ORDER FOR NEXT SESSION
 
-1. **Open on Sonnet** (`/model sonnet`) per the standing ruling above.
-2. **Verify `MUEZZIN_CLAUDE_TIER=on`** persisted (User env, not repo state).
-3. **Triage the 2 pre-existing `orchestrate.mjs` seating-mode test failures**, then
-   commit `orchestrate.mjs` + `seat_dispatch.mjs` + `seat_modes.mjs` together (the
-   fixes are real and on-disk, just uncommitted).
-4. **Fix `mission-events.jsonl` containment** (engine's own log shouldn't trip its own
-   guard) — this is the one thing standing between the chain and its first fully
-   completed end-to-end mission. Re-fire `mt-12-map-attribution-render` (note: the
-   attribution bug it targets is ALREADY FIXED live — this mission is now purely a
-   chain-completion test, not real remaining work).
-5. **Wire visual QC into `orchestrate.mjs`** — `witnessVisualDiff`/`ollamaVisionVerdict`
-   exist, unused. Real, valuable, unstarted.
-6. **Re-evaluate the chain-timing standing-ok file** — confirm it isn't over-broad now
-   that the conductor (on Sonnet) should reliably classify nxtbeast vs local.
-7. Continue the muddytires mission-board cleanup from the headless e2e sweep earlier in
-   the session (most "FAILED" labels were phantom/stale — see prior memory entries).
+Items 1-4 below from the ~19:30Z snapshot are DONE — verified against git log, not
+memory, during the SESSION CONTINUATION above: `MUEZZIN_CLAUDE_TIER` persisted,
+seating-mode tests fixed and `orchestrate.mjs`/`seat_dispatch.mjs`/`seat_modes.mjs`
+committed (`36b14c8`), `mission-events.jsonl` containment exempted (`8d9632d`),
+checkpoint-resume trust and the phase-2->3 integrator bridge also landed
+(`f13d573`, `81406b4`) — none of that was on the original list but all of it answers
+the same "close the gaps before a real mission runs" directive.
+
+1. **Diagnose why `mt-12-map-attribution-render` still failed AFTER the containment
+   fix landed.** Its last attempt (21:23:26Z) was AFTER `8d9632d` (20:31:36Z) but its
+   retro shows 0 events / 0 plan-phases / 0 steps-committed — a pre-plan infra
+   failure, not the containment-drift bug the fix targeted. Root cause not yet
+   found; check `missions/_logs/daemon-events.log` around that timestamp before
+   re-firing blind. The attribution bug it validates is already fixed live on
+   muddytires.ca, so this mission is purely a chain-completion test now.
+2. **Re-scope `engine-hajj-template-headless-and-visual-qc`** before any re-fire —
+   BLOCKED (not auto-requeued) after it destructively replaced `mission_lint.mjs`
+   wholesale TWICE, passing its own gameable string-grep verify both times. The
+   EXPORT-REGRESSION fix shipped this session (`aad8ede`, hardened `bf03d38`) should
+   catch this exact failure class now — but the mission's own text should ALSO be
+   rewritten to explicitly require appending to existing rule-based files, never
+   wholesale-replacing them, per the retro's own recommendation.
+3. **Wire visual QC into `orchestrate.mjs`** — `witnessVisualDiff`/`ollamaVisionVerdict`
+   exist and are now hardened (local-nxtbeast-first fallback restored, `3184b90`),
+   but still unused from the pipeline. Real, valuable, unstarted.
+4. **Get one mission through the full `claude-local-hybrid` panel end-to-end** —
+   still not proven this session despite every individual infra bug (env var,
+   containment, checkpoint-resume, integrator bridge, EXPORT-REGRESSION) being fixed.
+5. Re-evaluate the chain-timing standing-ok file; continue the muddytires
+   mission-board cleanup — both carried over unverified from the ~19:30Z list, not
+   revisited this continuation.
 
 
 ## MODEL BENCHMARK RESULTS (2026-06-27T22:31:00Z)

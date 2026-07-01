@@ -26,3 +26,6 @@ _checkpoint.json
 _prior-attempt/
 *.raw.txt
 mission-events.jsonl
+
+# wrangler's local build/deploy cache (regenerated per-machine, not source)
+.wrangler/

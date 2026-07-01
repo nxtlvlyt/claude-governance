@@ -74,19 +74,21 @@ export async function ollamaVisionVerdict(promptText, imagePaths, opts = {}) {
 
   if (!resp.ok) {
     const t = await resp.text().catch(() => '');
-    // 2026-06-25: on 429 from Ollama Cloud, fall back to local nxtbeast multimodal.
-    // gemma4 series supports vision; runs on Tailscale-accessible nxtbeast Ollama.
+    // 2026-06-25: on 429 from Ollama Cloud, fall back to local nxtbeast multimodal
+    // FIRST (no rate limit, no cloud spend) -- gemma4 series supports vision, runs
+    // via Tailscale-accessible nxtbeast Ollama's OpenAI-compat endpoint, no auth
+    // needed on the local network. Only retry cloud (last resort) if nxtbeast is
+    // itself unreachable -- verified live 2026-06-30 that nxtbeast:11434 answers
+    // HTTP 200, so silently dropping this path (an earlier uncommitted edit did)
+    // would have thrown away a currently-working local fallback for no reason.
     if (resp.status === 429 && !opts._isFallback) {
       try {
-        const fallbackUrl = OLLAMA_URL;
-        const fallbackBody = { ...body, model: 'gemma4:31b' };
-        const localResp = await fetch(fallbackUrl, {
+        const localUrl = 'http://nxtbeast:11434/v1/chat/completions';
+        const localBody = { ...body, model: 'gemma4:31b' };
+        const localResp = await fetch(localUrl, {
           method: 'POST',
-          headers: { 
-            'Authorization': `Bearer ${apiKey}`,
-            'Content-Type': 'application/json' 
-          },
-          body: JSON.stringify(fallbackBody),
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(localBody),
           signal: AbortSignal.timeout(opts.timeoutMs || 120000),
         });
         if (localResp.ok) {
@@ -99,13 +101,41 @@ export async function ollamaVisionVerdict(promptText, imagePaths, opts = {}) {
               ok: true,
               verdict: vm ? vm[1].toLowerCase() : 'concern',
               response: localText,
+              model: 'gemma4:31b@nxtbeast (cloud-429 fallback)',
+              images_sent: imagePaths.length,
+              elapsedMs: Date.now() - t0,
+            };
+          }
+        }
+      } catch { /* nxtbeast unreachable -- fall through to cloud retry below */ }
+
+      // last resort: nxtbeast fallback failed or was unreachable -- retry cloud with
+      // the alt model in case the 429 was model-specific rather than account-wide.
+      try {
+        const retryBody = { ...body, model: 'gemma4:31b' };
+        const retryResp = await fetch(OLLAMA_URL, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify(retryBody),
+          signal: AbortSignal.timeout(opts.timeoutMs || 120000),
+        });
+        if (retryResp.ok) {
+          const retryJson = await retryResp.json();
+          const retryMsg = retryJson?.choices?.[0]?.message || {};
+          const retryText = (retryMsg.content || '').trim() || (retryMsg.reasoning || '').trim();
+          if (retryText) {
+            const vm = retryText.match(/VERDICT:\s*(clean|concern|block)/i);
+            return {
+              ok: true,
+              verdict: vm ? vm[1].toLowerCase() : 'concern',
+              response: retryText,
               model: 'gemma4:31b (cloud-429 fallback)',
               images_sent: imagePaths.length,
               elapsedMs: Date.now() - t0,
             };
           }
         }
-        return { ok: false, verdict: 'error', error: `CLOUD_429_AND_FALLBACK_FAIL_HTTP_${localResp.status}`, elapsedMs: Date.now() - t0 };
+        return { ok: false, verdict: 'error', error: `CLOUD_429_AND_FALLBACK_FAIL_HTTP_${retryResp.status}`, elapsedMs: Date.now() - t0 };
       } catch (fbErr) {
         return { ok: false, verdict: 'error', error: `CLOUD_429_AND_FALLBACK_FAIL: ${fbErr.message}`, elapsedMs: Date.now() - t0 };
       }

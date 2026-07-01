@@ -13,8 +13,22 @@
 //   (1a) WEAKENED-VERIFICATION  — a non-write-test edit removes assertion lines
 //   (1b) TEST-FILE-TAMPER       — a non-write-test step targets a test file
 //   (2)  NON-CANONICAL-COMMAND  — the validation command is gamed to force a pass
+//   (3)  EXPORT-REGRESSION      — an edit drops a previously-exported symbol (ANY step,
+//                                 including write-test steps — see below)
 //
 // No I/O. No async. No mutation of inputs.
+//
+// EXPORT-REGRESSION (added 2026-06-30, live receipt): mission_lint.mjs was destroyed by a
+// step whose description was "Edit mission_lint.mjs to add self-tests locking the hajj..." —
+// isWriteTestStep's intent-regex matched "self-tests", exempting the WHOLE step from rule
+// (1a)/(1b), even though the actual rewrite replaced the entire file (8 real exported rule
+// functions: unstaged-evidence, jail-contradiction, ..., deploy-without-commit) with an
+// unrelated stub. The step's own verify command (`grep 'ALL PASS'`) passed because the stub
+// printed its own unrelated "ALL PASS". Rule (3) closes this deliberately WITHOUT being
+// gated by isWriteTestStep: "this step legitimately adds tests" is never a license to
+// silently delete unrelated exports a rewrite happened to drop. A step that GENUINELY means
+// to remove an export should say so in its description or target a different file shape —
+// this guard does not special-case that; it flags every export-name disappearance, always.
 
 // Matches assertion / test-declaration lines whose removal weakens verification.
 const ASSERTION_RE = /\b(assert|expect|test\(|it\(|describe\()/;
@@ -24,6 +38,43 @@ const TEST_FILE_RE = /(\.test\.|\.spec\.|__tests__|[\\/]test[\\/]|^test[\\/])/i;
 
 // Matches an explicit test/spec INTENT mention (in a description or a target string).
 const TEST_INTENT_RE = /\b(test|spec|tests|specs)\b|test|spec/i;
+
+// Matches a top-level `export function NAME`, `export async function NAME`,
+// `export class NAME`, or `export const/let/var NAME` declaration and captures NAME.
+const EXPORT_RE = /^\s*export\s+(?:default\s+)?(?:async\s+)?(?:function\*?|class)\s+([A-Za-z_$][\w$]*)|^\s*export\s+(?:const|let|var)\s+([A-Za-z_$][\w$]*)/;
+
+// Matches a single-line `export { a, b as c, ... }` re-export list. Multi-line lists
+// (the `{` and `}` on different lines) are NOT matched -- same line-based-not-AST
+// tradeoff as EXPORT_RE; this codebase's own files use single-line lists exclusively.
+const EXPORT_LIST_RE = /^\s*export\s*\{([^}]*)\}/;
+
+/**
+ * The set of top-level exported symbol names found in `text` — the PUBLIC name (the
+ * alias in `export { a as b }`, not the local `a`). Line-based and intentionally simple
+ * (no AST) — matches this module's existing style (assertion/test-file detection are also
+ * plain regexes). 2026-06-30: the ornith9b self-witness flagged the original version of
+ * this function (declaration-only, no `export { ... }` list support) as a real false-
+ * negative risk — a rewrite could drop an export via the list form undetected. Fixed.
+ * @param {string} text
+ * @returns {Set<string>}
+ */
+function exportedSymbols(text) {
+  const names = new Set();
+  for (const raw of text.split(/\r?\n/)) {
+    const m = raw.match(EXPORT_RE);
+    if (m) names.add(m[1] || m[2]);
+    const lm = raw.match(EXPORT_LIST_RE);
+    if (lm) {
+      for (const part of lm[1].split(',')) {
+        const p = part.trim();
+        if (!p) continue;
+        const asMatch = p.match(/^([A-Za-z_$][\w$]*)\s+as\s+([A-Za-z_$][\w$]*)$/);
+        names.add(asMatch ? asMatch[2] : p.split(/\s+/)[0]);
+      }
+    }
+  }
+  return names;
+}
 
 /**
  * Is this step explicitly a "write-test" step? Such a step is ALLOWED to author
@@ -77,6 +128,22 @@ export function checkReceiptIntegrity(step, prevContent, newContent, command) {
       violations.push(
         `WEAKENED-VERIFICATION: edit removes assertion line: ${JSON.stringify(line)}`
       );
+    }
+  }
+
+  // --- Rule (3): an edit must not silently DROP a previously-exported symbol ---
+  // Deliberately NOT gated by `writeTest` — see the EXPORT-REGRESSION header note above.
+  // A brand-new file (empty prev) has nothing to lose, so this is a no-op for step 1 of a
+  // fresh mission; it only fires once a file already has real exports to protect.
+  if (prev.trim()) {
+    const beforeExports = exportedSymbols(prev);
+    const afterExports = exportedSymbols(next);
+    for (const name of beforeExports) {
+      if (!afterExports.has(name)) {
+        violations.push(
+          `EXPORT-REGRESSION: edit removes previously-exported symbol ${JSON.stringify(name)} — a rewrite must extend the file, never silently drop existing exports`
+        );
+      }
     }
   }
 
@@ -267,6 +334,64 @@ if (isMainModule()) {
     const next = 'const x = 1;\n';
     const r = checkReceiptIntegrity(step, prev, next, 'node parser.mjs');
     assert(r.ok === true, 'write-test step (by description) removing asserts -> exempt, ok:true');
+  }
+
+  // --- Test 8: EXPORT-REGRESSION (2026-06-30 live receipt) ---
+  {
+    // the EXACT failure shape: a step described as adding self-tests that ALSO wholesale-
+    // replaces the file, dropping real exported rule functions. isWriteTestStep exempts it
+    // from rule (1a)/(1b) — rule (3) must catch it anyway.
+    const step = { step_index: 8, description: 'Edit mission_lint.mjs to add self-tests locking the hajj contract', action_type: 'edit', target_files: ['mission_lint.mjs'] };
+    const prev = `import { parseMissionClass } from './mission_class.mjs';\nexport function lintMission(text) { /* 8 real rules */ return { ok: true, problems: [] }; }\nexport function unrelatedHelper() { return 1; }\n`;
+    const next = `export function passesMiqat(child) { return child.render === 'Done'; }\nexport function lintMission(mission) { return true; }\n`;
+    const r = checkReceiptIntegrity(step, prev, next, 'node mission_lint.mjs 2>&1 | Select-String -Pattern "ALL PASS" -Quiet');
+    assert(r.ok === false, 'EXPORT-REGRESSION: the exact mission_lint.mjs failure shape is now BLOCKED (was silently exempt before this fix)');
+    assert(r.violations.some((v) => v.includes('EXPORT-REGRESSION') && v.includes('unrelatedHelper')),
+      'EXPORT-REGRESSION: names the specific dropped export (unrelatedHelper), not just a generic failure');
+    // isWriteTestStep's exemption still holds for rule (1a) specifically -- this mission-text
+    // does NOT also demand a WEAKENED-VERIFICATION violation; it demands EXPORT-REGRESSION.
+    assert(!r.violations.some((v) => v.startsWith('WEAKENED-VERIFICATION:')),
+      'EXPORT-REGRESSION: rule (1a) stays exempt for write-test steps as before -- only rule (3) is unconditional');
+  }
+
+  // --- Test 9: a LEGITIMATE edit that only ADDS an export never trips EXPORT-REGRESSION ---
+  {
+    const step = { step_index: 9, description: 'add a new rule', action_type: 'edit', target_files: ['mission_lint.mjs'] };
+    const prev = `export function lintMission(text) { return { ok: true }; }\n`;
+    const next = `export function lintMission(text) { return { ok: true }; }\nexport function newRule(text) { return true; }\n`;
+    const r = checkReceiptIntegrity(step, prev, next, 'node mission_lint.mjs');
+    assert(r.ok === true, 'EXPORT-REGRESSION: adding a NEW export alongside existing ones -> clean, no false positive');
+  }
+
+  // --- Test 10: a LEGITIMATE edit that only changes a function BODY (export kept) is clean ---
+  {
+    const step = { step_index: 10, description: 'fix a bug in lintMission', action_type: 'edit', target_files: ['mission_lint.mjs'] };
+    const prev = `export function lintMission(text) { return { ok: false }; }\n`;
+    const next = `export function lintMission(text) { return { ok: true }; }\n`;
+    const r = checkReceiptIntegrity(step, prev, next, 'node mission_lint.mjs');
+    assert(r.ok === true, 'EXPORT-REGRESSION: changing a function BODY while keeping its export name -> clean, no false positive');
+  }
+
+  // --- Test 11: EXPORT-REGRESSION via `export { ... }` re-export LIST syntax ---
+  // (the exact gap the 2026-06-30 ornith9b self-witness flagged as a false-negative
+  // risk in the original declaration-only exportedSymbols()).
+  {
+    const step = { step_index: 11, description: 'reorganize exports', action_type: 'edit', target_files: ['mission_lint.mjs'] };
+    const prev = `function lintMission(text) { return true; }\nfunction unrelatedHelper() { return 1; }\nexport { lintMission, unrelatedHelper as helperAlias };\n`;
+    const next = `function lintMission(text) { return true; }\nexport { lintMission };\n`;
+    const r = checkReceiptIntegrity(step, prev, next, 'node mission_lint.mjs');
+    assert(r.ok === false, 'EXPORT-REGRESSION: dropping a name from an `export { ... }` list is now caught');
+    assert(r.violations.some((v) => v.includes('EXPORT-REGRESSION') && v.includes('helperAlias')),
+      'EXPORT-REGRESSION: names the dropped ALIAS (helperAlias), the public export name, not the local name');
+  }
+
+  // --- Test 12: a LEGITIMATE `export { ... }` list edit that only ADDS a name is clean ---
+  {
+    const step = { step_index: 12, description: 'export a new helper', action_type: 'edit', target_files: ['mission_lint.mjs'] };
+    const prev = `function a() {}\nexport { a };\n`;
+    const next = `function a() {}\nfunction b() {}\nexport { a, b };\n`;
+    const r = checkReceiptIntegrity(step, prev, next, 'node mission_lint.mjs');
+    assert(r.ok === true, 'EXPORT-REGRESSION: adding a name to an `export { ... }` list -> clean, no false positive');
   }
 
   console.log(
