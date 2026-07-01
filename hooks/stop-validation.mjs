@@ -14,7 +14,7 @@
 // Ratchet state: ~/.claude/state/stop-ratchet-{session_id}.txt
 // Threshold: 3. FAIL-CLOSED on corrupt state file.
 
-import { readFileSync, existsSync, mkdirSync, writeFileSync } from 'fs';
+import { readFileSync, existsSync, mkdirSync, writeFileSync, appendFileSync } from 'fs';
 import { join } from 'path';
 import os from 'os';
 
