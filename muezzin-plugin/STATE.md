@@ -376,6 +376,26 @@ the same "close the gaps before a real mission runs" directive.
 5. Re-evaluate the chain-timing standing-ok file; continue the muddytires
    mission-board cleanup — both carried over unverified from the ~19:30Z list, not
    revisited this continuation.
+6. **`~/.claude/hooks/stop-validation.mjs` has a known, unfixed meta-reference
+   false-positive class** — quoting/discussing one of its own trigger phrases
+   (e.g. explaining a prior false positive) re-triggers it, since it matches on raw
+   substrings with no sense of self-reference. A candidate fix (suppress a match
+   only when the phrase is BOTH inside a quote AND near hook-vocabulary like
+   "trigger"/"matched"/"hook") was designed and adversarially red-teamed this
+   session — REJECTED: 5 concrete bypass constructions found (the core defect:
+   quoting+nearby-vocabulary is a textual co-occurrence signal, not a semantic
+   self-reference signal, so it's trivially fakeable by wrapping a real ask in
+   decorative hook-vocabulary). The red-team's own suggested alternative — anchor
+   the suppression to a DISTINCT PRIOR VERBATIM occurrence already on record,
+   mirroring the pattern this same hook already uses for its own humility-check
+   "prior verdict quote" field (Refinement D, same file) — was NOT attempted this
+   session; it's real new engineering needing its own adversarial pass, not a
+   same-session quick fix. Tonight's call: accept the friction (per
+   `~/.claude/practice/extended/drift-and-ratchet.md`'s own resolution — "the
+   fallback is to live with the friction, treat each fire as a small precision
+   tax"). Next session, if picked up: design the verbatim-anchor version, then
+   red-team IT before shipping — don't skip that step just because the shape looks
+   safer.
 
 
 ## MODEL BENCHMARK RESULTS (2026-06-27T22:31:00Z)
