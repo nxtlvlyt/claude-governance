@@ -1,0 +1,25 @@
+MISSION-ID: mt-integrate-bookmark-widget.S1
+MISSION-CLASS: code-repo
+PARENT: mt-integrate-bookmark-widget
+TARTIB-INDEX: 1 of 2
+REQUIRES: none (first in tartib order)
+STEPS: 8
+
+PARENT MAQSAD: MISSION MT-INTEGRATE-BOOKMARK-WIDGET
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - extensions/bookmark-widget/manifest.json
+  - extensions/bookmark
+
+Maqsad: sub-mission 1 of 2 — Confirm the target repo's working tree is clean and none of the four bookmark-widget files exist yet on disk, establishing the pre-integration baseline. through Read-verify docs/BROWSER-EXTENSION.md landed and is non-empty.
+
+Steps:
+  1. Confirm the target repo's working tree is clean and none of the four bookmark-widget files exist yet on disk, establishing the pre-integration baseline. [verify] 
+  2. Fetch commit b8a4b38's objects into the target repo's object store directly from the source worktree path, since the two repos are separate git object stores and a bare cherry-pick would fail with 'bad object'. [command] 
+  3. Cherry-pick commit b8a4b38 onto the target repo's current HEAD, landing all four new files in one git operation. [command] 
+  4. Run node --check on the one JS file this commit touches to confirm it is syntactically valid. [command] 
+  5. Read-verify manifest.json's actual on-disk content declares the MV3 extension with activeTab permission and host_permissions scoped to muddytires.ca (not trusting the cherry-pick exit code alone). [verify] 
+  6. Read-verify popup.html's actual on-disk content is a non-empty popup page referencing popup.js. [verify] 
+  7. Read-verify popup.js's actual on-disk content contains the credentials:'include' fetch POST to /api/contribute/url-import (the feature's core behavior, not just a syntactically valid stub). [verify] 
+  8. Read-verify docs/BROWSER-EXTENSION.md landed and is non-empty. [verify] 

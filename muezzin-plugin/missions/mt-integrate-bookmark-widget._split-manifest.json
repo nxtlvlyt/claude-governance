@@ -1,0 +1,21 @@
+{
+  "parentId": "mt-integrate-bookmark-widget",
+  "ceiling": 8,
+  "originalStepCount": 11,
+  "groupCount": 2,
+  "children": [
+    {
+      "id": "mt-integrate-bookmark-widget.S1",
+      "file": "missions/mt-integrate-bookmark-widget.S1.mission.txt",
+      "steps": 8,
+      "requires": null
+    },
+    {
+      "id": "mt-integrate-bookmark-widget.S2",
+      "file": "missions/mt-integrate-bookmark-widget.S2.mission.txt",
+      "steps": 3,
+      "requires": "mt-integrate-bookmark-widget.S1"
+    }
+  ],
+  "ts": "2026-07-01T11:33:34.349Z"
+}
