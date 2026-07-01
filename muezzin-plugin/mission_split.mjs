@@ -11,6 +11,33 @@ import { SIZE_CEILING } from './deconstructor.mjs';
 import { writeFileSync, mkdirSync, appendFileSync, existsSync } from 'fs';
 import path from 'path';
 
+// ---- buildDoneMeansClause ----------------------------------------------------------
+export function buildDoneMeansClause(targetFiles) {
+  // Dedupe targetFiles
+  const deduped = [...new Set(targetFiles || [])];
+
+  if (deduped.length === 0) {
+    return 'Done means: (none) exist/are updated as specified.';
+  }
+
+  const hasUiFile = deduped.some(f => /\.(html|js|jsx|tsx|css)$/i.test(f));
+  const filesJoined = deduped.join(', ');
+  let clause = `Done means: ${filesJoined} exist/are updated as specified.`;
+
+  if (hasUiFile) {
+    clause += ' Verify by headless browser render, not by reading the code.';
+  }
+
+  return clause;
+}
+
+// ---- extractVisualQcHeader ---------------------------------------------------------
+export function extractVisualQcHeader(missionText) {
+  if (typeof missionText !== 'string') return null;
+  const match = missionText.match(/^.*VISUAL-QC-REQUIRED.*$/im);
+  return match ? match[0] : null;
+}
+
 // ---- splitOversizedPlan -----------------------------------------------------------
 // Decides whether the validated micro_queue exceeds the size ceiling. If so, groups the
 // steps into coherent sub-missions (by stage/subject — currently a simple equal-chunk
@@ -78,7 +105,7 @@ export function emitSubMissions(plan, ctx = {}, io = {}) {
   // and `path.join(missionsDir, absoluteFilename)` on Windows DOUBLED the prefix —
   // exactly `mkdir 'C:\...\missions\C:\...\missions'` in the b13 retro. Reduce to BASENAME
   // first so `filename` and `rel` are always relative; the join below is safe.
-  const parentBase = path.basename(parentMissionFile || `${parentId}.mission.txt`).replace(/\.mission\.txt$/i, '');
+  const parentBase = (typeof parentMissionFile === 'string' ? parentMissionFile : `${parentId}.mission.txt`).replace(/\.mission\.txt$/i, '');
   const files = [];
   const queued = [];
 
@@ -87,6 +114,18 @@ export function emitSubMissions(plan, ctx = {}, io = {}) {
     const predecessorId = group.index > 1 ? `${parentId}.S${group.index - 1}` : null;
     const filename = `${parentBase}.S${group.index}.mission.txt`;
     const rel = `missions/${filename}`;
+
+    // Compute groupTargetFiles by flat-mapping group.steps' target_files
+    const groupTargetFiles = group.steps.flatMap(s => s.target_files || []);
+
+    // Compute isUiTouching
+    const hasUiFile = groupTargetFiles.some(f => /\.(html|js|jsx|tsx|css)$/i.test(f));
+
+    // Compute doneMeansClause
+    const doneMeansClause = buildDoneMeansClause(groupTargetFiles);
+
+    // Compute visualQcHeader
+    const visualQcHeader = extractVisualQcHeader(plan._parentMission);
 
     // Build the child mission text.
     const stepList = group.steps.map((s, i) =>
@@ -97,7 +136,8 @@ export function emitSubMissions(plan, ctx = {}, io = {}) {
       ? `REQUIRES: ${predecessorId} (tartib — this sub-mission may not start until ${predecessorId}'s receipt exists)`
       : 'REQUIRES: none (first in tartib order)';
 
-    const childText = [
+    // Build header lines with optional visualQcHeader
+    const headerLines = [
       `MISSION-ID: ${childId}`,
       `MISSION-CLASS: ${plan.parentClass || 'code-repo'}`,
       `PARENT: ${parentId}`,
@@ -109,8 +149,20 @@ export function emitSubMissions(plan, ctx = {}, io = {}) {
       ``,
       `Maqsad: sub-mission ${group.index} of ${plan.groupCount} — ${group.steps[0]?.description || 'execute steps'} through ${group.steps[group.steps.length - 1]?.description || 'completion'}`,
       ``,
+    ];
+
+    // Insert visualQcHeader as an additional header line ONLY when isUiTouching AND visualQcHeader is non-null
+    const headerContent = [...headerLines];
+    if (hasUiFile && visualQcHeader) {
+      headerContent.splice(headerLines.indexOf('') + 1, 0, visualQcHeader);
+    }
+
+    const childText = [
+      ...headerContent,
       `Steps:`,
       stepList,
+      ``,
+      doneMeansClause,
       ``,
     ].join('\n');
 
@@ -266,6 +318,97 @@ if (process.argv[1]?.endsWith('mission_split.mjs')) {
     ck(autorunBody.indexOf('emit-1.S1.mission.txt') < autorunBody.indexOf('emit-1.S2.mission.txt')
       && autorunBody.indexOf('emit-1.S2.mission.txt') < autorunBody.indexOf('emit-1.S3.mission.txt'),
       'emitSubMissions: children appended to AUTORUN in tartib order');
+
+    // Cleanup
+    fsEmit.rmSync(tmp, { recursive: true, force: true });
+  }
+
+  // New self-test cases for buildDoneMeansClause and extractVisualQcHeader
+  {
+    const os = await import('os');
+    const fsEmit = await import('fs');
+    const tmp = fsEmit.mkdtempSync(path.join(os.tmpdir(), 'msplit_test2_'));
+    const missionsDir = path.join(tmp, 'missions');
+    fsEmit.mkdirSync(missionsDir, { recursive: true });
+
+    // Test (1): code-only synthetic split (no VISUAL-QC-REQUIRED, non-UI target files)
+    {
+      const plan1 = {
+        parentId: 'CODE-ONLY',
+        parentClass: 'code-repo',
+        ceiling: 3,
+        originalStepCount: 2,
+        groupCount: 1,
+        groups: [{
+          index: 1,
+          steps: [{
+            step_index: 1,
+            description: 'code-only step',
+            action_type: 'edit',
+            target_files: ['app.mjs', 'lib.mjs']
+          }],
+          stepCount: 1
+        }],
+        _parentMission: 'MISSION-ID: CODE-ONLY\nMaqsad: code-only test.'
+      };
+
+      const out1 = emitSubMissions(plan1, {
+        missionsDir,
+        parentMissionFile: 'code-only.mission.txt',
+        parentId: 'CODE-ONLY'
+      }, {
+        writeFile: (p, c) => { fsEmit.mkdirSync(path.dirname(p), { recursive: true }); fsEmit.writeFileSync(p, c); }
+      });
+
+      ck(out1.ok === true, 'code-only split: emitSubMissions succeeds');
+
+      const s1 = fsEmit.readFileSync(path.join(missionsDir, 'code-only.S1.mission.txt'), 'utf8');
+      const doneMeansRegex = /done\s*means\s*:|done-means/i;
+      const renderWitnessRegex = /\b(headless\s*browser|playwright|puppeteer|headless\s*render|browser\s*render)\b/i;
+
+      ck(doneMeansRegex.test(s1), 'code-only split: done-means regex matched');
+      ck(!renderWitnessRegex.test(s1), 'code-only split: no render witness regex matched');
+    }
+
+    // Test (2): UI-touching group with VISUAL-QC-REQUIRED header
+    {
+      const plan2 = {
+        parentId: 'UI-QC',
+        parentClass: 'ui-repo',
+        ceiling: 3,
+        originalStepCount: 1,
+        groupCount: 1,
+        groups: [{
+          index: 1,
+          steps: [{
+            step_index: 1,
+            description: 'ui step',
+            action_type: 'edit',
+            target_files: ['index.html', 'style.css']
+          }],
+          stepCount: 1
+        }],
+        _parentMission: 'MISSION-ID: UI-QC\nMISSION-CLASS: ui\nVISUAL-QC-REQUIRED\nMaqsad: UI test with header.'
+      };
+
+      const out2 = emitSubMissions(plan2, {
+        missionsDir,
+        parentMissionFile: 'ui-qc.mission.txt',
+        parentId: 'UI-QC'
+      }, {
+        writeFile: (p, c) => { fsEmit.mkdirSync(path.dirname(p), { recursive: true }); fsEmit.writeFileSync(p, c); }
+      });
+
+      ck(out2.ok === true, 'UI-QC split: emitSubMissions succeeds');
+
+      const s2 = fsEmit.readFileSync(path.join(missionsDir, 'ui-qc.S1.mission.txt'), 'utf8');
+      const doneMeansRegex = /done\s*means\s*:|done-means/i;
+      const renderWitnessRegex = /\b(headless\s*browser|playwright|puppeteer|headless\s*render|browser\s*render)\b/i;
+
+      ck(doneMeansRegex.test(s2), 'UI-QC split: done-means regex matched');
+      ck(renderWitnessRegex.test(s2), 'UI-QC split: render witness regex matched');
+      ck(/VISUAL-QC-REQUIRED/.test(s2), 'UI-QC split: VISUAL-QC-REQUIRED present in child text');
+    }
 
     // Cleanup
     fsEmit.rmSync(tmp, { recursive: true, force: true });
