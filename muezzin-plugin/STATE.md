@@ -110,6 +110,19 @@ deliverable-type-aware QC + faith file edits must be ratified in a FRESH oriente
 governance session that has read `~/.claude/practice/extended/` first. NOT in a
 long drifted feature-build session.
 
+## 15-MIN CONDUCTOR BEAT (2026-07-01T~13:19Z) — mt-integrate-b13-aria-live PARKED
+
+Supervisor recovered 3 more self-kills since the last beat (06:55, 07:05, 07:15, all
+~3-5s downtime — working as intended). Same mission every single time. Per the standing
+beat instruction, PARKED `mt-integrate-b13-aria-live` (AUTORUN.md, ~line 756) rather than
+let it keep re-triggering the cycle. Its own diff was one of the `mt-feat-*` backlog
+integration missions — the underlying feature code is still sitting untouched in its
+source worktree (`C:\Users\marka\code\mt-feat-b13-aria-live`), nothing lost, just not
+being auto-retried anymore. **Needs a real look before re-firing**: self-witness
+consistently flagged the SAME finding ("artifact incomplete, cuts off mid-sentence in
+the Context section") — this reads like a genuine content-generation truncation, not an
+infra flake, and retrying blind clearly wasn't going to fix it.
+
 ## 15-MIN CONDUCTOR BEAT (2026-07-01T~13:02Z) — supervisor confirmed working, one more compounding insight
 
 Supervisor is doing its job: one more death since the last beat (06:55:15, exit code 1 —
