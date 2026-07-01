@@ -2,38 +2,42 @@
 
 **Ruling:** A foreign-frontier validator qualifies when the effective decision-producing model path is pinned to an explicitly allowlisted non-Anthropic provider — different training organization, different model lineage, independent of Anthropic. Qualification is based on backend provenance, not model quality, not transport type. Organizational independence from Anthropic is the governing principle; the pinning conditions above are its operational definition — independence is satisfied when and only when they hold. Any Anthropic-controlled model in the effective inference path (including fallback, routing, or post-processing) disqualifies the validator. A third-party wrapper around Anthropic models does not qualify regardless of endpoint branding. A local dedicated server qualifies only if it is hard-pinned to an approved foreign-lab model path and fails closed — no fallback to Anthropic, no fallback to arbitrary local models, no runtime model selection.
 
-The stop hook enforces this structurally. Foreign-frontier dispatches are recognized by pattern: `^mcp__(?:gemini|gpt|grok|glm)`. Matches satisfy the foreign-frontier dispatch requirement. Non-matches do not, regardless of what the call contains or which model it targets.
+The stop hook enforces this structurally. Foreign-frontier dispatches are recognized by pattern: `^mcp__(?:gemini|gpt|grok|glm)`. Matches satisfy the foreign-frontier dispatch requirement. Non-matches do not, regardless of what the call contains or which model it targets. (But see §'Foreign-frontier workers — FORBIDDEN' below: those dispatches are now forbidden by operator-rulings.md and must not be used to satisfy the gate — the compliant channels are established in §'Compliant foreign-frontier channels'.)
 
-`WebSearch` and `WebFetch` also satisfy the stop hook via a separate substrate path (external information retrieval, not model independence). They are not foreign-frontier validators and are not governed by this document — but both `stop-validation.mjs` and `pre-tool-use-substrate.mjs` accept them on the same `isFF` check as the approved validators above, so they DO satisfy the foreign-frontier dispatch requirement for stop-language clearing and substrate gate satisfaction.
+`WebSearch` and `WebFetch` also satisfy the stop hook via a separate substrate path (external information retrieval, not model independence). They are not foreign-frontier validators and are not governed by this document — but both `stop-validation.mjs` and `pre-tool-use-substrate.mjs` accept them on the same `isFF` check as the frontier-worker patterns above, so they DO satisfy the foreign-frontier dispatch requirement for stop-language clearing and substrate gate satisfaction.
 
 ---
 
-## Approved validators
+## Foreign-frontier workers — FORBIDDEN
 
-### Gemini (`mcp__gemini-worker`, `mcp__gemini-api-worker`)
-- **Lab:** Google DeepMind
-- **Tools:** `mcp__gemini-worker__*`, `mcp__gemini-api-worker__*`
+The MCP frontier-worker dispatch tools below named different labs, but they are **FORBIDDEN — do not dispatch (see operator-rulings.md)**. The operator's standing ruling (never dispatch closed-frontier API workers outside Ollama) governs: none of these may be dispatched to satisfy the gate or for any other purpose. The compliant foreign-frontier channels are established in §'Compliant foreign-frontier channels' below.
 
-### GPT (`mcp__gpt-worker`)
-- **Lab:** OpenAI
-- **Tool:** `mcp__gpt-worker__dispatch_to_gpt`
+- `mcp__gemini-worker` (Google DeepMind) — FORBIDDEN, do not dispatch (see operator-rulings.md).
+- `mcp__gpt-worker` (OpenAI) — FORBIDDEN, do not dispatch (see operator-rulings.md).
+- `mcp__grok-worker` (xAI) — FORBIDDEN, do not dispatch (see operator-rulings.md).
+- `mcp__glm-worker` (Zhipu AI / Tsinghua University) — FORBIDDEN, do not dispatch (see operator-rulings.md).
 
-### Grok (`mcp__grok-worker`)
-- **Lab:** xAI
-- **Tool:** `mcp__grok-worker__dispatch_to_grok`
+---
 
-### GLM (`mcp__glm-worker`)
-- **Lab:** Zhipu AI / Tsinghua University
-- **Tool:** `mcp__glm-worker__dispatch_to_glm`
+## Compliant foreign-frontier channels
+
+The channels that may be used to satisfy the foreign-frontier / stop-language gate are:
+
+- **`mcp__ollama-*`** — local and Ollama-Cloud seats (laguna). Per operator-rulings.md this is the standing compliant dispatch channel; anything served via Ollama is an allowed seat.
+- **`WebFetch`** (and `WebSearch`) — external information retrieval for live docs and independent second-reads; satisfies the stop hook via the separate external-retrieval substrate path described above.
+
+The workers in §'Foreign-frontier workers — FORBIDDEN' must never be dispatched to satisfy the gate.
 
 ---
 
 ## Operational routing preference
 
-These labels reflect current routing preference, not qualification strength. All approved validators above have equivalent foreign-frontier status.
+The frontier workers previously preferred here are FORBIDDEN (see §'Foreign-frontier workers — FORBIDDEN' and operator-rulings.md); there is no routing preference among them because none may be dispatched. Route foreign-frontier work to the compliant channels instead:
 
-- **GPT, Grok, GLM** — preferred for canon/Faith/hook framing audits and stop-language clearing.
-- **Gemini** — use for analysis and second-reads; avoid for primary governance framing audits (2026-05-03: went autonomous in a governance session, touching 21 files).
+- **`mcp__ollama-*`** — standing compliant seat for framing audits, second-reads, and stop-language clearing (per operator-rulings.md).
+- **`WebFetch` / `WebSearch`** — live-doc retrieval and external second-reads.
+
+The 2026-05-03 governance framing incident that previously restricted one worker to non-primary use is now moot: all frontier workers are forbidden outright.
 
 ---
 
@@ -55,6 +59,8 @@ A validator dispatch must be substantive and issue-linked. Clearing stop-languag
 ---
 
 ## Relationship to `local-delegation-routing.md`
+
+Note (per operator-rulings.md): under the operator's standing ruling, `mcp__ollama-*` is now the compliant foreign-frontier dispatch channel (see §'Compliant foreign-frontier channels'). The historical exclusion below reflects the prior policy class; where it conflicts with operator-rulings.md, operator-rulings.md governs.
 
 Local Ollama models (`mcp__ollama-mcp__*`) are mechanical delegation targets — a different policy class. They do not satisfy the foreign-frontier dispatch requirement. The distinction is structural: local models run on operator hardware under operator configuration, which is not independence. See `local-delegation-routing.md` for the exclusion criteria and mechanical routing table.
 
@@ -94,8 +100,9 @@ is the mechanism.
 
 Class 1 routing applies only when the work does not interpret, modify, or authorize governance
 substrate. When classification is uncertain or a substrate impact is possible, default to Class 2.
-Gemini is prohibited for Class 1 frontier dispatch (see §'Operational routing preference' —
-2026-05-03 governance framing incident).
+Frontier-worker dispatch is FORBIDDEN for all classes (see §'Foreign-frontier workers — FORBIDDEN'
+and operator-rulings.md); Class 1 dispatch routes to the compliant channels in §'Compliant
+foreign-frontier channels'.
 
 **Class 1 sequence:**
 1. Substrate verification — instance verifies the relevant substrate facts on disk (D12).
