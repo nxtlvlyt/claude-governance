@@ -1,0 +1,105 @@
+MISSION mt-integrate-crown-legal-full-text-2026-06-23
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+TARGET-BRANCH: main
+ALLOW-FILES:
+  - functions/api/land-tenure.js
+  - js/crown-land-overlay.js
+REQUIRES: none
+
+Niyyah: The feature "crown-legal-full-text-2026-06-23" (commit 487d8d5, currently sitting
+on top of the source worktree C:\Users\marka\code\mt-feat-crown-legal-full-text-2026-06-23)
+has never been integrated into this repo's HEAD. This mission's entire job is mechanical
+integration — land the commit onto the current tree without losing either side's changes,
+and prove the result is syntactically sound. Nothing this mission does constitutes a
+judgment that the feature's CODE is correct — not that PROVINCIAL_CROWN_RULES' four
+"researched" paragraphs (ON/QC/BC/AB) are legally accurate, not that the nine
+"research_pending" entries are honestly stamped rather than fabricated, not that
+detectProvinceCode's bbox lookup is right, and not that the popup injection is safe. That
+determination belongs to this mission's own witness + verdict-panel run, which inspects the
+integrated result after this mission produces it — not to the act of integration itself.
+Authoring or executing this mission is not verification of the feature. This diff touches
+no .html file (confirmed via `git show --stat 487d8d5`: only functions/api/land-tenure.js
+and js/crown-land-overlay.js changed), so this mission carries no visual/render-witness gate
+or headless-browser step — there is no rendered page for this diff to change.
+
+Maqsad: The commit "487d8d5 feat(crown-legal): per-province FULL legality paragraphs on
+Crown-land popup" is cherry-picked or merged from the source worktree onto the current HEAD
+of C:\Users\marka\code\mt-integration-2026-06-22, with any conflicts resolved by keeping
+BOTH sides — this repo's existing unrelated changes AND this feature's changes, never
+silently dropping either — every changed .js/.mjs file passes `node --check`, the result is
+committed with a clear message, and the target repo's working tree is left clean (git
+status shows no uncommitted changes to the touched files).
+
+Context (verified against live substrate 2026-06-30/07-01, absolute paths, no prescribed
+resolution beyond "keep both sides"):
+- Source worktree: C:\Users\marka\code\mt-feat-crown-legal-full-text-2026-06-23, HEAD is
+  487d8d5, worktree is clean — do not rewrite that worktree, only read/cherry-pick FROM it.
+  Both the source and target worktrees share a single .git object store (both are
+  `git worktree` checkouts of the same repository), so the commit object is already
+  reachable from the target worktree without adding a remote.
+- Confirmed diff stat for 487d8d5 (`git show --stat`, this session): 2 files changed,
+  421 insertions(+), 0 deletions(-) — functions/api/land-tenure.js (+237) and
+  js/crown-land-overlay.js (+184). No file in this diff is deleted or renamed.
+- Target repo HEAD (this session, `git log --oneline -1` in
+  C:\Users\marka\code\mt-integration-2026-06-22): 28cbc72. The target tree has since moved
+  ahead of 487d8d5's parent with unrelated work on both touched files: functions/api/
+  land-tenure.js last changed at 020f4d7 ("add display_label + popup_chip to AB WMU + WMA
+  datasets") and js/crown-land-overlay.js last changed at e4046dd ("restore tinted
+  Crown-land polygons + click popups per QC walk 2026-06-24") — a naive cherry-pick can
+  conflict on both files. Where it conflicts, the resolved file must contain BOTH the
+  target's existing code (the AB WMU/WMA display_label + popup_chip logic; the tinted-
+  polygon/click-popup restoration logic) AND this feature's additions (PROVINCIAL_CROWN_
+  RULES, PROVINCE_BBOXES, the GET /api/land-tenure?layer=provincial-rules endpoint in
+  land-tenure.js; getProvincialRules, detectProvinceCode, provincialLegalBlockHtml,
+  injectProvincialLegalBlock in crown-land-overlay.js) — never resolved by taking only
+  "ours" or only "theirs".
+
+Steps:
+  1. In the source worktree C:\Users\marka\code\mt-feat-crown-legal-full-text-2026-06-23,
+     confirm commit 487d8d5 exists and capture its patch (e.g. `git show 487d8d5` or
+     `git format-patch -1 487d8d5`) without modifying that worktree. [command] capture-patch
+  2. In the target repo C:\Users\marka\code\mt-integration-2026-06-22, on TARGET-BRANCH main
+     at its current HEAD, apply the captured commit via `git cherry-pick 487d8d5` (the
+     commit object is already reachable from the shared object store; no remote needed) or
+     an equivalent merge of that single commit. [command] integrate-commit
+  3. If cherry-pick reports conflicts on functions/api/land-tenure.js, js/crown-land-
+     overlay.js, or any other ALLOW-FILES entry, resolve each conflicted hunk by hand so the
+     resolved content contains BOTH the target's pre-existing code AND this feature's
+     additions — never `--ours` / `--theirs` and never a resolution that deletes either
+     side's lines. [edit] resolve-conflicts
+  4. Run `node --check functions/api/land-tenure.js` and `node --check js/crown-land-
+     overlay.js`, plus `node --check` on any other .js/.mjs file the merge touched or
+     conflict resolution modified, confirming each exits 0. [command] node-check-all
+  5. Stage and commit the integrated result in the target repo with a clear message
+     identifying the integrated feature and its origin commit (e.g. referencing
+     "crown-legal-full-text-2026-06-23" and "487d8d5"). Confirm `git status` afterward shows
+     a clean working tree. [command] commit-and-verify-clean
+
+Done means:
+  - `git log` in C:\Users\marka\code\mt-integration-2026-06-22 shows a commit on
+    TARGET-BRANCH main containing the integrated feature, with a commit message that names
+    "crown-legal-full-text-2026-06-23" and/or "487d8d5".
+  - functions/api/land-tenure.js in the target repo at HEAD contains the
+    PROVINCIAL_CROWN_RULES constant with entries for all 13 Canadian provinces/territories
+    (ON, QC, BC, AB marked status "researched" with full legal paragraphs; the other 9
+    marked status "research_pending" with no fabricated legal text) AND still contains the
+    target's pre-existing display_label + popup_chip logic for the AB WMU/WMA datasets
+    (both sides present, confirmed by reading the resolved file, not assumed).
+  - js/crown-land-overlay.js in the target repo at HEAD contains getProvincialRules and
+    detectProvinceCode AND still contains the target's pre-existing tinted-polygon / click-
+    popup restoration logic (both sides present, confirmed by reading the resolved file, not
+    assumed).
+  - `node --check` exits 0 on functions/api/land-tenure.js, on js/crown-land-overlay.js, and
+    on every other .js/.mjs file this integration touched or conflict-resolved.
+  - `git status` in the target repo shows a clean working tree (no uncommitted changes) at
+    the end of the mission.
+  - This mission's own witness + verdict-panel run, downstream of this mission producing the
+    integrated commit, is what actually judges whether the feature's CODE is correct (legal
+    accuracy of the four researched paragraphs, honesty of the nine research_pending stamps,
+    correctness of detectProvinceCode's bbox logic) — this mission's own authorship and
+    execution only prove the integration is mechanically sound, not that the feature is
+    right.
+
+Context: Sandbox writes only, target repo working tree only.
+Amanah: entrusted; discharge with ihsan.

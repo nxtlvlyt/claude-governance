@@ -1,0 +1,153 @@
+MISSION MT-INTEGRATE-B13-ARIA-LIVE
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - css/aria-live-mirror.css
+  - js/aria-live-mirror.js
+  - map.html
+  - docs/QC-PIPELINE-SOTA-2026-06-23.md
+REQUIRES: none
+VISUAL-QC-REQUIRED
+PREVIEW-BASE-URL: http://localhost:8788
+
+Niyyah: Feature worktree mt-feat-b13-aria-live carries two finished commits — a WCAG
+4.1.3 text-only live-region mirror for #mt-planday-bar, plus an unrelated docs page —
+sitting in their own worktree, never landed on the integration line's current HEAD.
+This mission's whole job is mechanical: get the feature's files onto the target repo's
+HEAD without losing anything already there, and produce the node-level and render-level
+receipts a verdict panel needs to judge the result. Writing this mission file, and the
+act of integrating itself, is NOT verification that the feature's own code is correct.
+Whether the MutationObserver debounce actually prevents a screen reader from double-
+announcing, whether the sr-only clip pattern in aria-live-mirror.css truly keeps the
+mirror invisible-but-audible across screen readers, and whether the mirror ever drifts
+out of sync with the live bar's real text — none of that is settled by landing the
+commit. That determination belongs entirely to this mission's own witness-and-verdict-
+panel run: the node --check receipt, the headless-browser render of map.html, and the
+seat panel's judgment on the actual integrated diff. Say plainly: authoring or executing
+this mission proves nothing about the feature code's correctness by itself.
+
+Maqsad: Land commit dad942d ("feat(b13-aria-live): WCAG 4.1.3 text-only mirror for
+#mt-planday-bar") — and commit 375e40b ("docs(qc): SOTA-uplift QC pipeline — 8 mandatory
+gates + escape hatches") if it is not already present — from the source worktree
+C:\Users\marka\code\mt-feat-b13-aria-live onto the current HEAD of the target repo
+C:\Users\marka\code\mt-integration-2026-06-22, with any conflicts resolved by keeping
+BOTH sides — this repo's existing unrelated changes AND the feature's changes, never
+silently dropping either — every changed .js/.mjs file passes `node --check`, the result
+is committed with a clear message, and the target repo's working tree is left clean with
+respect to every ALLOW-FILES entry.
+
+Context (verified against live substrate this session, 2026-07-01, absolute paths, no
+prescribed resolution beyond "keep both sides"):
+- Source worktree: C:\Users\marka\code\mt-feat-b13-aria-live. `git log --oneline -2` there
+  shows dad942d on top of 375e40b (375e40b is the older, docs-only commit).
+- Confirmed diff stat (git show --stat, this session): dad942d touches 3 files, +144/-1
+  (css/aria-live-mirror.css new 18 lines, js/aria-live-mirror.js new 125 lines, map.html
+  +1/-1 adding one <link> in <head> and one <script defer> after plan-day.js); 375e40b
+  touches 1 file, +24/-0, all new (docs/QC-PIPELINE-SOTA-2026-06-23.md — content unrelated
+  to the aria-live feature itself, a separate QC-pipeline doc page).
+- Checked this session: `git merge-base --is-ancestor 375e40b HEAD` in the target repo
+  returns true — 375e40b is ALREADY an ancestor of the target's current HEAD, and
+  `git show HEAD:docs/QC-PIPELINE-SOTA-2026-06-23.md` in the target is byte-identical to
+  the source worktree's version at 375e40b. Attempting to cherry-pick an already-applied
+  commit produces an empty patch ("The previous cherry-pick is now empty") which must be
+  resolved with `--skip`, never `--allow-empty` — an empty commit proves nothing landed.
+  `git merge-base --is-ancestor dad942d HEAD` returns false — dad942d is the one commit
+  that actually still needs to land.
+- Both commit objects already exist in the target repo's own local object store (checked
+  this session: `git cat-file -t dad942d` -> commit; `git branch -a --contains dad942d`
+  shows both a local branch feat/b13-aria-live-2026-06-23 and a remote-tracking branch
+  remotes/github/feat/b13-aria-live-2026-06-23 already contain it) — unlike some other
+  mt-integrate-* missions, no `git fetch <source-worktree-path>` / remote-add step is
+  needed here to make the object reachable; a plain `git cherry-pick dad942d` can resolve
+  the object directly.
+- A dry run this session (test branch off the target's then-current HEAD 28cbc72, deleted
+  afterward, no lasting change) cherry-picked dad942d cleanly: map.html auto-merged with
+  ZERO conflicts, css/aria-live-mirror.css and js/aria-live-mirror.js applied as pure adds,
+  and `node --check js/aria-live-mirror.js` exited 0. The target branch may move again
+  before this mission actually fires, so a conflict is still possible — if map.html (or
+  any other ALLOW-FILES entry) conflicts at fire time, resolve it by keeping BOTH the
+  target's existing head/script tags AND this feature's added <link>/<script> lines.
+- Target repo HEAD this session: 28cbc72, on branch
+  feat/qc-concern-sentry-error-capture-sentry-init-js-2026-06-25. This mission
+  deliberately carries no TARGET-BRANCH header: land onto whatever branch is actually
+  checked out as HEAD when this mission fires, not a hardcoded branch name.
+- The target repo currently carries pre-existing untracked files unrelated to this
+  feature (api-index-response.json, docs/e2e-report-2026-07-01.json, e2e-shots/,
+  feature-catalog-entry.txt, scripts/e2e-runner.mjs) — these predate this mission and are
+  out of scope. "Clean working tree" in this mission's Done means refers to the
+  ALLOW-FILES entries this mission touches, not a demand to clear unrelated pre-existing
+  debris.
+- map.html is a live page served by the site (not a browser-extension popup), so
+  PREVIEW-BASE-URL: http://localhost:8788 is a PLACEHOLDER for a local
+  `wrangler pages dev` server — the operator must confirm the actual local preview port
+  before relying on the captured render; if nothing answers at PREVIEW-BASE-URL, that
+  failure must surface as a named receipt, not a silently skipped check.
+
+Steps:
+  1. In the target repo, record the current branch and HEAD, and confirm
+     css/aria-live-mirror.css and js/aria-live-mirror.js do not already exist on disk
+     (git -C C:\Users\marka\code\mt-integration-2026-06-22 status --short; git -C
+     C:\Users\marka\code\mt-integration-2026-06-22 log --oneline -3; git -C
+     C:\Users\marka\code\mt-integration-2026-06-22 branch --show-current). [command]
+     verify-target-state
+  2. For each of 375e40b and dad942d, check ancestry BEFORE attempting a cherry-pick:
+     `git -C C:\Users\marka\code\mt-integration-2026-06-22 merge-base --is-ancestor
+     <sha> HEAD`. Any sha this reports as already an ancestor is already landed — skip
+     cherry-picking it, do not use --allow-empty on it. Any sha reported NOT an ancestor
+     needs to be applied. [command] check-ancestry
+  3. Apply every sha from step 2 that is not yet an ancestor, oldest-first (375e40b before
+     dad942d, matching the source worktree's own commit order), via `git -C
+     C:\Users\marka\code\mt-integration-2026-06-22 cherry-pick <sha>`. If a cherry-pick
+     reports conflicts, resolve every conflicted file by keeping BOTH the target's
+     pre-existing lines and the feature's added lines — never `--ours` / `--theirs` and
+     never a resolution that deletes either side's content. If a cherry-pick comes back
+     empty (already-applied after all), resolve with `--skip`, never `--allow-empty`.
+     [command] cherry-pick-remaining-commits
+  4. Run `node --check js/aria-live-mirror.js` from the target repo root (the one .js
+     file this integration touches) and confirm it exits 0; also run `node --check` on
+     any other .js/.mjs file that conflict resolution in step 3 modified. [command]
+     node-check-all
+  5. Stage and commit the integrated result with a message that names
+     "mt-feat-b13-aria-live" and/or "aria-live-mirror" and cites dad942d (and 375e40b if
+     step 3 actually applied it). Confirm `git status --short` afterward shows no
+     uncommitted changes to any ALLOW-FILES entry and `git log --oneline -5` shows the
+     landed commit at or near HEAD. [command] commit-and-verify-clean
+  6. Start (or confirm already running) a local preview server for the target repo at the
+     PREVIEW-BASE-URL host:port (e.g. `wrangler pages dev`), then render /map.html in a
+     headless browser (headless Chrome / Playwright / puppeteer) and capture that the page
+     loads without a fatal script error and that
+     `document.getElementById('mt-planday-bar-aria-mirror')` exists in the rendered DOM —
+     the sibling mirror node aria-live-mirror.js is supposed to create. This is the
+     render-witness step RULE 7 of mission_lint.mjs requires because VISUAL-QC-REQUIRED is
+     set above. [command] headless-render-witness
+
+Done means:
+  - `git log` in C:\Users\marka\code\mt-integration-2026-06-22 shows a commit at or near
+    HEAD whose message names "mt-feat-b13-aria-live" and/or "aria-live-mirror" and cites
+    dad942d.
+  - css/aria-live-mirror.css and js/aria-live-mirror.js exist in the target repo with the
+    feature's actual content (the .js file defines a MutationObserver-based text mirror
+    with a debounce and a window.__mtAriaLiveMirror debug surface; the .css file defines
+    the sr-only visually-hidden class) — confirmed by reading the on-disk files, not by
+    trusting the cherry-pick's exit code alone.
+  - map.html contains both the new <link rel="stylesheet" href="css/aria-live-mirror.css">
+    and <script src="js/aria-live-mirror.js" defer> tags AND every pre-existing tag this
+    repo's map.html already had before this mission ran (both sides present).
+  - docs/QC-PIPELINE-SOTA-2026-06-23.md exists in the target repo (whether because it was
+    already an ancestor of HEAD before this mission ran, or because step 3 applied it).
+  - `node --check js/aria-live-mirror.js` exits 0, and `node --check` exits 0 on every
+    other .js/.mjs file this integration touched or conflict-resolved.
+  - `git status --short` in the target repo shows no uncommitted changes to any
+    ALLOW-FILES entry (pre-existing unrelated untracked files noted in Context are not
+    this mission's to clean up).
+  - A headless browser (headless Chrome / Playwright / puppeteer) render of /map.html
+    served from PREVIEW-BASE-URL loads without a fatal script error and shows
+    `document.getElementById('mt-planday-bar-aria-mirror')` present in the DOM — verified
+    by rendering the page, not by reading the source. Nothing about this mission's own
+    authorship or execution constitutes verification that the feature's code is correct
+    (that the mirror announces correctly to a real screen reader, that the debounce timing
+    is right, that nothing else regressed) — that determination belongs entirely to this
+    mission's own witness-and-verdict-panel run, downstream of the receipts above.
+
+Context: Sandbox writes only, target repo working tree only.
+Amanah: entrusted; discharge with ihsan.

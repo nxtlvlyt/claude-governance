@@ -1,0 +1,31 @@
+MISSION MT-INTEGRATE-DAILY-DIGEST-REPORT
+MISSION-ID: MT-INTEGRATE-DAILY-DIGEST
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - functions/api/admin/digest.js
+  - docs/QC-PIPELINE-SOTA-2026-06-23.md
+
+Niyyah: Land the mt-feat-daily-digest feature branch's two commits onto the target integration repo without losing anything on either side, and leave both a clean tree and a legible git history behind. This mission's own authorship (picking the commits, resolving any conflict, running node --check) is an INTEGRATION-MECHANICS check only — it verifies the code parses and the merge is clean, nothing more. It is NOT a correctness, security, or behavior review of digest.js. Whether the digest endpoint's logic, its X-Mod-Secret gating, or its 24h query windows are actually right is exactly what this mission's own witness and verdict-panel run decides once the code has landed, not something settled by writing or running this mission.
+
+Maqsad: Bring commits 375e40b0db479ede0e14407e6eb416e85936d305 (docs(qc): SOTA-uplift QC pipeline) and 648a1deb0e6b789c42066ff40f76e53ecb2f4952 (feat(admin-digest): daily user-action digest endpoint at /api/admin/digest) onto the current HEAD of the target repo, with both files present, both node-parseable, and the work committed.
+
+CONTEXT (verified this session, both worktrees inspected directly): the source branch lives at C:\Users\marka\code\mt-feat-daily-digest (NOT "...-report" — that name was checked and does not exist on disk; this is the corrected path), and it is a LINKED WORKTREE of the SAME repository as the target (git worktree list confirms both paths share one object store), so both commit SHAs above already resolve with `git cat-file -t` inside the target repo with no fetch or remote step needed. Also verified: 375e40b is ALREADY an ancestor of the target repo's current HEAD (`git merge-base --is-ancestor 375e40b HEAD` reports true there today) and docs/QC-PIPELINE-SOTA-2026-06-23.md already exists at REPO-ROOT with content byte-identical to the feature branch's copy — some earlier integration already carried that commit in. Commit 648a1de is NOT yet an ancestor of HEAD (`git merge-base --is-ancestor 648a1de HEAD` reports false) and functions/api/admin/digest.js does not yet exist at REPO-ROOT — that is the real remaining work. Because this repo's worktrees get reused across many missions, HEAD may be on any branch when this fires; work against whatever HEAD currently is, do not assume or switch to a named branch.
+
+Steps:
+  1. For each commit SHA in this exact order — 375e40b0db479ede0e14407e6eb416e85936d305, then 648a1deb0e6b789c42066ff40f76e53ecb2f4952 — first run `git merge-base --is-ancestor <sha> HEAD`. If that reports true, the commit's content is already integrated: skip it, log the skip, and do not treat the skip as a failure. If it reports false, run `git cherry-pick <sha>` against the target repo's current HEAD. [command] cherry-pick-not-yet-landed-commits
+  2. If a cherry-pick from step 1 reports a conflict, resolve every conflicted file by keeping BOTH sides in full — the target's pre-existing unrelated lines AND this feature's added lines/functions, never removing either — then `git add` the resolved file(s) and run `git cherry-pick --continue`. Only ALLOW-FILES paths (functions/api/admin/digest.js, docs/QC-PIPELINE-SOTA-2026-06-23.md) may be touched to resolve a conflict. [command] resolve-conflicts-keep-both-sides
+  3. Run `node --check functions/api/admin/digest.js` against the copy now at REPO-ROOT. If step 1 or 2 modified any other .js or .mjs file, run `node --check` on each of those too. Every invocation must exit 0. [command] node-check-changed-js-files
+  4. Run `git status --short -- functions/api/admin/digest.js docs/QC-PIPELINE-SOTA-2026-06-23.md` and confirm it prints nothing (no modified or untracked entries against either allow-listed path) and run `git log --oneline -5` and confirm a commit reachable from HEAD carries the message "feat(admin-digest): daily user-action digest endpoint at /api/admin/digest". [command] confirm-landed-and-clean
+
+Done means (all verifiable against the target repo, no claim about digest.js's behavior beyond what is listed):
+  - functions/api/admin/digest.js exists at C:\Users\marka\code\mt-integration-2026-06-22\functions\api\admin\digest.js.
+  - `node --check functions/api/admin/digest.js` (run from REPO-ROOT) exits 0.
+  - docs/QC-PIPELINE-SOTA-2026-06-23.md exists at REPO-ROOT (its content was already carried in by an earlier integration of 375e40b; this mission's own contribution is verified specifically by the digest.js commit landing, not by this file's mere presence).
+  - `git log --oneline -10` on the target repo's current branch, run after the mission's steps, shows a commit whose message is or begins with "feat(admin-digest): daily user-action digest endpoint at /api/admin/digest", and `git merge-base --is-ancestor <that commit's sha> HEAD` reports true.
+  - `git status --short -- functions/api/admin/digest.js docs/QC-PIPELINE-SOTA-2026-06-23.md` prints nothing (empty output) once the mission's steps are complete.
+  - No .html file was added, modified, or deleted by this mission (this diff never touched HTML; confirm via `git show --stat` on whatever commit(s) this mission produced).
+
+Constraints: code-repo, target repo only (C:\Users\marka\code\mt-integration-2026-06-22), the only two legal write targets are the two ALLOW-FILES paths above, no NAS path is ever touched, no branch switch/checkout of a different named branch (work stays on whatever HEAD is current when this fires).
+
+Amanah: entrusted; discharge with ihsan.

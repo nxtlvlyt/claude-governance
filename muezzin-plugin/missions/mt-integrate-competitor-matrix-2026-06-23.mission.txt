@@ -1,0 +1,92 @@
+MISSION MT-INTEGRATE-COMPETITOR-MATRIX-2026-06-23
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - docs/competitor-feature-matrix-2026-06-23.md
+REQUIRES: none
+
+Niyyah: The competitor feature-parity matrix was authored and committed in its own feature
+worktree (mt-feat-competitor-matrix-2026-06-23) and needs to land in the integration repo's
+history without silently dropping either side: not the integration repo's own unrelated
+in-flight work, and not the matrix's own 101 lines of content. This mission's job is the
+mechanical git integration plus the containment/syntax checks below — nothing about writing
+or linting this mission file constitutes a review of whether the matrix's CONTENT is
+correct (its competitor URLs, its cited git SHAs, its Shipped/Partial/No calls). That
+judgment belongs entirely to this mission's own witness + verdict-panel run once fired.
+
+Maqsad: Land commit 89d54eaf93dad5121fcc6f890031598a80b4b5b7
+("docs(competitor): feature-parity matrix vs 7 named competitors (2026-06-23)") onto the
+current HEAD of C:\Users\marka\code\mt-integration-2026-06-22, producing a clean, committed
+working tree that contains docs/competitor-feature-matrix-2026-06-23.md, with the target
+repo's own pre-existing unrelated changes and history left intact.
+
+Steps:
+  1. In C:\Users\marka\code\mt-integration-2026-06-22, confirm the commit is already reachable
+     in the repo's object database: `git log --oneline --all | findstr 89d54ea`. (This repo and
+     C:\Users\marka\code\mt-feat-competitor-matrix-2026-06-23 are both `git worktree`s of the
+     same underlying repository and share one object store, so the commit object is already
+     present — no remote add or fetch step is needed before cherry-picking.) [command] confirm-commit-reachable
+  2. Cherry-pick the commit onto the current HEAD: `git cherry-pick 89d54eaf93dad5121fcc6f890031598a80b4b5b7`.
+     If it applies cleanly, the cherry-pick's own commit lands with the original message intact —
+     that is the "clear commit message" this mission needs, nothing further to compose. If it
+     reports a conflict, resolve docs/competitor-feature-matrix-2026-06-23.md by hand so that BOTH
+     the target's pre-existing unrelated content AND every one of the matrix's added lines are
+     present in the result — never drop either side to force a clean apply — then
+     `git add docs/competitor-feature-matrix-2026-06-23.md` and `git cherry-pick --continue`
+     (falling back to `git commit -m "docs(competitor): feature-parity matrix vs 7 named competitors (2026-06-23)"`
+     if `--continue` needs an explicit message). [command] cherry-pick-onto-head
+  3. List every .js/.mjs file this merge touched: `git diff --name-only HEAD@{1}..HEAD -- *.js *.mjs`.
+     This commit's own diff stat is 1 file changed, 101 insertions(+), 0 deletions(-), docs-only,
+     so the expected list is empty. Run `node --check <file>` on every file that DOES appear in
+     that list and confirm each exits 0; if the list is empty, record that emptiness explicitly as
+     the receipt for this step rather than skipping it. [command] node-check-changed-js
+  4. Confirm containment and cleanliness: `git status --porcelain` shows no unmerged (`U`) entries
+     and no dirty path outside docs/competitor-feature-matrix-2026-06-23.md that this mission
+     itself introduced. Any pre-existing unrelated untracked file already present in the tree
+     before this mission ran is left exactly as found — it is out of this mission's ALLOW-FILES
+     and must not be touched, staged, or removed. [command] verify-clean-tree
+  5. Confirm the landing: `git log --oneline -3` on the current branch shows the feature's commit
+     message ("docs(competitor): feature-parity matrix vs 7 named competitors (2026-06-23)") at or
+     immediately after the pre-mission HEAD, and `git show --stat` on that commit names
+     docs/competitor-feature-matrix-2026-06-23.md as the sole changed file. [command] confirm-log-and-stat
+
+Done means:
+  - docs/competitor-feature-matrix-2026-06-23.md exists in the target repo's working tree, is
+    tracked (`git ls-files -- docs/competitor-feature-matrix-2026-06-23.md` returns the path),
+    is exactly 101 lines, and its first line reads exactly
+    "# Competitor Feature-Parity Matrix — 2026-06-23" and its last non-blank line reads exactly
+    "**End of document.**".
+  - `git log --oneline` on the target repo's current branch contains a commit whose subject is
+    "docs(competitor): feature-parity matrix vs 7 named competitors (2026-06-23)", reachable from
+    the current HEAD.
+  - `git diff --name-only` between the pre-mission HEAD and the post-mission HEAD names ONLY
+    docs/competitor-feature-matrix-2026-06-23.md (or, if a conflict forced touching another
+    ALLOW-FILES-declared path, every touched path stays within ALLOW-FILES); for every path in
+    that diff ending in .js or .mjs — there are none in this commit's own diff — `node --check`
+    on that path exits 0, and the empty list itself is recorded as the receipt for that clause.
+  - `git status --porcelain` on the target repo shows a clean tree: zero unmerged (`U`) entries,
+    and zero dirty paths outside docs/competitor-feature-matrix-2026-06-23.md caused by this
+    mission's own run.
+  - If a merge conflict occurred at any point, the final committed file contains BOTH the
+    target's pre-existing unrelated content and the matrix's full 101 lines of added content —
+    neither side was silently dropped.
+
+Context (unbiased facts, no prescribed solution beyond the steps above):
+- Source: C:\Users\marka\code\mt-feat-competitor-matrix-2026-06-23, branch
+  feat/competitor-matrix-2026-06-23, commit 89d54eaf93dad5121fcc6f890031598a80b4b5b7. Its own
+  diff stat: 1 file changed, 101 insertions(+), 0 deletions(-) — docs/competitor-feature-matrix-2026-06-23.md only.
+- Target: C:\Users\marka\code\mt-integration-2026-06-22. Both worktrees share one underlying
+  .git object store (C:/Users/marka/code/muddytires-pages/.git/worktrees/...), so the commit is
+  already present in the target's object database at mission-authoring time.
+- At authoring time, `git merge-base --is-ancestor 89d54ea HEAD` in the target repo exits
+  non-zero (the commit is not yet an ancestor of the target's current branch), and
+  docs/competitor-feature-matrix-2026-06-23.md does not exist in the target's HEAD tree — this
+  is a new-file add, not a same-path edit.
+- A dry run at authoring time (`git cherry-pick -n 89d54ea`, inspected, then
+  `git reset --hard HEAD` to restore) confirmed the cherry-pick applies cleanly, staging exactly
+  `A  docs/competitor-feature-matrix-2026-06-23.md` and nothing else — no conflict. The target
+  repo's HEAD may have moved by the time this mission fires; Step 2's conflict-resolution
+  instructions exist for that later case, not because a conflict is expected now.
+- This diff touches no HTML file — no visual QC applies to this mission.
+
+Amanah: entrusted; discharge with ihsan.
