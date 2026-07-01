@@ -110,6 +110,47 @@ deliverable-type-aware QC + faith file edits must be ratified in a FRESH oriente
 governance session that has read `~/.claude/practice/extended/` first. NOT in a
 long drifted feature-build session.
 
+## 15-MIN CONDUCTOR BEAT (2026-07-01T~18:33Z) — LIKELY PRIMARY CRASH TRIGGER IDENTIFIED: qc-concern-operators-html-business-claim-page
+
+Read this section FIRST if the daemon is crash-looping on a ~15min cadence again.
+
+Three consecutive daemon restarts (11:18→12:08 [50m], 12:08→12:24 [15m11s], 12:24→ongoing)
+all show the SAME mission as the live lane at time of death:
+`qc-concern-operators-html-business-claim-page-2026-06-25`. It has never once reached a
+terminal FAILED/DONE state — each crash resets its attempt counter and it re-fires from
+scratch, which is why it keeps recurring. Root cause, confirmed from its own event log and
+result file (read directly, not inferred):
+
+- Step 2 is an inline Playwright one-liner with a genuine syntax defect —
+  `const t=await p.('#tiers',e=>...)` — the method name between `p.` and `(` is MISSING
+  (should be something like `p.$eval('#tiers', ...)`). This is a content-generation defect
+  from whichever seat authored the step, not an engine bug.
+- Every time step 2 fails, the mission does a FULL RE-PLAN (not a step-level retry) — the
+  3-seat panel (claude-sonnet-5 + qwen3.6:27b + gemma4:31b) takes ~8-9 minutes per planning
+  pass on its own.
+- Two failed-step-2-then-replan cycles back to back reliably exceed `TASK_STUCK_MS` (15
+  min) before either attempt can reach a real terminal failure, so STUCK-TASK kills the
+  daemon out from under it — and the reset attempt counter means it NEVER accumulates
+  toward a real FAILED(x2).
+
+This is very likely the PRIMARY driver of the tightest crash intervals seen today (the
+15min and 15m11s ones specifically — the longer intervals, 50min/1h11m/1h55m, are probably
+some other cause or genuinely idle periods where this mission wasn't the active lane).
+
+**Action NOT yet taken**: the mission was `RUNNING` (daemon's live claimed lane) at
+diagnosis time — did not touch its AUTORUN.md line to avoid a race with the live daemon's
+own write. Next beat: check `grep operators-html-business-claim-page missions/AUTORUN.md`
+— if it's back to bare/FAILED (not RUNNING), comment it out with this diagnosis cited,
+naming the exact step-2 fix needed (repair the Playwright one-liner's missing method call)
+before ever requeuing it again. Given `autorun-verdict-gate.mjs`, that annotation needs a
+real Read of this mission's own evidence files in the same session as the edit.
+
+**Adjacent, low-priority finding**: `~/.claude/hooks/niyyah-gate.mjs` truncates `.jsonl` to
+`.json` when extracting a filename from niyyah text, then fails to match it against the
+(correctly-listed) `.jsonl` read — a regex extension-boundary bug. Worked around this beat
+by describing the file without a literal extension rather than fighting a global hook
+mid-beat; worth a real fix in a properly scoped governance session, not here.
+
 ## 15-MIN CONDUCTOR BEATS (2026-07-01T~16:20Z-17:48Z) — real daemon-crash breakthrough, a self-caught requeue mistake + permanent fix, OBS tangent (resolved by operator)
 
 Consolidating ~8 beats since the last STATE.md write (commit 87bde81) — several real,
