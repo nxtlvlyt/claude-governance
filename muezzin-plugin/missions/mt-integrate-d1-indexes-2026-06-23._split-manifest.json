@@ -1,0 +1,21 @@
+{
+  "parentId": "mt-integrate-d1-indexes-2026-06-23",
+  "ceiling": 8,
+  "originalStepCount": 9,
+  "groupCount": 2,
+  "children": [
+    {
+      "id": "mt-integrate-d1-indexes-2026-06-23.S1",
+      "file": "missions/mt-integrate-d1-indexes-2026-06-23.S1.mission.txt",
+      "steps": 8,
+      "requires": null
+    },
+    {
+      "id": "mt-integrate-d1-indexes-2026-06-23.S2",
+      "file": "missions/mt-integrate-d1-indexes-2026-06-23.S2.mission.txt",
+      "steps": 1,
+      "requires": "mt-integrate-d1-indexes-2026-06-23.S1"
+    }
+  ],
+  "ts": "2026-07-01T14:40:46.187Z"
+}
