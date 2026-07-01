@@ -95,7 +95,13 @@ if (niyyahFound) {
   // Source-read verification: if niyyah names a recognizable file path as source,
   // require that a Read of that file appears in the session transcript.
   if (niyyahSourceLine) {
-    const m = niyyahSourceLine.match(/([^\s,;]+\.(md|ps1|mjs|py|json|txt|yaml|yml))/);
+    // jsonl must precede json in the alternation: with json first, a declared
+    // "mission-events.jsonl" matched as "mission-events.json" (regex stops at the
+    // shorter alternative), then the basename comparison against the real .jsonl
+    // Read path failed — false-blocking a correctly-evidenced edit (real incident
+    // 2026-07-01, documented in muezzin-plugin/STATE.md). Strictness-preserving:
+    // this makes verification MORE accurate, it does not skip it.
+    const m = niyyahSourceLine.match(/([^\s,;]+\.(md|ps1|mjs|py|jsonl|json|txt|yaml|yml))/);
     if (m) {
       const fileToken = m[1];
       const declaredBasename = basename(fileToken).toLowerCase();
