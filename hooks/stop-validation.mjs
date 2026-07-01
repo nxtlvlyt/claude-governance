@@ -223,7 +223,12 @@ if (!matchedPattern) process.exit(0); // no stop-language, allow
 // Agent was the only channel actually available, and the hook kept firing regardless.
 // This is additive, not a loosening: detection of stop-language (matchedPattern) is
 // unchanged; only a channel the hook's own guidance already promised is now honored.
-const isFF = (name) => /^mcp__ollama/i.test(name) || name === 'WebFetch' || name === 'Agent';
+// 2026-07-01: added 'Workflow' alongside 'Agent'. Same principle, same gap: a Workflow
+// dispatch is not a forbidden foreign-frontier worker (gemini/gpt/grok/glm are) -- it is
+// this session's own primary delegation mechanism (spawns many Agent calls internally,
+// with built-in verification), a STRICTER compliance than a bare Agent call, not a
+// looser one. Excluding it while including Agent was an inconsistency in the same fix.
+const isFF = (name) => /^mcp__ollama/i.test(name) || name === 'WebFetch' || name === 'Agent' || name === 'Workflow';
 
 const foreignFrontierFired = lastTurnToolUses.some(isFF);
 
