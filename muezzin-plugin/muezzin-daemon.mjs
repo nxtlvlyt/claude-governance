@@ -8,8 +8,10 @@
 //
 // AUTORUN.md format: one mission-file path per line (relative to plugin root).
 //   '#' comments allowed. The daemon rewrites lines in place: 'DONE <line>' or
-//   'FAILED <line>' (one retry before FAILED). Append new lines anytime — the daemon
-//   picks them up on its next poll. Conductor/operator curates; daemon executes.
+//   'FAILED <line>' (one retry before FAILED — except a RECURRING-HALT, 2026-07-01: a
+//   proven identical-error pattern skips the remaining retry, see shouldHaltMission).
+//   Append new lines anytime — the daemon picks them up on its next poll. Conductor/
+//   operator curates; daemon executes.
 //
 //   Terminal statuses: DONE (succeeded), FAILED (failed after retries), SPLIT (Hajj
 //   auto-split decomposed it — children carry the work), and PARKED (operator-marked
@@ -39,6 +41,8 @@ const STATUS = path.join(LOGDIR, 'daemon-status.json');
 const EVENTS = path.join(LOGDIR, 'daemon-events.log');
 const POLL_MS = 60_000;
 const MAX_ATTEMPTS = 2; // one retry, then FAILED — repeated failure needs judgment, not loops
+                        // (shouldHaltMission, defined below, can also halt BEFORE this budget is
+                        // spent, on a proven recurring-error pattern — see its own doc comment)
 const MAX_LANES = Number(process.env.MUEZZIN_MAX_LANES) || 2;    // default 2 (operator-rulings.md "2 parallel lanes max" — a CEILING). ENV-ADJUSTABLE 2026-06-17: a SINGLE-REPO batch (e.g. the 12 muddytires missions all sharing worktree oracle-frontend-swap, many editing index.html/map.html) genuinely COLLIDES at 2 lanes — concurrent edits to the same files trip the clean-worktree preflight + containment-drift guard (real lost-edit hazard, NOT a false positive). Launch with MUEZZIN_MAX_LANES=1 to SERIALIZE such a batch (the deep queue still drains continuously, just collision-free). PROPER fix (engine item): per-REPO lane scheduling — co-schedule only DIFFERENT-repo missions at 2 lanes, serialize same-repo. Until then this env serializes single-repo batches.
                         // (history) operator TEMP ruling 2026-06-12 ~04:00 (his words: "drop down to 1
                         // mission at a time to manage our usage until Tuesday") — restore to 2
