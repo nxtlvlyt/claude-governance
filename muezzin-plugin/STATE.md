@@ -110,6 +110,15 @@ deliverable-type-aware QC + faith file edits must be ratified in a FRESH oriente
 governance session that has read `~/.claude/practice/extended/` first. NOT in a
 long drifted feature-build session.
 
+## 15-MIN CONDUCTOR BEAT (2026-07-01T~14:50Z) — quiet, routine
+
+Same PID (35864, ~69min uptime), no new deaths. 3 real completions landed between the
+last two beats (`crown-legal-full-text`, `d1-backup-worktree-audit`, `d1-indexes`, all
+non-visual-QC backend/doc missions — confirmed genuinely e2e, verified via
+MISSION-LEDGER.md, not just AUTORUN claims). Still zero missions with
+`VISUAL-QC-REQUIRED` have completed — that milestone remains open. Queue at 55 pending,
+current lane 9m into PLANNING (comfortably inside the new 15min threshold).
+
 ## 15-MIN CONDUCTOR BEAT (2026-07-01T~14:33Z) — quiet, routine
 
 ~52 min continuous uptime (PID 35864 unchanged), no new deaths. Pending rose 52->54 —

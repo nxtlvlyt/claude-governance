@@ -1,0 +1,16 @@
+MISSION-ID: mt-integrate-d1-migrations-apply-2026-06-23.S2
+MISSION-CLASS: code-repo
+PARENT: mt-integrate-d1-migrations-apply-2026-06-23
+TARTIB-INDEX: 2 of 2
+REQUIRES: mt-integrate-d1-migrations-apply-2026-06-23.S1 (tartib — this sub-mission may not start until mt-integrate-d1-migrations-apply-2026-06-23.S1's receipt exists)
+STEPS: 2
+
+PARENT MAQSAD: The commits "375e40b docs(qc): SOTA-uplift QC pipeline — 8 mandatory gates +
+
+Maqsad: sub-mission 2 of 2 — Confirm the latest commit message names the integrated feature. through Confirm the working tree is scoped-clean: none of the three ALLOW-FILES appear pending in git status.
+
+Steps:
+  9. Confirm the latest commit message names the integrated feature. [verify] 
+  10. Confirm the working tree is scoped-clean: none of the three ALLOW-FILES appear pending in git status. [verify] 
+
+Done means:  exist/are updated as specified
