@@ -48,7 +48,22 @@ if ($command -match '/api/tags|/api/show|/api/ps|/api/version|/api/embeddings') 
 #   - remote dispatch (nxtbeast / Tailscale) runs on ANOTHER machine, cannot freeze this one
 if ($command -match 'nxtbeast|100\.103\.44\.13') { exit 0 }
 #   - operator STANDING authorization file (set once) — no per-session token, survives compaction
-if (Test-Path "$env:USERPROFILE\.claude\state\chain-timing-standing-ok") { exit 0 }
+#     2026-07-01: SAME-DAY bound, not indefinite. An audit flagged this as an unconditional,
+#     unscoped exit 0 for the rest of any session where the file exists, with no expiry check —
+#     a future session could inherit a stale authorization from days/weeks earlier and never
+#     notice. The file's own content already embeds the date it was authorized (e.g. "operator
+#     standing authorization 2026-06-30 - ..."); parse it and require it to match TODAY. An
+#     expired file is treated as absent (falls through to the normal chain-timing check below),
+#     never as an error — fail toward re-confirming, not toward a crash.
+$standingOkPath = "$env:USERPROFILE\.claude\state\chain-timing-standing-ok"
+if (Test-Path $standingOkPath) {
+    $standingOkContent = Get-Content $standingOkPath -Raw -ErrorAction SilentlyContinue
+    $dateMatch = [regex]::Match($standingOkContent, '\d{4}-\d{2}-\d{2}')
+    if ($dateMatch.Success -and $dateMatch.Value -eq (Get-Date).ToString('yyyy-MM-dd')) {
+        exit 0
+    }
+    # no date found, or date is not today -- expired/malformed, do NOT honor it silently
+}
 
 # Dispatch scripts always indicate chain inference dispatch.
 $isChainDispatch = $false
