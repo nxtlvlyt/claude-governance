@@ -1,0 +1,22 @@
+MISSION-ID: mt-integrate-contributor-leaderboard.S2
+MISSION-CLASS: code-repo
+PARENT: mt-integrate-contributor-leaderboard
+TARTIB-INDEX: 2 of 2
+REQUIRES: mt-integrate-contributor-leaderboard.S1 (tartib — this sub-mission may not start until mt-integrate-contributor-leaderboard.S1's receipt exists)
+STEPS: 5
+
+PARENT MAQSAD: MISSION mt-integrate-contributor-leaderboard
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+TARGET-BRANCH: main
+VISUAL-QC-REQUIRED
+PREVIEW-BASE-URL: http://localhost
+
+Maqsad: sub-mission 2 of 2 — Stage all resolved and integrated files (the three conflict-resolved HTML files plus the two new leaderboard files) into the git index. through Headless-render /leaderboard.html from the preview server and witness that it loads without a fatal script error and shows tier-chip content for lurker/submitter/producer/mentor.
+
+Steps:
+  9. Stage all resolved and integrated files (the three conflict-resolved HTML files plus the two new leaderboard files) into the git index. [command] 
+  10. Finalize the integration commit (completing the cherry-pick if still in progress, or amending it if it auto-completed) with a message naming mt-feat-contributor-leaderboard and 3b4b1eb. [command] 
+  11. Confirm the target repo working tree is clean after the integration commit, with no uncommitted changes remaining. [verify] 
+  12. Confirm (or start) a local preview server for the target repo at PREVIEW-BASE-URL and verify it actually serves leaderboard.html with a 200 and non-empty body, rather than assuming the placeholder port is correct. [command] 
+  13. Headless-render /leaderboard.html from the preview server and witness that it loads without a fatal script error and shows tier-chip content for lurker/submitter/producer/mentor. [command] leaderboard.html
