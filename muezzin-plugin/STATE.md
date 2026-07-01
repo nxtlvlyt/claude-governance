@@ -359,9 +359,17 @@ the same "close the gaps before a real mission runs" directive.
    destroyed twice) — RULE 4/RULE 7 already cover the contract, no changes needed
    there. New mission text verified to lint clean via `mission_lint.mjs` itself
    before requeuing.
-3. **Wire visual QC into `orchestrate.mjs`** — `witnessVisualDiff`/`ollamaVisionVerdict`
-   exist and are now hardened (local-nxtbeast-first fallback restored, `3184b90`),
-   but still unused from the pipeline. Real, valuable, unstarted.
+3. **Wire visual QC into `orchestrate.mjs` — BLOCKED on operator sign-off, checked this
+   continuation, do not attempt to implement around it.** `witnessVisualDiff`'s own
+   header (`visual_witness.mjs` line 15) states it is "PENDING the operator sign-off on
+   a MUEZZIN-SEAT-PLAN-LOCKED.md addendum adding visual witness as a Phase-3 boundary
+   auditor." Verified: `MUEZZIN-SEAT-PLAN-LOCKED.md` has zero mentions of "visual" —
+   that sign-off has not happened. `MUEZZIN-SEAT-PLAN-LOCKED.md`/
+   `SEAT-PLAN-OPERATOR-ORIGINAL.md` are operator-locked architecture the engine is
+   audited AGAINST (operator-rulings.md), not files a conductor amends unilaterally.
+   `ollamaVisionVerdict` is hardened and ready (`3184b90`) for whenever this is
+   signed off; the correct next action is drafting the addendum FOR the operator's
+   review, not wiring the call into `orchestrate.mjs` first and asking forgiveness.
 4. **Get one mission through the full `claude-local-hybrid` panel end-to-end** —
    still not proven this session despite every individual infra bug (env var,
    containment, checkpoint-resume, integrator bridge, EXPORT-REGRESSION) being fixed.
