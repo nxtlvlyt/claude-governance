@@ -110,6 +110,41 @@ deliverable-type-aware QC + faith file edits must be ratified in a FRESH oriente
 governance session that has read `~/.claude/practice/extended/` first. NOT in a
 long drifted feature-build session.
 
+## 15-MIN CONDUCTOR BEAT (2026-07-01T~12:45Z) — ROOT CAUSE FOUND, read this one first
+
+The daemon died TWICE in ~35 minutes (PID 8832, then PID 31016), the second time with
+zero output even with stdout/stderr redirected — ruled out a JS crash. Real root cause,
+found by reading the code, not guessed: `conduct-cycle.mjs`'s `STUCK-TASK` healer
+(~line 218-224) issues `taskkill /PID ${status?.pid ?? pidfile} /F /T` as its remedy for
+a lane running too long — but `status.pid`/`pidfile` are the DAEMON's own PID, not a
+per-mission subprocess (missions run in-process here, there is no separate PID to target
+for "just the stuck lane"). Since `heal()` runs inside the daemon's own 5-min auto-heal
+cadence (the thing this session built earlier today), a lane stuck long enough triggers
+the daemon killing ITSELF as its own fix — and nothing was restarting it afterward.
+
+**Immediate fix (safety net, not the root fix):** `daemon-supervisor.ps1` (new file) wraps
+the daemon in a restart loop, rate-limited to halt (not crash-loop forever) after 5+
+deaths in 10 minutes, writing `missions/_logs/supervisor-halted.txt` if it trips. Daemon
+now runs as PID 25624 under supervisor PID 25624's parent pwsh process. **If the daemon
+is dead again and `supervisor-halted.txt` exists, do NOT just relaunch blind — read it,
+then diagnose why 5 deaths happened before restarting the supervisor itself.**
+
+**Root fix NOT done this beat (real, unstarted work for next session or a dedicated
+mission):** `STUCK-TASK`'s taskkill target needs to change — either to something that
+actually only aborts the specific stuck mission's in-flight work (harder, needs real
+per-mission cancellation, not currently architected), or the healer needs to accept that
+"stuck lane" in a single-process daemon inherently means "restart the whole daemon" and
+that should be an EXPLICIT, intentional design (with the supervisor as the reason it's
+safe), not an accidental self-kill nobody designed for.
+
+**Likely trigger, also worth a look:** `mt-integrate-b13-aria-live` has failed its
+self-witness repeatedly with the same finding ("artifact is incomplete: cuts off
+mid-sentence in the Context section") across at least 2 fire attempts (FAILED at
+11:47:37Z, then re-promoted and RUNNING again at 12:45:08Z) — this may be the actual
+mission dragging past the stuck threshold each time. Left running as of this beat
+(didn't intervene mid-flight); if it fails a 3rd time, PARK it rather than let it keep
+re-triggering the self-kill cycle on every subsequent restart.
+
 ## 15-MIN CONDUCTOR BEAT (2026-07-01T~12:25Z)
 
 PID 8832 (the daemon this file's section below was written about) was found DEAD on this
