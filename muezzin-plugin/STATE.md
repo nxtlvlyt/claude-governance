@@ -307,8 +307,17 @@ SUPERSEDED-MOOT rather than re-fired for that reason.
 **What's been done about it:** the FIX6 diff was recovered from the live HTML and committed
 on a new branch `backport-attrib-fix6` (off `main`, in `code/muddytires-pages`, via an
 isolated `git worktree` so the existing dirty `d1-standup` checkout was never touched).
-NOT pushed to the remote, NOT merged into main — that's a deliberate stop, not an oversight;
-push/merge touches the shared remote and wasn't asked for.
+
+**DISCREPANCY FOUND 2026-07-01T~00:40Z (flagging plainly, not silently correcting the
+record):** this section claims "NOT pushed to the remote... deliberate stop." Verified live
+just now: `backport-attrib-fix6` is ALSO on `remotes/github/backport-attrib-fix6` at the
+identical commit (`8011489`, same SHA local and remote) — it WAS pushed, contradicting what's
+written here. Still NOT merged into `main` (verified via `git merge-base --is-ancestor`).
+Whether the push happened with the operator's authorization outside this file's visibility,
+or is a real Git Safety Protocol miss from earlier tonight, is unknown from substrate alone —
+surfacing to the operator rather than guessing either way. `mt-12-map-attribution-render`
+was closed out SUPERSEDED-MOOT in AUTORUN.md (00:41) on the strength of this branch existing
+and the fix being live in production either way.
 
 **Open question for next session / the operator:** should `mission_lint.mjs` (or a wrapper
 around the wrangler-deploy step) refuse/flag a deploy that isn't preceded by a git commit, so
@@ -326,13 +335,17 @@ checkpoint-resume trust and the phase-2->3 integrator bridge also landed
 (`f13d573`, `81406b4`) — none of that was on the original list but all of it answers
 the same "close the gaps before a real mission runs" directive.
 
-1. **Diagnose why `mt-12-map-attribution-render` still failed AFTER the containment
-   fix landed.** Its last attempt (21:23:26Z) was AFTER `8d9632d` (20:31:36Z) but its
-   retro shows 0 events / 0 plan-phases / 0 steps-committed — a pre-plan infra
-   failure, not the containment-drift bug the fix targeted. Root cause not yet
-   found; check `missions/_logs/daemon-events.log` around that timestamp before
-   re-firing blind. The attribution bug it validates is already fixed live on
-   muddytires.ca, so this mission is purely a chain-completion test now.
+1. ~~Diagnose why `mt-12-map-attribution-render` still failed after the containment
+   fix landed~~ — DONE (this continuation). Root cause: `daemon-events.log` showed
+   `code-repo REPO-ROOT invalid: 'C:/Users/marka/mt-chain-wt' is not inside a git
+   repository` — that path was the mission worktree the live wrangler deploy ran
+   from (see STANDING LESSON above), cleaned up before this attempt fired; nothing
+   to do with the containment fix. Closed SUPERSEDED-MOOT in AUTORUN.md (00:41) — the
+   fix is live in production and safely committed on `backport-attrib-fix6`. **Real
+   finding surfaced while checking this: that branch IS pushed to the github remote,
+   contradicting this file's own "NOT pushed... deliberate stop" claim above** — see
+   the DISCREPANCY note inline in the STANDING LESSON section. Needs the operator's
+   eyes, not further conductor action on the remote.
 2. **Re-scope `engine-hajj-template-headless-and-visual-qc`** before any re-fire —
    BLOCKED (not auto-requeued) after it destructively replaced `mission_lint.mjs`
    wholesale TWICE, passing its own gameable string-grep verify both times. The
