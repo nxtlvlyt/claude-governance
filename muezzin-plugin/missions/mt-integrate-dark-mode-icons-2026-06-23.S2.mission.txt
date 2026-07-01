@@ -1,0 +1,16 @@
+MISSION-ID: mt-integrate-dark-mode-icons-2026-06-23.S2
+MISSION-CLASS: code-repo
+PARENT: mt-integrate-dark-mode-icons-2026-06-23
+TARTIB-INDEX: 2 of 2
+REQUIRES: mt-integrate-dark-mode-icons-2026-06-23.S1 (tartib — this sub-mission may not start until mt-integrate-dark-mode-icons-2026-06-23.S1's receipt exists)
+STEPS: 2
+
+PARENT MAQSAD: The commit "585e558 feat(icons): native dark-mode SVG icon set
+
+Maqsad: sub-mission 2 of 2 — Confirm js/mt-icons-dark.js contains the expected window.MTIcons API surface and currentColor-based glyph definitions by reading the file. through Confirm the final commit message names origin commit 585e558 and the target repo's working tree is clean.
+
+Steps:
+  9. Confirm js/mt-icons-dark.js contains the expected window.MTIcons API surface and currentColor-based glyph definitions by reading the file. [verify] js/mt-icons-dark.js
+  10. Confirm the final commit message names origin commit 585e558 and the target repo's working tree is clean. [verify] 
+
+Done means: js/mt-icons-dark.js exist/are updated as specified — verify by headless-browser render, not by reading the code
