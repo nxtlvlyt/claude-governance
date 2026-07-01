@@ -444,7 +444,12 @@ export function sweep(base = HERE, now = Date.now(), routeFile = path.join(proce
 //      (defense in depth: a live mission is never killed by an auto-restart).
 // Judgment-class actions (DIAGNOSE/CHECK/PERFORM-NAMED-FIX) are left as orders — heal
 // performs only what the faith pre-approved as mechanical.
-export function heal(base = HERE, now = Date.now(), { exec = (cmd) => execSync(cmd, { stdio: 'ignore' }), sightFn } = {}) {
+// stdio captures stderr only (both commands this runs -- taskkill, a detached
+// Start-Process restart -- are short-lived, so buffering stderr is safe): a bare
+// 'ignore' throws away the real reason on failure, leaving only Node's generic
+// "Command failed: <cmd>" with nothing to diagnose (2026-07-01 real incident: every
+// STUCK-TASK taskkill today failed silently, zero detail captured).
+export function heal(base = HERE, now = Date.now(), { exec = (cmd) => execSync(cmd, { stdio: ['ignore', 'ignore', 'pipe'] }), sightFn } = {}) {
   const r = sweep(base, now, undefined, sightFn ? { sightFn } : undefined);
   const performed = [];
 

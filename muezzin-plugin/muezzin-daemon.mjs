@@ -872,7 +872,10 @@ async function mainLoop() {
         try {
           const healed = conductCycleHeal(HERE, Date.now());
           if (healed.performed?.length) evt(`AUTO-HEAL: ${healed.performed.map((p) => `${p.action}${p.stem ? `(${p.stem})` : ''}`).join(', ')}`);
-        } catch (e) { evt(`AUTO-HEAL error (continuing, next cycle in ${HEAL_INTERVAL_MS / 60000}m): ${e.message}`); }
+        } catch (e) {
+          const detail = e.stderr ? e.stderr.toString().trim() : e.message;
+          evt(`AUTO-HEAL error (continuing, next cycle in ${HEAL_INTERVAL_MS / 60000}m): ${detail}`);
+        }
       }
       const { pending } = readQueue();
       for (const { raw } of pending) {
