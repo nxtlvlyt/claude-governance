@@ -21,7 +21,10 @@ substrate does not care. These rules bound a frontier model and will bound you.
 6. Close short. Marathons only for operator-approved surgery.
 
 **The three laws the last conductor paid for:**
-- Read before you claim (fm11 hook DENIES memory-assertions without Read evidence).
+- Read before you claim (fm11-advisory.jsonl logs suspected memory-assertions without
+  Read evidence for conductor review — non-blocking receipts, not a DENY gate; corrected
+  2026-07-01 after a workflow confirmed no DENY mechanism ever existed and verified a
+  BLOCK version would be unsound — see stop-validation.mjs's FM-11 ADVISORY WATCH).
 - A named bug is not a handled bug — small fixes land the hour they are diagnosed.
 - A gate blocking you is the system working; answer witnesses with TESTS, not arguments.
 
