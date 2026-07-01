@@ -23,6 +23,8 @@ import { searxngPreflight } from './searxng_preflight.mjs';
 import { mergeVerdicts } from './verdict_merge.mjs';
 import { pickSeat, isLocalOnlySeat } from './seat_modes.mjs';
 import { runtimeVerify } from './runtime_verify.mjs';
+import { capturePreviews, buildPreviewPathFn } from './visual_capture.mjs';
+import { witnessVisualDiff } from './visual_witness.mjs';
 import { readFileSync, existsSync, appendFileSync, mkdirSync, renameSync, writeFileSync, readdirSync, statSync } from 'fs';
 import { execSync } from 'child_process';
 import path from 'path';
@@ -217,6 +219,33 @@ export async function buildIntegratorBriefing(mission, steps, artifacts, execRec
   }
 }
 
+// VISUAL-QC WITNESS (Step 3, additive): when a mission declares VISUAL-QC-REQUIRED and a
+// PREVIEW-BASE-URL header, captures deployed-preview screenshots and dispatches
+// witnessVisualDiff to compare them against the baseline. Extracted as its own function
+// (mirrors buildIntegratorBriefing above) so it is directly unit-testable via the injectable
+// opts.captureFn / opts.visualWitnessFn without triggering defaultVerdictPhase's separate,
+// non-injectable validator/auditor dispatchSeat calls. Returns undefined when the mission
+// never declared VISUAL-QC-REQUIRED (the caller assigns this straight onto merged.visualWitness,
+// so "undefined" and "never set" are indistinguishable to a reader, matching the prior absence
+// of this field). Never touches consensus/dispositions — this is a separate receipt, not yet a
+// verdict input.
+export async function buildVisualWitness(mission, cwd, opts = {}) {
+  if (!/VISUAL-QC-REQUIRED/i.test(mission)) return undefined;
+  const baseUrlMatch = mission.match(/PREVIEW-BASE-URL:\s*(\S+)/i);
+  if (!baseUrlMatch) {
+    return { ok: false, error: { kind: 'NO_PREVIEW_BASE_URL', detail: 'VISUAL-QC-REQUIRED set but no PREVIEW-BASE-URL header found in mission text' } };
+  }
+  const outDir = path.join(cwd, '_visual-preview');
+  const captureFn = opts.captureFn || capturePreviews;
+  const visualWitnessFn = opts.visualWitnessFn || witnessVisualDiff;
+  try {
+    await captureFn(baseUrlMatch[1], outDir);
+    return await visualWitnessFn(buildPreviewPathFn(outDir));
+  } catch (e) {
+    return { ok: false, error: { kind: 'CAPTURE_OR_WITNESS_THREW', detail: String(e?.message || e) } };
+  }
+}
+
 export async function defaultVerdictPhase(mission, cwd, steps, opts = {}) {
   const files = artifactFilesFor(steps, cwd);
   let total = 0, omitted = 0;
@@ -374,6 +403,8 @@ export async function defaultVerdictPhase(mission, cwd, steps, opts = {}) {
   // mission-events + the result, but are NOT fed into the retry's re-plan framing yet.
   // Second verdict failure -> FAILED with findings for the conductor. Feed-forward is
   // a queued improvement, not silently absent.
+  // VISUAL-QC (Step 3): a separate receipt, never a consensus/dispositions input.
+  merged.visualWitness = await buildVisualWitness(mission, cwd, opts);
   return { ...merged, contracts };
 }
 
@@ -1170,6 +1201,9 @@ export async function orchestrate(mission, cwd, {
   // computed in mergeVerdicts but dropped here, so the conductor could not tell calibration from
   // a structural false-block without reading the engine source).
   emit({ phase: 'verdict', event: 'done', consensus: verdict?.consensus, dispositions: verdict?.dispositions?.map((d) => d.reason ? `${d.seat}:${d.verdict} — ${String(d.reason).slice(0, 200)}` : `${d.seat}:${d.verdict}`) });
+  if (verdict?.visualWitness) {
+    emit({ phase: 'verdict', event: 'visual-witness', ok: verdict.visualWitness.ok, verdict: verdict.visualWitness.verdict, blocking_findings: verdict.visualWitness.blocking_findings });
+  }
   // GRADUATED EXPIATION: APPROVE_WITH_DAMM completes the mission AND banks its wajib
   // gaps as receipted compensating tasks in the damm queue (missions/_logs/damm-queue.json,
   // drained by conductor beats). The gap is follow-up work, not total loss.
@@ -1182,7 +1216,7 @@ export async function orchestrate(mission, cwd, {
       writeFileSync(dq, JSON.stringify(cur, null, 2));
     } catch (e) { emit({ phase: 'verdict', event: 'damm-write-failed', error: String(e?.message || e).slice(0, 120) }); }
     emit({ phase: 'done', event: 'mission-complete', steps: steps.length, consensus: 'APPROVE_WITH_DAMM', damm: (verdict.damm || []).length });
-    return { ok: true, phase: 'done', steps, verdict: { consensus: verdict.consensus, dispositions: verdict.dispositions, damm: verdict.damm } };
+    return { ok: true, phase: 'done', steps, verdict: { consensus: verdict.consensus, dispositions: verdict.dispositions, damm: verdict.damm, visualWitness: verdict.visualWitness } };
   }
   if (verdict?.consensus !== 'APPROVE') {
     const findings = (verdict?.contracts || []).flatMap((c) => c?.findings || []).slice(0, 10);
@@ -1190,7 +1224,7 @@ export async function orchestrate(mission, cwd, {
   }
 
   emit({ phase: 'done', event: 'mission-complete', steps: steps.length, consensus: 'APPROVE' });
-  return { ok: true, phase: 'done', steps, verdict: { consensus: verdict.consensus, dispositions: verdict.dispositions } };
+  return { ok: true, phase: 'done', steps, verdict: { consensus: verdict.consensus, dispositions: verdict.dispositions, visualWitness: verdict.visualWitness } };
 }
 
 // --------------------------------------------------------------------------- self-test (offline, real git)
@@ -1952,6 +1986,30 @@ if (process.argv[1]?.endsWith('orchestrate.mjs')) {
     const noContentNeverCalled = async () => { noContentDispatchAttempted = true; return { content: 'should never be seen' }; };
     const briefNoContent = await buildIntegratorBriefing(hajjMission, fakeSteps3, '', '', { integratorFn: noContentNeverCalled });
     ck(briefNoContent === '' && !noContentDispatchAttempted, 'buildIntegratorBriefing: no artifacts + no exec receipts -> skip, nothing to synthesize');
+  }
+
+  // ---- VISUAL-QC (buildVisualWitness) — direct unit tests via opts-injection (mirrors
+  // buildIntegratorBriefing's mock pattern above), NO real puppeteer/Ollama calls.
+  {
+    const visualMission = 'VISUAL-QC-REQUIRED\nPREVIEW-BASE-URL: https://preview.example.com\nMaqsad: ship it.';
+    const blockCapture = async () => ({ ok: true, captured: [], failed: [] });
+    const blockWitness = async () => ({ ok: true, verdict: 'block', pages_compared: [], blocking_findings: ['home/mobile: layout broke'] });
+    const vw = await buildVisualWitness(visualMission, dir, { captureFn: blockCapture, visualWitnessFn: blockWitness });
+    ck(vw && vw.ok === true && vw.verdict === 'block', 'buildVisualWitness: both headers present + mocked block verdict -> visualWitness carries the mocked verdict');
+    const fakeMerged = { consensus: 'APPROVE', dispositions: [] };
+    fakeMerged.visualWitness = vw;
+    ck(fakeMerged.consensus === 'APPROVE' && fakeMerged.visualWitness.verdict === 'block', 'buildVisualWitness: assigning visualWitness onto a verdict object leaves consensus untouched');
+
+    const noUrlMission = 'VISUAL-QC-REQUIRED\nMaqsad: ship it.';
+    const vwNoUrl = await buildVisualWitness(noUrlMission, dir, { captureFn: blockCapture, visualWitnessFn: blockWitness });
+    ck(vwNoUrl && vwNoUrl.ok === false && vwNoUrl.error?.kind === 'NO_PREVIEW_BASE_URL', 'buildVisualWitness: VISUAL-QC-REQUIRED with no PREVIEW-BASE-URL -> ok:false, error.kind NO_PREVIEW_BASE_URL');
+    const fakeMerged2 = { consensus: 'REVISE', dispositions: [] };
+    fakeMerged2.visualWitness = vwNoUrl;
+    ck(fakeMerged2.consensus === 'REVISE', 'buildVisualWitness: the no-PREVIEW-BASE-URL case leaves consensus unaffected');
+
+    const noQcMission = 'Maqsad: ship it. Done means: it works.';
+    const vwNone = await buildVisualWitness(noQcMission, dir, { captureFn: blockCapture, visualWitnessFn: blockWitness });
+    ck(vwNone === undefined, 'buildVisualWitness: no VISUAL-QC-REQUIRED header -> undefined (no capture/witness attempted)');
   }
 
   fs.rmSync(dir, { recursive: true, force: true });
