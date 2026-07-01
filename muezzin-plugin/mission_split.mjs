@@ -58,6 +58,37 @@ export function splitOversizedPlan(mission, queue, opts = {}) {
   };
 }
 
+// ---- buildDoneMeans ----------------------------------------------------------------
+// Dedupes a sub-mission group's step target_files and returns a mechanical Done-means
+// clause the verdict panel can judge against (mission_lint.mjs RULE 4). When any target
+// file is a web/UI extension (.html/.js/.css/.jsx/.tsx), the clause appends render-witness
+// language (mission_lint.mjs RULE 7 requires this whenever a VISUAL-QC-REQUIRED header is
+// present) and — if the parent mission text carries a VISUAL-QC-REQUIRED header — surfaces
+// that header line so the caller can forward it onto the child.
+const WEB_UI_EXT_RE = /\.(html|js|css|jsx|tsx)$/i;
+const VISUAL_QC_LINE_RE = /^.*VISUAL-QC-REQUIRED.*$/im;
+
+export function buildDoneMeans(group, parentMissionText) {
+  const seen = new Set();
+  const files = [];
+  for (const s of (group?.steps || [])) {
+    for (const f of (s.target_files || [])) {
+      if (!seen.has(f)) { seen.add(f); files.push(f); }
+    }
+  }
+
+  const hasWebUi = files.some((f) => WEB_UI_EXT_RE.test(f));
+  let clause = `Done means: ${files.join(', ')} exist/are updated as specified`;
+  if (hasWebUi) {
+    clause += ' — verify by headless-browser render, not by reading the code';
+  }
+
+  const parentVisualQcMatch = hasWebUi ? String(parentMissionText || '').match(VISUAL_QC_LINE_RE) : null;
+  const visualQcHeaderLine = parentVisualQcMatch ? parentVisualQcMatch[0] : null;
+
+  return { clause, hasWebUi, files, visualQcHeaderLine };
+}
+
 // ---- emitSubMissions --------------------------------------------------------------
 // Writes each sub-mission as a .mission.txt file + a _split-manifest.json handoff record
 // into the missions directory. Appends each child to the AUTORUN queue in tartib order.
@@ -97,11 +128,14 @@ export function emitSubMissions(plan, ctx = {}, io = {}) {
       ? `REQUIRES: ${predecessorId} (tartib — this sub-mission may not start until ${predecessorId}'s receipt exists)`
       : 'REQUIRES: none (first in tartib order)';
 
+    const doneMeans = buildDoneMeans(group, plan._parentMission);
+
     const childText = [
       `MISSION-ID: ${childId}`,
       `MISSION-CLASS: ${plan.parentClass || 'code-repo'}`,
       `PARENT: ${parentId}`,
       `TARTIB-INDEX: ${group.index} of ${plan.groupCount}`,
+      ...(doneMeans.visualQcHeaderLine ? [doneMeans.visualQcHeaderLine] : []),
       requiresClause,
       `STEPS: ${group.stepCount}`,
       ``,
@@ -111,6 +145,8 @@ export function emitSubMissions(plan, ctx = {}, io = {}) {
       ``,
       `Steps:`,
       stepList,
+      ``,
+      doneMeans.clause,
       ``,
     ].join('\n');
 
@@ -269,6 +305,54 @@ if (process.argv[1]?.endsWith('mission_split.mjs')) {
 
     // Cleanup
     fsEmit.rmSync(tmp, { recursive: true, force: true });
+  }
+
+  // ---- buildDoneMeans + VISUAL-QC forwarding (additive) -----------------------------
+  {
+    const os2 = await import('os');
+    const fsEmit2 = await import('fs');
+    const { lintMission } = await import('./mission_lint.mjs');
+    const tmp2 = fsEmit2.mkdtempSync(path.join(os2.tmpdir(), 'msplit_vqc_'));
+    const missionsDir2 = path.join(tmp2, 'missions');
+    fsEmit2.mkdirSync(missionsDir2, { recursive: true });
+
+    // A parent with a VISUAL-QC-REQUIRED header, split into a code-only group
+    // (lib/helper.mjs, lib/util.mjs) and an .html+.css group (web/index.html, web/style.css).
+    const parentTextVqc = 'MISSION-ID: M-VQC1\nMISSION-CLASS: research\nVISUAL-QC-REQUIRED\nMaqsad: build a mixed code+ui feature.';
+    const vqcQueue = {
+      mission_id: 'M-VQC1',
+      steps: [
+        { step_index: 1, description: 'add helper', action_type: 'edit', target_files: ['lib/helper.mjs'], context_dependencies: [], validation_command: 'node -c lib/helper.mjs' },
+        { step_index: 2, description: 'add util', action_type: 'edit', target_files: ['lib/util.mjs'], context_dependencies: [], validation_command: 'node -c lib/util.mjs' },
+        { step_index: 3, description: 'add page markup', action_type: 'edit', target_files: ['web/index.html'], context_dependencies: [], validation_command: 'true' },
+        { step_index: 4, description: 'add page style', action_type: 'edit', target_files: ['web/style.css'], context_dependencies: [], validation_command: 'true' },
+      ],
+    };
+    const planVqc = splitOversizedPlan(parentTextVqc, vqcQueue, { sizeCeiling: 2 });
+    ck(planVqc.split === true && planVqc.groupCount === 2, 'buildDoneMeans fixture: 4 steps / ceiling 2 = 2 groups (code-only, html+css)');
+
+    const outVqc = emitSubMissions(planVqc, {
+      missionsDir: missionsDir2,
+      parentMissionFile: 'vqc-1.mission.txt',
+      parentId: planVqc.parentId,
+    }, {
+      writeFile: (p, c) => { fsEmit2.mkdirSync(path.dirname(p), { recursive: true }); fsEmit2.writeFileSync(p, c); },
+    });
+    ck(outVqc.ok === true && outVqc.files.length === 2, 'buildDoneMeans fixture: emitSubMissions wrote 2 children');
+
+    const codeChildText = fsEmit2.readFileSync(path.join(missionsDir2, 'vqc-1.S1.mission.txt'), 'utf8');
+    const htmlChildText = fsEmit2.readFileSync(path.join(missionsDir2, 'vqc-1.S2.mission.txt'), 'utf8');
+
+    const codeLint = lintMission(codeChildText);
+    const htmlLint = lintMission(htmlChildText);
+    ck(codeLint.ok === true && codeLint.problems.length === 0, 'buildDoneMeans: code-only child passes lintMission with zero errors');
+    ck(htmlLint.ok === true && htmlLint.problems.length === 0, 'buildDoneMeans: .html+.css child passes lintMission with zero errors');
+
+    ck(/browser\s*render|headless\s*browser|headless\s*render|playwright|puppeteer/i.test(htmlChildText), 'buildDoneMeans: html child Done-means carries render-witness language');
+    ck(/VISUAL-QC-REQUIRED/.test(htmlChildText), 'buildDoneMeans: html child carries the forwarded VISUAL-QC-REQUIRED header');
+    ck(!/VISUAL-QC-REQUIRED/.test(codeChildText), 'buildDoneMeans: code-only child does NOT carry a forwarded VISUAL-QC-REQUIRED header');
+
+    fsEmit2.rmSync(tmp2, { recursive: true, force: true });
   }
 
   console.log(fails === 0 ? '\nALL PASS — mission_split: splitOversizedPlan + emitSubMissions sound' : `\n${fails} FAIL`);
