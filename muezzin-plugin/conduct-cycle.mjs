@@ -503,6 +503,37 @@ export function heal(base = HERE, now = Date.now(), { exec = (cmd) => execSync(c
     appendFileSync(path.join(logs, 'daemon-events.log'), `SWEEP-HEAL ${new Date(now).toISOString()} STUCK-TASK pid=${stuckAction.command.match(/\/PID\s+(\S+)/)?.[1] ?? '?'} paths=${stuckAction.stuck_paths.join(',')}\n`);
   }
 
+  // LOOP-CAP healer (2026-07-01): sweep()'s own action comment has said "heal() may retire
+  // duplicate lines beyond the cap" since this action was built -- but heal() never actually
+  // did it (LOOP-CAP detection was real and tested; the remedy half was aspirational text,
+  // an audit-flagged gap). Per the action's own `rule` field: "operator must diagnose the
+  // root cause before requeue; heal() may retire duplicate lines beyond the cap" -- so this
+  // NEVER requeues or fires anything (that needs a human diagnosis), it only STOPS a looping
+  // stem from firing AGAIN by retiring its bare/pending lines. DONE/FAILED/RUNNING lines for
+  // the same stem are left untouched -- they're history, not a live re-fire risk.
+  const loopCapAction = r.actions.find((a) => a.id === 'LOOP-CAP');
+  if (loopCapAction && Array.isArray(loopCapAction.loop_stems) && loopCapAction.loop_stems.length) {
+    const apath = path.join(base, 'missions', 'AUTORUN.md');
+    const lines = readText(apath).split(/\r?\n/);
+    let changed = false;
+    for (let i = 0; i < lines.length; i++) {
+      const l = lines[i];
+      if (l.trim().startsWith('#')) continue;               // already retired/commented -- leave it
+      if (statusOfLine(l)) continue;                          // only bare/pending lines are a re-fire risk
+      const p = l.trim().replace(/<!--.*?-->/g, '').trim();
+      if (!p) continue;
+      const stem = stemOf(p);
+      if (!loopCapAction.loop_stems.includes(stem)) continue;
+      lines[i] = `# LOOP-CAP-RETIRED ${new Date(now).toISOString()} (${loopCapAction.why}): ${lines[i]}`;
+      performed.push({ action: 'loop-cap-retire', stem });
+      changed = true;
+    }
+    if (changed) {
+      writeFileSync(apath, lines.join('\n'));
+      appendFileSync(path.join(logs, 'daemon-events.log'), `SWEEP-HEAL ${new Date(now).toISOString()} LOOP-CAP stems=${loopCapAction.loop_stems.join(',')}\n`);
+    }
+  }
+
   return { performed, report: r.report, actions: r.actions };
 }
 
@@ -679,6 +710,26 @@ function selftest() {
   writeFileSync(path.join(tmp, 'missions', 'AUTORUN.md'), '# q\nDONE missions/loop.mission.txt\nFAILED missions/loop.mission.txt\nRUNNING missions/loop.mission.txt\n');
   r = sweep(tmp, now, noRoute, sightOk);
   ck(r.actions.some((a) => a.id === 'LOOP-CAP' && a.class === 'mechanical' && a.approved_by_faith), 'sweep emits LOOP-CAP mechanical action for looping stem');
+
+  // fixture 1i2: heal() actually RETIRES a bare/pending line for a capped stem (the remedy
+  // half of LOOP-CAP -- detection existed and was tested; heal() never acted on it until now).
+  // A 4th bare occurrence is exactly "about to fire again" -- the case the action's own why-text
+  // ("must be capped, not allowed to burn quota indefinitely") warns about.
+  writeFileSync(path.join(tmp, 'missions', 'AUTORUN.md'),
+    '# q\nDONE missions/loop.mission.txt\nFAILED missions/loop.mission.txt\nRUNNING missions/loop.mission.txt\nmissions/loop.mission.txt  <!-- would fire a 4th time -->\nmissions/other.mission.txt  <!-- unrelated, must survive -->\n');
+  const rLoop = sweep(tmp, now, noRoute, sightOk);
+  const healedLoop = heal(tmp, now, { exec: () => {} });
+  ck(healedLoop.performed.some((p) => p.action === 'loop-cap-retire' && p.stem === 'loop'), 'heal(): LOOP-CAP retires the bare re-fire-risk line');
+  const afterLoop = readText(path.join(tmp, 'missions', 'AUTORUN.md'));
+  ck(/^# LOOP-CAP-RETIRED.*missions\/loop\.mission\.txt/m.test(afterLoop), 'heal(): the retired line is commented out with a named LOOP-CAP-RETIRED annotation');
+  ck(afterLoop.includes('DONE missions/loop.mission.txt') && afterLoop.includes('FAILED missions/loop.mission.txt') && afterLoop.includes('RUNNING missions/loop.mission.txt'), 'heal(): DONE/FAILED/RUNNING history lines for the same stem are left untouched (not a re-fire risk)');
+  ck(/^missions\/other\.mission\.txt/m.test(afterLoop), 'heal(): an unrelated bare mission is never touched by LOOP-CAP retirement');
+  // NOTE: sweep() still REPORTS LOOP-CAP after retirement -- DONE+FAILED+RUNNING alone (3
+  // permanent history lines) already sit at the cap forever, and that's correct: the report
+  // is honest history ("this stem looped 3x"), not a live re-fire warning. What must NOT
+  // happen is heal() finding MORE to retire on a second pass (idempotent -- nothing bare left).
+  const healedLoop2 = heal(tmp, now, { exec: () => {} });
+  ck(!healedLoop2.performed.some((p) => p.action === 'loop-cap-retire'), 'heal(): idempotent -- a second heal() pass retires nothing further (no bare line remains for this stem)');
 
   // fixture 2: healthy daemon (our own pid alive, fresh status), clean ledger
   writeFileSync(path.join(logs, 'daemon-status.json'), JSON.stringify({ pid: process.pid, state: 'running', lanes: [], queued: 0, ts: new Date(now).toISOString() }));
