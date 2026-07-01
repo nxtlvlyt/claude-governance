@@ -1,0 +1,18 @@
+MISSION-ID: mt-integrate-aurora-forecast-diff-report.S2
+MISSION-CLASS: code-repo
+PARENT: mt-integrate-aurora-forecast-diff-report
+TARTIB-INDEX: 2 of 2
+REQUIRES: mt-integrate-aurora-forecast-diff-report.S1 (tartib — this sub-mission may not start until mt-integrate-aurora-forecast-diff-report.S1's receipt exists)
+STEPS: 1
+
+PARENT MAQSAD: MISSION mt-integrate-aurora-forecast-diff-report
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+VISUAL-QC-REQUIRED
+PREVIEW-BASE-URL: http://localhost:8788
+ALLOW-FILE
+
+Maqsad: sub-mission 2 of 2 — Render-witness proxy: fetch the served map.html from the confirmed preview port and positively assert the response references the integrated js/aurora-overlay.js module (the mission's VISUAL-QC-REQUIRED flag drives the engine's own headless render-witness pipeline separately; this step's pwsh-level witness confirms the served page actually wires in the aurora feature rather than trusting a bare 200 status). through Render-witness proxy: fetch the served map.html from the confirmed preview port and positively assert the response references the integrated js/aurora-overlay.js module (the mission's VISUAL-QC-REQUIRED flag drives the engine's own headless render-witness pipeline separately; this step's pwsh-level witness confirms the served page actually wires in the aurora feature rather than trusting a bare 200 status).
+
+Steps:
+  9. Render-witness proxy: fetch the served map.html from the confirmed preview port and positively assert the response references the integrated js/aurora-overlay.js module (the mission's VISUAL-QC-REQUIRED flag drives the engine's own headless render-witness pipeline separately; this step's pwsh-level witness confirms the served page actually wires in the aurora feature rather than trusting a bare 200 status). [verify] map.html
