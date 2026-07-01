@@ -110,6 +110,68 @@ deliverable-type-aware QC + faith file edits must be ratified in a FRESH oriente
 governance session that has read `~/.claude/practice/extended/` first. NOT in a
 long drifted feature-build session.
 
+## 15-MIN CONDUCTOR BEATS (2026-07-01T~16:20Z-17:48Z) — real daemon-crash breakthrough, a self-caught requeue mistake + permanent fix, OBS tangent (resolved by operator)
+
+Consolidating ~8 beats since the last STATE.md write (commit 87bde81) — several real,
+receipted findings that must not sit only in conversation history.
+
+**Self-caught mistake, fixed properly**: the worktree-dirty-cascade fix (previous section)
+requeued 19 stems by verifying the FAILURE REASON but never checking the mission.txt files
+still existed. 10 of 19 had already been retired hours earlier ("file missing") by a prior
+beat; requeuing them wasted cycles on FAILED(missing file). Caught it live when
+`qc-concern-quick-check-in-quick-checkin` hit exactly that. Fixed the 10 stale AUTORUN
+lines back to retired, AND added a permanent `existsSync` guard to
+REQUEUE-ON-FIX-LANDED itself (commit `7a55377`) so this can't recur for any future
+`--record`/`--heal` invocation — a skip is reported (`REQUEUE SKIPPED`), never silently
+dropped. Regression test added, full suite green.
+
+**Real breakthrough on the daemon crash-loop** (still NOT fully solved, but a genuine
+new lead): fixed `heal()`'s default `exec()` to capture stderr instead of `stdio:'ignore'`
+(commit `866d8f3` — swallowing stderr meant every AUTO-HEAL error logged only the useless
+"Command failed: taskkill ..."). First crash after that fix (11:18:23 local) revealed the
+REAL reason: `ERROR: The process "29452" not found` — taskkill isn't broken, it's racing
+something else that kills the daemon FIRST. Checked `muezzin-daemon.mjs` for a global
+`uncaughtException`/`unhandledRejection` handler: **none exists**. That's the leading
+theory now (an unhandled async error anywhere in the mission-dispatch chain would silently
+kill the whole process, matching the unpredictable pattern exactly) but it is UNPROVEN —
+`daemon-stderr.log` stayed empty even right after this crash, meaning either the process
+dies too fast to flush or the supervisor's own stderr redirection has a separate bug.
+Deliberately did NOT build/test an exception handler this session — that's real surgery on
+a live daemon (wrong handler could mask genuine bugs or corrupt state) and needs a properly
+scoped session of its own, not a rushed same-beat fix. Whoever picks this up next: start by
+reading `daemon-supervisor.ps1`'s own stderr-redirect wiring before touching
+`muezzin-daemon.mjs` — confirm the redirect actually works before assuming the daemon isn't
+producing output.
+
+**Daemon crash cadence, full honest data** (do not re-derive from a partial tail — read
+supervisor.log in full, and get the timezone conversion right: local time in this file is
+UTC-6): 10min×6 (06:45-07:41) → 1h55m (07:41-09:36) → 31min (09:36-10:07) → 1h11m
+(10:07-11:18, best yet) → stable 30+min as of this write (11:18-ongoing). Trend is
+improving but NOISY, not monotonic — treat any single "X hours stable" claim as
+provisional until the NEXT beat confirms it held. A prior beat in this session wrongly
+reported "~6h20m stable" from a `tail -4` that cut off a real intervening crash plus a
+timezone arithmetic error — corrected same-session, but the lesson stands: always `cat`
+the full `supervisor.log`, never `tail -N`, when reporting daemon health.
+
+**Muddytires backlog progress**: several of the 19 requeued (worktree-dirty-cascade)
+missions have now actually FIRED for real — `qc-concern-share-link-control` and
+`qc-concern-b13-aria-live`-class missions split into S1/S2 (too many steps, handled
+correctly by the existing split mechanism); `qc-concern-saved-html-saved-spots-manager`
+FAILED on a real, narrow issue (its own step 4/5 left two untracked scratch files —
+`render-witness.mjs`, `commit-verification.txt` — in the shared muddytires worktree at
+`C:\Users\marka\code\mt-integration-2026-06-22`, causing its own final clean-check to see
+its OWN mess as "dirty"; the actual `saved.html` fix IS correctly committed). Asked the
+operator whether to delete those 2 scratch files (irreversible-deletion classifier
+correctly blocked doing it unilaterally) — answer still pending as of this write, not
+blocking anything else. DIAGNOSE backlog sits around ~90-92 open actions (mostly old,
+June 15-18 history) — chip at it incrementally per beat, do not marathon it.
+
+**OBS livestream tangent** (2026-07-01T~16:35-16:48Z): operator asked for help mid-beat;
+flagged that the pasted YouTube stream key should be treated as exposed/rotated since it
+was shared in chat. Operator resolved it themselves before real troubleshooting was
+needed ("nevermind its working"). No lasting state change, noted here only so a fresh
+instance doesn't wonder why OBS appears in this file.
+
 ## 15-MIN CONDUCTOR BEAT (2026-07-01T~15:40Z) — verdict-gate shipped, real worktree-cascade found+fixed, daemon health mixed (not fully solved)
 
 Fresh session (compaction boundary), full Fajr done (practice/core.md, CANON-MANIFEST.md,
