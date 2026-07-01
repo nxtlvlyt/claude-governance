@@ -410,9 +410,10 @@ the same "close the gaps before a real mission runs" directive.
    own first version by actually writing a dedicated test for it (`85ab0a4`) rather
    than trusting "no regressions in existing tests" as sufficient — existing tests
    don't exercise new logic, only a new test does.
-5. Re-evaluate the chain-timing standing-ok file; continue the muddytires
-   mission-board cleanup — both carried over unverified from the ~19:30Z list, not
-   revisited this continuation.
+5. ~~Re-evaluate the chain-timing standing-ok file; continue the mission-board
+   cleanup~~ — DONE as a REPORT (this continuation, via the ultracode audit
+   workflow below), decision deferred to the operator on the one real judgment
+   call it surfaced. See item 7.
 6. **`~/.claude/hooks/stop-validation.mjs` has a known, unfixed meta-reference
    false-positive class** — quoting/discussing one of its own trigger phrases
    (e.g. explaining a prior false positive) re-triggers it, since it matches on raw
@@ -433,6 +434,44 @@ the same "close the gaps before a real mission runs" directive.
    tax"). Next session, if picked up: design the verbatim-anchor version, then
    red-team IT before shipping — don't skip that step just because the shape looks
    safer.
+7. **Ultracode engine audit (this continuation)** — a 10-agent Workflow (find →
+   adversarially verify → item5 → synthesize) hunted for more instances of
+   tonight's bug classes (dormant safety code, context-leak, unguarded
+   process.argv[1]) plus a self-review of the recurring-error feature just
+   shipped, and closed the AUTORUN/chain-timing report from item 5. Outcome:
+   - **FIXED**: `orchestrate.mjs`'s recurring-error detector had a real blind
+     spot — empty error text (the MOST COMMON failure shape in production:
+     confirmed 131+169 empty-text failures in one mission alone, zero ever
+     flagged) always returned `priorOccurrences:0`. Fixed via a reason-keyed
+     fallback when text is empty; 36/36 tests pass including 4 new ones.
+   - **FIXED**: 54 dead AUTORUN.md bare-pending lines (ALL of them — verified
+     100%, not "some") retired with `# RETIRED 04:37 (file missing — requeue
+     never regenerated it): ...`, matching this file's own DUPLICATE-RETIRED
+     convention. STATUS-BOARD.md's "54 pending" was entirely fake; should read
+     genuinely empty next render.
+   - **RULED OUT** (don't act on these, they were checked and are false):
+     "`detectStuckLanes()` only runs inside `--heal`" — false, it runs in
+     `sweep()` on every bare invocation; only the `taskkill` action itself is
+     gated. "`--heal` only exists in self-tests" — false, `MISSION-STATUS.md`
+     documents real manual production use with receipts (2026-06-11).
+   - **OPERATOR JUDGMENT NEEDED, not acted on**:
+     (a) `heal()`'s destructive actions (taskkill, requeue) only run on manual
+     `--heal`, never from the mandated bare `node conduct-cycle.mjs` or any
+     cron — may be intentional (unattended destructive actions are risky) or
+     may be the actual reason stuck lanes have never been auto-recovered.
+     (b) `LOOP-CAP` has ZERO implementation in `heal()` despite a comment
+     claiming it exists ("`heal()` may retire duplicate lines beyond the cap")
+     — the comment describes unbuilt behavior. Worth deciding whether to build.
+     (c) `~/.claude/state/chain-timing-standing-ok` exists, created same-day
+     (2026-06-30), almost certainly valid current authorization — do NOT delete
+     it blind. But it's an unconditional, unscoped, no-expiry `exit 0` for the
+     rest of any session where it exists. Worth a follow-up patch adding a
+     same-day or session-id check so it can't become a silent indefinite hole.
+   - Left untouched by design (LOW priority, confirmed zero real risk): one
+     unguarded `process.argv[1].replace()` in
+     `missions/engine-wire-gemini-phases-and-qc/visual_witness.mjs:196` — dead,
+     unreferenced code (grepped repo-wide, zero importers). Not worth touching
+     dead code just to touch it.
 
 
 ## MODEL BENCHMARK RESULTS (2026-06-27T22:31:00Z)

@@ -596,9 +596,20 @@ export async function orchestrate(mission, cwd, {
   // every event type double/triple-counted a single failure as 2-3 "occurrences" before
   // any genuine repeat had even happened. Must be called BEFORE emitting this call's own
   // 'step-failed' line, or it counts itself too.
-  function countPriorOccurrences(errorText) {
+  // FALSE-NEGATIVE FIX (2026-07-01 receipt): the original version returned 0 unconditionally
+  // whenever errorText was empty after trimming -- which is NOT rare, it's the MOST COMMON
+  // failure shape in production. execReceipt-backed failures (engine-exec, witness-halt) pass
+  // `String(receipt.out || '')` as the error, and receipt.out is legitimately empty for many
+  // real command failures (e.g. `exit 1` with no stdout/stderr). Verified live: one mission
+  // (b13-sitemap-prune-cf-limits) alone has 131 empty-text engine-exec failures + 169
+  // empty-text witness failures, ZERO ever flagged recurring, across 16 total missions
+  // hitting this exact pattern -- the detector shipped hours earlier tonight was blind to its
+  // own most common case. Fixed: when text is empty, fall back to counting prior step-failed
+  // events that are ALSO empty-text AND share the same `reason` (engine-exec vs witness vs
+  // emission-empty, etc.) -- the only signal still available once the text itself is gone.
+  function countPriorOccurrences(errorText, reason) {
     const needle = String(errorText || '').trim().slice(0, 160);
-    if (!needle) return 0;
+    const emptyTextFallback = !needle;
     try {
       const raw = readFileSync(path.join(cwd, 'mission-events.jsonl'), 'utf8');
       let count = 0;
@@ -608,7 +619,9 @@ export async function orchestrate(mission, cwd, {
           const e = JSON.parse(line);
           if (e.event !== 'step-failed') continue;
           const evText = String(e.error || '').trim().slice(0, 160);
-          if (evText && evText === needle) count++;
+          if (emptyTextFallback) {
+            if (!evText && e.reason === reason) count++;
+          } else if (evText && evText === needle) count++;
         } catch { /* skip a malformed line, never crash the count */ }
       }
       return count;
@@ -787,7 +800,7 @@ export async function orchestrate(mission, cwd, {
         emit({ phase: 'step', event: 'step-transient', step: step.step_index, reason, attempt: stepAttempt, error: String(error || '').slice(0, 160) });
         return { retry: true };
       }
-      const priorOccurrences = countPriorOccurrences(error);   // BEFORE this call's own step-failed emit, or it counts itself
+      const priorOccurrences = countPriorOccurrences(error, reason);   // BEFORE this call's own step-failed emit, or it counts itself
       const recurring = priorOccurrences >= 2;   // this failure (3rd+ time) recurring, not a fresh content miss
       emit({ phase: 'step', event: 'step-failed', step: step.step_index, reason, class: cls, attempts: stepAttempt + 1, error: String(error || '').slice(0, 200) });
       if (recurring) {
@@ -1678,6 +1691,43 @@ if (process.argv[1]?.endsWith('orchestrate.mjs')) {
       ck(f3.recurringError === true && f3.priorOccurrences === 2, 'RECURRING-ERROR: 3rd occurrence of the IDENTICAL error -> flagged recurringError:true with priorOccurrences:2');
       const events = fs.readFileSync(path.join(riDir, 'mission-events.jsonl'), 'utf8');
       ck(events.includes('recurring-error-suspect'), 'RECURRING-ERROR: a distinct event is emitted to mission-events.jsonl, not just the return value');
+      fs.rmSync(riDir, { recursive: true, force: true });
+    }
+
+    // RECURRING-ERROR, EMPTY-TEXT FALLBACK (2026-07-01 receipt: this was the actual live bug --
+    // the original version returned 0 unconditionally whenever error text was empty, which is
+    // the MOST COMMON failure shape in production (execReceipt-backed failures with no stdout/
+    // stderr). Verified live: one mission had 300 empty-text failures across engine-exec and
+    // witness, zero ever flagged. This proves the reason-keyed fallback actually closes it.
+    {
+      const riDir = mkRiSandbox();
+      const emptyFailQueue = () => ({ mission_id: 'M-EMPTY', steps: [
+        { step_index: 1, description: 'fail with no output', action_type: 'command', target_files: [], context_dependencies: [], validation_command: 'exit 1' },
+      ] });
+      const opts = { deconstructFn: async () => ({ ok: true, queue: emptyFailQueue() }), maxRepairs: 0, stepRetries: 0, verdictFn: approveVerdict, witnessFn: okWitness };
+      const r1 = await orchestrate('M-EMPTY 1', riDir, opts);
+      const r2 = await orchestrate('M-EMPTY 2', riDir, opts);
+      const r3 = await orchestrate('M-EMPTY 3', riDir, opts);
+      const g1 = r1.steps.find((s) => s.step === 1), g2 = r2.steps.find((s) => s.step === 1), g3 = r3.steps.find((s) => s.step === 1);
+      ck(g1 && g1.error === undefined && g1.reason === 'engine-exec', 'RECURRING-ERROR empty-text: confirms the failure really does carry empty error text (the exact production shape)');
+      ck(!g1.recurringError && !g2.recurringError, 'RECURRING-ERROR empty-text: 1st and 2nd empty-text occurrences -> not flagged (same as the non-empty case)');
+      ck(g3.recurringError === true && g3.priorOccurrences === 2, 'RECURRING-ERROR empty-text: 3rd occurrence -> flagged via the reason-keyed fallback -- THE ACTUAL LIVE BUG, now fixed');
+      fs.rmSync(riDir, { recursive: true, force: true });
+    }
+
+    // RECURRING-ERROR, EMPTY-TEXT FALLBACK DISCRIMINATES BY REASON (no false-positive merge of
+    // two genuinely different empty-text failure classes just because both happen to be empty).
+    {
+      const riDir = mkRiSandbox();
+      const engineExecQueue = () => ({ mission_id: 'M-MIX', steps: [{ step_index: 1, description: 'engine-exec empty fail', action_type: 'command', target_files: [], context_dependencies: [], validation_command: 'exit 1' }] });
+      const witnessQueue = () => ({ mission_id: 'M-MIX', steps: [{ step_index: 1, description: 'witness empty fail', action_type: 'edit', target_files: ['w1.mjs'], context_dependencies: [], validation_command: 'node -c w1.mjs' }] });
+      const goodImplW = async (step) => { fs.writeFileSync(path.join(riDir, step.target_files[0]), 'export const v = 1;\n'); return { ok: true, model: 'm' }; };
+      const rejectNoFindings = async () => ({ verdict: 'REJECT', findings: [] });   // empty error text on the witness path too
+      await orchestrate('M-MIX exec 1', riDir, { deconstructFn: async () => ({ ok: true, queue: engineExecQueue() }), maxRepairs: 0, stepRetries: 0, verdictFn: approveVerdict, witnessFn: okWitness });
+      await orchestrate('M-MIX exec 2', riDir, { deconstructFn: async () => ({ ok: true, queue: engineExecQueue() }), maxRepairs: 0, stepRetries: 0, verdictFn: approveVerdict, witnessFn: okWitness });
+      const rWitness = await orchestrate('M-MIX witness 1', riDir, { deconstructFn: async () => ({ ok: true, queue: witnessQueue() }), implementFn: goodImplW, maxRepairs: 0, stepRetries: 0, verdictFn: approveVerdict, witnessFn: rejectNoFindings });
+      const gWitness = rWitness.steps.find((s) => s.step === 1);
+      ck(!gWitness.recurringError, 'RECURRING-ERROR empty-text: a DIFFERENT reason (witness) with empty text is NOT merged with 2 prior engine-exec empty-text failures — reason discriminates correctly');
       fs.rmSync(riDir, { recursive: true, force: true });
     }
 
