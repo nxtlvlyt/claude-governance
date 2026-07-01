@@ -346,13 +346,19 @@ the same "close the gaps before a real mission runs" directive.
    contradicting this file's own "NOT pushed... deliberate stop" claim above** — see
    the DISCREPANCY note inline in the STANDING LESSON section. Needs the operator's
    eyes, not further conductor action on the remote.
-2. **Re-scope `engine-hajj-template-headless-and-visual-qc`** before any re-fire —
-   BLOCKED (not auto-requeued) after it destructively replaced `mission_lint.mjs`
-   wholesale TWICE, passing its own gameable string-grep verify both times. The
-   EXPORT-REGRESSION fix shipped this session (`aad8ede`, hardened `bf03d38`) should
-   catch this exact failure class now — but the mission's own text should ALSO be
-   rewritten to explicitly require appending to existing rule-based files, never
-   wholesale-replacing them, per the retro's own recommendation.
+2. ~~Re-scope `engine-hajj-template-headless-and-visual-qc`~~ — DONE (this continuation),
+   REQUEUED (AUTORUN, 00:55). While re-scoping, found the mission's ORIGINAL framing
+   understated the real gap: `emitSubMissions()` (`mission_split.mjs`) never emits a
+   "Done means:" clause for ANY sub-mission, visual-QC or not — `mission_lint.mjs`'s
+   RULE 4 correctly refuses every one of them, unconditionally. Not hypothetical:
+   `git log -- missions/cgsports-sota-v3-frame.S1.mission.txt` shows THREE separate
+   manual patches were needed just for that one split's two children. Rewrote the
+   mission to target the mechanical root cause (synthesize Done-means from each
+   group's own target files) rather than only the render-verification framing.
+   Also removed `mission_lint.mjs` from `ALLOW-FILES` entirely (the file this mission
+   destroyed twice) — RULE 4/RULE 7 already cover the contract, no changes needed
+   there. New mission text verified to lint clean via `mission_lint.mjs` itself
+   before requeuing.
 3. **Wire visual QC into `orchestrate.mjs`** — `witnessVisualDiff`/`ollamaVisionVerdict`
    exist and are now hardened (local-nxtbeast-first fallback restored, `3184b90`),
    but still unused from the pipeline. Real, valuable, unstarted.
