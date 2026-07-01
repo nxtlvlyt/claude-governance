@@ -77,8 +77,9 @@ resolution beyond "keep both sides"):
   ALLOW-FILES is scoped to exactly the two feature files and must not stage, modify,
   delete, or claim credit for cleaning up anything else.
 - This diff touches no HTML file (confirmed: two new files only, one .sql migration
-  and one .js Pages Function) — VISUAL-QC-REQUIRED is deliberately omitted from this
-  mission; no render-witness step applies.
+  and one .js Pages Function) — the visual-QC header used by other integration
+  missions is deliberately omitted from this mission; no render-witness step
+  applies.
 - Nothing about this mission's authorship constitutes verification that the feature
   code is correct — that is exactly what this mission's own witness and
   verdict-panel run, downstream of the integration, will determine.

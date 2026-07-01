@@ -82,8 +82,8 @@ resolution beyond "keep both sides"):
   target repo's HEAD is pointing to at fire time ("the current HEAD"), not to force a
   checkout of a specific branch. Do not switch branches as a step of this mission.
 - This diff touches zero .html files (confirmed: none of the three changed files end in
-  .html) — VISUAL-QC-REQUIRED is intentionally NOT set and no render-witness step is
-  required.
+  .html), so this mission carries no visual/render-witness gate or headless-browser step
+  — there is no rendered page for this diff to change.
 - Only scripts/apply-d1-migrations-2026-06-23.mjs is JavaScript among the three changed
   files; `node --check` must still be run on any additional .js/.mjs file conflict
   resolution ends up touching, if any.

@@ -1,0 +1,133 @@
+MISSION MT-INTEGRATE-K6-LOAD-BASELINE
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+TARGET-BRANCH: main
+ALLOW-FILES:
+  - tests/load/k6-baseline.js
+  - docs/LOAD-TESTING.md
+REQUIRES: none
+
+Niyyah: Feature commit c13ecad ("feat(k6-load-baseline): pre-launch RPS ladder
+for the hot read paths") sits on its own branch, never landed on the target
+repo's integration line. This mission's entire job is mechanical: get that
+commit's two files onto the target repo's main branch without losing anything
+already there, and produce the node-level receipt a verdict panel needs to
+judge the result. Authoring this mission, and the act of integrating itself,
+is NOT verification that the feature is correct. Whether the k6 RPS ladder's
+50/200/500 tiers are realistic thresholds for the actual production load,
+whether the 70/20/10 traffic-mix weighting against GET /pois.json, GET
+/api/search, and POST /api/plan-day models real usage, whether the custom
+per-endpoint Trend/Rate metrics are wired correctly, and whether
+docs/LOAD-TESTING.md's claims about what the harness covers (and does not
+cover — explicitly not a stress or soak test) are accurate — none of that is
+settled by landing the commit. That determination belongs entirely to this
+mission's own witness-and-verdict-panel run, downstream of this mission. Say
+plainly: authoring and integrating this mission proves nothing about the
+feature code's correctness by itself.
+
+Maqsad: Land commit c13ecad7d324d93d08457b5b8f37da8a42962f9f from its source
+worktree onto the target repo's main branch, producing tests/load/k6-baseline.js
+and docs/LOAD-TESTING.md in the target repo with a clean working tree
+afterward, and a passing node --check on the one .js file this commit
+touches, resolving any conflict by keeping BOTH the target's existing
+unrelated changes and this feature's changes, never silently dropping either
+side.
+
+Context (verified against live substrate 2026-07-01, absolute paths, no
+prescribed resolution beyond "keep both sides"):
+- The brief for this mission names the source worktree
+  C:\Users\marka\code\k6-load-baseline. That exact path does NOT exist on
+  disk (confirmed this session). The worktree that actually carries commit
+  c13ecad is C:\Users\marka\code\mt-feat-k6-load-baseline, on branch
+  feat/k6-load-baseline, confirmed via `git worktree list` in the target repo
+  and `git log --oneline` in that worktree showing c13ecad at its HEAD. Use
+  C:\Users\marka\code\mt-feat-k6-load-baseline as the source. If that path is
+  gone by the time this mission fires, resolve c13ecad from the target
+  repo's own object database once fetched, or from branch
+  feat/k6-load-baseline if that ref already exists locally in the target
+  repo — a missing named worktree is not by itself a mission failure when
+  the commit is otherwise resolvable.
+- Confirmed diff stat for c13ecad this session (`git show --stat`): 2 files
+  changed, 579 insertions(+), 0 deletions(-), both brand-new files —
+  docs/LOAD-TESTING.md (233 lines) and tests/load/k6-baseline.js (346
+  lines). Neither file, nor a tests/load/ or tests/ directory at all,
+  currently exists on the target repo's main branch (confirmed via
+  `git ls-tree main`). c13ecad is NOT yet an ancestor of main (confirmed via
+  `git merge-base --is-ancestor c13ecad main`). A clean cherry-pick is the
+  expected outcome, but if main has independently grown a same-named file by
+  the time this mission fires, the "keep both sides" rule below still
+  applies.
+- At authoring time the target repo's checked-out branch was
+  mission-author-dryrun-favicon, a transient branch left over from a prior
+  dry run, carrying unrelated untracked files (api-index-response.json,
+  docs/e2e-report-2026-07-01.json, e2e-shots/, feature-catalog-entry.txt,
+  scripts/e2e-runner.mjs) that are none of this mission's concern and must
+  not be touched or committed by it. That branch is not a stable integration
+  line, so this mission declares TARGET-BRANCH: main above (the mechanism
+  mission_class.mjs provides for exactly this situation) rather than
+  operating on "whatever HEAD happens to be" — consistent with how most
+  other mt-integrate-* missions in this queue are written.
+- This diff touches zero HTML files. This mission carries no
+  VISUAL-QC-REQUIRED header and no headless-render witness gate; none is
+  needed.
+- No QC, test, or witness process has verified any of the feature's content
+  as of this writing. This mission's authorship is a description of diff
+  contents only, not a code-correctness judgment.
+
+Steps:
+  1. In the target repo, ensure TARGET-BRANCH main is checked out at its
+     current HEAD, and check whether c13ecad is already present via
+     `git merge-base --is-ancestor c13ecad main` (exit 0 means already
+     integrated). [command] check-already-integrated
+  2. If not already integrated: fetch c13ecad into the target repo from
+     C:\Users\marka\code\mt-feat-k6-load-baseline (or the fallback source
+     named in Context above if that path is gone), then
+     `git cherry-pick c13ecad` onto main. [command] integrate-commit
+  3. If the cherry-pick reports conflicts on tests/load/k6-baseline.js,
+     docs/LOAD-TESTING.md, or any other file, resolve each conflicted hunk
+     by hand so the resolved content contains BOTH the target's pre-existing
+     change AND this feature's change — never `--ours` / `--theirs` and
+     never a resolution that deletes either side's content. Since both
+     files are brand-new, no natural conflict is expected for this specific
+     commit, but this rule must be honored if one appears. If the
+     cherry-pick instead reports the change is already applied, skip
+     creating a commit for this step and proceed — that outcome is a pass,
+     not a failure. [edit] resolve-conflicts
+  4. Run `node --check tests/load/k6-baseline.js` from the target repo root
+     (the one .js file this commit touches) and confirm it exits 0.
+     [command] node-check-k6-baseline
+  5. If step 2/3 produced a new commit, commit explicitly with a message
+     that references the source commit's own subject line
+     ("feat(k6-load-baseline): pre-launch RPS ladder for the hot read
+     paths"). If step 1 already found the commit present, no new commit is
+     needed. Either way, confirm `git status --short` in the target repo is
+     empty and `git log --oneline -5` on main shows the landed commit.
+     [command] commit-and-verify-clean
+
+Done means:
+  - tests/load/k6-baseline.js exists on disk in the target repo on branch
+    main, and its on-disk content contains a constant-arrival-rate k6
+    executor configuration with three RPS tiers (50, 200, and 500) plus
+    requests against /pois.json, /api/search, and /api/plan-day — verified
+    by reading the file's actual content, not by trusting the cherry-pick's
+    exit code alone.
+  - docs/LOAD-TESTING.md exists on disk in the target repo on branch main,
+    and its on-disk content documents the harness, including a statement of
+    what it explicitly does not cover (not a stress test, not a soak test).
+  - `node --check tests/load/k6-baseline.js` exits 0.
+  - `git log --oneline` on the target repo's main branch, filtered for
+    "k6-load-baseline", returns a match — confirming commit c13ecad (or its
+    equivalent content landed by this mission) is present in main's history,
+    checked directly rather than assumed.
+  - `git status --short` in the target repo shows a clean working tree (no
+    uncommitted changes, no unmerged paths) at the end of the mission, and
+    none of the unrelated dry-run artifacts named in Context above were
+    added, modified, or committed by this mission.
+  - None of the above constitutes a judgment that the k6 script's RPS
+    thresholds, traffic-mix modeling, or the docs' claims about coverage are
+    correct, complete, or safe to rely on before launch — that determination
+    belongs entirely to this mission's own witness + verdict-panel run
+    downstream, not to this mission's authorship or mechanical execution.
+
+Context: Sandbox writes only, target repo working tree only.
+Amanah: entrusted; discharge with ihsan.

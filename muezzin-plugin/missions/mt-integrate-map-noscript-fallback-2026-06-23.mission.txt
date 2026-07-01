@@ -1,0 +1,147 @@
+MISSION mt-integrate-map-noscript-fallback-2026-06-23
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+TARGET-BRANCH: main
+ALLOW-FILES:
+  - _redirects
+  - functions/map-fallback.js
+  - docs/QC-PIPELINE-SOTA-2026-06-23.md
+REQUIRES: none
+
+Niyyah: The feature "mt-feat-map-noscript-fallback-2026-06-23" (commits 1b4d490 and
+375e40b, sitting in the source worktree
+C:\Users\marka\code\mt-feat-map-noscript-fallback-2026-06-23) has never been fully
+integrated into this repo's TARGET-BRANCH. This mission's entire job is mechanical
+integration — land the outstanding commit(s) onto main's current tip without losing
+either side's changes, and prove the result is syntactically sound and committed.
+Nothing this mission does constitutes a judgment that the map-fallback feature's CODE
+is correct, safe, or behaves as designed (e.g. that the D1 'pois' query in
+functions/map-fallback.js actually returns a sane top-50 curated list, that the
+province-from-lat/lng derivation is accurate, that the honest-degradation path when D1
+is unavailable never fabricates rows, or that the '/map /map-fallback 200' _redirects
+rewrite is safe alongside every other rule already in that file). That determination
+belongs entirely to this mission's own witness + verdict-panel run, which inspects the
+integrated result after this mission produces it — not to the act of integration
+itself. Authoring or executing this mission is not verification of the feature.
+
+Maqsad: Commit "1b4d490 feat(map): no-JS SSR fallback at /map with top-50 curated
+POIs" is cherry-picked or merged from the source worktree onto the current tip of
+TARGET-BRANCH main in C:\Users\marka\code\mt-integration-2026-06-22, with any conflicts
+resolved by keeping BOTH sides — this repo's existing unrelated changes AND the
+map-noscript-fallback feature's changes, never silently dropping either. Commit
+"375e40b docs(qc): SOTA-uplift QC pipeline — 8 mandatory gates + escape hatches" is
+confirmed already present on main by ancestry (verified this session — see Context) and
+is NOT re-applied as a duplicate; if cherry-picking it is attempted anyway and reports
+empty, that empty pick is skipped, not force-committed. Every changed .js/.mjs file
+passes `node --check`, the result is committed with a clear message, and the target
+repo's working tree is left clean with respect to everything this mission touches.
+
+Context (verified against live substrate 2026-07-01, absolute paths, no prescribed
+resolution beyond "keep both sides"):
+- Source worktree: C:\Users\marka\code\mt-feat-map-noscript-fallback-2026-06-23, branch
+  feat/map-noscript-fallback-2026-06-23, tip 1b4d490, parent 375e40b. Do not rewrite
+  that worktree, only read/cherry-pick FROM it. Its `git status --short` is clean.
+- Confirmed diff stat for 1b4d490 (`git show --stat`, this session): 2 files changed,
+  392 insertions(+), 0 deletions(-) — _redirects (+27, existing file, pure append) and
+  functions/map-fallback.js (+365, new file). Confirmed diff stat for 375e40b: 1 file
+  changed, +24 — docs/QC-PIPELINE-SOTA-2026-06-23.md (new file). Combined the two
+  commits total 3 files / +416/-0, matching the feature's reported diff stat.
+- Confirmed this session (`git merge-base --is-ancestor 375e40b main`): 375e40b IS
+  already an ancestor of main — `git cat-file -e main:docs/QC-PIPELINE-SOTA-2026-06-23.md`
+  succeeds, so that file already exists on main with this content by a different
+  integration path. `git merge-base --is-ancestor 1b4d490 main` returns false — 1b4d490
+  is the ONLY commit actually outstanding for this feature.
+- Confirmed this session (`git cat-file -e main:functions/map-fallback.js` fails —
+  "does not exist"): functions/map-fallback.js does not exist on main yet, so its half
+  of the cherry-pick is a clean add.
+- _redirects DOES already exist on main (63 lines, Cloudflare Pages `.html`-stripping
+  rewrite rules unrelated to this feature) and main's copy is byte-identical to the
+  1b4d490 commit's own parent version of that file (confirmed via
+  `git diff 375e40b main -- _redirects`, empty). A LIVE DRY-RUN cherry-pick of 1b4d490
+  performed and fully reverted this session (`git cherry-pick -n 1b4d490` on a throwaway
+  branch off main, verified 2-file/392-insertion result with zero conflict markers, then
+  `git branch -D` the throwaway branch — main and the working checkout were left exactly
+  as found) applied _redirects as a clean 27-line append (the new
+  "Map progressive-enhancement fallback" block) with NO conflict. A real conflict is
+  therefore unlikely, but if main's _redirects has changed again before this mission
+  fires for real, resolve any conflict by keeping BOTH main's existing rules AND the
+  appended "/map /map-fallback 200" block — never `--ours` / `--theirs` and never a
+  resolution that deletes either side's lines.
+- Also confirmed this session: attempting `git cherry-pick 375e40b` onto a branch that
+  already has 1b4d490 applied on top of main reports "The previous cherry-pick is now
+  empty, possibly due to conflict resolution" and must be resolved with
+  `git cherry-pick --skip` (never `--allow-empty`, which would create a pointless
+  duplicate-content commit) — this is the expected, correct outcome of that specific
+  commit already being present by ancestry, not a defect to work around.
+- The source worktree and the target repo are worktrees of the SAME underlying git
+  repository (`git cat-file -t 1b4d490` succeeds directly inside the target repo without
+  any fetch/remote-add step) — `git cherry-pick 1b4d490` works directly against main.
+- The target repo's checked-out branch at the time this Context was written
+  (test-lhci-dryrun-2026-07-01, HEAD a1d6ad9) is NOT main and carries pre-existing
+  untracked litter unrelated to this feature (api-index-response.json,
+  docs/e2e-report-2026-07-01.json, e2e-shots/, feature-catalog-entry.txt,
+  scripts/e2e-runner.mjs) — none of those paths are tracked on main, so switching to
+  TARGET-BRANCH main will not collide with them; they remain untouched, out of this
+  mission's scope, neither committed nor deleted.
+- This diff touches zero .html files (functions/map-fallback.js only produces HTML as a
+  runtime string inside a Cloudflare Pages Function; no .html file on disk is added or
+  modified) — the VISUAL-QC-REQUIRED header used by other integration missions is
+  deliberately omitted here; no render-witness step is required. The one JavaScript file
+  the outstanding commit touches (functions/map-fallback.js) is covered by node --check
+  below instead.
+
+Steps:
+  1. In the source worktree C:\Users\marka\code\mt-feat-map-noscript-fallback-2026-06-23,
+     confirm commits 1b4d490 and 375e40b exist and inspect 1b4d490's patch (e.g.
+     `git show 1b4d490` or `git format-patch -1 1b4d490`) without modifying that
+     worktree. [command] capture-patch
+  2. In the target repo C:\Users\marka\code\mt-integration-2026-06-22, checkout
+     TARGET-BRANCH main at its current tip, then apply the outstanding commit via
+     `git cherry-pick 1b4d490` (already a reachable object in this repo — no
+     remote/fetch step needed) or an equivalent merge of that single commit.
+     [command] integrate-commit
+  3. If the cherry-pick reports a conflict on _redirects, functions/map-fallback.js, or
+     any other path, resolve each conflicted hunk by hand so the resolved content
+     contains BOTH main's pre-existing content AND the map-noscript-fallback feature's
+     content — never `--ours` / `--theirs` and never a resolution that deletes either
+     side's lines. [edit] resolve-conflicts
+  4. Confirm docs/QC-PIPELINE-SOTA-2026-06-23.md already exists on main with 375e40b's
+     content (`git log --oneline main -- docs/QC-PIPELINE-SOTA-2026-06-23.md`); do not
+     cherry-pick 375e40b as a second real commit. If it is attempted and git reports the
+     pick empty, resolve with `git cherry-pick --skip`, not `--allow-empty`.
+     [command] confirm-docs-already-present
+  5. Run `node --check functions/map-fallback.js` and `node --check` on every other
+     .js/.mjs file this integration touched or any conflict resolution modified,
+     confirming each exits 0. [command] node-check-all
+  6. Stage and commit the integrated result on main in the target repo with a clear
+     message identifying the integrated feature and its origin commit (e.g. referencing
+     "mt-feat-map-noscript-fallback-2026-06-23" and "1b4d490"). Confirm `git status`
+     afterward shows a clean working tree with respect to every ALLOW-FILES path.
+     [command] commit-and-verify-clean
+
+Done means:
+  - `git log` on main in C:\Users\marka\code\mt-integration-2026-06-22 shows a commit
+    containing the integrated map-noscript-fallback feature, with a commit message that
+    names "mt-feat-map-noscript-fallback-2026-06-23" and/or "1b4d490".
+  - _redirects, functions/map-fallback.js, and docs/QC-PIPELINE-SOTA-2026-06-23.md all
+    exist in the target repo at main's HEAD with non-trivial content, read directly from
+    disk to confirm (not assumed from the cherry-pick's exit code): _redirects contains
+    the "/map /map-fallback 200" rule appended after its pre-existing rules;
+    functions/map-fallback.js contains the D1 'pois' query and top-50 curated-list HTML
+    render logic; docs/QC-PIPELINE-SOTA-2026-06-23.md contains the 8-gate QC pipeline
+    description.
+  - If any conflict occurred during integration, both sides' content are confirmed
+    present in the resolved files by reading the resolved lines, not assumed.
+  - `node --check` exits 0 on functions/map-fallback.js and on every other .js/.mjs file
+    this integration touched or conflict-resolved.
+  - `git status` in the target repo shows a clean working tree (no uncommitted or
+    unmerged changes to any ALLOW-FILES path) at the end of the mission; pre-existing
+    untracked litter unrelated to this feature (documented in Context above) is not this
+    mission's to clean up and is left untouched either way.
+  - Nothing in this mission's own receipts is treated as proof that the map-fallback
+    feature's CODE is correct, safe, or behaves as designed — that judgment is deferred
+    entirely to this mission's downstream witness and verdict-panel run against the
+    integrated result.
+
+Context: Sandbox writes only, target repo working tree only.
+Amanah: entrusted; discharge with ihsan.
