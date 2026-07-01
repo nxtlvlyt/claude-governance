@@ -1,0 +1,20 @@
+MISSION-ID: mt-integrate-geocode-2026-06-23.S2
+MISSION-CLASS: code-repo
+PARENT: mt-integrate-geocode-2026-06-23
+TARTIB-INDEX: 2 of 2
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - functions/api/geocode.js
+  - functions/api/reverse-geocode.js
+REQUIRES: mt-integrate-geocode-2026-06-23.S1 (tartib — this sub-mission may not start until mt-integrate-geocode-2026-06-23.S1's receipt exists)
+STEPS: 2
+
+PARENT MAQSAD: The commit "c53ffb0 feat(geocode): add /api/geocode and /api/reverse-geocode
+
+Maqsad: sub-mission 2 of 2 — Stage and commit the integrated result on TARGET-BRANCH main with a message naming both the source feature and its origin commit hash. through Confirm the target repo's working tree is clean with respect to this mission's touched files after the commit, leaving any pre-existing untracked litter untouched.
+
+Steps:
+  9. Stage and commit the integrated result on TARGET-BRANCH main with a message naming both the source feature and its origin commit hash. [command] 
+  10. Confirm the target repo's working tree is clean with respect to this mission's touched files after the commit, leaving any pre-existing untracked litter untouched. [verify] 
+
+Done means:  exist/are updated as specified

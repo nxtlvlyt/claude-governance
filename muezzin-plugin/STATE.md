@@ -110,6 +110,47 @@ deliverable-type-aware QC + faith file edits must be ratified in a FRESH oriente
 governance session that has read `~/.claude/practice/extended/` first. NOT in a
 long drifted feature-build session.
 
+## 15-MIN CONDUCTOR BEAT (2026-07-01T~20:25Z) — CORRECTION: the split bug was real and ongoing, not stale cache; fixed + repaired live
+
+**Correcting the section below plainly**: it concluded "not an ongoing bug, a stale
+in-memory code artifact." That was wrong. Verified by running the REAL `lintMission()`
+gate (the exact function `muezzin-daemon.mjs` calls at fire time) against every live split
+child on disk, not by grepping for "Done means" text presence (which is what the section
+below did — a materially weaker check that missed the real scope). Actual result: **26 of
+28** currently-queued split children failed `code-repo-missing-declaration` — `mission_split.mjs`'s
+`emitSubMissions` never wrote REPO-ROOT or ALLOW-FILES into ANY child, ever. This affected
+every split all day, including the two (`b13-aria-live`, `dark-mode-icons`) the section
+below cited as evidence the problem was already resolved. It was not.
+
+**Fixed properly this time:**
+1. `mission_split.mjs` — added `buildCodeRepoDeclaration()`, wired into `emitSubMissions`;
+   inherits REPO-ROOT from the parent, scopes ALLOW-FILES to each group's own touched files
+   (tighter than the full parent list), falls back to the parent's full list only if a
+   group touches no named files. New regression fixture uses a REAL `MISSION-CLASS:
+   code-repo` parent (the existing fixture used `MISSION-CLASS: research`, which is
+   exactly how this shipped and stayed unnoticed) and asserts against the real
+   `lintMission()` gate, not a text-presence check. Committed `25314cd`.
+2. Repaired all 28 already-written broken children on disk: 26 via a scratch repair
+   script (`scratchpad/repair-split-children.mjs`, reused the same exported
+   `buildDoneMeans`/`buildCodeRepoDeclaration` functions, dry-run verified before writing),
+   2 (`contributor-leaderboard` families) needed hand cleanup — they carried leaked
+   garbage text from the ORIGINAL pre-60bbd84 bug (a raw parent-header dump), which made
+   the repair script's "already has REPO-ROOT" guard skip them.
+3. **While mid-repair, 2 MORE freshly-generated children (`gpx-import`) appeared with the
+   same bug** — live proof the running daemon (PID 40504) was still executing pre-fix
+   in-memory code even after the fix was committed to disk (the exact "PROCESSES CACHE
+   CODE" pattern named in the conductor faith). Repaired those too, then deliberately
+   killed the daemon (`Stop-Process -Id 40504 -Force`) so `daemon-supervisor.ps1` would
+   restart it fresh — confirmed new PID 30024 picked up the current code.
+4. Final verification: all 32 split children on disk now pass the real `lintMission()`
+   gate, zero failures.
+
+**Lesson for future verification**: when checking whether generated content is
+structurally valid, run it through the REAL validator function, not a proxy text search.
+"Does the string 'Done means' appear" and "does this pass the actual gate the daemon
+calls" are different questions, and the gap between them hid a bug affecting 93% of
+production output.
+
 ## 15-MIN CONDUCTOR BEAT (2026-07-01T~19:45Z) — auto-split mechanism: 3 real failures explained (stale in-memory code, not an ongoing bug)
 
 Operator asked whether sub-mission auto-queuing and the "hajj" split templates have been

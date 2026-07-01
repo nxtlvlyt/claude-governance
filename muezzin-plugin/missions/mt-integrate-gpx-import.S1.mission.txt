@@ -1,0 +1,26 @@
+MISSION-ID: mt-integrate-gpx-import.S1
+MISSION-CLASS: code-repo
+PARENT: mt-integrate-gpx-import
+TARTIB-INDEX: 1 of 2
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - d1/migrate-gpx-routes-2026-06-23.sql
+  - functions/api/route/import-gpx.js
+REQUIRES: none (first in tartib order)
+STEPS: 8
+
+PARENT MAQSAD: The commit "cbb07a5 feat(gpx-import): /api/route/import-gpx + user_routes /
+
+Maqsad: sub-mission 1 of 2 — Inspect the source commit cbb07a5 in the read-only source worktree to confirm it exists and review its patch stat, without modifying that worktree. through Confirm the resulting HEAD commit's message names the feature (mt-feat-gpx-import-2026-06-23 and/or cbb07a5), satisfying the traceability requirement in Done means.
+
+Steps:
+  1. Inspect the source commit cbb07a5 in the read-only source worktree to confirm it exists and review its patch stat, without modifying that worktree. [command] 
+  2. Cherry-pick commit cbb07a5 (already reachable in this repo's object store) onto the target repo's current HEAD; no branch switch, no fetch. [command] 
+  3. If step 2 reported a conflict in d1/migrate-gpx-routes-2026-06-23.sql, hand-resolve the hunk so it contains BOTH the target's pre-existing content and the incoming user_routes/user_route_pois table definitions (never --ours/--theirs). Skip if step 2 completed cleanly with no conflict on this file. [edit] d1/migrate-gpx-routes-2026-06-23.sql
+  4. If step 2 reported a conflict in functions/api/route/import-gpx.js, hand-resolve the hunk so it contains BOTH the target's pre-existing content and the incoming GPX-import Pages Function logic (never --ours/--theirs). Skip if step 2 completed cleanly with no conflict on this file. [edit] functions/api/route/import-gpx.js
+  5. Only if conflicts were resolved in steps 3-4: stage the two ALLOW-FILES by explicit name (never -A or .) and complete the cherry-pick. Skip if step 2 already auto-committed cleanly. [command] 
+  6. Syntax-check the integrated Pages Function. [verify] functions/api/route/import-gpx.js
+  7. Confirm the integrated SQL migration contains both the user_routes and user_route_pois table definitions at HEAD. [verify] d1/migrate-gpx-routes-2026-06-23.sql
+  8. Confirm the resulting HEAD commit's message names the feature (mt-feat-gpx-import-2026-06-23 and/or cbb07a5), satisfying the traceability requirement in Done means. [verify] 
+
+Done means: d1/migrate-gpx-routes-2026-06-23.sql, functions/api/route/import-gpx.js exist/are updated as specified — verify by headless-browser render, not by reading the code

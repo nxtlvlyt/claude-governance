@@ -22,4 +22,6 @@ Steps:
   5. Read-verify manifest.json's actual on-disk content declares the MV3 extension with activeTab permission and host_permissions scoped to muddytires.ca (not trusting the cherry-pick exit code alone). [verify] 
   6. Read-verify popup.html's actual on-disk content is a non-empty popup page referencing popup.js. [verify] 
   7. Read-verify popup.js's actual on-disk content contains the credentials:'include' fetch POST to /api/contribute/url-import (the feature's core behavior, not just a syntactically valid stub). [verify] 
-  8. Read-verify docs/BROWSER-EXTENSION.md landed and is non-empty. [verify] 
+  8. Read-verify docs/BROWSER-EXTENSION.md landed and is non-empty. [verify]
+
+Done means:  exist/are updated as specified

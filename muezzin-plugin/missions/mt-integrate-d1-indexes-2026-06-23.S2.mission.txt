@@ -2,6 +2,10 @@ MISSION-ID: mt-integrate-d1-indexes-2026-06-23.S2
 MISSION-CLASS: code-repo
 PARENT: mt-integrate-d1-indexes-2026-06-23
 TARTIB-INDEX: 2 of 2
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - d1/AUDIT-INDEXES-2026-06-23.md
+  - d1/migrate-indexes-2026-06-23.sql
 REQUIRES: mt-integrate-d1-indexes-2026-06-23.S1 (tartib — this sub-mission may not start until mt-integrate-d1-indexes-2026-06-23.S1's receipt exists)
 STEPS: 1
 

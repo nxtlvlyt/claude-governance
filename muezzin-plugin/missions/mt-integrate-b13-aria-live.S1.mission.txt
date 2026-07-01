@@ -2,6 +2,9 @@ MISSION-ID: mt-integrate-b13-aria-live.S1
 MISSION-CLASS: code-repo
 PARENT: mt-integrate-b13-aria-live
 TARTIB-INDEX: 1 of 2
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - .
 VISUAL-QC-REQUIRED
 REQUIRES: none (first in tartib order)
 STEPS: 8

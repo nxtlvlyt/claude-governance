@@ -17,4 +17,6 @@ Maqsad: sub-mission 2 of 2 — Confirm the target repo's working tree is fully c
 Steps:
   9. Confirm the target repo's working tree is fully clean (cherry-pick auto-committed or was finalized) and that git log shows the landed commit referencing 'bookmark widget' at or near HEAD. [command] 
   10. Probe PREVIEW-BASE-URL to confirm a local static server actually answers popup.html before trusting any visual capture against it; a dead port must surface as a named failure rather than a silently skipped check. [command] 
-  11. Run the visual-witness capture: headless-browser render of popup.html served from PREVIEW-BASE-URL, producing a screenshot receipt required by VISUAL-QC-REQUIRED. [command] 
+  11. Run the visual-witness capture: headless-browser render of popup.html served from PREVIEW-BASE-URL, producing a screenshot receipt required by VISUAL-QC-REQUIRED. [command]
+
+Done means:  exist/are updated as specified

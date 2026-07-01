@@ -8,6 +8,7 @@
 //   emitSubMissions(plan, ctx, io) -> { ok:true, files, manifestPath, queued } | { ok:false, reason }
 
 import { SIZE_CEILING } from './deconstructor.mjs';
+import { parseMissionClass } from './mission_class.mjs';
 import { writeFileSync, mkdirSync, appendFileSync, existsSync } from 'fs';
 import path from 'path';
 
@@ -101,6 +102,24 @@ export function buildDoneMeans(group, parentMissionText) {
   return { clause, hasWebUi, files, visualQcHeaderLine };
 }
 
+// ---- buildCodeRepoDeclaration -------------------------------------------------------
+// Real incident (2026-07-01, live receipt): emitSubMissions never wrote REPO-ROOT or
+// ALLOW-FILES into any child mission, so every code-repo split's children were REFUSED
+// at the MIQAT gate (mission_lint.mjs RULE 6, code-repo-missing-declaration) the moment
+// they fired -- 26 of 28 live split children were failing this exact check before this
+// fix, not just the 3 originally suspected. REPO-ROOT is inherited verbatim from the
+// parent (parseMissionClass on the parent text); ALLOW-FILES is scoped to this group's
+// own deduped target_files -- tighter containment than reusing the full parent list --
+// falling back to the parent's full ALLOW-FILES only if the group touches no named files
+// (RULE 6 refuses an empty list, so a fallback is required, not optional).
+export function buildCodeRepoDeclaration(files, parentMissionText) {
+  const parentInfo = parseMissionClass(parentMissionText);
+  if (parentInfo.class !== 'code-repo' || !parentInfo.repoRoot) return null;
+  const allowFiles = files.length ? files : parentInfo.allowFiles;
+  if (!allowFiles.length) return null;
+  return { repoRoot: parentInfo.repoRoot, allowFiles };
+}
+
 // ---- emitSubMissions --------------------------------------------------------------
 // Writes each sub-mission as a .mission.txt file + a _split-manifest.json handoff record
 // into the missions directory. Appends each child to the AUTORUN queue in tartib order.
@@ -141,12 +160,14 @@ export function emitSubMissions(plan, ctx = {}, io = {}) {
       : 'REQUIRES: none (first in tartib order)';
 
     const doneMeans = buildDoneMeans(group, plan._parentMission);
+    const codeRepo = buildCodeRepoDeclaration(doneMeans.files, plan._parentMission);
 
     const childText = [
       `MISSION-ID: ${childId}`,
       `MISSION-CLASS: ${plan.parentClass || 'code-repo'}`,
       `PARENT: ${parentId}`,
       `TARTIB-INDEX: ${group.index} of ${plan.groupCount}`,
+      ...(codeRepo ? [`REPO-ROOT: ${codeRepo.repoRoot}`, `ALLOW-FILES:`, ...codeRepo.allowFiles.map((f) => `  - ${f}`)] : []),
       ...(doneMeans.visualQcHeaderLine ? [doneMeans.visualQcHeaderLine] : []),
       requiresClause,
       `STEPS: ${group.stepCount}`,
@@ -365,6 +386,65 @@ if (process.argv[1]?.endsWith('mission_split.mjs')) {
     ck(!/VISUAL-QC-REQUIRED/.test(codeChildText), 'buildDoneMeans: code-only child does NOT carry a forwarded VISUAL-QC-REQUIRED header');
 
     fsEmit2.rmSync(tmp2, { recursive: true, force: true });
+  }
+
+  // ---- REAL INCIDENT (2026-07-01): code-repo children missing REPO-ROOT/ALLOW-FILES ----
+  // The VQC fixture above uses MISSION-CLASS: research, which never exercises RULE 6
+  // (code-repo-missing-declaration) -- that gap is exactly how 26 of 28 live split
+  // children shipped broken before anyone noticed. This fixture uses a REAL
+  // MISSION-CLASS: code-repo parent, matching production shape.
+  {
+    const os3 = await import('os');
+    const fsEmit3 = await import('fs');
+    const { lintMission: lintMission3 } = await import('./mission_lint.mjs');
+    const tmp3 = fsEmit3.mkdtempSync(path.join(os3.tmpdir(), 'msplit_cr_'));
+    const missionsDir3 = path.join(tmp3, 'missions');
+    fsEmit3.mkdirSync(missionsDir3, { recursive: true });
+
+    const parentTextCr = [
+      'MISSION-ID: M-CR1',
+      'MISSION-CLASS: code-repo',
+      'REPO-ROOT: C:\\fake\\repo',
+      'ALLOW-FILES:',
+      '  - about.html',
+      '  - index.html',
+      '  - functions/api/leaderboard.js',
+      'Maqsad: land a real code-repo feature.',
+    ].join('\n');
+    const crQueue = {
+      mission_id: 'M-CR1',
+      steps: [
+        { step_index: 1, description: 'edit about', action_type: 'edit', target_files: ['about.html'], context_dependencies: [], validation_command: 'true' },
+        { step_index: 2, description: 'edit index', action_type: 'edit', target_files: ['index.html'], context_dependencies: [], validation_command: 'true' },
+        { step_index: 3, description: 'verify no target', action_type: 'verify', target_files: [], context_dependencies: [], validation_command: 'true' },
+        { step_index: 4, description: 'ship function', action_type: 'edit', target_files: ['functions/api/leaderboard.js'], context_dependencies: [], validation_command: 'node -c functions/api/leaderboard.js' },
+      ],
+    };
+    const planCr = splitOversizedPlan(parentTextCr, crQueue, { sizeCeiling: 2 });
+    ck(planCr.split === true && planCr.groupCount === 2, 'code-repo fixture: 4 steps / ceiling 2 = 2 groups');
+
+    const outCr = emitSubMissions(planCr, {
+      missionsDir: missionsDir3,
+      parentMissionFile: 'cr-1.mission.txt',
+      parentId: planCr.parentId,
+    }, {
+      writeFile: (p, c) => { fsEmit3.mkdirSync(path.dirname(p), { recursive: true }); fsEmit3.writeFileSync(p, c); },
+    });
+    ck(outCr.ok === true && outCr.files.length === 2, 'code-repo fixture: emitSubMissions wrote 2 children');
+
+    const s1Text = fsEmit3.readFileSync(path.join(missionsDir3, 'cr-1.S1.mission.txt'), 'utf8');
+    const s2Text = fsEmit3.readFileSync(path.join(missionsDir3, 'cr-1.S2.mission.txt'), 'utf8');
+
+    ck(/REPO-ROOT:\s*C:\\fake\\repo/.test(s1Text), 'code-repo fixture: S1 carries the parent REPO-ROOT verbatim');
+    ck(/ALLOW-FILES:/.test(s1Text) && /about\.html/.test(s1Text) && /index\.html/.test(s1Text), 'code-repo fixture: S1 ALLOW-FILES scoped to its own group\'s files (about.html, index.html)');
+    ck(!/functions\/api\/leaderboard\.js/.test(s1Text.match(/ALLOW-FILES:[\s\S]*?(?=\n\n)/)?.[0] || ''), 'code-repo fixture: S1 ALLOW-FILES does NOT include S2-only files (tight scoping, not the full parent list)');
+
+    const s1Lint = lintMission3(s1Text);
+    const s2Lint = lintMission3(s2Text);
+    ck(s1Lint.ok === true && s1Lint.problems.length === 0, 'code-repo fixture: S1 passes the REAL lintMission gate with zero errors (this is what MIQAT actually checks at fire time)');
+    ck(s2Lint.ok === true && s2Lint.problems.length === 0, 'code-repo fixture: S2 (a group with an untargeted verify step) still gets a non-empty ALLOW-FILES via fallback and passes lintMission');
+
+    fsEmit3.rmSync(tmp3, { recursive: true, force: true });
   }
 
   console.log(fails === 0 ? '\nALL PASS — mission_split: splitOversizedPlan + emitSubMissions sound' : `\n${fails} FAIL`);

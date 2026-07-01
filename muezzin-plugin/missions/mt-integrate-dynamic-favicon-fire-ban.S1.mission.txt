@@ -2,6 +2,12 @@ MISSION-ID: mt-integrate-dynamic-favicon-fire-ban.S1
 MISSION-CLASS: code-repo
 PARENT: mt-integrate-dynamic-favicon-fire-ban
 TARTIB-INDEX: 1 of 2
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - icon-fire-ban.svg
+  - index.html
+  - js/dynamic-favicon.js
+  - map.html
 VISUAL-QC-REQUIRED
 REQUIRES: none (first in tartib order)
 STEPS: 8

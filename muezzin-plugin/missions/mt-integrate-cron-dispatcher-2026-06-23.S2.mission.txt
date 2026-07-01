@@ -2,6 +2,12 @@ MISSION-ID: mt-integrate-cron-dispatcher-2026-06-23.S2
 MISSION-CLASS: code-repo
 PARENT: mt-integrate-cron-dispatcher-2026-06-23
 TARTIB-INDEX: 2 of 2
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - docs/CRON-DISPATCHER-PATTERN-2026-06-23.md
+  - scheduler-config.json
+  - workers/cron-dispatcher/index.js
+  - wrangler.cron-dispatcher.toml
 REQUIRES: mt-integrate-cron-dispatcher-2026-06-23.S1 (tartib — this sub-mission may not start until mt-integrate-cron-dispatcher-2026-06-23.S1's receipt exists)
 STEPS: 2
 
