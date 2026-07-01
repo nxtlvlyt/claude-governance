@@ -7,7 +7,7 @@
 // Deeds-not-claims, hardened: the receipt is integrity-checked, so deleting an assertion / touching a
 // test file / a non-canonical command BLOCKS the step before it can manufacture a false green.
 
-import { deconstruct, deconstructPanel } from './deconstructor.mjs';
+import { deconstruct, deconstructPanel, PANEL_INTEGRATOR_MODEL } from './deconstructor.mjs';
 import { splitOversizedPlan, emitSubMissions } from './mission_split.mjs';
 import { isCommandClassMission, buildLiteralCommandQueue } from './command_queue.mjs';
 import { implementStep, isProseTarget } from './executor.mjs';
@@ -183,7 +183,41 @@ export function artifactFilesFor(steps, cwd) {
   } catch { return []; }
 }
 
-export async function defaultVerdictPhase(mission, cwd, steps) {
+// PHASE 2->3 INTEGRATOR BRIDGE (SEAT-PLAN-OPERATOR-ORIGINAL.md, operator ruling 2026-06-10
+// ~15:10: "carries phase-1-master into Phase 2, phase-2 synthesis into Phase 3" — the
+// shipped engine only ever implemented the FIRST bridge (deconstructPanel's integrator,
+// phase1->2). This closes the second one. ADDITIVE ONLY: the synthesis is prepended as
+// extra context ahead of the raw artifacts in defaultVerdictPhase's framing — it NEVER
+// replaces them. Validator/auditor still see and judge the full raw ground truth; the
+// synthesis is an orientation aid, never a substitute (the exact regression this guards
+// against: a synthesis step that silently hides or replaces ground truth would weaken
+// deeds-not-claims, not strengthen it). Fails open exactly like the phase-1 integrator: any
+// dispatch error, empty output, or an UMRAH-tier mission (too small to be worth the extra
+// seat call) -> returns '' and the caller proceeds with the framing exactly as it was before
+// this bridge existed. Extracted as its own function (not inlined in defaultVerdictPhase) so
+// it is directly unit-testable via the injectable `opts.integratorFn` without needing to also
+// mock defaultVerdictPhase's separate, non-injectable validator/auditor dispatchSeat calls.
+export async function buildIntegratorBriefing(mission, steps, artifacts, execReceiptsBlock, opts = {}) {
+  const stepCountForBridge = (steps || []).length;
+  const isUmrahForBridge = stepCountForBridge <= 2 && !/TIER:\s*HAJJ/i.test(mission);
+  if (opts.disableIntegrator || isUmrahForBridge || !(String(artifacts || '').trim() || execReceiptsBlock)) return '';
+  try {
+    const integratorModel = pickSeat('integrator', PANEL_INTEGRATOR_MODEL);
+    const integSeat = { role: 'integrator', model: integratorModel, today: new Date().toISOString().slice(0, 10), max_tokens: 8192, sampling: { temperature: 0.3, top_p: 0.9 } };
+    const integFraming =
+      `You are the INTEGRATOR bridging Phase 2 (execution) into Phase 3 (verdict). Below is the mission contract and the RAW execution artifacts + receipts a multi-step build produced. ` +
+      `Write a SHORT (under 200 words) coherent briefing: what was actually built across the steps, and how it relates to the mission's Done-means. Name any cross-step inconsistency you notice. ` +
+      `Do NOT judge whether it is correct — that is Phase 3's job below. Do NOT invent content not present below. Output PLAIN PROSE only, no verdict, no json.\n\n` +
+      `MISSION:\n${mission}\n\nRAW ARTIFACTS + RECEIPTS:\n${artifacts}\n\n${execReceiptsBlock}`;
+    const dispatch = opts.integratorFn || ((seat, framing) => dispatchSeat(seat, framing, { wantVerdict: false }));
+    const r = await dispatch(integSeat, integFraming);
+    return String(r?.content ?? '').trim();
+  } catch {
+    return '';   // fail-open: synthesis is an aid, never a blocker — proceed without it
+  }
+}
+
+export async function defaultVerdictPhase(mission, cwd, steps, opts = {}) {
   const files = artifactFilesFor(steps, cwd);
   let total = 0, omitted = 0;
   const artifacts = files.map((f) => {
@@ -227,8 +261,14 @@ export async function defaultVerdictPhase(mission, cwd, steps) {
     // a HOLLOW witness, and the artifact does NOT satisfy the mission regardless of the green.
     ? `ENGINE-EXEC RECEIPT BODIES (each command/verify step ran via the muezzin and exited 0 — but exit-0 only proves the command RAN, NOT that the real outcome occurred; wrangler/curl/psql exit 0 even on a ZERO-ROW query. JUDGE THESE OUTPUTS: a step that CLAIMS a remote table/row/response but whose output is "True"/0/empty/"num_tables": 0 is a HOLLOW witness — the deed did NOT happen and the mission is NOT satisfied, the green notwithstanding):\n${execLines.join('\n')}\n\n`
     : '';
+
+  const integratorBriefing = await buildIntegratorBriefing(mission, steps, artifacts, execReceiptsBlock, opts);
+
   const framing =
     `MISSION (the contract these artifacts must satisfy — judge against its Maqsad and its "Done means" clause):\n${mission}\n\n` +
+    (integratorBriefing
+      ? `PHASE-2 INTEGRATOR BRIEFING (orientation only — the RAW artifacts below remain the ground truth you judge against; this is a summary aid, never a substitute):\n${integratorBriefing}\n\n`
+      : '') +
     // ENGINE-WITNESSED FACTS (fb-backlog 13:20 receipt: tool-light seats BLOCKed on
     // "artifact existence not confirmable" — re-litigating what the engine had already
     // witnessed). State the settled facts so blindness stops generating findings.
@@ -1754,6 +1794,49 @@ if (process.argv[1]?.endsWith('orchestrate.mjs')) {
       'LOCAL-ONLY WIRING: claude-local-hybrid architect B (qwen3.6:27b) resolves localOnly:true (operator-widened scope)');
     ck(await withMode('__none__', async () => isLocalOnlySeat('validator', 'deepseek-v4-pro')) === false,
       'LOCAL-ONLY WIRING: no mode -> validator localOnly:false');
+  }
+
+  // ---- PHASE 2->3 INTEGRATOR BRIDGE (buildIntegratorBriefing) — direct unit tests, no
+  // network: proves the success path, the fail-open path (3 distinct trigger shapes), and
+  // that a HAJJ-tier multi-step mission is the one case it actually dispatches for.
+  {
+    const hajjMission = 'TIER: HAJJ\nMaqsad: build it. Done means: it works.';
+    const fakeSteps3 = [{ step: 1 }, { step: 2 }, { step: 3 }];
+
+    // success: a real-shaped dispatch return -> its content becomes the briefing verbatim.
+    const okFn = async (seat, framing) => ({ content: 'Built the cost calculator across 3 steps; all consistent with the Done-means.' });
+    const briefOk = await buildIntegratorBriefing(hajjMission, fakeSteps3, 'some artifact text', '', { integratorFn: okFn });
+    ck(briefOk === 'Built the cost calculator across 3 steps; all consistent with the Done-means.',
+      'buildIntegratorBriefing: success path returns the dispatched content verbatim');
+
+    // fail-open #1: dispatch throws -> '' (never propagates, never blocks the caller).
+    const throwFn = async () => { throw new Error('transport down'); };
+    const briefThrow = await buildIntegratorBriefing(hajjMission, fakeSteps3, 'artifact', '', { integratorFn: throwFn });
+    ck(briefThrow === '', 'buildIntegratorBriefing: a throwing dispatch fails open to "" (never propagates)');
+
+    // fail-open #2: dispatch returns empty content -> '' (not "undefined" or a crash).
+    const emptyFn = async () => ({ content: '' });
+    const briefEmpty = await buildIntegratorBriefing(hajjMission, fakeSteps3, 'artifact', '', { integratorFn: emptyFn });
+    ck(briefEmpty === '', 'buildIntegratorBriefing: empty dispatch content fails open to ""');
+
+    // fail-open #3: disableIntegrator:true -> '' without even attempting the dispatch.
+    let dispatchAttempted = false;
+    const neverCalled = async () => { dispatchAttempted = true; return { content: 'should never be seen' }; };
+    const briefDisabled = await buildIntegratorBriefing(hajjMission, fakeSteps3, 'artifact', '', { integratorFn: neverCalled, disableIntegrator: true });
+    ck(briefDisabled === '' && !dispatchAttempted, 'buildIntegratorBriefing: disableIntegrator:true skips the dispatch entirely');
+
+    // UMRAH-tier skip: a <=2-step mission with no TIER:HAJJ marker never dispatches either —
+    // mirrors defaultVerdictPhase's own isUmrah rule so the bridge never fires for trivial work.
+    let umrahDispatchAttempted = false;
+    const umrahNeverCalled = async () => { umrahDispatchAttempted = true; return { content: 'should never be seen' }; };
+    const briefUmrah = await buildIntegratorBriefing('Maqsad: x. Done means: y.', [{ step: 1 }], 'artifact', '', { integratorFn: umrahNeverCalled });
+    ck(briefUmrah === '' && !umrahDispatchAttempted, 'buildIntegratorBriefing: UMRAH-tier (<=2 steps, no TIER:HAJJ) skips the dispatch — too small to be worth it');
+
+    // no artifacts AND no exec receipts -> nothing to synthesize, skip without dispatching.
+    let noContentDispatchAttempted = false;
+    const noContentNeverCalled = async () => { noContentDispatchAttempted = true; return { content: 'should never be seen' }; };
+    const briefNoContent = await buildIntegratorBriefing(hajjMission, fakeSteps3, '', '', { integratorFn: noContentNeverCalled });
+    ck(briefNoContent === '' && !noContentDispatchAttempted, 'buildIntegratorBriefing: no artifacts + no exec receipts -> skip, nothing to synthesize');
   }
 
   fs.rmSync(dir, { recursive: true, force: true });
