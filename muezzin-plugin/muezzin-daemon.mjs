@@ -479,6 +479,22 @@ function mentionedInQueue(autorunText, rel) {
 // evaluable here — but such missions are virtually always already conductor-placed in
 // AUTORUN (so mentionedInQueue already excludes them); a never-queued file carrying a
 // prose precondition is held out of caution and surfaced for the conductor, not fired.
+// RECURRING-HALT DECISION (early-exit design, 2026-07-01): PURE and exported to selftest —
+// closes the gap the original design named ("this decision lives only inside fire()'s
+// outcome-switch closure, invisible to any test"). A mission's attempt budget is spent
+// (n >= maxAttempts, the prior-only behavior) OR the failed step already carries
+// recurringError:true — a signal orchestrate.mjs computes from mission-events.jsonl
+// (STEP-SCOPED per the red-team review fix; persists across daemon replans/requeues within
+// the same mission cwd) meaning this exact step has now hit the IDENTICAL error 3+ times.
+// Red-team-required scope: this is Part B only (reuses the existing priorOccurrences>=2 bar
+// unchanged). Part A (skipping the seat-escalation ladder inside orchestrate.mjs on a lower
+// bar) was explicitly DROPPED by the review — its precondition (a different seat already
+// reproduced this exact error on THIS step) does not hold for the witness-flag/witness
+// reasons, which is exactly the cross-step conflation the step-scoping fix above closes.
+function shouldHaltMission(n, maxAttempts, failedStep) {
+  return n >= maxAttempts || !!failedStep?.recurringError;
+}
+
 function promotionHold(missionText, doneIds) {
   const txt = String(missionText || '');
   if (/^\s*#?\s*(HELD|BLOCKED|GATED)\b/im.test(txt)) return { hold: true, why: 'mission text marks HELD/BLOCKED/GATED' };
@@ -765,6 +781,11 @@ async function mainLoop() {
           writeRetro(raw, r, n); attempts.delete(raw); lanes.delete(raw);
           return;
         }
+        // HOISTED (early-exit design, 2026-07-01): the widened halt condition below (shouldHaltMission)
+        // must SEE the failed step's recurringError BEFORE deciding retry-vs-terminal, not after — the
+        // prior code only computed this inside the n>=MAX_ATTEMPTS branch, one branch too late to ever
+        // gate on it. r?.ok is truthy for DONE/SPLIT, so failedStep is simply unused (harmless) there.
+        const failedStep = (r?.steps || []).filter((s) => !s.ok).pop();
         if (r?.ok) {
           evt(`DONE: ${raw}`);
           setMark(raw, 'DONE');
@@ -803,13 +824,17 @@ async function mainLoop() {
           notify(`✅ DONE: ${mname}${pt ? `\nPOINT: ${pt}` : ''}${arts.length ? `\nmade: ${arts.join(', ')}\nopen: muezzin-plugin\\missions\\${mname}\\` : ''}\n${nextUpLine()}\n${scoreLine()}`);
           writeRetro(raw, r, n); attempts.delete(raw);
         }
-        else if (n >= MAX_ATTEMPTS) {
+        else if (shouldHaltMission(n, MAX_ATTEMPTS, failedStep)) {
           // the REAL reason lives in the failed step's error or the verdict findings —
           // the bare phase name ('verify') is what made every FAILED push useless
           // (operator receipt: 6 pushes all saying '— verify', 2026-06-10).
-          const failedStep = (r?.steps || []).filter((s) => !s.ok).pop();
           const why = (failedStep?.error || failedStep?.violations?.join('; ') || r?.findings?.map((f) => f.description).join('; ') || r?.reason || r?.errors?.join('; ') || r?.phase || 'unknown').slice(0, 300);
-          evt(`FAILED (x${n}): ${raw} — ${why}`);
+          // EARLY vs BUDGET-SPENT (early-exit design, 2026-07-01): shouldHaltMission can now halt
+          // BEFORE the attempt budget (MAX_ATTEMPTS) is spent, on a proven recurring-error pattern
+          // alone. Distinguish the two in the receipt text ONLY — setMark/writeRetro/attempts.delete
+          // below are byte-for-byte the same terminal FAILED path either way (no new status).
+          const early = n < MAX_ATTEMPTS;
+          evt(`${early ? `RECURRING-HALT (early, attempt ${n}/${MAX_ATTEMPTS})` : `FAILED (x${n})`}: ${raw} — ${why}`);
           setMark(raw, 'FAILED');
           // VALUE LAYER (operator 2026-06-11: "state what the root of the failure was and
           // what the outcome is"): ROOT = the witnessed why; DISPOSITION = what happens
@@ -825,7 +850,7 @@ async function mainLoop() {
           const recurringFlag = failedStep?.recurringError
             ? `\n⚠️ RECURRING (seen ${failedStep.priorOccurrences}x already) — likely an engine/infra bug, not fixable by re-authoring`
             : '';
-          notify(`❌ FAILED x${n}: ${path.basename(raw).replace(/\.mission\.txt$/, '')}\nROOT step ${failedStep?.step ?? '?'}: ${why.slice(0, 140)}${recurringFlag}\nDISPOSITION: conductor diagnoses at next beat; fix-ledgered classes auto-requeue${pt ? `\nPOINT: ${pt}` : ''}\n${nextUpLine()}\n${scoreLine()}`);
+          notify(`${early ? '⛔ RECURRING-HALT' : `❌ FAILED x${n}`}: ${path.basename(raw).replace(/\.mission\.txt$/, '')}\nROOT step ${failedStep?.step ?? '?'}: ${why.slice(0, 140)}${recurringFlag}${early ? `\nHALTED at attempt ${n}/${MAX_ATTEMPTS} — pattern already proven, remaining attempt(s) skipped` : ''}\nDISPOSITION: conductor diagnoses at next beat; fix-ledgered classes auto-requeue${pt ? `\nPOINT: ${pt}` : ''}\n${nextUpLine()}\n${scoreLine()}`);
           writeRetro(raw, r, n); attempts.delete(raw);
         }
         else { evt(`attempt ${n} failed (${r?.phase}); will retry: ${raw}`); setMark(raw, ''); }
@@ -1007,6 +1032,15 @@ if (process.argv.includes('--selftest')) {
     const blockText = '# OPERATOR PRIORITY ORDER\n# P2. muddytires (d1, then resilience).\n# P3. corpus.';
     const ord = orderByPriority(['zeta-task.mission.txt', 'muddytires-d2.mission.txt', 'corpus-x.mission.txt'], blockText);
     ck(ord[0] === 'muddytires-d2.mission.txt' && ord[1] === 'corpus-x.mission.txt' && ord[2] === 'zeta-task.mission.txt', 'HALF B: orderByPriority ranks by the OPERATOR PRIORITY ORDER block (muddytires before corpus before the unlisted zeta)');
+
+    // shouldHaltMission (early-exit design, 2026-07-01): locks the widened FAILED condition —
+    // halts on EITHER the attempt budget being spent OR a proven recurring-error pattern,
+    // whichever comes first. This is the exact decision fire()'s outcome-switch now delegates
+    // to (previously an untestable inline `n >= MAX_ATTEMPTS`, buried inside the fire() closure).
+    ck(shouldHaltMission(1, 2, { recurringError: false }) === false, 'RECURRING-HALT: attempt 1/2, no recurring pattern -> does NOT halt (normal retry — byte-for-byte the prior behavior)');
+    ck(shouldHaltMission(2, 2, { recurringError: false }) === true, 'RECURRING-HALT: attempt budget spent (n>=MAX_ATTEMPTS) -> halts, exactly as before this change');
+    ck(shouldHaltMission(1, 2, { recurringError: true, priorOccurrences: 2 }) === true, 'RECURRING-HALT: attempt 1/2 but recurringError already proven -> halts EARLY (the new behavior — does not wait for the 2nd attempt to burn)');
+    ck(shouldHaltMission(1, 2, undefined) === false, 'RECURRING-HALT: no failed step at all (e.g. a split/plan-phase outcome with no per-step record) -> falls back to the attempt-budget check only, never throws on undefined');
 
     // ── TERMINAL-MISSION GUARD (spam-loop root fix, 2026-06-16) ──────────────────
     // A FAILED-x2 / DONE / SPLIT mission must NEVER be auto-promoted again. terminalMissionIds

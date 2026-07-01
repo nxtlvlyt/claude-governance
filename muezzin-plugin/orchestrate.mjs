@@ -638,7 +638,18 @@ export async function orchestrate(mission, cwd, {
   // own most common case. Fixed: when text is empty, fall back to counting prior step-failed
   // events that are ALSO empty-text AND share the same `reason` (engine-exec vs witness vs
   // emission-empty, etc.) -- the only signal still available once the text itself is gone.
-  function countPriorOccurrences(errorText, reason) {
+  // STEP-SCOPING FIX (red-team review of the early-exit design, 2026-07-01): the match was
+  // MISSION-WIDE, never filtered by e.step even though every 'step-failed' event already
+  // carries `step: step.step_index`. That is a real cross-step false-positive: the witness-flag
+  // halt path (below, ~L1035) emits a CONSTANT literal ('witness REJECT unrepaired') for every
+  // unrepaired witness REJECT regardless of the actual content defect, so two UNRELATED steps
+  // that each independently hit one witness REJECT would count toward the SAME recurring streak
+  // just because the literal text matches byte-for-byte. On a multi-step mission (the normal
+  // case) that is not a coincidence risk, it is a structural certainty. Scoping by stepIndex
+  // preserves the intended signal (the SAME step recurring across daemon replans/requeues,
+  // which share this mission's cwd and therefore this same event log) while closing the
+  // cross-step conflation. See the STEP-SCOPING self-test below for the exact failure this fixes.
+  function countPriorOccurrences(errorText, reason, stepIndex) {
     const needle = String(errorText || '').trim().slice(0, 160);
     const emptyTextFallback = !needle;
     try {
@@ -649,6 +660,7 @@ export async function orchestrate(mission, cwd, {
         try {
           const e = JSON.parse(line);
           if (e.event !== 'step-failed') continue;
+          if (e.step !== stepIndex) continue;   // STEP-SCOPED: never conflate a different step's failure, even on identical error text
           const evText = String(e.error || '').trim().slice(0, 160);
           if (emptyTextFallback) {
             if (!evText && e.reason === reason) count++;
@@ -831,7 +843,7 @@ export async function orchestrate(mission, cwd, {
         emit({ phase: 'step', event: 'step-transient', step: step.step_index, reason, attempt: stepAttempt, error: String(error || '').slice(0, 160) });
         return { retry: true };
       }
-      const priorOccurrences = countPriorOccurrences(error, reason);   // BEFORE this call's own step-failed emit, or it counts itself
+      const priorOccurrences = countPriorOccurrences(error, reason, step.step_index);   // BEFORE this call's own step-failed emit, or it counts itself; STEP-SCOPED (see countPriorOccurrences)
       const recurring = priorOccurrences >= 2;   // this failure (3rd+ time) recurring, not a fresh content miss
       emit({ phase: 'step', event: 'step-failed', step: step.step_index, reason, class: cls, attempts: stepAttempt + 1, error: String(error || '').slice(0, 200) });
       if (recurring) {
@@ -1765,6 +1777,34 @@ if (process.argv[1]?.endsWith('orchestrate.mjs')) {
       const rWitness = await orchestrate('M-MIX witness 1', riDir, { deconstructFn: async () => ({ ok: true, queue: witnessQueue() }), implementFn: goodImplW, maxRepairs: 0, stepRetries: 0, verdictFn: approveVerdict, witnessFn: rejectNoFindings });
       const gWitness = rWitness.steps.find((s) => s.step === 1);
       ck(!gWitness.recurringError, 'RECURRING-ERROR empty-text: a DIFFERENT reason (witness) with empty text is NOT merged with 2 prior engine-exec empty-text failures — reason discriminates correctly');
+      fs.rmSync(riDir, { recursive: true, force: true });
+    }
+
+    // RECURRING-ERROR STEP-SCOPING (red-team review of the early-exit design, 2026-07-01,
+    // required revision #2/#3): countPriorOccurrences must NEVER conflate failures from
+    // DIFFERENT steps just because they share error text. The witness-flag halt path (~L1035)
+    // emits a CONSTANT literal ('witness REJECT unrepaired') for EVERY unrepaired witness
+    // REJECT regardless of the actual content defect -- so on a multi-step mission, any two
+    // UNRELATED steps that each independently hit one witness REJECT produce byte-identical
+    // 'step-failed' error text. Three SEPARATE missions in the SAME cwd (simulating 3 daemon
+    // replans, exactly like the other RECURRING-ERROR tests above), each failing a DIFFERENT
+    // step_index via witness-flag: WITHOUT step-scoping, the 3rd call's failure would be the
+    // mission-wide "3rd occurrence" of the identical literal and falsely flag recurringError —
+    // even though THIS step (step 3) has never failed before. WITH step-scoping, each
+    // step_index's own count starts at zero regardless of what any other step emitted.
+    {
+      const riDir = mkRiSandbox();
+      const stepQueue = (n) => ({ mission_id: 'M-STEPSCOPE', steps: [ri3Steps()[n - 1]] });
+      const goodImplW = async (step) => { fs.writeFileSync(path.join(riDir, step.target_files[0]), `export const v = ${step.step_index};\n`); return { ok: true, model: 'm' }; };
+      const rejectNoFindings = async () => ({ verdict: 'REJECT', findings: [] });
+      const opts = (n) => ({ deconstructFn: async () => ({ ok: true, queue: stepQueue(n) }), implementFn: goodImplW, maxRepairs: 0, stepRetries: 0, verdictFn: approveVerdict, witnessFn: rejectNoFindings });
+      const rA = await orchestrate('M-STEPSCOPE step1', riDir, opts(1));
+      const rB = await orchestrate('M-STEPSCOPE step2', riDir, opts(2));
+      const rC = await orchestrate('M-STEPSCOPE step3', riDir, opts(3));
+      const fA = rA.steps.find((s) => s.step === 1), fB = rB.steps.find((s) => s.step === 2), fC = rC.steps.find((s) => s.step === 3);
+      ck(fA?.error === 'witness REJECT unrepaired' && fB?.error === 'witness REJECT unrepaired' && fC?.error === 'witness REJECT unrepaired', 'STEP-SCOPING: confirms all 3 UNRELATED steps share the IDENTICAL constant witness-flag literal — the exact precondition that produced the cross-step false positive before this fix');
+      ck(!fA.recurringError && !fB.recurringError, 'STEP-SCOPING: steps 1 and 2 are each a genuine 1st occurrence of THEIR OWN step -> not flagged');
+      ck(!fC.recurringError, 'STEP-SCOPING: step 3 is ALSO a genuine 1st occurrence of ITS OWN step, even though it is the 3RD occurrence of the shared literal MISSION-WIDE -> NOT flagged (would have false-flagged as recurringError:true, priorOccurrences:2 before step-scoping)');
       fs.rmSync(riDir, { recursive: true, force: true });
     }
 
