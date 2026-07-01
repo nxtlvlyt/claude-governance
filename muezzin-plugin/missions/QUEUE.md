@@ -616,7 +616,12 @@ FULL RESEARCH + ORDERED MISSIONS: D:\Desktop\tidaltreasures\TIDALTREASURES-RELAU
 (conductor-authored from a full repo sweep). 7 missions ordered; relaunch = fix 1 import +
 wrangler.toml + Stripe keys + DNS. The CODE missions need a code session (or muezzin engine
 0.4 code-in-repo). OPERATOR DECISIONS gating the build: Stripe keys (Chey), domain/DNS status,
-SQLite-vs-D1, R2-now-or-later, AIMLAPI key (currently EXPOSED in plaintext .env — rotate).
+SQLite-vs-D1, R2-now-or-later, AIMLAPI key (currently EXPOSED in plaintext .env).
+
+RULING 2026-07-01: AIMLAPI key rotation is explicitly DEFERRED, not urgent — operator's word:
+"we can do this if it becomes an issue in the future." Condition: rotate WHEN it becomes an
+actual issue (evidence of misuse/abuse on the exposed key), not on a schedule and not
+proactively. Do not re-surface this as an open item absent that trigger.
 
 - **PORTAL OUTAGE ALARM = FALSE (corrected 2026-06-11 07:00, clean container check):** the ~18:00 'portal containers GONE' finding was a BAD CENSUS (grepped wrong names / truncated docker ps). TRUTH: the portal stack is UP 2-3 weeks continuously — urmomis-php, urmomis-db(healthy), urmomis-web, mailserver(healthy), urmomis-hyperframes, nxtlvl-motiongfx — storefront nxtlvl.studio HTTP 200. comfyui-urmomis is NOT on the NAS because it runs on the WORKSTATION (:8188), as designed. Mission #22 (portal-outage-triage) is therefore premised on a false alarm — RECLASSIFY: not an outage, the PORTAL-SOTA-UPGRADE-PLAN's improvement items (resilience monitor, worker-migration, Phase-6 API tiers) still stand, but there is NO outage to recover. Same lesson as the AnythingLLM wrong-instance catch: verify the live state before alarming.
 

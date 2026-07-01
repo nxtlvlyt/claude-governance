@@ -155,3 +155,14 @@ service joining the locked plan is the kind of change the lock exists to gate.
 
 **Status:** PENDING — awaiting operator lock. When locked, modify the live PHASE 2 table
 above and remove this pending-revision section to the resolved-history record.
+
+**HOLD 2026-07-01 (operator's word):** "i dont want agy muezzin updated until we get all
+our gaps filled." Do not build or lock this proposal until the engineering-gap backlog
+(tracked in missions/INBOX.md + STATE.md open-items list) is closed — this is a condition,
+not a permanent no. Also correcting a framing mismatch caught in the same conversation: this
+routes agy as the Phase-2 Executor's 1st-position PRIMARY (used on every Phase-2 dispatch),
+with direct-API Sonnet demoted to 2nd/fallback — the opposite of "only used when Claude usage
+runs out." And it is not a different model family ("agy models") — agy dispatches the SAME
+Claude Sonnet (`claude-sonnet-4-6`) via Google Vertex AI routing, just through a different
+pipe with a separate 4-hour quota window; the file's own caveat above (§4) notes Antigravity's
+Sonnet may not be 100% identical to direct-API Sonnet in self-reported knowledge cutoff.
