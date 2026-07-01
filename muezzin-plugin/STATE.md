@@ -110,6 +110,16 @@ deliverable-type-aware QC + faith file edits must be ratified in a FRESH oriente
 governance session that has read `~/.claude/practice/extended/` first. NOT in a
 long drifted feature-build session.
 
+## 15-MIN CONDUCTOR BEAT (2026-07-01T~13:59Z) — TASK_STUCK_MS fix CONFIRMED working, not assumed
+
+Checked, not assumed: zero deaths in `supervisor.log` since the fix landed and the
+daemon restarted at 07:41:50 — ~18 minutes of continuous uptime as of this beat, vs.
+dying every ~10 minutes before. Current lane (`mt-integrate-content-gap-detect`) is 5
+minutes into PLANNING and still alive — past what used to kill it under the old 5min
+threshold, proof the fix is doing its job, not just a longer gap by chance. This
+incident thread (started ~12:16Z, 5 self-kills, one wrong diagnosis, one real fix) is
+CLOSED as of this beat. Queue steady at 52 pending, 8 PARKED, 1 running — healthy.
+
 ## 15-MIN CONDUCTOR BEAT (2026-07-01T~13:37Z) — ACTUAL root cause found and fixed, prior beat's diagnosis was incomplete
 
 Parking `mt-integrate-b13-aria-live` last beat did NOT stop the self-kill cycle — 2 MORE
