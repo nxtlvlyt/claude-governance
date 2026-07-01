@@ -67,9 +67,8 @@ prescribed resolution beyond "keep both sides"):
   mission_class.mjs provides for exactly this situation) rather than
   operating on "whatever HEAD happens to be" — consistent with how most
   other mt-integrate-* missions in this queue are written.
-- This diff touches zero HTML files. This mission carries no
-  VISUAL-QC-REQUIRED header and no headless-render witness gate; none is
-  needed.
+- This diff touches zero HTML files. This mission carries no visual-QC
+  header and no headless-render witness gate; none is needed.
 - No QC, test, or witness process has verified any of the feature's content
   as of this writing. This mission's authorship is a description of diff
   contents only, not a code-correctness judgment.

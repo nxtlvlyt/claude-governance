@@ -85,10 +85,10 @@ resolution beyond "keep both sides"):
   mission's scope, neither committed nor deleted.
 - This diff touches zero .html files (functions/map-fallback.js only produces HTML as a
   runtime string inside a Cloudflare Pages Function; no .html file on disk is added or
-  modified) — the VISUAL-QC-REQUIRED header used by other integration missions is
-  deliberately omitted here; no render-witness step is required. The one JavaScript file
-  the outstanding commit touches (functions/map-fallback.js) is covered by node --check
-  below instead.
+  modified) — the header some other integration missions carry to force a rendered-
+  screenshot check is deliberately left off this mission; no render-witness step is
+  required. The one JavaScript file the outstanding commit touches
+  (functions/map-fallback.js) is covered by node --check below instead.
 
 Steps:
   1. In the source worktree C:\Users\marka\code\mt-feat-map-noscript-fallback-2026-06-23,

@@ -1,0 +1,128 @@
+MISSION MT-INTEGRATE-PARK-RESERVATION-DEEP-LINK
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - functions/_lib/park-reservation-portals.js
+  - js/poi-park-reservation.js
+  - map.html
+REQUIRES: none
+VISUAL-QC-REQUIRED
+PREVIEW-BASE-URL: http://localhost:8788
+
+Niyyah: Feature branch feat/park-reservation-deep-link carries one finished commit —
+a provincial-park camping-reservation deep-link button for camp_park POI popups —
+sitting in its own worktree, never landed on the integration line. This mission's whole
+job is mechanical: get that commit's files onto the target repo's current HEAD without
+losing anything already there, and produce the node-level and render-level receipts a
+verdict panel needs to judge the result. Writing this mission file, and the act of
+cherry-picking itself, is NOT verification that the feature's own code is correct.
+Whether the province bounding-box inference actually resolves the right portal for a
+given lat/lng, whether the 13-province PORTALS table is accurate and current, whether
+the inlined browser-side copy stays honestly in sync with the server-side table it
+duplicates, and whether the PE/YT/NT/NU "no online portal" fallback really avoids ever
+rendering a fake reserve link — none of that is settled by landing the commit. That
+determination belongs entirely to this mission's own witness-and-verdict-panel run: the
+node --check receipt, the headless-browser render of map.html, and the seat panel's
+judgment on the actual integrated diff. Say plainly: authoring and integrating this
+mission proves nothing about the feature code's correctness by itself.
+
+Maqsad: Land commit 41033ad ("feat(park-reservation-deep-link): provincial-park
+reservation deep-link button") from the source worktree
+C:\Users\marka\code\mt-feat-park-reservation-deep-link onto the current HEAD of the
+target repo C:\Users\marka\code\mt-integration-2026-06-22, producing
+functions/_lib/park-reservation-portals.js, js/poi-park-reservation.js, and the one-line
+map.html script-tag insertion in the target repo with a clean working tree afterward,
+and a passing node --check on both .js files this commit touches.
+
+Context (unbiased facts — absolute paths, no prescribed solution beyond what's stated):
+- The source worktree's commit 41033ad touches exactly 3 files, +779/-1:
+  functions/_lib/park-reservation-portals.js (383 new lines), js/poi-park-reservation.js
+  (395 new lines), and a 1-line insertion into map.html (a new
+  <script src="js/poi-park-reservation.js" defer></script> tag spliced into the existing
+  script-load sequence, paired with the deletion of the one line it was inserted into).
+  Neither of the two new files currently exists in the target repo, so a clean add is the
+  expected outcome for those — but if the target has since grown a same-named file with
+  different content (its own unrelated work), the resolution rule below still applies:
+  keep BOTH bodies, never pick one side and silently drop the other. The target repo's
+  map.html already carries the exact same script-tag neighborhood the source commit
+  patches (the run immediately after chain-overnight-policy.js and immediately before
+  day-rhythm.js), so the map.html hunk is expected to apply cleanly; if it does not,
+  resolve by keeping both the target's current script sequence and the new
+  poi-park-reservation.js tag, never by dropping either an existing tag or the new one.
+- The two repos are separate git object stores (different .git directories on the same
+  machine). A plain `git cherry-pick <sha>` will fail with "bad object" until the target
+  repo has fetched that commit's objects from the source worktree path first.
+- The target repo's working tree, as of this mission being authored, already carries
+  several UNTRACKED files unrelated to this feature (e.g. api-index-response.json,
+  docs/e2e-report-2026-07-01.json, e2e-shots/, feature-catalog-entry.txt,
+  scripts/e2e-runner.mjs) left over from other work. This mission's "clean working tree"
+  requirement is scoped to what THIS mission touches: no unmerged paths, no conflict
+  markers left in any tracked file, and no new modifications/untracked debris introduced
+  by this mission's own steps beyond the intended commit. Pre-existing unrelated
+  untracked files are not this mission's to clean up and their continued presence in
+  `git status --short` after this mission runs is not a failure of this mission.
+- map.html is served as a normal static page (not a browser-extension popup), so the
+  visual-witness pipeline can reach it directly at <PREVIEW-BASE-URL>/map.html once a
+  local server is serving the target repo's static files. http://localhost:8788 above is
+  a PLACEHOLDER for a local `wrangler pages dev` run — the operator must confirm the port
+  a real local preview server actually binds to on the machine firing this mission before
+  relying on the captured render; if nothing answers at PREVIEW-BASE-URL, that must
+  surface as a named failure, not a silently skipped check.
+
+Steps:
+  1. In the target repo, record the current branch and HEAD, confirm neither
+     functions/_lib/park-reservation-portals.js nor js/poi-park-reservation.js already
+     exists on disk, and note the current map.html script-tag sequence around
+     chain-overnight-policy.js / day-rhythm.js as the expected insertion point
+     (git -C C:\Users\marka\code\mt-integration-2026-06-22 status --short; test for each
+     of the two new paths). [command] verify-target-clean
+  2. Fetch commit 41033ad into the target repo directly from the source worktree path and
+     cherry-pick it onto the target's current HEAD:
+       git -C C:\Users\marka\code\mt-integration-2026-06-22 fetch C:\Users\marka\code\mt-feat-park-reservation-deep-link 41033ad
+       git -C C:\Users\marka\code\mt-integration-2026-06-22 cherry-pick 41033ad
+     If the cherry-pick (or an equivalent merge) reports conflicts, resolve every
+     conflicted file by keeping BOTH the target's pre-existing lines and this feature's
+     added lines — for map.html specifically, that means the final script-load sequence
+     must contain every tag the target had AND the new poi-park-reservation.js tag; never
+     resolve a conflict by deleting either side's content. Only choosing one side over the
+     other is a defect in this mission's execution, not an acceptable outcome.
+     [command] cherry-pick-park-reservation
+  3. Run `node --check functions/_lib/park-reservation-portals.js` and
+     `node --check js/poi-park-reservation.js` from the target repo root (the two .js
+     files this commit touches) and confirm both exit 0. [command] node-check-park-reservation
+  4. If step 2 left the cherry-pick uncommitted (conflict resolution required `git add` +
+     `git cherry-pick --continue`, or a manual merge commit), commit explicitly with a
+     message that references the source commit's own subject line
+     ("feat(park-reservation-deep-link): provincial-park reservation deep-link button").
+     Then confirm `git status --short` in the target repo shows no unmerged paths and no
+     modifications beyond the intended commit (pre-existing unrelated untracked files per
+     Context above are not in scope), and `git log --oneline -5` shows the landed commit
+     at or near HEAD. [command] commit-and-verify-clean
+
+Done means:
+  - functions/_lib/park-reservation-portals.js and js/poi-park-reservation.js both exist
+    on disk in C:\Users\marka\code\mt-integration-2026-06-22, each containing the
+    feature's actual content (park-reservation-portals.js declares a PORTALS table
+    covering all 13 provinces/territories plus a buildPortalUrl helper; poi-park-reservation.js
+    wraps window.popup() to splice a "Reserve this site" button into camp_park POI popups
+    and inlines its own public-subset copy of the portal table) — verified by reading each
+    file's on-disk content, not by trusting the cherry-pick's exit code alone.
+  - map.html contains exactly one new
+    <script src="js/poi-park-reservation.js" defer></script> tag in its script-load
+    sequence, and the target's pre-existing script tags in that sequence are all still
+    present (nothing dropped) — verified by reading map.html's on-disk content.
+  - `node --check functions/_lib/park-reservation-portals.js` and
+    `node --check js/poi-park-reservation.js` both exit 0.
+  - `git status --short` in the target repo shows no unmerged paths and no new
+    modifications/untracked entries introduced by this mission beyond the intended commit,
+    and `git log --oneline -5` shows a commit whose message contains
+    "park-reservation-deep-link" — confirming the feature commit actually landed on HEAD,
+    with no unrelated target-repo content lost in the process.
+  - Because this diff touches map.html and VISUAL-QC-REQUIRED is set above, the visual-
+    witness pipeline must actually run and produce a receipt: a headless-browser
+    (puppeteer) render of map.html served from PREVIEW-BASE-URL is captured and returns a
+    visual verdict in this mission's result object — a rendering check, not a read of the
+    markup. If PREVIEW-BASE-URL turns out to be the wrong local port, that failure must
+    surface as a named NO_PREVIEW_BASE_URL-style receipt, not a silently skipped check.
+
+Amanah: entrusted; discharge with ihsan.

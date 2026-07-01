@@ -1,0 +1,186 @@
+MISSION MT-INTEGRATE-PARTNER-EMBED-IFRAME-VERIFICATION
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - embed/map.html
+  - docs/PARTNERS-EMBED-IFRAME.md
+REQUIRES: none
+VISUAL-QC-REQUIRED
+PREVIEW-BASE-URL: http://localhost:8788
+
+Niyyah: The feature "partner-embed-iframe" (commit 16803c9, sitting in its source
+worktree) has never been integrated into this repo's HEAD. This mission's entire job is
+mechanical integration — land the commit onto the current tree without losing either
+side's changes, and prove the result is syntactically sound and actually renders. Nothing
+this mission does constitutes a judgment that the partner-embed-iframe feature's code is
+correct, safe, or behaviorally sound — not whether the bbox=south,west,north,east
+parsing and validation in embed/map.html actually rejects malformed input the way the doc
+claims, not whether the node_type allowlist regex genuinely blocks every unsafe value
+before it reaches the /pois.json fetch, not whether the host= attribution sanitisation
+holds up against an adversarial partner page, not whether the page truly stays free of
+the main site's service worker/Sentry/auth surface it claims to omit, and not whether the
+documentation in docs/PARTNERS-EMBED-IFRAME.md matches the shipped behavior byte for
+byte. That determination belongs entirely to this mission's own witness-and-verdict-panel
+run, downstream of this mission producing the integrated result — the node --check
+receipt, the headless-browser render of embed/map.html, and the seat panel's judgment on
+the actual integrated diff. Authoring or executing this mission is not verification of
+the feature.
+
+Maqsad: The commit "16803c9 feat(partner-embed-iframe): embeddable /embed/map.html for
+partner sites" is cherry-picked or merged from the source worktree onto the current HEAD
+of C:\Users\marka\code\mt-integration-2026-06-22, with any conflicts resolved by keeping
+BOTH sides — this repo's existing unrelated changes AND the partner-embed-iframe
+feature's changes, never silently dropping either — every changed .js/.mjs file passes
+`node --check`, the result is committed with a clear message, and the target repo's
+working tree is left clean (git status shows no uncommitted changes to the ALLOW-FILES
+entries).
+
+Context (verified against live substrate this session, absolute paths, no prescribed
+resolution beyond "keep both sides"):
+- SOURCE-PATH CORRECTION: the work order that produced this mission named the source
+  worktree "C:\Users\marka\code\partner-embed-iframe-verification" — that path does NOT
+  exist on disk (verified this session). The real worktree carrying commit 16803c9 is
+  C:\Users\marka\code\mt-feat-partner-embed-iframe-2026-06-23, confirmed this session via
+  `git log --oneline` showing 16803c9 at its tip. Use the verified path below, not the
+  unverified one the work order named.
+- Confirmed diff stat for full SHA 16803c959990ef6ac25c4fec86b2c9e70ad7428d (git show
+  --stat, this session): 2 files changed, 560 insertions(+), 0 deletions(-) —
+  docs/PARTNERS-EMBED-IFRAME.md (158 new lines, documentation) and embed/map.html (402
+  new lines, a self-contained Leaflet-based map page). Both files are pure adds; neither
+  modifies a pre-existing line anywhere.
+- Read this session (not assumed): embed/map.html loads leaflet@1.9.4 CSS/JS from unpkg
+  with a subresource-integrity hash, renders into a `<div id="mt-embed-map">`, fetches the
+  same `/pois.json` endpoint the main site uses, translates its own
+  bbox=south,west,north,east query param into the endpoint's west,south,east,north order,
+  sanitises node_type against `^[a-z0-9_]{1,40}$` and host against RFC-1123-style
+  characters before rendering it into the `#mt-attrib` badge, and deliberately omits the
+  main site's filter UI, overlays, auth, share controls, provenance modals, service
+  worker, and Sentry (all stated in the file's own header comment, confirmed by reading
+  it). docs/PARTNERS-EMBED-IFRAME.md documents this exact page: the one-line `<iframe>`
+  snippet, the three query params, what partners do and do not get, and a CSP note
+  (`frame-src https://muddytires.ca;`).
+- NO .js OR .mjs FILE IS TOUCHED BY THIS DIFF: embed/map.html carries its logic in an
+  inline `<script>` block inside the .html file itself, and docs/PARTNERS-EMBED-IFRAME.md
+  is markdown. The `node --check` requirement below therefore has zero files to check for
+  this diff as authored; it exists as a guard against whatever conflict resolution
+  produces, not a receipt this specific diff can generate on its own. Record that
+  explicitly as the receipt (a named "0 .js/.mjs files in this diff" outcome) rather than
+  silently skipping the step.
+- Verified this session that neither embed/map.html nor docs/PARTNERS-EMBED-IFRAME.md nor
+  the embed/ directory exists yet anywhere in the target repo's working tree — a clean
+  two-file add is expected. If either has since appeared through unrelated activity by the
+  time this mission fires, resolve by keeping BOTH sets of content rather than overwriting
+  one side.
+- The commit object 16803c959990ef6ac25c4fec86b2c9e70ad7428d is already present in the
+  target repo's own object store (confirmed via `git cat-file -t` returning "commit" this
+  session, since worktrees under C:\Users\marka\code share object storage) — cherry-pick
+  can reference the SHA directly with no fetch/remote-add step needed.
+  `git merge-base --is-ancestor 16803c9 HEAD` returned false this session (not yet
+  landed).
+- REPO VOLATILITY OBSERVED THIS SESSION (severe, worse than prior integrate missions'
+  notes): four consecutive read-only `git branch --show-current` calls against
+  C:\Users\marka\code\mt-integration-2026-06-22 during this mission's authoring returned
+  four DIFFERENT branches in sequence — __dryrun_map_fallback, _dryrun_near_me_test,
+  _drytest_partner_widget_check, then test-lhci-dryrun-2026-07-01 — with no action taken
+  by this authoring session causing any of those moves; the reflog shows other missions'
+  dry-run cherry-picks and checkouts interleaving in real time. This mission deliberately
+  carries NO TARGET-BRANCH header: do not assume any branch name recorded above is still
+  checked out by fire time. Step 1 below must re-confirm the live branch and HEAD and land
+  onto whatever is actually checked out then. No cherry-pick/merge was left in progress as
+  of this session's last check (no .git/CHERRY_PICK_HEAD, no unmerged paths) — confirm
+  that is still true before starting step 3.
+- The target repo carries pre-existing untracked files unrelated to this feature
+  (api-index-response.json, docs/e2e-report-2026-07-01.json, e2e-shots/,
+  feature-catalog-entry.txt, scripts/e2e-runner.mjs) — these predate this mission and are
+  out of scope. "Clean working tree" in Done means refers to the ALLOW-FILES entries this
+  mission touches, not a demand to clear unrelated pre-existing debris.
+- embed/map.html is a new page, not the existing map.html the main site serves, so
+  VISUAL-QC-REQUIRED and PREVIEW-BASE-URL are declared above. http://localhost:8788 is a
+  PLACEHOLDER for a local `wrangler pages dev` run — the operator must confirm the port a
+  real local preview server actually binds to on the machine firing this mission before
+  relying on the captured render; if nothing answers at PREVIEW-BASE-URL, that must
+  surface as a named NO_PREVIEW_BASE_URL-style receipt, not a silently skipped check.
+- Nothing about this mission's authorship constitutes verification that the feature code
+  is correct — that is exactly what this mission's own witness and verdict-panel run,
+  downstream of the integration, will determine.
+
+Steps:
+  1. In the target repo, confirm the actually-checked-out branch and HEAD
+     (`git -C C:\Users\marka\code\mt-integration-2026-06-22 branch --show-current` and
+     `git log --oneline -1`), and confirm no cherry-pick or merge is already in progress
+     (`git -C C:\Users\marka\code\mt-integration-2026-06-22 status`). Then confirm
+     embed/map.html, docs/PARTNERS-EMBED-IFRAME.md, and the embed/ directory do not
+     already exist on disk. Land on whatever branch is actually checked out — this mission
+     carries no TARGET-BRANCH override. [command] verify-target-state
+  2. Check ancestry before attempting a cherry-pick: `git -C
+     C:\Users\marka\code\mt-integration-2026-06-22 merge-base --is-ancestor
+     16803c959990ef6ac25c4fec86b2c9e70ad7428d HEAD`. If it reports already-an-ancestor,
+     the commit is already landed — skip the cherry-pick, do not use --allow-empty. If it
+     reports not-an-ancestor, proceed to step 3. [command] check-ancestry
+  3. Cherry-pick the commit (`git -C C:\Users\marka\code\mt-integration-2026-06-22
+     cherry-pick 16803c959990ef6ac25c4fec86b2c9e70ad7428d`) or an equivalent merge of that
+     single commit. If it reports conflicts on embed/map.html,
+     docs/PARTNERS-EMBED-IFRAME.md, or any other ALLOW-FILES entry, resolve every
+     conflicted hunk by hand so the resolved content contains BOTH the target's
+     pre-existing content AND the partner-embed-iframe feature's added content — never
+     `--ours` / `--theirs` and never a resolution that deletes either side's content. If
+     the cherry-pick comes back empty (already applied after all), resolve with `--skip`,
+     never `--allow-empty`. [edit] integrate-and-resolve-conflicts
+  4. Run `node --check` on every .js/.mjs file this integration touched or
+     conflict-resolved. Record the actual list of files checked (this diff as authored
+     contains zero .js/.mjs files — embed/map.html's script is inline HTML, not a
+     standalone file — so an empty list with that fact stated is the correct, non-skipped
+     receipt unless conflict resolution in step 3 introduced or modified a .js/.mjs file,
+     in which case each such file must individually exit 0). [command] node-check-all
+  5. Commit the integrated result with a message that references the source commit's own
+     subject line ("feat(partner-embed-iframe): embeddable /embed/map.html for partner
+     sites") and/or the SHA 16803c9. Confirm `git status --short` shows no uncommitted
+     changes to embed/map.html or docs/PARTNERS-EMBED-IFRAME.md (pre-existing unrelated
+     untracked files noted in Context are not this mission's to clean up), and
+     `git log --oneline -5` shows the landed commit at or near HEAD. [command]
+     commit-and-verify-clean
+  6. Because this diff introduces embed/map.html and VISUAL-QC-REQUIRED is set, run the
+     visual-witness pipeline: serve the target repo's static files locally (e.g.
+     `wrangler pages dev`), load /embed/map.html from PREVIEW-BASE-URL in a headless
+     browser (headless Chrome / Playwright / puppeteer), capture a render, and record
+     whether the page loads without a fatal script error and whether
+     `document.getElementById('mt-embed-map')` is present in the rendered DOM — the
+     Leaflet map container the inline script is supposed to create. If PREVIEW-BASE-URL is
+     unreachable, record that as a named NO_PREVIEW_BASE_URL receipt rather than skipping
+     the check silently. [command] headless-render-witness
+
+Done means:
+  - `git log` in C:\Users\marka\code\mt-integration-2026-06-22 shows a commit at or near
+    HEAD whose message names "partner-embed-iframe" and/or cites 16803c9.
+  - embed/map.html exists in the target repo at HEAD with real content — approximately
+    400 lines implementing a self-contained Leaflet map (leaflet@1.9.4 via unpkg with an
+    integrity hash), a `<div id="mt-embed-map">` render target, a fetch against
+    `/pois.json`, and the bbox/node_type/host query-param handling described above —
+    confirmed by reading the file, not by trusting the cherry-pick's exit code alone.
+  - docs/PARTNERS-EMBED-IFRAME.md exists in the target repo at HEAD with real content —
+    approximately 158 lines documenting the one-line `<iframe>` embed pattern, the bbox/
+    node_type/host params, and the contrast with the /widget/v1/ script-loader widget —
+    confirmed by reading the file.
+  - The node --check receipt names exactly which .js/.mjs files (if any) were checked and
+    that each exited 0; if this diff landed with zero .js/.mjs files in scope (the expected
+    case, since embed/map.html's script is inline), that fact is stated explicitly as the
+    receipt rather than omitted.
+  - `git status --short` in the target repo shows no uncommitted changes to embed/map.html
+    or docs/PARTNERS-EMBED-IFRAME.md (pre-existing unrelated untracked debris noted in
+    Context is out of scope for this mission's "clean" bar).
+  - A headless browser (headless Chrome / Playwright / puppeteer) render of /embed/map.html
+    served from PREVIEW-BASE-URL loads without a fatal script error and shows
+    `document.getElementById('mt-embed-map')` present in the DOM — verified by rendering
+    the page, not by reading the source. If PREVIEW-BASE-URL was unreachable, a named
+    NO_PREVIEW_BASE_URL receipt stands in its place rather than a silent skip.
+  - This mission's authorship and execution prove only that the integration is
+    mechanically sound (declared files present with real content, feature commit reachable
+    in target history, syntax checks accounted for, a render was actually captured or its
+    absence named) — not that the feature's code is correct, safe, or behaviorally right
+    (e.g. that the bbox/node_type/host sanitisation is airtight, or that the page truly
+    carries none of the main site's auth/service-worker/Sentry surface). That judgment
+    belongs to this mission's own witness plus verdict-panel run, downstream of this
+    mission producing the integrated result.
+
+Context: Sandbox writes only, target repo working tree only.
+Amanah: entrusted; discharge with ihsan.
