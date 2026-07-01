@@ -246,7 +246,9 @@ function renderBoard(s) {
       `TOTALS this queue: ${done} DONE · ${failed} FAILED · ${(s.lanes || []).length} running · ${q.pending.length} pending${parked ? ` · ${parked} PARKED` : ''}   (cumulative history: _logs/MISSION-LEDGER.md)`,
       ``,
       `## Lanes now (with phase)`,
-      ...((s.lanes || []).length ? (s.lanes || []).map((l) => `- ${l} — ${lanePhase(l)}`) : ['- (idle)']),
+      // lanes are now {path, start_ts} objects (2026-07-01, so detectStuckLanes can compute
+      // age) -- extract .path here for legacy string-shaped renderers/callers.
+      ...((s.lanes || []).length ? (s.lanes || []).map((l) => { const lp = typeof l === 'string' ? l : l?.path; return `- ${lp} — ${lanePhase(lp)}`; }) : ['- (idle)']),
       ``,
       `## Ledger (AUTORUN)`,
       ...ledgerLines.map((l) => `- ${l}`),
@@ -683,6 +685,14 @@ async function mainLoop() {
   // spammed his phone with zero information). Pushes are OUTCOME-ONLY: DONE/FAILED.
   const attempts = new Map();
   const lanes = new Map(); // raw line -> promise
+  // 2026-07-01 receipt: conduct-cycle.mjs's detectStuckLanes() has been dead code since it
+  // was written -- it needs a lane shape of {path, start_ts} to compute how long a lane has
+  // been running, but this daemon has only ever written bare-string lanes (lanes.keys()) to
+  // daemon-status.json. For a bare string, ageMs is NaN and `stuck` is unconditionally false
+  // -- the stuck-task safety net could never fire for ANY mission, ever, regardless of how
+  // long it ran. Fixed by tracking start time alongside each lane and writing the richer
+  // shape the detector was always designed to consume.
+  const laneStartTs = new Map(); // raw line -> ISO start timestamp
 
   const fire = (raw) => {
     const missionFile = path.resolve(HERE, raw);
@@ -801,8 +811,10 @@ async function mainLoop() {
         }
         else { evt(`attempt ${n} failed (${r?.phase}); will retry: ${raw}`); setMark(raw, ''); }
         lanes.delete(raw);
+        laneStartTs.delete(raw);
       });
     lanes.set(raw, p);
+    laneStartTs.set(raw, new Date().toISOString());
   };
 
   while (true) {
@@ -826,7 +838,11 @@ async function mainLoop() {
         autoPromoteFromSubstrate();   // appends at most one line; fired next poll
       }
     } catch (e) { evt(`daemon loop error (continuing): ${e.message}`); }
-    setStatus({ state: lanes.size ? 'running' : 'idle', lanes: [...lanes.keys()], queued: readQueue().pending.length });
+    setStatus({
+      state: lanes.size ? 'running' : 'idle',
+      lanes: [...lanes.keys()].map((raw) => ({ path: raw, start_ts: laneStartTs.get(raw) })),
+      queued: readQueue().pending.length,
+    });
     await new Promise((res) => setTimeout(res, lanes.size ? 5000 : POLL_MS));
   }
 }
