@@ -110,6 +110,18 @@ deliverable-type-aware QC + faith file edits must be ratified in a FRESH oriente
 governance session that has read `~/.claude/practice/extended/` first. NOT in a
 long drifted feature-build session.
 
+## 15-MIN CONDUCTOR BEAT (2026-07-01T~12:25Z)
+
+PID 8832 (the daemon this file's section below was written about) was found DEAD on this
+beat — no matching process, no crash trace recoverable because it was launched via
+`Start-Process -WindowStyle Hidden` with no output redirection, so stdout/stderr just
+vanished when it crashed. Root cause unknown as of this write. Restarted as PID 31016,
+same required envs (`MUEZZIN_ARCHITECT_ROUTE=panel`, `MUEZZIN_MAX_LANES=1`), this time
+WITH `-RedirectStandardOutput`/`-RedirectStandardError` to
+`missions/_logs/daemon-stdout.log`/`daemon-stderr.log` — if it dies again, THAT crash
+will be diagnosable. If you're a fresh instance reading this and the daemon is dead
+again, check those two log files FIRST before restarting blind again.
+
 ## SESSION CONTINUATION (2026-07-01T~12:15Z) — read this FIRST, supersedes everything below it
 
 **Daemon state right now:** PID 8832, `MAX_LANES=1` (operator ruling today — the previous
