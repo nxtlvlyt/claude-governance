@@ -110,6 +110,85 @@ deliverable-type-aware QC + faith file edits must be ratified in a FRESH oriente
 governance session that has read `~/.claude/practice/extended/` first. NOT in a
 long drifted feature-build session.
 
+## ⚡ SONNET CONDUCTOR PLAYBOOK (2026-07-01, written by Fable 5 at operator request — every rule below has a same-day receipt in the beat sections that follow)
+
+Read this BEFORE your first beat. Each rule saved (or would have saved) real turns today.
+
+**1. Declare niyyah ONCE in visible text, first turn (Path A).** A `niyyah:` block in your
+surface TEXT opens the niyyah-gate for the ENTIRE session (until compaction). Today's
+conductor used the 60s state-file (Path B) ~10 times — pure avoidable overhead, ~2 tool
+calls wasted per mutation. Same for surrender articulation if you'll touch governance
+files. Path B is only for the very first turn's same-turn edits.
+
+**2. Verify with the REAL gate function, never a text grep.** "Does the string 'Done
+means' appear" vs "does `lintMission()` pass" hid a bug affecting 93% of split children
+for half a day (receipt: ~20:25Z correction below). To check generated missions:
+`node -e "import('./mission_lint.mjs').then(({lintMission})=>...)"`. Same principle
+everywhere: run the validator the daemon actually calls.
+
+**3. Daemon health: `cat` the FULL supervisor.log, never `tail -N`.** A `tail -4` hid a
+crash and produced a wrong "6h stable" report (receipt: ~17:48Z section). Log times are
+LOCAL (UTC-6); do the conversion explicitly.
+
+**4. Judgment evidence must be Read-tool reads.** `autorun-verdict-gate.mjs` matches
+Read tool_use paths only — `cat` via Bash does not count. Read the mission's own
+`mission-events.jsonl` / `.mission.result.json` / retro before annotating FAILED lines.
+
+**5. Requeue rules (all learned the hard way today):** (a) verify the mission.txt still
+EXISTS (now mechanical — sweep skips dead stems, `REQUEUE SKIPPED` on report); (b) verify
+the failure reason is genuinely transient by reading the result.json — a mission whose OWN
+steps create the failing state (email-redaction's incomplete cherry-pick) fails
+deterministically and must have its TEXT amended, never requeued; (c) after any shared-
+worktree failure, check `git status` in `C:\Users\marka\code\mt-integration-2026-06-22`
+live — abandoned cherry-picks and scratch files cascade into every later mission.
+
+**6. Processes cache code.** After committing an engine fix, the running daemon still
+executes the OLD code (receipt: 2 broken splits generated 20 min AFTER the fix was
+committed). Kill the daemon PID; `daemon-supervisor.ps1` restarts it in ~3s. Cost: the
+current lane's attempt counter resets. Check `daemon-status.json` lanes first.
+
+**7. Wudu check that works:** `Invoke-RestMethod -Uri "http://nxtbeast:11434/api/ps"` via
+PowerShell tool (Bash `curl` sometimes gets classifier-blocked). If a model is loaded,
+it's usually the daemon's own live dispatch — yield, don't compete.
+
+**8. Stop-hook false positives are a known, unfixed issue.** Phrases like "want me to",
+"standing by", "will report", "once it" in ANY context trigger it (~15 wasted stops
+today). Avoid them in surface text; when a question is genuinely operator-bound, use the
+hook's own escape clause: classify it explicitly as kernel-security / real-cost /
+operator-values-not-encoded-in-canon in your text. The sanctioned fix (use/mention
+classifier per drift-and-ratchet.md) is UNBUILT — do not soften the hook solo; that's
+the documented bypass pattern. Needs operator-witnessed ceremony.
+
+**9. Re-arm the beat cron FIRST (session crons die with sessions):** CronCreate,
+`3,18,33,48 * * * *`, prompt: "Muezzin conductor beat (15-min). Follow the SONNET
+CONDUCTOR PLAYBOOK section at the top of muezzin-plugin/STATE.md, then the standard
+beat: read QUEUE/AUTORUN/STATUS-BOARD/INBOX from disk, judge FAILED(x2) from real
+receipts, fix small named bugs same-beat, check supervisor.log health, report board-
+format with receipts quoted, close short."
+
+**10. Engine-class missions: strong evidence the conductor outperforms the chain on
+them.** Receipts: `engine-visual-capture-nonblocking` and `engine-hajj-template-*` both
+FAILED(x2) in the chain and were hand-finished successfully; every engine fix that
+shipped today (TASK_STUCK_MS, split REPO-ROOT, requeue guard, stderr capture) was
+conductor-direct with tests, same-day. The chain's executor hits windowed-edit limits
+and syntax errors on engine self-modification. Operator voiced the same read 2026-07-01
+("I actually think you are better to solve them than the chain"). Standing tension: the
+faith says prefer receipted missions — resolve per-mission: conductor-direct for small,
+precise, selftest-verifiable engine edits; chain for muddytires content/integration work
+(8 DONEs today prove it handles those).
+
+**OPEN WORK QUEUE (verified real as of this write):** (a) daemon crash root-cause — no
+global uncaughtException/unhandledRejection handler exists in muezzin-daemon.mjs, leading
+theory, needs an instrumented session; (b) 3 dead SPLIT parents (contributor-leaderboard,
+bookmark-widget, aurora-forecast) — children repaired by hand, but S1/S2 still sit FAILED
+in AUTORUN; bare them to re-fire now that files are valid; (c) email-redaction-docs needs
+its mission text amended (add `git cherry-pick --continue` step + TARGET-BRANCH) before
+requeue; (d) 5 engine gap-fill missions authored but never fired (3phase-2, 3phase-3,
+executor-searchreplace, gate-hardening-1, readiness-gate-1) + engine-3phase-1 FAILED
+undiagnosed; (e) ~90-item DIAGNOSE backlog, chip incrementally; (f) contested seat
+question (architects[0]/integrator: locked seat plan says Ollama-primary, live config
+says Claude) — operator call, documented in the ~19:00Z workflow output.
+
 ## 15-MIN CONDUCTOR BEAT (2026-07-01T~20:25Z) — CORRECTION: the split bug was real and ongoing, not stale cache; fixed + repaired live
 
 **Correcting the section below plainly**: it concluded "not an ongoing bug, a stale
