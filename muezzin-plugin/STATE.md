@@ -359,6 +359,28 @@ the same "close the gaps before a real mission runs" directive.
    destroyed twice) — RULE 4/RULE 7 already cover the contract, no changes needed
    there. New mission text verified to lint clean via `mission_lint.mjs` itself
    before requeuing.
+
+   **FOLLOW-UP — mission ran, exhausted both attempts, marked FAILED at 01:48 — but
+   the goal is now actually done, finished by hand.** Its own step 2 commit
+   (`275abf3`) correctly implemented `buildDoneMeans()`. It never got a retry to fix
+   2 real bugs surfaced at step 3's self-test, both root-caused and fixed this
+   continuation:
+   - The mysterious "Cannot read properties of undefined (reading 'replace')" crash
+     that recurred 12x over ~55 minutes and burned all of attempt 1 was NOT in
+     `mission_split.mjs` at all — it's `agy_dispatch.mjs`'s `process.argv[1]` guard
+     throwing when reached via a dynamic-import chain (`mission_split.mjs ->
+     deconstructor.mjs -> seat_dispatch.mjs -> agy_dispatch.mjs`). This exact bug was
+     already known and dismissed earlier tonight as "not mine to fix right now" —
+     it turned out to be the direct cause of a real mission failure. Fixed at
+     `12ba43f` (one-line null-check).
+   - Separately, the `PARENT MAQSAD` field embedded the parent's RAW mission text
+     (200 chars, headers included) instead of just its Maqsad sentence — leaking a
+     parent's `VISUAL-QC-REQUIRED` header into every child regardless of relevance,
+     tripping RULE 7 on code-only children. Fixed at `60bbd84`
+     (`extractParentMaqsad()`).
+   - `node mission_split.mjs` is now 18/18 PASS. AUTORUN annotated (01:57), not
+     requeued — the daemon didn't verify this end-to-end, a human/conductor did, so
+     the FAILED mark stays honest rather than backdating a false DONE.
 3. **Wire visual QC into `orchestrate.mjs` — BLOCKED on operator sign-off, checked this
    continuation, do not attempt to implement around it.** `witnessVisualDiff`'s own
    header (`visual_witness.mjs` line 15) states it is "PENDING the operator sign-off on

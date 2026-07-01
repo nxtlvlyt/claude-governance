@@ -68,6 +68,18 @@ export function splitOversizedPlan(mission, queue, opts = {}) {
 const WEB_UI_EXT_RE = /\.(html|js|css|jsx|tsx)$/i;
 const VISUAL_QC_LINE_RE = /^.*VISUAL-QC-REQUIRED.*$/im;
 
+// Extracts just the parent's "Maqsad: ..." sentence, not its whole raw text (headers
+// included). Root-cause fix (2026-07-01, live receipt): the PARENT MAQSAD field used to
+// slice the first 200 chars of the RAW parent text, which is header lines first by mission
+// convention (MISSION-ID/MISSION-CLASS/VISUAL-QC-REQUIRED/...) -- so a parent's
+// VISUAL-QC-REQUIRED header leaked into EVERY child's embedded context regardless of
+// whether that child touches UI at all, tripping mission_lint's RULE 7 on code-only
+// children that were never supposed to be visual-QC missions.
+function extractParentMaqsad(parentMissionText) {
+  const m = String(parentMissionText || '').match(/^Maqsad\s*:\s*(.+?)(?=\r?\n\s*\r?\n|\r?\n[A-Z][\w -]*:|$)/ims);
+  return m ? m[1].trim() : '(see parent mission)';
+}
+
 export function buildDoneMeans(group, parentMissionText) {
   const seen = new Set();
   const files = [];
@@ -139,7 +151,7 @@ export function emitSubMissions(plan, ctx = {}, io = {}) {
       requiresClause,
       `STEPS: ${group.stepCount}`,
       ``,
-      `PARENT MAQSAD: ${String((plan._parentMission || '').slice(0, 200) || '(see parent mission)')}`,
+      `PARENT MAQSAD: ${extractParentMaqsad(plan._parentMission)}`,
       ``,
       `Maqsad: sub-mission ${group.index} of ${plan.groupCount} — ${group.steps[0]?.description || 'execute steps'} through ${group.steps[group.steps.length - 1]?.description || 'completion'}`,
       ``,

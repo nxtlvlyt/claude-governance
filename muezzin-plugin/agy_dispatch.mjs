@@ -183,8 +183,19 @@ export async function sentinelProbe(opts = {}) {
 // argv-guarded self-test: `node agy_dispatch.mjs --selftest` runs a real agy probe.
 // Per the plugin's convention (every .mjs has an argv-guarded self-test). Kept dormant
 // during the soak — invoke explicitly to verify.
-
-if (import.meta.url === `file://${process.argv[1].replace(/\\/g, '/')}` && process.argv.includes('--selftest')) {
+//
+// 2026-07-01 receipt: process.argv[1] is undefined whenever this module is loaded via a
+// dynamic import() (e.g. `node -e "import('./mission_split.mjs')"`, or any transitive
+// import chain reached that way) -- `.replace()` on undefined then threw
+// "Cannot read properties of undefined (reading 'replace')" from top-level module code,
+// which is unrecoverable and crashes the ENTIRE importing process, not just this file's
+// own self-test. Root-caused after this exact crash text recurred 12 times over ~55
+// minutes in a live mission (engine-hajj-template-headless-and-visual-qc), which loads
+// mission_split.mjs -> deconstructor.mjs -> seat_dispatch.mjs -> this file, and ran out
+// of retries before anyone traced it here. This guard was previously worked around ad
+// hoc (manually setting process.argv[1] before a dynamic import) rather than fixed at
+// the source -- fixed here instead, since every future importer hits the same crash.
+if (process.argv[1] && import.meta.url === `file://${process.argv[1].replace(/\\/g, '/')}` && process.argv.includes('--selftest')) {
   (async () => {
     console.log('agy_dispatch self-test: probing agy binary + sentinel call');
     if (!agyAvailable()) {
