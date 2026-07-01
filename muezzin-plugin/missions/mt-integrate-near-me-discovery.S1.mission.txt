@@ -1,0 +1,28 @@
+MISSION-ID: MT-INTEGRATE-NEAR-ME-DISCOVERY.S1
+MISSION-CLASS: code-repo
+PARENT: MT-INTEGRATE-NEAR-ME-DISCOVERY
+TARTIB-INDEX: 1 of 2
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - map.html
+  - functions/api/spots/near.js
+  - js/near-me.js
+VISUAL-QC-REQUIRED
+REQUIRES: none (first in tartib order)
+STEPS: 8
+
+PARENT MAQSAD: Land commit ca83ba4 ("feat(near-me): GET /api/spots/near + \"Spots near me\"
+
+Maqsad: sub-mission 1 of 2 — Record the current branch and latest commit, and assert neither functions/api/spots/near.js nor js/near-me.js already exist on disk (fails if either is unexpectedly present). through Start (or confirm running) a local preview server for the target repo at the PREVIEW-BASE-URL host:port so the render witness in the next step has something to reach.
+
+Steps:
+  1. Record the current branch and latest commit, and assert neither functions/api/spots/near.js nor js/near-me.js already exist on disk (fails if either is unexpectedly present). [command] 
+  2. Confirm the repo is not already mid-cherry-pick/merge (unsafe precondition) and record ca83ba4's ancestry status against HEAD for informational routing. [command] 
+  3. Cherry-pick commit ca83ba4 onto whatever branch is currently checked out, citing the source commit in the resulting message; map.html is the only file with pre-existing content so it is the conflict-relevant target (near.js and near-me.js are brand-new file adds with nothing to collide with). [command] map.html
+  4. Verify the newly integrated API handler is syntactically valid JavaScript. [verify] functions/api/spots/near.js
+  5. Verify the newly integrated client script is syntactically valid JavaScript. [verify] js/near-me.js
+  6. Verify map.html retains the new near-me.js script include after the cherry-pick (both-sides preservation witness for the one line this file changes). [verify] map.html
+  7. Verify the landed commit's message cites ca83ba4 and names near-me, and that the working tree has no uncommitted changes to any ALLOW-FILES entry. [verify] 
+  8. Start (or confirm running) a local preview server for the target repo at the PREVIEW-BASE-URL host:port so the render witness in the next step has something to reach. [command] 
+
+Done means: map.html, functions/api/spots/near.js, js/near-me.js exist/are updated as specified — verify by headless-browser render, not by reading the code
