@@ -110,6 +110,25 @@ deliverable-type-aware QC + faith file edits must be ratified in a FRESH oriente
 governance session that has read `~/.claude/practice/extended/` first. NOT in a
 long drifted feature-build session.
 
+## 15-MIN CONDUCTOR BEAT (2026-07-01T~13:02Z) — supervisor confirmed working, one more compounding insight
+
+Supervisor is doing its job: one more death since the last beat (06:55:15, exit code 1 —
+almost certainly the same STUCK-TASK self-kill), auto-restarted 3 seconds later as PID
+8220. No `supervisor-halted.txt`. This is the improvement working as intended — a 3s
+blip instead of a 15-20min unattended outage.
+
+**New insight, not acted on yet:** `mt-integrate-b13-aria-live` is STILL the lane on
+every restart, still in PLANNING/REVISE. Real compounding effect worth naming: the
+daemon's in-memory `attempts` Map (which tracks `n` toward `MAX_ATTEMPTS=2`) lives in
+process memory — every self-kill restart WIPES it, so this mission's attempt counter
+never naturally climbs to a terminal FAILED(x2). It may be stuck in an effectively
+infinite loop specifically BECAUSE the self-kill bug keeps resetting its own attempt
+budget. AUTORUN only shows 1 real FAILED mark (11:47:37Z) despite many restart cycles
+since. Did not PARK it this beat since it was actively RUNNING under the live daemon at
+the time (didn't want to race an edit against an in-flight process) — if it's still the
+lane on the NEXT beat with no progress, PARK it then regardless of the AUTORUN FAILED
+count, since that count is provably unreliable for this specific mission.
+
 ## 15-MIN CONDUCTOR BEAT (2026-07-01T~12:45Z) — ROOT CAUSE FOUND, read this one first
 
 The daemon died TWICE in ~35 minutes (PID 8832, then PID 31016), the second time with
