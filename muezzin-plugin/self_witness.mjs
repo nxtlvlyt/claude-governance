@@ -57,7 +57,13 @@ import { checkGroundedness, guardianDispatch, GUARDIAN_SYSTEM } from './guardian
 const HERE = dirname(fileURLToPath(import.meta.url));
 // OPERATOR RULING 2026-06-26: the local GPU (4090) is on nxtbeast, not the laptop —
 // the GR10 VRAM/concurrency witness must probe where the models actually run.
-const OLLAMA_BASE = 'http://nxtbeast:11434';
+// 2026-07-01: env-overridable, NOT machine-detected -- ornith:9b + the guardian model are now
+// ALSO available on the laptop's own RTX 4070 (8GB), which is a genuinely different VRAM class
+// than nxtbeast's 4090 (24GB, see GPU_VRAM_BYTES below). Changing OLLAMA_BASE alone without
+// ALSO correcting the VRAM ceiling for the smaller card would make GR10 think it's safe to load
+// ~22GB of models on an 8GB GPU -- a real OOM/crash risk, not a cosmetic issue. Both must be set
+// together (MUEZZIN_SELF_WITNESS_OLLAMA_BASE + MUEZZIN_GPU_VRAM_BYTES) when routing local.
+const OLLAMA_BASE = process.env.MUEZZIN_SELF_WITNESS_OLLAMA_BASE || 'http://nxtbeast:11434';
 const LAGUNA_MODEL = 'laguna-xs.2:q4_K_M';   // 33B structural reviewer (spec: structural witness)
 // ORNITH (installed 2026-06-30, operator-requested): ALTERNATIVE structural-witness models —
 // NOT a replacement for the operator-designated default above. Two real, distinct sizes exist
@@ -81,11 +87,13 @@ export const ORNITH_NEED_BYTES = 22 * 1024 * 1024 * 1024;   // ornith:35b — ~2
 export const ORNITH_9B_NEED_BYTES = 6 * 1024 * 1024 * 1024;   // ornith:9b — ~5.6GB measured resident + margin
 const SELF_WITNESS_LOG = join(HERE, 'missions', '_logs', 'self-witness.jsonl');
 
-// VRAM ceiling: a 24GB RTX 4090. laguna (33B q4) ≈ 22GB resident. We must not dispatch a
-// load that would push total resident VRAM over this — that is the real GR10 constraint
-// ("do not OVERSUBSCRIBE", spec line 45), not "is anything resident". Headroom margin keeps
-// us off the exact edge where ollama's scheduler has historically deadlocked.
-export const GPU_VRAM_BYTES = 24 * 1024 * 1024 * 1024;
+// VRAM ceiling: a 24GB RTX 4090 by default (nxtbeast). laguna (33B q4) ≈ 22GB resident. We
+// must not dispatch a load that would push total resident VRAM over this — that is the real
+// GR10 constraint ("do not OVERSUBSCRIBE", spec line 45), not "is anything resident". Headroom
+// margin keeps us off the exact edge where ollama's scheduler has historically deadlocked.
+// Env-overridable (2026-07-01) for routing to a different card (e.g. the laptop's 8GB 4070) —
+// see the OLLAMA_BASE note above, these two must change together.
+export const GPU_VRAM_BYTES = Number(process.env.MUEZZIN_GPU_VRAM_BYTES) || 24 * 1024 * 1024 * 1024;
 const VRAM_MARGIN = 1.5 * 1024 * 1024 * 1024;   // leave 1.5GB headroom
 
 // ---- structural witness (laguna) ---------------------------------------------------------

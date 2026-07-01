@@ -13,9 +13,13 @@
 // Pure parser + injected dispatch = unit-testable without a live model. Promotion to a
 // repair-trigger (like citation_guard) is a later, evidence-backed step.
 
-const GUARDIAN_MODEL = 'granite4.1-guardian:8b';
 // OPERATOR RULING 2026-06-26: local guardian model runs on nxtbeast, not the laptop.
-const OLLAMA_URL = 'http://nxtbeast:11434/api/chat';
+// 2026-07-01: both env-overridable together -- the laptop's own Ollama pull of this model
+// resolved under a DIFFERENT tag (ibm/granite4.1-guardian:8b, with the registry org prefix)
+// than whatever bare tag nxtbeast has it under, confirmed by direct /api/tags comparison.
+// Changing the URL without also correcting the model name 404s against the wrong target.
+const GUARDIAN_MODEL = process.env.MUEZZIN_GUARDIAN_MODEL || 'granite4.1-guardian:8b';
+const OLLAMA_URL = process.env.MUEZZIN_GUARDIAN_OLLAMA_URL || 'http://nxtbeast:11434/api/chat';
 
 export const GUARDIAN_SYSTEM =
   'You are a groundedness checker. Given CONTEXT (the only sources available) and a ' +
