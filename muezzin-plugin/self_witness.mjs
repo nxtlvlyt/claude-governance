@@ -187,12 +187,32 @@ export async function ornith9bDispatch(system, prompt, opts = {}) {
 
 // checkStructure(artifact, context, opts) -> { verdict, notes, ran }. dispatch injected for
 // testability. Fail-soft: any throw -> { verdict: null, ran: false } (never blocks).
+//
+// RE-ASK ON NO-VERDICT (2026-07-01, receipt: 2 of 16 --check-commit runs tonight dispatched
+// successfully, ran 5.7s/9.7s -- comparable to normal APPROVE runs -- and still came back with
+// no parseable <verdict> tag; the model rambled analysis without ever concluding. That is a
+// distinct failure mode from a dead dispatch (ran:false) or a GPU yield: the model DID
+// respond, it just didn't follow the output format. One re-ask with a stricter, format-only
+// instruction is cheap (this call is always non-blocking/background) and turns a wasted
+// dispatch into a usable signal instead of silently discarding it as "(no signal)".
 export async function checkStructure(artifactText, contextText, { dispatch = ornith9bDispatch, system = LAGUNA_SYSTEM } = {}) {
   try {
     const raw = await dispatch(system, buildLagunaPrompt(artifactText, contextText));
     const { content, sanitized } = sanitizeWitnessContent(raw);
-    const parsed = parseLagunaVerdict(content);
+    let parsed = parseLagunaVerdict(content);
     if (sanitized) parsed.notes = `[sanitized: tool-call wrapper removed] ${parsed.notes}`.trim();
+    if (parsed.verdict === null) {
+      try {
+        const retryPrompt = `Your previous reply did not include a <verdict> tag. Reply with ONLY one of: <verdict>APPROVE</verdict>, <verdict>REVISE</verdict>, or <verdict>REJECT</verdict> -- no other text.\n\nYour previous reply was:\n${String(content).slice(0, 500)}`;
+        const retryRaw = await dispatch(system, retryPrompt);
+        const { content: retryContent } = sanitizeWitnessContent(retryRaw);
+        const retryParsed = parseLagunaVerdict(retryContent);
+        if (retryParsed.verdict !== null) {
+          retryParsed.notes = `[re-asked after no-verdict first reply] ${retryParsed.notes}`.trim();
+          parsed = retryParsed;
+        }
+      } catch { /* re-ask failed -- fall through with the original null-verdict parse */ }
+    }
     return { ...parsed, ran: true };
   } catch (e) {
     return { verdict: null, notes: `laguna-unavailable: ${String(e?.message).slice(0, 120)}`, ran: false };
@@ -520,6 +540,25 @@ if (process.argv[1] && process.argv[1].endsWith('self_witness.mjs') && !process.
   const csDead = await checkStructure('art', 'ctx', { dispatch: async () => { throw new Error('ECONNREFUSED'); } });
   ck(csDead.verdict === null && csDead.ran === false, 'checkStructure: dispatch throw -> {verdict:null, ran:false} (fail-soft)');
 
+  // ---- checkStructure re-ask on no-verdict (2026-07-01 fix) ----
+  {
+    let calls = 0;
+    const csRambleThenVerdict = await checkStructure('art', 'ctx', {
+      dispatch: async () => { calls++; return calls === 1 ? 'a lot of analysis with no tag at all' : '<verdict>REVISE</verdict> found it on retry'; },
+    });
+    ck(calls === 2, 'checkStructure: no-verdict first reply triggers exactly one re-ask dispatch');
+    ck(csRambleThenVerdict.verdict === 'REVISE' && csRambleThenVerdict.ran === true, 'checkStructure: re-ask recovers a real verdict instead of discarding the run');
+    ck(csRambleThenVerdict.notes.includes('re-asked after no-verdict'), 'checkStructure: recovered verdict is tagged as re-asked in notes');
+  }
+  {
+    let calls2 = 0;
+    const csRambleTwice = await checkStructure('art', 'ctx', {
+      dispatch: async () => { calls2++; return 'still no tag, rambling both times'; },
+    });
+    ck(calls2 === 2, 'checkStructure: re-ask that ALSO has no verdict still only dispatches twice total (no infinite loop)');
+    ck(csRambleTwice.verdict === null && csRambleTwice.ran === true, 'checkStructure: both attempts no-verdict -> ran:true, verdict:null (honest no-signal, not a false block)');
+  }
+
   // ---- summarizePs + wouldOversubscribe (GR10 VRAM logic) ----
   const psEmpty = summarizePs({ models: [] });
   ck(psEmpty.residentVram === 0 && psEmpty.models.length === 0, 'summarizePs: empty -> 0 resident');
@@ -725,11 +764,33 @@ if (process.argv.includes('--check-commit')) {
     if (!dispatch) { console.error(`unknown --model "${modelArg}" — use laguna | ornith35b | ornith9b`); process.exit(0); }
     console.log(`--check-commit ${sha} ("${subject}") — structural=${modelArg}, then guardian`);
     const t0 = Date.now();
-    const r = await witnessArtifact(diff, { contextText: `Commit ${sha}: ${subject}` }, {
+    // RETRY-ON-YIELD (2026-07-01, receipt: 2 of 16 witness runs tonight were GPU-yielded and
+    // NEVER re-checked -- "witness-queued" was descriptive text with no actual queue behind
+    // it, so a yield was a silent, permanent skip. This process already runs detached in the
+    // background via .githooks/post-commit ("& disown") -- it cannot block the commit or the
+    // conductor either way, so a short bounded retry costs nothing and closes a real gap: a
+    // commit whose witness got skipped for GPU-contention reasons now gets re-tried instead
+    // of silently having no witness at all.
+    const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
+    let r = await witnessArtifact(diff, { contextText: `Commit ${sha}: ${subject}` }, {
       structureFn: (a, c) => checkStructure(a, c, { dispatch }),
       structureModel: modelNameByArg[modelArg],
       lagunaNeedBytes: modelArg === 'ornith9b' ? ORNITH_9B_NEED_BYTES : modelArg === 'ornith35b' ? ORNITH_NEED_BYTES : 22 * 1024 * 1024 * 1024,
     });
+    let retries = 0;
+    const MAX_RETRIES = 3;
+    const RETRY_DELAY_MS = 60000;
+    while (r.yielded && retries < MAX_RETRIES) {
+      retries++;
+      console.log(`yielded (GPU busy) — retry ${retries}/${MAX_RETRIES} in ${RETRY_DELAY_MS / 1000}s`);
+      await sleep(RETRY_DELAY_MS);
+      r = await witnessArtifact(diff, { contextText: `Commit ${sha}: ${subject}` }, {
+        structureFn: (a, c) => checkStructure(a, c, { dispatch }),
+        structureModel: modelNameByArg[modelArg],
+        lagunaNeedBytes: modelArg === 'ornith9b' ? ORNITH_9B_NEED_BYTES : modelArg === 'ornith35b' ? ORNITH_NEED_BYTES : 22 * 1024 * 1024 * 1024,
+      });
+    }
+    if (r.yielded) console.log(`still yielded after ${MAX_RETRIES} retries — giving up, no witness for this commit`);
     console.log(`elapsed ${Date.now() - t0}ms — yielded=${r.yielded} ok=${r.ok}`);
     console.log(`  laguna(structural): ${r.laguna?.verdict ?? '(no signal)'}${r.laguna?.notes ? ' — ' + r.laguna.notes.slice(0, 200) : ''}`);
     console.log(`  guardian(groundedness): ${r.guardian?.grounded === null ? '(no signal)' : r.guardian?.grounded} ${r.guardian?.raw ? '— ' + String(r.guardian.raw).slice(0, 150) : ''}`);
