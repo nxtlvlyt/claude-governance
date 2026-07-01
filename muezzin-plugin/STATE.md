@@ -110,6 +110,57 @@ deliverable-type-aware QC + faith file edits must be ratified in a FRESH oriente
 governance session that has read `~/.claude/practice/extended/` first. NOT in a
 long drifted feature-build session.
 
+## 🎥 VISUAL-QC BLOCKER — half-fixed 2026-07-01T~23:55Z (preview server now standing; witness-target semantics still wrong)
+
+The reason ZERO VISUAL-QC-REQUIRED missions have ever completed, now precisely located and
+PARTLY fixed. Two-part blocker:
+
+**Part 1 — no standing preview server. FIXED.** Every render-witness step (mission-level
+pwsh probes AND the engine's visual_capture screenshot pipeline) needs a live page to hit;
+nothing was serving on :8788. Built `preview-supervisor.ps1` (mirrors daemon-supervisor.ps1:
+restart-loop, 5-deaths-in-10min halt, logs to missions/_logs/preview-*.log). ROOT CAUSE of
+why both the missions' own `Start-Process` AND my first supervisor attempt failed instantly
+with "cannot find the file specified": `npx`/`wrangler` are `.cmd` shims, not `.exe`, and
+`Start-Process` does NOT resolve PATH shims like a shell does. Fix: invoke via
+`Start-Process cmd.exe /c "<full-path>\wrangler.cmd pages dev ..."`. Server is LIVE now —
+`curl -sL localhost:8788/map` → 200, `/js/aurora-overlay.js` → 200. (This same .cmd-shim bug
+is ALSO why the missions' render-witness steps failed — fixing their step text to use the
+same cmd.exe pattern, OR pointing them at the standing server, closes their half.)
+
+**Part 2 — witness-target semantics are wrong. NOT fixed (the remaining half).** Verified
+live: `/map.html` (the real 391KB interactive Leaflet page where the aurora feature lives)
+auto-308-redirects in wrangler dev to `/map`, which `_redirects` maps to a SEPARATE 39KB
+SSR no-JS fallback surface (functions/map-fallback.js) that DELIBERATELY does not carry the
+feature scripts. So a witness that probes `/map.html` and follows redirects lands on the
+wrong page and FALSE-REJECTS a correctly-integrated feature. The aurora feature genuinely
+DID integrate (aurora-overlay.js present, map.html wires it) — the witness just can't see it
+through the redirect. FIX NEEDED (next session, against the engine's render-witness code /
+mission step text): probe the raw `.html` without following redirects, OR drive a headless
+browser that loads the production-canonical URL, OR reconcile the dev server's routing with
+production (where `/map.html /map.html 200` in _redirects DOES serve the real page). Until
+this lands, the standing server is necessary but not sufficient — visual-QC missions will
+integrate code and still fail their witness.
+
+**Keep the preview server running:** `pwsh -File preview-supervisor.ps1` (detached). If
+`missions/_logs/preview-supervisor-halted.txt` exists, wrangler is death-looping — read
+`preview-stdout.log.err` before relaunching.
+
+## 🏛️ FINAL-AUDITOR SEAT EVAL (M-ENGINE-3PHASE.3) — 2026-07-01, TWO benches, both ceilinged
+
+Operator asked to test nxtbeast models for the Phase-3 final-auditor seat (reads two boundary
+verdicts + evidence, issues consensus). v1 (4 easy cases): 6/8 scored 4/4 — ceiling, didn't
+discriminate. v2 (16 HARD cases built to break rubber-stampers — false-reject override,
+buried 1000x-wrong TTL, wrong-branch success, empty-stub-passes-node-check, out-of-contract
+nit that must NOT reject — × 3 trials at temp 0.4): **ALL 8 models scored 16/16**, 6 of 8
+fully unanimous. Honest conclusion: the final-auditor task does NOT discriminate among
+competent ~24-33B local models — they all do contract-vs-evidence checking reliably. So the
+pick is decided by NON-quality criteria: **independence** (rules out granite4.1:30b — it IS
+a boundary auditor in claude-local-hybrid; laguna/qwen already seated elsewhere) + **fit**.
+**RECOMMENDATION: `north-mini-code-1.0:q4_K_M`** — 16/16 unanimous, independent, purpose-built
+for code structure, operator-flagged. Pending operator go-ahead to land 3PHASE.3 with it as
+the final_auditor seat (+ the seat_modes.mjs final_auditor key + faith files, per the audit).
+Bench scripts + results JSON in scratchpad/final-auditor-bench*.{mjs,json}.
+
 ## ⚡ SONNET CONDUCTOR PLAYBOOK (2026-07-01, written by Fable 5 at operator request — every rule below has a same-day receipt in the beat sections that follow)
 
 Read this BEFORE your first beat. Each rule saved (or would have saved) real turns today.
