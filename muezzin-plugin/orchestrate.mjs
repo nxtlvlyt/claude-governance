@@ -579,6 +579,42 @@ export async function orchestrate(mission, cwd, {
   // <cwd>/mission-events.jsonl; status cycles and the daemon read it for rich reports.
   const emit = (e) => { try { appendFileSync(path.join(cwd, 'mission-events.jsonl'), JSON.stringify({ ts: new Date().toISOString(), ...e }) + '\n'); } catch { /* events must never break the run */ } };
 
+  // RECURRING-ERROR DETECTION (2026-07-01 receipt): a live mission tonight hit the IDENTICAL
+  // raw error text 12 times across ~55 minutes -- witness-halt, seat-escalate-exhausted, full
+  // replan, repeat -- because the error was an INFRASTRUCTURE crash (a bug in an unrelated
+  // engine file, reached via a transitive import), not a content defect any amount of
+  // re-authoring could fix. The escalation ladder and replan loop both behaved correctly by
+  // their own design (bounded retries, clean failure) but neither has any way to recognize
+  // "this exact failure has already happened, re-authoring will not change it" -- that
+  // pattern was only caught because a human happened to grep the event log by hand. This
+  // reads the mission's own event history (same file `emit` writes to, persists across
+  // replans within one daemon attempt) and flags when an error text repeats, so the signal
+  // surfaces in the receipt itself instead of requiring someone to notice a stuck mission.
+  // Counts only 'step-failed' events -- the single canonical "this step terminally
+  // failed" event per logical failure. 'witness-halt'/'heal'/etc. carry the SAME error
+  // text for the SAME underlying failure (multiple events, one occurrence) -- counting
+  // every event type double/triple-counted a single failure as 2-3 "occurrences" before
+  // any genuine repeat had even happened. Must be called BEFORE emitting this call's own
+  // 'step-failed' line, or it counts itself too.
+  function countPriorOccurrences(errorText) {
+    const needle = String(errorText || '').trim().slice(0, 160);
+    if (!needle) return 0;
+    try {
+      const raw = readFileSync(path.join(cwd, 'mission-events.jsonl'), 'utf8');
+      let count = 0;
+      for (const line of raw.split(/\r?\n/)) {
+        if (!line.trim()) continue;
+        try {
+          const e = JSON.parse(line);
+          if (e.event !== 'step-failed') continue;
+          const evText = String(e.error || '').trim().slice(0, 160);
+          if (evText && evText === needle) count++;
+        } catch { /* skip a malformed line, never crash the count */ }
+      }
+      return count;
+    } catch { return 0; }
+  }
+
   // ---- PHASE 1: PLAN (diagDir: failed plan attempts persist their raw architect output)
   emit({ phase: 'plan', event: 'start' });
   // COMMAND-CLASS: run the operator's verbatim fenced commands AS the queue — no LLM re-plan
@@ -751,8 +787,13 @@ export async function orchestrate(mission, cwd, {
         emit({ phase: 'step', event: 'step-transient', step: step.step_index, reason, attempt: stepAttempt, error: String(error || '').slice(0, 160) });
         return { retry: true };
       }
+      const priorOccurrences = countPriorOccurrences(error);   // BEFORE this call's own step-failed emit, or it counts itself
+      const recurring = priorOccurrences >= 2;   // this failure (3rd+ time) recurring, not a fresh content miss
       emit({ phase: 'step', event: 'step-failed', step: step.step_index, reason, class: cls, attempts: stepAttempt + 1, error: String(error || '').slice(0, 200) });
-      steps.push({ step: step.step_index, ok: false, reason, error: error ? String(error).slice(0, 300) : undefined, failureClass: cls, stepAttempts: stepAttempt + 1, ...extra });
+      if (recurring) {
+        emit({ phase: 'step', event: 'recurring-error-suspect', step: step.step_index, priorOccurrences, error: String(error || '').slice(0, 200) });
+      }
+      steps.push({ step: step.step_index, ok: false, reason, error: error ? String(error).slice(0, 300) : undefined, failureClass: cls, stepAttempts: stepAttempt + 1, ...(recurring ? { recurringError: true, priorOccurrences } : {}), ...extra });
       stepResult = { ok: false, phase: 'verify', stoppedAt: step.step_index, steps };
       return { retry: false };
     };
@@ -1613,6 +1654,30 @@ if (process.argv[1]?.endsWith('orchestrate.mjs')) {
       ck(failed.stepAttempts === 1, 'REPLAN: a DEFECT does NOT consume same-step retries (1 attempt, no blind re-dispatch)');
       ck(implCalls[3] === 1, 'REPLAN: step 3 dispatched exactly once on a defect (a real fault is not retried as if flaky)');
       ck(r.steps.filter((s) => s.ok && s.sha).length === 2, 'REPLAN: a defect at step 3 still PRESERVES completed steps 1-2 (no full re-plan)');
+      fs.rmSync(riDir, { recursive: true, force: true });
+    }
+
+    // RECURRING-ERROR DETECTION (2026-07-01): the SAME cwd across 3 separate orchestrate()
+    // calls simulates 3 daemon-level replans hitting the identical failure -- mission-events.jsonl
+    // persists across calls in the same cwd, exactly like it persists across replans within one
+    // daemon attempt in production. The 3rd occurrence (2 PRIOR + this one) should flag recurring.
+    {
+      const riDir = mkRiSandbox();
+      const ri3Q = { mission_id: 'M-RI3', steps: ri3Steps() };
+      const goodImpl = async (step) => { fs.writeFileSync(path.join(riDir, step.target_files[0]), `export const v = ${step.step_index};\n`); return { ok: true, model: 'm' }; };
+      const rejectStep3 = async (step) => step.step_index === 3 ? { verdict: 'REJECT', findings: [{ id: 'W', description: 'unsupported claim' }] } : { verdict: 'APPROVE', findings: [] };
+      const opts = { deconstructFn: async () => ({ ok: true, queue: ri3Q }), implementFn: goodImpl, maxRepairs: 0, stepRetries: 0, verdictFn: approveVerdict, witnessFn: rejectStep3 };
+      const r1 = await orchestrate('M-RI3 recurring 1', riDir, opts);
+      const r2 = await orchestrate('M-RI3 recurring 2', riDir, opts);
+      const r3 = await orchestrate('M-RI3 recurring 3', riDir, opts);
+      const f1 = r1.steps.find((s) => s.step === 3);
+      const f2 = r2.steps.find((s) => s.step === 3);
+      const f3 = r3.steps.find((s) => s.step === 3);
+      ck(!f1.recurringError, 'RECURRING-ERROR: 1st occurrence -> not flagged (a single failure is just a failure)');
+      ck(!f2.recurringError, 'RECURRING-ERROR: 2nd occurrence -> not flagged (2 is still within normal retry/replan variance)');
+      ck(f3.recurringError === true && f3.priorOccurrences === 2, 'RECURRING-ERROR: 3rd occurrence of the IDENTICAL error -> flagged recurringError:true with priorOccurrences:2');
+      const events = fs.readFileSync(path.join(riDir, 'mission-events.jsonl'), 'utf8');
+      ck(events.includes('recurring-error-suspect'), 'RECURRING-ERROR: a distinct event is emitted to mission-events.jsonl, not just the return value');
       fs.rmSync(riDir, { recursive: true, force: true });
     }
 

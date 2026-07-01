@@ -806,7 +806,15 @@ async function mainLoop() {
           // auto-requeue once their fix is live); POINT/NEXT = why this mission mattered
           // and what the queue works on now.
           const pt = missionPoint(missionFile);
-          notify(`❌ FAILED x${n}: ${path.basename(raw).replace(/\.mission\.txt$/, '')}\nROOT step ${failedStep?.step ?? '?'}: ${why.slice(0, 140)}\nDISPOSITION: conductor diagnoses at next beat; fix-ledgered classes auto-requeue${pt ? `\nPOINT: ${pt}` : ''}\n${nextUpLine()}\n${scoreLine()}`);
+          // RECURRING-ERROR FLAG (2026-07-01): the identical raw error already fired 3+ times
+          // across this mission's replans/escalations -- almost certainly an infra bug, not a
+          // content defect no amount of re-authoring will fix. Called out distinctly so the
+          // operator doesn't have to grep mission-events.jsonl by hand to notice the pattern
+          // (that's exactly how tonight's real agy_dispatch.mjs crash went unnoticed for ~55m).
+          const recurringFlag = failedStep?.recurringError
+            ? `\n⚠️ RECURRING (seen ${failedStep.priorOccurrences}x already) — likely an engine/infra bug, not fixable by re-authoring`
+            : '';
+          notify(`❌ FAILED x${n}: ${path.basename(raw).replace(/\.mission\.txt$/, '')}\nROOT step ${failedStep?.step ?? '?'}: ${why.slice(0, 140)}${recurringFlag}\nDISPOSITION: conductor diagnoses at next beat; fix-ledgered classes auto-requeue${pt ? `\nPOINT: ${pt}` : ''}\n${nextUpLine()}\n${scoreLine()}`);
           writeRetro(raw, r, n); attempts.delete(raw);
         }
         else { evt(`attempt ${n} failed (${r?.phase}); will retry: ${raw}`); setMark(raw, ''); }

@@ -392,9 +392,24 @@ the same "close the gaps before a real mission runs" directive.
    `ollamaVisionVerdict` is hardened and ready (`3184b90`) for whenever this is
    signed off; the correct next action is drafting the addendum FOR the operator's
    review, not wiring the call into `orchestrate.mjs` first and asking forgiveness.
-4. **Get one mission through the full `claude-local-hybrid` panel end-to-end** —
-   still not proven this session despite every individual infra bug (env var,
-   containment, checkpoint-resume, integrator bridge, EXPORT-REGRESSION) being fixed.
+4. ~~Get one mission through the full `claude-local-hybrid` panel end-to-end~~ —
+   DONE (this continuation). `engine-proof-e2e-panel-2026-07-01.mission.txt` (a
+   deliberately trivial, zero-production-risk task) ran attempt 1 -> hit a real
+   content bug (planner's precondition check assumed `.git` is always a directory,
+   but the target repo is a worktree where it's a pointer file) -> attempt 2
+   self-corrected it with NO manual help -> DONE at 04:04:44Z, self-witness AFTER
+   pass also clean. First fully autonomous clean completion this session.
+
+   **Also shipped while investigating the mission that finally proved this**:
+   recurring-error detection (`orchestrate.mjs`'s `countPriorOccurrences()` +
+   `failStep`, `muezzin-daemon.mjs`'s FAILED-push flag) — the SAME identical error
+   text repeating 3+ times across replans/escalations now gets flagged distinctly
+   as "likely infra bug, not a content defect" instead of silently re-attempting
+   forever. Directly answers what let the agy_dispatch.mjs crash burn 55 minutes
+   undetected earlier tonight. Caught and fixed a real double-counting bug in my
+   own first version by actually writing a dedicated test for it (`85ab0a4`) rather
+   than trusting "no regressions in existing tests" as sufficient — existing tests
+   don't exercise new logic, only a new test does.
 5. Re-evaluate the chain-timing standing-ok file; continue the muddytires
    mission-board cleanup — both carried over unverified from the ~19:30Z list, not
    revisited this continuation.
