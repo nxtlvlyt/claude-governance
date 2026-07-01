@@ -110,6 +110,37 @@ deliverable-type-aware QC + faith file edits must be ratified in a FRESH oriente
 governance session that has read `~/.claude/practice/extended/` first. NOT in a
 long drifted feature-build session.
 
+## 15-MIN CONDUCTOR BEAT (2026-07-01T~13:37Z) — ACTUAL root cause found and fixed, prior beat's diagnosis was incomplete
+
+Parking `mt-integrate-b13-aria-live` last beat did NOT stop the self-kill cycle — 2 MORE
+deaths happened after that (07:26, 07:36), same ~10min cadence, but the active lane had
+moved on to a DIFFERENT mission (`mt-integrate-content-gap-detect`). That disproves the
+prior beat's framing (mission-specific content bug) — it's systemic.
+
+**Real root cause:** `conduct-cycle.mjs`'s `TASK_STUCK_MS` was `5 * 60 * 1000` (5 min).
+`heal()` runs on the daemon's own 5-min auto-cadence, so a lane surviving the first check
+(too recently started) gets killed on the SECOND check at ~10 elapsed minutes if it's
+still running — and a 3-seat Phase-1 PLANNING pass under `claude-local-hybrid` (Claude +
+2 local Ollama models each generating a full plan) routinely takes longer than 5 minutes
+with nothing actually hung. This fires on basically every mission, not a specific one.
+
+Also worth correcting precisely: `STUCK-TASK`'s taskkill-on-daemon's-own-PID is NOT a
+"wrong PID" bug — confirmed via its own test fixture (asserts `taskkill /PID 77777`
+where 77777 IS the daemon's own configured pid) that this is INTENTIONAL. Missions run
+in-process here; there is no separate subprocess to kill for "just the stuck lane," so
+self-kill-and-restart is the only mechanism available in this architecture. It was only
+ever missing the "and something restarts me" half (which `daemon-supervisor.ps1`, same
+incident, now provides).
+
+**Fixed:** `TASK_STUCK_MS` raised 5min -> 15min (commit `e5075c4`), with the reasoning
+for the specific number in the code comment (2 full heal cycles of headroom past a
+normal PLANNING pass, still under `LANE_STALL_MS`'s 20min report-only threshold so the
+two don't collide). Two test fixtures had their hardcoded "stuck" age bumped 6min->16min
+to match (they were testing the boundary condition, not a specific number) — full
+self-test suite green before committing. `mt-integrate-b13-aria-live` stays PARKED (that
+was a real, separate, correctly-diagnosed content-truncation issue, unrelated to this) —
+don't un-park it without checking why its artifact kept cutting off mid-sentence.
+
 ## 15-MIN CONDUCTOR BEAT (2026-07-01T~13:19Z) — mt-integrate-b13-aria-live PARKED
 
 Supervisor recovered 3 more self-kills since the last beat (06:55, 07:05, 07:15, all

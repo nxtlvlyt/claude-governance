@@ -31,7 +31,18 @@ const T = {
   LANE_STALL_MS: 20 * 60 * 1000,
   HB_WINDOW_MS: 30 * 60 * 1000,
   THINKING_BURN_COUNT: 3,
-  TASK_STUCK_MS: 5 * 60 * 1000,
+  // RAISED 2026-07-01 (real incident: the daemon self-killed 5 times in ~50 minutes,
+  // regardless of which mission was running, because heal()'s own 5-min auto-cadence
+  // means a lane surviving the first check gets killed on the second at ~10 elapsed
+  // minutes -- and a 3-seat Phase-1 panel PLANNING pass under claude-local-hybrid
+  // (Claude + 2 local Ollama models each generating a full plan) routinely takes longer
+  // than 5 minutes on its own, with nothing actually hung. 15min gives 2 full heal
+  // cycles of headroom past a normal PLANNING pass, while staying well under
+  // LANE_STALL_MS's 20min report-only threshold -- so a lane that's STILL running past
+  // 15min AND past 20min gets both the stall flag and (if the kill-target bug below is
+  // ever fixed) a real kill, instead of the two thresholds colliding on top of each
+  // other as they did at 5min.
+  TASK_STUCK_MS: 15 * 60 * 1000,
   LOOP_CAP_REPEATS: 3,
 };
 
@@ -683,7 +694,7 @@ function selftest() {
   }
 
   // fixture 1h: STUCK-TASK detection + heal() kills and requeues.
-  writeFileSync(path.join(logs, 'daemon-status.json'), JSON.stringify({ pid: 77777, state: 'running', lanes: [{ path: 'missions/stuck.mission.txt', start_ts: new Date(now - 6 * 60000).toISOString() }], queued: 0, ts: new Date(now).toISOString() }));
+  writeFileSync(path.join(logs, 'daemon-status.json'), JSON.stringify({ pid: 77777, state: 'running', lanes: [{ path: 'missions/stuck.mission.txt', start_ts: new Date(now - 16 * 60000).toISOString() }], queued: 0, ts: new Date(now).toISOString() }));
   writeFileSync(path.join(logs, 'daemon.pid'), '77777');
   writeFileSync(path.join(tmp, 'missions', 'AUTORUN.md'), '# q\nRUNNING missions/stuck.mission.txt  <!-- t -->\n');
   writeFileSync(path.join(logs, 'dispatch-heartbeat.log'), `${new Date(now - 1 * 60000).toISOString()} attempt-ok provider=ollama-cloud model=kimi-k2.6 heal=0 ms=1 chars=10\n`);
@@ -700,7 +711,7 @@ function selftest() {
   ck(events.includes('SWEEP-HEAL') && events.includes('STUCK-TASK') && events.includes('stuck.mission.txt'), 'heal(): SWEEP-HEAL event logged to daemon-events.log');
 
   // fixture 1i: detectStuckLanes and detectLoopCaps direct checks + LOOP-CAP sweep.
-  const dl = detectStuckLanes({ pid: 1, lanes: [{ path: 'missions/a.mission.txt', start_ts: new Date(now - 6 * 60000).toISOString() }, { path: 'missions/b.mission.txt', start_ts: new Date(now - 2 * 60000).toISOString() }, 'missions/c.mission.txt'] }, now);
+  const dl = detectStuckLanes({ pid: 1, lanes: [{ path: 'missions/a.mission.txt', start_ts: new Date(now - 16 * 60000).toISOString() }, { path: 'missions/b.mission.txt', start_ts: new Date(now - 2 * 60000).toISOString() }, 'missions/c.mission.txt'] }, now);
   ck(dl.length === 1 && dl[0].path === 'missions/a.mission.txt' && dl[0].stuck, 'detectStuckLanes flags only lanes over TASK_STUCK_MS');
   const lc = detectLoopCaps(parseAutorun('DONE missions/loop.mission.txt\nFAILED missions/loop.mission.txt\nRUNNING missions/loop.mission.txt\n'));
   ck(lc.length === 1 && lc[0].stem === 'loop' && lc[0].count === 3, 'detectLoopCaps caps a stem appearing LOOP_CAP_REPEATS times');
