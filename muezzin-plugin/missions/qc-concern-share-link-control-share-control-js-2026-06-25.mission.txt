@@ -1,0 +1,104 @@
+MISSION-CLASS: code-repo
+MISSION-ID: M-MUDDYTIRES.QC-CONCERN-SHARE-LINK-CONTROL-SHARE-CONTROL-JS-2026-06-25
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+TARGET-BRANCH: feat/qc-concern-share-link-control-share-control-js-2026-06-25
+ALLOW-FILES:
+  - js/*.js
+  - workers/**/*.js
+
+Niyyah: address the QC CONCERN named "Share link control (share-control.js)" from the 2026-06-25 e2e-walk.
+
+Maqsad: GATE: Share button appears next to Save button in popup — FAIL: No POI popup is visible in either screenshot, so the button presence cannot be verified. GATE: Hashchange handler scans #spot=<id> and flyTo+openPopup — FAIL: The map remains at a national zoom level in both shots with no popup triggered or marker focused. GATE: Slate-colored chip distinct from forest-green save button — FAIL: The share button and save button are not visible in the provided screenshots. GATE: Flash toast confirms 'Link copied' — FAIL: No flash toast notification appears in the final screenshot. Confirm share-control.js mounts a slate-colored share button next to the forest-green save button inside every POI popup, that copying the link emits a 'Link copied' flash toast, and that the page-load hashchange handler reads #spot=<id>, flies the map to that marker, and opens its popup. Restore behavior to that specified in docs/FEATURE-CATALOG-2026-06-23.md.
+
+Context (unbiased facts, gathered 2026-07-01 — no prescribed solution):
+- docs/FEATURE-CATALOG-2026-06-23.md lists "js/share-control.js (share button)" as a one-line
+  skeleton entry only — it names the file but never specifies a button color or toast wording.
+  The specific slate-vs-forest-green and 'Link copied' gates above came from the QC walk's own
+  visual checklist, not from that catalog doc. Do not expect to find a color/wording spec there.
+- Independently re-checked each GATE against js/share-control.js as it stands today (commit
+  a94c3bd, the only commit ever made to this file on main/master): GATE 1 (button placement) and
+  GATE 2 (hashchange handler) both look code-correct — injectShareButton() locates
+  container.querySelector('.mt-save-btn') and inserts the share button immediately after it, and
+  parseSpotHash()/applySpot()/tryApply() correctly parse #spot=<id>[&zoom=], flyTo, then
+  openPopup(). Their original walk FAILs were most likely caused by the walk never opening a POI
+  popup (map stuck at national zoom, no marker clicked) rather than a code defect. GATE 3 (slate
+  vs forest-green) is a genuine, confirmed-live defect: the injectCSS() function's stylesheet
+  gives .mt-share-link-btn the same #1d6f3a hex used by .mt-save-btn in js/saved-list.js for both
+  the base text color and the .is-copied active-fill state — there is no slate color anywhere in
+  the file, despite the file's own header comment claiming a "different colour (slate vs forest
+  green)" was intended. GATE 4 (flash toast wording) is a partial miss: on copy, the button label
+  does swap to "Copied", but the separate flash() element displays the raw copied URL text, not
+  the literal phrase "Link copied".
+- This mission was never previously attempted. Its sandbox provisioning was refused before any
+  step ran: mission.result.json recorded "code-repo TARGET-BRANCH: refusing checkout
+  'feat/qc-concern-poi-affiliate-cards-poi-affiliate-cards-js-2026-06-25' ->
+  'feat/qc-concern-share-link-control-share-control-js-2026-06-25' — worktree is dirty" (modified,
+  uncommitted js/fire-ban-layer.js and js/site-search.js). Root cause: the immediately-preceding
+  mission in that batch, qc-concern-poi-affiliate-cards-poi-affiliate-cards-js-2026-06-25, was
+  marked DONE despite committing zero steps, leaving the shared worktree dirty. Every same-day
+  qc-concern-* mission queued after it hit the identical sandbox-checkout refusal in the same
+  ~21:40-21:46Z window (a cascade caused by one wrongly-issued DONE verdict, not a per-mission
+  problem). This is an engine/orchestration hygiene defect, not evidence that share-control.js's
+  concern is unfixable — the mission never got to attempt anything.
+- Two SEPARATE, EARLIER, unmerged attempts to fix this same file already exist in this repo's
+  history, neither reachable from main/master and neither produced by a completed run of this
+  mission (no mission-events.jsonl or panel-architect-*.raw.txt exists for this mission; the sole
+  ledger entry for it is the FAILED(sandbox) one above):
+    (a) commit 20c6510 (2026-06-25 01:20 -0400) sits in the ancestry of
+        feat/qc-concern-poi-affiliate-cards-poi-affiliate-cards-js-2026-06-25 — i.e. it is already
+        present in the exact base this mission's TARGET-BRANCH is meant to be cut from. It
+        recolors the base label and hover rule to slate (#475569) but leaves the .is-copied
+        active-fill state and the flash-text color on the old forest-green values (#1d6f3a /
+        #2e6b3a) — a half-finished fix — AND drops the trailing string-concatenation operator
+        after the .is-copied rule, which silently removes the .mt-share-link-ico and
+        .mt-share-link-flash rules from the stylesheet actually injected at runtime (confirmed:
+        `node -c` still reports valid syntax — this is a silent behavioral regression, not a
+        crash, and would not be caught by a syntax check alone).
+    (b) commit fbe0533 (2026-06-25 12:22 -0400) sits on a branch already named
+        feat/qc-concern-share-link-control-share-control-js-2026-06-25 in this repo today — the
+        exact TARGET-BRANCH name this mission declares above — but built from an unrelated parent
+        (the mobile-sheet mission's commit), NOT from the poi-affiliate-cards tip. It is a clean,
+        complete fix: all four button-state rules (base, hover, is-copied, flash text) recolored
+        consistently to #475569, and the flash call changed to pass the literal string
+        'Link copied' instead of the raw URL.
+  Neither commit has ever been merged to main/master or master's default checkout, so the live
+  default branch still shows the fully-unfixed color scheme. Whichever base the sandbox actually
+  provisions from for this run may already be sitting in the a94c3bd-clean state OR the
+  20c6510-partial-and-buggy state — the Done-means checks below must hold on the FINAL committed
+  state regardless of which one was inherited. A branch already exists on disk under this
+  mission's exact TARGET-BRANCH name pointing at unrelated history (fix b above); whoever
+  provisions the sandbox needs to resolve that name collision deliberately (inspect, then
+  reset/rename as appropriate) rather than assume the name is free — a second, distinct landmine
+  from the original dirty-worktree failure. #475569 is named here only as the hex an earlier,
+  never-judged attempt happened to use, not a mandated value — any color that is genuinely
+  slate/gray-blue and never equal to the save button's forest green satisfies the gate.
+
+Done means (verifiable receipts — run from REPO-ROOT):
+  - `node -c js/share-control.js` exits 0 (valid syntax).
+  - `Select-String -Path js\share-control.js -Pattern '#1d6f3a|#2e6b3a|rgba\(29,\s*111,\s*58'`
+    returns ZERO matches — no forest-green reference remains anywhere in share-control.js, in any
+    of the four button-state rules (base, hover, is-copied, flash text).
+  - `Select-String -Path js\share-control.js -Pattern '\.mt-share-link-btn\.is-copied'` and
+    `Select-String -Path js\share-control.js -Pattern '\.mt-share-link-flash\{'` both still return
+    a match, AND the color token used in each is the SAME slate value used in the base
+    `.mt-share-link-btn{...color:...}` rule — i.e. no state is left half-migrated the way commit
+    20c6510 left it.
+  - `Select-String -Path js\saved-list.js -Pattern '#1d6f3a'` still returns matches — the save
+    button's forest-green is untouched (regression guard; saved-list.js is out of this mission's
+    concern even though it is in ALLOW-FILES scope).
+  - `Select-String -Path js\share-control.js -Pattern 'mt-save-btn'` and
+    `Select-String -Path js\share-control.js -Pattern 'parseSpotHash|flyTo|openPopup'` both still
+    return matches — the button-placement and hash-router logic (GATEs 1-2, already code-correct)
+    are not accidentally removed or broken while fixing GATE 3-4.
+  - `Select-String -Path js\share-control.js -Pattern "flash\(btn, 'Link copied'\)"` (or the
+    equivalent call passing the literal phrase) returns a match — the flash element displays the
+    words "Link copied", not the raw copied URL.
+  - A headless/rendered walk that actually clicks a POI marker to open its popup (fixing the
+    original walk's instrumentation gap) shows: the Share button and Save button both present in
+    the popup with visually distinct colors (share button's computed color/background is never
+    rgb(29, 111, 58)), and clicking Share produces a flash reading "Link copied".
+  - e2e-runner walk returns {clean}; the concern is resolved; no other features regress.
+
+Amanah: this slice is part of the muddytires.ca quality-uplift backlog.
+
+MODEL-ROUTING: TIER_CLOUD_CODE — kimi-k2.7-code or deepseek-v4-pro for fix authoring.

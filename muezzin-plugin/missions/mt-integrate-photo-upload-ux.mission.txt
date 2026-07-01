@@ -1,0 +1,29 @@
+MISSION MT-INTEGRATE-PHOTO-UPLOAD-UX
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - js/photo-upload-ux.js
+  - map.html
+VISUAL-QC-REQUIRED
+PREVIEW-BASE-URL: http://localhost:8788
+
+Niyyah: Land the photo-upload-ux feature (drag-drop, camera capture hint, HEIC->JPEG conversion, EXIF/GPS-stripping canvas re-encode, and XHR upload progress+retry) from its own worktree onto the integration repo's current HEAD, without silently dropping either side's changes, and leave a cleanly-committed tree behind. Authoring and firing this mission is NOT verification that the feature code itself is correct — nobody has run any QC, test, or render process against this diff yet. That judgment belongs entirely to this mission's own headless-render witness and the verdict panel that reviews it, never to the act of writing this mission file.
+
+Maqsad: Cherry-pick commit b53404f (feat(photo-upload-ux): drag-drop, camera, HEIC->JPEG, EXIF strip, progress + retry) from the source worktree onto REPO-ROOT's current HEAD, resolving any conflict by keeping BOTH the target's existing unrelated edits and the feature's additions, confirm js/photo-upload-ux.js with node --check, commit the result, and get a headless-browser render witness of map.html before calling this done.
+
+Steps:
+  1. In REPO-ROOT, confirm the commit is already reachable with `git cat-file -e b53404f^{commit}`, then run `git cherry-pick b53404f`. The source worktree at C:\Users\marka\code\mt-feat-photo-upload-ux is a linked worktree of the same underlying repository as REPO-ROOT, so the commit's objects already live in the shared object store — no remote-add or fetch step is needed. [command] cherry-pick-feature-commit
+  2. If step 1 reports a conflict (most likely in map.html's script-tag chain), open each conflicted file and keep BOTH the `<<<<<<< HEAD` side (the target's own unrelated edits already on HEAD) and the incoming side (this feature's new `<script src="js/photo-upload-ux.js" defer>` tag and any other feature hunks) side by side — never delete either side's content to force a resolution. Then `git add` the resolved paths and run `git cherry-pick --continue` to complete the commit with the original commit message. [edit] resolve-conflicts-keep-both-sides
+  3. Run `node --check js/photo-upload-ux.js` from REPO-ROOT and confirm it exits 0 — this is the only changed .js file in the diff; map.html is markup, not script, so node --check does not apply to it. [command] node-check-photo-upload-ux
+  4. Run `git log --oneline -1` and `git status --porcelain` in REPO-ROOT to confirm the feat(photo-upload-ux) commit is now on HEAD and there are no uncommitted changes left against js/photo-upload-ux.js or map.html. [command] verify-commit-and-clean-tree
+  5. Start (or confirm already running) a local `wrangler pages dev` server serving REPO-ROOT, then drive a headless browser (Puppeteer or Playwright) to PREVIEW-BASE-URL + /map.html, capture a full-page screenshot and the browser console log, and confirm the page boots (map renders, no new console errors attributable to js/photo-upload-ux.js). This headless render is the actual visual QC evidence for the VISUAL-QC-REQUIRED header above — the operator needs to confirm PREVIEW-BASE-URL points at the right local port before this step fires; http://localhost:8788 is only a placeholder default. [command] headless-render-witness
+
+Done means:
+  - `git log --oneline -1` in REPO-ROOT shows the feat(photo-upload-ux) commit message on HEAD (either the original SHA b53404f if the cherry-pick applied cleanly, or a new SHA carrying the same message if a conflict was resolved and completed via cherry-pick --continue).
+  - js/photo-upload-ux.js exists under REPO-ROOT and `node --check js/photo-upload-ux.js` exits 0.
+  - map.html under REPO-ROOT contains `<script src="js/photo-upload-ux.js" defer>` AND still contains every pre-existing script tag that was present on HEAD before the cherry-pick — neither side of any conflict was dropped.
+  - `git status --porcelain` in REPO-ROOT shows no uncommitted changes against js/photo-upload-ux.js or map.html (pre-existing untracked files unrelated to this feature may remain and are out of this mission's scope).
+  - A headless browser (Puppeteer or Playwright) render of map.html against PREVIEW-BASE-URL succeeded, producing a saved screenshot and a captured console log with no new errors attributable to js/photo-upload-ux.js. This headless render is the ONLY verification this mission performs of whether the feature code actually works correctly in a browser — the mission text itself proves nothing about correctness.
+
+Context: PREVIEW-BASE-URL (http://localhost:8788) is a placeholder for a local `wrangler pages dev` server; the operator must confirm the real local preview port before the headless-render-witness step fires. Because this diff touches map.html, VISUAL-QC-REQUIRED applies, and the verdict panel judging this mission must see the rendered screenshot and console log, not just the source diff.
+Amanah: entrusted; discharge with ihsan.

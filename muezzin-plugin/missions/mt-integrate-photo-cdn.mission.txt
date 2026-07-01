@@ -42,8 +42,8 @@ prescribed resolution beyond "keep both sides"):
 - Confirmed diff stat for dff609e this session (`git show --stat`): 1 file
   changed, 281 insertions(+), 0 deletions(-) — a single brand-new file,
   functions/api/contribute/photo/[key].js. No other file is touched. This
-  diff touches zero .html files, so no VISUAL-QC-REQUIRED header or
-  headless-render witness step is needed by this mission.
+  diff touches zero .html files, so no visual-QC header or headless-render
+  witness step is needed by this mission.
 - The source worktree and the target repo are worktrees of the same
   underlying git repository (confirmed via `git worktree list`, and
   `git cat-file -t dff609e` succeeding directly inside the target repo) —
@@ -87,8 +87,8 @@ Steps:
   2. If not already integrated: `git cherry-pick dff609e` onto main directly
      from the target repo's own object database (the commit is already
      reachable there — no fetch/remote-add step is needed; the source
-     worktree C:\Users\marka\code\mt-feat-photo-cdn is read-only reference,
-     never rewritten). [command] integrate-commit
+     worktree C:\Users\marka\code\mt-feat-photo-cdn must not be modified or
+     rewritten by this mission). [command] integrate-commit
   3. If the cherry-pick reports a conflict on functions/api/contribute/photo/[key].js
      or any other path, resolve each conflicted hunk by hand so the resolved
      content contains BOTH the target's pre-existing content AND this

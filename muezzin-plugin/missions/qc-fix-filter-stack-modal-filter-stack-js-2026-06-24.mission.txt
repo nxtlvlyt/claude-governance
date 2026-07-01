@@ -1,0 +1,197 @@
+MISSION QC-FIX-FILTER-STACK-MODAL-FILTER-STACK-JS-2026-06-24
+MISSION-CLASS: code-repo
+MISSION-ID: M-MUDDYTIRES.QC-FIX-FILTER-STACK-MODAL-FILTER-STACK-JS-2026-06-24
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+TARGET-BRANCH: feat/qc-fix-filter-stack-modal-filter-stack-js-2026-06-24
+ALLOW-FILES:
+  - js/ui-chrome.js
+  - js/filter-stack.js
+  - docs/FEATURE-CATALOG-2026-06-23.md
+REQUIRES: none
+
+Niyyah: close the QC block "Filter-stack modal (filter-stack.js)" flagged by the 2026-06-24
+Gemini-verified visual e2e QC walk — this time fixing the actual discoverability blocker,
+not only the DOM-attachment symptom an earlier pass already fixed.
+
+RE-AUTHORED after this exact mission file was deleted following a sandbox-phase failure
+that never reached planning or execution (0 events, 0 plan-phases, 0 steps-committed): the
+engine refused to check the shared worktree out onto this mission's TARGET-BRANCH because
+an untracked leftover file from an UNRELATED prior mission (ev-charging-layer) had left the
+worktree dirty. That was a correct engine refusal, not a flaw in this mission's own work
+order, and it is not something this mission's Steps can fix (ALLOW-FILES below is scoped to
+this feature's own files only).
+
+Separately, and BEFORE that infra failure, an EARLIER pass on this same mission ID DID
+commit real, correct work: commit a2c5a05 "qc-fix(filter-stack-modal): restore filter-stack
+modal visibility per QC walk 2026-06-24" added null/detached-DOM guards to openModal() in
+js/filter-stack.js (re-appends modal/backdrop to document.body if they lack a parentNode;
+null-checks btn/backdrop before touching them). That fix is real, is already on `main` and
+on TARGET-BRANCH (verified this session via `git merge-base --is-ancestor a2c5a05 main` and
+a diff of js/filter-stack.js between main and TARGET-BRANCH, which is empty), and must NOT
+be redone or reverted.
+
+Maqsad: verified this session (reading current disk content, not recalled) that a SECOND,
+independent bug — never touched by a2c5a05 or by any commit since — is the more likely
+actual cause of the QC walk's reported failure and is still live on `main` today:
+- js/ui-chrome.js's ensurePass4CSS() (added by commit 9cb4a88, 2026-06-22 23:30:58, BEFORE
+  the 2026-06-24 QC walk and BEFORE a2c5a05) injects the unconditional rule
+  `#mtFilterStackBtn{display:none!important}`. This forces the ONLY documented entry point
+  into filter-stack.js (docs/FEATURE-CATALOG-2026-06-23.md:202 — "js/filter-stack.js (filter
+  chips at top of map)") permanently invisible on every page load.
+- The only remaining path to the feature is wireFilterStackInMenu() (js/ui-chrome.js,
+  currently lines 642-673): a hamburger-menu entry that temporarily sets
+  `fsBtn.style.display='flex'`, calls `fsBtn.click()`, then restores the old inline style.
+  Because the CSS rule carries `!important`, that inline-style toggle never actually changes
+  the button's computed visibility — the button stays display:none throughout, even during
+  the "unhidden" window. A standard automated interaction (Playwright's actionability-gated
+  `page.click('#mtFilterStackBtn')`, which is what a catalog-driven QC walk would use) cannot
+  click a display:none element and fails outright; this exactly matches the reported gate
+  failure shape ("the modal is not visible... the map view remains unchanged from the
+  initial state" reads precisely like a failed/timed-out click attempt on a hidden element,
+  followed by an unchanged final screenshot).
+- This bug was NOT in scope of what a2c5a05 touched (that commit only edited
+  js/filter-stack.js). The original mission's ALLOW-FILES (js/*.js) technically covered
+  js/ui-chrome.js too, but the executor's actual diff never went there — so this gap has
+  been live, untouched, since before the QC walk that reported it and remains live today.
+- docs/FEATURE-CATALOG-2026-06-23.md has NO structured `### Feature: Filter stack` section
+  (confirmed: only three such sections exist — Vehicle profile picker, Fuel-cost chip in
+  status bar, Carbon-footprint chip — filter-stack.js appears only as a bare file-list line
+  under the "TODO — Priority B+ features to catalog" skeleton, line 202). scripts/e2e-runner.mjs's
+  parseCatalog() only extracts `### Feature:` sections; without one for "Filter stack" a
+  `--features filter-stack` run matches ZERO catalog entries and the runner reports
+  features_run:0 with all-zero counts — which reads as a vacuous, false "clean" exit(0)
+  without ever having tested anything. Restoring the documented behavior in a way that is
+  actually re-checkable therefore requires adding this catalog entry, not only fixing the
+  code.
+
+Confidence note: no fresh browser/e2e run has been performed yet to reproduce the exact
+2026-06-24 gate failure against current `main`; the diagnosis above is code-and-history
+evidence only. Treat it as high-but-not-certain (~0.75) until Steps 7-9 below produce a
+live verdict.
+
+Steps:
+  1. Record current state and re-derive the gap live (do not trust the analysis above
+     blind): `git -C C:\Users\marka\code\mt-integration-2026-06-22 status --short`;
+     `git -C C:\Users\marka\code\mt-integration-2026-06-22 log --oneline -3 --
+     js/filter-stack.js` (must show a2c5a05 already present — if it does not, STOP and
+     report, do not re-author that fix here); `git -C
+     C:\Users\marka\code\mt-integration-2026-06-22 show main:js/ui-chrome.js |
+     Select-String -Pattern "mtFilterStackBtn\{display:none"` (must currently MATCH,
+     proving the discoverability bug is still real before any edit is made).
+     [command] verify-target-state
+  2. Reset TARGET-BRANCH onto main's current tip: `git -C
+     C:\Users\marka\code\mt-integration-2026-06-22 checkout -B
+     feat/qc-fix-filter-stack-modal-filter-stack-js-2026-06-24 main`. This is lossless —
+     TARGET-BRANCH's previous tip (a2c5a05) is a pure ancestor of main, confirmed this
+     session via `git merge-base --is-ancestor`, so nothing local-only is discarded.
+     Afterward `git -C C:\Users\marka\code\mt-integration-2026-06-22 branch --show-current`
+     MUST print exactly "feat/qc-fix-filter-stack-modal-filter-stack-js-2026-06-24".
+     [command] checkout-target-branch
+  3. Edit js/ui-chrome.js: delete the line
+     `+ '#mtFilterStackBtn{display:none!important}'` from inside ensurePass4CSS() (the
+     "D. Filter-stack button: hide standalone; expose via menu." block) so the button
+     renders visible by default again. Update the adjacent doc comment (currently "D. The
+     standalone filter-stack button (#mtFilterStackBtn) is hidden; a 'Filter stack' entry
+     is added to the hamburger menu instead.") to say the button is visible and the menu
+     entry is a secondary shortcut, not the only path. Do NOT delete wireFilterStackInMenu()
+     or its menu entry — leave it as a working secondary access point. While in that
+     function, replace the temporarily-unhide/`.click()`/re-hide relay (which is inert dead
+     weight once the button is visible by default, and was never reliable even before this
+     fix because the removed `!important` rule made the inline-style toggle a no-op) with a
+     direct call to the module's own exposed API: `if (window._filterStack &&
+     window._filterStack.open) { window._filterStack.open(); return; }` before falling back
+     to the old fsBtn-click path for safety. [edit] ui-chrome-unhide-button
+  4. `node --check js/ui-chrome.js` and `node --check js/filter-stack.js` from the repo
+     root; both must exit 0. [command] node-check
+  5. Add a structured catalog entry so this feature becomes runnable by
+     scripts/e2e-runner.mjs. In docs/FEATURE-CATALOG-2026-06-23.md, add a new
+     `### Feature: Filter stack` section (same field shape as the three existing sections —
+     Page, Loaded by, Pre-state required, Selectors, Interaction, Expected behavior,
+     Expected visual) documenting: Page `https://muddytires.ca/map`; Loaded by
+     `js/filter-stack.js` (self-mounts via its own `<script src="js/filter-stack.js"
+     defer>` tag already in map.html — no HTML change needed); Selectors
+     `#mtFilterStackBtn`, `#mtFilterStackModal`, `.mt-fs-save`; Interaction "click
+     #mtFilterStackBtn"; Expected behavior "modal opens", "preset save persists to
+     localStorage across reload", "active-count badge on the button updates when overlays
+     are toggled"; Expected visual "button visible near the top of the map, not obscured or
+     display:none, does not overlap the zoom control or search icon". Also remove or
+     annotate the now-redundant bare list line at (current) line 202 so the catalog does not
+     carry the feature in two contradictory forms. [edit] catalog-filter-stack-entry
+  6. `node -e "const {readFileSync}=require('node:fs'); const t=readFileSync('docs/FEATURE-CATALOG-2026-06-23.md','utf8'); const has=/^### Feature: Filter stack$/m.test(t); console.log(JSON.stringify({has}));"`
+     from the repo root must print `{"has":true}` — confirms the catalog section header is
+     byte-exact enough for scripts/e2e-runner.mjs's `text.split(/^### Feature: /m)` parser to
+     pick it up. [command] confirm-catalog-parseable
+  7. Start a local server for the checked-out worktree: `npx wrangler pages dev . --port
+     8788` (background). Confirm it is up before proceeding (retry a plain HTTP GET to
+     http://localhost:8788/map.html for up to 30s). [command] start-local-server
+  8. Baseline walk (BEFORE any behavior change is possible to observe — run this on the
+     branch state as of step 2, i.e. it will naturally include the step-3/5 edits since they
+     already happened; the comparison in step 10 is against the LIVE production baseline
+     captured separately in docs/e2e-report-2026-07-01.json, not a second local run):
+     `node scripts/e2e-runner.mjs --preview-url http://localhost:8788 --out
+     docs/e2e-report-filter-stack-fix-2026-06-24.json`. This runs all four catalog features
+     (the pre-existing three plus the new "Filter stack" entry from step 5). Exit code and
+     summary.counts are informational at this point; do not treat a non-zero exit as failure
+     by itself — read the JSON. [command] run-e2e-walk
+  9. Read docs/e2e-report-filter-stack-fix-2026-06-24.json. The "Filter stack" result's
+     `agyVerdict` must be `clean` or `concern` (never `block` or `error`), and its
+     `stepLog`/`agyResponse` must not contain "STEP_FAILED" for the `click #mtFilterStackBtn`
+     interaction. [command] read-verdict
+  10. Regression check against the existing baseline docs/e2e-report-2026-07-01.json (the
+      production run captured before this mission touched anything): for each of the three
+      pre-existing features (vehicle-profile-picker, fuel-cost-chip-in-status-bar,
+      carbon-footprint-chip-currently-missing-from-build), confirm in
+      docs/e2e-report-filter-stack-fix-2026-06-24.json that `agyVerdict` did not move from a
+      non-`error` value to `error`, and that `consoleErrors` gained no new entry mentioning
+      "ui-chrome.js" or "filter-stack.js" that is absent from the baseline file. Pre-existing
+      `block` verdicts on those three features are NOT this mission's to fix and are not a
+      regression by themselves — only a NEW error/console-error attributable to this
+      mission's edit counts. [command] confirm-no-regression
+  11. Stop the local server (kill the wrangler pages dev process).
+      [command] stop-local-server
+  12. Commit: `git -C C:\Users\marka\code\mt-integration-2026-06-22 add js/ui-chrome.js
+      js/filter-stack.js docs/FEATURE-CATALOG-2026-06-23.md` then `git -C
+      C:\Users\marka\code\mt-integration-2026-06-22 commit -m "qc-fix(filter-stack):
+      restore discoverable filter-stack trigger + catalog it for e2e" -m "Mission:
+      M-MUDDYTIRES.QC-FIX-FILTER-STACK-MODAL-FILTER-STACK-JS-2026-06-24" -m "Gate restored:
+      Modal opens (via visible #mtFilterStackBtn, not only the hamburger-menu relay)"`. Never
+      `--amend`, `--force`, or `--no-verify`. [command] commit-fix
+  13. Final receipt — re-run the exact static check that would have caught the ORIGINAL
+      miss if it had been run against that attempt's (nonexistent) diff: `git -C
+      C:\Users\marka\code\mt-integration-2026-06-22 show
+      feat/qc-fix-filter-stack-modal-filter-stack-js-2026-06-24:js/ui-chrome.js |
+      Select-String -Pattern "mtFilterStackBtn\{display:none"` must now return NO match on
+      THIS mission's own named branch specifically. [command] grep-gate-receipt
+
+Done means:
+  - `git -C C:\Users\marka\code\mt-integration-2026-06-22 branch --show-current` prints
+    exactly "feat/qc-fix-filter-stack-modal-filter-stack-js-2026-06-24".
+  - Step 13's receipt returns NO match for `mtFilterStackBtn\{display:none` on that branch
+    (the mechanical check that would have caught the original miss, where this exact string
+    was still present after the mission was reported "done").
+  - Reading js/filter-stack.js on that branch still shows the a2c5a05 DOM-reattachment guard
+    in openModal() (the `if (modal && !modal.parentNode) document.body.appendChild(modal)`
+    line and its backdrop counterpart) unchanged — this mission adds to js/ui-chrome.js, it
+    does not touch or regress the earlier fix.
+  - `node --check js/ui-chrome.js` and `node --check js/filter-stack.js` both exit 0.
+  - docs/FEATURE-CATALOG-2026-06-23.md contains a `### Feature: Filter stack` section
+    matching step 6's parser check.
+  - docs/e2e-report-filter-stack-fix-2026-06-24.json exists, was produced by an actual
+    headless-browser (Playwright) run via scripts/e2e-runner.mjs against a live local
+    server (not fabricated), and its "Filter stack" result has `agyVerdict` in
+    {clean, concern} with no "STEP_FAILED" against the click interaction.
+  - Step 10's regression check passes: no pre-existing feature's verdict moved to `error`
+    and no new ui-chrome.js/filter-stack.js console error appears versus
+    docs/e2e-report-2026-07-01.json.
+  - `git -C C:\Users\marka\code\mt-integration-2026-06-22 log --oneline -3` on that branch
+    shows a commit at/near HEAD citing this mission's ID.
+  - If step 7-10's live walk cannot run for a genuine infra reason (Playwright missing,
+    wrangler dev fails to bind, Ollama Cloud unreachable) — name that blocker as a receipt
+    with the actual error text; do not report Done on the strength of the static checks
+    (Steps 1-6, 12-13) alone, and do not silently skip the live verdict.
+
+Context: Sandbox writes only, target repo working tree only. This mission does not deploy
+anything — landing on TARGET-BRANCH is the deliverable; shipping to production is a
+separate, later ops-deploy mission's job.
+Amanah: this slice is part of the muddytires.ca QC-block backlog. Discharge with ihsan.
+MODEL-ROUTING: TIER_CLOUD_CODE — qwen3-coder:480b or kimi-k2.7-code for fix authoring.
