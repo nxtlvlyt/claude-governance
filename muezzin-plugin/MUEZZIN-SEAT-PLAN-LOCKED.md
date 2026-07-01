@@ -166,3 +166,66 @@ runs out." And it is not a different model family ("agy models") — agy dispatc
 Claude Sonnet (`claude-sonnet-4-6`) via Google Vertex AI routing, just through a different
 pipe with a separate 4-hour quota window; the file's own caveat above (§4) notes Antigravity's
 Sonnet may not be 100% identical to direct-API Sonnet in self-reported knowledge cutoff.
+
+---
+
+## PENDING ADDITION — Visual witness as a Phase-3 boundary auditor (2026-07-01, awaiting operator lock)
+
+**Proposal:** Promote the visual-regression witness (`visual_witness.mjs` + `visual_capture.mjs`,
+built this session, engine-visual-capture-nonblocking mission) from its current NON-BLOCKING
+advisory status into a REAL voting Phase-3 boundary auditor — a seat whose verdict can
+actually gate `merged.consensus`, not just get logged alongside it.
+
+**What already exists (shipped, non-blocking):** `orchestrate.mjs`'s `defaultVerdictPhase` now
+calls `applyVisualWitness(mission, cwd, merged, opts)` whenever a mission's text carries BOTH a
+`VISUAL-QC-REQUIRED` header and a `PREVIEW-BASE-URL: <url>` header. It captures preview
+screenshots via Puppeteer (`visual_capture.mjs`, mirrors the existing
+`capture-visreg-baseline.mjs` viewport/settle logic) and diffs them against `qc-baseline/` via
+`witnessVisualDiff` (Ollama-routed vision model). The result lands in `merged.visualWitness`,
+is receipted to `mission-events.jsonl` as a `visual-witness` event, and survives to the final
+result object — but it NEVER touches `merged.consensus` or `merged.dispositions`. A mission
+with a "block" visual verdict still completes exactly as if visual QC never ran.
+
+**Real usability data (live-tested 2026-07-01, not asserted):** compared local Ollama vision
+models against real `qc-baseline/` screenshots (identical-pair + genuinely-different-pair
+sanity checks, 18 total real comparisons across 3 candidate models):
+- `qwen3.6:27b` — DISQUALIFIED. Called two visibly different real pages ("about" vs
+  "ambassadors") identical. Cannot discriminate; unsafe as any kind of QC judge.
+- `gemma4:31b` — 12/12 correct (6 identical-pairs correctly clean, 6 different-pairs correctly
+  flagged block), avg ~11.4s/comparison, full 54-comparison run (18 pages x 3 viewports)
+  ≈ 10 minutes. Fits nxtbeast's 24GB VRAM (19.9GB on disk).
+- `nemotron3:33b` (family `nemotron_h_omni`) — 11/12 correct, one false positive (flagged an
+  IDENTICAL self-comparison as "block"). Slightly over the 24GB VRAM ceiling on disk (27.6GB)
+  but ran without catastrophic slowdown; the one false-positive is a real reliability concern
+  for anything that gates consensus.
+- **Recommendation if this seat is ever wired to actually gate:** `gemma4:31b`, not the
+  Ollama-Cloud `gemini-3-flash-preview` model `ollama_vision_verdict.mjs` currently defaults
+  to — it is free, local, and scored perfectly on real data, vs. a cloud model that is
+  currently unusable anyway (Ollama Cloud usage limit hit, ~4 days from 2026-07-01).
+
+**Why operator sign-off is required (per this file's own preamble rule):** promoting this from
+advisory-only to an actual voting seat changes what "consensus" means for every
+`VISUAL-QC-REQUIRED` mission — a real visual defect could newly BLOCK a mission that would
+otherwise APPROVE. That is a governance-shape change to the verdict panel itself, the exact
+class of decision this file's lock exists to gate (matching the standard already applied to
+the agy Phase-2 proposal above).
+
+**Integration cost if locked:** in `mergeVerdicts` (verdict_merge.mjs) or immediately after its
+call in `defaultVerdictPhase`, treat `merged.visualWitness?.verdict === 'block'` as a
+disqualifying finding pushed into `merged.dispositions` with `merged.consensus` capped at
+REVISE (mirroring the existing OMISSION FLOOR pattern a few lines above in the same function).
+Small, additive, already has the exact precedent to copy.
+
+**Rollback plan:** trivial — the advisory version is fully gated behind two mission-text
+headers that default to absent, so simply not locking this proposal leaves every mission
+running exactly as it does today.
+
+**Status:** PENDING — awaiting operator lock. Advisory version is live and shipping now.
+
+---
+
+**DISPUTED 2026-07-01:** the operator directly pushed back on the Claude-routing claim above
+("agy has nothing to do with you or claude") — disputing the premise this whole proposal rests
+on. Not yet resolved; his own understanding of what agy is takes precedence over this file's
+week-old claim once given. Treat the routing claim as unconfirmed until then — do not cite it
+as settled fact in any future session.
