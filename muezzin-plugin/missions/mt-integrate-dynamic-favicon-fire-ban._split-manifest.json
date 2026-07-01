@@ -1,0 +1,21 @@
+{
+  "parentId": "mt-integrate-dynamic-favicon-fire-ban",
+  "ceiling": 8,
+  "originalStepCount": 12,
+  "groupCount": 2,
+  "children": [
+    {
+      "id": "mt-integrate-dynamic-favicon-fire-ban.S1",
+      "file": "missions/mt-integrate-dynamic-favicon-fire-ban.S1.mission.txt",
+      "steps": 8,
+      "requires": null
+    },
+    {
+      "id": "mt-integrate-dynamic-favicon-fire-ban.S2",
+      "file": "missions/mt-integrate-dynamic-favicon-fire-ban.S2.mission.txt",
+      "steps": 4,
+      "requires": "mt-integrate-dynamic-favicon-fire-ban.S1"
+    }
+  ],
+  "ts": "2026-07-01T19:46:21.545Z"
+}

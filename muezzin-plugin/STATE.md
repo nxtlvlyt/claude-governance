@@ -110,6 +110,44 @@ deliverable-type-aware QC + faith file edits must be ratified in a FRESH oriente
 governance session that has read `~/.claude/practice/extended/` first. NOT in a
 long drifted feature-build session.
 
+## 15-MIN CONDUCTOR BEAT (2026-07-01T~19:45Z) — auto-split mechanism: 3 real failures explained (stale in-memory code, not an ongoing bug)
+
+Operator asked whether sub-mission auto-queuing and the "hajj" split templates have been
+working. Real numbers: 13 splits fired today, 13/13 successfully queued their S1/S2
+children (the queuing mechanism itself is 100% reliable). Of those 13, only 3 have
+actually run so far — and all 3 failed identically, immediately, on a MIQAT pre-flight
+gate: `no-done-means` (missing "Done means" clause) + `code-repo-missing-declaration`
+(missing REPO-ROOT/ALLOW-FILES) in the generated child file, even though the PARENT
+mission had all of these fields correctly.
+
+**Root cause, fully diagnosed, NOT an ongoing bug**: read `mission_split.mjs`'s current
+`emitSubMissions`/`buildDoneMeans` on disk and diffed it line-by-line against the actual
+failing child (`mt-integrate-contributor-leaderboard.S1.mission.txt`) and a working one
+(`mt-integrate-b13-aria-live.S1.mission.txt`, generated later, correctly formed). The
+failing file's structure — a `PARENT MAQSAD:` line immediately followed by a raw dump of
+the parent's OWN header block (MISSION-CLASS/REPO-ROOT/TARGET-BRANCH/VISUAL-QC-REQUIRED/
+PREVIEW-BASE-URL) — is EXACTLY the pre-fix behavior described in commit `60bbd84`'s own
+comment ("the PARENT MAQSAD field used to slice the first 200 chars of the RAW parent
+text... so a parent's VISUAL-QC-REQUIRED header leaked into EVERY child"). That fix landed
+2026-06-30 20:01 — hours before today's three 11:30-11:52 failures. The current on-disk
+code could not produce the malformed structure observed (its fallback string and
+extraction regex don't match what's in the file at all). Conclusion: the daemon process
+that generated these 3 splits was a long-lived instance still running the OLD in-memory
+module code from before the fix was committed — "PROCESSES CACHE CODE" (conductor faith's
+own named failure mode) — not a bug in the code currently on disk. Once that stale process
+eventually died (via the crash-loop investigated separately today) and a fresh process
+loaded the current code, every split since (10 checked/spot-checked, 2 directly verified —
+`b13-aria-live`, `dark-mode-icons` — both correctly formed) has worked.
+
+**Not yet done**: the 3 broken parents (`mt-integrate-contributor-leaderboard`,
+`mt-integrate-bookmark-widget`, `mt-integrate-aurora-forecast-diff-report`) are marked
+`SPLIT` (terminal) in AUTORUN.md with two dead FAILED children each. Re-splitting them
+would now work correctly (the code is fixed), but doing that safely needs to avoid
+creating duplicate/orphaned manifest files or a second live set of `.S1`/`.S2` files
+next to the dead ones — not attempted this beat, deliberately left for a session with
+room to verify the re-split mechanism cleanly rather than improvising it at the tail end
+of an already-long investigation.
+
 ## 15-MIN CONDUCTOR BEAT (2026-07-01T~18:33Z) — LIKELY PRIMARY CRASH TRIGGER IDENTIFIED: qc-concern-operators-html-business-claim-page
 
 Read this section FIRST if the daemon is crash-looping on a ~15min cadence again.

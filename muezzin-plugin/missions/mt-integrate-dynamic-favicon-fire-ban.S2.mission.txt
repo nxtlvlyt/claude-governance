@@ -1,0 +1,19 @@
+MISSION-ID: mt-integrate-dynamic-favicon-fire-ban.S2
+MISSION-CLASS: code-repo
+PARENT: mt-integrate-dynamic-favicon-fire-ban
+TARTIB-INDEX: 2 of 2
+VISUAL-QC-REQUIRED
+REQUIRES: mt-integrate-dynamic-favicon-fire-ban.S1 (tartib — this sub-mission may not start until mt-integrate-dynamic-favicon-fire-ban.S1's receipt exists)
+STEPS: 4
+
+PARENT MAQSAD: Land commit d48f959 ("feat(dynamic-favicon): peripheral fire-ban indicator on the
+
+Maqsad: sub-mission 2 of 2 — Confirm the target repo's working tree is clean with respect to the four ALLOW-FILES entries specifically (pre-existing unrelated untracked debris is out of scope and ignored). through Headless-render /map.html from PREVIEW-BASE-URL and assert it loads with no fatal script error and that document.getElementById('mt-favicon') exists in the rendered DOM.
+
+Steps:
+  9. Confirm the target repo's working tree is clean with respect to the four ALLOW-FILES entries specifically (pre-existing unrelated untracked debris is out of scope and ignored). [command] 
+  10. Confirm a local preview server answers at PREVIEW-BASE-URL before attempting headless renders; fails closed (non-zero exit) if nothing answers with a 200 and a body, surfacing NO_PREVIEW_BASE_URL as a real receipt rather than a silent skip. [command] 
+  11. Headless-render /index.html from PREVIEW-BASE-URL and assert it loads with no fatal script error and that document.getElementById('mt-favicon') exists in the rendered DOM — the render-witness RULE 7 requires because VISUAL-QC-REQUIRED is set. [verify] index.html
+  12. Headless-render /map.html from PREVIEW-BASE-URL and assert it loads with no fatal script error and that document.getElementById('mt-favicon') exists in the rendered DOM. [verify] map.html
+
+Done means: index.html, map.html exist/are updated as specified — verify by headless-browser render, not by reading the code
