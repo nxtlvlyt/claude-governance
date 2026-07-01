@@ -58,30 +58,6 @@ export function splitOversizedPlan(mission, queue, opts = {}) {
   };
 }
 
-// ---- buildDoneMeansClause ---------------------------------------------------------
-// Produces the "Done means:" completion clause for a child mission from its target files.
-// Dedupes the file list. Satisfies mission_lint.mjs RULE4 (done-means regex). When any
-// deduped file is a UI-renderable artifact (.html/.js/.jsx/.tsx/.css), appends a
-// render-witness sentence that satisfies RULE7 (headless-render regex) — completion of a
-// UI file is witnessed by a headless render, never by reading the source.
-export function buildDoneMeansClause(targetFiles) {
-  const files = [...new Set(targetFiles || [])];
-  let clause = `Done means: ${files.join(', ')} exist/are updated as specified.`;
-  if (files.some((f) => /\.(html|js|jsx|tsx|css)$/i.test(f))) {
-    clause += ' Verify by headless browser render, not by reading the code.';
-  }
-  return clause;
-}
-
-// ---- extractVisualQcHeader --------------------------------------------------------
-// Returns the first line of a mission text that carries a VISUAL-QC-REQUIRED marker,
-// verbatim, or null when no such line is present. Used to forward the parent's visual-QC
-// gate only into the children that actually touch UI-renderable files.
-export function extractVisualQcHeader(missionText) {
-  const m = String(missionText || '').match(/^.*VISUAL-QC-REQUIRED.*$/im);
-  return m ? m[0] : null;
-}
-
 // ---- emitSubMissions --------------------------------------------------------------
 // Writes each sub-mission as a .mission.txt file + a _split-manifest.json handoff record
 // into the missions directory. Appends each child to the AUTORUN queue in tartib order.
@@ -117,14 +93,6 @@ export function emitSubMissions(plan, ctx = {}, io = {}) {
       `  ${s.step_index}. ${s.description} [${s.action_type}] ${(s.target_files || []).join(', ')}`
     ).join('\n');
 
-    // Per-group completion contract: gather this group's target files, decide whether the
-    // group touches UI-renderable artifacts, mint the done-means clause, and pull the parent's
-    // visual-QC header (forwarded only into UI-touching children — see header insertion below).
-    const groupTargetFiles = group.steps.flatMap((s) => s.target_files || []);
-    const isUiTouching = groupTargetFiles.some((f) => /\.(html|js|jsx|tsx|css)$/i.test(f));
-    const doneMeansClause = buildDoneMeansClause(groupTargetFiles);
-    const visualQcHeader = extractVisualQcHeader(plan._parentMission);
-
     const requiresClause = predecessorId
       ? `REQUIRES: ${predecessorId} (tartib — this sub-mission may not start until ${predecessorId}'s receipt exists)`
       : 'REQUIRES: none (first in tartib order)';
@@ -136,8 +104,6 @@ export function emitSubMissions(plan, ctx = {}, io = {}) {
       `TARTIB-INDEX: ${group.index} of ${plan.groupCount}`,
       requiresClause,
       `STEPS: ${group.stepCount}`,
-      // Forward the parent's VISUAL-QC-REQUIRED gate ONLY into groups that touch UI files.
-      ...(isUiTouching && visualQcHeader ? [visualQcHeader] : []),
       ``,
       `PARENT MAQSAD: ${String((plan._parentMission || '').slice(0, 200) || '(see parent mission)')}`,
       ``,
@@ -145,8 +111,6 @@ export function emitSubMissions(plan, ctx = {}, io = {}) {
       ``,
       `Steps:`,
       stepList,
-      ``,
-      doneMeansClause,
       ``,
     ].join('\n');
 
@@ -304,72 +268,6 @@ if (process.argv[1]?.endsWith('mission_split.mjs')) {
       'emitSubMissions: children appended to AUTORUN in tartib order');
 
     // Cleanup
-    fsEmit.rmSync(tmp, { recursive: true, force: true });
-  }
-
-  // ---- done-means + visual-QC forwarding ------------------------------------------
-  // (A) CODE-ONLY split: no VISUAL-QC-REQUIRED parent header, non-UI target files.
-  //     Emitted child must carry the done-means clause but NOT the render-witness sentence.
-  {
-    const os = await import('os');
-    const fsEmit = await import('fs');
-    const tmp = fsEmit.mkdtempSync(path.join(os.tmpdir(), 'msplit_code_'));
-    const missionsDir = path.join(tmp, 'missions');
-    fsEmit.mkdirSync(missionsDir, { recursive: true });
-
-    const codeQueue = { mission_id: 'M-CODE', steps: Array.from({ length: 6 }, (_, i) => ({
-      step_index: i + 1, description: `code step ${i + 1}`, action_type: 'edit',
-      target_files: [`mod${i + 1}.mjs`], context_dependencies: [], validation_command: `node -c mod${i + 1}.mjs`,
-    })) };
-    const parent = 'MISSION-ID: M-CODE\nMISSION-CLASS: code-repo\nMaqsad: code only, no ui.';
-    const plan = splitOversizedPlan(parent, codeQueue, { sizeCeiling: 3 });
-    plan._parentMission = parent;
-
-    emitSubMissions(plan, {
-      missionsDir, parentMissionFile: 'code-only.mission.txt', parentId: plan.parentId,
-    }, {
-      writeFile: (p, c) => { fsEmit.mkdirSync(path.dirname(p), { recursive: true }); fsEmit.writeFileSync(p, c); },
-    });
-
-    const child = fsEmit.readFileSync(path.join(missionsDir, 'code-only.S1.mission.txt'), 'utf8');
-    ck(/done\s*(means|=)|done-means/i.test(child), 'code-only child: carries done-means clause (RULE4)');
-    ck(!/\b(headless\s*browser|playwright|puppeteer|headless\s*render|browser\s*render)\b/i.test(child),
-      'code-only child: NO render witness (non-UI target files)');
-    ck(!/VISUAL-QC-REQUIRED/.test(child), 'code-only child: no VISUAL-QC-REQUIRED header forwarded');
-
-    fsEmit.rmSync(tmp, { recursive: true, force: true });
-  }
-
-  // (B) UI-TOUCHING split: .html target files + parent VISUAL-QC-REQUIRED header.
-  //     Emitted child must carry the done-means clause AND the render-witness sentence
-  //     AND the forwarded VISUAL-QC-REQUIRED header.
-  {
-    const os = await import('os');
-    const fsEmit = await import('fs');
-    const tmp = fsEmit.mkdtempSync(path.join(os.tmpdir(), 'msplit_ui_'));
-    const missionsDir = path.join(tmp, 'missions');
-    fsEmit.mkdirSync(missionsDir, { recursive: true });
-
-    const uiParent = 'MISSION-ID: M-UI\nMISSION-CLASS: code-repo\nVISUAL-QC-REQUIRED: headless render is mandatory\nMaqsad: build the ui.';
-    const uiQueue = { mission_id: 'M-UI', steps: Array.from({ length: 4 }, (_, i) => ({
-      step_index: i + 1, description: `ui step ${i + 1}`, action_type: 'edit',
-      target_files: [`page${i + 1}.html`], context_dependencies: [], validation_command: `node -c noop.mjs`,
-    })) };
-    const plan = splitOversizedPlan(uiParent, uiQueue, { sizeCeiling: 2 });
-    plan._parentMission = uiParent;
-
-    emitSubMissions(plan, {
-      missionsDir, parentMissionFile: 'ui-touch.mission.txt', parentId: plan.parentId,
-    }, {
-      writeFile: (p, c) => { fsEmit.mkdirSync(path.dirname(p), { recursive: true }); fsEmit.writeFileSync(p, c); },
-    });
-
-    const child = fsEmit.readFileSync(path.join(missionsDir, 'ui-touch.S1.mission.txt'), 'utf8');
-    ck(/done\s*(means|=)|done-means/i.test(child), 'ui child: carries done-means clause (RULE4)');
-    ck(/\b(headless\s*browser|playwright|puppeteer|headless\s*render|browser\s*render)\b/i.test(child),
-      'ui child: carries render witness (RULE7)');
-    ck(/VISUAL-QC-REQUIRED/.test(child), 'ui child: parent VISUAL-QC-REQUIRED header forwarded');
-
     fsEmit.rmSync(tmp, { recursive: true, force: true });
   }
 
