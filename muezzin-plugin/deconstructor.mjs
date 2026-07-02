@@ -119,6 +119,28 @@ export function validateMicroAction(step, i, opts = {}) {
       errs.push(`step ${i}: over-broad clean-tree witness — a whole-tree \`git status --porcelain\` boolean gate ('${cmd.slice(0, 70)}') FALSE-FAILs on unrelated pre-existing untracked files in a shared repo. Scope it to this mission's ALLOW-FILES (\`git status --porcelain -- <allow-files>\`) or check conflict markers only (\`-match '^(UU|AA|DD)'\`). The engine already enforces containment via assertCleanOutsideAllowlist — a whole-tree per-step assertion is redundant and wrong.`);
     }
   }
+  // BRITTLE-SHA / EXACT-COUNT VERIFY FLOOR (code-repo only, 2026-07-02; receipt: a failure-class survey
+  // found 10 of 25 recent daemon failures were this — b13-aria-live.S1/S2, aurora.S1, osm-conflict-detect,
+  // sitemap-prune, sentry, crown-legal.S1, email-redaction, d1-backup.S2 — the single dominant FIXABLE
+  // engine cause). A verify step that asserts a PREDICTED commit SHA (in a `git log -N`/`--all` window or
+  // via `git rev-parse HEAD -match '<sha>'`) or an EXACT line-count FALSE-FAILs on real landed artifacts:
+  // a cherry-picked commit lands under a NEW sha, older commits scroll out of the -N window, and exact
+  // counts shift on any benign re-integration (two receipts even captured "main\n<full-sha>" as the error
+  // — the commit existed, the assertion still failed). The deterministic witness is the ARTIFACT itself
+  // (Test-Path + Select-String its content). Soft (repair-loop), like the sibling floors.
+  if (opts.codeRepo && typeof step.validation_command === 'string') {
+    const cmd = step.validation_command;
+    const shaLit = /(?:['"^/]|\b)[0-9a-f]{7,40}\b/i;   // a hex sha literal (short or full)
+    if (/\bgit\s+log\b/i.test(cmd) && /\bselect-string\b/i.test(cmd) && shaLit.test(cmd)) {
+      errs.push(`step ${i}: brittle SHA-in-log-window witness ('${cmd.slice(0, 70)}') — asserting a commit SHA appears in a \`git log -N\`/\`--all | Select-String '<sha>'\` window FALSE-FAILs on real landings: a cherry-picked commit lands under a NEW sha and older commits scroll out of the window. Witness the ARTIFACT instead — Test-Path the deliverable + Select-String its expected CONTENT (not its commit id).`);
+    }
+    if (/\bgit\s+rev-parse\b[^\n]*\bHEAD\b/i.test(cmd) && /-match/i.test(cmd) && shaLit.test(cmd)) {
+      errs.push(`step ${i}: brittle predicted-SHA witness ('${cmd.slice(0, 70)}') — \`git rev-parse HEAD -match '<sha>'\` compares HEAD to a sha predicted BEFORE the commit, but cherry-pick/re-commit rewrites the sha so it never matches. Capture the actual sha AFTER committing, or (better) witness the artifact's content — never a pre-predicted commit id.`);
+    }
+    if (/\.Count\b/i.test(cmd) && /-(?:eq|ne)\s+\d+/i.test(cmd)) {
+      errs.push(`step ${i}: brittle exact line-count witness ('${cmd.slice(0, 70)}') — an EXACT \`.Count -eq/-ne <N>\` false-fails when a benign re-integration changes the line count by one. Use a floor (\`-ge <min>\`/\`-gt <min>\`) or witness required CONTENT with Select-String -Pattern.`);
+    }
+  }
   // CHERRY-PICK COMPLETION FLOOR (code-repo only, cron-dispatcher.S1 + trip-diary + sentry receipts
   // 2026-07-02): `git cherry-pick <sha>` whose conflicts git AUTO-resolves EXITS NON-ZERO and leaves the
   // worktree mid-pick ("all conflicts fixed: run --continue"). A validation_command that runs a bare pick
@@ -230,7 +252,8 @@ const codeRepoNoteFor = (codeRepo) => codeRepo
   ? `\nCODE-REPO VALIDATION-COMMAND RULE (false-green floor, d1-1 receipt): a step that CLAIMS an EXTERNAL/REMOTE outcome (a remote DB has the table/rows, a worker RESPONDS, an endpoint RETURNS) MUST witness it with a command that actually REACHES the resource (wrangler d1 execute --remote --command 'SELECT COUNT(*)...', curl/Invoke-RestMethod the URL, gh/aws/az status) — NEVER a bare Test-Path/Get-Item on a local file, which proves only that a local file exists, not that the remote deed happened. File-existence is a valid witness ONLY for steps whose outcome IS a local file.
 POSITIVE-ASSERTION HARD RULE: reaching the resource is NOT enough — the witness MUST EXIT NON-ZERO WHEN THE OUTCOME IS ABSENT. wrangler/curl/psql/gh all exit 0 when the query/request SUCCEEDS regardless of row count, so a command like wrangler ... --command "SELECT name FROM sqlite_master WHERE name='pois'" prints True / exits 0 EVEN WHEN ZERO ROWS COME BACK (the exact d1-1 step-8 hollow green). A witness that prints True / exits 0 on an EMPTY or ZERO-ROW result is a HOLLOW witness and is FORBIDDEN. Assert the positive outcome and fail when it is absent: e.g. wrangler d1 execute <db> --remote --json --command "SELECT COUNT(*) AS n FROM <table>" wrapped so it exits 1 when n==0; or "$r = Invoke-WebRequest -Uri <url> -UseBasicParsing; if ($r.StatusCode -ne 200 -or -not $r.Content) { exit 1 }"; or pipe the tool output to Select-String -Pattern '<expected value>' -Quiet so it exits non-zero when the value is absent.
 CLEAN-TREE SCOPE RULE (trip-diary-backend receipt 2026-07-02): a validation_command that checks the working tree is clean MUST scope to this mission's ALLOW-FILES — "git status --porcelain -- <allow-files>" — or check ONLY conflict markers — "(git status --porcelain) -match '^(UU|AA|DD)'". NEVER a bare whole-tree "git status --porcelain" used as a pass/fail gate: a shared repo carries unrelated pre-existing untracked files that will FALSE-FAIL it (the engine already enforces containment against ALLOW-FILES via assertCleanOutsideAllowlist, so a whole-tree per-step assertion is redundant AND wrong).
-CHERRY-PICK COMPLETION RULE (cron-dispatcher/trip-diary/sentry receipts 2026-07-02): "git cherry-pick <sha>" whose conflicts git auto-resolves EXITS NON-ZERO and leaves the worktree mid-pick ("all conflicts fixed: run --continue"). A step that runs a bare pick and then asserts/commits DETERMINISTICALLY FAILS on that non-zero exit. Any validation_command that cherry-picks MUST complete the pick in the SAME command: append "; if (Test-Path (git rev-parse --git-path CHERRY_PICK_HEAD)) { git cherry-pick --continue --no-edit }" so a resolved pick is finalized (or handle --abort/--skip explicitly). NEVER leave a bare "git cherry-pick <sha>" whose non-zero exit will fail the step — the deliverable stays uncommitted and the mission BLOCKs at verdict.`
+CHERRY-PICK COMPLETION RULE (cron-dispatcher/trip-diary/sentry receipts 2026-07-02): "git cherry-pick <sha>" whose conflicts git auto-resolves EXITS NON-ZERO and leaves the worktree mid-pick ("all conflicts fixed: run --continue"). A step that runs a bare pick and then asserts/commits DETERMINISTICALLY FAILS on that non-zero exit. Any validation_command that cherry-picks MUST complete the pick in the SAME command: append "; if (Test-Path (git rev-parse --git-path CHERRY_PICK_HEAD)) { git cherry-pick --continue --no-edit }" so a resolved pick is finalized (or handle --abort/--skip explicitly). NEVER leave a bare "git cherry-pick <sha>" whose non-zero exit will fail the step — the deliverable stays uncommitted and the mission BLOCKs at verdict.
+WITNESS THE ARTIFACT, NOT THE COMMIT IDENTITY (dominant fixable failure class, 2026-07-02: 10 of 25 recent daemon failures were brittle-verify false-fails — b13-aria-live, aurora, osm-conflict-detect, sitemap-prune, sentry, crown-legal). A verify step proves the deliverable LANDED by checking the FILE and its CONTENT — Test-Path <file> + Select-String -Path <file> -Pattern '<expected content>' -Quiet — NEVER by asserting a commit SHA. THREE FORBIDDEN witness shapes: (1) a predicted short/full SHA inside a "git log -N"/"git log --all | Select-String '<sha>'" window — a cherry-picked commit lands under a NEW sha and older commits scroll out of the -N window, so the assertion false-fails on a real landing; (2) "git rev-parse HEAD -match '<sha>'" — compares HEAD to a sha you predicted BEFORE committing, but cherry-pick/re-commit rewrites it, so it never matches; (3) an EXACT line-count "(Get-Content <file>).Count -eq/-ne <N>" — any benign re-integration shifts the count by a line and false-fails. If you must witness a commit exists, capture the ACTUAL sha AFTER committing; but prefer witnessing the artifact's presence + content, which is what "done" actually means.`
   : '';
 const researchNoteFor = (research) => research
   ? `\nRESEARCH MISSION RULES: deliverables are .md/.json/.txt/.csv files (an 'edit' step targets exactly ONE of them); external source files may be listed in context_dependencies as ABSOLUTE paths (read-only) — targets must still be cwd-relative.`
@@ -608,6 +631,24 @@ Context: Node + TypeScript project; DB schema in prisma/schema.prisma; tests run
     const contOnly = { ...base, validation_command: 'git cherry-pick --continue --no-edit' };
     ck(!validateMicroAction(contOnly, 1, { codeRepo: true }).some((e) => e.includes('cherry-pick without completion')), 'PICK-COMPLETE: completion-only command -> not flagged');
     ck(!validateMicroAction(barePick, 1, {}).some((e) => e.includes('cherry-pick without completion')), 'PICK-COMPLETE: non-code-repo mission -> gate does not fire');
+  }
+
+  // BRITTLE-SHA / EXACT-COUNT VERIFY gate (failure-class survey receipt 2026-07-02: 10/25 dominant)
+  {
+    const base = { step_index: 1, description: 'verify the doc landed', action_type: 'verify', target_files: [], context_dependencies: [] };
+    const shaWindow = { ...base, validation_command: "if (-not (git log --oneline -20 | Select-String 'dad942d' -Quiet)) { exit 1 }" };
+    ck(validateMicroAction(shaWindow, 1, { codeRepo: true }).some((e) => e.includes('SHA-in-log-window')), 'BRITTLE-VERIFY: sha in `git log -N | Select-String` window (code-repo) -> REJECTED');
+    const revParse = { ...base, validation_command: "if (-not ((git rev-parse HEAD) -match '^dad942d')) { exit 1 }" };
+    ck(validateMicroAction(revParse, 1, { codeRepo: true }).some((e) => e.includes('predicted-SHA')), 'BRITTLE-VERIFY: `git rev-parse HEAD -match <sha>` (code-repo) -> REJECTED');
+    const exactCount = { ...base, validation_command: 'if ((Get-Content docs/x.md).Count -ne 310) { exit 1 }' };
+    ck(validateMicroAction(exactCount, 1, { codeRepo: true }).some((e) => e.includes('exact line-count')), 'BRITTLE-VERIFY: exact `.Count -ne <N>` (code-repo) -> REJECTED');
+    const artifact = { ...base, validation_command: "if (-not (Test-Path docs/x.md) -or -not (Select-String -Path docs/x.md -Pattern 'Rate-Limit Architecture' -Quiet)) { exit 1 }" };
+    ck(!validateMicroAction(artifact, 1, { codeRepo: true }).some((e) => /SHA-in-log-window|predicted-SHA|exact line-count/.test(e)), 'BRITTLE-VERIFY: artifact Test-Path + Select-String content -> not flagged');
+    const floorCount = { ...base, validation_command: 'if ((Get-Content docs/x.md).Count -lt 300) { exit 1 }' };
+    ck(!validateMicroAction(floorCount, 1, { codeRepo: true }).some((e) => e.includes('exact line-count')), 'BRITTLE-VERIFY: floor `.Count -lt <min>` -> not flagged (a floor is fine)');
+    const keywordLog = { ...base, validation_command: "if (-not (git log --oneline -5 | Select-String 'SOTA-uplift QC' -Quiet)) { exit 1 }" };
+    ck(!validateMicroAction(keywordLog, 1, { codeRepo: true }).some((e) => e.includes('SHA-in-log-window')), 'BRITTLE-VERIFY: log grep for a KEYWORD (not a sha) -> not flagged');
+    ck(!validateMicroAction(shaWindow, 1, {}).some((e) => e.includes('SHA-in-log-window')), 'BRITTLE-VERIFY: non-code-repo mission -> gate does not fire');
   }
 
   ck(!validateMicroQueue({ mission_id: 'M-X', steps: [
