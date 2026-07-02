@@ -61,10 +61,16 @@ Context (verified against live substrate this session, absolute paths):
   anything else.
 
 Steps:
-  1. In the target repo C:\Users\marka\code\mt-integration-2026-06-22, on its current
-     HEAD, check whether c5a739f is already present via
+  1. In the target repo C:\Users\marka\code\mt-integration-2026-06-22: FIRST clear any
+     interrupted state from a prior run — if a cherry-pick or merge is in progress
+     (.git/CHERRY_PICK_HEAD or .git/MERGE_HEAD exists), abort it so this run starts from a
+     clean slate (this mission is idempotent and re-derives the pick below):
+       git -C C:\Users\marka\code\mt-integration-2026-06-22 cherry-pick --abort
+       git -C C:\Users\marka\code\mt-integration-2026-06-22 merge --abort
+     (if either reports "no cherry-pick/merge in progress", that is the expected no-op when
+     the tree is already clean — treat it as success, not a failure, and continue.) THEN, on the current HEAD, check whether c5a739f is already present via
      `git merge-base --is-ancestor c5a739f HEAD` (exit 0 means already integrated).
-     [command] check-already-integrated
+     [command] preclean-and-check-integrated
   2. If step 1 reports NOT already integrated: locate the commit — first check the
      source worktree C:\Users\marka\code\mt-feat-email-redaction-docs-2026-06-23 for
      c5a739f; if that path does not exist, resolve c5a739f directly from the target
@@ -79,6 +85,14 @@ Steps:
      side's content. If the cherry-pick instead reports the change is already applied or
      produces an empty commit, skip creating a commit for this step and proceed — that
      outcome is a pass, not a failure. [edit] resolve-conflicts
+  3b. FINALIZE the cherry-pick (the step whose absence caused every prior failure): after
+     step 3, if a cherry-pick is still in progress (.git/CHERRY_PICK_HEAD exists), complete
+     it with `git -C C:\Users\marka\code\mt-integration-2026-06-22 cherry-pick --continue --no-edit`
+     — never a bare `git commit`, and never leave the pick open. If git instead reports the
+     pick was empty or already applied, run `git -C C:\Users\marka\code\mt-integration-2026-06-22 cherry-pick --skip`.
+     Afterward confirm no .git/CHERRY_PICK_HEAD remains — the worktree must not be left
+     mid-pick, which is the exact state that deterministically failed every earlier attempt.
+     [command] finalize-cherry-pick
   4. List every .js and .mjs file the applied commit touched (via git diff-tree against
      the cherry-picked sha) plus every .js/.mjs file any conflict resolution in step 3
      modified. Run `node --check` on each file found and confirm exit 0; an empty list

@@ -906,6 +906,24 @@ async function mainLoop() {
         else { evt(`attempt ${n} failed (${r?.phase}); will retry: ${raw}`); setMark(raw, ''); }
         lanes.delete(raw);
         laneStartTs.delete(raw);
+      })
+      .catch((e) => {
+        // OUTCOME-HANDLER SAFETY NET (M-DAEMON-CRASH-HANDLER hardening, 2026-07-01 — from an
+        // adversarial review of baf4ed9, caveat B): the .then above frees the lane at its LAST
+        // two lines. If an earlier branch op throws (setMark's writeFileSync to AUTORUN hitting
+        // EBUSY on Windows; writeRetro on disk error), that cleanup is skipped — and now that the
+        // global unhandledRejection handler log-AND-CONTINUEs instead of terminating, the lane
+        // LEAKS in the lanes Map. With MAX_LANES=1 a single leak wedges the daemon (alive but
+        // never fires again). This local catch guarantees the lane is freed (the severe failure)
+        // and logs the throw with a stack. It deliberately does NOT touch the mission's mark: if
+        // setMark threw, the line is still RUNNING and reclaimStaleRunning reverts it on the next
+        // restart; if the throw came after a terminal mark, that mark is already correct and
+        // reverting here could re-run a DONE mission (duplicate side effects). Freeing the lane is
+        // the fix that matters — it restores the pre-change guarantee that one bad outcome cannot
+        // permanently stop the daemon from firing.
+        logCrash('runMission-outcome', e);
+        lanes.delete(raw);
+        laneStartTs.delete(raw);
       });
     lanes.set(raw, p);
     laneStartTs.set(raw, new Date().toISOString());
