@@ -190,26 +190,37 @@ export function checkCgFreshness(now = Date.now()) {
 // Scoped to the KNOWN shared repo(s) below (not every mission's REPO-ROOT — bounded + safe).
 const WORKTREE_REPOS = ['C:/Users/marka/code/mt-integration-2026-06-22'];
 
-// detectWorktreeCorruption(repoRoot, gitFn) -> { corrupted, unmerged:[], untracked:[], midOp:'cherry-pick'|'merge'|null }
+// detectWorktreeCorruption(repoRoot, gitFn) -> { corrupted, unmerged:[], staged:[], untracked:[], midOp }
 // gitFn(args) runs a git command in the repo and returns stdout (injectable for tests).
 // PURE: no mutation, only `git status --porcelain` + existence of a mid-op sentinel file.
+// Classes that block a code-repo mission's clean-worktree preflight:
+//   - unmerged (UU/AA/DD/*U*): conflict residue -> heal = checkout HEAD (restore committed)
+//   - staged-uncommitted (index char A/M/D/R/C, not unmerged): failed-mission orphan added to
+//     the index but never committed (the exact photo-upload-ux 2026-07-02 failure the first
+//     WORKTREE-HEAL missed) -> heal = git reset -- <file> (UNSTAGE only; file survives as
+//     untracked, never deleted). Safe here because this is a dedicated integration worktree
+//     where the engine commits on success, so staged-uncommitted is always orphan residue.
+//   - untracked (??): report-only, never auto-touched.
 export function detectWorktreeCorruption(repoRoot, gitFn) {
   const git = gitFn || ((args) => _execSyncSight(`git -C "${repoRoot}" ${args}`, { timeout: 15000, stdio: ['ignore', 'pipe', 'pipe'] }).toString());
-  const out = { repoRoot, corrupted: false, unmerged: [], untracked: [], midOp: null };
+  const out = { repoRoot, corrupted: false, unmerged: [], staged: [], untracked: [], midOp: null };
   let porcelain;
   try { porcelain = git('status --porcelain'); } catch { return out; }   // repo unreachable -> not our problem to heal
   for (const line of String(porcelain).split(/\r?\n/)) {
     if (!line.trim()) continue;
     const xy = line.slice(0, 2);
+    const x = xy[0];   // index (staged) position
     const file = line.slice(3).trim();
     // unmerged states per git porcelain: DD AU UD UA DU AA UU (any 'U', or AA/DD)
     if (/[U]/.test(xy) || xy === 'AA' || xy === 'DD') out.unmerged.push(file);
     else if (xy === '??') out.untracked.push(file);
+    // staged-but-uncommitted: index char is a real change (A/M/D/R/C) and not an unmerged combo
+    else if ('AMDRC'.includes(x)) out.staged.push(file);
   }
   // mid-operation sentinels (an aborted/partial pick leaves these; their presence + unmerged = stuck)
   try { if (existsSync(path.join(repoRoot, '.git', 'CHERRY_PICK_HEAD'))) out.midOp = 'cherry-pick'; } catch { /* ignore */ }
   try { if (!out.midOp && existsSync(path.join(repoRoot, '.git', 'MERGE_HEAD'))) out.midOp = 'merge'; } catch { /* ignore */ }
-  out.corrupted = out.unmerged.length > 0 || out.midOp !== null;
+  out.corrupted = out.unmerged.length > 0 || out.staged.length > 0 || out.midOp !== null;
   return out;
 }
 
@@ -275,17 +286,19 @@ export function sweep(base = HERE, now = Date.now(), routeFile = path.join(proce
   for (const repoRoot of (worktreeReposFn() || [])) {
     const wt = detectWorktreeCorruption(repoRoot, gitFn ? (args) => gitFn(repoRoot, args) : null);
     if (!wt.corrupted) continue;
-    report.push(`WORKTREE-HEAL: ${repoRoot} is corrupted — ${wt.unmerged.length} unmerged file(s)${wt.midOp ? `, mid-${wt.midOp}` : ''}${wt.untracked.length ? `, ${wt.untracked.length} untracked orphan(s)` : ''}`);
+    report.push(`WORKTREE-HEAL: ${repoRoot} is corrupted — ${wt.unmerged.length} unmerged, ${wt.staged.length} staged-orphan${wt.midOp ? `, mid-${wt.midOp}` : ''}${wt.untracked.length ? `, ${wt.untracked.length} untracked` : ''}`);
     const cmds = [];
     if (wt.midOp) cmds.push(`git -C "${repoRoot}" ${wt.midOp === 'merge' ? 'merge' : 'cherry-pick'} --abort`);
     for (const f of wt.unmerged) cmds.push(`git -C "${repoRoot}" checkout HEAD -- "${f}"`);
+    for (const f of wt.staged) cmds.push(`git -C "${repoRoot}" reset -q -- "${f}"`);   // UNSTAGE only — file survives as untracked, never deleted
     actions.push({
       id: `WORKTREE-HEAL-${path.basename(repoRoot)}`, class: 'mechanical', approved_by_faith: true,
-      why: `shared worktree ${repoRoot} left ${wt.midOp ? `mid-${wt.midOp} + ` : ''}${wt.unmerged.length} unmerged tracked file(s) — blocks every code-repo mission's clean-worktree preflight until restored`,
+      why: `shared worktree ${repoRoot} left ${wt.midOp ? `mid-${wt.midOp} + ` : ''}${wt.unmerged.length} unmerged + ${wt.staged.length} staged-orphan file(s) — blocks every code-repo mission's clean-worktree preflight until restored`,
       repo_root: repoRoot,
       commands: cmds,                                   // surgical recovery, run in order by heal()
+      staged_orphans: wt.staged,
       untracked_orphans: wt.untracked,                  // REPORT ONLY — heal() never deletes these
-      rule: 'heal() aborts any in-progress pick/merge then restores each tracked unmerged file from HEAD (committed content preserved; uncommitted conflict residue discarded). Untracked orphans are surfaced, never auto-deleted (needs operator ok).',
+      rule: 'heal() aborts any in-progress pick/merge, restores each unmerged tracked file from HEAD (committed content preserved, conflict residue discarded), and UNSTAGES each staged orphan (git reset -- ; file kept as untracked, never deleted). Untracked orphans surfaced, never auto-deleted (needs operator ok).',
     });
   }
 
@@ -851,6 +864,10 @@ function selftest() {
   ck(!w1.corrupted && w1.unmerged.length === 0, 'detectWorktreeCorruption: clean tree -> not corrupted');
   const w2 = detectWorktreeCorruption('C:/fake/repo', () => unmergedPorcelain());
   ck(w2.corrupted && w2.unmerged.includes('map.html') && w2.untracked.includes('aurora-render-witness.html'), 'detectWorktreeCorruption: UU map.html -> corrupted, unmerged+untracked classified');
+  ck(w2.staged.includes('js/onboarding.js'), 'detectWorktreeCorruption: staged-orphan (A ) classified as staged (the photo-upload-ux gap)');
+  // staged-only tree (no unmerged, no mid-op) is STILL corrupted — blocks the containment preflight
+  const w3 = detectWorktreeCorruption('C:/fake/repo', () => 'A  js/photo-upload-ux.js\n');
+  ck(w3.corrupted && w3.staged.includes('js/photo-upload-ux.js') && w3.unmerged.length === 0, 'detectWorktreeCorruption: staged-only orphan -> corrupted via staged (not unmerged)');
   // sweep emits a WORKTREE-HEAL action with a checkout-HEAD command for the unmerged file
   const wtGit = (repoRoot, args) => (args === 'status --porcelain' ? unmergedPorcelain() : '');
   const rw = sweep(tmp, now, noRoute, { ...sightOk, worktreeReposFn: () => ['C:/fake/repo'], gitFn: wtGit });
@@ -858,6 +875,8 @@ function selftest() {
   ck(!!wha && wha.class === 'mechanical' && wha.approved_by_faith, 'sweep: corrupted worktree -> WORKTREE-HEAL mechanical action');
   ck(wha.commands.some((c) => /checkout HEAD -- "map.html"/.test(c)), 'WORKTREE-HEAL: command restores the unmerged file from HEAD');
   ck(wha.untracked_orphans.includes('aurora-render-witness.html') && !wha.commands.some((c) => /aurora-render-witness/.test(c)), 'WORKTREE-HEAL: untracked orphan is report-only, never in a command');
+  ck(wha.commands.some((c) => /reset -q -- "js\/onboarding\.js"/.test(c)), 'WORKTREE-HEAL: staged orphan gets an UNSTAGE (git reset --) command');
+  ck(!wha.commands.some((c) => /checkout HEAD -- "js\/onboarding\.js"|rm .*onboarding/.test(c)), 'WORKTREE-HEAL: staged orphan is UNSTAGED only, never checkout/rm (non-destructive)');
   // heal() runs the recovery commands via exec()
   const wtRan = [];
   const rwHeal = sweep(tmp, now, noRoute, { ...sightOk, worktreeReposFn: () => ['C:/fake/repo'], gitFn: wtGit });
