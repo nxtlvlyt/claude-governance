@@ -276,14 +276,21 @@ beat: read QUEUE/AUTORUN/STATUS-BOARD/INBOX from disk, judge FAILED(x2) from rea
 receipts, fix small named bugs same-beat, check supervisor.log health, report board-
 format with receipts quoted, close short."
 
-**11. The queue is a TOPOLOGY, not a list (operator ruling 2026-07-02).** The conductor
-understands every queued mission in full and maintains the serial foundation order:
-L1-data → L2-backend → L3-map.html-chain (strictly serial — one script chain) → L4-pages
-→ L5-QC. Standing topology + insertion rules: `missions/_logs/QUEUE-TOPOLOGY-2026-07-02.md`.
-INSERT new missions into their layer section of AUTORUN's serial block — never append
-blind to file bottom. An S2 never bares while its S1 is FAILED (tartib gate accepts
-FAILED receipts — 3 receipted incidents, engine fix = STATE queue item 19; check manually
-until it lands). Re-audit the topology when pending grows ~20 or a foundation FAILs.
+**11. The queue is a TOPOLOGY, not a list — and the topology STARTS AT L0-ENGINE
+(operator rulings 2026-07-02, twice).** The layer order is: **L0-engine → L1-data →
+L2-backend → L3-map.html-chain (strictly serial) → L4-pages → L5-QC.** L0 is the engine
+itself: any KNOWN engine fault that can corrupt or waste QUEUED missions is an L0
+BLOCKER and lands BEFORE the queue advances — it never gets filed as a numbered
+queue-item while the queue runs over it (the tartib-gate mistake: the audit called it
+"the single most valuable engine fix" and the conductor filed it as item 19 while
+unfreezing 33 S1/S2 pairs over the hole). The L0 test, applied to every open engine
+item: (a) BITES the queue (can corrupt results, hollow-DONE, or waste attempts of
+queued missions) → land it first; (b) only PROVABLE BY FLOW (transport/roster fixes
+needing live mission receipts) → run the queue AS the test bench with beats watching;
+(c) neither → background queue-item. Standing topology + insertion rules:
+`missions/_logs/QUEUE-TOPOLOGY-2026-07-02.md`. INSERT new missions into their layer
+section — never append blind. The fire-time tartib gate is now MECHANICAL (queuedDepsHold,
+daemon selftest 8 cases). Re-audit when pending grows ~20 or a foundation FAILs.
 
 **10. Engine-class missions: strong evidence the conductor outperforms the chain on
 them.** Receipts: `engine-visual-capture-nonblocking` and `engine-hajj-template-*` both

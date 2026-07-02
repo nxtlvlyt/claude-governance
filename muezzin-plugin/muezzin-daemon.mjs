@@ -530,6 +530,44 @@ function shouldHaltMission(n, maxAttempts, failedStep) {
   return n >= maxAttempts || !!failedStep?.recurringError;
 }
 
+// FIRE-TIME TARTIB GATE (2026-07-02, operator ruling "close structure that bites before
+// running the queue"): QUEUED missions used to fire in file order with NO dependency check
+// — an S2 fired when its S1 had FAILED (three receipted incidents: crown-legal.S2 and
+// d1-migrations.S2 hollow-DONE'd before their S1s ever landed; b13-aria.S2 queued behind a
+// FAILED S1). With 33 of 54 queued missions being S1/S2 pairs, that hole corrupts the whole
+// serial run. This gate holds a queued mission until each dependency is DONE **with a PASS
+// receipt** (result.json ok:true) or conductor-RESOLVED in AUTORUN — a receipt existing is
+// NOT satisfaction; only a passing one is. PURE + exported for selftest.
+// Dependencies recognized:
+//   (a) explicit: "REQUIRES: missions/a.mission.txt, missions/b.mission.txt"
+//   (b) tartib child: "REQUIRES: predecessor <ID> DONE"
+//   (c) implicit pair: <stem>.S{n} requires <stem>.S{n-1} (n>=2), even if REQUIRES is absent
+// Satisfier: AUTORUN has "DONE <path>" AND <stem>.mission.result.json ok===true, OR an
+// AUTORUN comment line containing both "RESOLVED" and the dependency path (the conductor's
+// landed judgment). "REQUIRES: none" and prose preconditions (search/credentials) pass.
+export function queuedDepsHold(missionText, missionPath, autorunText, resultOkFn) {
+  const txt = String(missionText || '');
+  const deps = new Set();
+  // (a) explicit mission-file list
+  const reqLine = (txt.match(/^REQUIRES:\s*(.+)$/im) || [])[1] || '';
+  for (const m of reqLine.matchAll(/missions\/\S+?\.mission\.txt/g)) deps.add(m[0]);
+  // (b) tartib child form — resolve the predecessor ID to a path if a file matches
+  const pred = (reqLine.match(/predecessor\s+(\S+)\s+DONE/i) || [])[1];
+  if (pred) deps.add(`missions/${pred.replace(/^missions\//, '').replace(/\.mission\.txt$/, '')}.mission.txt`);
+  // (c) implicit .Sn -> .S(n-1)
+  const sn = String(missionPath || '').match(/^(.*\.S)(\d+)\.mission\.txt$/);
+  if (sn && parseInt(sn[2], 10) >= 2) deps.add(`${sn[1]}${parseInt(sn[2], 10) - 1}.mission.txt`);
+  for (const dep of deps) {
+    if (dep === missionPath) continue;
+    const doneRe = new RegExp(`^DONE\\s+${dep.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'm');
+    const resolvedRe = new RegExp(`^#.*RESOLVED.*${dep.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'm');
+    if (resolvedRe.test(autorunText)) continue;                                  // conductor-landed
+    if (doneRe.test(autorunText) && resultOkFn(dep) === true) continue;          // DONE + PASS receipt
+    return { hold: true, dep, why: doneRe.test(autorunText) ? `dependency ${dep} is DONE but its result.json is not ok:true (hollow receipt)` : `dependency ${dep} not DONE/RESOLVED` };
+  }
+  return { hold: false };
+}
+
 function promotionHold(missionText, doneIds) {
   const txt = String(missionText || '');
   if (/^\s*#?\s*(HELD|BLOCKED|GATED)\b/im.test(txt)) return { hold: true, why: 'mission text marks HELD/BLOCKED/GATED' };
@@ -729,6 +767,7 @@ async function runMission(missionFile) {
 }
 
 async function mainLoop() {
+  const tartibHoldLogged = new Set();   // one TARTIB-HOLD event per (mission,dep) state, not per 5s poll
   const lock = acquireSingleton();
   // EXIT 3 = SINGLETON-BLOCKED (2026-07-02): another daemon owns the substrate — this spawn is
   // redundant, not dead. MUST be distinct from 0/1: daemon-supervisor.ps1 restarts on normal exits,
@@ -963,6 +1002,19 @@ async function mainLoop() {
       for (const { raw } of pending) {
         if (lanes.size >= MAX_LANES) break;
         if (lanes.has(raw)) continue;
+        // FIRE-TIME TARTIB GATE: hold a queued mission whose dependency lacks a PASS receipt;
+        // skip to the NEXT pending line (never deadlock the lane behind an unsatisfiable head).
+        try {
+          const mtxt = readFileSync(path.join(HERE, raw.replace(/\//g, path.sep)), 'utf8');
+          const artxt = readFileSync(AUTORUN, 'utf8');
+          const resOk = (dep) => { try { return JSON.parse(readFileSync(path.join(HERE, 'missions', path.basename(dep).replace(/\.mission\.txt$/, '') + '.mission.result.json'), 'utf8')).ok === true; } catch { return false; } };
+          const gate = queuedDepsHold(mtxt, raw, artxt, resOk);
+          if (gate.hold) {
+            const key = `${raw}|${gate.dep}`;
+            if (!tartibHoldLogged.has(key)) { tartibHoldLogged.add(key); evt(`TARTIB-HOLD: ${raw} — ${gate.why}; skipping to next pending`); }
+            continue;
+          }
+        } catch { /* unreadable mission file: let fire() handle/report it as before */ }
         await fire(raw);   // await: fire only blocks on the pre-flight readiness gate; the mission itself still launches non-blocking into lanes (M-READINESS-GATE.1)
       }
       // AUTO-QUEUE FROM SUBSTRATE (queue-flow-1, Half B): manual append fired above; only
@@ -1291,6 +1343,22 @@ if (process.argv.includes('--selftest')) {
   process.removeListener('uncaughtException', _onUncaught);
   process.removeListener('unhandledRejection', _onUnhandled);
   ck(process.listeners('uncaughtException').length === _beforeUE && process.listeners('unhandledRejection').length === _beforeUR, 'crash: handlers cleanly removable (no listener leak)');
+
+  // ---- FIRE-TIME TARTIB GATE (queuedDepsHold — the 3-incident hollow-S2 class) ----
+  {
+    const ar = 'DONE missions/a.S1.mission.txt  <!-- t -->\nFAILED missions/b.S1.mission.txt  <!-- t -->\n# TOPOLOGY-RESOLVED 2026-07-02 (landed): missions/c.S1.mission.txt\n';
+    const okMap = { 'missions/a.S1.mission.txt': true, 'missions/d.S1.mission.txt': false };
+    const resOk = (dep) => okMap[dep] === true;
+    ck(queuedDepsHold('MISSION-ID: x', 'missions/a.S2.mission.txt', ar, resOk).hold === false, 'tartib-gate: implicit S2 with S1 DONE + ok:true result -> FIRES');
+    ck(queuedDepsHold('MISSION-ID: x', 'missions/b.S2.mission.txt', ar, resOk).hold === true, 'tartib-gate: implicit S2 with S1 FAILED -> HELD (the b13-aria class)');
+    const dHold = queuedDepsHold('MISSION-ID: x', 'missions/d.S2.mission.txt', 'DONE missions/d.S1.mission.txt\n', resOk);
+    ck(dHold.hold === true && /hollow receipt/.test(dHold.why), 'tartib-gate: S1 DONE but result ok:false -> HELD as hollow receipt (the crown-legal class)');
+    ck(queuedDepsHold('MISSION-ID: x', 'missions/c.S2.mission.txt', ar, resOk).hold === false, 'tartib-gate: conductor-RESOLVED dependency satisfies');
+    ck(queuedDepsHold('REQUIRES: missions/a.S1.mission.txt, missions/b.S1.mission.txt\n', 'missions/z.mission.txt', ar, resOk).hold === true, 'tartib-gate: explicit REQUIRES list — one FAILED dep holds the mission');
+    ck(queuedDepsHold('REQUIRES: missions/a.S1.mission.txt\n', 'missions/z.mission.txt', ar, resOk).hold === false, 'tartib-gate: explicit REQUIRES with passing dep fires');
+    ck(queuedDepsHold('REQUIRES: none\n', 'missions/z.mission.txt', ar, resOk).hold === false, 'tartib-gate: REQUIRES none fires');
+    ck(queuedDepsHold('REQUIRES: search-grounded seats\n', 'missions/z.mission.txt', ar, resOk).hold === false, 'tartib-gate: prose precondition does not mechanically hold');
+  }
 
   rmSync(tmp, { recursive: true, force: true });
   console.log(fails === 0 ? '\nALL PASS — daemon queue mechanics sound (incl. Hajj SPLIT status + auto-queue-from-substrate + self-witness AFTER gating + crash instrumentation)' : `\n${fails} FAIL`);
