@@ -51,11 +51,11 @@ export const MODES = ['balance', 'anthropic-heavy', 'local-heavy', 'reasoning-he
 // phase-2 smell-test seat (its Claude fallback is governed by CLAUDE_SEAT_MAP, kept strong).
 const TABLE = {
   'balance': {
-    architects: ['kimi-k2.5:cloud', 'deepseek-v4-pro:cloud', 'minimax-m2.1:cloud'],   // ollama-cloud, 3 labs (today's PANEL_ARCHITECTS)
-    integrator: 'nemotron-3-ultra:cloud',                                // CLAUDE_SEAT_MAP-routed: Opus-first window (today's PANEL_INTEGRATOR_MODEL)
+    architects: ['kimi-k2.7-code:latest', 'qwen3.6:35b', 'granite4.1:30b'],   // ollama-cloud, 3 labs (today's PANEL_ARCHITECTS)
+    integrator: 'nemotron-3-super:latest',                                // CLAUDE_SEAT_MAP-routed: Opus-first window (today's PANEL_INTEGRATOR_MODEL)
     executor: 'kimi-k2.7-code',                                    // 2026-06-17: qwen3-coder-next->kimi-k2.7-code (guardian+laguna APPROVE). seat-record: kimi ratio 0.43 (5 fewer fab) beats qwen 0.484; canon/bake-off = reliable Phase-2 executor; the 2026-06-15 qwen-revert ("kimi auditioning, no completions") is stale — kimi now has 16 recorded. Sonnet fallback via CLAUDE_SEAT_MAP
-    validator: 'deepseek-v4-pro:cloud',                                  // ollama-cloud verdict (today)
-    auditor: 'minimax-m2.1:cloud',                                         // ollama-cloud verdict (today)
+    validator: 'qwen3.6:27b',                                  // ollama-cloud verdict (today)
+    auditor: 'granite4.1:30b',                                         // ollama-cloud verdict (today)
     final_auditor: 'nemotron-3-super',                             // M-ENGINE-3PHASE.3: consensus seat reads the two boundary verdicts (ollama-cloud)
     witness: 'gemini-3-flash-preview',                             // Google Gemini (superior Witness per benchmark)
   },
@@ -68,24 +68,24 @@ const TABLE = {
     executor: 'sonnet',                                            // SONNET executes (operator: Sonnet executes, open models verify)
     // CHECKED BY OLLAMA CLOUD: the verdict panel stays OPEN-weight so Anthropic work is
     // verified by a DIFFERENT lab/infrastructure (diversity is the point; producer != verifier).
-    validator: 'deepseek-v4-pro:cloud',
-    auditor: 'minimax-m2.1:cloud',
+    validator: 'qwen3.6:27b',
+    auditor: 'granite4.1:30b',
     final_auditor: 'haiku',                                        // M-ENGINE-3PHASE.3: consensus seat — a 3rd Claude tier (fast rigorous read of the two open-weight boundary verdicts; keeps producer!=verifier since executor is Sonnet)
     // 2026-06-22: aligned with model_rijal.mjs:359 — ultra is the CHOSEN cloud
     // witness (operator's 2026-06-09 ruling); super stays as established LOCAL
     // fallback for the final-verdict channel. Prior 'nemotron-3-super' name here
     // was a stale assignment from before the rijal cloud/local split.
-    witness: 'nemotron-3-ultra:cloud',
+    witness: 'laguna-xs.2:q4_K_M',
   },
   'local-heavy': {
     // ~ZERO CLAUDE: local + cloud ollama only. Architects = the 4090's locals + nemotron
     // super (cloud) as the breadth seat; all ollama names -> cloud-first, local fallback,
     // NEVER the Claude tier (no name here maps to a Claude model as PRIMARY).
     architects: ['glm-5.1', 'deepseek-v4-pro', 'nemotron-3-super'],
-    integrator: 'deepseek-v4-pro:cloud',                                 // ollama-cloud integrator
+    integrator: 'nemotron-3-super:latest',                                 // ollama-cloud integrator
     executor: 'kimi-k2.7-code',                                    // Ollama Cloud executor (ornith:35b local fallback)
-    validator: 'deepseek-v4-pro:cloud',                                  // ollama verdict
-    auditor: 'minimax-m2.1:cloud',                                         // ollama verdict
+    validator: 'qwen3.6:27b',                                  // ollama verdict
+    auditor: 'granite4.1:30b',                                         // ollama verdict
     final_auditor: 'north-mini-code-1.0:q4_K_M',                   // M-ENGINE-3PHASE.3: consensus seat — local, structural-code judge (bench 16/16 unanimous)
     witness: 'laguna-xs.2:q4_K_M',                                // OPERATOR 2026-06-26: laguna IS the structural witness (self_witness.mjs:43 "spec: structural witness"; rulings = code review/structural analysis). qwen3.5:9b was a drift. 33B structural reviewer, local on nxtbeast. The old "no Opus pull" rationale is moot — Claude tier is disabled this session, so there is no Opus to pull.
   },
@@ -97,7 +97,7 @@ const TABLE = {
     // this). Kimi-2.7 is co-best with Sonnet AND reliable (clean every run) AND cheap/fast. GLM-5.2 stays a PHASE-3 AUDIT
     // seat (tested strong there; a rare empty is cheap to retry once per mission). Bigger reasoning everywhere; Opus on the
     // JUDGMENT seats (witness/auditor); a reliable open coder GRINDS the executor to save Claude on the highest-token seat.
-    architects: ['opus', 'sonnet', 'minimax-m2.1:cloud'],                  // haiku -> minimax-m3: bigger open reasoner + cross-lab diversity on the blind plans
+    architects: ['opus', 'sonnet', 'qwen3.6:35b'],                  // haiku -> minimax-m3: bigger open reasoner + cross-lab diversity on the blind plans
     integrator: 'opus',                                            // Opus synthesis (heaviest-context job)
     executor: 'kimi-k2.7-code',                                    // Kimi-2.7 (ollama-cloud coder) — co-best+RELIABLE per bake-off; Sonnet fallback via CLAUDE_SEAT_MAP
     validator: 'sonnet',                                           // Claude verdict (stronger per-seat than open deepseek for hard work)

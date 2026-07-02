@@ -409,16 +409,15 @@ export async function deconstruct(mission, { model = PANEL_ARCHITECTS[0], today 
 // integrator cannot emit a valid queue, deconstructPanel falls back to the single-architect
 // deconstruct() so the engine never hard-breaks. Disable the panel entirely with the
 // `panel:false` opt (or MUEZZIN_PANEL=off) — then deconstructPanel IS deconstruct().
-// ROSTER RESTORATION 2026-07-02 (operator catch: "these are Ollama Cloud models"). The
-// 404s were CATALOG NAMING DRIFT, not dead labs: Ollama Cloud now uses explicit :cloud
-// tags; signin verified active (markabass) and ALL FOUR ruled labs resolve under current
-// names (live ollama show probes). The interim local-model substitution (kimi-k2.7-code/
-// qwen3.6:35b/nemotron-3-super) was the WRONG fix — it downgraded ruled cloud seats onto
-// the 4090 (VRAM contention) and broke the budget architecture (Phase 1+3 ride cloud).
-// Original seat plan restored exactly: A=kimi B=deepseek C=minimax, integrator=nemotron.
-// (Moonshot's current cloud model is kimi-k2.5 — k2.6 is gone from the catalog.)
-export const PANEL_ARCHITECTS = ['kimi-k2.5:cloud', 'deepseek-v4-pro:cloud', 'minimax-m2.1:cloud'];
-export const PANEL_INTEGRATOR_MODEL = 'nemotron-3-ultra:cloud';
+// LOCAL-ONLY ROSTER (operator NO-CLOUD ruling 2026-07-02, recorded in operator-rulings.md:
+// "we are not supposed to be using any ollama cloud models" — supersedes the 2026-06-10
+// cloud-allowed clause). History for the next instance: the old cloud names (kimi-k2.6/
+// minimax-m3/nemotron-3-ultra) 404'd after Ollama catalog naming drift; an interim local
+// swap, then a ":cloud" restoration, were both tried the same day before the operator
+// ruled NO CLOUD AT ALL. Final: local nxtbeast trio, 3 labs, all verified in /api/tags.
+// Cloud names must not return here — the ruling, not availability, decides.
+export const PANEL_ARCHITECTS = ['kimi-k2.7-code:latest', 'qwen3.6:35b', 'granite4.1:30b'];  // NO-CLOUD ruling 2026-07-02: local nxtbeast trio, 3 labs (Moonshot/Alibaba/IBM)
+export const PANEL_INTEGRATOR_MODEL = 'nemotron-3-super:latest';  // local (NVIDIA)
 
 // --------------------------------------------------------------- PER-MISSION ARCHITECT ROUTING
 // chooseArchitectRoute(missionText, opts) -> 'single' | 'panel'. The PLAN-PHASE COST FIX

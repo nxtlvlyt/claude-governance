@@ -17,9 +17,15 @@ rulings. This file is the loudness fix.)
   2026-06-09. Research goes through it FIRST; Anthropic WebSearch is a fallback when
   SearXNG is down, not a habit. Every model seat doing planning/research MUST be
   search-grounded (Ollama seats: engine SearXNG loop; Claude seats: --allowedTools).
-- **Anything served via Ollama (local or Ollama Cloud) is an allowed seat regardless of
-  org.** Claude family seats are allowed and budget-strategic (operator-ratified
-  2026-06-10: Claude tier, routing windows, standing Sonnet executor).
+- **NO Ollama Cloud models — LOCAL Ollama + Claude tier only** (operator word 2026-07-02:
+  "we are not supposed to be using any ollama cloud models"). Supersedes the 2026-06-10
+  local-or-cloud clause below. No :cloud-tagged model, no cloud-served seat (including
+  gemini-3-flash-preview via Ollama Cloud), in any seating mode. Local models on nxtbeast
+  + Claude family seats remain the allowed roster.
+- SUPERSEDED 2026-07-02 (kept for history): "Anything served via Ollama (local or Ollama
+  Cloud) is an allowed seat regardless of org." Claude family seats remain allowed and
+  budget-strategic (operator-ratified 2026-06-10: Claude tier, routing windows, standing
+  Sonnet executor).
 - **Use the two budgets TOGETHER intelligently** (2026-06-10): input-heavy seats ride
   flat-rate Claude (Sonnet executor, standing); expiring windows get spent
   (use-it-or-lose-it route windows); Ollama level-4 models (kimi, deepseek-v4-pro)
