@@ -327,7 +327,7 @@ async function runQueueLoop(seat, baseFraming, { research = false, codeRepo = fa
     const v = queue ? validateMicroQueue(queue, { research, codeRepo })
       : { ok: false, errors: rawContent.trim()
           ? ['no valid JSON micro_queue in the seat output']
-          : [`seat returned EMPTY content (attempt ${attempt + 1}) — empty-emission class`,
+          : [r?._error ? `DISPATCH FAILED (not an empty emission): ${r._error}` : `seat returned EMPTY content (attempt ${attempt + 1}) — empty-emission class`,
              ...(lastErrors?.length && lastErrors[0] !== 'no attempt made' ? [`prior attempt's real errors (do not let the empty emission mask them): ${lastErrors.slice(0, 3).join(' | ')}`] : [])] };
     if (v.ok) return { ok: true, queue, attempts: attempt + 1, _model: seat.model, _provider: r?.provider, escalationState };
     // DOUBLE-VALIDATION-FAILURE trigger: a step_index that fails validation twice in a row escalates.

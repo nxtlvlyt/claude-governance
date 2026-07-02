@@ -767,7 +767,13 @@ export async function dispatchSeat(seat, framing, { wantVerdict = true, envManif
   // witness seats have no cwd and stay tool-light, unchanged.
   try { r = await dispatchWithWaterfall(body, { cwd: seat.cwd, localOnly: !!seat.localOnly, role: seat.role }); }
   catch (e) {                                            // failed seat -> BLOCK (6/7-agent canon: absence is not APPROVE)
-    return { seat: seat.role, verdict: 'BLOCK', findings: [{ id: 'DISPATCH', severity: 'high', description: e.message }], _failed: true };
+    // EMPTY-EMISSION GREMLIN CRACKED (2026-07-02): this catch returned a verdict-shaped envelope
+    // with NO content/provider/LOGGING — wantVerdict:false callers (plan/integrator) read .content,
+    // got undefined→empty, and a TOTAL DISPATCH FAILURE masqueraded as "seat returned empty content"
+    // (spot-share receipts: 3/3 empty, provider:unknown, zero heartbeat lines — the error was buried
+    // in findings[0] which the plan path never reads). Log ALWAYS; carry the error on the envelope.
+    hb(`dispatch-FAILED role=${seat.role} model=${effectiveModel} kind=${e.kind || '?'} msg="${String(e.message || '').replace(/\s+/g, ' ').slice(0, 180)}"`);
+    return { seat: seat.role, verdict: 'BLOCK', findings: [{ id: 'DISPATCH', severity: 'high', description: e.message }], _failed: true, _error: `dispatch failed (${e.kind || 'unknown'}): ${String(e.message || '').slice(0, 200)}`, provider: 'dispatch-failed' };
   }
   if (!wantVerdict) return { seat: seat.role, content: r.content, provider: r.provider, heals: r.heals };
 

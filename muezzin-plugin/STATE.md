@@ -398,6 +398,16 @@ Verified against substrate at write time. Order = leverage. Each lands as code w
     (2026-07-02, defer while roster small); injection screen on fetched web content
     (2026-07-02, add to research-note rules); stop-hook use/mention classifier (2026-07-01,
     needs operator-witnessed ceremony); A4 image CDN ?w= param (registry).
+16. **m28-1c iOverlander card Section-4 repair** (extraction audit): populate the 11 F1-F11
+    overlap verdicts (the "unreadable" MUEZZIN-TASKS.md sits in the SAME sandbox dir) +
+    capture actual CAD prices for Pro/Unlimited. Conductor-direct, small.
+17. **books-website-knowledge applied pass** (extraction audit): map the 10-item offer
+    checklist to specific muddytires pages/offers with concrete changes — author after the
+    revenue plan is ratified (the plan decides which offers exist).
+18. **Ledger integrity pair** (extraction audit receipts): competitor-matrix result.json says
+    FAILED but fed5190 landed+tracked (understates); m28-1c marked DONE with an unpopulated
+    Section 4 (overstates). Both are doneness-gate blind spots for research-class missions —
+    extend the depth check to research deliverable CONTENT (placeholder-row detection).
 
 ## 🚨 STRUCTURAL FINDING 2026-07-02 — the engine INTEGRATES but never DEPLOYS (zero visual result)
 

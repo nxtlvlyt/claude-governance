@@ -1,0 +1,45 @@
+MISSION-ID: mt-money-revenue-synthesis.S1
+MISSION-CLASS: research
+REPO-ROOT: C:\Users\marka\.claude\muezzin-plugin\missions\mt-money-revenue-synthesis.S1
+ALLOW-FILES:
+  - MT-MONETIZATION-PLAN-v1.md
+REQUIRES: missions/mt-money-competitor-landscape.S1.mission.txt, missions/mt-money-affiliate-programs.S1.mission.txt
+STEPS: 6
+
+Maqsad: The single largest hole between raw material and plan (audit 2026-07-02): nothing
+anywhere proposes muddytires' OWN revenue mix. Synthesize MT-MONETIZATION-PLAN-v1.md from
+the now-complete fuel: competitor-landscape-2026.md + affiliate-programs-canada-2026.md
+(sibling mission sandboxes), docs/competitor-feature-matrix-2026-06-23.md +
+docs/competitor-directionrv-2026-06-23.md (mt repo), and the four corpus briefs at
+C:\Users\marka\.claude\state\business-context\anythingllm-corpus-2026-06-23\custom-documents
+(affiliate benchmarks, POI network effects, vanlife audience, PWA/SEO playbook). The plan
+must contain: (1) proposed revenue MIX with a recommendation — affiliate vs $19/yr PRO vs
+trade-side/business-pays (DirectionRV's model evaluated FOR MT, not just described);
+(2) PRO-tier contents chosen so the free tier keeps every safety overlay free (the moat per
+the matrix) while PRO sells convenience; (3) conversion model grounded in the corpus's
+contributor power-law (3% contributors, 0.5% power users) — show the math per 10k MAU;
+(4) affiliate revenue line using the shortlist's real rates; (5) seed-corridor launch
+sequencing (the 3-5 Canadian corridors) tied to revenue milestones; (6) the 90-day
+execution backlog: each plan item as a one-line mission candidate with its foundation layer.
+
+niyyah: This plan is DRAFT for the operator's taste-veto — business strategy is
+identity-bound. Every number traces to a named source; assumptions are marked ASSUMPTION
+with sensitivity (what changes if it's 2x wrong). No filler optimism.
+
+Steps:
+  1. Read all named inputs; write source-index.md listing each with its 2-3 load-bearing
+     facts (proves the synthesis read its fuel). [command]
+  2. Author MT-MONETIZATION-PLAN-v1.md sections 1-6, complete in one emission, every
+     number cited to the source index. [edit] MT-MONETIZATION-PLAN-v1.md
+  3. Verify sections 1-6 all exist and section 3 shows explicit per-10k-MAU math. [verify] MT-MONETIZATION-PLAN-v1.md
+  4. Verify every dollar figure has a citation and every ASSUMPTION carries a sensitivity
+     line. [verify] MT-MONETIZATION-PLAN-v1.md
+  5. Verify the 90-day backlog names >= 10 mission candidates each tagged with a foundation
+     layer (L1-data .. L5-polish). [verify] MT-MONETIZATION-PLAN-v1.md
+  6. Append "PLAN READY FOR OPERATOR REVIEW: <path>" + the revenue-mix recommendation
+     (3 lines) to C:\Users\marka\.claude\state\OPERATOR-NOTIFY.log — the taste-veto gate:
+     execution missions are authored ONLY after operator ratification. [command]
+
+Done means: MT-MONETIZATION-PLAN-v1.md exists with all 6 sections, cited numbers,
+sensitivity-marked assumptions, a >=10-item layered backlog, and the operator-review
+notice appended to OPERATOR-NOTIFY.log.
