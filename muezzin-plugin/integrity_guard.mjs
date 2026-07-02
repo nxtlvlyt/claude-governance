@@ -197,6 +197,40 @@ export function checkReceiptIntegrity(step, prevContent, newContent, command) {
     }
   }
 
+  // --- Rule (5): an edit must not STRUCTURALLY DUPLICATE a document ---
+  // (M-EDIT-CONTENT-PRESERVATION, duplication half, 2026-07-02). Receipt: the plan-day-gpx-export
+  // integration (1539e66) whole-file-rewrote map.html and DUPLICATED its entire <body> (1 -> 2
+  // <body>, 30 -> 50 <script> tags, AUTH_BASE redeclared) and SHIPPED it — a doubled, broken
+  // production map. Rule 4 catches the DELETION half of the executor whole-file-corruption class;
+  // this catches the DUPLICATION half (the file GROWS, so Rule 4's `removed` is negative and never
+  // fires — proven: Rule 4 would NOT have caught the map.html corruption). A valid HTML document
+  // has exactly ONE <html> and ONE <body>; more than one in an edit result is structural
+  // corruption, never legitimate. Secondary type-agnostic backstop: a substantial file that MORE
+  // than doubled with no add/append intent is a whole-file re-emit that concatenated itself.
+  if (isEdit && next.trim()) {
+    const t0 = step?.target_files?.[0];
+    const targetIsHtml = typeof t0 === 'string' && /\.html?$/i.test(t0);
+    if (targetIsHtml) {
+      const bodies = (next.match(/<body[\s>]/gi) || []).length;
+      const htmls = (next.match(/<html[\s>]/gi) || []).length;
+      if (bodies > 1 || htmls > 1) {
+        violations.push(
+          `STRUCTURAL-DUPLICATION: edit produced ${bodies} <body> and ${htmls} <html> tags (a valid HTML document has exactly one of each) — a whole-file rewrite duplicated the document; refusing (this is the map.html body-duplication class Rule 4 could not catch)`
+        );
+      }
+    }
+    const addIntent = /\b(add|append|insert|new section|expand|extend|include|augment|duplicat)/i.test(desc);
+    if (prev.trim() && !addIntent) {
+      const nonEmpty = (t) => t.split(/\r?\n/).filter((l) => l.trim()).length;
+      const p = nonEmpty(prev), n = nonEmpty(next);
+      if (p >= 40 && n >= p * 1.9) {
+        violations.push(
+          `SUSPECT-DUPLICATION: edit grew a ${p}-line file to ${n} lines (${Math.round((n / p) * 100)}%) with no add/append/insert intent — a near-doubling whole-file re-emit; refusing (state additive intent in the step if the growth is genuine)`
+        );
+      }
+    }
+  }
+
   return { ok: violations.length === 0, violations };
 }
 
@@ -459,6 +493,40 @@ if (isMainModule()) {
     const tiny = { step_index: 15, description: 'rewrite the stub', action_type: 'edit', target_files: ['a.md'] };
     const rTiny = checkReceiptIntegrity(tiny, Array.from({ length: 20 }, (_, i) => `l${i}`).join('\n'), 'l0\n', 'node -c x');
     assert(rTiny.ok === true, 'LARGE-DELETION: a small file (<40 lines) is below the floor -> not flagged');
+  }
+
+  // --- Test 16: STRUCTURAL-DUPLICATION — the map.html body-duplication shape (Rule 4 could NOT catch) ---
+  {
+    const step = { step_index: 16, description: 'add plan-day gpx export script to map', action_type: 'edit', target_files: ['map.html'] };
+    const prev = '<!doctype html><html><head><title>Map</title></head><body><div id="map"></div><script src="js/a.js"></script></body></html>';
+    const next = prev + prev; // whole-file re-emit duplicated the document -> 2 <html>, 2 <body>
+    const r = checkReceiptIntegrity(step, prev, next, 'node -c x');
+    const dupHit = r.violations.filter((v) => v.startsWith('STRUCTURAL-DUPLICATION:'));
+    const delHit = r.violations.filter((v) => v.startsWith('LARGE-DELETION:'));
+    assert(r.ok === false, 'STRUCTURAL-DUPLICATION: a duplicated-body map.html edit -> ok:false');
+    assert(dupHit.length === 1, 'STRUCTURAL-DUPLICATION: fires on the 2-body duplication');
+    assert(delHit.length === 0, 'STRUCTURAL-DUPLICATION: LARGE-DELETION does NOT fire (file grew) — proving Rule 4 alone missed this class');
+  }
+
+  // --- Test 17: a normal HTML edit that adds one script (1 body) stays clean ---
+  {
+    const step = { step_index: 17, description: 'add a script tag', action_type: 'edit', target_files: ['map.html'] };
+    const prev = '<!doctype html><html><head><title>Map</title></head><body><div id="map"></div><script src="js/a.js"></script></body></html>';
+    const next = prev.replace('</body>', '<script src="js/gpx.js"></script></body>');
+    const r = checkReceiptIntegrity(step, prev, next, 'node -c x');
+    assert(r.ok === true, 'STRUCTURAL-DUPLICATION: a clean single-body HTML edit adding one script -> clean, no false positive');
+  }
+
+  // --- Test 18: near-doubling of a non-HTML file — flagged without add-intent, clean with it ---
+  {
+    const prev = Array.from({ length: 100 }, (_, i) => `line ${i}`).join('\n');
+    const doubled = prev + '\n' + prev;
+    const noIntent = { step_index: 18, description: 'update the config', action_type: 'edit', target_files: ['data.txt'] };
+    const rNo = checkReceiptIntegrity(noIntent, prev, doubled, 'node -c x');
+    assert(rNo.violations.some((v) => v.startsWith('SUSPECT-DUPLICATION:')), 'SUSPECT-DUPLICATION: near-doubling with no add-intent -> flagged');
+    const withIntent = { step_index: 18, description: 'append the new records', action_type: 'edit', target_files: ['data.txt'] };
+    const rYes = checkReceiptIntegrity(withIntent, prev, doubled, 'node -c x');
+    assert(!rYes.violations.some((v) => v.startsWith('SUSPECT-DUPLICATION:')), 'SUSPECT-DUPLICATION: same growth WITH append intent -> clean (legitimate addition)');
   }
 
   console.log(
