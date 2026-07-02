@@ -276,6 +276,15 @@ beat: read QUEUE/AUTORUN/STATUS-BOARD/INBOX from disk, judge FAILED(x2) from rea
 receipts, fix small named bugs same-beat, check supervisor.log health, report board-
 format with receipts quoted, close short."
 
+**11. The queue is a TOPOLOGY, not a list (operator ruling 2026-07-02).** The conductor
+understands every queued mission in full and maintains the serial foundation order:
+L1-data → L2-backend → L3-map.html-chain (strictly serial — one script chain) → L4-pages
+→ L5-QC. Standing topology + insertion rules: `missions/_logs/QUEUE-TOPOLOGY-2026-07-02.md`.
+INSERT new missions into their layer section of AUTORUN's serial block — never append
+blind to file bottom. An S2 never bares while its S1 is FAILED (tartib gate accepts
+FAILED receipts — 3 receipted incidents, engine fix = STATE queue item 19; check manually
+until it lands). Re-audit the topology when pending grows ~20 or a foundation FAILs.
+
 **10. Engine-class missions: strong evidence the conductor outperforms the chain on
 them.** Receipts: `engine-visual-capture-nonblocking` and `engine-hajj-template-*` both
 FAILED(x2) in the chain and were hand-finished successfully; every engine fix that
@@ -408,6 +417,15 @@ Verified against substrate at write time. Order = leverage. Each lands as code w
     FAILED but fed5190 landed+tracked (understates); m28-1c marked DONE with an unpopulated
     Section 4 (overstates). Both are doneness-gate blind spots for research-class missions —
     extend the depth check to research deliverable CONTENT (placeholder-row detection).
+19. **Tartib gate: PASS-vs-FAILED receipts** (topology audit, THREE receipted incidents:
+    b13-aria.S2 queued behind FAILED S1; d1-migrations.S2 + crown-legal.S2 ran DONE before
+    their S1s landed). The daemon's REQUIRES/readiness gate treats "a receipt exists" as
+    satisfied even when that receipt is FAILED. Fix: require result.json ok:true for every
+    REQUIRES target before firing. Small, mechanical, high-recurrence.
+20. **FEATURE-CATALOG regen** (unblocks the 2 held qc pairs): docs/FEATURE-CATALOG-2026-06-23.md
+    absent from main (exists on side branches 05696cd/e7f1c51/e749ff4; producer mission was
+    retired file-missing). Cherry-pick or regen on main + a fresh e2e baseline report, then
+    bare the TOPOLOGY-HOLD lines in AUTORUN.
 
 ## 🚨 STRUCTURAL FINDING 2026-07-02 — the engine INTEGRATES but never DEPLOYS (zero visual result)
 

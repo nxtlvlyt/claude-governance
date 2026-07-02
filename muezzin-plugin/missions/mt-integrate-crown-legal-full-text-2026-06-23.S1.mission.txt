@@ -15,7 +15,7 @@ Maqsad: sub-mission 1 of 2 — Confirm source commit 487d8d5 exists in the sourc
 
 Steps:
   1. Confirm source commit 487d8d5 exists in the source worktree and touches land-tenure.js, without modifying that worktree. [command] 
-  2. Confirm target repo is on main at the expected pre-integration baseline HEAD (28cbc72) before integration begins. [command] 
+  2. Confirm target repo is on branch main with a CLEAN worktree (git status --porcelain empty) and record the current HEAD sha as the rollback baseline — do NOT pin a specific sha (topology audit 2026-07-02: the original 28cbc72 pin went stale when HEAD moved and made this step a deterministic fail; the baseline is whatever HEAD is at fire time). [command]
   3. Cherry-pick commit 487d8d5 onto target repo main from the shared object store; land cleanly or halt in a conflicted state on both touched files. [command] 
   4. Resolve any conflict in functions/api/land-tenure.js so the file contains BOTH the target's existing AB WMU/WMA display_label + popup_chip logic AND the feature's PROVINCIAL_CROWN_RULES/PROVINCE_BBOXES/provincial-rules endpoint, with no conflict markers left and valid syntax. [edit] functions/api/land-tenure.js
   5. Resolve any conflict in js/crown-land-overlay.js so the file contains BOTH the target's existing tinted-polygon/click-popup restoration logic AND the feature's getProvincialRules/detectProvinceCode/provincialLegalBlockHtml/injectProvincialLegalBlock, with no conflict markers left and valid syntax. [edit] js/crown-land-overlay.js
