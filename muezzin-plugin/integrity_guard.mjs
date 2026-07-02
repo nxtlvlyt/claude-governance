@@ -165,6 +165,38 @@ export function checkReceiptIntegrity(step, prevContent, newContent, command) {
     violations.push(`NON-CANONICAL-COMMAND: command injects '.skip(' to suppress tests: ${JSON.stringify(cmd)}`);
   }
 
+  // --- Rule (4): an edit must not SILENTLY DELETE a large fraction of an existing file ---
+  // (M-EDIT-CONTENT-PRESERVATION, 2026-07-02). Receipt: mt-integrate-email-redaction-docs step 3
+  // — an [edit] "resolve conflicts KEEPING BOTH SIDES" step — produced a whole-file rewrite that
+  // deleted 126 of 305 doc lines and committed it to `main`. The executor's whole-file edit path
+  // (buildFraming, which does NOT embed the current file) lets the seat re-emit a shorter file,
+  // silently dropping content. Rules 1/1b/3 only protect CODE (assertions, exports, test files);
+  // a prose/docs file has none of those, so the gutting sailed through every existing guard. This
+  // is the type-agnostic backstop: a large deletion on an edit step whose description never SAID it
+  // meant to delete is refused (fail-closed) — a genuine prune just states delete/prune/remove/… in
+  // the step description. Thresholds require a substantial file + large absolute drop + >35% gone,
+  // so ordinary edits and appends never trip it.
+  const isEdit = step?.action_type === 'edit';
+  const desc = String(step?.description || '');
+  // Affirmative delete-intent exempts the guard — BUT not when negated. The email-redaction
+  // step said "resolve KEEPING BOTH SIDES, NEVER delete either side": that contains the word
+  // "delete" yet intends the OPPOSITE, so a naive word-match would wrongly exempt the exact
+  // gutting this rule exists to catch. Require a delete verb AND no preserve/negation signal.
+  const hasDeleteVerb = /\b(delet|prun|remov|trim|shrink|truncat|strip|purg|slim|dedup|consolidat|shorten|condens|clean[\s-]*up|cut[\s-]*down|reduc)/i.test(desc);
+  const hasPreserveNegation = /\b(never|not|n't|do not|keep both|both sides|preserve|retain|neither|without\s+(?:delet|remov))/i.test(desc);
+  const deleteIntent = hasDeleteVerb && !hasPreserveNegation;
+  if (isEdit && prev.trim() && !deleteIntent) {
+    const nonEmpty = (t) => t.split(/\r?\n/).filter((l) => l.trim()).length;
+    const prevLines = nonEmpty(prev);
+    const nextLines = nonEmpty(next);
+    const removed = prevLines - nextLines;
+    if (prevLines >= 40 && removed >= 60 && nextLines <= prevLines * 0.65) {
+      violations.push(
+        `LARGE-DELETION: edit dropped ${removed} of ${prevLines} non-empty lines (${Math.round((removed / prevLines) * 100)}%) with no delete/prune/remove intent in the step description — refusing (likely a whole-file rewrite silently dropping existing content; state an explicit prune intent in the step if the deletion is genuinely intended)`
+      );
+    }
+  }
+
   return { ok: violations.length === 0, violations };
 }
 
@@ -392,6 +424,41 @@ if (isMainModule()) {
     const next = `function a() {}\nfunction b() {}\nexport { a, b };\n`;
     const r = checkReceiptIntegrity(step, prev, next, 'node mission_lint.mjs');
     assert(r.ok === true, 'EXPORT-REGRESSION: adding a name to an `export { ... }` list -> clean, no false positive');
+  }
+
+  // --- Test 13: LARGE-DELETION (M-EDIT-CONTENT-PRESERVATION) — the email-redaction gutting shape ---
+  {
+    const step = { step_index: 13, description: 'resolve conflicts keeping BOTH sides, never delete either side', action_type: 'edit', target_files: ['docs/EMAIL-REDACTION-PATTERN.md'] };
+    const prev = Array.from({ length: 305 }, (_, i) => `doc line ${i + 1} — real content`).join('\n');
+    const next = Array.from({ length: 179 }, (_, i) => `doc line ${i + 1} — real content`).join('\n');
+    const r = checkReceiptIntegrity(step, prev, next, 'node -c x');
+    const hit = r.violations.filter((v) => v.startsWith('LARGE-DELETION:'));
+    assert(r.ok === false, 'LARGE-DELETION: 305->179 edit with "never delete" description -> ok:false (the real gutting shape)');
+    assert(hit.length === 1, 'LARGE-DELETION: exactly one violation for the gutting');
+  }
+
+  // --- Test 14: LARGE-DELETION exempted when the step EXPLICITLY states delete/prune intent ---
+  {
+    const step = { step_index: 14, description: 'prune the deprecated section from the guide', action_type: 'edit', target_files: ['docs/guide.md'] };
+    const prev = Array.from({ length: 305 }, (_, i) => `line ${i + 1}`).join('\n');
+    const next = Array.from({ length: 179 }, (_, i) => `line ${i + 1}`).join('\n');
+    const r = checkReceiptIntegrity(step, prev, next, 'node -c x');
+    assert(r.ok === true, 'LARGE-DELETION: same drop but "prune" in description -> clean (intended deletion allowed)');
+  }
+
+  // --- Test 15: ordinary edits and appends never trip LARGE-DELETION ---
+  {
+    const base = Array.from({ length: 120 }, (_, i) => `line ${i + 1}`).join('\n');
+    const small = { step_index: 15, description: 'fix a typo', action_type: 'edit', target_files: ['a.md'] };
+    const rSmall = checkReceiptIntegrity(small, base, base.replace('line 5', 'line five'), 'node -c x');
+    assert(rSmall.ok === true, 'LARGE-DELETION: a small same-size edit -> clean');
+    const append = { step_index: 15, description: 'add a section', action_type: 'edit', target_files: ['a.md'] };
+    const rApp = checkReceiptIntegrity(append, base, base + '\n' + Array.from({ length: 40 }, (_, i) => `new ${i}`).join('\n'), 'node -c x');
+    assert(rApp.ok === true, 'LARGE-DELETION: an append (grows the file) -> clean');
+    // a tiny file dropping most of its lines is below the 40-line floor -> not flagged (avoids false-positives on stubs)
+    const tiny = { step_index: 15, description: 'rewrite the stub', action_type: 'edit', target_files: ['a.md'] };
+    const rTiny = checkReceiptIntegrity(tiny, Array.from({ length: 20 }, (_, i) => `l${i}`).join('\n'), 'l0\n', 'node -c x');
+    assert(rTiny.ok === true, 'LARGE-DELETION: a small file (<40 lines) is below the floor -> not flagged');
   }
 
   console.log(

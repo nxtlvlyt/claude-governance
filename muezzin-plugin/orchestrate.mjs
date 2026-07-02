@@ -1781,11 +1781,13 @@ if (process.argv[1]?.endsWith('orchestrate.mjs')) {
       fs.rmSync(riDir, { recursive: true, force: true });
     }
 
-    // RECURRING-ERROR, EMPTY-TEXT FALLBACK (2026-07-01 receipt: this was the actual live bug --
-    // the original version returned 0 unconditionally whenever error text was empty, which is
-    // the MOST COMMON failure shape in production (execReceipt-backed failures with no stdout/
-    // stderr). Verified live: one mission had 300 empty-text failures across engine-exec and
-    // witness, zero ever flagged. This proves the reason-keyed fallback actually closes it.
+    // RECURRING-ERROR on a repeated engine-exec failure. NOTE (updated for M-ENGINE-EXEC-DIAG,
+    // 56a79bd): an empty-OUTPUT engine-exec failure (`exit 1`, no stdout/stderr) NO LONGER carries
+    // empty error text — execReceipt now surfaces a STABLE diagnostic ("[no stdout/stderr captured]
+    // msg=Command failed: ... exit 1"), identical across runs. So these failures now key on that
+    // consistent TEXT (the normal recurring path), and the 3rd identical occurrence is flagged.
+    // The genuinely-empty-text fallback (the 2026-07-01 live bug: empty text returned 0
+    // unconditionally) is still exercised by the WITNESS-reject path in the next test block.
     {
       const riDir = mkRiSandbox();
       const emptyFailQueue = () => ({ mission_id: 'M-EMPTY', steps: [
@@ -1796,9 +1798,9 @@ if (process.argv[1]?.endsWith('orchestrate.mjs')) {
       const r2 = await orchestrate('M-EMPTY 2', riDir, opts);
       const r3 = await orchestrate('M-EMPTY 3', riDir, opts);
       const g1 = r1.steps.find((s) => s.step === 1), g2 = r2.steps.find((s) => s.step === 1), g3 = r3.steps.find((s) => s.step === 1);
-      ck(g1 && g1.error === undefined && g1.reason === 'engine-exec', 'RECURRING-ERROR empty-text: confirms the failure really does carry empty error text (the exact production shape)');
-      ck(!g1.recurringError && !g2.recurringError, 'RECURRING-ERROR empty-text: 1st and 2nd empty-text occurrences -> not flagged (same as the non-empty case)');
-      ck(g3.recurringError === true && g3.priorOccurrences === 2, 'RECURRING-ERROR empty-text: 3rd occurrence -> flagged via the reason-keyed fallback -- THE ACTUAL LIVE BUG, now fixed');
+      ck(g1 && typeof g1.error === 'string' && g1.error.length > 0 && g1.reason === 'engine-exec', 'RECURRING-ERROR: an empty-OUTPUT engine-exec failure now carries exec-diag diagnostic text (M-ENGINE-EXEC-DIAG), not empty');
+      ck(!g1.recurringError && !g2.recurringError, 'RECURRING-ERROR: 1st and 2nd identical-diagnostic occurrences -> not flagged');
+      ck(g3.recurringError === true && g3.priorOccurrences === 2, 'RECURRING-ERROR: 3rd occurrence of the same diagnostic -> flagged (priorOccurrences 2)');
       fs.rmSync(riDir, { recursive: true, force: true });
     }
 
