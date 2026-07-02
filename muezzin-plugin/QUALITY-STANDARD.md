@@ -32,6 +32,11 @@ A deliverable is COMPLETE only when ALL of:
 - Mobile-first render check: the feature is verified ON THE RENDER PATH USERS USE
   (receipt 2026-07-02: the Apply button existed in code, was off-canvas on phones;
   the bottom-sheet path was never checked — both caught by the operator, not QC).
+- **Standards-grounded (operator ruling 2026-07-02): the relevant EXTERNAL standard for
+  the feature class is fetched with tools (WebFetch/SearXNG receipt) and the deliverable
+  is checked against it — WCAG for interactive elements, platform/map-UX conventions for
+  map features, PWA standards for install/offline. Deviations are named, never silent.
+  "Best effort" includes knowing what the field's bar IS, not just meeting our own.**
 - ⟨OPERATOR⟩ visual/taste bar: what does "looks right" require? (screenshot baseline diff?
   specific spacing/contrast rules? — visreg-baseline mission is the hook for this)
 
