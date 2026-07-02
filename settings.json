@@ -156,5 +156,9 @@
   },
   "skipDangerousModePermissionPrompt": true,
   "theme": "dark",
-  "skipAutoPermissionPrompt": true
+  "skipAutoPermissionPrompt": true,
+  "fallbackModel": [
+    "claude-opus-4-8",
+    "claude-sonnet-5"
+  ]
 }
