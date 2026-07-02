@@ -59,6 +59,32 @@ export function buildPreviewPathFn(outDir) {
   return (slug, viewport) => previewPathFor(outDir, slug, viewport);
 }
 
+const STATIC_CONTENT_TYPES = {
+  '.html': 'text/html', '.js': 'application/javascript', '.css': 'text/css',
+  '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png',
+  '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp',
+};
+
+// Creates (does not start) a tiny static file server rooted at staticRoot. Serves files by
+// path, maps '/'-and-trailing-slash to index.html, refuses to serve outside staticRoot (403),
+// 404s missing files. Extracted so the static-serve path is unit-testable without puppeteer.
+export async function createStaticServer(staticRoot) {
+  const http = await import('http');
+  const { readFile } = await import('fs/promises');
+  return http.createServer(async (req, res) => {
+    try {
+      let rel = decodeURIComponent((req.url || '/').split('?')[0]);
+      if (rel === '/' || rel.endsWith('/')) rel += 'index.html';
+      const fp = path.join(staticRoot, rel.replace(/^\/+/, ''));
+      // containment: never serve outside staticRoot
+      if (!path.resolve(fp).startsWith(path.resolve(staticRoot))) { res.writeHead(403); res.end(); return; }
+      const data = await readFile(fp);
+      res.writeHead(200, { 'Content-Type': STATIC_CONTENT_TYPES[path.extname(fp).toLowerCase()] || 'application/octet-stream' });
+      res.end(data);
+    } catch { res.writeHead(404); res.end('not found'); }
+  });
+}
+
 // capturePreviews — launches puppeteer, walks every slug from inventoryBaseline() across
 // the 3 viewports, screenshots each to previewPathFor(outDir, slug, viewport.name).
 // Never throws: all failures are collected into the returned receipt instead.
@@ -69,6 +95,29 @@ export async function capturePreviews(baseUrl, outDir, opts = {}) {
   const captured = [];
   const failed = [];
   let browser;
+  let staticSrv = null;
+  let effectiveBaseUrl = baseUrl;
+
+  // STATIC-SERVE (M-VISUAL-QC capture fix, 2026-07-02): when opts.staticRoot is set, serve the
+  // repo files directly from a tiny ephemeral static server and capture against THAT instead of
+  // baseUrl. This bypasses wrangler pages dev's .html->extensionless 308 redirect, which was
+  // silently serving the SSR fallback (45KB, no leaflet/feature scripts) instead of the real
+  // 391KB interactive page — proven via puppeteer 2026-07-02, the root reason zero VISUAL-QC
+  // missions ever completed. Opt-in only: no staticRoot -> behavior byte-identical to before.
+  // Tradeoff (accepted): a static server does not serve /api/* Pages Functions, so live data is
+  // absent — fine for feature-PRESENCE QC (the scripts load + render), which is the common case.
+  if (opts.staticRoot) {
+    try {
+      staticSrv = await createStaticServer(opts.staticRoot);
+      await new Promise((resolve) => staticSrv.listen(0, '127.0.0.1', resolve));
+      effectiveBaseUrl = `http://127.0.0.1:${staticSrv.address().port}`;
+    } catch (err) {
+      // static server failed to start -> fall back to the given baseUrl (never block capture)
+      failed.push({ slug: null, viewport: null, error: `static-serve setup failed, using baseUrl: ${String(err?.message || err)}` });
+      staticSrv = null;
+      effectiveBaseUrl = baseUrl;
+    }
+  }
 
   try {
     const puppeteer = (await import('puppeteer')).default;
@@ -87,8 +136,23 @@ export async function capturePreviews(baseUrl, outDir, opts = {}) {
             height: viewport.height,
             deviceScaleFactor: viewport.deviceScaleFactor,
           });
-          const url = buildPreviewUrl(baseUrl, slug, urlForSlug);
-          await page.goto(url, { waitUntil: 'networkidle0' });
+          const url = buildPreviewUrl(effectiveBaseUrl, slug, urlForSlug);
+          // BEST-EFFORT NAV (M-VISUAL-QC, 2026-07-02): a live interactive page (leaflet tiles,
+          // analytics, sentry) may keep network connections open indefinitely and never reach
+          // networkidle0 — proven on map.html, which never idles. Previously that meant a 30s
+          // timeout THROW, caught below as a "failed" entry, and NO screenshot: the exact reason
+          // a real feature page could never be captured. Now: bound the wait, and if it times
+          // out but the document rendered a body, capture what's on screen anyway. A genuine nav
+          // failure (no document at all) still rethrows and is recorded as failed.
+          const waitUntil = opts.waitUntil || 'networkidle0';
+          const gotoTimeoutMs = opts.gotoTimeoutMs ?? 20000;
+          try {
+            await page.goto(url, { waitUntil, timeout: gotoTimeoutMs });
+          } catch (navErr) {
+            const hasBody = await page.evaluate(() => !!(document && document.body && document.body.innerHTML.length > 0)).catch(() => false);
+            if (!hasBody) throw navErr; // never actually loaded — real failure
+            // else: rendered but network never settled — proceed to best-effort screenshot
+          }
           await page.addStyleTag({ content: ANIMATION_FREEZE_CSS });
           await new Promise((resolve) => setTimeout(resolve, waitMs));
 
@@ -113,6 +177,9 @@ export async function capturePreviews(baseUrl, outDir, opts = {}) {
   } finally {
     if (browser) {
       try { await browser.close(); } catch { /* already closed */ }
+    }
+    if (staticSrv) {
+      try { await new Promise((resolve) => staticSrv.close(resolve)); } catch { /* already closed */ }
     }
   }
 }
@@ -176,6 +243,57 @@ if (process.argv[1]?.endsWith('visual_capture.mjs') && process.argv.includes('--
       }
     } catch (err) {
       console.error('FAIL: puppeteer import failed:', err?.message || err);
+      failures++;
+    }
+
+    // createStaticServer: serves a real file, maps / -> index.html, 403 on path-escape, 404 on miss.
+    try {
+      const os = await import('os');
+      const { mkdtemp, writeFile } = await import('fs/promises');
+      const tmpRoot = await mkdtemp(path.join(os.tmpdir(), 'vqc-static-'));
+      const marker = '<!doctype html><html><body>STATIC-SERVE-OK-42</body></html>';
+      await writeFile(path.join(tmpRoot, 'index.html'), marker, 'utf8');
+      const srv = await createStaticServer(tmpRoot);
+      await new Promise((resolve) => srv.listen(0, '127.0.0.1', resolve));
+      const base = `http://127.0.0.1:${srv.address().port}`;
+      const getStatusBody = async (p) => {
+        const r = await fetch(base + p);
+        return { status: r.status, body: await r.text() };
+      };
+      try {
+        const root = await getStatusBody('/');
+        if (root.status === 200 && root.body.includes('STATIC-SERVE-OK-42')) {
+          console.log('PASS: createStaticServer serves / -> index.html with real content');
+        } else {
+          console.error('FAIL: createStaticServer / ->', root.status, root.body.slice(0, 40));
+          failures++;
+        }
+        const explicit = await getStatusBody('/index.html');
+        if (explicit.status === 200 && explicit.body.includes('STATIC-SERVE-OK-42')) {
+          console.log('PASS: createStaticServer serves explicit /index.html');
+        } else {
+          console.error('FAIL: createStaticServer /index.html ->', explicit.status);
+          failures++;
+        }
+        const miss = await getStatusBody('/does-not-exist.html');
+        if (miss.status === 404) {
+          console.log('PASS: createStaticServer 404s missing file');
+        } else {
+          console.error('FAIL: createStaticServer missing-file status ->', miss.status);
+          failures++;
+        }
+        const escape = await getStatusBody('/..%2f..%2f..%2fwindows%2fwin.ini');
+        if (escape.status === 403 || escape.status === 404) {
+          console.log('PASS: createStaticServer refuses path-escape (403/404)');
+        } else {
+          console.error('FAIL: createStaticServer path-escape not contained ->', escape.status);
+          failures++;
+        }
+      } finally {
+        await new Promise((resolve) => srv.close(resolve));
+      }
+    } catch (err) {
+      console.error('FAIL: createStaticServer self-test threw:', err?.message || err);
       failures++;
     }
 

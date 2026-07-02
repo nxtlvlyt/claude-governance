@@ -434,7 +434,11 @@ export async function applyVisualWitness(mission, cwd, merged, opts = {}) {
     const capturePreviewsFn = opts.capturePreviewsFn || capturePreviews;
     const witnessVisualDiffFn = opts.witnessVisualDiffFn || witnessVisualDiff;
     const previewDir = path.join(cwd, '_visual-preview');
-    await capturePreviewsFn(baseUrlMatch[1], previewDir);
+    // M-VISUAL-QC capture fix (2026-07-02): serve the repo statically for the screenshot so
+    // /map.html renders the REAL interactive page, not wrangler-dev's SSR-fallback redirect
+    // (proven root cause of zero visual-QC completions). staticRoot = the mission's own repo
+    // (cwd). The PREVIEW-BASE-URL header stays the fallback for non-staticRoot / offline paths.
+    await capturePreviewsFn(baseUrlMatch[1], previewDir, { staticRoot: cwd });
     merged.visualWitness = await witnessVisualDiffFn(buildPreviewPathFn(previewDir));
   } catch (e) {
     merged.visualWitness = { ok: false, error: { kind: 'CAPTURE_OR_WITNESS_THREW', detail: String(e?.message || e) } };

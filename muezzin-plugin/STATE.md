@@ -145,12 +145,29 @@ its shell + all feature scripts (enough for feature-PRESENCE visual QC: aria-liv
 icons, map-attribution, aurora wiring) but shows no live POI data. Feature-presence is the
 common visual-QC case; live-data features would want a hybrid (static for .html/.js/.css,
 proxy /api to wrangler) — a deliberate design choice, not a default.
-WIRING (bounded next pass, NOT done — it lives in the verdict-phase capture path, so treat
-with the same care as any verdict-phase edit): point visual_capture.mjs's capture at a
-static server for the .html screenshot. Low blast radius as code (capture plumbing), but
-it's invoked from defaultVerdictPhase, so land it behind the orchestrate.mjs selftest and
-verify one real visual-QC mission produces a feature-showing screenshot gemma4:31b judges
-correctly. THAT run is the first visual-QC e2e completion.
+WIRING — ✅ LANDED 2026-07-01 (commits `c461d98` + `933926a`), staged-not-hot-activated.
+Two changes to `visual_capture.mjs` + one to `orchestrate.mjs`:
+  1. `createStaticServer(staticRoot)` (new, exported) + `opts.staticRoot` on `capturePreviews`:
+     when set, serves the mission repo from an ephemeral 127.0.0.1 static server and captures
+     against THAT, bypassing the wrangler `.html`→extensionless 308. Opt-in: no staticRoot →
+     byte-identical prior behavior. `applyVisualWitness` now passes `staticRoot: cwd`.
+  2. Best-effort nav: `capturePreviews` goto used `networkidle0` + 30s default timeout; a live
+     leaflet page NEVER idles, so goto threw → caught as "failed" → NO screenshot. Now bounded
+     (`opts.gotoTimeoutMs` default 20000; `opts.waitUntil` overridable, default unchanged) and on
+     timeout, if the document rendered a body, screenshot anyway. Genuine nav failure still fails.
+PROVEN 2026-07-01 through the REAL `capturePreviews()` against a static-served mt-integration
+repo: 18/18 slugs captured, 0 failed; `map/desktop.png` shows the real interactive app (Muddy
+Tires LIVE header, Layers, aurora banner, Plan-my-day, 4000-POI status bar) — where the
+wrangler-dev path produced only the 45KB SSR fallback. Selftests: visual_capture 10/10 (4 new
+static-serve cases), orchestrate.mjs ALL PASS. Pre-commit gate green on both commits.
+WHAT REMAINS for the milestone "first visual-QC e2e completion" (line 152's definition):
+  (a) restart the daemon so it loads the new visual_capture.mjs (currently staged-not-hot); and
+  (b) let one real `VISUAL-QC-REQUIRED` mission run and confirm gemma4:31b judges the captured
+      feature screenshot correctly. The capture side is no longer the blocker — it's proven.
+CAVEATS (environmental, NOT capture-path defects): map TILES still show "Loading the live
+map…" because the external tile CDN isn't reachable in this env (same family as the /api
+tradeoff) — feature CHROME renders fully, which is what presence-QC judges. The `fr-*` slugs
+captured at ~6453 bytes = blank/missing pages in this repo build (a separate content gap).
 
 ## 🎥 VISUAL-QC BLOCKER — half-fixed 2026-07-01T~23:55Z (preview server now standing; witness-target semantics still wrong)
 
