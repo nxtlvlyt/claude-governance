@@ -355,6 +355,50 @@ code; users saw the fallback.
 an L5 outcome witness for every user-facing mission (deployed artifact + real production
 data + rendered result). Design sketch in the attribution workflow output.
 
+## 📋 QUEUED ENGINE/PRODUCT WORK — 2026-07-02 operator-discussion commitments (durable, so nothing is conversation-only)
+
+Verified against substrate at write time. Order = leverage. Each lands as code with tests
+(vocabulary-without-mechanism is the documented failure mode).
+
+1. **Refuter seat in the verdict panel** (workflow-learnings adoption): one phase-3 seat
+   charged adversarially ("assume hollow/unreachable/false-green; EXECUTE a real check;
+   REJECT only probe-backed"). Local witness stack wraps the judgment (laguna/guardian);
+   probes are code. Local REJECT = escalation trigger, never terminal (humble-validation law).
+2. **Reachability witness** (dev-cli class): a mission delivering a browser js/css asset
+   must show it referenced by a page — code check in the verdict phase, no model.
+3. **Completeness critic** (post-DONE seat, Ollama Cloud level-3/4): "what does the Maqsad
+   imply that no step delivered?" → ON-DONE follow-ups instead of silent scope loss.
+4. **Receipt-discounting rule** in the panel rubric (judge pattern: no executed receipt, no weight).
+5. **Plan-brief operator taste-veto** (Facebook-post adoption): NEW user-facing feature
+   missions above a size threshold emit a 5-line plan brief to OPERATOR-NOTIFY before
+   execution. Integrations exempt.
+6. **Named-questions on plan-HOLD** (Facebook-post adoption): panel HOLD/fail emits
+   articulated questions, not just error strings.
+7. **Golden-mission eval harness** (SOTA gap #1): fixed known-outcome mission set run on
+   every engine change — catches floor over-restriction (the false-flag class) mechanically.
+8. **Retro corpus plan-time retrieval** (SOTA gap #3): architects receive "last N similar
+   missions failed because X" from missions/_logs/retro/ at plan time.
+9. **Supervisor log append-not-overwrite**: Start-Process redirect truncates on respawn —
+   death evidence destroyed every restart (diagnosability hole, found 2026-07-02 18:09).
+10. **Empty-emission gremlin root**: claude -p seats returning empty content (now precisely
+    receipted: spot-share plan-attempt-3, provider:unknown). Instrument the dispatch wrapper
+    (stderr + exit + stdout length) per the standing fresh-eyes note.
+11. **Dual-write-path**: one integration lane — missions stop pushing the mirror directly
+    (judge system ruling; divergence guard currently detects, root remains).
+12. **Isnad receipt-grading → Kiraman Katibin → Isha** (book-borrow build order; ranked
+    list + rationale in memory ai-book-folder-nxtbeast.md and testimony 002).
+13. **C1 Amazon-pickup layer + C2 aimlapi add-spot assist missions** (registry NO-MISSION
+    items): author when spot-briefs.S1 proves the local-model+groundedness pattern (C2's
+    write-side sibling; locker DISPLAY side of C1 already shipped).
+14. **Three map.html hand-merges owed (conductor-direct batch)**: park-reservation
+    (41033ad), poi-print-sheet (195f761), photo-upload-ux (FAILED x2 2026-07-02 16:50,
+    UNJUDGED — read its receipts first). All deterministic conflicts; batch in one clean
+    worktree window when no lane is on the mt repo.
+15. **Deferred with dates (explicitly not lost)**: dynamic seat routing from ledger data
+    (2026-07-02, defer while roster small); injection screen on fetched web content
+    (2026-07-02, add to research-note rules); stop-hook use/mention classifier (2026-07-01,
+    needs operator-witnessed ceremony); A4 image CDN ?w= param (registry).
+
 ## 🚨 STRUCTURAL FINDING 2026-07-02 — the engine INTEGRATES but never DEPLOYS (zero visual result)
 
 Operator asked "any updates to muddytires I can visually SEE?" Verified (WebFetch of live
