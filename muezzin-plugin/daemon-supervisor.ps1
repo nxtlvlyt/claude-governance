@@ -26,10 +26,13 @@ while ($true) {
     $ts = Get-Date -Format 'yyyy-MM-ddTHH:mm:ss'
     Add-Content -Path (Join-Path $logDir "supervisor.log") -Value "$ts SUPERVISOR starting daemon"
 
-    $p = Start-Process -FilePath "node" -ArgumentList "muezzin-daemon.mjs" `
+    # APPEND, never overwrite (2026-07-02): Start-Process -RedirectStandardOutput TRUNCATES on
+    # every respawn — the dying daemon's final output (the death evidence) was destroyed by the
+    # restart that followed it (live receipt: 18:09 exit-1 death, stderr empty, cause unrecoverable).
+    # cmd /c with >> preserves every generation's output in one continuous log.
+    $p = Start-Process -FilePath "cmd.exe" `
+        -ArgumentList "/c", "node muezzin-daemon.mjs >> `"$(Join-Path $logDir 'daemon-stdout.log')`" 2>> `"$(Join-Path $logDir 'daemon-stderr.log')`"" `
         -WorkingDirectory "C:\Users\marka\.claude\muezzin-plugin" `
-        -RedirectStandardOutput (Join-Path $logDir "daemon-stdout.log") `
-        -RedirectStandardError (Join-Path $logDir "daemon-stderr.log") `
         -PassThru -NoNewWindow -Wait
 
     $ts = Get-Date -Format 'yyyy-MM-ddTHH:mm:ss'
