@@ -299,15 +299,29 @@ export function computeDoneness(base, autorun, {
     if (closed(autorun.notes?.[d])) continue;
     doneChecked++;
     const res = readJson(path.join(base, 'missions', stem + '.mission.result.json'));
-    if (!res) { blocking.push({ layer: 'L0', mission: stem, reason: 'DONE but no result.json' }); continue; }
-    if (res.phase === 'split' || res.split === true) { blocking.push({ layer: 'L1', mission: stem, reason: 'DONE marks a SPLIT parent — its leaves are the deliverable' }); continue; }
+    if (res && (res.phase === 'split' || res.split === true)) { blocking.push({ layer: 'L1', mission: stem, reason: 'DONE marks a SPLIT parent — its leaves are the deliverable' }); continue; }
+    // LANDED = the declared ALLOW-FILES are present in the mission's OWN repo (ground truth). This is
+    // the precision fix (2026-07-02): checking result.json + "any source sha in HEAD" false-flagged
+    // missions whose deliverable FILES are present but whose result.json was stale (conductor-direct)
+    // or which merely REFERENCE a sha (crown-legal.S2, engine-visual-capture) — while it still catches
+    // genuine strands (lighthouse-post-indexes: 0 of 11 ALLOW-FILES present).
+    const repoRoot = ((mtext.match(/REPO-ROOT:\s*(\S.*?)\s*$/im) || [])[1] || targetRepo).replace(/\\/g, '/');
+    const afBlock = (mtext.match(/ALLOW-FILES:\s*\r?\n((?:[ \t]*-[ \t]+\S.*\r?\n?)+)/i) || [])[1] || '';
+    const allowFiles = [...afBlock.matchAll(/^[ \t]*-[ \t]+(\S+)/gm)].map((x) => x[1]).filter((p) => /\.\w+$/.test(p));
+    if (allowFiles.length) {
+      const absent = allowFiles.filter((af) => { try { return !existsSync(path.join(repoRoot, af)); } catch { return true; } });
+      if (absent.length === 0) continue;                            // all deliverable files present => LANDED
+      blocking.push({ layer: 'L3', mission: stem, reason: `DONE but ${absent.length}/${allowFiles.length} deliverable ALLOW-FILES absent (${absent.slice(0, 2).join(', ')}${absent.length > 2 ? '…' : ''}) — stranded / not integrated` });
+      continue;
+    }
+    // no parseable ALLOW-FILES: fall back to result.json (L0) + patch-id (L3).
+    if (!res) { blocking.push({ layer: 'L0', mission: stem, reason: 'DONE but no result.json + no ALLOW-FILES' }); continue; }
     if (!(res.ok === true && res.phase === 'done')) { blocking.push({ layer: 'L0', mission: stem, reason: `result not ok/done (ok=${res.ok} phase=${res.phase})` }); continue; }
-    // L3 landed: the deliverable's source patch is present in HEAD (patch-id).
     const shas = extractSourceShas(mtext);
-    if (!shas.length) continue; // authored-not-picked deliverable: L0 verdict is the floor
+    if (!shas.length) continue;
     let anyDeterminable = false, landed = false;
     for (const s of shas) { const pid = pidOf(s); if (pid) { anyDeterminable = true; if (headPids.has(pid)) { landed = true; break; } } }
-    if (anyDeterminable && !landed) blocking.push({ layer: 'L3', mission: stem, reason: `DONE but deliverable patch [${shas.map((x) => x.slice(0, 7)).join(',')}] is NOT in the deployable tree (on a feature branch / never integrated) — the poi-tags false-DONE class` });
+    if (anyDeterminable && !landed) blocking.push({ layer: 'L3', mission: stem, reason: `DONE but deliverable patch [${shas.map((x) => x.slice(0, 7)).join(',')}] not in the deployable tree` });
   }
 
   const counts = { pending: pending.length, running: running.length, unresolvedFailed: unresolvedFailed.length, dammOwed: owed.length, openIntegration, pushedGap, doneDeliverablesChecked: doneChecked, blocking: blocking.length };
