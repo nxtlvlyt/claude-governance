@@ -1,0 +1,23 @@
+MISSION-ID: MT-INTEGRATE-WILDLIFE-ADVISORY.S2
+MISSION-CLASS: code-repo
+PARENT: MT-INTEGRATE-WILDLIFE-ADVISORY
+TARTIB-INDEX: 2 of 2
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - js/wildlife-advisory-layer.js
+  - wildlife-advisory-visual-witness.png
+VISUAL-QC-REQUIRED
+REQUIRES: MT-INTEGRATE-WILDLIFE-ADVISORY.S1 (tartib — this sub-mission may not start until MT-INTEGRATE-WILDLIFE-ADVISORY.S1's receipt exists)
+STEPS: 4
+
+PARENT MAQSAD: Land the three commits — 623a4785214503389055e56fd137a2b78753e2ab
+
+Maqsad: sub-mission 2 of 2 — Verify js/wildlife-advisory-layer.js is syntactically valid JavaScript after cherry-pick. through Reread all three ALLOW-FILES from the committed tree (not trusting exit codes alone) to confirm both JS files are present with non-trivial size, map.html contains exactly one correctly-positioned wildlife-advisory-layer.js tag, the working tree is clean scoped to allow-files, and the visual-witness receipt exists and is non-empty.
+
+Steps:
+  9. Verify js/wildlife-advisory-layer.js is syntactically valid JavaScript after cherry-pick. [verify] js/wildlife-advisory-layer.js
+  10. Stage the resolved files, finalize the cherry-pick sequence as a commit whose message names the wildlife-advisory feature, and confirm the target repo's working tree is clean (no uncommitted changes, no unmerged paths) scoped to this mission's allow-files. [command] 
+  11. Because map.html changed and VISUAL-QC-REQUIRED is set, serve the target repo statically, load map.html from PREVIEW-BASE-URL in a headless browser (puppeteer), and capture a render receipt; fail loudly (rather than silently pass) if PREVIEW-BASE-URL is unreachable. [command] wildlife-advisory-visual-witness.png
+  12. Reread all three ALLOW-FILES from the committed tree (not trusting exit codes alone) to confirm both JS files are present with non-trivial size, map.html contains exactly one correctly-positioned wildlife-advisory-layer.js tag, the working tree is clean scoped to allow-files, and the visual-witness receipt exists and is non-empty. [verify] 
+
+Done means: js/wildlife-advisory-layer.js, wildlife-advisory-visual-witness.png exist/are updated as specified — verify by headless-browser render, not by reading the code

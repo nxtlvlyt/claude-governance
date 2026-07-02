@@ -743,7 +743,7 @@ export async function orchestrate(mission, cwd, {
     emit({ phase: 'plan', event: 'literal-command-queue', step_count: litCmd.queue.steps.length });
     plan = { ok: true, queue: litCmd.queue, _panel: false, _literal: true, attempts: 1 };
   }
-  if (!plan) plan = await deconstructFn(mission, { diagDir: path.join(path.dirname(cwd), '_logs', 'diag') }); // 2026-06-30 containment-drift fix: diag scratch OUT of the mission worktree (was diagDir: cwd, which dumped panel-architect-*.raw.txt into the sandbox and tripped the containment guard)
+  if (!plan) plan = await deconstructFn(mission, { diagDir: path.join(path.dirname(cwd), '_logs', 'diag', path.basename(cwd)) }); // diag scratch OUT of the mission worktree (2026-06-30 containment fix); PER-MISSION subdir (2026-07-02): the shared dir was overwritten every run, so a plan-empty-emission mission's raw architect/integrator output was unrecoverable — blocking root-cause of the 5-mission plan-failure class. path.basename(cwd) = the mission stem; every diag writer already mkdir-recursives (git_steps/deconstructor 268+487), so the subdir is created safely.
   if (!plan?.ok) { emit({ phase: 'plan', event: 'failed', attempts: plan?.attempts, errors: plan?.errors }); return { ok: false, phase: 'plan', errors: plan?.errors || ['deconstruct failed'], steps: [] }; }
   // PLAN provenance (blind panel vs single-architect fallback): surface which path produced
   // the queue so the conductor's report shows whether the 3-blind panel ran or it fell back.
