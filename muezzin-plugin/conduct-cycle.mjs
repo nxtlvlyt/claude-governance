@@ -241,7 +241,7 @@ export function detectWorktreeCorruption(repoRoot, gitFn) {
 // gitFn(repo, argstr) -> {ok, out}: injected so the selftest runs offline.
 const MT_REPO_DEFAULT = 'C:/Users/marka/code/mt-integration-2026-06-22';
 export function computeDoneness(base, autorun, {
-  targetRepo = MT_REPO_DEFAULT, mainlineRef = 'github/master', now = Date.now(), owed = [], patchScan = 300,
+  targetRepo = MT_REPO_DEFAULT, mainlineRef = null, now = Date.now(), owed = [], patchScan = 300,
   gitFn = (repo, argstr) => { try { return { ok: true, out: execSync(`git -C "${repo}" ${argstr}`, { stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 64 * 1024 * 1024 }).toString() }; } catch { return { ok: false, out: '' }; } },
 } = {}) {
   const blocking = [];
@@ -261,11 +261,20 @@ export function computeDoneness(base, autorun, {
   }
 
   // ---- L3 PUSHED: commits on the deployable HEAD not yet on the pushed mainline ----
+  // ROOT FIX 2026-07-02: mainlineRef was hard-coded 'github/master', which turned out to be a STALE
+  // side-branch (the worktree actually tracks github/main). A wrong ref made pushGap report a false
+  // number AND hid a real main/master DIVERGENCE (27 commits looked unpushed vs master while main had
+  // diverged separately). Detect the ACTUAL tracked upstream; and flag main/master divergence so it
+  // can never silently recur.
+  if (!mainlineRef) { const up = gitFn(targetRepo, 'rev-parse --abbrev-ref @{u}'); mainlineRef = (up.ok && up.out.trim()) ? up.out.trim() : 'github/master'; }
   let pushedGap = null;
   const rg = gitFn(targetRepo, `rev-list --count ${mainlineRef}..HEAD`);
   if (rg.ok && /^\d+$/.test(rg.out.trim())) pushedGap = parseInt(rg.out.trim(), 10);
   if (pushedGap === null) blocking.push({ layer: 'L3', mission: '(repo)', reason: `cannot determine pushed-gap vs ${mainlineRef} — fail-closed` });
   else if (pushedGap > 0) blocking.push({ layer: 'L3', mission: '(repo)', reason: `${pushedGap} commit(s) on HEAD are NOT pushed to ${mainlineRef}` });
+  // DIVERGENCE GUARD: two mainline branches out of sync is the exact bug that stranded the 27 commits.
+  const div = gitFn(targetRepo, 'rev-list --count github/main...github/master');
+  if (div.ok && /^\d+$/.test(div.out.trim()) && parseInt(div.out.trim(), 10) > 0) blocking.push({ layer: 'L3', mission: '(repo)', reason: `github/main and github/master DIVERGED by ${div.out.trim()} commit(s) — reconcile to one canonical mainline` });
 
   // ---- L0/L1/L3 DEPTH: each DONE deliverable actually landed in the deployable tree ----
   // patch-id table of HEAD, computed ONCE (a cherry-picked deliverable lands under a NEW sha, so
