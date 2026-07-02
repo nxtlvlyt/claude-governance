@@ -433,10 +433,13 @@ triggers graduate into mechanical gates (as tartib did) whenever a condition can
 13. **C1 Amazon-pickup layer + C2 aimlapi add-spot assist missions** (registry NO-MISSION
     items): author when spot-briefs.S1 proves the local-model+groundedness pattern (C2's
     write-side sibling; locker DISPLAY side of C1 already shipped).
-14. **Three map.html hand-merges owed (conductor-direct batch)**: park-reservation
+14. **FOUR map.html hand-merges owed (conductor-direct batch)**: park-reservation
     (41033ad), poi-print-sheet (195f761), photo-upload-ux (FAILED x2 2026-07-02 16:50,
-    UNJUDGED — read its receipts first). All deterministic conflicts; batch in one clean
-    worktree window when no lane is on the mt repo.
+    UNJUDGED — read its receipts first), + b13-aria-live wiring (diagnosed 2026-07-02 22:4x:
+    feature files already on disk via aa7aaa6, ONLY the map.html <link>/<script defer> tags
+    missing — source-of-truth tags in commit dad942d's map.html hunk; after landing, flip
+    the HELD b13.S1 AUTORUN line to # RESOLVED so S2 fires via tartib). All deterministic
+    conflicts; batch in one clean worktree window when no lane is on the mt repo.
 15. **Deferred with dates (explicitly not lost)**: dynamic seat routing from ledger data
     (2026-07-02, defer while roster small); injection screen on fetched web content
     (2026-07-02, add to research-note rules); stop-hook use/mention classifier (2026-07-01,
