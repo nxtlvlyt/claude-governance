@@ -325,6 +325,61 @@ export function resetAllowFiles(repoRoot, allowFiles = []) {
   }
 }
 
+/**
+ * SANDBOX RECOVERY (worktree-contamination root fix, 2026-07-02): a prior mission attempt
+ * that crashed or was killed mid `git cherry-pick`/`merge`/`revert`/`rebase` leaves the
+ * SHARED code-repo worktree in an in-progress state. The next mission's own-output reset then
+ * runs `git checkout -- <allow-file>`, which FAILS on an unmerged path ("error: path 'X' is
+ * unmerged") — cascading a `phase:sandbox` failure into EVERY subsequent mission that shares
+ * the worktree. Receipt: 13 mt-integrate missions FAILED x2 on "code-repo own-output reset
+ * failed: ... path 'map.html' is unmerged" (2026-07-02), all traced to ONE abandoned
+ * cherry-pick of an already-landed commit.
+ *
+ * Why auto-abort is SAFE here: under the single-lane daemon (MUEZZIN_MAX_LANES=1) no OTHER
+ * mission runs at sandbox-setup time, so an in-progress op is necessarily ABANDONED debris
+ * from a dead prior attempt — never legitimate concurrent work. Aborting it restores the
+ * "start from committed truth" guarantee the sandbox is supposed to provide, BEFORE the
+ * per-allowlist reset that would otherwise trip on the unmerged path. HEAD is unchanged
+ * (abort returns the worktree to the commit it was on); only the abandoned operation's
+ * in-flight state is discarded.
+ * @returns {{ok:true, aborted:string|null}|{ok:false, error:string}}  aborted = op name or null
+ */
+export function abortInProgressGitOp(repoRoot) {
+  // --git-path resolves the correct per-worktree gitdir for a LINKED worktree (where `.git`
+  // is a file, not a dir), so these markers are found whether repoRoot is a main or linked tree.
+  const gitPath = (name) => {
+    try {
+      const p = execSync(`git rev-parse --git-path ${name}`, gitOpts(repoRoot)).toString().trim();
+      return path.isAbsolute(p) ? p : path.join(repoRoot, p);
+    } catch { return null; }
+  };
+  try {
+    const ops = [
+      { head: "CHERRY_PICK_HEAD", abort: "git cherry-pick --abort", name: "cherry-pick" },
+      { head: "MERGE_HEAD",       abort: "git merge --abort",        name: "merge" },
+      { head: "REVERT_HEAD",      abort: "git revert --abort",       name: "revert" },
+    ];
+    for (const op of ops) {
+      const p = gitPath(op.head);
+      if (p && fs.existsSync(p)) {
+        execSync(op.abort, gitOpts(repoRoot));
+        return { ok: true, aborted: op.name };
+      }
+    }
+    // Rebase leaves NO *_HEAD marker — it uses the rebase-merge / rebase-apply state dirs.
+    for (const dir of ["rebase-merge", "rebase-apply"]) {
+      const p = gitPath(dir);
+      if (p && fs.existsSync(p)) {
+        execSync("git rebase --abort", gitOpts(repoRoot));
+        return { ok: true, aborted: "rebase" };
+      }
+    }
+    return { ok: true, aborted: null };
+  } catch (err) {
+    return { ok: false, error: errText(err) };
+  }
+}
+
 // --- helpers -------------------------------------------------------------
 
 function quote(s) {
@@ -556,6 +611,63 @@ function selfTest() {
         "commitTouchesFiles: no claimed targets -> false (nothing to verify against)");
       assert(commitTouchesFiles(tmp, null, ["file.txt"]) === false,
         "commitTouchesFiles: no sha -> false");
+    }
+
+    // ---- SANDBOX RECOVERY: abortInProgressGitOp (worktree-contamination root fix, 2026-07-02) ----
+    // Reproduces the live incident: a conflicting cherry-pick leaves the worktree mid-operation
+    // with an UNMERGED path, so `git checkout -- <file>` (what resetAllowFiles runs) fails
+    // "path is unmerged" and cascades a sandbox failure into every later mission. The helper
+    // must abort the abandoned op so the reset can proceed.
+    {
+      const opRepo = fs.mkdtempSync(path.join(os.tmpdir(), "abortop_"));
+      const gi = { cwd: opRepo, stdio: "pipe" };
+      execSync("git init -q", gi);
+      execSync('git config user.email t@t.local', gi);
+      execSync('git config user.name t', gi);
+      const of = path.join(opRepo, "conflict.txt");
+
+      // (0) CLEAN repo => no-op, aborted:null.
+      fs.writeFileSync(of, "base\n");
+      commitStep(opRepo, "base", ["conflict.txt"]);
+      const baseBranch = execSync("git rev-parse --abbrev-ref HEAD", gi).toString().trim();  // main OR master
+      const clean = abortInProgressGitOp(opRepo);
+      assert(clean.ok === true && clean.aborted === null, "abortInProgressGitOp: clean repo => no-op (aborted:null)");
+
+      // Build a guaranteed cherry-pick conflict: a side branch and the base branch both edit the same line.
+      execSync("git checkout -q -b feature", gi);
+      fs.writeFileSync(of, "feature change\n");
+      commitStep(opRepo, "feature edit", ["conflict.txt"]);
+      const bSha = execSync("git rev-parse HEAD", gi).toString().trim();
+      execSync(`git checkout -q ${baseBranch}`, gi);
+      fs.writeFileSync(of, "main change\n");
+      commitStep(opRepo, "base edit", ["conflict.txt"]);
+      let conflicted = false;
+      try { execSync(`git cherry-pick ${bSha}`, gi); } catch { conflicted = true; }
+      assert(conflicted === true, "abortInProgressGitOp: setup produced a cherry-pick CONFLICT (mid-operation state)");
+
+      // (1) IN-PROGRESS detected + the exact failing operation reproduced.
+      let checkoutFailedWhileUnmerged = false;
+      try { execSync("git checkout -- conflict.txt", gi); } catch { checkoutFailedWhileUnmerged = true; }
+      assert(checkoutFailedWhileUnmerged === true, "abortInProgressGitOp: `git checkout -- <file>` FAILS on the unmerged path (reproduces the sandbox-reset cascade)");
+
+      // (2) the helper aborts the abandoned cherry-pick.
+      const ab = abortInProgressGitOp(opRepo);
+      assert(ab.ok === true && ab.aborted === "cherry-pick", `abortInProgressGitOp: aborts the in-progress cherry-pick (aborted=${ab.aborted})`);
+
+      // (3) AFTER abort: no longer mid-op, and the previously-failing reset now succeeds.
+      const stillInProgress = abortInProgressGitOp(opRepo);
+      assert(stillInProgress.aborted === null, "abortInProgressGitOp: after abort, no operation remains in progress");
+      const rstOk = resetAllowFiles(opRepo, ["conflict.txt"]);
+      assert(rstOk.ok === true, "abortInProgressGitOp: after abort, resetAllowFiles SUCCEEDS (the cascade is broken)");
+
+      // (4) generalizes to merge conflicts (same class, different op) — abort clears it too.
+      let merged = false;
+      try { execSync(`git merge ${bSha}`, gi); merged = true; } catch { /* expected conflict */ }
+      assert(merged === false, "abortInProgressGitOp: setup produced a merge CONFLICT");
+      const abMerge = abortInProgressGitOp(opRepo);
+      assert(abMerge.ok === true && abMerge.aborted === "merge", `abortInProgressGitOp: aborts an in-progress merge (aborted=${abMerge.aborted})`);
+
+      fs.rmSync(opRepo, { recursive: true, force: true });
     }
   } finally {
     // Clean up the temp dir regardless of outcome.

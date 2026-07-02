@@ -12,7 +12,7 @@ import { splitOversizedPlan, emitSubMissions } from './mission_split.mjs';
 import { isCommandClassMission, buildLiteralCommandQueue } from './command_queue.mjs';
 import { implementStep, isProseTarget } from './executor.mjs';
 import { execReceipt, dispatchSeat } from './seat_dispatch.mjs';
-import { commitStep, rollbackStep, ensureSandboxRepo, assertRepoRoot, assertCleanOutsideAllowlist, preflightAllowlistClean, resetAllowFiles, stageFiles, commitTouchesFiles } from './git_steps.mjs';
+import { commitStep, rollbackStep, ensureSandboxRepo, assertRepoRoot, assertCleanOutsideAllowlist, preflightAllowlistClean, resetAllowFiles, abortInProgressGitOp, stageFiles, commitTouchesFiles } from './git_steps.mjs';
 import { makeRepairFn } from './repair.mjs';
 import { parseMissionClass } from './mission_class.mjs';
 import { checkReceiptIntegrity } from './integrity_guard.mjs';
@@ -592,6 +592,14 @@ export async function orchestrate(mission, cwd, {
     // start from its own failed, un-witnessed draft (the same reason the sandbox archives
     // stale untracked leftovers to _prior-attempt/), and leaving the draft in place would
     // also poison the integrity guard's `prev` read.
+    // SANDBOX RECOVERY (2026-07-02): clear any ABANDONED in-progress git op (cherry-pick/merge/
+    // revert/rebase debris left by a dead prior attempt in the shared worktree) BEFORE the
+    // per-allowlist reset — otherwise `git checkout -- <allow-file>` fails "path is unmerged"
+    // and cascades a sandbox failure into every later mission (receipt: 13 mt-integrate missions
+    // FAILED x2 on one abandoned cherry-pick). Safe: single-lane daemon => no legitimate
+    // concurrent op at sandbox-setup time. HEAD is unchanged; only the dead op's state is dropped.
+    const abrt = abortInProgressGitOp(repoRoot);
+    if (abrt.ok && abrt.aborted) emit({ phase: 'sandbox', event: 'aborted-stale-git-op', op: abrt.aborted });
     const rst = resetAllowFiles(repoRoot, allowFiles);
     if (!rst.ok) return { ok: false, phase: 'sandbox', reason: `code-repo own-output reset failed: ${rst.error}`, steps: [] };
 
