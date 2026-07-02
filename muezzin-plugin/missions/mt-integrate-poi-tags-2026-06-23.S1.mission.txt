@@ -1,0 +1,30 @@
+MISSION-ID: MT-INTEGRATE-POI-TAGS-2026-06-23.S1
+MISSION-CLASS: code-repo
+PARENT: MT-INTEGRATE-POI-TAGS-2026-06-23
+TARTIB-INDEX: 1 of 2
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - d1/migrate-poi-tags-2026-06-23.sql
+  - functions/api/poi-tags.js
+  - functions/api/poi-tags/aggregate.js
+  - functions/api/poi-tags/suggest.js
+  - js/poi-tags.js
+VISUAL-QC-REQUIRED
+REQUIRES: none (first in tartib order)
+STEPS: 8
+
+PARENT MAQSAD: Land commit a2ecb2a ("feat(poi-tags): free-text user tags on POIs and community
+
+Maqsad: sub-mission 1 of 2 — Ensure the target repo is checked out on TARGET-BRANCH main before touching anything (repo tip is volatile per mission Context; re-confirm live rather than trusting a recorded SHA). through Restore js/poi-tags.js (new file, defines window.mtTagsHtml) from commit a2ecb2a into the target repo working tree, staged for commit.
+
+Steps:
+  1. Ensure the target repo is checked out on TARGET-BRANCH main before touching anything (repo tip is volatile per mission Context; re-confirm live rather than trusting a recorded SHA). [command] 
+  2. Confirm none of the five new poi-tags feature files already exist on disk in the target repo, so the upcoming per-file checkouts are known clean adds rather than silent overwrites. [verify] 
+  3. Read-only confirmation that commit a2ecb2ab17d2eaed86f5fef2456c219a58aeb592 exists in the source worktree's object store (shared with the target repo), without modifying that worktree. [command] 
+  4. Restore d1/migrate-poi-tags-2026-06-23.sql (new file) from commit a2ecb2a into the target repo working tree, staged for commit. [command] d1/migrate-poi-tags-2026-06-23.sql
+  5. Restore functions/api/poi-tags.js (new file, GET/POST handler) from commit a2ecb2a into the target repo working tree, staged for commit. [command] functions/api/poi-tags.js
+  6. Restore functions/api/poi-tags/aggregate.js (new file, per-target chip rollup) from commit a2ecb2a into the target repo working tree, staged for commit. [command] functions/api/poi-tags/aggregate.js
+  7. Restore functions/api/poi-tags/suggest.js (new file, autocomplete-suggest) from commit a2ecb2a into the target repo working tree, staged for commit. [command] functions/api/poi-tags/suggest.js
+  8. Restore js/poi-tags.js (new file, defines window.mtTagsHtml) from commit a2ecb2a into the target repo working tree, staged for commit. [command] js/poi-tags.js
+
+Done means: d1/migrate-poi-tags-2026-06-23.sql, functions/api/poi-tags.js, functions/api/poi-tags/aggregate.js, functions/api/poi-tags/suggest.js, js/poi-tags.js exist/are updated as specified — verify by headless-browser render, not by reading the code
