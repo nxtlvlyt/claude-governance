@@ -1010,6 +1010,15 @@ async function mainLoop() {
       for (const { raw } of pending) {
         if (lanes.size >= MAX_LANES) break;
         if (lanes.has(raw)) continue;
+        // RELOAD LIVENESS (2026-07-02): under continuous load, missions chain fail->next-fire
+        // within one poll iteration (172ms receipt), so the loop-top reload check never sees an
+        // empty lane and a pending flag can wait HOURS. Check again here — between missions,
+        // BEFORE firing the next one — so committed engine fixes land at the next boundary.
+        if (lanes.size === 0 && existsSync(RELOAD_FLAG)) {
+          try { rmSync(RELOAD_FLAG, { force: true }); } catch { /* stale flag re-exits next poll */ }
+          evt('GRACEFUL-RELOAD: flag honored between missions (mid-drain boundary) — exiting for supervisor respawn with fresh code');
+          process.exit(0);
+        }
         // FIRE-TIME TARTIB GATE: hold a queued mission whose dependency lacks a PASS receipt;
         // skip to the NEXT pending line (never deadlock the lane behind an unsatisfiable head).
         try {
