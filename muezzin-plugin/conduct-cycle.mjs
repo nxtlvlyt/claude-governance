@@ -874,7 +874,10 @@ function main() {
       const committed = execSync(`git -C "${repo}" show HEAD:map.html`, { stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 16 * 1024 * 1024 }).toString();
       let live = '';
       try { const res = await fetch('https://muddytires.ca/map', { headers: { 'cache-control': 'no-cache' } }); live = await res.text(); } catch (e) { console.error(`--record-deploy REFUSED: cannot fetch live /map (${e.message}) — deploy state unverifiable, fail-closed`); process.exit(2); }
-      const norm = (s) => s.replace(/\r\n/g, '\n').trim();
+      // norm also strips the sentry-dsn meta functions/_middleware.js INJECTS at serve time (live
+      // receipt 2026-07-02: clean tree, current deploy, yet live = HEAD + injected tag -> false REFUSE).
+      // Only that one known injection is stripped — anything else different still refuses.
+      const norm = (s) => s.replace(/\r\n/g, '\n').replace(/<meta\s+name="sentry-dsn"[^>]*>/gi, '').trim();
       if (norm(live) !== norm(committed)) { console.error(`--record-deploy REFUSED: live /map does NOT match HEAD's map.html (live ${live.length}B vs committed ${committed.length}B) — the deploy either did not happen, hit a different tree, or is still propagating. Not stamping.`); process.exit(1); }
       // L5 OUTCOME WITNESS (judge system-ruling, 2026-07-02): byte-match proves the CODE shipped;
       // the e2e verifier proves users SEE REAL DATA (fetches the served page + real production
