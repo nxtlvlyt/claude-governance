@@ -33,10 +33,23 @@ while ($true) {
         -PassThru -NoNewWindow -Wait
 
     $ts = Get-Date -Format 'yyyy-MM-ddTHH:mm:ss'
+
+    # EXIT 3 = SINGLETON-BLOCKED (2026-07-02): another daemon already owns the substrate — this
+    # supervisor is redundant. Restarting would loop forever (live receipt: 3s exit-0 spawn loop,
+    # ~45 iterations, 10:09-10:12 local). Exit quietly; do NOT write the halt marker (the real
+    # daemon is healthy — a halt marker would scare the next conductor into a false diagnosis).
+    if ($p.ExitCode -eq 3) {
+        Add-Content -Path (Join-Path $logDir "supervisor.log") -Value "$ts SUPERVISOR singleton held by another daemon (exit 3) -- this supervisor is redundant, exiting without restart"
+        break
+    }
+
     Add-Content -Path (Join-Path $logDir "supervisor.log") -Value "$ts SUPERVISOR daemon exited (code $($p.ExitCode)) -- restarting"
 
-    $deaths += (Get-Date)
-    $deaths = $deaths | Where-Object { $_ -gt (Get-Date).AddMinutes(-10) }
+    # @(...) both sides: a 1-element pipeline result unrolls to a scalar DateTime, after which
+    # `+=` silently errors (DateTime arithmetic) under ErrorActionPreference=Continue and .Count
+    # froze at 1 forever -- the 5-in-10min halt NEVER fired (live receipt: ~45 deaths, 0 halts).
+    $deaths = @($deaths) + (Get-Date)
+    $deaths = @($deaths | Where-Object { $_ -gt (Get-Date).AddMinutes(-10) })
     if ($deaths.Count -gt 5) {
         Add-Content -Path (Join-Path $logDir "supervisor.log") -Value "$ts SUPERVISOR HALTED -- 5+ deaths in 10 minutes, crash-loop suspected, not restarting further"
         Set-Content -Path $haltMarker -Value "Halted $ts -- daemon died $($deaths.Count) times in 10 minutes. Diagnose before restarting manually."

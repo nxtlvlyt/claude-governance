@@ -730,7 +730,12 @@ async function runMission(missionFile) {
 
 async function mainLoop() {
   const lock = acquireSingleton();
-  if (!lock.ok) { console.log(`daemon already running (PID ${lock.holder}) — exiting per singleton lock`); process.exit(0); }
+  // EXIT 3 = SINGLETON-BLOCKED (2026-07-02): another daemon owns the substrate — this spawn is
+  // redundant, not dead. MUST be distinct from 0/1: daemon-supervisor.ps1 restarts on normal exits,
+  // which with exit 0 produced a permanent 3s spawn→blocked→respawn loop for every EXTRA supervisor
+  // (live receipt: supervisor.log 10:09-10:12 local, ~45 iterations; seats/sessions spawn extra
+  // supervisors and each looped forever). The supervisor treats 3 as "do not restart — exit quietly."
+  if (!lock.ok) { console.log(`daemon already running (PID ${lock.holder}) — exiting per singleton lock (code 3 = supervisor must NOT restart)`); process.exit(3); }
   reclaimStaleRunning();
   evt(`daemon UP (PID ${process.pid}, singleton) — draining missions/AUTORUN.md, up to ${MAX_LANES} parallel lanes`);
   // NO push on daemon UP (operator 2026-06-10: lifecycle pushes are noise — restarts
