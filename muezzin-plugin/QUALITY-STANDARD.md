@@ -71,6 +71,12 @@ A deliverable is COMPLETE only when ALL of:
 
 ## How this file binds
 
+- **The QC seats' Faith files embody the seat-relevant bars** (operator ruling 2026-07-02):
+  validator.faith.md carries the correctness bars ("The Quality Standard I judge against");
+  auditor.faith.md carries the boundary-class bars ("The quality boundaries I enforce").
+  getFaith() loads the faith as every dispatch's system prompt — so the seats now SEE the
+  standard on every verdict, not just when a framing happens to include it. This file stays
+  canonical; faith sections cite it and are updated when it changes.
 - The verdict panel's phase-3 rubric cites the class bar; a finding without a bar violation
   carries no weight; a bar violation cannot be waived by any seat.
 - Golden missions encode one bar each; the harness runs them on every engine change.
