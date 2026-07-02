@@ -376,25 +376,27 @@ data + rendered result). Design sketch in the attribution workflow output.
 Verified against substrate at write time. Order = leverage. Each lands as code with tests
 (vocabulary-without-mechanism is the documented failure mode).
 
-**SCHEDULE (operator ask 2026-07-02 ~21:15 — triggers, not vibes; conductor works these in
-beat gaps at the observed rate of 1-2 substantial items/beat):**
-- **Tonight's beats (2026-07-02 evening):** #2 reachability witness (small, pure code) →
-  #4 receipt-discounting rubric line (prompt-only) → #14 hand-merge batch of the 3 map.html
-  conflicts, TRIGGERED when the lane enters queue slots 7-11 (scenic/spot-briefs/money —
-  own-sandbox missions; the mt worktree is lane-free there).
-- **Tomorrow's beats (2026-07-03 morning):** #1 refuter seat (needs a careful verdict-phase
-  edit) → #20 FEATURE-CATALOG regen (unblocks the 2 held QC pairs before their L5 slot
-  arrives) → #16 m28-1c section repair.
-- **Flow-triggered (condition, not clock):** #7 golden-mission harness WHEN ~10 fresh
-  mission receipts exist under the fixed stack (they seed the golden set); #13 C1/C2
-  missions WHEN spot-briefs.S1 lands (proves the local-model+groundedness pattern);
-  #12 isnad grading AFTER the refuter seat (it consumes the grades); #3 completeness
-  critic on LOCAL qwen3.6:35b or nemotron-3-super (the original "Ollama Cloud" note is
-  VOID per the 2026-07-02 NO-CLOUD ruling) after #1.
-- **Awaiting operator taste (#5 plan-brief veto, QUALITY-STANDARD ⟨OPERATOR⟩ slots):
-  built when ratified; not blocking.**
-- **Standing deferrals keep their dates (#15).** Each beat's report notes which scheduled
-  item landed; a slipped item is carried forward EXPLICITLY, never silently.
+**TRIGGER TABLE (operator ruling 2026-07-02 ~21:25: no time frames — everything starts
+relative to other things completing. The BEAT is the conductor's event loop: every 15 min
+these conditions are evaluated top-down and every TRIGGERED item runs, 1-2 per beat gap.
+Missions already work this way mechanically — the tartib gate auto-fires a mission the
+moment its dependencies carry PASS receipts, live-proven 21:20:32.)**
+
+| TRIGGER (event, not clock) | → ACTION |
+|---|---|
+| quiet board (standing trigger, priority order) | → #4 receipt-discounting rubric → #1 refuter seat → #16 m28-1c repair → #12 isnad grading (after #1) → #3 completeness critic on LOCAL qwen/nemotron (after #1; "Ollama Cloud" note VOID per NO-CLOUD ruling) |
+| lane enters queue slots 7-11 (own-sandbox missions — mt worktree lane-free) | → #14 hand-merge batch (3 map.html conflicts) |
+| queue approaches the held QC pairs' L5 slot | → #20 FEATURE-CATALOG regen (unblocks them) |
+| ~10 fresh mission receipts exist under the fixed stack | → #7 golden-mission harness (they seed it) |
+| spot-briefs.S1 lands DONE | → #13 author C1 Amazon-pickup + C2 add-spot-assist missions |
+| money-revenue-synthesis lands | → plan to OPERATOR-NOTIFY; execution missions ONLY after ratification |
+| operator ratifies (#5 plan-brief veto / QUALITY-STANDARD slots) | → build them |
+| first REACHABILITY/TARTIB-HOLD receipts appear in flow | → verify the new witnesses behaved, then mark them proven |
+| DONE: #2 reachability witness (2026-07-02 21:2x) · #9 log-append · #19 tartib gate · #10 dispatch instrumentation | — |
+
+Each beat's report names which trigger fired and what landed; an evaluated-but-deferred
+trigger is carried forward EXPLICITLY, never silently. Direction of travel: conductor
+triggers graduate into mechanical gates (as tartib did) whenever a condition can be coded.
 
 1. **Refuter seat in the verdict panel** (workflow-learnings adoption): one phase-3 seat
    charged adversarially ("assume hollow/unreachable/false-green; EXECUTE a real check;
