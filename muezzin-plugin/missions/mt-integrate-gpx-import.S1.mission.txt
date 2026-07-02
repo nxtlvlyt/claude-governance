@@ -7,7 +7,7 @@ ALLOW-FILES:
   - d1/migrate-gpx-routes-2026-06-23.sql
   - functions/api/route/import-gpx.js
 REQUIRES: none (first in tartib order)
-STEPS: 8
+STEPS: 9
 
 PARENT MAQSAD: The commit "cbb07a5 feat(gpx-import): /api/route/import-gpx + user_routes /
 
@@ -21,6 +21,7 @@ Steps:
   5. Only if conflicts were resolved in steps 3-4: stage the two ALLOW-FILES by explicit name (never -A or .) and complete the cherry-pick. Skip if step 2 already auto-committed cleanly. [command] 
   6. Syntax-check the integrated Pages Function. [verify] functions/api/route/import-gpx.js
   7. Confirm the integrated SQL migration contains both the user_routes and user_route_pois table definitions at HEAD. [verify] d1/migrate-gpx-routes-2026-06-23.sql
-  8. Confirm the resulting HEAD commit's message names the feature (mt-feat-gpx-import-2026-06-23 and/or cbb07a5), satisfying the traceability requirement in Done means. [verify] 
+  8. Confirm the resulting HEAD commit's message names the feature (mt-feat-gpx-import-2026-06-23 and/or cbb07a5), satisfying the traceability requirement in Done means. [verify]
+  9. OUTCOME CHECK (amended 2026-07-02 after a correct panel arkan BLOCK — the original Done-means demanded a browser render for a BACKEND API, which steps could not honestly satisfy): write a cwd-relative scratch harness (Set-Content scratch-gpx-test.mjs) that imports the GPX parsing/transform logic from functions/api/route/import-gpx.js, feeds it an inline sample GPX string containing 1 track with 3 trackpoints and 1 waypoint, and asserts the parsed result yields a route with 3 points and 1 POI candidate — then run node scratch-gpx-test.mjs and require exit 0 with output PARSE_OK. This executes the deliverable's real outcome (a GPX becomes route+POIs) rather than reading its code. [command]
 
-Done means: d1/migrate-gpx-routes-2026-06-23.sql, functions/api/route/import-gpx.js exist/are updated as specified — verify by headless-browser render, not by reading the code
+Done means: d1/migrate-gpx-routes-2026-06-23.sql and functions/api/route/import-gpx.js exist/are updated as specified, AND the scratch outcome harness (step 9) exits 0 proving a real GPX parses into route points + POI candidates — executable outcome verification appropriate to an API deliverable (amended 2026-07-02; the prior "headless-browser render" clause mismatched the deliverable class and was correctly BLOCKED by the verdict panel).
