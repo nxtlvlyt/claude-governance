@@ -102,6 +102,23 @@ export function validateMicroAction(step, i, opts = {}) {
         && isTriviallyLocalWitness(step.validation_command)) {
     errs.push(`step ${i}: false-green floor — the step description claims an EXTERNAL/REMOTE outcome ("${String(step.description).slice(0, 70)}") but its validation_command is a TRIVIALLY-LOCAL presence check ('${String(step.validation_command).slice(0, 60)}') that proves only a local file exists, not the remote deed. Witness the real outcome (e.g. wrangler d1 execute --remote --command 'SELECT COUNT(*)...' / curl the endpoint / Invoke-RestMethod), not file-existence.`);
   }
+  // OVER-BROAD CLEAN-TREE FLOOR (code-repo only, M-VERIFY-SCOPE 2026-07-02): a validation_command
+  // asserting a WHOLE-TREE clean status (`git status --porcelain` as a boolean gate) FALSE-FAILs on
+  // unrelated pre-existing untracked files a shared repo always carries — receipt: trip-diary-backend's
+  // cherry-pick landed but step-4 `if ((git status --porcelain)){exit 1}` failed on leftover
+  // js/onboarding.js etc. The engine ALREADY enforces containment scoped to ALLOW-FILES
+  // (assertCleanOutsideAllowlist, orchestrate.mjs:1160), so a whole-tree per-step assertion is
+  // redundant AND wrong. Require scoping to ALLOW-FILES (`... -- <files>`) or a conflict-marker-only
+  // check (`-match '^(UU|AA|DD)'`). Fed into the repair loop, not a hard fail — the architect re-authors.
+  if (opts.codeRepo && typeof step.validation_command === 'string') {
+    const cmd = step.validation_command;
+    if (/\bgit\s+status\s+--porcelain\b/i.test(cmd)
+        && /(?:^|\W)(?:if|-not|exit\s+1)\b/i.test(cmd)
+        && !/--porcelain[^\n]*\s--\s/.test(cmd)
+        && !/-match\s*'?\^?\(?(?:UU|AA|DD)/i.test(cmd)) {
+      errs.push(`step ${i}: over-broad clean-tree witness — a whole-tree \`git status --porcelain\` boolean gate ('${cmd.slice(0, 70)}') FALSE-FAILs on unrelated pre-existing untracked files in a shared repo. Scope it to this mission's ALLOW-FILES (\`git status --porcelain -- <allow-files>\`) or check conflict markers only (\`-match '^(UU|AA|DD)'\`). The engine already enforces containment via assertCleanOutsideAllowlist — a whole-tree per-step assertion is redundant and wrong.`);
+    }
+  }
   // PATH CONTAINMENT: targets must NEVER escape the sandbox (every mission class).
   for (const p of (step.target_files || [])) {
     if (escapesSandbox(p))
@@ -195,7 +212,8 @@ const isResearchMission = (mission) => /MISSION-CLASS:\s*research/i.test(String(
 const isCodeRepoMission = (mission) => /MISSION-CLASS:\s*code-repo/i.test(String(mission));
 const codeRepoNoteFor = (codeRepo) => codeRepo
   ? `\nCODE-REPO VALIDATION-COMMAND RULE (false-green floor, d1-1 receipt): a step that CLAIMS an EXTERNAL/REMOTE outcome (a remote DB has the table/rows, a worker RESPONDS, an endpoint RETURNS) MUST witness it with a command that actually REACHES the resource (wrangler d1 execute --remote --command 'SELECT COUNT(*)...', curl/Invoke-RestMethod the URL, gh/aws/az status) — NEVER a bare Test-Path/Get-Item on a local file, which proves only that a local file exists, not that the remote deed happened. File-existence is a valid witness ONLY for steps whose outcome IS a local file.
-POSITIVE-ASSERTION HARD RULE: reaching the resource is NOT enough — the witness MUST EXIT NON-ZERO WHEN THE OUTCOME IS ABSENT. wrangler/curl/psql/gh all exit 0 when the query/request SUCCEEDS regardless of row count, so a command like wrangler ... --command "SELECT name FROM sqlite_master WHERE name='pois'" prints True / exits 0 EVEN WHEN ZERO ROWS COME BACK (the exact d1-1 step-8 hollow green). A witness that prints True / exits 0 on an EMPTY or ZERO-ROW result is a HOLLOW witness and is FORBIDDEN. Assert the positive outcome and fail when it is absent: e.g. wrangler d1 execute <db> --remote --json --command "SELECT COUNT(*) AS n FROM <table>" wrapped so it exits 1 when n==0; or "$r = Invoke-WebRequest -Uri <url> -UseBasicParsing; if ($r.StatusCode -ne 200 -or -not $r.Content) { exit 1 }"; or pipe the tool output to Select-String -Pattern '<expected value>' -Quiet so it exits non-zero when the value is absent.`
+POSITIVE-ASSERTION HARD RULE: reaching the resource is NOT enough — the witness MUST EXIT NON-ZERO WHEN THE OUTCOME IS ABSENT. wrangler/curl/psql/gh all exit 0 when the query/request SUCCEEDS regardless of row count, so a command like wrangler ... --command "SELECT name FROM sqlite_master WHERE name='pois'" prints True / exits 0 EVEN WHEN ZERO ROWS COME BACK (the exact d1-1 step-8 hollow green). A witness that prints True / exits 0 on an EMPTY or ZERO-ROW result is a HOLLOW witness and is FORBIDDEN. Assert the positive outcome and fail when it is absent: e.g. wrangler d1 execute <db> --remote --json --command "SELECT COUNT(*) AS n FROM <table>" wrapped so it exits 1 when n==0; or "$r = Invoke-WebRequest -Uri <url> -UseBasicParsing; if ($r.StatusCode -ne 200 -or -not $r.Content) { exit 1 }"; or pipe the tool output to Select-String -Pattern '<expected value>' -Quiet so it exits non-zero when the value is absent.
+CLEAN-TREE SCOPE RULE (trip-diary-backend receipt 2026-07-02): a validation_command that checks the working tree is clean MUST scope to this mission's ALLOW-FILES — "git status --porcelain -- <allow-files>" — or check ONLY conflict markers — "(git status --porcelain) -match '^(UU|AA|DD)'". NEVER a bare whole-tree "git status --porcelain" used as a pass/fail gate: a shared repo carries unrelated pre-existing untracked files that will FALSE-FAIL it (the engine already enforces containment against ALLOW-FILES via assertCleanOutsideAllowlist, so a whole-tree per-step assertion is redundant AND wrong).`
   : '';
 const researchNoteFor = (research) => research
   ? `\nRESEARCH MISSION RULES: deliverables are .md/.json/.txt/.csv files (an 'edit' step targets exactly ONE of them); external source files may be listed in context_dependencies as ABSOLUTE paths (read-only) — targets must still be cwd-relative.`
@@ -546,6 +564,18 @@ Context: Node + TypeScript project; DB schema in prisma/schema.prisma; tests run
   ck(!validateMicroQueue({ mission_id: 'M-X', steps: [
     { step_index: 1, description: 'edit', action_type: 'edit', target_files: ['a.ts'], context_dependencies: [], validation_command: '' },
   ] }).ok, 'un-witnessable deed (no validation_command) is REJECTED');
+
+  // OVER-BROAD CLEAN-TREE gate (M-VERIFY-SCOPE, trip-diary-backend receipt 2026-07-02)
+  {
+    const base = { step_index: 1, description: 'commit and verify tree', action_type: 'verify', target_files: [], context_dependencies: [] };
+    const wholeTree = { ...base, validation_command: 'if ((git status --porcelain)) { exit 1 }' };
+    ck(validateMicroAction(wholeTree, 1, { codeRepo: true }).some((e) => e.includes('over-broad clean-tree')), 'VERIFY-SCOPE: whole-tree `git status --porcelain` boolean gate (code-repo) -> REJECTED');
+    const scoped = { ...base, validation_command: 'if ((git status --porcelain -- docs/x.md)) { exit 1 }' };
+    ck(!validateMicroAction(scoped, 1, { codeRepo: true }).some((e) => e.includes('over-broad clean-tree')), 'VERIFY-SCOPE: scoped `--porcelain -- <file>` -> not flagged');
+    const conflictOnly = { ...base, validation_command: "if ((git status --porcelain) -match '^(UU|AA|DD)') { exit 1 }" };
+    ck(!validateMicroAction(conflictOnly, 1, { codeRepo: true }).some((e) => e.includes('over-broad clean-tree')), 'VERIFY-SCOPE: conflict-marker-only check -> not flagged');
+    ck(!validateMicroAction(wholeTree, 1, {}).some((e) => e.includes('over-broad clean-tree')), 'VERIFY-SCOPE: non-code-repo mission -> gate does not fire');
+  }
 
   ck(!validateMicroQueue({ mission_id: 'M-X', steps: [
     { step_index: 5, description: 'edit', action_type: 'edit', target_files: ['a.ts'], context_dependencies: [], validation_command: 'node -c a.ts' },
