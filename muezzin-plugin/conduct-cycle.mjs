@@ -702,6 +702,33 @@ export function heal(base = HERE, now = Date.now(), { exec = (cmd) => execSync(c
 
   const logs = path.join(base, 'missions', '_logs');
 
+  // DEAD-STEM RETIREMENT (frontier-reconciliation, 2026-07-02): a FAILED line whose mission.txt no
+  // longer exists on disk is a GHOST — it inflates the frontier + unresolvedFailed forever (the
+  // doneness gate counts it, so barMet can never go true) yet can never be requeued or fixed (no
+  // file). Sizing found ~70 of 114 unresolved-FAILED were such ghosts, hiding the real ~14 work.
+  // Retire them as COMMENTS (reversible, auditable — never deleted). Conservative: ONLY a missing
+  // mission.txt qualifies; a live mission is never touched. Idempotent (a retired line is a comment,
+  // skipped next pass) + logged. Mechanical board-hygiene a local conductor gets for free.
+  {
+    const apath = path.join(base, 'missions', 'AUTORUN.md');
+    const lines = readText(apath).split(/\r?\n/);
+    let changed = false, retired = 0;
+    for (let i = 0; i < lines.length; i++) {
+      const l = lines[i];
+      if (l.trim().startsWith('#') || statusOfLine(l) !== 'FAILED') continue;
+      const p = l.trim().replace(STATUS_RE, '').replace(/<!--.*?-->/g, '').trim();
+      if (!p || !/\.mission\.txt$/.test(p)) continue;
+      if (existsSync(path.join(base, p.replace(/\//g, path.sep)))) continue;   // file exists => live mission, never touch
+      lines[i] = `# DEAD-STEM-RETIRED ${new Date(now).toISOString()} (mission.txt absent — ghost FAILED line, reversible): ${l.trim()}`;
+      retired++; changed = true;
+    }
+    if (changed) {
+      writeFileSync(apath, lines.join('\n'));
+      performed.push({ action: 'dead-stem-retire', count: retired });
+      try { appendFileSync(path.join(logs, 'daemon-events.log'), `${new Date(now).toISOString()} DEAD-STEM-RETIRE: ${retired} ghost FAILED line(s) retired (mission.txt absent)\n`); } catch { /* logging never breaks heal */ }
+    }
+  }
+
   // WORKTREE-HEAL performer: run the surgical recovery commands in order (abort mid-op, then
   // checkout HEAD -- each unmerged tracked file). Each command is best-effort; a failure on one
   // never aborts the rest (a partial recovery still unblocks more than none). Untracked orphans
