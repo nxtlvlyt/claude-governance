@@ -1,0 +1,19 @@
+MISSION-ID: MT-INTEGRATE-REGION-HEATMAP.S2
+MISSION-CLASS: code-repo
+PARENT: MT-INTEGRATE-REGION-HEATMAP
+TARTIB-INDEX: 2 of 2
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - map.html
+VISUAL-QC-REQUIRED
+REQUIRES: MT-INTEGRATE-REGION-HEATMAP.S1 (tartib — this sub-mission may not start until MT-INTEGRATE-REGION-HEATMAP.S1's receipt exists)
+STEPS: 1
+
+PARENT MAQSAD: Land commit 9a29244 ("feat(map): toggleable region heatmap overlay (POI
+
+Maqsad: sub-mission 2 of 2 — Render-witness for VISUAL-QC-REQUIRED: fetch /map.html from the local preview server at PREVIEW-BASE-URL and assert it responds 200 with the new script tag present in the served markup; fail (named blocking receipt) if the preview server is unreachable. through Render-witness for VISUAL-QC-REQUIRED: fetch /map.html from the local preview server at PREVIEW-BASE-URL and assert it responds 200 with the new script tag present in the served markup; fail (named blocking receipt) if the preview server is unreachable.
+
+Steps:
+  9. Render-witness for VISUAL-QC-REQUIRED: fetch /map.html from the local preview server at PREVIEW-BASE-URL and assert it responds 200 with the new script tag present in the served markup; fail (named blocking receipt) if the preview server is unreachable. [verify] map.html
+
+Done means: map.html exist/are updated as specified — verify by headless-browser render, not by reading the code
