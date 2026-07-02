@@ -305,6 +305,27 @@ undiagnosed; (e) ~90-item DIAGNOSE backlog, chip incrementally; (f) contested se
 question (architects[0]/integrator: locked seat plan says Ollama-primary, live config
 says Claude) — operator call, documented in the ~19:00Z workflow output.
 
+## 🚨 STRUCTURAL FINDING 2026-07-02 — the engine INTEGRATES but never DEPLOYS (zero visual result)
+
+Operator asked "any updates to muddytires I can visually SEE?" Verified (WebFetch of live
+muddytires.ca/map.html + engine-log grep): the answer is NO — the live site is still the old
+shell; NONE of the session's features are visible. Yet substantial USER-FACING work is
+committed to `main`: aurora northern-lights forecast overlay (`0785d0f`), plan-day GPX export
+(`1539e66`), contributor leaderboard (`1b5b4de`), quick-checkin review templates (`6a26ae6`),
+photo-CDN serving (`801de9d`), fire-ban / EV-charging / cell-coverage / chain-overnight map
+layers. The disconnect: muddytires.ca is Cloudflare Pages deployed by an explicit
+`wrangler pages deploy` (NOT git auto-deploy — see MEMORY muddytires-deploy-setup), and ZERO
+deploy activity is in the engine logs, and NO deploy-muddytires mission exists in the queue.
+So every mission produces a COMMIT, nothing produces a DEPLOYMENT — the whole pipeline's
+visible output is zero until someone deploys. This is the biggest leverage gap of the session:
+the engine optimizes "integrated to repo" while the operator measures "visible on the site,"
+and those have been fully decoupled. Deploy is OPERATOR-GATED by design (production, outward,
+hard-to-reverse) AND this session's integrations carried defects (email-redaction doc-gutting,
+bookmark-S1 verdict-fail) — so a QC pass precedes any deploy. NEXT (operator decision, not
+conductor): decide the deploy cadence/gate — a QC'd deploy step is what converts the accreted
+commits into the visual result the operator is actually asking for. Until then, "integrated"
+must never be reported as if it were "shipped."
+
 ## 🔴 CRITICAL FINDING 2026-07-02 — executor conflict-resolution DELETES content (systemic)
 
 Discovered validating the cherry-pick fix. `mt-integrate-email-redaction-docs` ran with the
