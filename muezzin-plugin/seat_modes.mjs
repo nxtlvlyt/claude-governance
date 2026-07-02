@@ -56,6 +56,7 @@ const TABLE = {
     executor: 'kimi-k2.7-code',                                    // 2026-06-17: qwen3-coder-next->kimi-k2.7-code (guardian+laguna APPROVE). seat-record: kimi ratio 0.43 (5 fewer fab) beats qwen 0.484; canon/bake-off = reliable Phase-2 executor; the 2026-06-15 qwen-revert ("kimi auditioning, no completions") is stale — kimi now has 16 recorded. Sonnet fallback via CLAUDE_SEAT_MAP
     validator: 'deepseek-v4-pro',                                  // ollama-cloud verdict (today)
     auditor: 'minimax-m3',                                         // ollama-cloud verdict (today)
+    final_auditor: 'nemotron-3-super',                             // M-ENGINE-3PHASE.3: consensus seat reads the two boundary verdicts (ollama-cloud)
     witness: 'gemini-3-flash-preview',                             // Google Gemini (superior Witness per benchmark)
   },
   'anthropic-heavy': {
@@ -69,6 +70,7 @@ const TABLE = {
     // verified by a DIFFERENT lab/infrastructure (diversity is the point; producer != verifier).
     validator: 'deepseek-v4-pro',
     auditor: 'minimax-m3',
+    final_auditor: 'haiku',                                        // M-ENGINE-3PHASE.3: consensus seat — a 3rd Claude tier (fast rigorous read of the two open-weight boundary verdicts; keeps producer!=verifier since executor is Sonnet)
     // 2026-06-22: aligned with model_rijal.mjs:359 — ultra is the CHOSEN cloud
     // witness (operator's 2026-06-09 ruling); super stays as established LOCAL
     // fallback for the final-verdict channel. Prior 'nemotron-3-super' name here
@@ -84,6 +86,7 @@ const TABLE = {
     executor: 'kimi-k2.7-code',                                    // Ollama Cloud executor (ornith:35b local fallback)
     validator: 'deepseek-v4-pro',                                  // ollama verdict
     auditor: 'minimax-m3',                                         // ollama verdict
+    final_auditor: 'north-mini-code-1.0:q4_K_M',                   // M-ENGINE-3PHASE.3: consensus seat — local, structural-code judge (bench 16/16 unanimous)
     witness: 'laguna-xs.2:q4_K_M',                                // OPERATOR 2026-06-26: laguna IS the structural witness (self_witness.mjs:43 "spec: structural witness"; rulings = code review/structural analysis). qwen3.5:9b was a drift. 33B structural reviewer, local on nxtbeast. The old "no Opus pull" rationale is moot — Claude tier is disabled this session, so there is no Opus to pull.
   },
   'reasoning-heavy': {
@@ -98,7 +101,8 @@ const TABLE = {
     integrator: 'opus',                                            // Opus synthesis (heaviest-context job)
     executor: 'kimi-k2.7-code',                                    // Kimi-2.7 (ollama-cloud coder) — co-best+RELIABLE per bake-off; Sonnet fallback via CLAUDE_SEAT_MAP
     validator: 'sonnet',                                           // Claude verdict (stronger per-seat than open deepseek for hard work)
-    auditor: 'opus',                                               // Opus final auditor (sharpest judgment on difficult work)
+    auditor: 'opus',                                               // Opus boundary auditor (sharpest judgment on difficult work)
+    final_auditor: 'opus',                                         // M-ENGINE-3PHASE.3: consensus seat — Opus on judgment seats per this profile
     witness: 'opus',                                               // Opus per-step witness (catch bad steps early) — producer(glm)!=verifier(Claude), diversity preserved
   },
   'gemini-heavy': {
@@ -110,6 +114,7 @@ const TABLE = {
     executor: 'gemini-3-flash-preview',
     validator: 'gemini-3-flash-preview',
     auditor: 'gemini-3-flash-preview',
+    final_auditor: 'gemini-3-flash-preview',
     witness: 'gemini-3-flash-preview',
   },
   'claude-local-hybrid': {
@@ -129,6 +134,12 @@ const TABLE = {
     executor: 'claude-sonnet-5',
     validator: 'qwen3.6:27b',
     auditor: 'granite4.1:30b',
+    // M-ENGINE-3PHASE.3 (operator-approved 2026-07-01): the consensus/final auditor reads the
+    // two boundary verdicts (validator qwen + auditor granite) and rules. north-mini-code-1.0
+    // won a 16-hard-case x 3-trial bench 16/16 unanimous (final-auditor-bench-v2), is LOCAL
+    // (honors this mode's local-only ruling), is INDEPENDENT of both boundary seats (granite
+    // is the auditor; qwen is validator+witness), and is purpose-built for code structure.
+    final_auditor: 'north-mini-code-1.0:q4_K_M',
     witness: 'qwen3.6:27b', // eval-driven swap: laguna over-flags (5/6, false-rejected a correct fix); qwen is the only calibrated checker (6/6)
   },
 };
@@ -190,7 +201,7 @@ export function pickSeat(role, fallbackModel, env = process.env, readFn) {
 // even consulted for them at the real call sites.
 export function isLocalOnlySeat(role, model, env = process.env, readFn) {
   if (readMode(env, readFn) !== 'claude-local-hybrid') return false;
-  if (['validator', 'auditor', 'witness'].includes(role)) return true;
+  if (['validator', 'auditor', 'witness', 'final_auditor'].includes(role)) return true;
   if (role === 'architect') return !recognizeClaudeModel(model);
   return false;
 }

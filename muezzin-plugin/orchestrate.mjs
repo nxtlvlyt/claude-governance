@@ -168,6 +168,24 @@ export function isIncoherentContract(c) {
   return fs.length > 0 && fs.every((f) => f?.class === 'wajib' || f?.class === 'sunnah');
 }
 
+// priorVerdictsBlock (M-ENGINE-3PHASE.3) — prepended to the FINAL/CONSENSUS auditor's framing
+// so it rules WITH the two boundary verdicts in hand instead of voting blind. Pure function of
+// the already-collected boundary contracts. Findings are capped (top 6 per seat) to keep the
+// block bounded. The final auditor's job: check each boundary ruling against the evidence and
+// override a false-reject or a hollow double-approve — evidence outranks verdicts.
+export function priorVerdictsBlock(contracts) {
+  const lines = (contracts || []).filter(Boolean).map((c, i) => {
+    const seat = c.seat || `boundary-auditor-${i + 1}`;
+    const verdict = c.verdict || 'UNKNOWN';
+    const findings = (Array.isArray(c.findings) ? c.findings : []).slice(0, 6)
+      .map((f) => `      - [${f?.class || '?'}] ${String(f?.description || f?.id || f).slice(0, 200)}`)
+      .join('\n');
+    return `  ${seat} ruled ${verdict}${findings ? '\n' + findings : ' (no findings itemized)'}`;
+  }).join('\n\n');
+  return `THE TWO BOUNDARY AUDITORS HAVE ALREADY RULED (you are the FINAL/CONSENSUS auditor):\n\n${lines}\n\n` +
+    `Your job is NOT to vote or average. CHECK each boundary ruling against the artifact evidence and the mission contract below, then issue the final verdict. A boundary auditor can be wrong either way: a REJECT/BLOCK can be factually mistaken, and an APPROVE (even a confident one) can miss an unmet contract element. Evidence outranks verdicts. Concerns OUTSIDE the mission's Done-means do not by themselves justify a REJECT.\n\n`;
+}
+
 // COMMAND-ONLY MISSIONS (card-merge 2026-06-12 08:27 receipt: both panel seats BLOCKed
 // with "The ARTIFACTS PRODUCED section is empty — no content was embedded in the
 // dispatch contract"): assembly-only missions produce their deliverable via engine-exec
@@ -317,11 +335,20 @@ export async function defaultVerdictPhase(mission, cwd, steps, opts = {}) {
   // these checking seats skip the cloud-first waterfall entirely under that mode.
   const validatorLocalOnly = isLocalOnlySeat('validator', validatorModel);
   const auditorLocalOnly = isLocalOnlySeat('auditor', auditorModel);
+  // M-ENGINE-3PHASE.3 (2026-07-01): the LOCKED seat plan's Phase-3 is a THREE-auditor panel —
+  // two independent boundary judges (validator + auditor, kept byte-identical to preserve their
+  // behavior) plus a FINAL/CONSENSUS auditor that reads BOTH prior verdicts and rules. The
+  // final seat is dispatched LAST in the serial loop below and its framing carries the two
+  // boundary contracts (priorVerdictsBlock). mergeVerdicts is already N-ary, so 3 contracts
+  // merge by the same any-BLOCK/REVISE-escalates rule. UMRAH (tiny missions) stays single-seat.
+  const finalAuditorModel = pickSeat('final_auditor', 'nemotron-3-super');
+  const finalAuditorLocalOnly = isLocalOnlySeat('final_auditor', finalAuditorModel);
   const seats = isUmrah
     ? [{ role: 'validator', model: validatorModel, today, max_tokens: 16384, sampling: { temperature: 0.3, top_p: 0.9 }, localOnly: validatorLocalOnly }]
     : [
       { role: 'validator', model: validatorModel, today, max_tokens: 16384, sampling: { temperature: 0.3, top_p: 0.9 }, localOnly: validatorLocalOnly },
       { role: 'auditor', model: auditorModel, today, max_tokens: 16384, sampling: { temperature: 0.3, top_p: 0.9 }, localOnly: auditorLocalOnly },
+      { role: 'final_auditor', model: finalAuditorModel, today, max_tokens: 16384, sampling: { temperature: 0.3, top_p: 0.9 }, localOnly: finalAuditorLocalOnly },
     ];
   // SERIAL on purpose (laguna finding 1 weighed and declined): the waterfall's local
   // fallback tail means parallel seats could land on local Ollama CONCURRENTLY — GR10
@@ -330,7 +357,14 @@ export async function defaultVerdictPhase(mission, cwd, steps, opts = {}) {
   const engineReceipts = engineReceiptsFromSteps(steps);
   const seatRecordPath = path.join(path.dirname(cwd), '_logs', 'seat-record.json');
   for (const seat of seats) {
-    let c = await dispatchSeat(seat, framing, { wantVerdict: true });
+    // M-ENGINE-3PHASE.3: the final/consensus auditor reads the two boundary verdicts already
+    // collected this loop (contracts[]) — it is NOT a third independent vote, it CHECKS the
+    // boundary rulings against the evidence and can override a false-reject or a hollow
+    // double-approve. Boundary seats (validator/auditor) get the plain framing, unchanged.
+    const seatFraming = (seat.role === 'final_auditor' && contracts.length)
+      ? priorVerdictsBlock(contracts) + framing
+      : framing;
+    let c = await dispatchSeat(seat, seatFraming, { wantVerdict: true });
     // coherence-repair: one re-ask, the seat resolves its own contradiction (see
     // isIncoherentContract). Never overridden — a repeated BLOCK stands as dissent.
     if (isIncoherentContract(c)) {
@@ -342,7 +376,7 @@ export async function defaultVerdictPhase(mission, cwd, steps, opts = {}) {
         `"could not verify existence" is not a valid basis.\n` +
         `Re-issue ONE coherent contract: either (a) your findings justify the verdict — then classify the disqualifying finding 'arkan' and keep ${c.verdict}; ` +
         `or (b) the gaps are repairable — then vote REVISE or APPROVE accordingly. Your call, but the contract must agree with itself.\n\n` +
-        framing;
+        seatFraming;
       const retry = await dispatchSeat(seat, contradiction, { wantVerdict: true });
       if (retry && !retry._failed) c = retry;       // a failed re-dispatch keeps the original (never silently better)
     }
