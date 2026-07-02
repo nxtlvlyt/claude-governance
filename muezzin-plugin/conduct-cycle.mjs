@@ -23,6 +23,7 @@ import { readFileSync, writeFileSync, existsSync, mkdirSync, rmSync, appendFileS
 import { execSync } from 'child_process';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { extractSourceShas } from './git_steps.mjs';   // DONENESS L3: parse deliverable source shas from mission prose
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 
@@ -222,6 +223,81 @@ export function detectWorktreeCorruption(repoRoot, gitFn) {
   try { if (!out.midOp && existsSync(path.join(repoRoot, '.git', 'MERGE_HEAD'))) out.midOp = 'merge'; } catch { /* ignore */ }
   out.corrupted = out.unmerged.length > 0 || out.staged.length > 0 || out.midOp !== null;
   return out;
+}
+
+// DONENESS GATE (anti-false-victory / anti-premature-quit root fix, 2026-07-02, operator-directed
+// after two false-victory failures this session: (a) the CONDUCTOR proposed "wind down" on a
+// render-check proxy while 26 commits sat unpushed and the chain hadn't verified e2e; (b) the CHAIN
+// marked poi-tags/poi-services retros DONE while their commits sat on unmerged feature branches,
+// never reaching the deployable HEAD). ROOT CAUSE: no MECHANICAL, receipt-checkable definition of
+// "done" that verifies the deliverable actually reached the shipped ref — so everyone declares
+// victory on a proxy (a DONE label, a rendering page, a stale branch). This computes the TRUE
+// completion state from receipts so a conductor (esp. a local model) SEES it every beat and the
+// stop-hook can BLOCK any wind-down framing until it is genuinely met (the hook reads THIS receipt,
+// not the conductor's prose — so "done" cannot be uttered into existence).
+//
+// PURE: reads + git (a read) only; NEVER writes (the doneness.json write lives in main()/heal()).
+// FAIL-CLOSED: any completion fact not determinable from receipts => a blocking entry (never assume done).
+// gitFn(repo, argstr) -> {ok, out}: injected so the selftest runs offline.
+const MT_REPO_DEFAULT = 'C:/Users/marka/code/mt-integration-2026-06-22';
+export function computeDoneness(base, autorun, {
+  targetRepo = MT_REPO_DEFAULT, mainlineRef = 'github/master', now = Date.now(), owed = [], patchScan = 300,
+  gitFn = (repo, argstr) => { try { return { ok: true, out: execSync(`git -C "${repo}" ${argstr}`, { stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 64 * 1024 * 1024 }).toString() }; } catch { return { ok: false, out: '' }; } },
+} = {}) {
+  const blocking = [];
+  const closed = (note) => /FIX:\s*none\b|SUPERSEDED\b|RESOLVED\b|DUPLICATE-RETIRED\b/i.test(String(note || ''));
+  const done = autorun.done || [], failed = autorun.failed || [], pending = autorun.pending || [], running = autorun.running || [];
+  const doneStems = new Set(done.map(stemOf));
+
+  // ---- FRONTIER: any in-flight or unreconciled work => not done ----
+  const unresolvedFailed = failed.filter((f) => !closed(autorun.notes?.[f]));
+  let openIntegration = 0;
+  for (const d of done) {
+    const mfile = path.join(base, d.replace(/\//g, path.sep));
+    if (!existsSync(mfile)) continue;
+    for (const t of [...readText(mfile).matchAll(/^ON-DONE:\s*(missions\/\S+?\.mission\.txt)/gim)]) {
+      if (!doneStems.has(stemOf(t[1]))) openIntegration++;
+    }
+  }
+
+  // ---- L3 PUSHED: commits on the deployable HEAD not yet on the pushed mainline ----
+  let pushedGap = null;
+  const rg = gitFn(targetRepo, `rev-list --count ${mainlineRef}..HEAD`);
+  if (rg.ok && /^\d+$/.test(rg.out.trim())) pushedGap = parseInt(rg.out.trim(), 10);
+  if (pushedGap === null) blocking.push({ layer: 'L3', mission: '(repo)', reason: `cannot determine pushed-gap vs ${mainlineRef} — fail-closed` });
+  else if (pushedGap > 0) blocking.push({ layer: 'L3', mission: '(repo)', reason: `${pushedGap} commit(s) on HEAD are NOT pushed to ${mainlineRef}` });
+
+  // ---- L0/L1/L3 DEPTH: each DONE deliverable actually landed in the deployable tree ----
+  // patch-id table of HEAD, computed ONCE (a cherry-picked deliverable lands under a NEW sha, so
+  // is-ancestor of the source is always false — patch-id is what actually detects landing).
+  const tbl = gitFn(targetRepo, `log -p -${patchScan} | git patch-id`);
+  const headPids = new Set((tbl.ok ? tbl.out : '').split(/\r?\n/).map((l) => l.trim().split(/\s+/)[0]).filter(Boolean));
+  const pidOf = (sha) => { const r = gitFn(targetRepo, `show ${sha} | git patch-id`); return r.ok ? (r.out.trim().split(/\s+/)[0] || null) : null; };
+
+  let doneChecked = 0;
+  for (const d of done) {
+    const stem = stemOf(d);
+    const mfile = path.join(base, d.replace(/\//g, path.sep));
+    if (!existsSync(mfile)) continue;
+    const mtext = readText(mfile);
+    if (!(/MISSION-CLASS:\s*(code-repo|ops-deploy)/i.test(mtext) || /^mt-integrate-/.test(stem))) continue; // deliverable class only
+    doneChecked++;
+    const res = readJson(path.join(base, 'missions', stem + '.mission.result.json'));
+    if (!res) { blocking.push({ layer: 'L0', mission: stem, reason: 'DONE but no result.json' }); continue; }
+    if (res.phase === 'split' || res.split === true) { blocking.push({ layer: 'L1', mission: stem, reason: 'DONE marks a SPLIT parent — its leaves are the deliverable' }); continue; }
+    if (!(res.ok === true && res.phase === 'done')) { blocking.push({ layer: 'L0', mission: stem, reason: `result not ok/done (ok=${res.ok} phase=${res.phase})` }); continue; }
+    // L3 landed: the deliverable's source patch is present in HEAD (patch-id).
+    const shas = extractSourceShas(mtext);
+    if (!shas.length) continue; // authored-not-picked deliverable: L0 verdict is the floor
+    let anyDeterminable = false, landed = false;
+    for (const s of shas) { const pid = pidOf(s); if (pid) { anyDeterminable = true; if (headPids.has(pid)) { landed = true; break; } } }
+    if (anyDeterminable && !landed) blocking.push({ layer: 'L3', mission: stem, reason: `DONE but deliverable patch [${shas.map((x) => x.slice(0, 7)).join(',')}] is NOT in the deployable tree (on a feature branch / never integrated) — the poi-tags false-DONE class` });
+  }
+
+  const counts = { pending: pending.length, running: running.length, unresolvedFailed: unresolvedFailed.length, dammOwed: owed.length, openIntegration, pushedGap, doneDeliverablesChecked: doneChecked, blocking: blocking.length };
+  const frontierClean = pending.length === 0 && running.length === 0 && unresolvedFailed.length === 0 && owed.length === 0 && openIntegration === 0;
+  const barMet = frontierClean && blocking.length === 0;
+  return { ts: new Date(now).toISOString(), barMet, counts, blocking: blocking.slice(0, 60), frontierClean };
 }
 
 export function sweep(base = HERE, now = Date.now(), routeFile = path.join(process.env.USERPROFILE || 'C:/Users/marka', '.claude', 'state', 'muezzin-route.json'), { sightFn = checkSearxngSight, cgAgeFn = () => checkCgFreshness(now), worktreeReposFn = () => WORKTREE_REPOS, gitFn = null } = {}) {
