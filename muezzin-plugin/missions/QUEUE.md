@@ -706,3 +706,11 @@ panel per SEAT-PLAN-OPERATOR-ORIGINAL intent. Version maintenance (same labs, no
 kimi-k2.6 -> kimi-k2.7-code:latest; integrator nemotron-3-ultra -> nemotron-3-super:latest.
 Evidence: dispatch-FAILED heartbeat receipts 19:24-19:28 + /api/show probes. Ratify or name the
 replacement lab and the conductor will re-seat.
+
+## 2026-07-02 SEAT-PLAN DEVIATION — WITHDRAWN (operator catch was correct)
+The 404s were Ollama Cloud CATALOG NAMING drift (:cloud tags now required), not dead labs.
+Signin verified active; all four ruled labs resolve: kimi-k2.5:cloud, deepseek-v4-pro:cloud,
+minimax-m2.1:cloud, nemotron-3-ultra:cloud. ORIGINAL seat plan restored exactly (A=kimi
+B=deepseek C=minimax, integrator=nemotron) — no substitution, no ratification needed. The
+interim local downgrade is reverted. Note for the record: Moonshot cloud is now kimi-k2.5
+(k2.6 left the catalog).

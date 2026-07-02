@@ -409,15 +409,16 @@ export async function deconstruct(mission, { model = PANEL_ARCHITECTS[0], today 
 // integrator cannot emit a valid queue, deconstructPanel falls back to the single-architect
 // deconstruct() so the engine never hard-breaks. Disable the panel entirely with the
 // `panel:false` opt (or MUEZZIN_PANEL=off) — then deconstructPanel IS deconstruct().
-// ROSTER REPAIR 2026-07-02 (dispatch-FAILED receipts: kimi-k2.6 404, minimax-m3 404,
-// nemotron-3-ultra 404 — 2 of 3 architects + the integrator were DEAD models; the whole
-// plan phase ran degraded, root of the empty-emission plan failures). Version maintenance
-// within ruled labs: kimi-k2.6 -> kimi-k2.7-code:latest (Moonshot), nemotron-3-ultra ->
-// nemotron-3-super:latest (NVIDIA). LAB SUBSTITUTION (minimax lab gone from server
-// entirely): minimax-m3 -> qwen3.6:35b (Alibaba, distinct from A/B labs) — receipted in
-// QUEUE.md for operator ratification per the seat-plan ruling.
-export const PANEL_ARCHITECTS = ['kimi-k2.7-code:latest', 'deepseek-v4-pro', 'qwen3.6:35b'];
-export const PANEL_INTEGRATOR_MODEL = 'nemotron-3-super:latest';
+// ROSTER RESTORATION 2026-07-02 (operator catch: "these are Ollama Cloud models"). The
+// 404s were CATALOG NAMING DRIFT, not dead labs: Ollama Cloud now uses explicit :cloud
+// tags; signin verified active (markabass) and ALL FOUR ruled labs resolve under current
+// names (live ollama show probes). The interim local-model substitution (kimi-k2.7-code/
+// qwen3.6:35b/nemotron-3-super) was the WRONG fix — it downgraded ruled cloud seats onto
+// the 4090 (VRAM contention) and broke the budget architecture (Phase 1+3 ride cloud).
+// Original seat plan restored exactly: A=kimi B=deepseek C=minimax, integrator=nemotron.
+// (Moonshot's current cloud model is kimi-k2.5 — k2.6 is gone from the catalog.)
+export const PANEL_ARCHITECTS = ['kimi-k2.5:cloud', 'deepseek-v4-pro:cloud', 'minimax-m2.1:cloud'];
+export const PANEL_INTEGRATOR_MODEL = 'nemotron-3-ultra:cloud';
 
 // --------------------------------------------------------------- PER-MISSION ARCHITECT ROUTING
 // chooseArchitectRoute(missionText, opts) -> 'single' | 'panel'. The PLAN-PHASE COST FIX
@@ -483,7 +484,8 @@ export function chooseArchitectRoute(missionText, opts = {}) {
 // an unrecognized name — is treated as LOCAL/UNKNOWN -> NOT parallel-safe (the conservative rail:
 // "if uncertain, stay serial"). The default PANEL_ARCHITECTS (kimi/deepseek/minimax) are all cloud,
 // so the common path parallelizes; local-heavy mode stays serial; the Claude outage panel parallelizes.
-const CLOUD_OLLAMA_MODELS = new Set(['kimi-k2.6', 'deepseek-v4-pro', 'minimax-m3', 'glm-5.1', 'nemotron-3-ultra']);
+// :cloud-suffixed names are cloud by definition; the bare legacy names stay for back-compat.
+const CLOUD_OLLAMA_MODELS = new Set(['kimi-k2.5:cloud', 'deepseek-v4-pro:cloud', 'minimax-m2.1:cloud', 'nemotron-3-ultra:cloud', 'kimi-k2.6', 'deepseek-v4-pro', 'minimax-m3', 'glm-5.1', 'nemotron-3-ultra']);
 export function isCloudParallelSafe(model) {
   if (recognizeClaudeModel(model)) return true;            // Claude tier -> cloud
   return CLOUD_OLLAMA_MODELS.has(String(model || ''));     // known ollama-cloud labs -> cloud; else local/unknown -> serial
