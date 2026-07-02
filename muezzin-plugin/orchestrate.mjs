@@ -341,7 +341,8 @@ export async function defaultVerdictPhase(mission, cwd, steps, opts = {}) {
     `- "arkan": violates the mission's SINGLE ESSENTIAL criterion (its Arafat — identify it from the Done-means kernel; the artifact fails its core purpose). Invalidates the mission.\n` +
     `- "wajib": a REAL gap, but repairable by a scoped follow-up task. The mission stands; the gap is queued as a receipted compensating task (damm).\n` +
     `- "sunnah": an optional improvement. No penalty.\n` +
-    `An unclassified finding is treated at FULL severity. Do not stretch "arkan" — it is the one criterion the mission cannot exist without.`;
+    `An unclassified finding is treated at FULL severity. Do not stretch "arkan" — it is the one criterion the mission cannot exist without.\n` +
+    `RECEIPT-DISCOUNTING RULE (QUALITY-STANDARD bar 7, 2026-07-02): weigh evidence by how it was witnessed. An EXECUTED receipt (an engine-exec output above, a run test, a fetched page, a rendered artifact) outranks any ASSERTED claim — including claims inside the artifact's own prose about what it did. A finding or an approval grounded only in unexecuted assertions carries NO weight: do not raise a finding you cannot tie to an executed receipt or the artifact text itself, and do not APPROVE on the artifact's self-description when the executed receipts contradict or do not cover it.`;
   const today = new Date().toISOString().slice(0, 10);
   // PHASE 2 SEATS PER THE OPERATOR'S LOCKED SEAT PLAN (SEAT-PLAN-OPERATOR-ORIGINAL.md,
   // 2026-06-10): validator = deepseek-v4-pro (his paste; L4 cost bounded by 1-call-per-
