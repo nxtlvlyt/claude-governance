@@ -32,6 +32,12 @@ rulings. This file is the loudness fix.)
   never do level-2 jobs when budget is tight. The dial is muezzin-route.json.
 
 ## Mission & engine rulings
+- **nxtbeast concurrency: TWO SERIAL LANES that MAY overlap** (operator word 2026-07-02
+  ~22:30): small models (witness pair ornith/guardian, laguna, north-mini) may run IN
+  PARALLEL WITH the chain's big local models — the massive system-RAM overflow absorbs
+  them. But small models run SERIAL among themselves (never two small at once) and chain
+  big models run SERIAL among themselves (never two big at once). Refines GR10: the
+  witness yields only to another SMALL model, never to big-lane chain inference.
 - **The seat plan is SEAT-PLAN-OPERATOR-ORIGINAL.md** (muezzin-plugin). The engine is
   audited AGAINST it; configs and shipped code do not override it. Phase 1 = THREE
   EQUAL BLIND architects (no sequence); Integrator is a cross-phase bridge, not a

@@ -466,11 +466,20 @@ export async function witnessArtifact(text, context = {}, opts = {}) {
   } = opts;
   const ctxText = String(context.contextText ?? text ?? '');
 
-  // GR10 admission: probe /api/ps. If a structural-witness dispatch would oversubscribe the
-  // GPU (another big load already resident), YIELD — never force a concurrent load.
+  // TWO-LANE ADMISSION (operator concurrency ruling 2026-07-02, recorded in
+  // operator-rulings.md — supersedes the blanket GR10 yield): the SMALL witness lane
+  // (ornith 9b + guardian 8b) may run IN PARALLEL WITH the chain's big local models —
+  // nxtbeast's system-RAM overflow absorbs the spill. Small stays SERIAL among small
+  // (the structural->unload-poll->guardian sequence below) and big stays serial among
+  // big (deconstructor's serial-when-local routing). So: yield ONLY when another SMALL
+  // model (< smallLaneBytes) is already mid-inference — never to big-lane chain work.
+  // (Receipt for the change: 1234 ok=null yields — witness coverage ~zero under the
+  // local-only roster because the GPU was ALWAYS chain-busy.)
+  const smallLaneBytes = opts.smallLaneBytes ?? 12 * 1024 * 1024 * 1024;
   let ps;
   try { ps = await probe(); } catch { ps = null; }   // probe down -> treat as unknown; proceed cautiously below
-  if (ps && wouldOversubscribe(ps, structureModel, lagunaNeedBytes)) {
+  const smallLaneBusy = !!ps && ps.models.some((m) => m.size_vram > 0 && m.size_vram < smallLaneBytes && m.name !== structureModel && m.name !== guardianModel);
+  if (smallLaneBusy) {
     const receipt = emit(buildReceipt({ context, yielded: true }));
     return { laguna: null, guardian: null, ok: null, yielded: true, receipt };
   }
@@ -658,15 +667,22 @@ if (process.argv[1] && process.argv[1].endsWith('self_witness.mjs') && !process.
   const psBothSmall = summarizePs({ models: [{ name: 'granite4.1-guardian:8b', size_vram: 8 * GB }] });
   ck(wouldOversubscribe(psBothSmall, 'ornith:9b', ORNITH_9B_NEED_BYTES) === false, 'GR10: ornith:9b (6GB) fits alongside an already-resident 8GB guardian (14GB total) — no yield needed, unlike the 21GB+8GB pair');
 
-  // ---- witnessArtifact YIELD path: GPU oversubscribed -> queue, no dispatch ----
+  // ---- witnessArtifact TWO-LANE admission (operator concurrency ruling 2026-07-02):
+  // a BIG chain model resident does NOT yield the small witness lane (RAM overflow absorbs
+  // the overlap); another SMALL foreign model mid-inference DOES yield (small-serial-among-small).
   const calls2 = [];
-  const fakeProbeBusy = async () => { calls2.push('probe'); return summarizePs({ models: [{ name: 'big-seat', size_vram: 20 * GB }] }); };
-  const neverStruct = async () => { calls2.push('laguna'); return { verdict: 'APPROVE', ran: true }; };
-  const neverGround = async () => { calls2.push('guardian'); return { grounded: true, ran: true }; };
-  const res2 = await witnessArtifact('text', { artifact: 'M-BUSY' },
-    { structureFn: neverStruct, groundFn: neverGround, probe: fakeProbeBusy, unload: async () => {}, emit: (r) => r });
-  ck(res2.yielded === true && res2.ok === null, 'witnessArtifact: GPU busy -> yielded:true, ok:null');
-  ck(!calls2.includes('laguna') && !calls2.includes('guardian'), 'witnessArtifact: YIELD ran NEITHER model (no concurrent/forced load)');
+  const fakeProbeBigBusy = async () => { calls2.push('probe'); return summarizePs({ models: [{ name: 'big-seat', size_vram: 20 * GB }] }); };
+  const struct2 = async () => { calls2.push('laguna'); return { verdict: 'APPROVE', ran: true }; };
+  const ground2 = async () => { calls2.push('guardian'); return { grounded: true, ran: true }; };
+  const res2 = await witnessArtifact('text', { artifact: 'M-BIGBUSY' },
+    { structureFn: struct2, groundFn: ground2, probe: fakeProbeBigBusy, unload: async () => {}, emit: (r) => r });
+  ck(res2.yielded !== true && calls2.includes('laguna'), 'TWO-LANE: a BIG chain model resident does NOT yield the small witness lane (ruling 2026-07-02 — the 1234-null starvation fix)');
+  const callsSm = [];
+  const fakeProbeSmallBusy = async () => { callsSm.push('probe'); return summarizePs({ models: [{ name: 'qwen3.5:9b', size_vram: 9 * GB }] }); };
+  const resSm = await witnessArtifact('text', { artifact: 'M-SMALLBUSY' },
+    { structureFn: async () => { callsSm.push('laguna'); return { verdict: 'APPROVE', ran: true }; }, groundFn: async () => { callsSm.push('guardian'); return { grounded: true, ran: true }; }, probe: fakeProbeSmallBusy, unload: async () => {}, emit: (r) => r });
+  ck(resSm.yielded === true && resSm.ok === null, 'TWO-LANE: a foreign SMALL model mid-inference DOES yield (small-serial-among-small)');
+  ck(!callsSm.includes('laguna') && !callsSm.includes('guardian'), 'TWO-LANE: small-lane yield ran NEITHER witness model');
 
   // ---- witnessArtifact HARD RAIL: a RAW-throwing witness fn must NOT escape the gate ----
   // (defensive wrap): even if a caller injects a fn that throws raw (not the fail-soft
