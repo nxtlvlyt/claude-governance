@@ -245,7 +245,9 @@ export function computeDoneness(base, autorun, {
   gitFn = (repo, argstr) => { try { return { ok: true, out: execSync(`git -C "${repo}" ${argstr}`, { stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 64 * 1024 * 1024 }).toString() }; } catch { return { ok: false, out: '' }; } },
 } = {}) {
   const blocking = [];
-  const closed = (note) => /FIX:\s*none\b|SUPERSEDED\b|RESOLVED\b|DUPLICATE-RETIRED\b/i.test(String(note || ''));
+  // AUDIT FIX 2026-07-02: leading \b on each keyword — without it "UNRESOLVED" matched /RESOLVED\b/
+  // and a mission honestly annotated "still UNRESOLVED" was silently treated as closed (inverted meaning).
+  const closed = (note) => /FIX:\s*none\b|\bSUPERSEDED\b|\bRESOLVED\b|\bDUPLICATE-RETIRED\b/i.test(String(note || ''));
   const done = autorun.done || [], failed = autorun.failed || [], pending = autorun.pending || [], running = autorun.running || [];
   const doneStems = new Set(done.map(stemOf));
 
@@ -327,8 +329,22 @@ export function computeDoneness(base, autorun, {
     const allowFiles = [...afBlock.matchAll(/^[ \t]*-[ \t]+(\S+)/gm)].map((x) => x[1]).filter((p) => /\.\w+$/.test(p));
     if (allowFiles.length) {
       const absent = allowFiles.filter((af) => { try { return !existsSync(path.join(repoRoot, af)); } catch { return true; } });
-      if (absent.length === 0) continue;                            // all deliverable files present => LANDED
-      blocking.push({ layer: 'L3', mission: stem, reason: `DONE but ${absent.length}/${allowFiles.length} deliverable ALLOW-FILES absent (${absent.slice(0, 2).join(', ')}${absent.length > 2 ? '…' : ''}) — stranded / not integrated` });
+      if (absent.length > 0) {
+        blocking.push({ layer: 'L3', mission: stem, reason: `DONE but ${absent.length}/${allowFiles.length} deliverable ALLOW-FILES absent (${absent.slice(0, 2).join(', ')}${absent.length > 2 ? '…' : ''}) — stranded / not integrated` });
+        continue;
+      }
+      // AUDIT FIX 2026-07-02 (recall regression): presence alone used to short-circuit here — but a
+      // mission that MODIFIES pre-existing files (the dominant class: map.html etc.) trivially has all
+      // ALLOW-FILES "present" even when its change sits stranded on a feature branch — the EXACT
+      // poi-tags false-DONE class this gate was built to catch. Presence AND landed: when the mission
+      // names source shas, the patch must also be in the deployable tree. No shas => presence stands
+      // (nothing more determinable mechanically).
+      const presShas = extractSourceShas(mtext);
+      if (presShas.length) {
+        let anyDet = false, isLanded = false;
+        for (const s of presShas) { const pid = pidOf(s); if (pid) { anyDet = true; if (headPids.has(pid)) { isLanded = true; break; } } }
+        if (anyDet && !isLanded) { blocking.push({ layer: 'L3', mission: stem, reason: `DONE, ALLOW-FILES present, but deliverable patch [${presShas.map((x) => x.slice(0, 7)).join(',')}] NOT in the deployable tree — files pre-existed; the change is stranded` }); }
+      }
       continue;
     }
     // no parseable ALLOW-FILES: fall back to result.json (L0) + patch-id (L3).
@@ -439,7 +455,7 @@ export function sweep(base = HERE, now = Date.now(), routeFile = path.join(proce
     // as a performable fix and re-ordered every beat — the sweep had no way to say
     // "judged, resolved, nothing to perform". Third annotation-wording contortion in an
     // hour = the state was missing, not the wording — pattern-amortization canon.)
-    const closed = /FIX:\s*none\b|SUPERSEDED\b|RESOLVED\b|DUPLICATE-RETIRED\b/i.test(note);
+    const closed = /FIX:\s*none\b|\bSUPERSEDED\b|\bRESOLVED\b|\bDUPLICATE-RETIRED\b/i.test(note);  // \b-led: "UNRESOLVED" must not close (audit 2026-07-02)
     report.push(`FAILED on ledger: ${f}${note ? ` — ${note.slice(0, 90)}` : ''}`);
     if (closed) {
       report.push(`  closed (superseded/resolved, no action): ${stem}`);
@@ -635,7 +651,9 @@ export function sweep(base = HERE, now = Date.now(), routeFile = path.join(proce
   // written by main(); this surfaces it on the board + as a standing NOT-DONE action.
   let doneness = null;
   try {
-    doneness = computeDoneness(base, autorun, { owed });
+    // AUDIT FIX 2026-07-02: thread the injected gitFn through — without it every fixture/selftest
+    // sweep hit the REAL mt repo (doneness untestable in isolation; the suite went red silently).
+    doneness = computeDoneness(base, autorun, { owed, ...(gitFn ? { gitFn } : {}) });
     report.push(`DONENESS: barMet=${doneness.barMet} — ${doneness.blocking.length} blocking · pending ${doneness.counts.pending} · unresolvedFAILED ${doneness.counts.unresolvedFailed} · pushGap ${doneness.counts.pushedGap} · openIntegration ${doneness.counts.openIntegration}`);
     if (!doneness.barMet) {
       for (const b of doneness.blocking.slice(0, 8)) report.push(`  NOT-DONE [${b.layer}] ${b.mission}: ${String(b.reason).slice(0, 90)}`);
@@ -839,15 +857,29 @@ function main() {
     return;
   }
   if (process.argv.includes('--record-deploy')) {
-    // Stamp the deploy marker AFTER a real `wrangler pages deploy` succeeds. Records the targetRepo
-    // HEAD as the sha now live in production, so computeDoneness L4 can measure the deploy gap.
-    const repo = MT_REPO_DEFAULT;
-    let sha = '';
-    try { sha = execSync(`git -C "${repo}" rev-parse HEAD`, { stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim(); } catch { /* leave empty -> visible failure */ }
-    if (!/^[0-9a-f]{40}$/.test(sha)) { console.error(`--record-deploy: could not read ${repo} HEAD (got "${sha}")`); process.exit(2); }
-    const mk = path.join(HERE, 'missions', '_logs', 'last-deployed.json');
-    writeFileSync(mk, JSON.stringify({ sha, ts: new Date().toISOString(), repo, note: 'wrangler pages deploy --project-name=muddytires' }, null, 2));
-    console.log(`deploy marker stamped: ${sha.slice(0, 8)} -> ${mk}`);
+    // Stamp the deploy marker AFTER a real `wrangler pages deploy` succeeds — WITNESSED, not declared.
+    // AUDIT FIX 2026-07-02: the first version recorded `git rev-parse HEAD` and nothing else — an
+    // honor-system marker that let L4-"done" be uttered into existence by one command (the exact
+    // anti-pattern the doneness gate exists to kill). Now the verb (1) refuses a dirty tree (wrangler
+    // deploys the WORKING TREE — a dirty deploy is not HEAD and must not be recorded as HEAD), and
+    // (2) fetches the LIVE production /map and requires it to byte-match HEAD's committed map.html
+    // before stamping. Fail-closed: no live match, no marker.
+    (async () => {
+      const repo = MT_REPO_DEFAULT;
+      let sha = '';
+      try { sha = execSync(`git -C "${repo}" rev-parse HEAD`, { stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim(); } catch { /* visible failure below */ }
+      if (!/^[0-9a-f]{40}$/.test(sha)) { console.error(`--record-deploy: could not read ${repo} HEAD (got "${sha}")`); process.exit(2); }
+      const dirty = (() => { try { return execSync(`git -C "${repo}" status --porcelain`, { stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim(); } catch { return 'status-unreadable'; } })();
+      if (dirty) { console.error(`--record-deploy REFUSED: worktree is DIRTY — what wrangler deployed is not HEAD, so recording HEAD as deployed would be a lie.\n${dirty.split('\n').slice(0, 5).join('\n')}`); process.exit(2); }
+      const committed = execSync(`git -C "${repo}" show HEAD:map.html`, { stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 16 * 1024 * 1024 }).toString();
+      let live = '';
+      try { const res = await fetch('https://muddytires.ca/map', { headers: { 'cache-control': 'no-cache' } }); live = await res.text(); } catch (e) { console.error(`--record-deploy REFUSED: cannot fetch live /map (${e.message}) — deploy state unverifiable, fail-closed`); process.exit(2); }
+      const norm = (s) => s.replace(/\r\n/g, '\n').trim();
+      if (norm(live) !== norm(committed)) { console.error(`--record-deploy REFUSED: live /map does NOT match HEAD's map.html (live ${live.length}B vs committed ${committed.length}B) — the deploy either did not happen, hit a different tree, or is still propagating. Not stamping.`); process.exit(1); }
+      const mk = path.join(HERE, 'missions', '_logs', 'last-deployed.json');
+      writeFileSync(mk, JSON.stringify({ sha, ts: new Date().toISOString(), repo, witness: 'live /map byte-matches HEAD:map.html (clean tree)', note: 'wrangler pages deploy --project-name=muddytires' }, null, 2));
+      console.log(`deploy marker stamped (WITNESSED): ${sha.slice(0, 8)} — live /map == HEAD:map.html, tree clean`);
+    })();
     return;
   }
   if (process.argv.includes('--request-reload')) {
@@ -899,7 +931,16 @@ function selftest() {
   writeFileSync(path.join(tmp, 'missions', 'AUTORUN.md'), '# q\nFAILED missions/broken.mission.txt  <!-- t -->\nmissions/next.mission.txt\n');
   writeFileSync(path.join(logs, 'dispatch-heartbeat.log'), `${new Date(now - 2 * 60000).toISOString()} attempt-start provider=claude-opus (claude tier for kimi-k2.6)\n`);
   const noRoute = path.join(tmp, 'no-route.json');  // fixture isolation: never read the real route file
-  const sightOk = { sightFn: () => ({ ok: true, results: 10 }), cgAgeFn: () => ({ ok: true, minutes: 5 }), worktreeReposFn: () => [] };  // fixture isolation: never curl the real backend, never git the real worktree
+  // fixture isolation: never curl the real backend, never git the real worktree. gitFn stub added
+  // 2026-07-02 (audit): without it every sweep's computeDoneness silently hit the REAL mt repo —
+  // fixtures depended on live repo state and the suite went red when L4 landed.
+  const stubGit = (repo, argstr) => {
+    if (/rev-parse --abbrev-ref/.test(argstr)) return { ok: true, out: 'github/main\n' };
+    if (/^rev-list --count/.test(argstr)) return { ok: true, out: '0\n' };
+    if (/log -p/.test(argstr) || /patch-id/.test(argstr)) return { ok: true, out: '' };
+    return { ok: true, out: '' };
+  };
+  const sightOk = { sightFn: () => ({ ok: true, results: 10 }), cgAgeFn: () => ({ ok: true, minutes: 5 }), worktreeReposFn: () => [], gitFn: stubGit };
   let r = sweep(tmp, now, noRoute, sightOk);
   ck(r.daemonAlive === false, 'dead daemon detected (stale status + dead pid)');
   ck(r.actions.some((a) => a.id === 'RESTART-DAEMON' && a.command.includes('muezzin-daemon.mjs')), 'restart action with exact command emitted');
@@ -938,6 +979,9 @@ function selftest() {
   writeFileSync(path.join(tmp, 'missions', 'AUTORUN.md'),
     '# q\nFAILED missions/healed.mission.txt  <!-- pending engine batch -->\nFAILED missions/other.mission.txt  <!-- t -->\n');
   writeFileSync(path.join(tmp, 'missions', 'healed.mission.txt'), 'MISSION-CLASS: test\n');
+  // AUDIT FIX 2026-07-02: 'other' must exist on disk — "untouched" means a LIVE unrelated mission
+  // survives heal; a ghost line is CORRECTLY dead-stem-retired (that behavior has its own invariant).
+  writeFileSync(path.join(tmp, 'missions', 'other.mission.txt'), 'MISSION-CLASS: test\n');
   recordFix(tmp, { cls: 'fabricated-citation', fix: 'citation_guard gate', requeue: ['healed'] }, now);
   r = sweep(tmp, now, noRoute, sightOk);
   ck(r.actions.some((a) => a.id === 'REQUEUE-healed' && a.class === 'mechanical' && a.approved_by_faith), 'fix-landed: a FAILED mission in the ledger becomes a mechanical requeue');
@@ -1101,15 +1145,42 @@ function selftest() {
   const healedLoop2 = heal(tmp, now, { exec: () => {} });
   ck(!healedLoop2.performed.some((p) => p.action === 'loop-cap-retire'), 'heal(): idempotent -- a second heal() pass retires nothing further (no bare line remains for this stem)');
 
-  // fixture 2: healthy daemon (our own pid alive, fresh status), clean ledger
+  // fixture 2: healthy daemon (our own pid alive, fresh status), clean ledger. A healthy state now
+  // INCLUDES a current deploy marker (L4): healthy means deployed-current, not merely committed.
   writeFileSync(path.join(logs, 'daemon-status.json'), JSON.stringify({ pid: process.pid, state: 'running', lanes: [], queued: 0, ts: new Date(now).toISOString() }));
   writeFileSync(path.join(logs, 'daemon.pid'), String(process.pid));
   writeFileSync(path.join(tmp, 'missions', 'AUTORUN.md'), '# q\nDONE missions/good.mission.txt  <!-- t -->\n');
   writeFileSync(path.join(logs, 'dispatch-heartbeat.log'), `${new Date(now - 60000).toISOString()} attempt-ok provider=ollama-cloud model=kimi-k2.6 heal=0 ms=1 chars=10\n`);
+  writeFileSync(path.join(logs, 'last-deployed.json'), JSON.stringify({ sha: 'a'.repeat(40), ts: new Date(now).toISOString() }));
   r = sweep(tmp, now, noRoute, sightOk);
   ck(r.daemonAlive === true, 'healthy daemon detected');
   ck(r.actions.length === 0, 'healthy state -> zero required actions');
   ck(r.report.some((l) => l.includes('nothing needed')), 'complete-ending line present');
+  ck(r.doneness && r.doneness.barMet === true, 'healthy fixture reaches barMet (frontier clean + deployed-current)');
+
+  // AUDIT REGRESSION TESTS 2026-07-02 (each encodes a live-confirmed audit finding):
+  // (a) closed(): "UNRESOLVED" must NOT read as resolved (the missing-\b inversion).
+  {
+    const arun = { done: [], failed: ['missions/x.mission.txt'], pending: [], running: [], notes: { 'missions/x.mission.txt': 'still UNRESOLVED — investigating' } };
+    const dn = computeDoneness(tmp, arun, { gitFn: stubGit });
+    ck(dn.counts.unresolvedFailed === 1, 'closed(): a note saying UNRESOLVED does NOT close the FAILED (leading-\\b fix)');
+    const arun2 = { done: [], failed: ['missions/x.mission.txt'], pending: [], running: [], notes: { 'missions/x.mission.txt': 'RESOLVED 2026-07-02: landed' } };
+    ck(computeDoneness(tmp, arun2, { gitFn: stubGit }).counts.unresolvedFailed === 0, 'closed(): an explicit RESOLVED note still closes');
+  }
+  // (b) presence != landed: a DONE mission whose ALLOW-FILES all pre-exist but whose named source
+  // patch is NOT in the deployable tree must BLOCK (the poi-tags stranded-on-feature-branch class).
+  {
+    writeFileSync(path.join(tmp, 'missions', 'mt-integrate-strand.mission.txt'),
+      `MISSION-CLASS: code-repo\nREPO-ROOT: ${tmp.replace(/\\/g, '/')}\nALLOW-FILES:\n  - missions/AUTORUN.md\n\ncherry-pick abc1234 from the feature branch.\n`);
+    const strandGit = (repo, argstr) => {
+      if (/show .*abc1234/.test(argstr) || (/patch-id/.test(argstr) && /show/.test(argstr))) return { ok: true, out: 'feedfeedfeedfeed abc1234\n' }; // pid NOT in head table
+      if (/log -p/.test(argstr)) return { ok: true, out: 'otherpid othersha\n' };
+      return stubGit(repo, argstr);
+    };
+    const arun3 = { done: ['missions/mt-integrate-strand.mission.txt'], failed: [], pending: [], running: [], notes: {} };
+    const dn3 = computeDoneness(tmp, arun3, { gitFn: strandGit });
+    ck(dn3.blocking.some((b) => b.mission === 'mt-integrate-strand' && /NOT in the deployable tree/.test(b.reason)), 'presence-AND-landed: all ALLOW-FILES present but patch not in tree -> L3 BLOCK (recall restored)');
+  }
 
   rmSync(tmp, { recursive: true, force: true });
   console.log(fails ? `\n${fails} FAILURES` : '\nALL PASS');

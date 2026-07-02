@@ -130,15 +130,20 @@ export function validateMicroAction(step, i, opts = {}) {
   // (Test-Path + Select-String its content). Soft (repair-loop), like the sibling floors.
   if (opts.codeRepo && typeof step.validation_command === 'string') {
     const cmd = step.validation_command;
-    const shaLit = /(?:['"^/]|\b)[0-9a-f]{7,40}\b/i;   // a hex sha literal (short or full)
+    // AUDIT FIX 2026-07-02 — three live-confirmed false-flag shapes tightened:
+    //   (a) shaLit matched ALL-DIGIT tokens ('20260702' — a date) as shas: now requires >=1 hex LETTER.
+    //   (b) the exact-count rule matched '-ne 0' (a robust NONZERO assertion, and the M-VERIFY-SCOPE
+    //       rule's own recommended pattern!) and matched .Count and -eq across UNRELATED clauses:
+    //       now requires adjacency AND a nonzero literal N.
+    const shaLit = /(?:['"^/]|\b)(?=[0-9a-f]*[a-f])[0-9a-f]{7,40}\b/i;   // hex literal with at least one letter
     if (/\bgit\s+log\b/i.test(cmd) && /\bselect-string\b/i.test(cmd) && shaLit.test(cmd)) {
       errs.push(`step ${i}: brittle SHA-in-log-window witness ('${cmd.slice(0, 70)}') — asserting a commit SHA appears in a \`git log -N\`/\`--all | Select-String '<sha>'\` window FALSE-FAILs on real landings: a cherry-picked commit lands under a NEW sha and older commits scroll out of the window. Witness the ARTIFACT instead — Test-Path the deliverable + Select-String its expected CONTENT (not its commit id).`);
     }
     if (/\bgit\s+rev-parse\b[^\n]*\bHEAD\b/i.test(cmd) && /-match/i.test(cmd) && shaLit.test(cmd)) {
       errs.push(`step ${i}: brittle predicted-SHA witness ('${cmd.slice(0, 70)}') — \`git rev-parse HEAD -match '<sha>'\` compares HEAD to a sha predicted BEFORE the commit, but cherry-pick/re-commit rewrites the sha so it never matches. Capture the actual sha AFTER committing, or (better) witness the artifact's content — never a pre-predicted commit id.`);
     }
-    if (/\.Count\b/i.test(cmd) && /-(?:eq|ne)\s+\d+/i.test(cmd)) {
-      errs.push(`step ${i}: brittle exact line-count witness ('${cmd.slice(0, 70)}') — an EXACT \`.Count -eq/-ne <N>\` false-fails when a benign re-integration changes the line count by one. Use a floor (\`-ge <min>\`/\`-gt <min>\`) or witness required CONTENT with Select-String -Pattern.`);
+    if (/\.Count\s*-(?:eq|ne)\s+[1-9]\d*/i.test(cmd)) {
+      errs.push(`step ${i}: brittle exact line-count witness ('${cmd.slice(0, 70)}') — an EXACT \`.Count -eq/-ne <N>\` false-fails when a benign re-integration changes the line count by one. Use a floor (\`-ge <min>\`/\`-gt <min>\`), a zero/nonzero check (\`-eq 0\`/\`-ne 0\`), or witness required CONTENT with Select-String -Pattern.`);
     }
   }
   // CHERRY-PICK COMPLETION FLOOR (code-repo only, cron-dispatcher.S1 + trip-diary + sentry receipts
@@ -649,6 +654,15 @@ Context: Node + TypeScript project; DB schema in prisma/schema.prisma; tests run
     const keywordLog = { ...base, validation_command: "if (-not (git log --oneline -5 | Select-String 'SOTA-uplift QC' -Quiet)) { exit 1 }" };
     ck(!validateMicroAction(keywordLog, 1, { codeRepo: true }).some((e) => e.includes('SHA-in-log-window')), 'BRITTLE-VERIFY: log grep for a KEYWORD (not a sha) -> not flagged');
     ck(!validateMicroAction(shaWindow, 1, {}).some((e) => e.includes('SHA-in-log-window')), 'BRITTLE-VERIFY: non-code-repo mission -> gate does not fire');
+    // AUDIT FALSE-FLAG REGRESSIONS 2026-07-02 (all four probed live by the adversarial audit):
+    const scopedGate = { ...base, validation_command: 'if ((git status --porcelain -- docs/x.md).Count -ne 0) { exit 1 }' };
+    ck(!validateMicroAction(scopedGate, 1, { codeRepo: true }).some((e) => e.includes('exact line-count')), "FALSE-FLAG: M-VERIFY-SCOPE's own recommended scoped gate (.Count -ne 0) -> NOT flagged");
+    const absenceAssert = { ...base, validation_command: "if ((Select-String -Path docs/x.md -Pattern 'TODO').Count -ne 0) { exit 1 }" };
+    ck(!validateMicroAction(absenceAssert, 1, { codeRepo: true }).some((e) => e.includes('exact line-count')), 'FALSE-FLAG: nonzero/absence assertion (.Count -ne 0) -> NOT flagged');
+    const crossClause = { ...base, validation_command: "$r = Invoke-WebRequest -Uri x -UseBasicParsing; if ($r.StatusCode -ne 200) { exit 1 }; if ((Get-ChildItem docs).Count -gt 3) { exit 0 }" };
+    ck(!validateMicroAction(crossClause, 1, { codeRepo: true }).some((e) => e.includes('exact line-count')), 'FALSE-FLAG: -ne 200 in an UNRELATED clause + .Count -gt elsewhere -> NOT flagged (adjacency required)');
+    const dateToken = { ...base, validation_command: "if (-not (git log --oneline -5 | Select-String '20260702' -Quiet)) { exit 1 }" };
+    ck(!validateMicroAction(dateToken, 1, { codeRepo: true }).some((e) => e.includes('SHA-in-log-window')), 'FALSE-FLAG: all-digit token (a DATE, not a sha) in a log grep -> NOT flagged (letter required)');
   }
 
   ck(!validateMicroQueue({ mission_id: 'M-X', steps: [
