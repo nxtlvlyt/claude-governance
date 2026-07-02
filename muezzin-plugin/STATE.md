@@ -133,8 +133,24 @@ FIX OPTIONS (not a buildPreviewUrl one-liner — a real routing choice, do it de
 (b) capture the interactive page via a plain static file server for the screenshot while
 keeping wrangler for /api/* data (two-server capture); (c) capture against production
 muddytires.ca/map.html (but that's deployed state, not the pre-deploy preview the witness
-wants). Recommend (b) or (a). This is the LAST thing between the engine and a first
-visual-QC e2e completion; it is low blast radius (capture-input plumbing, not a live gate).
+wants).
+
+**OPTION (b) PROVEN 2026-07-02T~02:04Z** — ran a plain node static server (serves files
+directly, no Pages redirect logic) + puppeteer: `GET /map.html` stayed at `/map.html`
+(no 308), rendered 503KB with leaflet:TRUE and aurora-overlay.js:TRUE — i.e. the REAL
+interactive feature page, exactly what gemma4:31b needs. So the fix is confirmed: capture
+against a static file server, not wrangler pages dev.
+CAVEAT: a pure static server does NOT serve `/api/*` (the Pages Functions) — the map renders
+its shell + all feature scripts (enough for feature-PRESENCE visual QC: aria-live, dark-mode
+icons, map-attribution, aurora wiring) but shows no live POI data. Feature-presence is the
+common visual-QC case; live-data features would want a hybrid (static for .html/.js/.css,
+proxy /api to wrangler) — a deliberate design choice, not a default.
+WIRING (bounded next pass, NOT done — it lives in the verdict-phase capture path, so treat
+with the same care as any verdict-phase edit): point visual_capture.mjs's capture at a
+static server for the .html screenshot. Low blast radius as code (capture plumbing), but
+it's invoked from defaultVerdictPhase, so land it behind the orchestrate.mjs selftest and
+verify one real visual-QC mission produces a feature-showing screenshot gemma4:31b judges
+correctly. THAT run is the first visual-QC e2e completion.
 
 ## 🎥 VISUAL-QC BLOCKER — half-fixed 2026-07-01T~23:55Z (preview server now standing; witness-target semantics still wrong)
 
