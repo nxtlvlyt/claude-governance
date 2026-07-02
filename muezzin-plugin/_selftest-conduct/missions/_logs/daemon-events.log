@@ -1,0 +1,2 @@
+2026-07-02T16:33:41.962Z DEAD-STEM-RETIRE: 1 ghost FAILED line(s) retired (mission.txt absent)
+SWEEP-HEAL 2026-07-02T16:33:41.962Z STUCK-TASK pid=77777 paths=missions/stuck.mission.txt
