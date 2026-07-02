@@ -138,6 +138,15 @@ export function classifyStepFailure(reason, errorText = '') {
   return 'defect';
 }
 
+// PURE: does the text contain an unresolved git conflict opener (`<<<<<<< ` at line start)?
+// The opener (7 '<' + a space + a label) is a git-specific marker with near-zero legitimate-content
+// collision — unlike `=======` alone, which appears as markdown h1 underlines / dividers. Used by the
+// COMMIT-CONFLICT gate to refuse committing a file left conflicted by a masked cherry-pick/merge.
+// Exported for selftest.
+export function hasConflictMarkers(text) {
+  return /^<{7} /m.test(String(text || ''));
+}
+
 // CHECKPOINT (REPLAN ISOLATION step 1): persist the completed steps' index/sha/targets to
 // <cwd>/_checkpoint.json so a re-entered run (the daemon's clean-pass attempt-2) can SKIP the
 // steps already committed in the sandbox instead of re-running them from step 1. Best-effort:
@@ -914,6 +923,28 @@ export async function orchestrate(mission, cwd, {
       // declared allow-files first. Scoped to commit commands so a non-commit verify step's
       // working-tree assertions are untouched; stageFiles is idempotent and skips missing paths.
       if (codeRepo && allowFiles.length && /\bgit\s+commit\b/.test(String(step.validation_command || ''))) {
+        // CONFLICT GATE (M-COMMIT-CONFLICT-GATE, 2026-07-02) — the TRUE root cause the session
+        // chased: a `git cherry-pick`/merge that CONFLICTED leaves conflict markers in an
+        // allow-file, and if the conflicting command's non-zero exit was MASKED (a ';'-chained
+        // pwsh line — execReceipt trusts one process exit code, seat_dispatch.mjs:175), the
+        // mission reaches THIS commit and commits the CONFLICTED file. Receipt: commit 1539e66
+        // committed map.html carrying `<<<<<<< HEAD ... >>>>>>> 880c311` markers + a duplicated
+        // <body>, shipping a broken production map (mission-events.jsonl:6 logged the CONFLICT as
+        // exit:0). This scans each declared allow-file for a git conflict opener BEFORE staging and
+        // refuses to stage/commit if any is found (fail-closed) — preventing the corruption at the
+        // SOURCE, where the integrity-guard rules (4/5) only caught its output after the fact.
+        const conflicted = [];
+        for (const rel of gitFiles(allowFiles)) {
+          try {
+            const p = path.resolve(writeRoot, rel);
+            if (existsSync(p) && hasConflictMarkers(readFileSync(p, 'utf8'))) conflicted.push(rel);
+          } catch { /* unreadable here -> other guards handle */ }
+        }
+        if (conflicted.length) {
+          emit({ phase: 'step', event: 'commit-conflict-block', step: step.step_index, files: conflicted });
+          failStep('integrity', `COMMIT-CONFLICT: unresolved git conflict markers in ${conflicted.join(', ')} — refusing to stage/commit a conflicted file (a cherry-pick/merge conflict was left unresolved, its exit code masked). Resolve the conflict, then commit.`);
+          break;
+        }
         const st = stageFiles(writeRoot, gitFiles(allowFiles));
         emit({ phase: 'step', event: 'pre-commit-stage', step: step.step_index, staged: st.staged ?? 0, ok: st.ok, error: st.ok ? undefined : String(st.error || '').slice(0, 160) });
       }
@@ -1293,6 +1324,12 @@ if (process.argv[1]?.endsWith('orchestrate.mjs')) {
   fs.writeFileSync(path.join(dir, 'seed'), 'x'); git('add -A'); git('commit -q --no-verify -m init');
 
   let fails = 0; const ck = (c, m) => { console.log(`${c ? 'PASS' : 'FAIL'}  ${m}`); if (!c) fails++; };
+
+  // COMMIT-CONFLICT gate detection (M-COMMIT-CONFLICT-GATE) — the exact 1539e66 map.html shape.
+  ck(hasConflictMarkers('<div>ok</div>\n<<<<<<< HEAD\n<body>a</body>\n=======\n<body>b</body>\n>>>>>>> 880c311 (feat)\n') === true, 'CONFLICT-GATE: content with a `<<<<<<< ` git conflict opener -> detected');
+  ck(hasConflictMarkers('<!doctype html><html><body><div id="map"></div></body></html>') === false, 'CONFLICT-GATE: clean HTML -> not flagged');
+  ck(hasConflictMarkers('# Heading\n=======\nsome body text\n') === false, 'CONFLICT-GATE: markdown `=======` underline (no `<<<<<<< ` opener) -> NOT a false positive');
+  ck(hasConflictMarkers('') === false && hasConflictMarkers(null) === false, 'CONFLICT-GATE: empty/null -> false (never throws)');
 
   // STRUCTURAL FALSE-BLOCK REGRESSION (2026-06-16): a command/verify step that the engine ran
   // (ok + engineExec, no commit sha) MUST yield a witnessed receipt — else the deeds-not-claims

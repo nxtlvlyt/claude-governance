@@ -326,8 +326,25 @@ conductor): decide the deploy cadence/gate — a QC'd deploy step is what conver
 commits into the visual result the operator is actually asking for. Until then, "integrated"
 must never be reported as if it were "shipped."
 
-## 🔴 CRITICAL FINDING 2026-07-02 — executor conflict-resolution DELETES content (systemic)
+## 🔴 CRITICAL FINDING 2026-07-02 — unresolved git conflicts get COMMITTED (systemic; ROOT PINNED + SOURCE-FIXED)
 
+✅ CORRECTION + FIX 2026-07-02 (supersedes the "executor rewrite" framing below): a receipted
+investigation (agent, git + mission-events evidence) pinned the map.html body-duplication root
+cause, and it was NEITHER the executor whole-file fallthrough NOR edit-mode (both stories the
+conductor wrongly carried — `implementStep` provably never ran on map.html). It was a `git
+cherry-pick 880c311` whose 3-way merge CONFLICTED on map.html and got COMMITTED WITH markers
+(`<<<<<<< HEAD ... >>>>>>> 880c311`, duplicated <body>) — receipt: mission-events.jsonl:6 logged
+"CONFLICT (content): Merge conflict in map.html" as exit:0. Two compounding gaps: (a) EXIT-MASKING
+— the cherry-pick's exit 1 was hidden by a `;`-chained pwsh line (execReceipt trusts one process
+exit, seat_dispatch.mjs:175); (b) NO pre-commit conflict gate. SOURCE FIX LANDED (`104a9dc`): a
+COMMIT-CONFLICT gate in orchestrate.mjs's pre-commit-stage scans allow-files for `^<<<<<<< ` and
+fails-closed — a conflicted file can no longer be committed (covers the email-redaction gutting
+below too, if it was also a committed conflict). Integrity Rules 4/5 (LARGE-DELETION +
+STRUCTURAL-DUPLICATION) catch the OUTPUT; this gate stops it at the SOURCE. Staged-not-hot until
+the next daemon restart. REMAINING: the exit-masking half (b) — execReceipt shouldn't trust one
+exit for a `;`-chained step — is the deeper secondary fix, not yet done.
+
+--- original finding (mechanism now corrected above; the DELETION shape + the reversible doc note remain valid) ---
 Discovered validating the cherry-pick fix. `mt-integrate-email-redaction-docs` ran with the
 fix and the cherry-pick MECHANICALLY worked — `d50eebc` landed the full doc on `main`. But the
 NEXT commit `bb97cf8` (message = the literal step-3 instruction text, itself a defect) then
