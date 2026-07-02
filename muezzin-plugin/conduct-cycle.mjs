@@ -290,6 +290,13 @@ export function computeDoneness(base, autorun, {
     if (!existsSync(mfile)) continue;
     const mtext = readText(mfile);
     if (!(/MISSION-CLASS:\s*(code-repo|ops-deploy)/i.test(mtext) || /^mt-integrate-/.test(stem))) continue; // deliverable class only
+    // CONDUCTOR-RESOLVED EXEMPTION (2026-07-02): a DONE mission the conductor RESOLVED out-of-band
+    // (hand-apply / fix-ledger / superseded) has a STALE result.json — the earlier failed chain
+    // attempt — so the AUTORUN note, not result.json, is the current truth. Reuse the same `closed`
+    // regex the FAILED bucket trusts. The repo-level L3 (pushed) + divergence guard still apply
+    // GLOBALLY, and any DONE mission WITHOUT such an annotation is still fully L0/L3-checked — so this
+    // does not re-open "trust the label": only an explicit RESOLVED/SUPERSEDED/hand-apply note exempts.
+    if (closed(autorun.notes?.[d])) continue;
     doneChecked++;
     const res = readJson(path.join(base, 'missions', stem + '.mission.result.json'));
     if (!res) { blocking.push({ layer: 'L0', mission: stem, reason: 'DONE but no result.json' }); continue; }
