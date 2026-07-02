@@ -158,6 +158,14 @@ export function validateMicroAction(step, i, opts = {}) {
       errs.push(`step ${i}: inline-eval mangle risk — a ${evalM[1].length}-char \`node -e\` payload with nested quotes/HTML self-mangles under PowerShell quoting (pwa-install-banner receipt: "[eval]:1" parse death). Write the script to a scratch file first (command step: Set-Content scratch-witness.mjs '<script>') then run \`node scratch-witness.mjs\` — never a long inline eval.`);
     }
   }
+  // PWSH PEEL-SYNTAX FLOOR (all classes, 2026-07-02 — the TRUE root of the "git-arg escape /
+  // unknown switch n" class, finally receipted precisely on gpx-import.S1: the generated command
+  // `git cat-file -e cbb07a5^{commit}` is CORRECT git, but pwsh parses {commit} as a SCRIPTBLOCK
+  // literal and mangles the arg into a phantom `-n` switch. d1-migrations' amended plain-form
+  // `git cat-file -e <sha>` ran clean — the peel suffix is the killer, not cat-file.)
+  if (typeof step.validation_command === 'string' && /\^\{/.test(step.validation_command)) {
+    errs.push(`step ${i}: pwsh peel-syntax mangle ('${step.validation_command.slice(0, 60)}') — git rev^{commit}/^{tree} peel braces are SCRIPTBLOCK literals under PowerShell and self-mangle into phantom switches ("unknown switch n" — gpx-import + d1-migrations + d1-indexes receipts). Use the plain forms: git cat-file -e <sha> · git rev-parse --verify <sha> — never ^{...}.`);
+  }
   // NON-IDEMPOTENT ABSENCE-PREFLIGHT FLOOR (code-repo only, 2026-07-02; 2 confirmed members
   // hand-closed this session): a step-1 preflight of the shape `if (Test-Path <deliverable>) { exit 1 }`
   // FAILS FOREVER once the mission's own work has landed — d1-backup.S1 and plan-day-gpx-export both
@@ -728,6 +736,15 @@ Context: Node + TypeScript project; DB schema in prisma/schema.prisma; tests run
     const laterStep = { ...bare, step_index: 4, description: 'verify the doc landed' };
     ck(!validateMicroAction(laterStep, 4, { codeRepo: true }).some((e) => e.includes('non-idempotent absence-preflight')), 'PREFLIGHT: gate scoped to step-1/preflight-described steps only');
     ck(!validateMicroAction(bare, 1, {}).some((e) => e.includes('non-idempotent absence-preflight')), 'PREFLIGHT: non-code-repo -> gate does not fire');
+  }
+
+  // PWSH PEEL-SYNTAX gate (gpx-import.S1 receipt 2026-07-02 — the true "unknown switch n" root)
+  {
+    const base = { step_index: 1, description: 'confirm source commit exists', action_type: 'verify', target_files: [], context_dependencies: [] };
+    const peel = { ...base, validation_command: 'git cat-file -e cbb07a5^{commit}' };
+    ck(validateMicroAction(peel, 1, {}).some((e) => e.includes('peel-syntax')), 'PEEL: ^{commit} under pwsh -> REJECTED (scriptblock mangle)');
+    const plain = { ...base, validation_command: 'git cat-file -e cbb07a5' };
+    ck(!validateMicroAction(plain, 1, {}).some((e) => e.includes('peel-syntax')), 'PEEL: plain cat-file -e -> allowed');
   }
 
   // INLINE-EVAL MANGLE gate (pwa-install-banner/operators-html/oracle-ingest-v4 receipts 2026-07-02)
