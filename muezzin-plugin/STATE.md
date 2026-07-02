@@ -305,6 +305,35 @@ undiagnosed; (e) ~90-item DIAGNOSE backlog, chip incrementally; (f) contested se
 question (architects[0]/integrator: locked seat plan says Ollama-primary, live config
 says Claude) — operator call, documented in the ~19:00Z workflow output.
 
+## 🔴 CRITICAL FINDING 2026-07-02 — executor conflict-resolution DELETES content (systemic)
+
+Discovered validating the cherry-pick fix. `mt-integrate-email-redaction-docs` ran with the
+fix and the cherry-pick MECHANICALLY worked — `d50eebc` landed the full doc on `main`. But the
+NEXT commit `bb97cf8` (message = the literal step-3 instruction text, itself a defect) then
+DELETED 129 of 132 doc lines — `git show --stat bb97cf8`: `1 file changed, 3 insertions(+),
+129 deletions(-)`. The executor's step-3 conflict resolution gutted the file, directly
+violating the mission's explicit "resolve keeping BOTH sides, never delete either side" rule.
+This is SYSTEMIC — every code-repo mission that hits a conflict risks silent content deletion.
+The mechanical cherry-pick completion (pre-clean + `--continue`, proven working) is NOT the
+whole fix; conflict-resolution CORRECTNESS is the deeper, unsolved problem. `email-redaction`
+is HELD in AUTORUN (stops retry-churn on `main`). Doc gutting is LOW-IMPACT + FULLY REVERSIBLE
+(internal docs file, not code, site unaffected; `c5a739f` holds the complete content —
+`git checkout c5a739f -- docs/EMAIL-REDACTION-PATTERN-2026-06-23.md` restores it). NEXT: (1)
+restore the doc; (2) investigate the executor conflict-resolution-deletes-content defect —
+this outranks the "amortized auto-complete-cherry-pick" idea, which would not have caught it.
+
+## ✅ 2026-07-02 daemon restart done — all staged engine fixes now LIVE (daemon pid 45164)
+
+Killed the orphaned-era daemon (35508); supervisor brought up 45164 with new code. NOW ACTIVE
+(were staged-not-hot): visual-QC static-serve capture (`c461d98`+`933926a`), daemon crash
+instrumentation + outcome-handler safety net (`baf4ed9`+`43aba2a`), and exec-diag
+(`56a79bd` — PROVEN live: `email-redaction` step 7 now shows `msg=Command failed: pwsh.exe ...
+Select-String ...` instead of the empty error it always was). supervisor.log showed the daemon
+died 7× on 2026-07-01 with bare "code 1/-1"; the now-active crash handler will write the next
+internal crash's stack to `_logs/daemon-crash.log`. Mission-text fixes validated: bookmark-S1's
+3 split-degradations (steps 1-3) fixed → it now clears step 1 and reaches verify (was
+RECURRING-HALT at step 1).
+
 ## 15-MIN CONDUCTOR BEAT (2026-07-01T~20:25Z) — CORRECTION: the split bug was real and ongoing, not stale cache; fixed + repaired live
 
 **Correcting the section below plainly**: it concluded "not an ongoing bug, a stale
