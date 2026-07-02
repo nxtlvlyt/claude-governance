@@ -158,6 +158,22 @@ export function validateMicroAction(step, i, opts = {}) {
       errs.push(`step ${i}: inline-eval mangle risk — a ${evalM[1].length}-char \`node -e\` payload with nested quotes/HTML self-mangles under PowerShell quoting (pwa-install-banner receipt: "[eval]:1" parse death). Write the script to a scratch file first (command step: Set-Content scratch-witness.mjs '<script>') then run \`node scratch-witness.mjs\` — never a long inline eval.`);
     }
   }
+  // NON-IDEMPOTENT ABSENCE-PREFLIGHT FLOOR (code-repo only, 2026-07-02; 2 confirmed members
+  // hand-closed this session): a step-1 preflight of the shape `if (Test-Path <deliverable>) { exit 1 }`
+  // FAILS FOREVER once the mission's own work has landed — d1-backup.S1 and plan-day-gpx-export both
+  // false-failed x2 on "already present" AFTER their deliverables were integrated, burning attempts
+  // and inflating unresolvedFAILED. An absence-assert on what the mission itself DELIVERS is only
+  // valid if it also branches on the already-integrated case (e.g. `Write-Output ALREADY_INTEGRATED`
+  // / merge-base check) instead of a bare exit 1. Soft (repair-loop), like the sibling floors.
+  if (opts.codeRepo && typeof step.validation_command === 'string' && (step.step_index === 1 || /preflight|must be absent|not.*already|confirm none/i.test(String(step.description || '')))) {
+    const cmd = step.validation_command;
+    const absenceExit = /if\s*\(\s*\(?\s*Test-Path\b[^)]*\)+\s*(?:-or\s*\(?\s*Test-Path\b[^)]*\)+\s*)*\)?\s*\{\s*exit\s+1\s*\}/i.test(cmd)
+      || /Write-Error\s+["']already present["']/i.test(cmd);
+    const idempotentHandling = /ALREADY_INTEGRATED|merge-base\s+--is-ancestor|already.?correct|patch-id/i.test(cmd);
+    if (absenceExit && !idempotentHandling) {
+      errs.push(`step ${i}: non-idempotent absence-preflight ('${cmd.slice(0, 70)}') — \`if (Test-Path <deliverable>) { exit 1 }\` FAILS FOREVER once this mission's own work lands (d1-backup.S1 + plan-day-gpx-export receipts: both false-failed x2 on "already present" after successful integration). Make it idempotent: branch on the already-integrated case (git merge-base --is-ancestor <src> HEAD && Write-Output ALREADY_INTEGRATED) instead of a bare exit 1 on existence.`);
+    }
+  }
   // CHERRY-PICK COMPLETION FLOOR (code-repo only, cron-dispatcher.S1 + trip-diary + sentry receipts
   // 2026-07-02): `git cherry-pick <sha>` whose conflicts git AUTO-resolves EXITS NON-ZERO and leaves the
   // worktree mid-pick ("all conflicts fixed: run --continue"). A validation_command that runs a bare pick
@@ -676,6 +692,18 @@ Context: Node + TypeScript project; DB schema in prisma/schema.prisma; tests run
     ck(!validateMicroAction(crossClause, 1, { codeRepo: true }).some((e) => e.includes('exact line-count')), 'FALSE-FLAG: -ne 200 in an UNRELATED clause + .Count -gt elsewhere -> NOT flagged (adjacency required)');
     const dateToken = { ...base, validation_command: "if (-not (git log --oneline -5 | Select-String '20260702' -Quiet)) { exit 1 }" };
     ck(!validateMicroAction(dateToken, 1, { codeRepo: true }).some((e) => e.includes('SHA-in-log-window')), 'FALSE-FLAG: all-digit token (a DATE, not a sha) in a log grep -> NOT flagged (letter required)');
+  }
+
+  // NON-IDEMPOTENT ABSENCE-PREFLIGHT gate (d1-backup.S1 + plan-day-gpx-export receipts 2026-07-02)
+  {
+    const base = { step_index: 1, description: 'Preflight: confirm none of the ALLOW-FILES already exist', action_type: 'verify', target_files: [], context_dependencies: [] };
+    const bare = { ...base, validation_command: 'if ((Test-Path workers/d1-backup/index.js) -or (Test-Path wrangler.d1-backup.toml)) { exit 1 } else { git rev-parse HEAD }' };
+    ck(validateMicroAction(bare, 1, { codeRepo: true }).some((e) => e.includes('non-idempotent absence-preflight')), 'PREFLIGHT: bare Test-Path->exit-1 on own deliverables -> REJECTED (fails forever once landed)');
+    const idem = { ...base, validation_command: 'git merge-base --is-ancestor 634abd5 HEAD; if ($LASTEXITCODE -eq 0) { Write-Output ALREADY_INTEGRATED } elseif ((Test-Path workers/d1-backup/index.js)) { exit 1 } else { git rev-parse HEAD }' };
+    ck(!validateMicroAction(idem, 1, { codeRepo: true }).some((e) => e.includes('non-idempotent absence-preflight')), 'PREFLIGHT: idempotent (ALREADY_INTEGRATED branch) -> allowed');
+    const laterStep = { ...bare, step_index: 4, description: 'verify the doc landed' };
+    ck(!validateMicroAction(laterStep, 4, { codeRepo: true }).some((e) => e.includes('non-idempotent absence-preflight')), 'PREFLIGHT: gate scoped to step-1/preflight-described steps only');
+    ck(!validateMicroAction(bare, 1, {}).some((e) => e.includes('non-idempotent absence-preflight')), 'PREFLIGHT: non-code-repo -> gate does not fire');
   }
 
   // INLINE-EVAL MANGLE gate (pwa-install-banner/operators-html/oracle-ingest-v4 receipts 2026-07-02)
