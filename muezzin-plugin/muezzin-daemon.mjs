@@ -30,6 +30,8 @@ import { lintMission } from './mission_lint.mjs';
 import { parseMissionClass } from './mission_class.mjs';
 import { witnessArtifact, buildAfterContext } from './self_witness.mjs';
 import { heal as conductCycleHeal } from './conduct-cycle.mjs';
+import { searxngPreflight } from './searxng_preflight.mjs';
+import { execSync } from 'child_process';
 import path from 'path';
 import os from 'os';
 import { fileURLToPath } from 'url';
@@ -63,6 +65,34 @@ const MAX_LANES = Number(process.env.MUEZZIN_MAX_LANES) || 2;    // default 2 (o
                         // concurrency.
 
 mkdirSync(LOGDIR, { recursive: true });
+
+// ---- searchReadinessGate (M-READINESS-GATE.1) --------------------------------------
+// A mission whose text REQUIRES search must NOT burn an attempt firing into a blind
+// SearXNG backend (the "SOTA search broken -> every phase-1 failed" class). This gate
+// runs BEFORE attempts++ in fire(): no-search-requirement -> fire; backend live -> fire;
+// backend blind -> heal once (docker restart searxng) -> re-probe -> fire if live else
+// HOLD (line stays pending, NO attempt spent); 3 consecutive holds -> BLOCK with receipt.
+// PURE + fully injectable (probe/heal/holds/key) so it unit-tests with zero network and
+// zero daemon. It NEVER throws — any internal error resolves to 'hold' (fail-soft: a gate
+// bug must never stall the dispatch loop, the exact risk the audit flagged for async fire).
+export async function searchReadinessGate(missionText, { probe, heal, holds = new Map(), key = 'default', maxHolds = 3 } = {}) {
+  try {
+    if (!/REQUIRES?:[^\n]*\bsearch\b/i.test(String(missionText || ''))) return { action: 'fire', reason: 'no search requirement' };
+    const usable = (v) => v && v.verdict === 'OK' && (v.results || 0) > 0;
+    let v = await probe();
+    if (usable(v)) { holds.delete(key); return { action: 'fire', reason: `search live (${v.results} results)` }; }
+    // blind: attempt one heal, then re-probe
+    if (typeof heal === 'function') { try { await heal(); } catch { /* heal best-effort */ } }
+    v = await probe();
+    if (usable(v)) { holds.delete(key); return { action: 'fire', reason: `search live after heal (${v.results} results)` }; }
+    const n = (holds.get(key) || 0) + 1; holds.set(key, n);
+    if (n >= maxHolds) { holds.delete(key); return { action: 'block', reason: `search blind: probed + healed + re-checked ${n}x, backend still down (${v?.reason || 'no verdict'})` }; }
+    return { action: 'hold', reason: `search blind (hold ${n}/${maxHolds}): ${v?.reason || 'backend down'}` };
+  } catch (e) {
+    return { action: 'hold', reason: `readiness-gate internal error (fail-soft to hold): ${e.message}` };
+  }
+}
+
 const evt = (m) => { const line = `${new Date().toISOString()} ${m}`; try { appendFileSync(EVENTS, line + '\n'); } catch { } console.log(line); };
 
 // OPERATOR PUSH (structural fix 2026-06-10: two conductor instances promised chat-beat
@@ -705,6 +735,7 @@ async function mainLoop() {
   // NO push on daemon UP (operator 2026-06-10: lifecycle pushes are noise — restarts
   // spammed his phone with zero information). Pushes are OUTCOME-ONLY: DONE/FAILED.
   const attempts = new Map();
+  const searchHolds = new Map(); // raw line -> consecutive readiness-gate hold count (M-READINESS-GATE.1)
   const lanes = new Map(); // raw line -> promise
   // AUTO-HEAL CADENCE (2026-07-01 receipt): conduct-cycle.mjs's heal() -- STUCK-TASK kill,
   // REQUEUE-ON-FIX-LANDED, CHAIN-ON-DONE, RESTART-DAEMON -- was fully correct but only ever
@@ -725,7 +756,7 @@ async function mainLoop() {
   // shape the detector was always designed to consume.
   const laneStartTs = new Map(); // raw line -> ISO start timestamp
 
-  const fire = (raw) => {
+  const fire = async (raw) => {
     const missionFile = path.resolve(HERE, raw);
     if (!existsSync(missionFile)) { evt(`FAILED (missing file): ${raw}`); setMark(raw, 'FAILED'); return; }
     // MIQAT (2026-06-11, operator: "how do we catch things like this"): a mission with a
@@ -741,6 +772,21 @@ async function mainLoop() {
       notify(`⛔ MIQAT refused ${path.basename(raw).replace(/\.mission\.txt$/, '')}\n${lint.problems.map((p) => p.rule).join(', ')} — fix the mission text, zero cycles burned\n${nextUpLine()}\n${scoreLine()}`);
       return;
     }
+    // READINESS GATE (M-READINESS-GATE.1): a search-REQUIRES mission must not burn an
+    // attempt firing into a blind backend. Runs BEFORE attempts++. Fail-soft (the gate
+    // never throws; a 'hold' leaves the line pending with NO attempt spent, re-checked
+    // next poll). Only acts on missions that declare a search requirement.
+    try {
+      const gate = await searchReadinessGate(readFileSync(missionFile, 'utf8'), {
+        probe: () => searxngPreflight(),
+        heal: () => { try { execSync('docker restart searxng', { stdio: ['ignore', 'ignore', 'pipe'], timeout: 30000 }); } catch { /* heal best-effort */ } },
+        holds: searchHolds,
+        key: raw,
+      });
+      if (gate.action === 'hold') { evt(`HELD (search not ready): ${raw} — ${gate.reason}`); return; }   // NO attempts++, line stays pending
+      if (gate.action === 'block') { evt(`BLOCKED (search backend down x3): ${raw} — ${gate.reason}`); setMark(raw, 'FAILED'); notify(`⛔ BLOCKED ${path.basename(raw).replace(/\.mission\.txt$/, '')}\nsearch backend down after heal+recheck — ${gate.reason}\n${nextUpLine()}\n${scoreLine()}`); return; }
+      // gate.action === 'fire' -> fall through unchanged
+    } catch (e) { evt(`readiness-gate error (continuing to fire, fail-open): ${raw} — ${e.message}`); }
     const n = (attempts.get(raw) || 0) + 1; attempts.set(raw, n);
     setMark(raw, 'RUNNING');
     evt(`firing lane ${lanes.size + 1}/${MAX_LANES} (attempt ${n}/${MAX_ATTEMPTS}): ${raw}`);
@@ -881,7 +927,7 @@ async function mainLoop() {
       for (const { raw } of pending) {
         if (lanes.size >= MAX_LANES) break;
         if (lanes.has(raw)) continue;
-        fire(raw);
+        await fire(raw);   // await: fire only blocks on the pre-flight readiness gate; the mission itself still launches non-blocking into lanes (M-READINESS-GATE.1)
       }
       // AUTO-QUEUE FROM SUBSTRATE (queue-flow-1, Half B): manual append fired above; only
       // when it leaves a lane free AND no ready pending line remains to fill it do we
