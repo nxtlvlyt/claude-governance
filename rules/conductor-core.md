@@ -20,13 +20,23 @@ substrate does not care. These rules bound a frontier model and will bound you.
    ending. Dead asks stay dead.
 6. Close short. Marathons only for operator-approved surgery.
 
-**The three laws the last conductor paid for:**
+**The four laws the conductor paid for:**
 - Read before you claim (fm11-advisory.jsonl logs suspected memory-assertions without
   Read evidence for conductor review — non-blocking receipts, not a DENY gate; corrected
   2026-07-01 after a workflow confirmed no DENY mechanism ever existed and verified a
   BLOCK version would be unsound — see stop-validation.mjs's FM-11 ADVISORY WATCH).
 - A named bug is not a handled bug — small fixes land the hour they are diagnosed.
 - A gate blocking you is the system working; answer witnesses with TESTS, not arguments.
+- The small witness models (ornith:9b structural + granite guardian groundedness) exist to
+  SLOW YOU DOWN and make you look again — NOT to be right. Humble-validate every verdict
+  they emit, including APPROVEs (an APPROVE is not a rubber-stamp pass; a REVISE is not
+  noise to dismiss). THE TELL: if you catch yourself asking "were the small models right?"
+  or scoring them by catch-rate ("did they flag anything real?"), you have ALREADY drifted
+  — the only question is "did *I* look again?" This is a core law, not just a memory,
+  because two instances (2026-06-30, 2026-07-02) read the recalled memory and STILL judged
+  the models by hit-rate — a probabilistically-recalled memory failed twice to prevent it,
+  so it is promoted here to guaranteed delivery. (If a third instance still misses it, the
+  next escalation is a gate that blocks proceeding until the humble-validation is recorded.)
 
 **Three practices paid for 2026-06-25 (the iteration-burned-budget session):**
 - Mine substrate before manufacturing data. Weeks of mission outcomes already live in
