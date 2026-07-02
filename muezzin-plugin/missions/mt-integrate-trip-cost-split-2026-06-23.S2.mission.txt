@@ -1,0 +1,24 @@
+MISSION-ID: mt-integrate-trip-cost-split-2026-06-23.S2
+MISSION-CLASS: code-repo
+PARENT: mt-integrate-trip-cost-split-2026-06-23
+TARTIB-INDEX: 2 of 2
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - d1/migrate-trip-cost-split-2026-06-23.sql
+  - trip-cost.html
+VISUAL-QC-REQUIRED
+REQUIRES: mt-integrate-trip-cost-split-2026-06-23.S1 (tartib — this sub-mission may not start until mt-integrate-trip-cost-split-2026-06-23.S1's receipt exists)
+STEPS: 5
+
+PARENT MAQSAD: Commit 5adf50a1942f490854ee34405d13aea1192300d6 is cherry-picked or
+
+Maqsad: sub-mission 2 of 2 — Verify the D1 migration file defines both the trips and trip_contributions tables named in the mission's Done criteria. through Headless-render trip-cost.html from PREVIEW-BASE-URL, asserting the page loads with no script (pageerror) failures and that js/trip-cost-split.js is actually referenced/loaded by the served page — the visual-witness receipt VISUAL-QC-REQUIRED demands.
+
+Steps:
+  9. Verify the D1 migration file defines both the trips and trip_contributions tables named in the mission's Done criteria. [verify] d1/migrate-trip-cost-split-2026-06-23.sql
+  10. Verify trip-cost.html references mountCostSplit, confirming the page actually wires up the client-side mount rather than shipping a bare shell. [verify] trip-cost.html
+  11. Confirm the target repo's working tree is clean with respect to all six ALLOW-FILES paths after the amend, proving nothing was left staged or modified. [command] 
+  12. Start a local static/functions preview server bound to PREVIEW-BASE-URL's port (localhost:8788) so trip-cost.html can actually be rendered; fail with a distinguishable non-zero exit (NO_PREVIEW_BASE_URL condition) if nothing answers. [command] 
+  13. Headless-render trip-cost.html from PREVIEW-BASE-URL, asserting the page loads with no script (pageerror) failures and that js/trip-cost-split.js is actually referenced/loaded by the served page — the visual-witness receipt VISUAL-QC-REQUIRED demands. [verify] 
+
+Done means: d1/migrate-trip-cost-split-2026-06-23.sql, trip-cost.html exist/are updated as specified — verify by headless-browser render, not by reading the code

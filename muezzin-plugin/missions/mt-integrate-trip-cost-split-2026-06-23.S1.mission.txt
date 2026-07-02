@@ -1,0 +1,29 @@
+MISSION-ID: mt-integrate-trip-cost-split-2026-06-23.S1
+MISSION-CLASS: code-repo
+PARENT: mt-integrate-trip-cost-split-2026-06-23
+TARTIB-INDEX: 1 of 2
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - functions/api/trip-cost/[code].js
+  - functions/api/trip-cost/[code]/settle.js
+  - js/trip-cost-split.js
+  - css/trip-cost-split.css
+VISUAL-QC-REQUIRED
+REQUIRES: none (first in tartib order)
+STEPS: 8
+
+PARENT MAQSAD: Commit 5adf50a1942f490854ee34405d13aea1192300d6 is cherry-picked or
+
+Maqsad: sub-mission 1 of 2 — Record the actual live branch and HEAD SHA in the target repo, and confirm none of the six ALLOW-FILES paths already exist on disk before touching anything. through Verify css/trip-cost-split.css landed with real content (non-trivial size), consistent with the 272-line stylesheet the diff introduced.
+
+Steps:
+  1. Record the actual live branch and HEAD SHA in the target repo, and confirm none of the six ALLOW-FILES paths already exist on disk before touching anything. [command] 
+  2. Re-verify live (not memorized) that commit 5adf50a1942f490854ee34405d13aea1192300d6 is reachable in this repo's object store via the shared linked-worktree store, with no fetch/remote-add needed. [command] 
+  3. Cherry-pick commit 5adf50a1942f490854ee34405d13aea1192300d6 onto the live HEAD recorded in step 1. All six target paths are confirmed absent so this is expected to apply with zero textual conflicts; if git reports a conflict this step fails loudly (non-zero) rather than silently resolving one side over the other. [command] 
+  4. Reword the integrated commit's message so it names both the source feature and its origin SHA, satisfying the done-criterion that git log identify the integration's provenance. [command] 
+  5. Verify functions/api/trip-cost/[code].js is syntactically valid and contains the self-healing CREATE TABLE IF NOT EXISTS pattern described in the mission's Niyyah. [command] functions/api/trip-cost/[code].js
+  6. Verify functions/api/trip-cost/[code]/settle.js is syntactically valid and contains substantive content (not a stub), consistent with the 254-line settle endpoint the diff introduced. [command] functions/api/trip-cost/[code]/settle.js
+  7. Verify js/trip-cost-split.js is syntactically valid and exports/defines mountCostSplit, the mount function trip-cost.html is expected to invoke. [command] js/trip-cost-split.js
+  8. Verify css/trip-cost-split.css landed with real content (non-trivial size), consistent with the 272-line stylesheet the diff introduced. [verify] css/trip-cost-split.css
+
+Done means: functions/api/trip-cost/[code].js, functions/api/trip-cost/[code]/settle.js, js/trip-cost-split.js, css/trip-cost-split.css exist/are updated as specified — verify by headless-browser render, not by reading the code
