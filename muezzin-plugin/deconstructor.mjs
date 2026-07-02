@@ -405,8 +405,15 @@ export async function deconstruct(mission, { model = 'kimi-k2.6', today = '2026-
 // integrator cannot emit a valid queue, deconstructPanel falls back to the single-architect
 // deconstruct() so the engine never hard-breaks. Disable the panel entirely with the
 // `panel:false` opt (or MUEZZIN_PANEL=off) — then deconstructPanel IS deconstruct().
-export const PANEL_ARCHITECTS = ['kimi-k2.6', 'deepseek-v4-pro', 'minimax-m3'];
-export const PANEL_INTEGRATOR_MODEL = 'nemotron-3-ultra';
+// ROSTER REPAIR 2026-07-02 (dispatch-FAILED receipts: kimi-k2.6 404, minimax-m3 404,
+// nemotron-3-ultra 404 — 2 of 3 architects + the integrator were DEAD models; the whole
+// plan phase ran degraded, root of the empty-emission plan failures). Version maintenance
+// within ruled labs: kimi-k2.6 -> kimi-k2.7-code:latest (Moonshot), nemotron-3-ultra ->
+// nemotron-3-super:latest (NVIDIA). LAB SUBSTITUTION (minimax lab gone from server
+// entirely): minimax-m3 -> qwen3.6:35b (Alibaba, distinct from A/B labs) — receipted in
+// QUEUE.md for operator ratification per the seat-plan ruling.
+export const PANEL_ARCHITECTS = ['kimi-k2.7-code:latest', 'deepseek-v4-pro', 'qwen3.6:35b'];
+export const PANEL_INTEGRATOR_MODEL = 'nemotron-3-super:latest';
 
 // --------------------------------------------------------------- PER-MISSION ARCHITECT ROUTING
 // chooseArchitectRoute(missionText, opts) -> 'single' | 'panel'. The PLAN-PHASE COST FIX

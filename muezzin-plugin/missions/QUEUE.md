@@ -698,3 +698,11 @@ removes Tier 2's NAS dependency — after it, the public site + intake stop need
 - NOT lifted by this: engine-gap-blocked missions (empty-emission gremlin / verdict-calibration /
   installer-correctness) stay BLOCKED pending the engine batch — un-holding them = blind relaunch.
 - MAX_LANES stays 1 (budget-conservative) until operator restores 2 by his word.
+
+## 2026-07-02 SEAT-PLAN DEVIATION RECEIPT (operator ratification requested)
+Panel architect seat C: minimax-m3 is a dead 404 and NO minimax model exists on the server.
+Substituted qwen3.6:35b (Alibaba — lab-distinct from seats A/B) to restore the 3-blind-architect
+panel per SEAT-PLAN-OPERATOR-ORIGINAL intent. Version maintenance (same labs, not deviations):
+kimi-k2.6 -> kimi-k2.7-code:latest; integrator nemotron-3-ultra -> nemotron-3-super:latest.
+Evidence: dispatch-FAILED heartbeat receipts 19:24-19:28 + /api/show probes. Ratify or name the
+replacement lab and the conductor will re-seat.
