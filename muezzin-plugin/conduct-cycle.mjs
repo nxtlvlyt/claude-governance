@@ -876,9 +876,19 @@ function main() {
       try { const res = await fetch('https://muddytires.ca/map', { headers: { 'cache-control': 'no-cache' } }); live = await res.text(); } catch (e) { console.error(`--record-deploy REFUSED: cannot fetch live /map (${e.message}) — deploy state unverifiable, fail-closed`); process.exit(2); }
       const norm = (s) => s.replace(/\r\n/g, '\n').trim();
       if (norm(live) !== norm(committed)) { console.error(`--record-deploy REFUSED: live /map does NOT match HEAD's map.html (live ${live.length}B vs committed ${committed.length}B) — the deploy either did not happen, hit a different tree, or is still propagating. Not stamping.`); process.exit(1); }
+      // L5 OUTCOME WITNESS (judge system-ruling, 2026-07-02): byte-match proves the CODE shipped;
+      // the e2e verifier proves users SEE REAL DATA (fetches the served page + real production
+      // pois.json, renders through the served logic, refuses generic fallbacks). When the target
+      // repo carries the verifier, a deploy that fails it is NOT recordable as deployed-done.
+      let e2e = { ran: false };
+      const vf = path.join(repo, 'scripts', 'verify-popups-e2e.mjs');
+      if (existsSync(vf)) {
+        try { execSync(`node "${vf}"`, { cwd: repo, stdio: ['ignore', 'pipe', 'pipe'], timeout: 180000 }); e2e = { ran: true, ok: true }; }
+        catch (err) { console.error(`--record-deploy REFUSED: code is live (byte-match OK) but the E2E OUTCOME VERIFIER FAILED — users are not seeing real data. Fix the outcome, not the marker.\n${String(err.stdout || err.message).slice(0, 400)}`); process.exit(1); }
+      }
       const mk = path.join(HERE, 'missions', '_logs', 'last-deployed.json');
-      writeFileSync(mk, JSON.stringify({ sha, ts: new Date().toISOString(), repo, witness: 'live /map byte-matches HEAD:map.html (clean tree)', note: 'wrangler pages deploy --project-name=muddytires' }, null, 2));
-      console.log(`deploy marker stamped (WITNESSED): ${sha.slice(0, 8)} — live /map == HEAD:map.html, tree clean`);
+      writeFileSync(mk, JSON.stringify({ sha, ts: new Date().toISOString(), repo, witness: `live /map byte-matches HEAD:map.html (clean tree)${e2e.ran ? ' + e2e outcome verifier PASS' : ''}`, e2e, note: 'wrangler pages deploy --project-name=muddytires' }, null, 2));
+      console.log(`deploy marker stamped (WITNESSED): ${sha.slice(0, 8)} — live /map == HEAD:map.html, tree clean${e2e.ran ? ', e2e outcome PASS' : ''}`);
     })();
     return;
   }
