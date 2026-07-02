@@ -547,6 +547,14 @@ function shouldHaltMission(n, maxAttempts, failedStep) {
 // landed judgment). "REQUIRES: none" and prose preconditions (search/credentials) pass.
 export function queuedDepsHold(missionText, missionPath, autorunText, resultOkFn) {
   const txt = String(missionText || '');
+  // SELF-RESOLVED CHECK (2026-07-02, d1-migrations resurrection loop): a conductor-RESOLVED
+  // mission must never refire — but graceful reloads interrupt in-flight attempts, and the
+  // boot-time RUNNING->pending revert resurrected a mission whose PENDING line was already
+  // resolved. If AUTORUN carries a RESOLVED comment naming THIS mission, it is retired.
+  const selfEsc = String(missionPath || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  if (new RegExp(`^#.*RESOLVED.*${selfEsc}`, 'm').test(autorunText)) {
+    return { hold: true, resolvedSelf: true, dep: missionPath, why: 'mission itself is conductor-RESOLVED in AUTORUN — retired from firing (work landed)' };
+  }
   const deps = new Set();
   // (a) explicit mission-file list
   const reqLine = (txt.match(/^REQUIRES:\s*(.+)$/im) || [])[1] || '';
@@ -1358,6 +1366,8 @@ if (process.argv.includes('--selftest')) {
     ck(queuedDepsHold('REQUIRES: missions/a.S1.mission.txt\n', 'missions/z.mission.txt', ar, resOk).hold === false, 'tartib-gate: explicit REQUIRES with passing dep fires');
     ck(queuedDepsHold('REQUIRES: none\n', 'missions/z.mission.txt', ar, resOk).hold === false, 'tartib-gate: REQUIRES none fires');
     ck(queuedDepsHold('REQUIRES: search-grounded seats\n', 'missions/z.mission.txt', ar, resOk).hold === false, 'tartib-gate: prose precondition does not mechanically hold');
+    const selfRes = queuedDepsHold('MISSION-ID: x', 'missions/c.S1.mission.txt', ar, resOk);
+    ck(selfRes.hold === true && selfRes.resolvedSelf === true, 'tartib-gate: a mission ITSELF conductor-RESOLVED never refires (the reload-resurrection loop)');
   }
 
   rmSync(tmp, { recursive: true, force: true });
