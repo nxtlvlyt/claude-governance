@@ -246,6 +246,19 @@ export async function buildIntegratorBriefing(mission, steps, artifacts, execRec
   }
 }
 
+// REACHABILITY WITNESS (2026-07-02, QUALITY-STANDARD bar 5 / dev-cli class: js/dev-cli.js
+// shipped, verdict-passed, referenced by ZERO pages — unreachable by any user). A browser
+// asset (js/ or css/ top-level) produced by a mission must be referenced by at least one
+// .html page in the repo. PURE + exported for selftest; engine-observed (the panel judges
+// the finding, it cannot self-certify around it).
+export function unreachableBrowserAssets(cwd, files) {
+  const assets = (files || []).map((f) => String(f).replace(/\\/g, '/')).filter((f) => /^(js|css)\/[^/]+\.(js|css)$/.test(f));
+  if (!assets.length) return [];
+  let html = '';
+  try { for (const h of readdirSync(cwd).filter((n) => n.endsWith('.html'))) { try { html += readFileSync(path.join(cwd, h), 'utf8'); } catch { /* skip unreadable page */ } } } catch { return []; }  // no repo dir readable -> no claim (fail-open here; the panel still sees artifacts)
+  return assets.filter((a) => !html.includes(a.split('/').pop()));
+}
+
 export async function defaultVerdictPhase(mission, cwd, steps, opts = {}) {
   // VISUAL WITNESS (advisory only — NOT a Phase-3 voting seat; see visual_witness.mjs's own
   // pending-sign-off note on MUEZZIN-SEAT-PLAN-LOCKED.md. Gated behind BOTH a VISUAL-QC-REQUIRED
@@ -294,8 +307,15 @@ export async function defaultVerdictPhase(mission, cwd, steps, opts = {}) {
     // a HOLLOW witness, and the artifact does NOT satisfy the mission regardless of the green.
     ? `ENGINE-EXEC RECEIPT BODIES (each command/verify step ran via the muezzin and exited 0 — but exit-0 only proves the command RAN, NOT that the real outcome occurred; wrangler/curl/psql exit 0 even on a ZERO-ROW query. JUDGE THESE OUTPUTS: a step that CLAIMS a remote table/row/response but whose output is "True"/0/empty/"num_tables": 0 is a HOLLOW witness — the deed did NOT happen and the mission is NOT satisfied, the green notwithstanding):\n${execLines.join('\n')}\n\n`
     : '';
+  // REACHABILITY WITNESS block (engine-observed; QUALITY-STANDARD bar 5): unreferenced browser
+  // assets are named to the panel — an unreachable deliverable is not done, whatever its quality.
+  const unreachable = (opts.reachabilityFn || unreachableBrowserAssets)(cwd, files);
+  const reachabilityBlock = unreachable.length
+    ? `REACHABILITY WITNESS (engine-observed, dev-cli class): these BROWSER assets are referenced by ZERO .html pages in the repo — shipped but UNREACHABLE by any user. An unreachable deliverable does NOT satisfy the mission regardless of content quality; verdict must REJECT or REVISE naming the missing page wiring: ${unreachable.join(', ')}\n\n`
+    : '';
+  const execReceiptsBlockFinal = execReceiptsBlock + reachabilityBlock;
 
-  const integratorBriefing = await buildIntegratorBriefing(mission, steps, artifacts, execReceiptsBlock, opts);
+  const integratorBriefing = await buildIntegratorBriefing(mission, steps, artifacts, execReceiptsBlockFinal, opts);
 
   const framing =
     `MISSION (the contract these artifacts must satisfy — judge against its Maqsad and its "Done means" clause):\n${mission}\n\n` +
@@ -309,7 +329,7 @@ export async function defaultVerdictPhase(mission, cwd, steps, opts = {}) {
     `- Every artifact below EXISTS on disk in the mission sandbox, passed its validation command, passed the integrity guard, and is committed (sha receipts attached).\n` +
     `- You are a CONTENT judge. File-existence, file-reachability, and your own tooling/faith-file provisioning are OUT OF SCOPE as findings.\n\n` +
     `ARTIFACTS PRODUCED (full content embedded below — judge THIS text):\n\n${artifacts}\n\n` +
-    execReceiptsBlock +
+    execReceiptsBlockFinal +
     `Judge: do the artifacts genuinely satisfy the mission's done-means? Placeholder text, missing required ` +
     `sections, uncited claims, or content that answers a DIFFERENT question than the mission asked are findings. ` +
     `APPROVE only what you would defend.\n\n` +
@@ -2079,15 +2099,15 @@ if (process.argv[1]?.endsWith('orchestrate.mjs')) {
     // "absent mode" = an INVALID sentinel env -> readMode null (deterministic; not polluted by
     // the machine's live route file, which legitimately carries a real mode).
     ck(await witnessModelUnder('__none__') === 'nemotron-3-super', 'SEATING MODE absent: witness = today-default nemotron-3-super (Opus-first via map — safe default)');
-    ck(await witnessModelUnder('anthropic-heavy') === 'nemotron-3-ultra', 'SEATING MODE anthropic-heavy: witness stays strong (nemotron-3-ultra, 2026-06-22 cloud/local split — was nemotron-3-super)');
+    ck(await witnessModelUnder('anthropic-heavy') === 'laguna-xs.2:q4_K_M', 'SEATING MODE anthropic-heavy: witness is LOCAL laguna (NO-CLOUD ruling 2026-07-02 — nemotron-3-ultra was a cloud seat)');
     ck(await witnessModelUnder('local-heavy') === 'laguna-xs.2:q4_K_M', 'SEATING MODE local-heavy: witness is LOCAL (laguna-xs.2:q4_K_M, operator 2026-06-26 — was qwen3.6:27b)');
 
     // verdict panel seats: anthropic-heavy keeps them OPEN-weight (ollama CHECKS the Claude work);
     // no mode -> today's deepseek/minimax. (the exact rule defaultVerdictPhase applies.)
     ck(await withMode('__none__', () => ps('validator', 'deepseek-v4-pro')) === 'deepseek-v4-pro' && await withMode('__none__', () => ps('auditor', 'minimax-m3')) === 'minimax-m3',
       'SEATING MODE absent: verdict panel = today-default deepseek-v4-pro + minimax-m3 (safe default)');
-    ck(await withMode('anthropic-heavy', () => ps('validator', 'deepseek-v4-pro')) === 'deepseek-v4-pro' && await withMode('anthropic-heavy', () => ps('auditor', 'minimax-m3')) === 'minimax-m3',
-      'SEATING MODE anthropic-heavy: verdict panel stays OPEN-weight deepseek+minimax (ollama cloud CHECKS the Claude work — diversity is the point)');
+    ck(await withMode('anthropic-heavy', () => ps('validator', 'qwen3.6:27b')) === 'qwen3.6:27b' && await withMode('anthropic-heavy', () => ps('auditor', 'granite4.1:30b')) === 'granite4.1:30b',
+      'SEATING MODE anthropic-heavy: verdict panel stays OPEN-weight LOCAL qwen+granite (NO-CLOUD ruling 2026-07-02: local models check the Claude work — diversity preserved, cloud banned)');
 
     // LOCAL-ONLY WIRING (2026-06-30): claude-local-hybrid's witness seat object must actually
     // CARRY localOnly:true (proving the wiring reaches the real seat construction site at
@@ -2176,6 +2196,19 @@ if (process.argv[1]?.endsWith('orchestrate.mjs')) {
     const m3 = { consensus: 'APPROVE', dispositions: [] };
     await applyVisualWitness('Maqsad: an ordinary mission with no visual QC opt-in. Done means: y.', dir, m3, { capturePreviewsFn: mockCapture, witnessVisualDiffFn: mockWitnessBlock });
     ck(m3.visualWitness === undefined, 'VISUAL WITNESS: a mission with no VISUAL-QC-REQUIRED header never sets visualWitness at all — zero behavior change for every ordinary mission');
+  }
+
+  // ---- REACHABILITY WITNESS (QUALITY-STANDARD bar 5 / dev-cli class) ----
+  {
+    const rdir = fs.mkdtempSync(path.join(os.tmpdir(), 'reach-'));
+    fs.mkdirSync(path.join(rdir, 'js'), { recursive: true });
+    fs.writeFileSync(path.join(rdir, 'js', 'wired.js'), 'x');
+    fs.writeFileSync(path.join(rdir, 'js', 'orphan.js'), 'x');
+    fs.writeFileSync(path.join(rdir, 'index.html'), '<script src="js/wired.js"></script>');
+    const un = unreachableBrowserAssets(rdir, ['js/wired.js', 'js/orphan.js', 'functions/api/x.js', 'docs/y.md']);
+    ck(un.length === 1 && un[0] === 'js/orphan.js', 'REACHABILITY: orphan browser asset flagged; wired asset + non-browser paths (functions/, docs/) exempt');
+    ck(unreachableBrowserAssets(rdir, ['docs/a.md']).length === 0, 'REACHABILITY: no browser assets -> no findings (zero behavior change for ordinary missions)');
+    fs.rmSync(rdir, { recursive: true, force: true });
   }
 
   fs.rmSync(dir, { recursive: true, force: true });
