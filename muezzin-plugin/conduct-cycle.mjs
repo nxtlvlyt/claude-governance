@@ -276,6 +276,23 @@ export function computeDoneness(base, autorun, {
   const div = gitFn(targetRepo, 'rev-list --count github/main...github/master');
   if (div.ok && /^\d+$/.test(div.out.trim()) && parseInt(div.out.trim(), 10) > 0) blocking.push({ layer: 'L3', mission: '(repo)', reason: `github/main and github/master DIVERGED by ${div.out.trim()} commit(s) — reconcile to one canonical mainline` });
 
+  // ---- L4 DEPLOY-FRESHNESS: landed+pushed is NOT live until deployed (muddytires ships via manual
+  // `wrangler pages deploy`, not git auto-deploy). ROOT FIX 2026-07-02: the roadside_oddity popup fix
+  // (the #1 user complaint) sat landed+pushed but UNDEPLOYED — invisible to users AND to this gate,
+  // which stopped at L3. A last-deployed marker (missions/_logs/last-deployed.json, stamped by
+  // `--record-deploy` right after a real deploy) makes "in repo but not live" a tracked frontier item.
+  // Fail-closed when the marker is missing or its sha is unknown to the repo: unknown deploy state
+  // is not done. This is the mechanical completion of "done = deployed", the twin of the L3 push check.
+  let deployGap = null, deployedSha = null;
+  const mkPath = path.join(base, 'missions', '_logs', 'last-deployed.json');
+  if (existsSync(mkPath)) { try { deployedSha = String(JSON.parse(readText(mkPath)).sha || '').trim() || null; } catch { deployedSha = null; } }
+  if (!deployedSha) blocking.push({ layer: 'L4', mission: '(repo)', reason: 'no last-deployed marker — production freshness UNKNOWN (fail-closed; run --record-deploy after a wrangler deploy)' });
+  else {
+    const rd = gitFn(targetRepo, `rev-list --count ${deployedSha}..HEAD`);
+    if (rd.ok && /^\d+$/.test(rd.out.trim())) { deployGap = parseInt(rd.out.trim(), 10); if (deployGap > 0) blocking.push({ layer: 'L4', mission: '(repo)', reason: `${deployGap} commit(s) landed but NOT deployed to production (last deploy @ ${deployedSha.slice(0, 8)}) — run wrangler pages deploy` }); }
+    else blocking.push({ layer: 'L4', mission: '(repo)', reason: `deploy marker sha ${deployedSha.slice(0, 8)} not found in repo — stale/invalid marker, fail-closed` });
+  }
+
   // ---- L0/L1/L3 DEPTH: each DONE deliverable actually landed in the deployable tree ----
   // patch-id table of HEAD, computed ONCE (a cherry-picked deliverable lands under a NEW sha, so
   // is-ancestor of the source is always false — patch-id is what actually detects landing).
@@ -324,7 +341,7 @@ export function computeDoneness(base, autorun, {
     if (anyDeterminable && !landed) blocking.push({ layer: 'L3', mission: stem, reason: `DONE but deliverable patch [${shas.map((x) => x.slice(0, 7)).join(',')}] not in the deployable tree` });
   }
 
-  const counts = { pending: pending.length, running: running.length, unresolvedFailed: unresolvedFailed.length, dammOwed: owed.length, openIntegration, pushedGap, doneDeliverablesChecked: doneChecked, blocking: blocking.length };
+  const counts = { pending: pending.length, running: running.length, unresolvedFailed: unresolvedFailed.length, dammOwed: owed.length, openIntegration, pushedGap, deployGap, doneDeliverablesChecked: doneChecked, blocking: blocking.length };
   const frontierClean = pending.length === 0 && running.length === 0 && unresolvedFailed.length === 0 && owed.length === 0 && openIntegration === 0;
   const barMet = frontierClean && blocking.length === 0;
   return { ts: new Date(now).toISOString(), barMet, counts, blocking: blocking.slice(0, 60), frontierClean };
@@ -819,6 +836,18 @@ function main() {
     if (!cls) { console.error('usage: --record --class <c> --fix <text> --requeue a,b'); process.exit(2); }
     recordFix(HERE, { cls, fix, requeue });
     console.log(`fix-ledger += {class:'${cls}', requeue:[${requeue.join(', ')}]}`);
+    return;
+  }
+  if (process.argv.includes('--record-deploy')) {
+    // Stamp the deploy marker AFTER a real `wrangler pages deploy` succeeds. Records the targetRepo
+    // HEAD as the sha now live in production, so computeDoneness L4 can measure the deploy gap.
+    const repo = MT_REPO_DEFAULT;
+    let sha = '';
+    try { sha = execSync(`git -C "${repo}" rev-parse HEAD`, { stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim(); } catch { /* leave empty -> visible failure */ }
+    if (!/^[0-9a-f]{40}$/.test(sha)) { console.error(`--record-deploy: could not read ${repo} HEAD (got "${sha}")`); process.exit(2); }
+    const mk = path.join(HERE, 'missions', '_logs', 'last-deployed.json');
+    writeFileSync(mk, JSON.stringify({ sha, ts: new Date().toISOString(), repo, note: 'wrangler pages deploy --project-name=muddytires' }, null, 2));
+    console.log(`deploy marker stamped: ${sha.slice(0, 8)} -> ${mk}`);
     return;
   }
   if (process.argv.includes('--heal')) {
