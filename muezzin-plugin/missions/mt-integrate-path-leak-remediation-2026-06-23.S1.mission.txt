@@ -1,0 +1,27 @@
+MISSION-ID: MT-INTEGRATE-PATH-LEAK-REMEDIATION-2026-06-23.S1
+MISSION-CLASS: code-repo
+PARENT: MT-INTEGRATE-PATH-LEAK-REMEDIATION-2026-06-23
+TARTIB-INDEX: 1 of 2
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - scripts/_archive/_patch-site-search-tag-2026-06-23.mjs
+  - _patch-site-search-tag.mjs
+  - scripts/_archive/README.md
+REQUIRES: none (first in tartib order)
+STEPS: 8
+
+PARENT MAQSAD: Bring commit 5f19dc00fe16cdbe94a0405c1089ee50259bcaf4 onto the
+
+Maqsad: sub-mission 1 of 2 — Checkout TARGET-BRANCH main in the target repo at its current tip so all following steps land on the real integration target, not an ephemeral test branch left by another mission. through Confirm scripts/_archive/README.md exists on disk with non-trivial content describing the archive convention.
+
+Steps:
+  1. Checkout TARGET-BRANCH main in the target repo at its current tip so all following steps land on the real integration target, not an ephemeral test branch left by another mission. [command] 
+  2. Verify commit 375e40b0db479ede0e14407e6eb416e85936d305 (the QC-pipeline doc) is already an ancestor of main by ancestry, confirming it must not be re-applied as a duplicate. [command] 
+  3. Verify commit 5f19dc00fe16cdbe94a0405c1089ee50259bcaf4 (the archive/scrub feature) is NOT yet an ancestor of main, confirming it is the one outstanding commit this mission must land. [command] 
+  4. Cherry-pick 5f19dc0 onto main; if git leaves any conflicted hunk it auto-merges cleanly (confirmed by this mission's own dry run), stage only the three ALLOW-FILES paths by explicit name (never git add -A/.) and finalize the pick in the same command so a resolved-but-uncommitted pick never falls through as a false failure. [command] 
+  5. Syntax-check the archived script, the only .js/.mjs file either commit touches, confirming it parses cleanly after landing. [command] scripts/_archive/_patch-site-search-tag-2026-06-23.mjs
+  6. Confirm the root-level _patch-site-search-tag.mjs no longer exists on main (git-mv'd away, not duplicated). [verify] _patch-site-search-tag.mjs
+  7. Confirm the archived script's header is marked ARCHIVED and no longer leaks the operator's local path. [verify] scripts/_archive/_patch-site-search-tag-2026-06-23.mjs
+  8. Confirm scripts/_archive/README.md exists on disk with non-trivial content describing the archive convention. [verify] scripts/_archive/README.md
+
+Done means: scripts/_archive/_patch-site-search-tag-2026-06-23.mjs, _patch-site-search-tag.mjs, scripts/_archive/README.md exist/are updated as specified
