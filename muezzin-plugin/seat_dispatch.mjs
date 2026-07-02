@@ -176,7 +176,21 @@ export function execReceipt(cmd, cwd) {
       : execSync(cmd, { cwd, env: childEnv, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: 120000 });
     return { type: 'exec', ref: cmd, ok: true, exit: 0, out: String(out).slice(0, 2000) };
   } catch (e) {
-    return { type: 'exec', ref: cmd, ok: false, exit: e.status ?? 1, out: (String(e.stdout || '') + String(e.stderr || '')).slice(0, 2000) };
+    const captured = (String(e.stdout || '') + String(e.stderr || '')).trim();
+    // DIAGNOSTIC FALLBACK (M-ENGINE-EXEC-DIAG, 2026-07-01): a 120s-timeout or signal-killed
+    // child throws with EMPTY stdout/stderr — the "engine-exec with no error" OPAQUE failure
+    // that made mt-integrate-qc-pipeline-sota-doc/sota-docs + plan-day-gpx-export impossible
+    // to diagnose from receipts (3 missions = the pattern-amortization signal). stderr WAS
+    // already captured; the gap is that a hung/killed command has none, and the catch threw
+    // away the exception's OWN metadata. When nothing was captured, surface killed/signal/
+    // code/message so result.json steps[].error says WHY (e.g. a 120s hang) instead of "".
+    const diag = captured || (
+      `[no stdout/stderr captured]`
+      + (e.killed ? ` KILLED${e.signal ? ` ${e.signal}` : ''} (likely the 120s step timeout)` : '')
+      + (e.code ? ` code=${e.code}` : '')
+      + (e.message ? ` msg=${String(e.message).slice(0, 300)}` : '')
+    ).replace(/\s+/g, ' ').trim();
+    return { type: 'exec', ref: cmd, ok: false, exit: e.status ?? 1, out: String(diag).slice(0, 2000) };
   }
 }
 
@@ -913,6 +927,15 @@ if (process.argv[1]?.endsWith('seat_dispatch.mjs') && process.argv.includes('--s
   check('roleaware: nemotron-3-ultra as integrator falls to opus', claudeFallbackFor('nemotron-3-ultra', 'integrator'), 'opus');
   check('roleaware: deepseek-v4-pro as validator (unmapped role) keeps flat-map sonnet', claudeFallbackFor('deepseek-v4-pro', 'validator'), 'sonnet');
   check('roleaware: kimi-k2.6 with no role keeps flat-map opus', claudeFallbackFor('kimi-k2.6', undefined), 'opus');
+
+  // 11. EXEC-DIAG (M-ENGINE-EXEC-DIAG): a command that fails with NO stdout/stderr must still
+  //     yield a non-empty diagnostic `out` — the fix for opaque engine-exec failures that
+  //     blocked diagnosing sota-doc/sota-docs/gpx-export from receipts.
+  {
+    const r = execReceipt('exit 3', '.');
+    check('execReceipt: empty-output failure reports ok=false', r.ok, false);
+    check('execReceipt: empty-output failure carries a NON-empty diagnostic out (not "")', r.out.trim().length > 0, true);
+  }
 
   console.log(`[selftest] ${pass} passed, ${fail} failed`);
   process.exit(fail ? 1 : 0);
