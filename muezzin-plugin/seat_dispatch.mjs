@@ -204,7 +204,10 @@ export function execReceipt(cmd, cwd) {
 // (framings can exceed Windows arg limits). Identity is never silent: heartbeats label
 // provider=claude-<model>, and the return's provider field carries the same.
 // Kill switch: MUEZZIN_CLAUDE_TIER=off.
-const CLAUDE_CMD = 'C:/Users/marka/AppData/Roaming/npm/claude.cmd';
+// DIRECT EXE (2026-07-02): claude.cmd merely wraps this exe; the .cmd-via-shell route was the
+// 3-day launch-flakiness primary (see the execFile call's comment). Absolute exe path,
+// launched with NO shell.
+const CLAUDE_CMD = 'C:\\Users\\marka\\AppData\\Roaming\\npm\\node_modules\\@anthropic-ai\\claude-code\\bin\\claude.exe';
 const CLAUDE_SEAT_MAP = {
   'qwen3-coder-next': 'sonnet', 'kimi-k2.6': 'opus', 'kimi-k2.7-code': 'sonnet',
   // verdict seats (phase-3 adversarial verify, wired 2026-06-10): outage must not skip
@@ -368,14 +371,15 @@ function attemptClaude(body, claudeModel, timeoutMs, cwd) {
     // on disk). --setting-sources project drops user-level config from the seat
     // subprocess; auth + model selection are unaffected (CLI help). The seat's ONLY
     // doctrine is the framing the engine hands it.
+    // DIRECT EXE, NO SHELL (2026-07-02, the 3-day launch-flakiness root fix): claude.cmd is a
+    // wrapper around bin\claude.exe; invoking the .cmd via shell:true routed through cmd.exe,
+    // whose command-path parsing intermittently rejected the path ("'C:/Users/...' is not
+    // recognized" — receipts 04:23/06:53) and killed sonnet seats AT LAUNCH with exit 1 +
+    // empty stdout. The exe launches directly with shell:false — no cmd.exe, no quoting
+    // surface, no .cmd grandchild. Probe-verified: EXE LAUNCH OK 2.1.198. The manual
+    // taskkill /T timer below still fells the whole tree (exe may still spawn children).
     const child = execFile(CLAUDE_CMD, ['-p', '--model', claudeModel, '--output-format', 'text', '--allowedTools', tools, '--setting-sources', 'project'],
-      // shell:true — Node 24 Windows refuses bare .cmd spawns (EINVAL, CVE-2024-27980
-      // hardening). Safe: path has no spaces, args are fixed flags, prompt rides stdin.
-      // NO timeout option here: .cmd wrappers spawn a grandchild node process, and Node's
-      // own timeout kills only the direct shell child, orphaning the real claude process
-      // to burn quota (laguna witness REVISE finding 2). The manual timer below fells the
-      // whole tree with taskkill /T instead.
-      { maxBuffer: 16 * 1024 * 1024, windowsHide: true, shell: true, ...(cwd ? { cwd } : {}) },
+      { maxBuffer: 16 * 1024 * 1024, windowsHide: true, ...(cwd ? { cwd } : {}) },
       (err, stdout, stderr) => {
         clearTimeout(killTimer);
         // INSTRUMENTATION (2026-06-10: the "empty claude executor" gremlin was a MYSTERY
