@@ -583,8 +583,25 @@ export function sweep(base = HERE, now = Date.now(), routeFile = path.join(proce
   }
 
   report.push(`ledger: ${autorun.done.length} DONE / ${autorun.failed.length} FAILED / ${autorun.running.length} running / ${autorun.pending.length} pending`);
+  // DONENESS GATE (2026-07-02): compute the TRUE completion state so the conductor consults it
+  // instead of eyeballing the board (the map the 2026-07-02 conductor lacked). doneness.json is
+  // written by main(); this surfaces it on the board + as a standing NOT-DONE action.
+  let doneness = null;
+  try {
+    doneness = computeDoneness(base, autorun, { owed });
+    report.push(`DONENESS: barMet=${doneness.barMet} — ${doneness.blocking.length} blocking · pending ${doneness.counts.pending} · unresolvedFAILED ${doneness.counts.unresolvedFailed} · pushGap ${doneness.counts.pushedGap} · openIntegration ${doneness.counts.openIntegration}`);
+    if (!doneness.barMet) {
+      for (const b of doneness.blocking.slice(0, 8)) report.push(`  NOT-DONE [${b.layer}] ${b.mission}: ${String(b.reason).slice(0, 90)}`);
+      actions.push({
+        id: 'DONENESS-NOT-MET', class: 'judgment', approved_by_faith: false,
+        why: `integration NOT done: ${doneness.blocking.length} blocking, ${doneness.counts.pushedGap} unpushed, ${doneness.counts.unresolvedFailed} unresolved-FAILED — do NOT frame the work as done/wind-down until barMet (the stop-hook enforces this from doneness.json)`,
+        blocking: doneness.blocking.slice(0, 20),
+        rule: 'drain blocking[] (land + push + verify); barMet:true from doneness.json is the only honest done — never declare done on a proxy',
+      });
+    }
+  } catch (e) { report.push(`DONENESS: compute failed — ${String(e.message).slice(0, 80)} (fail-closed: treat as NOT done)`); }
   if (!actions.length) report.push('required actions: none — "nothing needed from you" is a complete ending');
-  return { daemonAlive, report, actions, autorun };
+  return { daemonAlive, report, actions, autorun, doneness };
 }
 
 // HEAL — perform the mechanical, faith-approved actions the sweep found, so a beat
@@ -756,6 +773,8 @@ function main() {
     return;
   }
   const r = sweep();
+  // DONENESS RECEIPT: the stop-hook + next beat read this. Write must never break the sweep.
+  try { if (r.doneness) writeFileSync(path.join(HERE, 'missions', '_logs', 'doneness.json'), JSON.stringify(r.doneness, null, 2)); } catch { /* receipt best-effort */ }
   if (process.argv.includes('--json')) { console.log(JSON.stringify(r, null, 2)); return; }
   console.log(r.report.join('\n'));
   if (r.actions.length) {
