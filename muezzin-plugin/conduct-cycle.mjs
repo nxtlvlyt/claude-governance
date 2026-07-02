@@ -181,7 +181,39 @@ export function checkCgFreshness(now = Date.now()) {
   } catch { return { ok: false }; }
 }
 
-export function sweep(base = HERE, now = Date.now(), routeFile = path.join(process.env.USERPROFILE || 'C:/Users/marka', '.claude', 'state', 'muezzin-route.json'), { sightFn = checkSearxngSight, cgAgeFn = () => checkCgFreshness(now) } = {}) {
+// WORKTREE-HEAL (succession build 2026-07-02): the shared muddytires code-repo worktree
+// gets left dirty/unmerged by a failed or interrupted cherry-pick, and then EVERY later
+// code-repo mission fails its clean-worktree preflight ("map.html is unmerged"). Hand-fixed
+// 3x in one night (fix-ledger: worktree-dirty-cascade / -orphaned-cherrypick / -unmerged) —
+// pattern-amortization-signal.md says N same-shape fixes => build the helper. This drains that
+// recovery judgment into the script so a LOCAL conductor never has to reason about git internals.
+// Scoped to the KNOWN shared repo(s) below (not every mission's REPO-ROOT — bounded + safe).
+const WORKTREE_REPOS = ['C:/Users/marka/code/mt-integration-2026-06-22'];
+
+// detectWorktreeCorruption(repoRoot, gitFn) -> { corrupted, unmerged:[], untracked:[], midOp:'cherry-pick'|'merge'|null }
+// gitFn(args) runs a git command in the repo and returns stdout (injectable for tests).
+// PURE: no mutation, only `git status --porcelain` + existence of a mid-op sentinel file.
+export function detectWorktreeCorruption(repoRoot, gitFn) {
+  const git = gitFn || ((args) => _execSyncSight(`git -C "${repoRoot}" ${args}`, { timeout: 15000, stdio: ['ignore', 'pipe', 'pipe'] }).toString());
+  const out = { repoRoot, corrupted: false, unmerged: [], untracked: [], midOp: null };
+  let porcelain;
+  try { porcelain = git('status --porcelain'); } catch { return out; }   // repo unreachable -> not our problem to heal
+  for (const line of String(porcelain).split(/\r?\n/)) {
+    if (!line.trim()) continue;
+    const xy = line.slice(0, 2);
+    const file = line.slice(3).trim();
+    // unmerged states per git porcelain: DD AU UD UA DU AA UU (any 'U', or AA/DD)
+    if (/[U]/.test(xy) || xy === 'AA' || xy === 'DD') out.unmerged.push(file);
+    else if (xy === '??') out.untracked.push(file);
+  }
+  // mid-operation sentinels (an aborted/partial pick leaves these; their presence + unmerged = stuck)
+  try { if (existsSync(path.join(repoRoot, '.git', 'CHERRY_PICK_HEAD'))) out.midOp = 'cherry-pick'; } catch { /* ignore */ }
+  try { if (!out.midOp && existsSync(path.join(repoRoot, '.git', 'MERGE_HEAD'))) out.midOp = 'merge'; } catch { /* ignore */ }
+  out.corrupted = out.unmerged.length > 0 || out.midOp !== null;
+  return out;
+}
+
+export function sweep(base = HERE, now = Date.now(), routeFile = path.join(process.env.USERPROFILE || 'C:/Users/marka', '.claude', 'state', 'muezzin-route.json'), { sightFn = checkSearxngSight, cgAgeFn = () => checkCgFreshness(now), worktreeReposFn = () => WORKTREE_REPOS, gitFn = null } = {}) {
   const logs = path.join(base, 'missions', '_logs');
   const status = readJson(path.join(logs, 'daemon-status.json'));
   const pidfile = parseInt(readText(path.join(logs, 'daemon.pid')).trim(), 10);
@@ -232,6 +264,28 @@ export function sweep(base = HERE, now = Date.now(), routeFile = path.join(proce
       command: `taskkill /PID ${status?.pid ?? pidfile} /F /T`,
       stuck_paths: stuckLanes.map((x) => x.path),
       rule: 'heal() will kill the process tree and bare the RUNNING lines so the daemon re-fires them; logged to daemon-events.log',
+    });
+  }
+
+  // WORKTREE-HEAL: a shared code-repo worktree left unmerged/mid-pick blocks EVERY code-repo
+  // mission's clean-worktree preflight. Surgical recovery only — abort any in-progress pick/
+  // merge, then restore each TRACKED unmerged file from HEAD (discards uncommitted conflict
+  // residue = failed-mission orphan, per the engine's commit-on-success model). NEVER reset
+  // --hard, NEVER delete untracked (those are report-only). heal() runs it via exec().
+  for (const repoRoot of (worktreeReposFn() || [])) {
+    const wt = detectWorktreeCorruption(repoRoot, gitFn ? (args) => gitFn(repoRoot, args) : null);
+    if (!wt.corrupted) continue;
+    report.push(`WORKTREE-HEAL: ${repoRoot} is corrupted — ${wt.unmerged.length} unmerged file(s)${wt.midOp ? `, mid-${wt.midOp}` : ''}${wt.untracked.length ? `, ${wt.untracked.length} untracked orphan(s)` : ''}`);
+    const cmds = [];
+    if (wt.midOp) cmds.push(`git -C "${repoRoot}" ${wt.midOp === 'merge' ? 'merge' : 'cherry-pick'} --abort`);
+    for (const f of wt.unmerged) cmds.push(`git -C "${repoRoot}" checkout HEAD -- "${f}"`);
+    actions.push({
+      id: `WORKTREE-HEAL-${path.basename(repoRoot)}`, class: 'mechanical', approved_by_faith: true,
+      why: `shared worktree ${repoRoot} left ${wt.midOp ? `mid-${wt.midOp} + ` : ''}${wt.unmerged.length} unmerged tracked file(s) — blocks every code-repo mission's clean-worktree preflight until restored`,
+      repo_root: repoRoot,
+      commands: cmds,                                   // surgical recovery, run in order by heal()
+      untracked_orphans: wt.untracked,                  // REPORT ONLY — heal() never deletes these
+      rule: 'heal() aborts any in-progress pick/merge then restores each tracked unmerged file from HEAD (committed content preserved; uncommitted conflict residue discarded). Untracked orphans are surfaced, never auto-deleted (needs operator ok).',
     });
   }
 
@@ -458,8 +512,14 @@ export function sweep(base = HERE, now = Date.now(), routeFile = path.join(proce
 // 'ignore' throws away the real reason on failure, leaving only Node's generic
 // "Command failed: <cmd>" with nothing to diagnose (2026-07-01 real incident: every
 // STUCK-TASK taskkill today failed silently, zero detail captured).
-export function heal(base = HERE, now = Date.now(), { exec = (cmd) => execSync(cmd, { stdio: ['ignore', 'ignore', 'pipe'] }), sightFn } = {}) {
-  const r = sweep(base, now, undefined, sightFn ? { sightFn } : undefined);
+export function heal(base = HERE, now = Date.now(), { exec = (cmd) => execSync(cmd, { stdio: ['ignore', 'ignore', 'pipe'] }), sightFn, worktreeReposFn, gitFn } = {}) {
+  // forward sight + worktree opts to the internal sweep; each defaults inside sweep() to the
+  // real probe/repo when omitted (production), and is injectable for the offline selftest.
+  const sweepOpts = {};
+  if (sightFn) sweepOpts.sightFn = sightFn;
+  if (worktreeReposFn) sweepOpts.worktreeReposFn = worktreeReposFn;
+  if (gitFn) sweepOpts.gitFn = gitFn;
+  const r = sweep(base, now, undefined, Object.keys(sweepOpts).length ? sweepOpts : undefined);
   const performed = [];
 
   const reqStems = new Set(r.actions.filter((a) => String(a.id).startsWith('REQUEUE-') && a.approved_by_faith).map((a) => a.requeue_stem));
@@ -505,6 +565,22 @@ export function heal(base = HERE, now = Date.now(), { exec = (cmd) => execSync(c
   }
 
   const logs = path.join(base, 'missions', '_logs');
+
+  // WORKTREE-HEAL performer: run the surgical recovery commands in order (abort mid-op, then
+  // checkout HEAD -- each unmerged tracked file). Each command is best-effort; a failure on one
+  // never aborts the rest (a partial recovery still unblocks more than none). Untracked orphans
+  // are logged, never deleted.
+  for (const wh of r.actions.filter((a) => String(a.id).startsWith('WORKTREE-HEAL-'))) {
+    let ran = 0;
+    for (const cmd of (wh.commands || [])) { try { exec(cmd); ran++; } catch { /* best-effort; continue */ } }
+    performed.push({ action: 'worktree-heal', repo: wh.repo_root, commands_run: ran, untracked_orphans: wh.untracked_orphans || [] });
+    try {
+      appendFileSync(path.join(logs, 'daemon-events.log'),
+        `${new Date(now).toISOString()} WORKTREE-HEAL: ${wh.repo_root} — ran ${ran}/${(wh.commands || []).length} recovery cmds` +
+        `${(wh.untracked_orphans || []).length ? `; untracked orphans left (report-only): ${wh.untracked_orphans.join(', ')}` : ''}\n`);
+    } catch { /* logging must never break heal */ }
+  }
+
   const restart = r.actions.find((a) => a.id === 'RESTART-DAEMON');
   if (restart) {
     const status = readJson(path.join(logs, 'daemon-status.json'));
@@ -620,7 +696,7 @@ function selftest() {
   writeFileSync(path.join(tmp, 'missions', 'AUTORUN.md'), '# q\nFAILED missions/broken.mission.txt  <!-- t -->\nmissions/next.mission.txt\n');
   writeFileSync(path.join(logs, 'dispatch-heartbeat.log'), `${new Date(now - 2 * 60000).toISOString()} attempt-start provider=claude-opus (claude tier for kimi-k2.6)\n`);
   const noRoute = path.join(tmp, 'no-route.json');  // fixture isolation: never read the real route file
-  const sightOk = { sightFn: () => ({ ok: true, results: 10 }), cgAgeFn: () => ({ ok: true, minutes: 5 }) };  // fixture isolation: never curl the real backend
+  const sightOk = { sightFn: () => ({ ok: true, results: 10 }), cgAgeFn: () => ({ ok: true, minutes: 5 }), worktreeReposFn: () => [] };  // fixture isolation: never curl the real backend, never git the real worktree
   let r = sweep(tmp, now, noRoute, sightOk);
   ck(r.daemonAlive === false, 'dead daemon detected (stale status + dead pid)');
   ck(r.actions.some((a) => a.id === 'RESTART-DAEMON' && a.command.includes('muezzin-daemon.mjs')), 'restart action with exact command emitted');
@@ -766,6 +842,31 @@ function selftest() {
   ck(lc.length === 1 && lc[0].stem === 'loop' && lc[0].count === 3, 'detectLoopCaps caps a stem appearing LOOP_CAP_REPEATS times');
   const lc2 = detectLoopCaps(parseAutorun('DONE missions/once.mission.txt\nFAILED missions/twice.mission.txt\n'));
   ck(lc2.length === 0, 'detectLoopCaps ignores stems below cap');
+
+  // fixture 1w: WORKTREE-HEAL (succession build) — detection + sweep action + heal performer,
+  // gitFn/exec injected so no real repo or git is touched.
+  const cleanPorcelain = () => '';
+  const unmergedPorcelain = () => 'UU map.html\nA  js/onboarding.js\n?? aurora-render-witness.html\n';
+  const w1 = detectWorktreeCorruption('C:/fake/repo', () => cleanPorcelain());
+  ck(!w1.corrupted && w1.unmerged.length === 0, 'detectWorktreeCorruption: clean tree -> not corrupted');
+  const w2 = detectWorktreeCorruption('C:/fake/repo', () => unmergedPorcelain());
+  ck(w2.corrupted && w2.unmerged.includes('map.html') && w2.untracked.includes('aurora-render-witness.html'), 'detectWorktreeCorruption: UU map.html -> corrupted, unmerged+untracked classified');
+  // sweep emits a WORKTREE-HEAL action with a checkout-HEAD command for the unmerged file
+  const wtGit = (repoRoot, args) => (args === 'status --porcelain' ? unmergedPorcelain() : '');
+  const rw = sweep(tmp, now, noRoute, { ...sightOk, worktreeReposFn: () => ['C:/fake/repo'], gitFn: wtGit });
+  const wha = rw.actions.find((a) => String(a.id).startsWith('WORKTREE-HEAL-'));
+  ck(!!wha && wha.class === 'mechanical' && wha.approved_by_faith, 'sweep: corrupted worktree -> WORKTREE-HEAL mechanical action');
+  ck(wha.commands.some((c) => /checkout HEAD -- "map.html"/.test(c)), 'WORKTREE-HEAL: command restores the unmerged file from HEAD');
+  ck(wha.untracked_orphans.includes('aurora-render-witness.html') && !wha.commands.some((c) => /aurora-render-witness/.test(c)), 'WORKTREE-HEAL: untracked orphan is report-only, never in a command');
+  // heal() runs the recovery commands via exec()
+  const wtRan = [];
+  const rwHeal = sweep(tmp, now, noRoute, { ...sightOk, worktreeReposFn: () => ['C:/fake/repo'], gitFn: wtGit });
+  // reset daemon healthy so heal() doesn't try to restart in this fixture
+  writeFileSync(path.join(logs, 'daemon-status.json'), JSON.stringify({ pid: process.pid, state: 'running', lanes: [], queued: 0, ts: new Date(now).toISOString() }));
+  writeFileSync(path.join(logs, 'daemon.pid'), String(process.pid));
+  const hw = heal(tmp, now, { exec: (cmd) => { wtRan.push(cmd); }, sightFn: sightOk.sightFn, worktreeReposFn: () => ['C:/fake/repo'], gitFn: wtGit });
+  ck(wtRan.some((c) => /checkout HEAD -- "map.html"/.test(c)), 'heal(): WORKTREE-HEAL runs the checkout-HEAD recovery via exec');
+  ck(hw.performed.some((p) => p.action === 'worktree-heal' && p.repo === 'C:/fake/repo'), 'heal(): worktree-heal recorded in performed with repo');
   writeFileSync(path.join(logs, 'daemon-status.json'), JSON.stringify({ pid: process.pid, state: 'running', lanes: [], queued: 0, ts: new Date(now).toISOString() }));
   writeFileSync(path.join(tmp, 'missions', 'AUTORUN.md'), '# q\nDONE missions/loop.mission.txt\nFAILED missions/loop.mission.txt\nRUNNING missions/loop.mission.txt\n');
   r = sweep(tmp, now, noRoute, sightOk);
