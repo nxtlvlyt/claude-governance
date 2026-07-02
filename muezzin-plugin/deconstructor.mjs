@@ -364,7 +364,11 @@ async function runQueueLoop(seat, baseFraming, { research = false, codeRepo = fa
 // validateMicroQueue, and re-dispatches with the errors (repair loop) up to maxRepairs. Deeds-not-claims for decomposition.
 // PRESERVED AS THE FALLBACK + the panel's per-seat primitive (the blind panel's deconstructPanel
 // is the default planner in orchestrate; this single-architect path is what it falls back to).
-export async function deconstruct(mission, { model = 'kimi-k2.6', today = '2026-06-09', maxRepairs = 2, diagDir = null, dispatchFn = dispatchSeat, escalationState = { tier: 0, reason: 'initial' } } = {}) {
+// FALLBACK DEFAULT REPAIR 2026-07-02: the single-architect fallback defaulted to the hardcoded
+// dead 'kimi-k2.6' (404) — so whenever the panel degraded (gemma4:31b 500s), the fallback ITSELF
+// dispatched a nonexistent model and the whole plan died (receipts 19:55:49 x3). Derive from the
+// maintained roster instead of a second hardcoded name — one source of truth.
+export async function deconstruct(mission, { model = PANEL_ARCHITECTS[0], today = '2026-06-09', maxRepairs = 2, diagDir = null, dispatchFn = dispatchSeat, escalationState = { tier: 0, reason: 'initial' } } = {}) {
   // max_tokens 32768: kimi reasons 40-70K chars (~10-18K tokens) before answering and
   // ignores think:false on v1 — 8192 starved content on attempt 1 every time (the
   // EMPTY_CONTENT_THINKING burn class; the heal's 16384 sometimes still clipped).
