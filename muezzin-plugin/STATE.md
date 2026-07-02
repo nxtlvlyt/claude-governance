@@ -110,6 +110,32 @@ deliverable-type-aware QC + faith file edits must be ratified in a FRESH oriente
 governance session that has read `~/.claude/practice/extended/` first. NOT in a
 long drifted feature-build session.
 
+## 🎥 VISUAL-QC PART-2 — PROVEN via puppeteer 2026-07-02T~01:50Z (dev routing, NOT the vision model)
+
+Confirmed through the REAL capture path (not curl): ran puppeteer.goto against the live
+preview server for the map slug. `buildPreviewUrl('map')` = `/map.html`; puppeteer followed
+the 308 and landed on final URL `/map` (200), rendering a 45KB page with NO leaflet and NO
+`aurora-overlay.js` — i.e. the SSR no-JS FALLBACK surface (added by today's completed
+map-noscript-fallback mission), NOT the 391KB interactive map. So visual capture of any
+map.html feature screenshots the WRONG page; gemma4:31b (the vision seat, local-first per
+ollama_vision_verdict.mjs, benched 12/12) would be judging the fallback, never the feature.
+The vision model is NOT the blocker — it's ready and correct.
+
+ROOT CAUSE (dev-vs-prod routing): `_redirects` has `/map.html /map.html 200` (a rewrite that
+serves the real interactive file at its own URL in PRODUCTION), but wrangler `pages dev`
+does NOT honor it — dev applies its built-in .html->extensionless 308 first, so in dev the
+interactive map.html is unreachable at ANY URL; every request lands on the SSR `/map`. This
+is why the earlier "half-fixed" framing was incomplete: the standing preview server (Part 1)
+is necessary but the dev server doesn't faithfully serve the feature page (Part 2).
+
+FIX OPTIONS (not a buildPreviewUrl one-liner — a real routing choice, do it deliberately):
+(a) make wrangler-dev honor the rewrite (investigate a flag / _routes.json / serving mode);
+(b) capture the interactive page via a plain static file server for the screenshot while
+keeping wrangler for /api/* data (two-server capture); (c) capture against production
+muddytires.ca/map.html (but that's deployed state, not the pre-deploy preview the witness
+wants). Recommend (b) or (a). This is the LAST thing between the engine and a first
+visual-QC e2e completion; it is low blast radius (capture-input plumbing, not a live gate).
+
 ## 🎥 VISUAL-QC BLOCKER — half-fixed 2026-07-01T~23:55Z (preview server now standing; witness-target semantics still wrong)
 
 The reason ZERO VISUAL-QC-REQUIRED missions have ever completed, now precisely located and
