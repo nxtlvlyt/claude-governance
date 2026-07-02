@@ -892,6 +892,38 @@ function main() {
     })();
     return;
   }
+  if (process.argv.includes('--deploy-preview')) {
+    // PREVIEW DEPLOY + E2E (SOTA gap #2, 2026-07-02): deploy the worktree to a Cloudflare Pages
+    // PREVIEW (non-production alias — users never see it), then run the e2e outcome verifier
+    // AGAINST THE PREVIEW URL. Verification happens BEFORE any production risk; promotion to
+    // production stays an operator-authorized act, but it is now a pre-verified one. This is the
+    // serial answer to "landed but invisible for hours": the chain can prove user-visible outcomes
+    // continuously without touching prod.
+    (async () => {
+      const repo = MT_REPO_DEFAULT;
+      let out = '';
+      try {
+        out = execSync('wrangler pages deploy . --project-name=muddytires --branch=preview --commit-dirty=true',
+          { cwd: repo, stdio: ['ignore', 'pipe', 'pipe'], timeout: 300000, maxBuffer: 8 * 1024 * 1024 }).toString();
+      } catch (e) { console.error(`--deploy-preview FAILED at wrangler: ${String(e.stderr || e.message).slice(0, 300)}`); process.exit(2); }
+      const url = (out.match(/https:\/\/[a-z0-9-]+\.muddytires\.pages\.dev/i) || [])[0];
+      if (!url) { console.error(`--deploy-preview: wrangler succeeded but no preview URL parsed from output:\n${out.slice(-400)}`); process.exit(2); }
+      console.log(`preview deployed: ${url}`);
+      // SETTLE: a fresh preview alias 404s for a few seconds while Cloudflare propagates routes +
+      // functions (live receipt: verifier ran 2s post-deploy and hit /map -> 404; 20s later it was 200).
+      let settled = false;
+      for (let i = 0; i < 10 && !settled; i++) {
+        try { const r = await fetch(url + '/map'); settled = r.ok; } catch { /* not yet */ }
+        if (!settled) await new Promise((res) => setTimeout(res, 5000));
+      }
+      if (!settled) { console.error(`--deploy-preview: preview never became reachable at ${url}/map within 50s — cannot verify`); process.exit(2); }
+      try {
+        execSync(`node scripts/verify-popups-e2e.mjs`, { cwd: repo, stdio: 'inherit', timeout: 180000, env: { ...process.env, MT_BASE_URL: url } });
+        console.log(`\nPREVIEW E2E PASS — ${url} serves real data. Promotion to production is pre-verified (operator word promotes).`);
+      } catch { console.error(`\nPREVIEW E2E FAIL — the preview at ${url} does NOT serve real user-visible data. Fix before any production promotion.`); process.exit(1); }
+    })();
+    return;
+  }
   if (process.argv.includes('--request-reload')) {
     // Graceful daemon reload (2026-07-02): write the flag the daemon honors between missions, so it
     // exits cleanly and daemon-supervisor.ps1 respawns with fresh code — the classifier-safe way to
