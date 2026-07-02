@@ -808,7 +808,7 @@ async function mainLoop() {
         .then((w) => {
           const r = w?.receipt;
           if (!r) return;
-          evt(`SELF-WITNESS[before] ${mname}: ok=${r.ok} laguna=${r.laguna?.verdict ?? 'n/a'} guardian=${r.guardian?.grounded ?? 'n/a'}${r.ok === false ? ` — FLAG: ${(r.reasons || []).join(' | ').slice(0, 200)}` : ''}`);
+          evt(`SELF-WITNESS[before] ${mname}: ok=${r.ok} struct=${r.laguna?.verdict ?? 'n/a'} guardian=${r.guardian?.grounded ?? 'n/a'}${r.ok === false ? ` — FLAG: ${(r.reasons || []).join(' | ').slice(0, 200)}` : ''}`);   // "struct" = structural witness (default ornith:9b since 2026-07-01); the r.laguna FIELD name is legacy — the LABEL was misreading as the model and misled a conductor 2026-07-02
         })
         .catch((e) => evt(`SELF-WITNESS[before] error (non-blocking, ignored): ${mname} — ${String(e?.message).slice(0, 120)}`));
     }
@@ -861,7 +861,7 @@ async function mainLoop() {
                 .then((w) => {
                   const wr = w?.receipt;
                   if (!wr) return;
-                  evt(`SELF-WITNESS[after] ${wname}: ok=${wr.ok} laguna=${wr.laguna?.verdict ?? 'n/a'} guardian=${wr.guardian?.grounded ?? 'n/a'}${wr.ok === false ? ` — FLAG (output vs Done-means): ${(wr.reasons || []).join(' | ').slice(0, 200)}` : ''}`);
+                  evt(`SELF-WITNESS[after] ${wname}: ok=${wr.ok} struct=${wr.laguna?.verdict ?? 'n/a'} guardian=${wr.guardian?.grounded ?? 'n/a'}${wr.ok === false ? ` — FLAG (output vs Done-means): ${(wr.reasons || []).join(' | ').slice(0, 200)}` : ''}`);   // "struct" = structural witness (default ornith:9b); r.laguna is a legacy FIELD name, not the model
                 })
                 .catch((e) => evt(`SELF-WITNESS[after] error (non-blocking, ignored): ${wname} — ${String(e?.message).slice(0, 120)}`));
             } catch (e) { evt(`SELF-WITNESS[after] skipped (non-blocking): ${wname} — ${String(e?.message).slice(0, 120)}`); }
