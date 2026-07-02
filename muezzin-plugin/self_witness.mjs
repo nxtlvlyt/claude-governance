@@ -149,7 +149,12 @@ export function buildLagunaPrompt(artifactText, contextText, { maxArt = 9000, ma
 
 // real local dispatch to laguna-xs.2 (streaming-accumulate, bounded). Throws on transport
 // error; the caller is fail-soft and swallows it. Same transport shape as guardianDispatch.
-export async function lagunaDispatch(system, prompt, { model = LAGUNA_MODEL, num_predict = 200, timeoutMs = 600000 } = {}) {
+export async function lagunaDispatch(system, prompt, { model = LAGUNA_MODEL, num_predict = 512, timeoutMs = 600000 } = {}) {
+  // num_predict raised 200 -> 512 (2026-07-02): at 200 the structural witness (ornith:9b) ran out
+  // of tokens mid-reasoning and never emitted its <verdict> tag — receipt: trip-diary-backend
+  // SELF-WITNESS[before] REVISE "The analysis is incomplete and cuts off mid-sentence, failing to
+  // provide the required verdict" (even after the no-verdict re-ask). 512 gives room for reasoning
+  // + the verdict; still bounded. Guardian (separate dispatch, num_predict 120) is unaffected.
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), timeoutMs);
   try {
