@@ -951,6 +951,38 @@ async function mainLoop() {
   }
 }
 
+// ---- CRASH INSTRUMENTATION (M-DAEMON-CRASH-HANDLER, 2026-07-01) ----
+// The daemon had NO global uncaughtException/unhandledRejection handler, so a throw outside
+// mainLoop's inner try/catch (~line 944) OR a rejected detached promise (this daemon has
+// several fire-and-forget witnesses/notifies) killed the process with ZERO trace — the
+// leading theory in STATE.md's OPEN WORK QUEUE for the silent-death crash class that has made
+// missions fail mysteriously. These handlers turn every such event into a dated stack in
+// _logs/daemon-crash.log + a daemon event, and (because registering an unhandledRejection
+// handler suppresses Node 22's default terminate) stop a NON-fatal detached rejection from
+// killing a healthy daemon.
+const CRASHLOG = path.join(LOGDIR, 'daemon-crash.log');
+function logCrash(kind, err, target = CRASHLOG) {
+  const stack = err && err.stack ? err.stack : String(err);
+  const line = `${new Date().toISOString()} [${kind}] ${stack}`;
+  try { appendFileSync(target, line + '\n\n'); } catch { /* best-effort: never let logging crash the crash handler */ }
+  // Only touch the real event stream for real crashes — a selftest call with a custom target must not pollute daemon-events.log.
+  if (target === CRASHLOG) { try { evt(`CRASH [${kind}]: ${String((err && err.message) || err).slice(0, 300)} — full stack in _logs/daemon-crash.log`); } catch { /* best-effort */ } }
+}
+function _onUncaught(err) { logCrash('uncaughtException', err); process.exit(1); }
+function _onUnhandled(reason) { logCrash('unhandledRejection', reason); }
+function installCrashHandlers() {
+  // uncaughtException: process state is undefined after a synchronous throw escaped everything
+  // — log the stack and exit(1) so the supervisor restart-loop brings up a CLEAN process
+  // rather than limping on in an unknown state.
+  process.on('uncaughtException', _onUncaught);
+  // unhandledRejection: registering a handler ALSO suppresses Node 22's default terminate, so
+  // a non-fatal detached-promise rejection is logged, not fatal. mainLoop's own loop errors
+  // are already caught (~line 944); a rejection reaching here is BY DEFINITION from outside
+  // that loop, so continuing is correct. A rejection of mainLoop's OWN promise is caught
+  // explicitly at the entry point below (log + exit), never reaching this handler.
+  process.on('unhandledRejection', _onUnhandled);
+}
+
 // ---- self-test (offline, argv-guarded): queue mechanics only — no seats dispatched.
 if (process.argv.includes('--selftest')) {
   let fails = 0; const ck = (c, m) => { console.log(`${c ? 'PASS' : 'FAIL'}  ${m}`); if (!c) fails++; };
@@ -1209,11 +1241,30 @@ if (process.argv.includes('--selftest')) {
   ck(shouldWitnessAfter({ ok: false, phase: 'verify' }) === false, 'AFTER: a FAILED mission (ok:false) -> after pass does NOT fire');
   ck(shouldWitnessAfter(null) === false && shouldWitnessAfter(undefined) === false, 'AFTER: a null/undefined result -> after pass does NOT fire (fail-soft)');
 
+  // crash-instrumentation (M-DAEMON-CRASH-HANDLER): registration + logCrash write, then clean removal
+  const _beforeUE = process.listeners('uncaughtException').length;
+  const _beforeUR = process.listeners('unhandledRejection').length;
+  installCrashHandlers();
+  ck(process.listeners('uncaughtException').includes(_onUncaught), 'crash: uncaughtException handler registered');
+  ck(process.listeners('unhandledRejection').includes(_onUnhandled), 'crash: unhandledRejection handler registered');
+  const _cf = path.join(tmp, 'crash.log');
+  logCrash('selftest-kind', new Error('boom-42'), _cf);
+  const _cw = readFileSync(_cf, 'utf8');
+  ck(_cw.includes('boom-42') && _cw.includes('selftest-kind'), 'crash: logCrash writes kind+stack to target file');
+  // remove OUR handlers so a later selftest throw doesn't exit(1) via _onUncaught, and prove no leak
+  process.removeListener('uncaughtException', _onUncaught);
+  process.removeListener('unhandledRejection', _onUnhandled);
+  ck(process.listeners('uncaughtException').length === _beforeUE && process.listeners('unhandledRejection').length === _beforeUR, 'crash: handlers cleanly removable (no listener leak)');
+
   rmSync(tmp, { recursive: true, force: true });
-  console.log(fails === 0 ? '\nALL PASS — daemon queue mechanics sound (incl. Hajj SPLIT status + auto-queue-from-substrate + self-witness AFTER gating)' : `\n${fails} FAIL`);
+  console.log(fails === 0 ? '\nALL PASS — daemon queue mechanics sound (incl. Hajj SPLIT status + auto-queue-from-substrate + self-witness AFTER gating + crash instrumentation)' : `\n${fails} FAIL`);
   process.exit(fails === 0 ? 0 : 1);
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) {
-  mainLoop();
+  installCrashHandlers();
+  // Catch a rejection of mainLoop's OWN promise explicitly: the loop is dead, so log the
+  // stack and exit(1) for a clean supervisor restart (vs. a zombie process kept alive by the
+  // unhandledRejection handler). Detached-promise rejections still route to _onUnhandled.
+  mainLoop().catch((e) => { logCrash('mainLoop-rejection', e); process.exit(1); });
 }

@@ -287,9 +287,15 @@ faith says prefer receipted missions — resolve per-mission: conductor-direct f
 precise, selftest-verifiable engine edits; chain for muddytires content/integration work
 (8 DONEs today prove it handles those).
 
-**OPEN WORK QUEUE (verified real as of this write):** (a) daemon crash root-cause — no
-global uncaughtException/unhandledRejection handler exists in muezzin-daemon.mjs, leading
-theory, needs an instrumented session; (b) 3 dead SPLIT parents (contributor-leaderboard,
+**OPEN WORK QUEUE (verified real as of this write):** (a) ✅ FIXED 2026-07-01 (commit
+`baf4ed9`) daemon crash root-cause — global `uncaughtException`/`unhandledRejection`
+handlers + `logCrash()` now land a dated stack in `_logs/daemon-crash.log`; uncaught throw
+→ log+exit(1) (clean supervisor restart), detached-promise rejection → log+continue (also
+suppresses Node 22's default terminate, so a non-fatal rejection stops killing a healthy
+daemon), mainLoop-promise rejection → log+exit at the entry point. selftest +4, ALL PASS.
+Staged-not-hot: running daemon pid 35508 loads it on next restart — so the crash log stays
+empty until then; the FIRST post-restart crash is the proof the instrumentation works;
+(b) 3 dead SPLIT parents (contributor-leaderboard,
 bookmark-widget, aurora-forecast) — children repaired by hand, but S1/S2 still sit FAILED
 in AUTORUN; bare them to re-fire now that files are valid; (c) email-redaction-docs needs
 its mission text amended (add `git cherry-pick --continue` step + TARGET-BRANCH) before
