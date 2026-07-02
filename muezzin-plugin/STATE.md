@@ -391,7 +391,7 @@ moment its dependencies carry PASS receipts, live-proven 21:20:32.)**
 | spot-briefs.S1 lands DONE | → #13 author C1 Amazon-pickup + C2 add-spot-assist missions |
 | money-revenue-synthesis lands | → plan to OPERATOR-NOTIFY; execution missions ONLY after ratification |
 | operator ratifies (#5 plan-brief veto / QUALITY-STANDARD slots) | → build them |
-| a user-facing mission lands + passes the 4-receipt ENTRY GATE (e2e + rendered + STANDARDS-fetched-with-tools + self-review — operator ruling: no cop-out rows) | → append a receipted row to missions/_logs/OPERATOR-REVIEW-QUEUE.md; his verdict closes rows; his catches become regression checks before closing |
+| a user-facing mission lands with all 4 PHASE receipts present (e2e=deploy ceremony · render=visual witness · standards=architect citation confirmed by verdict · bars=verdict panel — the checklist READS receipts, it is NOT a new verification job; a missing receipt bounces to the OWNING phase) | → append the receipted row to missions/_logs/OPERATOR-REVIEW-QUEUE.md; operator verdict closes rows; catches become regression checks |
 | a pre-gate review row (1-5) is about to close | → produce its STANDARDS receipt first (WCAG/map-UX fetch + check) |
 | first REACHABILITY/TARTIB-HOLD receipts appear in flow | → verify the new witnesses behaved, then mark them proven |
 | DONE: #2 reachability witness (2026-07-02 21:2x) · #9 log-append · #19 tartib gate · #10 dispatch instrumentation | — |
