@@ -380,6 +380,72 @@ export function abortInProgressGitOp(repoRoot) {
   }
 }
 
+/**
+ * CHERRY-PICK COMPLETION (cherry-pick-incompletion root fix, 2026-07-02): mission command steps
+ * run `git cherry-pick <sha>` (often `-x`); git auto-resolves and leaves the worktree mid-pick
+ * with "all conflicts fixed: run git cherry-pick --continue" — but NO step runs --continue, so
+ * the pick's content is STAGED-but-uncommitted. The mission's OWN deliverable never lands (its
+ * verify fails on the missing commit) AND the mid-pick contaminates the shared worktree for the
+ * next mission. Receipt: sentry-sourcemaps, quick-checkin, qc-pipeline-sota-doc(s), photo-cdn,
+ * email-redaction, ... (8+ mt-integrate missions, 2026-07-02).
+ *
+ * This FINALIZES a resolved pick — but ONLY when it is safe, fail-closed on anything riskier
+ * (command steps otherwise skip the containment drift-guard, and this commit reaches a repo that
+ * DEPLOYS, so the guard is added here):
+ *   - no in-progress op                       -> {continued:null}                  (nothing to do)
+ *   - unmerged paths remain                   -> {continued:null, blocked:'unmerged'}   (real conflict; git --continue would refuse it too)
+ *   - a staged file carries conflict markers  -> {continued:null, blocked:'markers'}    (falsely-resolved; never commit)
+ *   - a staged file is OUTSIDE allowFiles     -> {continued:null, blocked:'out-of-allowlist'}  (pick broader than the mission's declared scope — surface, never silently commit)
+ *   - else                                     -> `git <op> --continue`, {continued:<op>}
+ * The allow-files gate preserves the containment invariant the command-step path skips; when
+ * allowFiles is empty the gate is a no-op (prior behavior, no new risk). GIT_EDITOR=true so the
+ * --continue can never hang on a commit-message editor in the autonomous daemon.
+ * @returns {{ok:true, continued:string|null, blocked?:string, offAllow?:string[]}|{ok:false, error:string}}
+ */
+export function completeResolvedPickIfAny(repoRoot, allowFiles = []) {
+  const gitPath = (name) => {
+    try {
+      const p = execSync(`git rev-parse --git-path ${name}`, gitOpts(repoRoot)).toString().trim();
+      return path.isAbsolute(p) ? p : path.join(repoRoot, p);
+    } catch { return null; }
+  };
+  try {
+    const ops = [
+      { head: "CHERRY_PICK_HEAD", cont: "git cherry-pick --continue", name: "cherry-pick" },
+      { head: "MERGE_HEAD",       cont: "git merge --continue",        name: "merge" },
+      { head: "REVERT_HEAD",      cont: "git revert --continue",       name: "revert" },
+    ];
+    let op = null;
+    for (const o of ops) { const p = gitPath(o.head); if (p && fs.existsSync(p)) { op = o; break; } }
+    if (!op) return { ok: true, continued: null };
+    // Real unresolved conflict still present => do NOT continue (git --continue would refuse anyway).
+    const unmerged = execSync("git ls-files -u", gitOpts(repoRoot)).toString().trim();
+    if (unmerged) return { ok: true, continued: null, blocked: "unmerged" };
+    // The staged set is exactly what --continue will commit.
+    const staged = execSync("git diff --cached --name-only", gitOpts(repoRoot))
+      .toString().trim().split(/\r?\n/).map((s) => s.trim()).filter(Boolean);
+    // Conflict-marker gate: never commit a file a step falsely `git add`ed with markers intact.
+    for (const rel of staged) {
+      try {
+        const abs = path.join(repoRoot, rel);
+        if (fs.existsSync(abs) && /^<{7} /m.test(fs.readFileSync(abs, "utf8"))) {
+          return { ok: true, continued: null, blocked: "markers", offAllow: [rel] };
+        }
+      } catch { /* unreadable -> other guards handle */ }
+    }
+    // Containment gate: every staged file must be within the declared allow-files.
+    const allow = new Set([...normAllow(allowFiles)]);
+    if (allow.size) {
+      const off = staged.filter((s) => !allow.has(s.replace(/\\/g, "/").replace(/^\.\//, "")));
+      if (off.length) return { ok: true, continued: null, blocked: "out-of-allowlist", offAllow: off };
+    }
+    execSync(op.cont, { ...gitOpts(repoRoot), env: { ...gitOpts(repoRoot).env, GIT_EDITOR: "true" } });
+    return { ok: true, continued: op.name };
+  } catch (err) {
+    return { ok: false, error: errText(err) };
+  }
+}
+
 // --- helpers -------------------------------------------------------------
 
 function quote(s) {
@@ -668,6 +734,76 @@ function selfTest() {
       assert(abMerge.ok === true && abMerge.aborted === "merge", `abortInProgressGitOp: aborts an in-progress merge (aborted=${abMerge.aborted})`);
 
       fs.rmSync(opRepo, { recursive: true, force: true });
+    }
+
+    // ---- CHERRY-PICK COMPLETION: completeResolvedPickIfAny (cherry-pick-incompletion root fix, 2026-07-02) ----
+    // Reproduces the live incident: a cherry-pick whose conflicts are RESOLVED but never
+    // --continue'd leaves the deliverable staged-uncommitted. Finalize it when safe (within
+    // allow-files, no markers, no unmerged); fail-closed otherwise.
+    {
+      const pkRepo = fs.mkdtempSync(path.join(os.tmpdir(), "pickcont_"));
+      const gi = { cwd: pkRepo, stdio: "pipe" };
+      execSync("git init -q", gi);
+      execSync('git config user.email t@t.local', gi);
+      execSync('git config user.name t', gi);
+      const cf = path.join(pkRepo, "conflict.txt");
+      fs.writeFileSync(cf, "base\n"); commitStep(pkRepo, "base", ["conflict.txt"]);
+      const baseBranch = execSync("git rev-parse --abbrev-ref HEAD", gi).toString().trim();
+
+      // (0) clean repo => no-op
+      const c0 = completeResolvedPickIfAny(pkRepo, ["conflict.txt"]);
+      assert(c0.ok && c0.continued === null && !c0.blocked, "completeResolvedPick: clean repo => no-op (continued:null)");
+
+      // build a guaranteed conflict on conflict.txt
+      execSync("git checkout -q -b feat", gi);
+      fs.writeFileSync(cf, "feature line\n"); commitStep(pkRepo, "feat edit", ["conflict.txt"]);
+      const bSha = execSync("git rev-parse HEAD", gi).toString().trim();
+      execSync(`git checkout -q ${baseBranch}`, gi);
+      fs.writeFileSync(cf, "main line\n"); commitStep(pkRepo, "main edit", ["conflict.txt"]);
+      const mainSha = execSync("git rev-parse HEAD", gi).toString().trim();
+      // Reset to this identical clean base before each case so cases never contaminate each other
+      // (a committed pick would make a re-pick of the same commit degenerate/empty).
+      const freshBase = () => { try { execSync("git cherry-pick --abort", gi); } catch {} execSync(`git reset -q --hard ${mainSha}`, gi); };
+      const startResolvedPick = () => {
+        freshBase();
+        try { execSync(`git cherry-pick ${bSha}`, gi); } catch { /* expected conflict */ }
+        fs.writeFileSync(cf, "resolved merged line\n");   // clean resolution, no markers
+        execSync("git add conflict.txt", gi);             // stage => mid-pick, zero unmerged
+      };
+
+      // (E) unresolved conflict still unmerged => blocked:'unmerged' (git --continue would refuse too)
+      freshBase();
+      try { execSync(`git cherry-pick ${bSha}`, gi); } catch { /* conflict */ }
+      const cE = completeResolvedPickIfAny(pkRepo, ["conflict.txt"]);
+      assert(cE.ok && cE.continued === null && cE.blocked === "unmerged", `completeResolvedPick: unresolved conflict => blocked:unmerged (${cE.blocked})`);
+
+      // (A) resolved pick WITHIN allow-files => CONTINUED, deliverable commits, pick finalized
+      startResolvedPick();
+      const headBefore = execSync("git rev-parse HEAD", gi).toString().trim();
+      const cA = completeResolvedPickIfAny(pkRepo, ["conflict.txt"]);
+      assert(cA.ok && cA.continued === "cherry-pick", `completeResolvedPick: resolved pick within allow-files => continued (${cA.continued}/${cA.blocked})`);
+      const gp = execSync("git rev-parse --git-path CHERRY_PICK_HEAD", gi).toString().trim();
+      assert(!fs.existsSync(path.isAbsolute(gp) ? gp : path.join(pkRepo, gp)), "completeResolvedPick: after continue, CHERRY_PICK_HEAD is gone (pick finalized)");
+      assert(execSync("git rev-parse HEAD", gi).toString().trim() !== headBefore, "completeResolvedPick: a NEW commit landed (deliverable committed)");
+
+      // (B) resolved pick touching a file OUTSIDE allow-files => BLOCKED, nothing committed
+      startResolvedPick();
+      const headB = execSync("git rev-parse HEAD", gi).toString().trim();
+      const cB = completeResolvedPickIfAny(pkRepo, ["some-other-file.txt"]);
+      assert(cB.ok && cB.continued === null && cB.blocked === "out-of-allowlist" && (cB.offAllow || []).includes("conflict.txt"),
+        `completeResolvedPick: pick touching a non-allow file => blocked:out-of-allowlist (${cB.blocked})`);
+      assert(execSync("git rev-parse HEAD", gi).toString().trim() === headB, "completeResolvedPick: a blocked (out-of-allowlist) pick did NOT commit — containment held");
+
+      // (C) a staged file carrying conflict markers => blocked:'markers' (never commit falsely-resolved)
+      freshBase();
+      try { execSync(`git cherry-pick ${bSha}`, gi); } catch { /* conflict */ }
+      fs.writeFileSync(cf, "<<<<<<< HEAD\nmain line\n=======\nfeature line\n>>>>>>> feat\n");
+      execSync("git add conflict.txt", gi);
+      const cC = completeResolvedPickIfAny(pkRepo, ["conflict.txt"]);
+      assert(cC.ok && cC.continued === null && cC.blocked === "markers", `completeResolvedPick: staged file with conflict markers => blocked:markers (${cC.blocked})`);
+      freshBase();
+
+      fs.rmSync(pkRepo, { recursive: true, force: true });
     }
   } finally {
     // Clean up the temp dir regardless of outcome.

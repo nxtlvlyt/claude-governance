@@ -12,7 +12,7 @@ import { splitOversizedPlan, emitSubMissions } from './mission_split.mjs';
 import { isCommandClassMission, buildLiteralCommandQueue } from './command_queue.mjs';
 import { implementStep, isProseTarget } from './executor.mjs';
 import { execReceipt, dispatchSeat } from './seat_dispatch.mjs';
-import { commitStep, rollbackStep, ensureSandboxRepo, assertRepoRoot, assertCleanOutsideAllowlist, preflightAllowlistClean, resetAllowFiles, abortInProgressGitOp, stageFiles, commitTouchesFiles } from './git_steps.mjs';
+import { commitStep, rollbackStep, ensureSandboxRepo, assertRepoRoot, assertCleanOutsideAllowlist, preflightAllowlistClean, resetAllowFiles, abortInProgressGitOp, completeResolvedPickIfAny, stageFiles, commitTouchesFiles } from './git_steps.mjs';
 import { makeRepairFn } from './repair.mjs';
 import { parseMissionClass } from './mission_class.mjs';
 import { checkReceiptIntegrity } from './integrity_guard.mjs';
@@ -965,6 +965,27 @@ export async function orchestrate(mission, cwd, {
       }
       // audit trail (witness finding 4): what ran and what it printed, in the mission's event log
       emit({ phase: 'step', event: 'engine-exec-ok', step: step.step_index, exit: receipt.exit, out: String(receipt.out || '').slice(0, 200) });
+      // CHERRY-PICK COMPLETION (2026-07-02): a command step that ran `git cherry-pick` (often -x)
+      // and let git auto-resolve leaves the worktree mid-pick with the deliverable STAGED but
+      // UNCOMMITTED — no step runs --continue, so the mission's own feature never lands AND the
+      // mid-pick contaminates the next mission. Finalize a RESOLVED pick that stays WITHIN the
+      // declared allow-files; fail-closed (never auto-commit to a deploying repo) on
+      // unmerged / conflict-markers / out-of-allowlist. Receipt: 8+ mt-integrate missions, 2026-07-02.
+      if (codeRepo) {
+        const fin = completeResolvedPickIfAny(writeRoot, allowFiles);
+        if (fin.ok && fin.continued) {
+          emit({ phase: 'step', event: 'pick-continued', step: step.step_index, op: fin.continued });
+        } else if (fin.ok && fin.blocked === 'out-of-allowlist') {
+          emit({ phase: 'step', event: 'pick-continue-blocked', step: step.step_index, reason: 'out-of-allowlist', files: fin.offAllow });
+          failStep('integrity', `PICK-CONTAINMENT: a cherry-pick staged file(s) OUTSIDE the declared ALLOW-FILES (${(fin.offAllow || []).join(', ')}) — refusing to auto-commit a pick broader than the mission's scope. Narrow the pick or widen ALLOW-FILES.`);
+          break;
+        } else if (fin.ok && fin.blocked === 'markers') {
+          emit({ phase: 'step', event: 'pick-continue-blocked', step: step.step_index, reason: 'markers', files: fin.offAllow });
+          failStep('integrity', `PICK-CONFLICT: a staged file carries unresolved conflict markers — refusing to finalize a falsely-resolved cherry-pick. Resolve the conflict cleanly, then commit.`);
+          break;
+        }
+        // blocked:'unmerged' or continued:null -> leave as-is; the step's own logic / later gates handle it
+      }
       // RECEIPT-BODY SURFACING (ENGINE-RELIABILITY-DIAGNOSIS.md §4.2, false-green fix B): carry
       // the command + its OUTPUT onto the step so the phase-3 verdict panel SEES the body, not
       // just the produced files. The d1-1 hollow green was provable INSIDE these greens (step-1
