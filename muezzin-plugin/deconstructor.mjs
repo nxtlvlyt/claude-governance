@@ -146,6 +146,18 @@ export function validateMicroAction(step, i, opts = {}) {
       errs.push(`step ${i}: brittle exact line-count witness ('${cmd.slice(0, 70)}') — an EXACT \`.Count -eq/-ne <N>\` false-fails when a benign re-integration changes the line count by one. Use a floor (\`-ge <min>\`/\`-gt <min>\`), a zero/nonzero check (\`-eq 0\`/\`-ne 0\`), or witness required CONTENT with Select-String -Pattern.`);
     }
   }
+  // INLINE-EVAL MANGLE FLOOR (all mission classes, 2026-07-02): a LONG inline `node -e "<script>"`
+  // witness self-mangles its quoting when the payload nests quotes/HTML — receipts: pwa-install-banner
+  // ("[eval]:1 ... <script src=\\" + raw newline), operators-html-business-claim, oracle-ingest-v4
+  // (3-mission class). The deterministic shape: write the script to a scratch .mjs via a command step,
+  // then `node <file>`. Short one-liners (< 150 chars, no nested-quote risk) stay allowed.
+  if (typeof step.validation_command === 'string') {
+    const cmd = step.validation_command;
+    const evalM = cmd.match(/\bnode(?:\.exe)?\s+(?:-e|--eval)\s+(.+)$/is);
+    if (evalM && (evalM[1].length > 150 || /<script|<\/|require\(.+require\(/is.test(evalM[1]))) {
+      errs.push(`step ${i}: inline-eval mangle risk — a ${evalM[1].length}-char \`node -e\` payload with nested quotes/HTML self-mangles under PowerShell quoting (pwa-install-banner receipt: "[eval]:1" parse death). Write the script to a scratch file first (command step: Set-Content scratch-witness.mjs '<script>') then run \`node scratch-witness.mjs\` — never a long inline eval.`);
+    }
+  }
   // CHERRY-PICK COMPLETION FLOOR (code-repo only, cron-dispatcher.S1 + trip-diary + sentry receipts
   // 2026-07-02): `git cherry-pick <sha>` whose conflicts git AUTO-resolves EXITS NON-ZERO and leaves the
   // worktree mid-pick ("all conflicts fixed: run --continue"). A validation_command that runs a bare pick
@@ -231,6 +243,7 @@ HARD RULES: step_index sequential from 1; each step is EXACTLY ONE of {edit ONE 
 APPEND/MODIFY RULE: any step that MODIFIES or APPENDS to a file an earlier step created MUST list that same file in its context_dependencies — the executor emits FULL file contents and regenerates from scratch without it, silently dropping earlier lines (integrity-guard WEAKENED-VERIFICATION receipt, m28 2026-06-10).
 SINGLE-EMISSION RULE for SINGLE-SUBJECT research deliverables: a .md/.json deliverable about ONE subject is emitted COMPLETE in ONE step (full content, all required sections) — NEVER built by appending across steps (receipt: 4 thin-card failures, verdict BLOCK 2026-06-10). Preceding steps may gather inputs into separate files the emission step lists as context_dependencies. For MULTI-SUBJECT deliverables the SIZE/SCOPE RULE below TAKES PRECEDENCE: each part-file is itself emitted complete-in-one-step (so both rules hold at the part level).
 VALIDATION COMMANDS run under PowerShell (pwsh) on Windows and MUST be STATELESS single expressions — no PowerShell variables ($x), no session state, no multi-statement pipelines that define-then-use (receipt: $-stripped command ParserError killed a mission 2026-06-10). Good shapes: node -c <file> · Test-Path <file> · Select-String -Path <file> -Pattern '<regex>' -Quiet · (Get-Item <file>).Length -gt 1000.
+INLINE-EVAL RULE (3-mission mangle class 2026-07-02: pwa-install-banner "[eval]:1" parse death): NEVER a long inline node -e "<script>" whose payload nests quotes or HTML — PowerShell quoting self-mangles it deterministically. For any browser/JS-runtime witness beyond a trivial one-liner: a 'command' step writes the script to a scratch .mjs (Set-Content), then the witness runs node <scratch-file>.
 POSITIVE-ASSERTION HARD RULE (false-green, d1-1 receipt: 8 steps exited 0 while the remote DB had 0 tables — step 8 printed True on a 0-row query): a validation_command MUST exit NON-ZERO when the real outcome is ABSENT. A witness that prints True / exits 0 on an EMPTY or ZERO-ROW result is a HOLLOW witness and is FORBIDDEN — it proves the command RAN, not that the deed HAPPENED. Most tools (wrangler, curl, psql, gh) exit 0 when the QUERY/REQUEST succeeds regardless of whether anything was found, so you must wrap the witness to ASSERT the positive outcome and FAIL when it is absent. Concrete positive-assertion shapes:
   · remote row-count: wrangler d1 execute <db> --remote --json --command "SELECT COUNT(*) AS n FROM <table>" piped/wrapped so it exits 1 if n==0 — e.g. wrap as "$o = wrangler d1 execute <db> --remote --json --command 'SELECT COUNT(*) AS n FROM <table>' | ConvertFrom-Json; if (-not ($o.result.results[0].n -gt 0)) { exit 1 }" (but recall the STATELESS rule above — if a $-bearing assertion is needed, the engine permits it ONLY when it is the COMPLETE single witness expression, not a define-then-use pipeline that strips);
   · http endpoint: "$r = Invoke-WebRequest -Uri <url> -UseBasicParsing; if ($r.StatusCode -ne 200 -or -not $r.Content) { exit 1 }" — assert BOTH status 200 AND a non-empty body, fail otherwise;
@@ -663,6 +676,17 @@ Context: Node + TypeScript project; DB schema in prisma/schema.prisma; tests run
     ck(!validateMicroAction(crossClause, 1, { codeRepo: true }).some((e) => e.includes('exact line-count')), 'FALSE-FLAG: -ne 200 in an UNRELATED clause + .Count -gt elsewhere -> NOT flagged (adjacency required)');
     const dateToken = { ...base, validation_command: "if (-not (git log --oneline -5 | Select-String '20260702' -Quiet)) { exit 1 }" };
     ck(!validateMicroAction(dateToken, 1, { codeRepo: true }).some((e) => e.includes('SHA-in-log-window')), 'FALSE-FLAG: all-digit token (a DATE, not a sha) in a log grep -> NOT flagged (letter required)');
+  }
+
+  // INLINE-EVAL MANGLE gate (pwa-install-banner/operators-html/oracle-ingest-v4 receipts 2026-07-02)
+  {
+    const base = { step_index: 1, description: 'browser-witness the widget', action_type: 'verify', target_files: [], context_dependencies: [] };
+    const longEval = { ...base, validation_command: `node -e "const{chromium}=require('playwright');const fs=require('fs');const html='<!doctype html><html><body><script src=\\'x.js\\'></scr'+'ipt></body></html>';(async()=>{const b=await chromium.launch();const p=await b.newPage();await p.setContent(html);await b.close();})()"` };
+    ck(validateMicroAction(longEval, 1, {}).some((e) => e.includes('inline-eval mangle')), 'INLINE-EVAL: long node -e with nested quotes/HTML -> REJECTED (any mission class)');
+    const shortEval = { ...base, validation_command: 'node -e "process.exit(require(\'fs\').existsSync(\'x.js\')?0:1)"' };
+    ck(!validateMicroAction(shortEval, 1, {}).some((e) => e.includes('inline-eval mangle')), 'INLINE-EVAL: short simple one-liner -> allowed');
+    const fileRun = { ...base, validation_command: 'node scratch-witness.mjs' };
+    ck(!validateMicroAction(fileRun, 1, {}).some((e) => e.includes('inline-eval mangle')), 'INLINE-EVAL: node <file> (the prescribed shape) -> allowed');
   }
 
   ck(!validateMicroQueue({ mission_id: 'M-X', steps: [

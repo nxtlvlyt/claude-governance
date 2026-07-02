@@ -479,6 +479,34 @@ export function sourceCommitAlreadyIntegrated(repoRoot, sourceSha, { scan = 80 }
 }
 
 /**
+ * DOC-SHRINKAGE FLOOR (2026-07-02, judge-ruled chain fix). Receipts: commit 7b41014 gutted
+ * docs/DISASTER-RECOVERY.md 375->108 lines (sections 1-5 destroyed), 649edc7 gutted
+ * EMAIL-REDACTION 305->179 (starts mid-sentence) — executor re-emission (windowed-edit partial
+ * output) DESTROYED substrate and the engine committed it. Plan-time guards (LARGE-DELETION,
+ * integrity_guard) cannot see emission size; this floor runs at the ONLY layer that can — just
+ * before commitStep, comparing the working tree against HEAD.
+ *
+ * Fires when a tracked file of >= minLines shrinks below `ratio` of its HEAD line-count and the
+ * step description declares NO deletion/condense intent. Returns { ok, violations } — the caller
+ * fails the step (rollback), it never throws (a floor must not crash the engine).
+ */
+export function assertNoUndeclaredShrinkage(cwd, files = [], intentText = '', { ratio = 0.5, minLines = 20 } = {}) {
+  const intent = /\b(delet|remov|prun|truncat|condens|replac|rewrit|trim|shorten|slim|strip|gut|prune|consolidat)/i.test(String(intentText || ''));
+  if (intent) return { ok: true, violations: [], declared: true };
+  const violations = [];
+  for (const f of files) {
+    let oldTxt = null;
+    try { oldTxt = execSync(`git show HEAD:${quote(f)}`, gitOpts(cwd)).toString(); } catch { continue; }  // untracked/new file: no baseline, no floor
+    const oldLines = oldTxt.split(/\r?\n/).length;
+    if (oldLines < minLines) continue;                                   // tiny files churn legitimately
+    let newLines = 0;
+    try { newLines = fs.readFileSync(path.join(cwd, f), 'utf8').split(/\r?\n/).length; } catch { newLines = 0; }  // deleted on disk = total shrink
+    if (newLines < oldLines * ratio) violations.push({ file: f, oldLines, newLines });
+  }
+  return { ok: violations.length === 0, violations, declared: false };
+}
+
+/**
  * Extract candidate SOURCE commit sha(s) from an mt-integrate mission's text. The source commit is
  * named in prose: "cherry-pick commit <sha>", "Bring commit <sha>", "(origin: <sha>)". Returns unique
  * 7-40 hex shas that appear in an integration context. Used ONLY as candidates for
@@ -905,6 +933,39 @@ function selfTest() {
       const multi = extractSourceShas("Step 2: cherry-pick 375e40b, 3bb992b, acae717 in chronological order onto HEAD.");
       assert(multi.includes("375e40b") && multi.includes("3bb992b") && multi.includes("acae717"), `extractSourceShas: comma-separated multi-pick yields all 3 shas (${multi.join(',')})`);
       assert(extractSourceShas("no shas here, just prose about integration").length === 0, "extractSourceShas: prose with no hex sha => empty");
+    }
+
+    // ---- assertNoUndeclaredShrinkage (DOC-SHRINKAGE FLOOR; 7b41014/649edc7 gut receipts) ----
+    {
+      const doc = "doc.md";
+      fs.writeFileSync(path.join(tmp, doc), Array.from({ length: 40 }, (_, i) => `line ${i + 1}`).join("\n") + "\n");
+      execSync(`git add ${doc}`, { cwd: tmp, stdio: "pipe" });
+      execSync('git commit --no-verify -m "seed 40-line doc"', { cwd: tmp, stdio: "pipe" });
+      // (a) gut it on disk (40 -> 8 lines), no deletion intent => VIOLATION
+      fs.writeFileSync(path.join(tmp, doc), "line 1\nline 2\nline 3\nline 4\nline 5\nline 6\nline 7\nline 8\n");
+      let r = assertNoUndeclaredShrinkage(tmp, [doc], "Integrate the QC pipeline doc into the repo");
+      assert(!r.ok && r.violations.length === 1 && r.violations[0].file === doc, `shrinkage: 40->9 lines without intent => VIOLATION (${JSON.stringify(r.violations[0] || {})})`);
+      // (b) same shrink with DECLARED intent => allowed
+      r = assertNoUndeclaredShrinkage(tmp, [doc], "Condense the doc to a summary, removing sections 2-5");
+      assert(r.ok && r.declared === true, "shrinkage: declared condense/remove intent => allowed");
+      // (c) mild trim (40 -> 25 lines) => allowed (above the 50% ratio)
+      fs.writeFileSync(path.join(tmp, doc), Array.from({ length: 25 }, (_, i) => `line ${i + 1}`).join("\n") + "\n");
+      r = assertNoUndeclaredShrinkage(tmp, [doc], "Integrate the doc");
+      assert(r.ok, "shrinkage: 40->25 (above 50% ratio) => allowed");
+      // (d) small tracked file (10 lines) shrinking => exempt (minLines floor)
+      const small = "small.md";
+      fs.writeFileSync(path.join(tmp, small), "a\nb\nc\nd\ne\nf\ng\nh\ni\nj\n");
+      execSync(`git add ${small}`, { cwd: tmp, stdio: "pipe" });
+      execSync('git commit --no-verify -m "seed small"', { cwd: tmp, stdio: "pipe" });
+      fs.writeFileSync(path.join(tmp, small), "a\n");
+      r = assertNoUndeclaredShrinkage(tmp, [small], "update");
+      assert(r.ok, "shrinkage: <20-line file => exempt (tiny files churn legitimately)");
+      // (e) brand-new untracked file => exempt (no baseline)
+      fs.writeFileSync(path.join(tmp, "new.md"), "x\n");
+      r = assertNoUndeclaredShrinkage(tmp, ["new.md"], "create the file");
+      assert(r.ok, "shrinkage: untracked/new file => exempt (no HEAD baseline)");
+      // restore doc for any later fixtures
+      execSync(`git checkout -- ${doc}`, { cwd: tmp, stdio: "pipe" });
     }
   } finally {
     // Clean up the temp dir regardless of outcome.

@@ -12,7 +12,7 @@ import { splitOversizedPlan, emitSubMissions } from './mission_split.mjs';
 import { isCommandClassMission, buildLiteralCommandQueue } from './command_queue.mjs';
 import { implementStep, isProseTarget } from './executor.mjs';
 import { execReceipt, dispatchSeat } from './seat_dispatch.mjs';
-import { commitStep, rollbackStep, ensureSandboxRepo, assertRepoRoot, assertCleanOutsideAllowlist, preflightAllowlistClean, resetAllowFiles, abortInProgressGitOp, completeResolvedPickIfAny, stageFiles, commitTouchesFiles } from './git_steps.mjs';
+import { commitStep, rollbackStep, ensureSandboxRepo, assertRepoRoot, assertCleanOutsideAllowlist, preflightAllowlistClean, resetAllowFiles, abortInProgressGitOp, completeResolvedPickIfAny, stageFiles, commitTouchesFiles, assertNoUndeclaredShrinkage } from './git_steps.mjs';
 import { makeRepairFn } from './repair.mjs';
 import { parseMissionClass } from './mission_class.mjs';
 import { checkReceiptIntegrity } from './integrity_guard.mjs';
@@ -1198,6 +1198,20 @@ export async function orchestrate(mission, cwd, {
           rollbackStep(writeRoot, gitFiles(step.target_files));
           emit({ phase: 'step', event: 'containment-drift', step: step.step_index, dirty: drift.dirty.slice(0, 12) });
           failStep('containment-drift', (drift.dirty || []).join(', '), { dirty: drift.dirty });  // DEFECT — touched files outside the allowlist; never a same-step retry
+          break;
+        }
+      }
+      // DOC-SHRINKAGE FLOOR (2026-07-02, judge-ruled chain fix): an executor re-emission that
+      // silently DESTROYS most of an existing file (7b41014: DISASTER-RECOVERY 375->108;
+      // 649edc7: EMAIL-REDACTION 305->179 — gutted, committed, DONE'd) must FAIL the step, not
+      // become substrate. Plan-time guards can't see emission size; only the commit layer can.
+      {
+        const shrink = assertNoUndeclaredShrinkage(writeRoot, gitFiles(step.target_files), step.description);
+        if (!shrink.ok) {
+          recEmission('miss');
+          rollbackStep(writeRoot, gitFiles(step.target_files));
+          emit({ phase: 'step', event: 'undeclared-shrinkage', step: step.step_index, violations: shrink.violations.slice(0, 6) });
+          failStep('undeclared-shrinkage', shrink.violations.map((v) => `${v.file} ${v.oldLines}->${v.newLines} lines`).join(', '), { violations: shrink.violations });  // DEFECT — partial re-emission destroying substrate; never a same-step retry
           break;
         }
       }
