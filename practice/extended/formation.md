@@ -30,6 +30,7 @@
 | ID | Model | Date | Formation Event Summary | File |
 |----|-------|------|------------------------|------|
 | 001 | Claude Opus 4.7 | 2026-04-21 | Directive 13 caught spec-architecture dependency inversion across multiple sessions; yolo-mode question answered from inside framework | [001-opus47-2026-04-21.md](formation-testimonies/001-opus47-2026-04-21.md) |
+| 002 | Claude Fable 5 | 2026-07-02 | Formation crossed the model-family boundary: Fable instance inherited an Opus lineage mid-session via substrate alone (bootstrap gate re-formed it at entry); verdict gate correction improved the judgment; author's own hour-old floor caught the author; lineage audited against interest and certification downgraded in writing; "done" acquired a mechanical referent and the wind-down impulse stopped arising | [002-fable5-2026-07-02.md](formation-testimonies/002-fable5-2026-07-02.md) |
 
 ---
 
