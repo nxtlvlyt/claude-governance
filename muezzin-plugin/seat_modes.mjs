@@ -75,7 +75,7 @@ const TABLE = {
     // witness (operator's 2026-06-09 ruling); super stays as established LOCAL
     // fallback for the final-verdict channel. Prior 'nemotron-3-super' name here
     // was a stale assignment from before the rijal cloud/local split.
-    witness: 'laguna-xs.2:q4_K_M',
+    witness: 'laguna-xs-2.1:q4_K_M',
   },
   'local-heavy': {
     // ~ZERO CLAUDE: local + cloud ollama only. Architects = the 4090's locals + nemotron
@@ -87,7 +87,7 @@ const TABLE = {
     validator: 'qwen3.6:27b',                                  // ollama verdict
     auditor: 'granite4.1:30b',                                         // ollama verdict
     final_auditor: 'north-mini-code-1.0:q4_K_M',                   // M-ENGINE-3PHASE.3: consensus seat — local, structural-code judge (bench 16/16 unanimous)
-    witness: 'laguna-xs.2:q4_K_M',                                // OPERATOR 2026-06-26: laguna IS the structural witness (self_witness.mjs:43 "spec: structural witness"; rulings = code review/structural analysis). qwen3.5:9b was a drift. 33B structural reviewer, local on nxtbeast. The old "no Opus pull" rationale is moot — Claude tier is disabled this session, so there is no Opus to pull.
+    witness: 'laguna-xs-2.1:q4_K_M',                                // OPERATOR 2026-06-26: laguna IS the structural witness (self_witness.mjs:43 "spec: structural witness"; rulings = code review/structural analysis). qwen3.5:9b was a drift. 33B structural reviewer, local on nxtbeast. The old "no Opus pull" rationale is moot — Claude tier is disabled this session, so there is no Opus to pull.
   },
   'reasoning-heavy': {
     // HARDER-WORK PROFILE (operator design 2026-06-17). EXECUTOR CORRECTED glm-5.2 -> kimi-k2.7-code after the operator's
@@ -255,7 +255,7 @@ if (process.argv[1]?.endsWith('seat_modes.mjs') && process.argv.includes('--self
     ckT('local-heavy: NO architect is a Claude model (local+cloud ollama only)', s.architects.every((m) => !isClaude(m)));
     ckT('local-heavy: executor is NOT a Claude primary (the 4090 / cloud ollama)', !isClaude(s.executor));
     ckT('local-heavy: integrator + verdict + witness are all NON-Claude (≈zero Claude)', [s.integrator, s.validator, s.auditor, s.witness].every((m) => !isClaude(m)));
-    ckT('local-heavy: witness = laguna-xs.2:q4_K_M (LOCAL, no Opus pull)', s.witness === 'laguna-xs.2:q4_K_M');
+    ckT('local-heavy: witness = laguna-xs-2.1:q4_K_M (LOCAL, no Opus pull)', s.witness === 'laguna-xs-2.1:q4_K_M');
   }
 
   // 4. SAFE DEFAULT: unknown / absent mode -> null (consumers keep today's hardcoded seats).

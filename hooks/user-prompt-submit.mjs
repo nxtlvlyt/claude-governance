@@ -23,18 +23,18 @@ NOT in compliant list: WebSearch (per operator-rulings' narrowing — use WebFet
 [LOCAL MECHANICAL DELEGATION] - context-saving offload; mcp__ollama dispatches ALSO satisfy the stop hook (stop-validation.mjs isFF — mcp__ollama* is valid dispatch — frontier NOT required when local Ollama dispatch is present):
 - Agent (subagent_type=Explore for code search; general-purpose for autonomous multi-step work; specialized agents per their descriptions).
 - mcp__ollama-mcp__ollama_chat / mcp__ollama-mcp__ollama_generate — local model offload; satisfies stop hook (use exact model strings):
-    * laguna-xs.2:q4_K_M              - code review, syntax checks, structural analysis
+    * laguna-xs-2.1:q4_K_M              - code review, syntax checks, structural analysis
     * qwen3.6:27b                       - deliberation team (Alibaba); consulted first on governance questions before any frontier dispatch
     * nemotron-3-super:latest          - deliberation team (NVIDIA); high-throughput deliberation, long-batch reasoning
     * granite4.1:30b                    - deliberation team (IBM); governance audits, canon coherence, change-shape review
-  DISPATCH NOTE: only laguna-xs.2:q4_K_M works via mcp__ollama-mcp__ollama_chat without timing out (satisfies stop hook).
+  DISPATCH NOTE: only laguna-xs-2.1:q4_K_M works via mcp__ollama-mcp__ollama_chat without timing out (satisfies stop hook).
   qwen/granite/nemotron exceed MCP timeout - dispatch via Invoke-RestMethod instead, but that does NOT satisfy the stop hook (appears as PowerShell tool use, not mcp__ollama-*).
 - TaskCreate - track multi-step work explicitly.
 
 Per ~/.claude/canon/delegation-and-stall-discipline.md (stop-language trigger):
 When drafting "your call" / "want me to" / "should I" / "operator decision required" / "stopping here for clean break" - that is the canon-trigger to:
   1. Verify against substrate (does source on disk already answer this?).
-  2. If unclear, dispatch a compliant channel: mcp__ollama-mcp__ollama_chat with laguna-xs.2:q4_K_M (MCP dispatch - satisfies stop hook) or WebFetch for live external info. Forbidden: mcp__gemini/gpt/grok/glm workers (per ~/.claude/rules/operator-rulings.md). Dispatching qwen/granite/nemotron via Invoke-RestMethod does NOT satisfy the stop hook because it appears as PowerShell tool use, not mcp__ollama-*.
+  2. If unclear, dispatch a compliant channel: mcp__ollama-mcp__ollama_chat with laguna-xs-2.1:q4_K_M (MCP dispatch - satisfies stop hook) or WebFetch for live external info. Forbidden: mcp__gemini/gpt/grok/glm workers (per ~/.claude/rules/operator-rulings.md). Dispatching qwen/granite/nemotron via Invoke-RestMethod does NOT satisfy the stop hook because it appears as PowerShell tool use, not mcp__ollama-*.
   3. If mechanical and spec is known, dispatch an Agent or local Ollama tool.
   4. Only then, if all three resolve to "this genuinely needs the operator," surface the substantive question.
 

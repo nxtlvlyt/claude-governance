@@ -4,7 +4,7 @@
 // guardian").
 //
 // DEFAULT MODEL RULING SUPERSEDED 2026-06-30 (operator's explicit word: "we change that to
-// ornith and guardian"): the 2026-06-26 ruling below naming laguna-xs.2:q4_K_M as the default
+// ornith and guardian"): the 2026-06-26 ruling below naming laguna-xs-2.1:q4_K_M as the default
 // structural witness is REPLACED — ornith:9b is now the default (checkStructure's `dispatch`
 // param, witnessArtifact's `structureModel` param, and --check-commit's --model default all
 // changed). Reason: same-session live evidence — ornith:9b parsed its verdict tag cleanly on
@@ -12,7 +12,7 @@
 // gave the most specific/substantive verdict notes of any model tested, ran fastest end-to-end
 // (6.9s vs laguna's 13.2s), and at ~6GB fits ALONGSIDE granite4.1-guardian:8b (14GB total) with
 // NO GR10 serialization needed at all — removing the whole laguna unload-then-guardian dance
-// for the common case. laguna-xs.2:q4_K_M, ornith:35b, and ornith9bDispatch/ornith35bDispatch
+// for the common case. laguna-xs-2.1:q4_K_M, ornith:35b, and ornith9bDispatch/ornith35bDispatch
 // all remain available via --model override; nothing was removed, only the default moved.
 //
 // THE HOLE THIS CLOSES: the daemon's SEATS are auto-witnessed (seat_dispatch). The
@@ -23,7 +23,7 @@
 // the same independent-witness discipline the seats already have.
 //
 // THE TWO WITNESSES ARE COMPLEMENTARY, NOT REDUNDANT (spec lines 28-31):
-//   - structural (DEFAULT ornith:9b, dense qwen35 base; laguna-xs.2:q4_K_M still available via
+//   - structural (DEFAULT ornith:9b, dense qwen35 base; laguna-xs-2.1:q4_K_M still available via
 //     --model laguna): "is the REASONING sound, correctly scoped, faithful to its cited
 //     receipts?" — logic flaws, gaps, overlaps.
 //   - guardian (granite4.1-guardian:8b groundedness): "is every factual CLAIM supported by
@@ -64,7 +64,7 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 // ~22GB of models on an 8GB GPU -- a real OOM/crash risk, not a cosmetic issue. Both must be set
 // together (MUEZZIN_SELF_WITNESS_OLLAMA_BASE + MUEZZIN_GPU_VRAM_BYTES) when routing local.
 const OLLAMA_BASE = process.env.MUEZZIN_SELF_WITNESS_OLLAMA_BASE || 'http://nxtbeast:11434';
-const LAGUNA_MODEL = 'laguna-xs.2:q4_K_M';   // 33B structural reviewer (spec: structural witness)
+const LAGUNA_MODEL = 'laguna-xs-2.1:q4_K_M';   // 33B structural reviewer (spec: structural witness)
 // ORNITH (installed 2026-06-30, operator-requested): ALTERNATIVE structural-witness models —
 // NOT a replacement for the operator-designated default above. Two real, distinct sizes exist
 // (confirmed via /api/show: different digests, different sizes — not the same weights retagged):
@@ -112,7 +112,12 @@ export const LAGUNA_SYSTEM =
 // signal (never a block). Mirrors parseGuardianVerdict's shape so the two read alike.
 export function parseLagunaVerdict(text) {
   const t = String(text ?? '');
-  const tag = t.match(/<verdict>\s*(APPROVE|REVISE|REJECT|BLOCK)\s*<\/verdict>/i);
+  // LAST tag wins (laguna-xs-2.1 swap, 2026-07-02): xs-2.1 reasons inline in the response
+  // body before deciding (probe receipt: 663 tokens of deliberation, tag at the END). A
+  // reason-then-decide model may QUOTE or muse about verdict tags mid-reasoning; the final
+  // tag is the decision. First-match would grab the musing.
+  const tags = [...t.matchAll(/<verdict>\s*(APPROVE|REVISE|REJECT|BLOCK)\s*<\/verdict>/gi)];
+  const tag = tags.length ? tags[tags.length - 1] : null;
   const norm = (w) => { const u = String(w).toUpperCase(); return u === 'BLOCK' ? 'REJECT' : u; };
   if (tag) return { verdict: norm(tag[1]), notes: t.replace(/\s+/g, ' ').trim().slice(0, 400) };
   const bare = t.trim().match(/^[^A-Za-z]*(APPROVE|REVISE|REJECT|BLOCK)\b/i);
@@ -149,12 +154,17 @@ export function buildLagunaPrompt(artifactText, contextText, { maxArt = 9000, ma
 
 // real local dispatch to laguna-xs.2 (streaming-accumulate, bounded). Throws on transport
 // error; the caller is fail-soft and swallows it. Same transport shape as guardianDispatch.
-export async function lagunaDispatch(system, prompt, { model = LAGUNA_MODEL, num_predict = 512, timeoutMs = 600000 } = {}) {
+export async function lagunaDispatch(system, prompt, { model = LAGUNA_MODEL, num_predict = 900, timeoutMs = 600000 } = {}) {
   // num_predict raised 200 -> 512 (2026-07-02): at 200 the structural witness (ornith:9b) ran out
   // of tokens mid-reasoning and never emitted its <verdict> tag — receipt: trip-diary-backend
   // SELF-WITNESS[before] REVISE "The analysis is incomplete and cuts off mid-sentence, failing to
   // provide the required verdict" (even after the no-verdict re-ask). 512 gives room for reasoning
   // + the verdict; still bounded. Guardian (separate dispatch, num_predict 120) is unaffected.
+  // Raised again 512 -> 900 (laguna-xs-2.1 swap, 2026-07-02): xs-2.1 reasons inline BY DESIGN
+  // (interleaved reasoning; no separate thinking field via Ollama, and think:false does not
+  // suppress it). Probe receipts: at 250 tokens the verdict tag NEVER arrived (all reasoning);
+  // the full reason-then-decide run finished at 663 tokens (verdict REJECT + sharp rationale,
+  // 3.5s eval). 900 = observed need + headroom; still bounded.
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), timeoutMs);
   try {
@@ -584,15 +594,15 @@ if (process.argv[1] && process.argv[1].endsWith('self_witness.mjs') && !process.
   // ---- summarizePs + wouldOversubscribe (GR10 VRAM logic) ----
   const psEmpty = summarizePs({ models: [] });
   ck(psEmpty.residentVram === 0 && psEmpty.models.length === 0, 'summarizePs: empty -> 0 resident');
-  const psLag = summarizePs({ models: [{ name: 'laguna-xs.2:q4_K_M', size_vram: 22 * GB }] });
+  const psLag = summarizePs({ models: [{ name: 'laguna-xs-2.1:q4_K_M', size_vram: 22 * GB }] });
   ck(psLag.residentVram === 22 * GB, 'summarizePs: sums size_vram');
   // empty GPU: laguna fits (22 + 1.5 margin < 24) -> no oversubscribe
-  ck(wouldOversubscribe(psEmpty, 'laguna-xs.2:q4_K_M', 22 * GB) === false, 'GR10: empty GPU, laguna fits -> no oversubscribe');
+  ck(wouldOversubscribe(psEmpty, 'laguna-xs-2.1:q4_K_M', 22 * GB) === false, 'GR10: empty GPU, laguna fits -> no oversubscribe');
   // big model already resident (e.g. a daemon seat) -> dispatching laguna WOULD oversubscribe -> YIELD
   const psBusy = summarizePs({ models: [{ name: 'some-22b-seat', size_vram: 18 * GB }] });
-  ck(wouldOversubscribe(psBusy, 'laguna-xs.2:q4_K_M', 22 * GB) === true, 'GR10: 18GB resident + 22GB laguna -> oversubscribe -> yield');
+  ck(wouldOversubscribe(psBusy, 'laguna-xs-2.1:q4_K_M', 22 * GB) === true, 'GR10: 18GB resident + 22GB laguna -> oversubscribe -> yield');
   // laguna already resident -> no new VRAM -> never oversubscribe
-  ck(wouldOversubscribe(psLag, 'laguna-xs.2:q4_K_M', 22 * GB) === false, 'GR10: laguna already resident -> no new load -> ok');
+  ck(wouldOversubscribe(psLag, 'laguna-xs-2.1:q4_K_M', 22 * GB) === false, 'GR10: laguna already resident -> no new load -> ok');
 
   // ---- buildReceipt: all signal combinations, NON-BLOCKING ----
   const rOk = buildReceipt({ context: { artifact: 'M-X' }, laguna: { verdict: 'APPROVE', ran: true }, guardian: { grounded: true, ran: true } });
@@ -641,7 +651,7 @@ if (process.argv[1] && process.argv[1].endsWith('self_witness.mjs') && !process.
     unload: fakeUnloadOrnith, emit: (r) => r, structureModel: 'ornith:35b',
   });
   ck(calls3.includes('unload:ornith:35b'), 'REGRESSION GUARD: structureModel:"ornith:35b" -> unload targets ornith:35b, NOT the hardcoded laguna name');
-  ck(!calls3.includes('unload:laguna-xs.2:q4_K_M'), 'REGRESSION GUARD: structureModel override -> unload NEVER falls back to the hardcoded laguna name');
+  ck(!calls3.includes('unload:laguna-xs-2.1:q4_K_M'), 'REGRESSION GUARD: structureModel override -> unload NEVER falls back to the hardcoded laguna name');
 
   // admission check also honors structureModel: a probe showing ornith ALREADY resident
   // (21GB) must read as "no NEW VRAM" for an ornith-targeted dispatch, same as the existing

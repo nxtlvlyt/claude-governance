@@ -3,7 +3,7 @@ name: Perfect Claude Repo Architecture
 description: Formation vs procedure split — the canonical two-layer design for Claude Code projects
 type: canon-ruling
 date: 2026-05-10
-witness: laguna-xs.2:q4_K_M (MCP dispatch, pre-write audit)
+witness: laguna-xs-2.1:q4_K_M (v-swap 2026-07-02, was xs.2) (MCP dispatch, pre-write audit)
 ---
 
 # Canon Ruling: The Perfect Claude Repo Architecture

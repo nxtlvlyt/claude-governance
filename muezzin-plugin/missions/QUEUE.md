@@ -714,3 +714,13 @@ minimax-m2.1:cloud, nemotron-3-ultra:cloud. ORIGINAL seat plan restored exactly 
 B=deepseek C=minimax, integrator=nemotron) — no substitution, no ratification needed. The
 interim local downgrade is reverted. Note for the record: Moonshot cloud is now kimi-k2.5
 (k2.6 left the catalog).
+
+**⛔ SUPERSEDED SAME DAY by the operator's NO-CLOUD ruling (2026-07-02, later that day,
+recorded in ~/.claude/rules/operator-rulings.md: "we are not supposed to be using any
+ollama cloud models" — LOCAL nxtbeast + Claude tier only).** The entry above was that
+day's exact Fifth-Law error-2: DO NOT act on it. Live config verified compliant
+(seat_modes.mjs local roster, claude-local-hybrid active). This conflict receipt was owed
+in QUEUE the moment the ruling landed (operator-rulings.md line 6 mandates it) and is
+stamped 2026-07-02T23:3xZ by the authority-decay sweep (blind-spot workflow wf_0b61e8ba) —
+until now the stale text sat as this file's LAST WORD. SEAT-PLAN-OPERATOR-ORIGINAL.md's
+cloud-primary seat names carry the same supersession.

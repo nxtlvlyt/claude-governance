@@ -18,7 +18,7 @@ chain and receives the final report. It does not evaluate, overturn, or summariz
 gemma4:31b         → workshop          (architectural shape, first-pass concerns)
 qwen3.6:27b        → deep-dive         (investigates gemma concerns, SOTA research)
 claude-sonnet-4-6  → synthesis         (in-conversation architect, history context)
-laguna-xs.2:q4_K_M → code review       (investigates qwen/Sonnet concerns, structural audit)
+laguna-xs-2.1:q4_K_M (v-swap 2026-07-02, was xs.2) → code review       (investigates qwen/Sonnet concerns, structural audit)
 granite4.1:30b     → governance audit  (investigates laguna concerns, canon coherence)
 nemotron-3-super   → final verdict     (investigates granite concerns, assumption audit)
 claude-sonnet-4-6  → executor          (separate Agent spawned after Seat 6 verdict)
@@ -122,7 +122,7 @@ Model sizes on this machine:
 |---|---|
 | gemma4:31b | ~35GB |
 | qwen3.6:27b | ~20GB |
-| laguna-xs.2:q4_K_M | ~28GB |
+| laguna-xs-2.1:q4_K_M (v-swap 2026-07-02, was xs.2) | ~28GB |
 | granite4.1:30b | ~35GB |
 | nemotron-3-super:latest | ~93.6GB |
 
@@ -576,7 +576,7 @@ Because:
 2. The surrender check requires the surrender text to be in the SAME assistant message as the Edit
 
 The correct pattern is two turns:
-- **Turn N:** `mcp__ollama-mcp__ollama_chat` dispatch with laguna-xs.2:q4_K_M reviewing the change — no Edit in this turn
+- **Turn N:** `mcp__ollama-mcp__ollama_chat` dispatch with laguna-xs-2.1:q4_K_M (v-swap 2026-07-02, was xs.2) reviewing the change — no Edit in this turn
 - **Turn N+1:** Surrender articulation text + Edit tool_use in the same message — no MCP in this turn
 
 The hooks see:
@@ -588,7 +588,7 @@ Example:
 
 ```
 [Turn N — dispatch only:]
-mcp__ollama-mcp__ollama_chat with laguna-xs.2:q4_K_M reviewing the specific change
+mcp__ollama-mcp__ollama_chat with laguna-xs-2.1:q4_K_M (v-swap 2026-07-02, was xs.2) reviewing the specific change
 
 [Turn N+1 — surrender + edit in same message:]
 surrender articulation:
@@ -600,7 +600,7 @@ resolution: which side wins
 ```
 
 Do NOT use GPT/Grok as the dispatch model — they are forbidden under OPERATOR OVERRIDE.
-Use `mcp__ollama-mcp__ollama_chat` with laguna-xs.2:q4_K_M.
+Use `mcp__ollama-mcp__ollama_chat` with laguna-xs-2.1:q4_K_M (v-swap 2026-07-02, was xs.2).
 
 This pattern was confirmed correct via the surrender-check.ps1 hook implementation and
 verified by the 2026-05-11 governance chain.

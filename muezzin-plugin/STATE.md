@@ -58,7 +58,7 @@ This is the canonical project-context file. Any conductor session bootstrapping 
    invocation (NOT `-z` mode which proved broken). CRITICAL: DO NOT restart muezzin daemon —
    it burned 27,456 claude-* dispatches today for zero output, ~70-80% of today's budget burn.
 
-0. **`NEXT-INSTANCE-WARNINGS-2026-06-24.md`** — NEWEST. 5 documented failure patterns from
+0. **`_prior-attempt/NEXT-INSTANCE-WARNINGS-2026-06-24.md`** (PATH FIXED 2026-07-02: file was moved to _prior-attempt/ — authority-decay sweep found the dead pointer) — NEWEST. 5 documented failure patterns from
    the 2026-06-23 evening → 2026-06-24 morning session: "chain producing big plans" is not
    productivity (steps>0 is); workflow-synthesized patch + active firing = APPLY NOW (don't
    defer); ledger DONE can be deceptive (check steps column); sleeping with unfixed engine
@@ -68,7 +68,7 @@ This is the canonical project-context file. Any conductor session bootstrapping 
    patterns the previous instance fell into 2026-06-23, with receipts + correctives.
    The structural counter-substrate. Read this BEFORE any plugin edit.
 
-2. **`ENGINE-UPGRADE-PLAN.md`** (authored 2026-06-18) — THE canonical roadmap.
+2. **`_prior-attempt/ENGINE-UPGRADE-PLAN.md`** (PATH FIXED 2026-07-02: moved to _prior-attempt/) — THE canonical roadmap.
    6 BUILDS for the self-healing gap, with current status:
    - #1 deterministic-first QC — PENDING
    - #2 windowed-edit — PARTIAL (sha `2561abb` exists, doesn't fully engage)
@@ -83,7 +83,7 @@ This is the canonical project-context file. Any conductor session bootstrapping 
 4. **`PLUGIN_SUMMARY.md`** — canonical inventory of every primitive the plugin
    already has. Read this BEFORE you write a new primitive — it may already exist.
 
-5. **`missions/CONDUCTOR-HANDOFF.md`** (2026-06-18) — previous conductor's resume
+5. **`missions/CONDUCTOR-HANDOFF.md`** (2026-06-18 — ⚠ FILE ABSENT ON DISK as of 2026-07-02, no _prior-attempt copy either; treat this entry as historical, content superseded by this STATE.md itself) — previous conductor's resume
    point. The pattern of "engine got it 99% right, conductor finished by hand"
    documented here.
 
@@ -395,6 +395,8 @@ moment its dependencies carry PASS receipts, live-proven 21:20:32.)**
 | a pre-gate review row (1-5) is about to close | → produce its STANDARDS receipt first (WCAG/map-UX fetch + check) |
 | first REACHABILITY/TARTIB-HOLD receipts appear in flow | → verify the new witnesses behaved, then mark them proven |
 | first ENGINE STORM push arrives (or 24h pass with failures but no push) | → #21 verify storm-watch behaved (compare daemon-events repeats vs pushes); then mark proven |
+| NEXT ENGINE WORK, fires before any product mission (blind-spot hunt wf_0b61e8ba 2026-07-02, ALL SIX classes adversarially upheld; full detector specs preserved at missions/_logs/BLIND-SPOT-SPECS-2026-07-02.json) | → in order: **#24 RETRO-REPEAT pre-fire gate** (daemon fire path: ≥3 FAILED retros same stem/24h + mission.txt mtime older than newest retro → refuse fire + quote halts; receipt: 924 retros for ONE stem at 30-second cadence, and grep proves ZERO engine files read retro/) → **#25 falseDeathScan sweep + PRE-SATISFIED fire-time guard** (receipt: 9 of 13 sampled code-repo FAILED marks were byte-identical-landed at HEAD — the board's unresolvedFAILED was ~70-90% wrong for that class; guard must key on patch-id/byte-identity in HEAD, NOT file presence — the b13-aria wiring-absent trio is the false-positive control) → **#26 SPLIT roll-up advisory** (receipt: aurora S1 FAILED-bare + S2 DONE while the work sits landed — nothing aggregates children back to the parent Maqsad) → **#27 bankedDeliverables sweep + BANKED-SALVAGE section in OPERATOR-REVIEW-QUEUE** (receipt: 6 verified sandboxes, ~200KB complete operator-valuable research incl. social-seo-playbook tiktok.md 17KB live-sourced — serving the operator's declared focus — and context-compression-research ~130KB; all three surfacing mechanisms structurally exclude FAILED sandboxes) → **#28 standing-doc integrity sweep** (dead-reference + superseded-text + DEADLINE-DUE scans; receipts: QUEUE.md's cloud-restore text sat unannotated as the file's LAST WORD until stamped 23:3x today, 3 dead STATE.md required-reads fixed today, M-ANDROIDTV deadline invisible to every mechanism) → **#29 canary repair** (receipt: 42 SOTA-QC-walk logs with ZERO readers; scheduled task silently dead since 07-02 15:15 exit -2147023829, DisallowStartIfOnBatteries=true on a VAN laptop; e2e viewport hardcoded 1440x900 desktop-only = the mobile-invisible-Apply class stays undetectable; wire canary→notify(), add mobile viewport run, fix task battery flags) |
+| OPERATOR DEADLINE WATCH: date ≥ 2026-07-05 and M-ANDROIDTV not started | → surface HARD: DEADLINE 2026-07-07 (QUEUE.md item 6, his own site androidtv.tips), start-by ~June 25 ALREADY PASSED, mission file on E:\ = nxtbeast-only (unreachable from this laptop); honoring the deadline needs nxtbeast execution or operator re-scope — flagged 2026-07-02 by the authority-decay hunt |
 | quiet board (after #21) | → #23 QUIET-STATE BLIND-SPOT SWEEP (generalize the parked-graveyard fix, operator-caught 2026-07-02): the class is "terminal-quiet states with revival conditions nobody re-checks". Known uncovered members: (a) 36 WAIVED damm entries, most reading "will be satisfied on next retry" where the parent is parked/dead — same disease, second instance (pattern-amortization canon: name the structural helper); (b) CANDIDATE-REQUEUE annotations (e.g. portal-outage-triage "post-badal"); (c) # HELD/TOPOLOGY-HOLD comment lines without wired unpark events. For each: give it a due-detector like parkedRevivalDue or stamp it judged-closed. PARKED itself: COVERED (REVISIT-PARKED live, 13→0 judged 2026-07-02) |
 | operator says the word on stitch-design-mastery-b | → revive in RESUME-FROM-PARTS shape (parts 1-2 banked, shas c413f1c/93ee8b7); engine half of its block is receipted-fixed; ONLY his 2026-06-12 no-requeue word holds it (identity-bound, correctly his) |
 | card-merge-vanlife-muddy or damm-books-assembly lands DONE | → it IS the acceptance test the 2026-06-12 verdict-calibration park demanded; annotate the park class closed + tell the operator the Layna-gate card status |
@@ -1472,6 +1474,6 @@ Prompt: *"Write a javascript function to find the first non-repeating character 
 | Model | Size | Speed (tokens/s) | Duration | Total Tokens | Correctness & Formatting |
 | :--- | :---: | :---: | :---: | :---: | :--- |
 | **`ornith:35b`** | 35B | **167.82** | 7.61s | 412 | **PASS (Correct & Perfect Formatting)**. Returned only code inside a markdown block using Map. Fastest overall. |
-| **`laguna-xs.2:q4_K_M`** | 33B | **123.05** | 11.05s | 471 | **FAIL (Formatting)**. Correct code, but verbose reasoning block pre-pended. |
+| **`laguna-xs-2.1:q4_K_M (v-swap 2026-07-02, was xs.2)`** | 33B | **123.05** | 11.05s | 471 | **FAIL (Formatting)**. Correct code, but verbose reasoning block pre-pended. |
 | **`qwen3.6:27b`** | 27B | **46.61** | 77.19s | 3271 | **FAIL (Formatting)**. Correct code, but generated a huge 3271-token verbose thought block. |
 | **`granite4.1:30b`** | 30B | **46.23** | 11.94s | 131 | **PASS (Correct & Perfect Formatting)**. Returned code block only. |

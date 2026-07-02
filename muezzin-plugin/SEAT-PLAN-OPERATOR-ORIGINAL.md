@@ -18,12 +18,12 @@ deviations need his sign-off, recorded here, or they are drift.
 - Integrator (Bridge/Synthesizer) — Primary: Ollama Cloud ( nemotron-3-ultra ) · Backup 4: local ( nemotron/ 3 super 120b )
 
 ### Phase 2: Implementation
-- Executor (Nemotron Ultra) — Primary: Ollama Cloud ( nemotron-3-ultra ) · Backup 5: Local GPU ( laguna-xs.2:q4_K_M )
+- Executor (Nemotron Ultra) — Primary: Ollama Cloud ( nemotron-3-ultra ) · Backup 5: Local GPU ( laguna-xs-2.1:q4_K_M (v-swap 2026-07-02, was xs.2) )
 - Validator (DeepSeek v4 Pro) — Primary: Ollama Cloud ( deepseek-v4-pro:cloud ) · Backup 4: LOCAL ( qwen 3.6/ 35b )
 - Auditor — Primary: ollama cloud ( minimax-m3 ) · Backup 1: local ( nemotron-cascade-2 )
 
 ### Phase 3: Verification
-- Laguna Auditor — Primary: [blank] · Backup 1: Local GPU ( laguna-xs.2:q4_K_M ) (No cloud API fallbacks)
+- Laguna Auditor — Primary: [blank] · Backup 1: Local GPU ( laguna-xs-2.1:q4_K_M (v-swap 2026-07-02, was xs.2) ) (No cloud API fallbacks)
 - Granite Auditor — Primary: Local GPU ( granite4.1:30b ) (No cloud API fallbacks)
 - Nemotron Super (Final Auditor) — Primary: Ollama Cloud ( nemotron-3-super ) · Backup 3: Local GPU ( nemotron-3-super )
 

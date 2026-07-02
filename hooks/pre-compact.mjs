@@ -110,7 +110,7 @@ if (openAtCompaction) {
       compactionAttempted = true;
       const msgs = openAtCompaction.replace('## OPEN AT COMPACTION — last operator messages (hook-extracted)\n\n', '');
       const summarizePrompt = `You are a governance session summarizer. Operator messages open at compaction:\n${msgs}\n\nWrite a concise handoff summary (under 200 words) for the next AI instance: what was being worked on, what was decided, what is next.`;
-      const ollamaBody = JSON.stringify({ model: 'laguna-xs.2:q4_K_M', prompt: summarizePrompt, stream: false, options: { num_ctx: 4096, num_predict: 300 } });
+      const ollamaBody = JSON.stringify({ model: 'laguna-xs-2.1:q4_K_M', prompt: summarizePrompt, stream: false, options: { num_ctx: 4096, num_predict: 300 } });
 
       const summaryRes = spawnSync('node', ['-e',
         `const h=require('http'),b=${JSON.stringify(ollamaBody)};const r=h.request({host:'localhost',port:11434,path:'/api/generate',method:'POST',headers:{'Content-Type':'application/json','Content-Length':Buffer.byteLength(b)}},res=>{let d='';res.on('data',c=>d+=c);res.on('end',()=>{try{process.stdout.write(JSON.parse(d).response||'');}catch{process.stdout.write('');}});});r.setTimeout(120000,()=>r.destroy());r.on('error',()=>{});r.write(b);r.end();`

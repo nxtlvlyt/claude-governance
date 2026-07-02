@@ -36,10 +36,10 @@ Serial inference discipline applies at all tiers: one model at a time. RAM requi
 |---|---|---|---|
 | 1 — Structure + Cloud | 8GB+ | Hooks, governance bootstrap, cloud model guidance. No local models. | ❌ No — laguna unavailable |
 | 2 — Lightweight chain | 16GB+ | Tier 1 + nemotron-mini:4b, qwen3:8b, granite4.1:8b | ❌ No — laguna unavailable |
-| 3 — Governance chain | 32GB+ | Tier 2 + gemma4:26b (MoE), qwen3.6:27b (MoE), laguna-xs.2:q4_K_M, nemotron-cascade-2 | ✓ Yes — laguna enables surrender-check |
+| 3 — Governance chain | 32GB+ | Tier 2 + gemma4:26b (MoE), qwen3.6:27b (MoE), laguna-xs-2.1:q4_K_M (v-swap 2026-07-02, was xs.2), nemotron-cascade-2 | ✓ Yes — laguna enables surrender-check |
 | 4 — The Factory | 128GB+ | Tier 3 + granite4.1:30b, nemotron-3-super, gemma4:31b | ✓ Yes — full chain |
 
-**Tiers 1 and 2 have no substrate edit authorization.** laguna-xs.2:q4_K_M requires ~28GB RAM and cannot run on those tiers. The surrender-check gate will block Edit/Write on governance files. Tier 1–2 users operate the full framework (hooks, canon, session-start) and can use cloud models for deliberation, but cannot make governed substrate edits without a Tier 3+ machine.
+**Tiers 1 and 2 have no substrate edit authorization.** laguna-xs-2.1:q4_K_M (v-swap 2026-07-02, was xs.2) requires ~28GB RAM and cannot run on those tiers. The surrender-check gate will block Edit/Write on governance files. Tier 1–2 users operate the full framework (hooks, canon, session-start) and can use cloud models for deliberation, but cannot make governed substrate edits without a Tier 3+ machine.
 
 ---
 
@@ -107,7 +107,7 @@ ollama pull granite4.1:8b             # ~5GB  — IBM compact
 # laguna-xs.2 required — without it, surrender-check blocks substrate edits
 ollama pull gemma4:26b                # ~17GB — Google MoE
 ollama pull qwen3.6:27b               # ~16GB — Alibaba MoE deliberation
-ollama pull laguna-xs.2:q4_K_M        # ~28GB — governance witness, substrate edit authorization
+ollama pull laguna-xs-2.1:q4_K_M (v-swap 2026-07-02, was xs.2)        # ~28GB — governance witness, substrate edit authorization
 ollama pull nemotron-cascade-2:latest # ~23GB — NVIDIA MoE (AnythingLLM RAG model)
 
 # Tier 4 additions — dense full chain (128GB+ system)

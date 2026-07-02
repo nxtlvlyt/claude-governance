@@ -116,7 +116,7 @@ if (repoRoot) {
   }
 }
 
-const model       = 'laguna-xs.2:q4_K_M';
+const model       = 'laguna-xs-2.1:q4_K_M';
 const maxChars    = 524288;     // laguna 131072 token ctx at 4 chars/token
 const timeoutSec  = 131072;     // per Mark rule: timeout(s) >= num_ctx(tokens)
 

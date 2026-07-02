@@ -11,7 +11,7 @@ parallel chain-health audit (workflow muezzin-chain-preflight). This is the mech
    trailing FAILED on the active lane. GREEN: latest firing line is recent AND the most recent seat
    line is `attempt-ok`, not a hang/error.
 2. **Ollama idle + present** — `GET http://localhost:11434/api/ps` then `/api/tags`. GREEN: /api/ps
-   EMPTY (nothing stuck/held) AND all 5 chain models in tags: nemotron-3-super, laguna-xs.2:q4_K_M,
+   EMPTY (nothing stuck/held) AND all 5 chain models in tags: nemotron-3-super, laguna-xs-2.1:q4_K_M (v-swap 2026-07-02, was xs.2),
    granite4.1-guardian:8b, granite4.1:30b, qwen3.6:27b. Re-check /api/ps immediately before ANY local
    dispatch (serial-inference discipline).
 3. **Cloud keys + recent 200** — both `OLLAMA_API_KEY` and `OLLAMA_CLOUD_API_KEY` set (len ~57) AND

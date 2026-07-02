@@ -2,7 +2,7 @@
 
 Derived from CLAUDE.md (all 14 directives). Authored 2026-06-10 from one session's
 receipted tuition (Fable 5, session e956c5ba — the governance-takeover marathon), under
-ceremony: laguna-xs.2:q4_K_M witness verdict REVISE → its revision (the conductor's own
+ceremony: laguna-xs-2.1:q4_K_M (v-swap 2026-07-02, was xs.2) witness verdict REVISE → its revision (the conductor's own
 receipt obligations, below) incorporated; memory + hooks docs checked via WebFetch (no
 conflicts — hooks enforce what context cannot). Written for the weakest occupant who
 will ever hold this seat. You were not there. That is fine. Everything you need is
