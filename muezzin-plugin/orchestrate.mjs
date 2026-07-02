@@ -560,6 +560,14 @@ export async function orchestrate(mission, cwd, {
   const useLiteralCmd = !!(litCmd && litCmd.ok && repoRoot);
   const writeRoot = (codeRepo || useLiteralCmd) ? repoRoot : cwd;   // where the real code + witness/commit live
 
+  // MISSION EVENTS SURFACE — declared HERE (before the sandbox/preflight block) so the
+  // sandbox-recovery hook (abortInProgressGitOp) and any earlier phase can emit safely.
+  // (Moved up 2026-07-02: it was declared below the sandbox block, so the sandbox-recovery
+  // emit at PHASE -1 hit a TDZ — "Cannot access 'emit' before initialization" — the instant
+  // it aborted a stale op, crashing exactly the contamination-recovery path it guards.)
+  // Every phase appends one JSONL line to <cwd>/mission-events.jsonl; the daemon reads it.
+  const emit = (e) => { try { appendFileSync(path.join(cwd, 'mission-events.jsonl'), JSON.stringify({ ts: new Date().toISOString(), ...e }) + '\n'); } catch { /* events must never break the run */ } };
+
   // repairFn default is built HERE (not in the signature) so it can be made code-repo-aware:
   // the repair seat's write must route through the same kernel and target the REPO-ROOT.
   if (!repairFn) repairFn = makeRepairFn(writeRoot, codeRepo ? { codeRepo, repoRoot, allowFiles } : {});
@@ -660,10 +668,8 @@ export async function orchestrate(mission, cwd, {
     }
   }
 
-  // MISSION EVENTS SURFACE (operator: "a nice report — what sub-missions get added, how
-  // the models are doing, errors" — 2026-06-09). Every phase appends one JSONL line to
-  // <cwd>/mission-events.jsonl; status cycles and the daemon read it for rich reports.
-  const emit = (e) => { try { appendFileSync(path.join(cwd, 'mission-events.jsonl'), JSON.stringify({ ts: new Date().toISOString(), ...e }) + '\n'); } catch { /* events must never break the run */ } };
+  // (MISSION EVENTS SURFACE — `emit` moved up to before the sandbox block, ~line 563, so the
+  // sandbox-recovery hook can use it without a TDZ; see the note there.)
 
   // RECURRING-ERROR DETECTION (2026-07-01 receipt): a live mission tonight hit the IDENTICAL
   // raw error text 12 times across ~55 minutes -- witness-halt, seat-escalate-exhausted, full
