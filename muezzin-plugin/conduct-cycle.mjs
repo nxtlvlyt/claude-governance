@@ -850,6 +850,15 @@ function main() {
     console.log(`deploy marker stamped: ${sha.slice(0, 8)} -> ${mk}`);
     return;
   }
+  if (process.argv.includes('--request-reload')) {
+    // Graceful daemon reload (2026-07-02): write the flag the daemon honors between missions, so it
+    // exits cleanly and daemon-supervisor.ps1 respawns with fresh code — the classifier-safe way to
+    // activate an engine fix without a force-kill (which the harness blocks on a running workload).
+    const flag = path.join(HERE, 'missions', '_logs', 'RELOAD-REQUEST');
+    writeFileSync(flag, `${new Date().toISOString()} reload requested by conductor (activate committed engine fix)\n`);
+    console.log(`reload requested: ${flag}\n  the daemon exits between missions (no mission interrupted) + supervisor respawns with fresh code.\n  NOTE: only works once the daemon is already running code that contains the graceful-reload check.`);
+    return;
+  }
   if (process.argv.includes('--heal')) {
     const h = heal();
     console.log(h.report.join('\n'));

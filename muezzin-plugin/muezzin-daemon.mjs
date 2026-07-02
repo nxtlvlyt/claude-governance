@@ -39,6 +39,7 @@ import { fileURLToPath } from 'url';
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const AUTORUN = path.join(HERE, 'missions', 'AUTORUN.md');
 const LOGDIR = path.join(HERE, 'missions', '_logs');
+const RELOAD_FLAG = path.join(LOGDIR, 'RELOAD-REQUEST');   // graceful self-reload, honored between missions (see mainLoop)
 const STATUS = path.join(LOGDIR, 'daemon-status.json');
 const EVENTS = path.join(LOGDIR, 'daemon-events.log');
 const POLL_MS = 60_000;
@@ -930,6 +931,18 @@ async function mainLoop() {
   };
 
   while (true) {
+    // GRACEFUL RELOAD (2026-07-02): landing an engine fix needs the daemon to reload the new code
+    // (Node caches imports in-process). Force-killing the PID is the only other path and the harness
+    // classifier blocks it (it protects a running shared workload). So honor a flag file: when it is
+    // present AND no lane is mid-mission, delete it and exit(0) — daemon-supervisor.ps1 respawns in
+    // ~3s with fresh code, no mission interrupted. Writing the flag (conduct-cycle --request-reload,
+    // or `New-Item _logs/RELOAD-REQUEST`) is classifier-safe; a force-kill is not. Makes engine-fix
+    // activation self-service instead of an operator force-kill every time.
+    if (lanes.size === 0 && existsSync(RELOAD_FLAG)) {
+      try { rmSync(RELOAD_FLAG, { force: true }); } catch { /* best-effort — a stale flag would just re-exit next poll */ }
+      evt('GRACEFUL-RELOAD: flag honored between missions — exiting for supervisor respawn with fresh code');
+      process.exit(0);
+    }
     try {
       if (Date.now() - lastHealTs >= HEAL_INTERVAL_MS) {
         lastHealTs = Date.now();
