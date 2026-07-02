@@ -260,6 +260,7 @@ APPEND/MODIFY RULE: any step that MODIFIES or APPENDS to a file an earlier step 
 SINGLE-EMISSION RULE for SINGLE-SUBJECT research deliverables: a .md/.json deliverable about ONE subject is emitted COMPLETE in ONE step (full content, all required sections) — NEVER built by appending across steps (receipt: 4 thin-card failures, verdict BLOCK 2026-06-10). Preceding steps may gather inputs into separate files the emission step lists as context_dependencies. For MULTI-SUBJECT deliverables the SIZE/SCOPE RULE below TAKES PRECEDENCE: each part-file is itself emitted complete-in-one-step (so both rules hold at the part level).
 VALIDATION COMMANDS run under PowerShell (pwsh) on Windows and MUST be STATELESS single expressions — no PowerShell variables ($x), no session state, no multi-statement pipelines that define-then-use (receipt: $-stripped command ParserError killed a mission 2026-06-10). Good shapes: node -c <file> · Test-Path <file> · Select-String -Path <file> -Pattern '<regex>' -Quiet · (Get-Item <file>).Length -gt 1000.
 INLINE-EVAL RULE (3-mission mangle class 2026-07-02: pwa-install-banner "[eval]:1" parse death): NEVER a long inline node -e "<script>" whose payload nests quotes or HTML — PowerShell quoting self-mangles it deterministically. For any browser/JS-runtime witness beyond a trivial one-liner: a 'command' step writes the script to a scratch .mjs (Set-Content), then the witness runs node <scratch-file>.
+SCRATCH-FILE RULE (spot-share receipt 2026-07-02: 2 complete queues rejected in a row): scratch/helper files are CWD-RELATIVE names (Set-Content scratch-witness.mjs ... then node scratch-witness.mjs) — NEVER $env:TEMP / $TMP / any $-bearing path, which the STATELESS rule strips and validation rejects. The sandbox cwd IS your scratch space.
 POSITIVE-ASSERTION HARD RULE (false-green, d1-1 receipt: 8 steps exited 0 while the remote DB had 0 tables — step 8 printed True on a 0-row query): a validation_command MUST exit NON-ZERO when the real outcome is ABSENT. A witness that prints True / exits 0 on an EMPTY or ZERO-ROW result is a HOLLOW witness and is FORBIDDEN — it proves the command RAN, not that the deed HAPPENED. Most tools (wrangler, curl, psql, gh) exit 0 when the QUERY/REQUEST succeeds regardless of whether anything was found, so you must wrap the witness to ASSERT the positive outcome and FAIL when it is absent. Concrete positive-assertion shapes:
   · remote row-count: wrangler d1 execute <db> --remote --json --command "SELECT COUNT(*) AS n FROM <table>" piped/wrapped so it exits 1 if n==0 — e.g. wrap as "$o = wrangler d1 execute <db> --remote --json --command 'SELECT COUNT(*) AS n FROM <table>' | ConvertFrom-Json; if (-not ($o.result.results[0].n -gt 0)) { exit 1 }" (but recall the STATELESS rule above — if a $-bearing assertion is needed, the engine permits it ONLY when it is the COMPLETE single witness expression, not a define-then-use pipeline that strips);
   · http endpoint: "$r = Invoke-WebRequest -Uri <url> -UseBasicParsing; if ($r.StatusCode -ne 200 -or -not $r.Content) { exit 1 }" — assert BOTH status 200 AND a non-empty body, fail otherwise;
@@ -317,8 +318,17 @@ async function runQueueLoop(seat, baseFraming, { research = false, codeRepo = fa
       }
       throw e;
     }
-    const queue = extractQueue(r?.content);
-    const v = queue ? validateMicroQueue(queue, { research, codeRepo }) : { ok: false, errors: ['no valid JSON micro_queue in the seat output'] };
+    const rawContent = String(r?.content ?? '');
+    const queue = extractQueue(rawContent);
+    // ERROR-MASKING FIX 2026-07-02 (spot-share receipt): a final EMPTY emission used to report the
+    // same generic 'no valid JSON' as malformed output, BURYING the prior attempts' real validation
+    // errors in result.json. Name the empty-emission class explicitly and carry the prior errors
+    // forward so the FAILED receipt says what actually went wrong.
+    const v = queue ? validateMicroQueue(queue, { research, codeRepo })
+      : { ok: false, errors: rawContent.trim()
+          ? ['no valid JSON micro_queue in the seat output']
+          : [`seat returned EMPTY content (attempt ${attempt + 1}) — empty-emission class`,
+             ...(lastErrors?.length && lastErrors[0] !== 'no attempt made' ? [`prior attempt's real errors (do not let the empty emission mask them): ${lastErrors.slice(0, 3).join(' | ')}`] : [])] };
     if (v.ok) return { ok: true, queue, attempts: attempt + 1, _model: seat.model, _provider: r?.provider, escalationState };
     // DOUBLE-VALIDATION-FAILURE trigger: a step_index that fails validation twice in a row escalates.
     const currentFailedStepIndices = new Set();
