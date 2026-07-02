@@ -305,6 +305,56 @@ undiagnosed; (e) ~90-item DIAGNOSE backlog, chip incrementally; (f) contested se
 question (architects[0]/integrator: locked seat plan says Ollama-primary, live config
 says Claude) — operator call, documented in the ~19:00Z workflow output.
 
+## 🔴 2026-07-02 SESSION — ADVERSARIAL AUDIT + ATTRIBUTION RULING (read before trusting any prior "done")
+
+Operator caught the #1 complaint (POI popups showing no real info) STILL LIVE after a
+conductor fix claimed "live-verified". Full adversarial audit of the 12h window + a
+3-prosecutor/judge attribution workflow followed. THE RULING (receipts-verified):
+**Conductor 45% / Chain 30% / System 25%, harm-weighted** — the chain fails loudly and
+ships little; the conductor's failures are quiet and reach users. Shared root: every
+layer verified PRESENCE (file exists, string on page, exit 0), nothing verified OUTCOME
+(a user sees real data).
+
+**The lesson in one line: verify a fix by RENDERING ONE REAL POI'S DATA (or the real
+user path), never by grepping for your own code.** The first popup fix rendered
+m.description/m.why_cool — fields that DO NOT EXIST in production meta. Grep found the
+code; users saw the fallback.
+
+**What landed (all committed + selftested, receipts in git log 2026-07-02):**
+- Doneness gate L0-L4 (conduct-cycle computeDoneness): frontier + landed (presence AND
+  patch-id — presence alone re-opened the poi-tags class, audit-fixed) + pushed +
+  divergence guard + L4 deploy-freshness. `--record-deploy` is now WITNESSED (refuses
+  dirty trees; requires live /map to byte-match HEAD:map.html). closed() regex \b-fixed
+  ("UNRESOLVED" no longer reads as resolved). Suite was RED at HEAD for hours (fixtures
+  hit the real repo — gitFn now threaded, hermetic) — GREEN now; keep it green.
+- Deconstructor floors: brittle-SHA/log-window/exact-count witnesses rejected (with 4
+  audit-confirmed false-flag shapes fixed: letter-requiring sha regex, adjacency,
+  -ne 0 exempt); INLINE-EVAL mangle floor (3-mission class); + existing clean-tree and
+  cherry-pick-completion floors.
+- Engine commit layer: DOC-SHRINKAGE floor (assertNoUndeclaredShrinkage wired before
+  commitStep) — the class that gutted DISASTER-RECOVERY (375→108) + EMAIL-REDACTION
+  (305→179; both restored in mt repo f6f9a71).
+- Daemon: exit-3 singleton (supervisor no longer respawn-loops redundant daemons — live
+  incident fixed 2026-07-02 10:09-10:16); graceful RELOAD-REQUEST flag (conduct-cycle
+  --request-reload) so engine fixes activate WITHOUT force-kills after the next restart.
+- mt repo: popup branches fixed against REAL data schema (fcc53e2 + f6f9a71: oddity
+  p.note/detour/photo/walk/source_url; charging+locker meta.brand); leaderboard fetch
+  path fixed; scripts/verify-popups-e2e.mjs = the mechanical e2e definition (fetches
+  SERVED page + REAL pois.json, renders through served logic, refuses generic-fallback).
+
+**⏳ STANDING OPERATOR KEYSTROKES (decisions made; execution classifier-gated):**
+1. DEPLOY: `wrangler pages deploy . --project-name=muddytires --commit-dirty=true` in
+   the mt worktree — then `node scripts/verify-popups-e2e.mjs` MUST exit 0, then
+   `node conduct-cycle.mjs --record-deploy` stamps the witnessed marker.
+2. DAEMON RESTART: `taskkill /PID <daemon pid> /F` (supervisor respawns in ~3s) —
+   activates ALL engine floors on the queued missions. Until then every fix above is
+   DORMANT in the running daemon (Node caches imports). This is the LAST force-kill:
+   after it, use --request-reload.
+
+**Chain fix still owed (judge system-layer ruling):** generalize verify-popups-e2e into
+an L5 outcome witness for every user-facing mission (deployed artifact + real production
+data + rendered result). Design sketch in the attribution workflow output.
+
 ## 🚨 STRUCTURAL FINDING 2026-07-02 — the engine INTEGRATES but never DEPLOYS (zero visual result)
 
 Operator asked "any updates to muddytires I can visually SEE?" Verified (WebFetch of live
