@@ -1,0 +1,27 @@
+MISSION-ID: mt-integrate-poi-dedup-audit.S1
+MISSION-CLASS: code-repo
+PARENT: mt-integrate-poi-dedup-audit
+TARTIB-INDEX: 1 of 2
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - scripts/dedup-audit.mjs
+  - docs/dedup-report-2026-06-23.md
+  - scripts/dedup-admin-todos-2026-06-23.sql
+REQUIRES: none (first in tartib order)
+STEPS: 8
+
+PARENT MAQSAD: The commit "c899d07 feat(dedup-audit): scan pois + community_spot for
+
+Maqsad: sub-mission 1 of 2 — Confirm the target repo's live checked-out branch/HEAD and confirm none of the three ALLOW-FILES paths already exist on disk (baseline before any mutation, per the mission's branch-race warning). Does not switch branches. through Verify scripts/dedup-admin-todos-2026-06-23.sql landed with non-trivial content.
+
+Steps:
+  1. Confirm the target repo's live checked-out branch/HEAD and confirm none of the three ALLOW-FILES paths already exist on disk (baseline before any mutation, per the mission's branch-race warning). Does not switch branches. [command] 
+  2. Confirm commit c899d078e9e78894c309189ab22a9a0e57e03b20 exists and is a valid commit object in the source worktree, without modifying that worktree. [command] 
+  3. Land scripts/dedup-audit.mjs from commit c899d07 into the target repo's currently-checked-out tree via a single-path checkout (fails loudly instead of overwriting if the path unexpectedly already exists). [command] scripts/dedup-audit.mjs
+  4. Land docs/dedup-report-2026-06-23.md from commit c899d07 into the target repo via a single-path checkout (fails loudly instead of overwriting if the path unexpectedly already exists). [command] docs/dedup-report-2026-06-23.md
+  5. Land scripts/dedup-admin-todos-2026-06-23.sql from commit c899d07 into the target repo via a single-path checkout (fails loudly instead of overwriting if the path unexpectedly already exists). [command] scripts/dedup-admin-todos-2026-06-23.sql
+  6. Syntax-check the landed script scripts/dedup-audit.mjs. [verify] scripts/dedup-audit.mjs
+  7. Verify docs/dedup-report-2026-06-23.md landed with non-trivial content. [verify] docs/dedup-report-2026-06-23.md
+  8. Verify scripts/dedup-admin-todos-2026-06-23.sql landed with non-trivial content. [verify] scripts/dedup-admin-todos-2026-06-23.sql
+
+Done means: scripts/dedup-audit.mjs, docs/dedup-report-2026-06-23.md, scripts/dedup-admin-todos-2026-06-23.sql exist/are updated as specified

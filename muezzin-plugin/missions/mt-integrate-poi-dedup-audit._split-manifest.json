@@ -1,0 +1,21 @@
+{
+  "parentId": "mt-integrate-poi-dedup-audit",
+  "ceiling": 8,
+  "originalStepCount": 9,
+  "groupCount": 2,
+  "children": [
+    {
+      "id": "mt-integrate-poi-dedup-audit.S1",
+      "file": "missions/mt-integrate-poi-dedup-audit.S1.mission.txt",
+      "steps": 8,
+      "requires": null
+    },
+    {
+      "id": "mt-integrate-poi-dedup-audit.S2",
+      "file": "missions/mt-integrate-poi-dedup-audit.S2.mission.txt",
+      "steps": 1,
+      "requires": "mt-integrate-poi-dedup-audit.S1"
+    }
+  ],
+  "ts": "2026-07-02T03:00:02.537Z"
+}
