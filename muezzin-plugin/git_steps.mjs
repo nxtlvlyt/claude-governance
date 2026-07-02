@@ -490,9 +490,17 @@ export function sourceCommitAlreadyIntegrated(repoRoot, sourceSha, { scan = 80 }
 export function extractSourceShas(text) {
   const t = String(text || '');
   const shas = new Set();
-  const re = /(?:cherry-pick|commit|origin|pick|Bring|source)[^0-9a-f\n]{0,14}([0-9a-f]{7,40})\b/gi;
   let m;
-  while ((m = re.exec(t)) !== null) shas.add(m[1].toLowerCase());
+  // (1) cherry-pick <sha>[, <sha>...] — capture the WHOLE comma/space-separated list after the
+  // pick keyword (receipt: "cherry-pick 375e40b, 3bb992b, acae717" — a bare keyword+sha regex
+  // caught only the first, missing the real deliverable shas).
+  const pickList = /cherry-pick(?:\s+commit)?\s+((?:[0-9a-f]{7,40}[,\s]+)*[0-9a-f]{7,40})/gi;
+  while ((m = pickList.exec(t)) !== null) {
+    for (const s of (m[1].match(/[0-9a-f]{7,40}/gi) || [])) shas.add(s.toLowerCase());
+  }
+  // (2) single-sha integration contexts: commit / origin / Bring commit / source commit <sha>.
+  const single = /(?:(?:Bring|source)\s+commit|commit|origin|pick)[^0-9a-f\n]{0,14}([0-9a-f]{7,40})\b/gi;
+  while ((m = single.exec(t)) !== null) shas.add(m[1].toLowerCase());
   return [...shas];
 }
 
@@ -893,6 +901,9 @@ function selfTest() {
       // extractSourceShas: pulls integration-context shas from mission prose
       const shas = extractSourceShas("PARENT MAQSAD: Bring commit 634abd59ce5c7aa42061f1d4a641d5820ecfcab4. Step: cherry-pick commit 634abd59ce5c7aa42061f1d4a641d5820ecfcab4; integrates (origin: 4050b5b).");
       assert(shas.includes("634abd59ce5c7aa42061f1d4a641d5820ecfcab4") && shas.includes("4050b5b"), `extractSourceShas: pulls cherry-pick + origin shas (${shas.length} found)`);
+      // COMMA-LIST (d1-migrations receipt): "cherry-pick 375e40b, 3bb992b, acae717" must yield ALL three
+      const multi = extractSourceShas("Step 2: cherry-pick 375e40b, 3bb992b, acae717 in chronological order onto HEAD.");
+      assert(multi.includes("375e40b") && multi.includes("3bb992b") && multi.includes("acae717"), `extractSourceShas: comma-separated multi-pick yields all 3 shas (${multi.join(',')})`);
       assert(extractSourceShas("no shas here, just prose about integration").length === 0, "extractSourceShas: prose with no hex sha => empty");
     }
   } finally {
