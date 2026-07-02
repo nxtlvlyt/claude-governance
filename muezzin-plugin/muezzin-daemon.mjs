@@ -94,7 +94,7 @@ export async function searchReadinessGate(missionText, { probe, heal, holds = ne
   }
 }
 
-const evt = (m) => { const line = `${new Date().toISOString()} ${m}`; try { appendFileSync(EVENTS, line + '\n'); } catch { } console.log(line); };
+const evt = (m) => { const line = `${new Date().toISOString()} ${m}`; try { appendFileSync(EVENTS, line + '\n'); } catch { } console.log(line); try { stormWatch(m); } catch { /* storm-alert must never break logging */ } };
 
 // OPERATOR PUSH (structural fix 2026-06-10: two conductor instances promised chat-beat
 // status updates; both beats were skipped because session crons fire only when the
@@ -116,6 +116,35 @@ function notify(text) {
       : { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ content: msg }) }
     ).catch(() => { /* push is best-effort */ });
   } catch { /* no webhook configured -> no-op */ }
+}
+
+// STORM-ALERT (self-healing audit 2026-07-02: 100% of the audited window's incidents were
+// operator-invisible — 66,098 missing-file repeats over 6.6h, 8,201 supervisor spawns over 7h,
+// 5,096 kimi-404s over 22 days — each a REPEATING SIGNATURE nothing watched for). Every engine
+// event already flows through evt(); this watches that one choke point and pushes ONCE per
+// signature at 3 hits, plus once more at 50 as escalation. Hashes/numbers are normalized out of
+// the signature so "attempt 2" vs "attempt 9" collapse to one storm. Outcome-only ruling: the
+// push IS the outcome ("the engine is storming"); repeats of a known storm are noise — hence
+// per-signature one-shot + a global cap of 5 storm pushes per hour.
+export function stormSig(m) {
+  if (!/FAILED|DISPATCH|ERROR|\berr\b|EMPTY|STUCK|HALT/i.test(String(m))) return null;
+  return String(m).replace(/[a-f0-9]{7,40}/gi, 'H').replace(/\d+/g, 'N').slice(0, 120);
+}
+const stormState = { counts: new Map(), pushes: [] };
+export function stormWatch(m, S = stormState, notifyFn = notify, now = Date.now()) {
+  try {
+    const sig = stormSig(m); if (!sig) return null;
+    if (S.counts.size > 500) S.counts.clear();                          // bounded memory across days-long runs
+    const n = (S.counts.get(sig) || 0) + 1; S.counts.set(sig, n);
+    if (n !== 3 && n !== 50) return null;                               // one-shot at 3, escalation at 50
+    S.pushes = S.pushes.filter((t) => now - t < 3600e3);
+    if (S.pushes.length >= 5) return null;                              // hourly cap (outcome-only ruling)
+    S.pushes.push(now);
+    const capNote = S.pushes.length === 5 ? ' [5th storm push this hour — further storm alerts suppressed]' : '';
+    const text = `ENGINE STORM${n === 50 ? ' x50 ESCALATION' : ''}: same failure signature ${n}x this daemon run — ${String(m).slice(0, 180)}${capNote}`;
+    notifyFn(text);
+    return text;
+  } catch { return null; /* a storm alert must never break evt */ }
 }
 const setStatus = (s) => { try { writeFileSync(STATUS, JSON.stringify({ pid: process.pid, ...s, ts: new Date().toISOString() }, null, 2)); renderBoard(s); } catch { } };
 
@@ -1127,6 +1156,38 @@ if (process.argv.includes('--selftest')) {
   ck(pend('SPLIT missions/parent.mission.txt  <!-- ts -->').length === 0, 'SPLIT: a SPLIT line is NOT pending (the parent is never re-fired — its children carry the work)');
   // and a SPLIT-marked line does not interfere with a sibling live line being pending.
   ck(JSON.stringify(pend('SPLIT missions/p.mission.txt\nmissions/p.S1.mission.txt')) === JSON.stringify(['missions/p.S1.mission.txt']), 'SPLIT: a SPLIT parent + a live child -> only the child is pending');
+  // ──────────────────────────────────────────────────────────────────────────
+  // STORM-ALERT (self-healing audit 2026-07-02): repeating failure signatures push once at
+  // 3 hits + once at 50, normalized over numbers/hashes, capped at 5 pushes/hour, and benign
+  // lines never match. These lock the exact incident classes the audit receipted.
+  ck(stormSig('fired: missions/x.mission.txt') === null, 'storm: benign event line -> no signature (never counted)');
+  ck(stormSig('FAILED (missing file): missions/a.mission.txt') !== null, 'storm: failure line -> gets a signature');
+  ck(stormSig('claude-exec err model=sonnet attempt 2 code=1') === stormSig('claude-exec err model=sonnet attempt 9 code=53'),
+    'storm: numbers normalized — attempt 2 vs attempt 9 collapse to ONE signature');
+  ck(stormSig('FAILED cherry-pick cbb07a5f0 conflict') === stormSig('FAILED cherry-pick deadbeef1 conflict'),
+    'storm: hashes normalized — different SHAs collapse to ONE signature');
+  ck(stormSig('FAILED (missing file): missions/a.mission.txt') !== stormSig('FAILED (missing file): missions/b.mission.txt'),
+    'storm: DIFFERENT missions stay DISTINCT signatures (per-mission storm detection)');
+  {
+    const pushed = []; const nf = (t) => pushed.push(t); const t0 = 1000000;
+    const S = { counts: new Map(), pushes: [] };
+    ck(stormWatch('FAILED (missing file): missions/a.mission.txt', S, nf, t0) === null, 'storm: hit 1 -> silent');
+    ck(stormWatch('FAILED (missing file): missions/a.mission.txt', S, nf, t0) === null, 'storm: hit 2 -> silent');
+    const a3 = stormWatch('FAILED (missing file): missions/a.mission.txt', S, nf, t0);
+    ck(!!a3 && /3x/.test(a3), 'storm: hit 3 -> ONE push naming 3x (the 66k-storm class now alerts in ~1 min, not never)');
+    for (let i = 4; i <= 49; i++) ck2Silent(stormWatch('FAILED (missing file): missions/a.mission.txt', S, nf, t0), i);
+    const a50 = stormWatch('FAILED (missing file): missions/a.mission.txt', S, nf, t0);
+    ck(!!a50 && /x50 ESCALATION/.test(a50), 'storm: hit 50 -> single escalation push');
+    ck(pushed.length === 2, `storm: 50 identical failures -> exactly 2 pushes total (one-shot, not a push-storm) — got ${pushed.length}`);
+    // hourly cap: 5 pushes already spent this hour -> a NEW signature's 3rd hit is suppressed.
+    const Scap = { counts: new Map(), pushes: [t0 - 100, t0 - 200, t0 - 300, t0 - 400, t0 - 500] };
+    const cf = []; for (let i = 0; i < 3; i++) stormWatch('FAILED other: missions/z.mission.txt', Scap, (t) => cf.push(t), t0);
+    ck(cf.length === 0, 'storm: hourly cap (5) suppresses further storm pushes (outcome-only ruling)');
+    // ...and the cap WINDOW slides: an hour later the same state pushes again.
+    const cf2 = []; for (let i = 0; i < 3; i++) stormWatch('FAILED late: missions/w.mission.txt', Scap, (t) => cf2.push(t), t0 + 3700e3);
+    ck(cf2.length === 1, 'storm: cap window slides — pushes resume after the hour');
+  }
+  function ck2Silent(r, i) { if (r !== null) ck(false, `storm: hit ${i} should be silent between 3 and 50`); }
 
   // HALF A — the daemon actually PASSES the split opts to orchestrate. Import the real
   // orchestrate with an INJECTED splitFn that captures the ctx orchestrate hands it, and a

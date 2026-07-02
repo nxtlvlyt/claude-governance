@@ -1,0 +1,21 @@
+{
+  "parentId": "mt-integrate-gpx-import.S1",
+  "ceiling": 8,
+  "originalStepCount": 9,
+  "groupCount": 2,
+  "children": [
+    {
+      "id": "mt-integrate-gpx-import.S1.S1",
+      "file": "missions/mt-integrate-gpx-import.S1.S1.mission.txt",
+      "steps": 8,
+      "requires": null
+    },
+    {
+      "id": "mt-integrate-gpx-import.S1.S2",
+      "file": "missions/mt-integrate-gpx-import.S1.S2.mission.txt",
+      "steps": 1,
+      "requires": "mt-integrate-gpx-import.S1.S1"
+    }
+  ],
+  "ts": "2026-07-02T22:22:34.566Z"
+}

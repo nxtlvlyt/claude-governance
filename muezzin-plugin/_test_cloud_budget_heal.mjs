@@ -55,6 +55,15 @@ ck(pMsg && pMsg.body.options.num_ctx === 16384, 'context error via MESSAGE patte
 const p404 = healCloud(E('HTTP_404', 'unknown model'), { model: 'kimi-k2.6:cloud', options: {} }, 0, {});
 ck(p404 && p404.body.model === 'kimi-k2.6', `HTTP_404 model-suffix fix still heals: -> ${p404?.body?.model}`);
 
+// ---------- 7. WEEKLY-QUOTA circuit breaker (audit 2026-07-02: 92 repeats over 31h) ----------
+// A 429 naming the WEEKLY usage limit is an unhealable wall — backoff seconds cannot heal a
+// weekly reset. First hit must return null (immediate failover), never a backoff plan.
+const pWk = healCloud(E('HTTP_429', '429: you have reached your weekly usage limit for qwen3.6'), body, 0, {});
+ck(pWk === null, 'HTTP_429 weekly-limit: null on FIRST hit (no backoff against a weekly wall)');
+// ...while an ordinary transient 429 (rate spike, no weekly wording) still gets its backoff heal.
+const pTr = healCloud(E('HTTP_429', '429: too many requests'), body, 0, {});
+ck(pTr && pTr.waitMs === 800 && pTr.body === body, `transient HTTP_429 still backs off: waitMs=${pTr?.waitMs}`);
+
 console.log(fails === 0
   ? '\nCLOUD-BUDGET CUT OK — TIMEOUT fails over after 1 heal; every FIXING heal (ctx-drop, think:false, model-fix) preserved.'
   : `\n${fails} FAIL`);

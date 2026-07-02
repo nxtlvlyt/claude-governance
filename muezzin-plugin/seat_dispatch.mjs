@@ -415,6 +415,11 @@ function attemptClaude(body, claudeModel, timeoutMs, cwd) {
 export function healCloud(err, body, healCount, kindCounts = {}) {
   const k = err.kind || '';
   const msg = err.message || '';
+  // WEEKLY-QUOTA CIRCUIT BREAKER (audit receipt 2026-07-02: 92 repeats over 31h — 23 dispatches
+  // x 4 backoff heals each against "you have reached your weekly usage limit", ~8+ min wasted per
+  // dispatch before the tier takeover; a wall that resets WEEKLY cannot be healed by seconds of
+  // backoff). Give up on cloud immediately so the waterfall falls through to the next provider.
+  if (k === 'HTTP_429' && /weekly usage limit/i.test(msg)) return null;
   if (k === 'HTTP_429') return { waitMs: 800 * (healCount + 1) * (healCount + 1), body };                    // backoff, same body
   if (k === 'HTTP_400' || /context|num_ctx|too long|exceed|maximum/i.test(msg)) {                            // drop ctx (FIXING heal)
     const cur = body.options?.num_ctx || 32768;

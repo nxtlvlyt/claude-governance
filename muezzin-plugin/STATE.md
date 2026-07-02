@@ -394,7 +394,10 @@ moment its dependencies carry PASS receipts, live-proven 21:20:32.)**
 | a user-facing mission lands with all 4 PHASE receipts present (e2e=deploy ceremony · render=visual witness · standards=architect citation confirmed by verdict · bars=verdict panel — the checklist READS receipts, it is NOT a new verification job; a missing receipt bounces to the OWNING phase) | → append the receipted row to missions/_logs/OPERATOR-REVIEW-QUEUE.md; operator verdict closes rows; catches become regression checks |
 | a pre-gate review row (1-5) is about to close | → produce its STANDARDS receipt first (WCAG/map-UX fetch + check) |
 | first REACHABILITY/TARTIB-HOLD receipts appear in flow | → verify the new witnesses behaved, then mark them proven |
-| DONE: #2 reachability witness (2026-07-02 21:2x) · #9 log-append · #19 tartib gate · #10 dispatch instrumentation | — |
+| first ENGINE STORM push arrives (or 24h pass with failures but no push) | → #21 verify storm-watch behaved (compare daemon-events repeats vs pushes); then mark proven |
+| any mission reaches attempt-cap FAILED twice across daemon generations | → #22 cross-generation refire cap + SEAT-ESCALATION outcome logging (audit item 3: 1,328 "armed" events, ZERO outcomes ever logged — armed means nothing until the outcome is written) |
+| two-lane witness runs ≥1 day (landed 22:22 daemon 18252; first receipt ok=true struct=APPROVE while chain busy) | → measure ok=null rate vs the 49% chronic baseline; if still >10%, add witness-streak alert; else mark witness starvation CLOSED |
+| DONE: #2 reachability witness (2026-07-02 21:2x) · #9 log-append · #19 tartib gate · #10 dispatch instrumentation · ALERT CHANNEL restored (2026-07-02 22:2x: webhook file recreated from nxtbeast copy — every push since Jun 26 had been a silent no-op; test push delivered) · WEEKLY-429 breaker (11/11 heal selftests) · STORM-WATCH in evt() (12 selftests; 3-hit push, x50 escalation, 5/hr cap) | — |
 
 Each beat's report names which trigger fired and what landed; an evaluated-but-deferred
 trigger is carried forward EXPLICITLY, never silently. Direction of travel: conductor
