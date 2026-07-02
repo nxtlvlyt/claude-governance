@@ -1,0 +1,22 @@
+MISSION-ID: MT-INTEGRATE-PARTNER-WIDGET.S2
+MISSION-CLASS: code-repo
+PARENT: MT-INTEGRATE-PARTNER-WIDGET
+TARTIB-INDEX: 2 of 2
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - docs/PARTNERS-WIDGET.md
+  - widget/v1/embed.js
+  - widget/v1/index.html
+REQUIRES: MT-INTEGRATE-PARTNER-WIDGET.S1 (tartib — this sub-mission may not start until MT-INTEGRATE-PARTNER-WIDGET.S1's receipt exists)
+STEPS: 3
+
+PARENT MAQSAD: Land commit 94e0263 ("feat(partner-widget): embeddable widget loader + iframe
+
+Maqsad: sub-mission 2 of 2 — Confirm on-disk content of widget/v1/index.html reads query params and posts a resize height back via postMessage. through Headless-render each of the three widget types (campsite-near-here, fire-ban-status, quick-search) against PREVIEW-BASE-URL and witness zero fatal page errors across all three loads.
+
+Steps:
+  9. Confirm on-disk content of widget/v1/index.html reads query params and posts a resize height back via postMessage. [verify] 
+  10. Confirm the local preview server actually answers at PREVIEW-BASE-URL before rendering; asserts both HTTP 200 and a non-empty body, failing (NO_PREVIEW_BASE_URL-style) if the port is wrong or nothing is bound. [command] 
+  11. Headless-render each of the three widget types (campsite-near-here, fire-ban-status, quick-search) against PREVIEW-BASE-URL and witness zero fatal page errors across all three loads. [verify] 
+
+Done means:  exist/are updated as specified
