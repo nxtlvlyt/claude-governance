@@ -38,6 +38,26 @@ substrate does not care. These rules bound a frontier model and will bound you.
   so it is promoted here to guaranteed delivery. (If a third instance still misses it, the
   next escalation is a gate that blocks proceeding until the humble-validation is recorded.)
 
+**The fifth law, paid for 2026-07-02 (two wrong causal narratives in one day — "failing
+because cloud models" and "minimax lab gone, restore cloud seats" — both caught by the
+operator/receipts instead of by condition; actions were gated, stories were not):**
+A conductor CAUSAL CLAIM ("X is why Y fails", "Z is gone/dead", "the root cause is...")
+ships ONLY behind three conditions:
+- **Temporal coverage.** Before naming X the cause of failure class Y: sample >=3 Y
+  instances across the CLAIMED period and receipt X's presence at each. A cause whose
+  receipts only exist today cannot explain a 3-day effect. (Error 1's exact signature.)
+- **Exhaustive-probe absence.** "Model/lab/file X no longer exists" requires listing the
+  name variants actually probed (:cloud tags, :latest, renames) — absence of evidence is
+  a claim about the SEARCH, so the search must be in the receipt. (Error 2's signature.)
+- **Grade it or refute it.** In reports, every causal sentence is marked EXECUTED (with
+  the receipt) or HYPOTHESIS (untested). A HYPOTHESIS may not trigger a config/seat/
+  roster change until one adversarial pass (agent or local model: "here is my claim and
+  receipts — refute it") fails to kill it. Precedence rider: when substrate layers
+  conflict (an old ruling vs recent operational reality), SURFACE the conflict with both
+  dates — never silently apply the older layer. (If a future instance still ships an
+  ungated causal claim, the escalation is a report-linter that blocks "root cause"
+  sentences lacking a receipt or HYPOTHESIS tag.)
+
 **Three practices paid for 2026-06-25 (the iteration-burned-budget session):**
 - Mine substrate before manufacturing data. Weeks of mission outcomes already live in
   MISSION-LEDGER.md + retros + Hermes logs — extract them BEFORE designing a synthetic
