@@ -446,6 +446,56 @@ export function completeResolvedPickIfAny(repoRoot, allowFiles = []) {
   }
 }
 
+/**
+ * IDEMPOTENCY DETECTION (mt-integrate false-fail root fix, 2026-07-02, operator-directed
+ * "fix root causes then COMPLETE integration"): an mt-integrate mission cherry-picks a SOURCE
+ * commit into the shared worktree. When that content ALREADY landed (a prior attempt or a
+ * sibling), the mission's brittle preflight/verify false-fail (preflight-absence, HEAD ==
+ * hard-coded sha, line-count) even though the deliverable is present — receipts: d1-backup.S1
+ * (preflight "files must be absent" but they exist), d1-backup.S2 (line-count), quick-checkin
+ * (@6a26ae6), trip-plan (@c362560). The ROBUST "already integrated?" signal is git PATCH-ID:
+ * a cherry-pick creates a NEW sha, so `git merge-base --is-ancestor <source> HEAD` is FALSE
+ * even when the patch is present — but the source commit's patch-id MATCHES the patch-id of the
+ * landed (differently-sha'd) commit. Verified live 2026-07-02: 634abd5's patch-id == b85dac8's
+ * in the mt-integration worktree, while is-ancestor returned NO.
+ * @returns {{integrated:boolean, as?:string|null}|{integrated:false, error:string}}
+ */
+export function sourceCommitAlreadyIntegrated(repoRoot, sourceSha, { scan = 80 } = {}) {
+  try {
+    if (!sourceSha || !/^[0-9a-f]{7,40}$/i.test(String(sourceSha))) return { integrated: false };
+    // patch-id of the source commit (first token of `git show <sha> | git patch-id`).
+    const srcPid = execSync(`git show ${quote(sourceSha)} | git patch-id`, gitOpts(repoRoot))
+      .toString().trim().split(/\s+/)[0];
+    if (!srcPid) return { integrated: false };
+    // patch-ids of the last `scan` HEAD commits in ONE call: `git log -p -N | git patch-id`
+    // emits "<patch-id> <commit-sha>" per commit. A match = the source's patch is already applied
+    // (regardless of the sha it landed under — survives cherry-pick's sha rewrite, unlike is-ancestor).
+    const table = execSync(`git log -p -${scan} | git patch-id`, gitOpts(repoRoot)).toString();
+    const hit = table.split(/\r?\n/).map((l) => l.trim()).find((l) => l.startsWith(srcPid + ' ') || l === srcPid);
+    return hit ? { integrated: true, as: (hit.split(/\s+/)[1] || null) } : { integrated: false };
+  } catch (err) {
+    return { integrated: false, error: errText(err) };
+  }
+}
+
+/**
+ * Extract candidate SOURCE commit sha(s) from an mt-integrate mission's text. The source commit is
+ * named in prose: "cherry-pick commit <sha>", "Bring commit <sha>", "(origin: <sha>)". Returns unique
+ * 7-40 hex shas that appear in an integration context. Used ONLY as candidates for
+ * sourceCommitAlreadyIntegrated, which VERIFIES each via patch-id — so a false candidate is harmless
+ * (git show fails or no patch-id matches). Generous-but-contextual: over-extraction cannot cause a
+ * false "integrated" because the patch-id check is the real gate.
+ * @returns {string[]}
+ */
+export function extractSourceShas(text) {
+  const t = String(text || '');
+  const shas = new Set();
+  const re = /(?:cherry-pick|commit|origin|pick|Bring|source)[^0-9a-f\n]{0,14}([0-9a-f]{7,40})\b/gi;
+  let m;
+  while ((m = re.exec(t)) !== null) shas.add(m[1].toLowerCase());
+  return [...shas];
+}
+
 // --- helpers -------------------------------------------------------------
 
 function quote(s) {
@@ -804,6 +854,46 @@ function selfTest() {
       freshBase();
 
       fs.rmSync(pkRepo, { recursive: true, force: true });
+    }
+
+    // ---- IDEMPOTENCY: sourceCommitAlreadyIntegrated (patch-id) + extractSourceShas (2026-07-02) ----
+    // Reproduces the real case: a commit whose PATCH is present under a DIFFERENT sha (cherry-picked
+    // onto a divergent base). is-ancestor says NO; patch-id says YES. This is the signal that makes
+    // mt-integrate missions idempotent instead of false-failing on already-landed deliverables.
+    {
+      const idRepo = fs.mkdtempSync(path.join(os.tmpdir(), "idemp_"));
+      const gi = { cwd: idRepo, stdio: "pipe" };
+      execSync("git init -q", gi);
+      execSync('git config user.email t@t.local', gi);
+      execSync('git config user.name t', gi);
+      fs.writeFileSync(path.join(idRepo, "base.txt"), "base\n");
+      commitStep(idRepo, "base", ["base.txt"]);
+      const baseBranch = execSync("git rev-parse --abbrev-ref HEAD", gi).toString().trim();
+      // feature commit B: adds feature.txt
+      execSync("git checkout -q -b feat", gi);
+      fs.writeFileSync(path.join(idRepo, "feature.txt"), "the feature payload\n");
+      commitStep(idRepo, "feat: add feature.txt", ["feature.txt"]);
+      const bSha = execSync("git rev-parse HEAD", gi).toString().trim();
+      // divergent base: back on main, add an UNRELATED file, then cherry-pick B -> B' (same patch, new sha)
+      execSync(`git checkout -q ${baseBranch}`, gi);
+      fs.writeFileSync(path.join(idRepo, "unrelated.txt"), "unrelated\n");
+      commitStep(idRepo, "unrelated main change", ["unrelated.txt"]);
+      execSync(`git cherry-pick ${bSha}`, gi);   // clean (different files) -> commits B' automatically
+      const bPrime = execSync("git rev-parse HEAD", gi).toString().trim();
+
+      const notAncestor = (() => { try { execSync(`git merge-base --is-ancestor ${bSha} HEAD`, gi); return false; } catch { return true; } })();
+      assert(notAncestor === true && bPrime !== bSha, "idempotency setup: B landed as B' (different sha), is-ancestor(B) is FALSE — the trap that fools naive checks");
+      const det = sourceCommitAlreadyIntegrated(idRepo, bSha);
+      assert(det.integrated === true && det.as === bPrime, `sourceCommitAlreadyIntegrated: patch-id detects B already applied as B' (as=${det.as && det.as.slice(0,7)})`);
+      // a genuinely-absent commit's patch is NOT found
+      const absent = sourceCommitAlreadyIntegrated(idRepo, "0000000000000000000000000000000000000000");
+      assert(absent.integrated === false, "sourceCommitAlreadyIntegrated: an unknown/absent sha => integrated:false (fail-safe)");
+      fs.rmSync(idRepo, { recursive: true, force: true });
+
+      // extractSourceShas: pulls integration-context shas from mission prose
+      const shas = extractSourceShas("PARENT MAQSAD: Bring commit 634abd59ce5c7aa42061f1d4a641d5820ecfcab4. Step: cherry-pick commit 634abd59ce5c7aa42061f1d4a641d5820ecfcab4; integrates (origin: 4050b5b).");
+      assert(shas.includes("634abd59ce5c7aa42061f1d4a641d5820ecfcab4") && shas.includes("4050b5b"), `extractSourceShas: pulls cherry-pick + origin shas (${shas.length} found)`);
+      assert(extractSourceShas("no shas here, just prose about integration").length === 0, "extractSourceShas: prose with no hex sha => empty");
     }
   } finally {
     // Clean up the temp dir regardless of outcome.
