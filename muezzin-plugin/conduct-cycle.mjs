@@ -405,12 +405,22 @@ export function sweep(base = HERE, now = Date.now(), routeFile = path.join(proce
 
   // STUCK-TASK detection: a lane that has been RUNNING longer than TASK_STUCK_MS is
   // mechanically hung. The faith approves killing it and requeuing the task.
+  // ROOT FIX 2026-07-02 (daemon suicide loop, live receipt: 33452 self-killed 18:09:36 mid-lane,
+  // spot-share-card refired and headed for the same kill): legitimate plan-phase seat calls take
+  // 14-16 min (heartbeat: 171s single calls, 4800s timeouts armed) — LONGER than TASK_STUCK_MS.
+  // The STALL rule above already knew "an in-flight long call is work, not a hang"; STUCK-TASK
+  // now honors the same heartbeat: a kill fires ONLY when the heartbeat is quiet past the
+  // threshold AND no attempt is in flight. Otherwise the lane is WORKING and the kill would
+  // destroy the seat's in-flight work, reset the attempt, and loop forever.
   const stuckLanes = detectStuckLanes(status, now);
-  if (stuckLanes.length) {
+  const hbWorking = hb.lastAgeMs < T.TASK_STUCK_MS || /attempt-start/.test(hb.lastLine || '');
+  if (stuckLanes.length && hbWorking) {
+    report.push(`STUCK-CANDIDATE suppressed: ${stuckLanes.length} lane(s) past ${mins(T.TASK_STUCK_MS)}m but heartbeat is ${/attempt-start/.test(hb.lastLine || '') ? 'IN-FLIGHT' : `${mins(hb.lastAgeMs)}m fresh`} — a long seat call is work, not a hang (no kill)`);
+  } else if (stuckLanes.length) {
     for (const sl of stuckLanes) report.push(`STUCK-TASK: ${sl.path} stuck for ${mins(sl.ageMs)}m (limit ${mins(T.TASK_STUCK_MS)}m)`);
     actions.push({
       id: 'STUCK-TASK', class: 'mechanical', approved_by_faith: true,
-      why: `${stuckLanes.length} lane(s) have been RUNNING for over ${mins(T.TASK_STUCK_MS)}m — a task that cannot finish in 5 min is hung and must be killed`,
+      why: `${stuckLanes.length} lane(s) RUNNING over ${mins(T.TASK_STUCK_MS)}m with a dead-quiet heartbeat (${mins(hb.lastAgeMs)}m, no in-flight attempt) — hung, not working; kill and requeue`,
       command: `taskkill /PID ${status?.pid ?? pidfile} /F /T`,
       stuck_paths: stuckLanes.map((x) => x.path),
       rule: 'heal() will kill the process tree and bare the RUNNING lines so the daemon re-fires them; logged to daemon-events.log',
@@ -1111,10 +1121,22 @@ function selftest() {
   }
 
   // fixture 1h: STUCK-TASK detection + heal() kills and requeues.
+  // ROOT FIX 2026-07-02: a stuck VERDICT now requires BOTH an old lane AND a dead-quiet heartbeat
+  // with no in-flight attempt — a fresh/in-flight heartbeat means a long seat call (work, not hang).
   writeFileSync(path.join(logs, 'daemon-status.json'), JSON.stringify({ pid: 77777, state: 'running', lanes: [{ path: 'missions/stuck.mission.txt', start_ts: new Date(now - 16 * 60000).toISOString() }], queued: 0, ts: new Date(now).toISOString() }));
   writeFileSync(path.join(logs, 'daemon.pid'), '77777');
   writeFileSync(path.join(tmp, 'missions', 'AUTORUN.md'), '# q\nRUNNING missions/stuck.mission.txt  <!-- t -->\n');
+  // suppress case A: FRESH heartbeat (1m old) -> no kill, suppressed line on report
   writeFileSync(path.join(logs, 'dispatch-heartbeat.log'), `${new Date(now - 1 * 60000).toISOString()} attempt-ok provider=ollama-cloud model=kimi-k2.6 heal=0 ms=1 chars=10\n`);
+  r = sweep(tmp, now, noRoute, sightOk);
+  ck(!r.actions.some((a) => a.id === 'STUCK-TASK'), 'old lane + FRESH heartbeat -> STUCK-TASK suppressed (long seat call is work, not a hang)');
+  ck(r.report.some((l) => /STUCK-CANDIDATE suppressed/.test(l)), 'suppression is reported, never silent');
+  // suppress case B: old heartbeat but last line is an IN-FLIGHT attempt-start -> no kill
+  writeFileSync(path.join(logs, 'dispatch-heartbeat.log'), `${new Date(now - 20 * 60000).toISOString()} attempt-start provider=claude-claude-sonnet-5 (NAMED claude seat) timeout=4800\n`);
+  r = sweep(tmp, now, noRoute, sightOk);
+  ck(!r.actions.some((a) => a.id === 'STUCK-TASK'), 'old lane + IN-FLIGHT attempt-start -> STUCK-TASK suppressed (seat still working)');
+  // genuine hang: old lane AND dead-quiet heartbeat (20m, last event a completion) -> KILL
+  writeFileSync(path.join(logs, 'dispatch-heartbeat.log'), `${new Date(now - 20 * 60000).toISOString()} attempt-ok provider=ollama-cloud model=kimi-k2.6 heal=0 ms=1 chars=10\n`);
   r = sweep(tmp, now, noRoute, sightOk);
   ck(r.actions.some((a) => a.id === 'STUCK-TASK' && a.class === 'mechanical' && a.approved_by_faith && /77777/.test(a.command)), 'stuck lane -> STUCK-TASK mechanical action with taskkill command');
   ck(r.report.some((l) => /STUCK-TASK.*stuck.mission.txt/.test(l)), 'stuck lane surfaces on report');
