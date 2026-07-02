@@ -376,6 +376,26 @@ data + rendered result). Design sketch in the attribution workflow output.
 Verified against substrate at write time. Order = leverage. Each lands as code with tests
 (vocabulary-without-mechanism is the documented failure mode).
 
+**SCHEDULE (operator ask 2026-07-02 ~21:15 — triggers, not vibes; conductor works these in
+beat gaps at the observed rate of 1-2 substantial items/beat):**
+- **Tonight's beats (2026-07-02 evening):** #2 reachability witness (small, pure code) →
+  #4 receipt-discounting rubric line (prompt-only) → #14 hand-merge batch of the 3 map.html
+  conflicts, TRIGGERED when the lane enters queue slots 7-11 (scenic/spot-briefs/money —
+  own-sandbox missions; the mt worktree is lane-free there).
+- **Tomorrow's beats (2026-07-03 morning):** #1 refuter seat (needs a careful verdict-phase
+  edit) → #20 FEATURE-CATALOG regen (unblocks the 2 held QC pairs before their L5 slot
+  arrives) → #16 m28-1c section repair.
+- **Flow-triggered (condition, not clock):** #7 golden-mission harness WHEN ~10 fresh
+  mission receipts exist under the fixed stack (they seed the golden set); #13 C1/C2
+  missions WHEN spot-briefs.S1 lands (proves the local-model+groundedness pattern);
+  #12 isnad grading AFTER the refuter seat (it consumes the grades); #3 completeness
+  critic on LOCAL qwen3.6:35b or nemotron-3-super (the original "Ollama Cloud" note is
+  VOID per the 2026-07-02 NO-CLOUD ruling) after #1.
+- **Awaiting operator taste (#5 plan-brief veto, QUALITY-STANDARD ⟨OPERATOR⟩ slots):
+  built when ratified; not blocking.**
+- **Standing deferrals keep their dates (#15).** Each beat's report notes which scheduled
+  item landed; a slipped item is carried forward EXPLICITLY, never silently.
+
 1. **Refuter seat in the verdict panel** (workflow-learnings adoption): one phase-3 seat
    charged adversarially ("assume hollow/unreachable/false-green; EXECUTE a real check;
    REJECT only probe-backed"). Local witness stack wraps the judgment (laguna/guardian);
