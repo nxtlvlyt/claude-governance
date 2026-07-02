@@ -42,3 +42,4 @@ cold-instance-test-*.txt
 
 # Wudu / session attestation artifacts
 *.attestation
+.credentials.json.bak*
