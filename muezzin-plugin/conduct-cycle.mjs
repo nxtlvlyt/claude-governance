@@ -57,9 +57,14 @@ function mins(ms) { return ms === Infinity ? '?' : Math.round(ms / 60000); }
 function pidAlive(pid) { try { process.kill(pid, 0); return true; } catch { return false; } }
 
 // AUTORUN line parsing — same identity rules as the daemon (status prefix + path).
-const STATUS_RE = /^(DONE|FAILED|RUNNING)\b/;
+// PARKED + SPLIT added 2026-07-02 (parked-graveyard audit): this parser previously knew only
+// DONE/FAILED/RUNNING, so every `PARKED missions/x` and `SPLIT missions/x` ledger line fell
+// through to PENDING with the status word embedded in the path — inflating the doneness
+// pending count by every parked/split line and hiding the parked population from the sweep
+// entirely. The daemon's own parser has known both statuses since 2026-06-25; this one drifted.
+const STATUS_RE = /^(DONE|FAILED|RUNNING|PARKED|SPLIT)\b/;
 function parseAutorun(text) {
-  const out = { done: [], failed: [], running: [], pending: [], notes: {} };
+  const out = { done: [], failed: [], running: [], pending: [], parked: [], split: [], notes: {} };
   for (const line of text.split(/\r?\n/)) {
     const s = line.trim();
     if (!s || s.startsWith('#')) continue;
@@ -95,7 +100,9 @@ export function detectStuckLanes(status, now = Date.now()) {
 // in the AUTORUN ledger is a loop and must be capped before it burns quota indefinitely.
 export function detectLoopCaps(autorun, cap = T.LOOP_CAP_REPEATS) {
   const counts = {};
-  for (const p of [...autorun.done, ...autorun.failed, ...autorun.running, ...autorun.pending]) {
+  // parked/split included: pre-2026-07-02 they rode in via the pending mis-parse; a stem that
+  // loops through PARKED re-marks is still a loop.
+  for (const p of [...autorun.done, ...autorun.failed, ...autorun.running, ...autorun.pending, ...(autorun.parked || []), ...(autorun.split || [])]) {
     const s = stemOf(p);
     counts[s] = (counts[s] || 0) + 1;
   }
@@ -120,6 +127,48 @@ export function recordFix(base, { cls, fix, requeue = [] }, now = Date.now()) {
   ledger.entries.push({ class: cls, fix, landed_ts: new Date(now).toISOString(), requeue, requeued: false });
   writeFixLedger(base, ledger);
   return ledger;
+}
+
+// PARKED-REVIVAL (2026-07-02, operator: "why are things getting parked, do they go there to
+// die?" — receipt: they DID. PARKED is daemon-terminal ("DEAD, never re-promote",
+// muezzin-daemon.mjs) and this sweep blessed every engine-capability park as "(legitimate)"
+// with NO action, forever. Seven b13-* lines parked 2026-06-25 "revisit after engine fixes"
+// were never revisited across a week in which the engine fixes actually landed.)
+//
+// A park is a CONDITION, not a verdict (CLAUDE.md D7). This detector makes the condition
+// live: a parked item is DUE for a conductor revisit when
+//   (a) any fix-ledger entry landed AFTER the park's anchor date, or
+//   (b) the anchor is older than maxAgeDays (standing weekly look at the graveyard), or
+//   (c) the item carries no parseable date at all (unknown-age parks get looked at until
+//       someone stamps them).
+// Judging protocol: the conductor revisits, then appends `REVISIT-JUDGED <ISO date>: <verdict>`
+// to the line's annotation. That date becomes the new anchor — the item goes quiet until a
+// NEWER fix lands or maxAgeDays pass again. Judged ≠ revived: STILL-BLOCKED is a valid
+// verdict; what is not valid is silence.
+export function parkedRevivalDue(autorun, fixEntries = [], { maxAgeDays = 7, now = Date.now() } = {}) {
+  const items = [];
+  for (const p of autorun.parked || []) items.push({ path: p, note: autorun.notes[p] || '', kind: 'PARKED' });
+  for (const f of autorun.failed || []) {
+    const note = autorun.notes[f] || '';
+    if (/\bSUPERSEDED\b|\bRESOLVED\b|FIX:\s*none\b|\bDUPLICATE-RETIRED\b/i.test(note)) continue;   // judged-closed
+    if (/pending engine|engine batch|PARKED/i.test(note)) items.push({ path: f, note, kind: 'FAILED-parked' });
+  }
+  const due = [];
+  for (const it of items) {
+    // structured timestamp capture — the loose class [T\d:.Z]* greedily ate the delimiter
+    // colon after "…Z:" making Date.parse NaN and silently voiding every judgment stamp
+    // (caught live 2026-07-02, first stamping pass)
+    const judged = Date.parse((it.note.match(/REVISIT-JUDGED[: ]+(\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2}(?::\d{2})?(?:\.\d+)?Z?)?)/i) || [])[1] || '');
+    const parked = Date.parse((it.note.match(/\d{4}-\d{2}-\d{2}(?:T[\d:.]+Z?)?/) || [])[0] || '');
+    const anchor = Number.isFinite(judged) ? judged : (Number.isFinite(parked) ? parked : null);
+    const fixesSince = fixEntries
+      .filter((e) => anchor == null || (Number.isFinite(Date.parse(e.landed_ts)) && Date.parse(e.landed_ts) > anchor))
+      .map((e) => e.class);
+    const ageDays = anchor == null ? null : Math.floor((now - anchor) / 86400e3);
+    const isDue = anchor == null || fixesSince.length > 0 || ageDays >= maxAgeDays;
+    if (isDue) due.push({ path: it.path, kind: it.kind, ageDays, fixesSince: [...new Set(fixesSince)] });
+  }
+  return due;
 }
 
 // SearXNG sight-check: a control query that cannot honestly return zero results.
@@ -503,6 +552,22 @@ export function sweep(base = HERE, now = Date.now(), routeFile = path.join(proce
     }
   }
 
+  // PARKED-REVIVAL sweep (2026-07-02): parks are conditions, not verdicts — see
+  // parkedRevivalDue(). One consolidated judgment item; judging = annotating the line
+  // with `REVISIT-JUDGED <date>: <verdict>` (REVIVE-NOW / RETIRE-SUPERSEDED / STILL-BLOCKED),
+  // which silences the item until a newer fix lands or the age window re-opens.
+  const parkedDue = parkedRevivalDue(autorun, readFixLedger(base).entries);
+  const parkedCensus = (autorun.parked || []).length;
+  if (parkedCensus) report.push(`parked census: ${parkedCensus} PARKED line(s) on ledger — ${parkedDue.length} due for revisit`);
+  if (parkedDue.length) {
+    actions.push({
+      id: 'REVISIT-PARKED', class: 'judgment', approved_by_faith: true,
+      why: `${parkedDue.length} parked/blocked mission(s) have engine fixes landed AFTER their park date, an expired age window, or no date at all — a park whose revival condition is never re-checked is a graveyard, not a hold (operator, 2026-07-02)`,
+      due: parkedDue.map((d) => `${d.path} [${d.kind}${d.ageDays != null ? `, ${d.ageDays}d old` : ', NO DATE'}${d.fixesSince.length ? `, fixes since: ${d.fixesSince.slice(0, 4).join('|')}` : ''}]`),
+      rule: 'for each: re-read its park annotation + receipts against the CURRENT engine; verdict REVIVE-NOW (un-park/requeue), RETIRE-SUPERSEDED (name successor), or STILL-BLOCKED (name the unpark event); then stamp the line REVISIT-JUDGED <ISO-date>: <verdict> — silence is the only invalid outcome',
+    });
+  }
+
   // LOOP-CAP detection: a mission stem that appears LOOP_CAP_REPEATS or more times
   // across all AUTORUN statuses is a quota-burn loop and must be mechanically capped.
   const loopCaps = detectLoopCaps(autorun);
@@ -550,7 +615,7 @@ export function sweep(base = HERE, now = Date.now(), routeFile = path.join(proce
   // missions/<x>.mission.txt`; when the declaring mission is DONE, the target is a
   // mechanical queue action — once-only: a target already ANYWHERE in AUTORUN (any
   // status) is never re-queued. The target still faces the miqat at fire time.
-  const queuedAnywhere = new Set([...autorun.done, ...autorun.failed, ...autorun.running, ...autorun.pending].map(stemOf));
+  const queuedAnywhere = new Set([...autorun.done, ...autorun.failed, ...autorun.running, ...autorun.pending, ...(autorun.parked || []), ...(autorun.split || [])].map(stemOf));
   for (const d of autorun.done) {
     const mfile = path.join(base, d.replace(/\//g, path.sep));
     if (!existsSync(mfile)) continue;
@@ -655,7 +720,7 @@ export function sweep(base = HERE, now = Date.now(), routeFile = path.join(proce
     report.push(`FLAG: ${hb.thinkingBurn.length} EMPTY_CONTENT_THINKING failures in window — known quota-burn class (QUEUE: KIMI THINKING-BURN FIX)`);
   }
 
-  report.push(`ledger: ${autorun.done.length} DONE / ${autorun.failed.length} FAILED / ${autorun.running.length} running / ${autorun.pending.length} pending`);
+  report.push(`ledger: ${autorun.done.length} DONE / ${autorun.failed.length} FAILED / ${autorun.running.length} running / ${autorun.pending.length} pending / ${(autorun.parked || []).length} PARKED / ${(autorun.split || []).length} SPLIT`);
   // DONENESS GATE (2026-07-02): compute the TRUE completion state so the conductor consults it
   // instead of eyeballing the board (the map the 2026-07-02 conductor lacked). doneness.json is
   // written by main(); this surfaces it on the board + as a standing NOT-DONE action.
@@ -1025,9 +1090,41 @@ function selftest() {
     'FAILED missions/done-elsewhere.mission.txt  <!-- FIX: none needed — SUPERSEDED by conductor survey -->\n');
   r = sweep(tmp, now, noRoute, sightOk);
   ck(r.actions.some((a) => a.id === 'PERFORM-NAMED-FIX-fixable' && /split into Half A/.test(a.fix)), 'named fix becomes a PERFORM order, not a parked label');
-  ck(!r.actions.some((a) => a.id && a.id.includes('parked')), 'engine-parked block is report-only (no action)');
+  // CONTRACT UPDATED 2026-07-02 (parked-graveyard fix): an engine-parked block gets NO refire
+  // and NO per-mission PERFORM action — but it is NO LONGER permanently invisible: it surfaces
+  // in the consolidated REVISIT-PARKED judgment (a READ/judge order, never a relaunch).
+  ck(!r.actions.some((a) => a.id === 'PERFORM-NAMED-FIX-parked' || a.id === 'DIAGNOSE-parked'), 'engine-parked block: no refire/perform action (park respected)');
+  ck(r.actions.some((a) => a.id === 'REVISIT-PARKED' && a.due.some((d) => d.includes('missions/parked.mission.txt'))), 'engine-parked block IS surfaced in REVISIT-PARKED (dateless park = always due) — parks no longer die silently');
   ck(r.actions.some((a) => a.id === 'DIAGNOSE-bare'), 'bare FAILED still gets diagnose');
   ck(!r.actions.some((a) => a.id && a.id.includes('done-elsewhere')), 'CLOSED (FIX: none/SUPERSEDED) is report-only — no PERFORM loop, no re-diagnose');
+
+  // fixture 1c: parkedRevivalDue unit contract (the operator's "do they go there to die" fix).
+  {
+    const au = parseAutorun(
+      'PARKED missions/pk-old.mission.txt  <!-- 2026-06-25 senior: revisit after engine fixes -->\n' +
+      'PARKED missions/pk-fresh.mission.txt  <!-- 2026-07-01 parked pending X -->\n' +
+      'PARKED missions/pk-judged.mission.txt  <!-- 2026-06-25 parked. REVISIT-JUDGED 2026-07-02: STILL-BLOCKED needs windowed-edit -->\n' +
+      'FAILED missions/pk-superseded.mission.txt  <!-- pending engine batch. SUPERSEDED by pk-b -->\n');
+    const nowMs = Date.parse('2026-07-02T22:00:00Z');
+    const fixes = [{ class: 'claude-launch', landed_ts: '2026-06-30T00:00:00Z' }];
+    const due = parkedRevivalDue(au, fixes, { maxAgeDays: 7, now: nowMs });
+    ck(due.some((d) => d.path === 'missions/pk-old.mission.txt' && d.fixesSince.includes('claude-launch')), 'revival: park older than a landed fix -> DUE, names the fix class');
+    ck(!due.some((d) => d.path === 'missions/pk-fresh.mission.txt'), 'revival: park NEWER than every fix, inside age window -> quiet');
+    ck(!due.some((d) => d.path === 'missions/pk-judged.mission.txt'), 'revival: REVISIT-JUDGED after the fix -> silenced (judgment is the new anchor)');
+    // production stamp format: full ISO timestamp immediately followed by the verdict colon —
+    // the exact shape whose trailing colon broke Date.parse on the first live stamping pass.
+    const auColon = parseAutorun('PARKED missions/pk-colon.mission.txt  <!-- 2026-06-25 parked. REVISIT-JUDGED 2026-07-02T23:10:00Z: RETIRE-SUPERSEDED (audit) -->\n');
+    ck(!parkedRevivalDue(auColon, fixes, { maxAgeDays: 7, now: nowMs }).length, 'revival: full-ISO stamp with trailing verdict colon parses (the live-caught regex bug stays dead)');
+    ck(!due.some((d) => d.path === 'missions/pk-superseded.mission.txt'), 'revival: SUPERSEDED park is judged-closed, never resurfaces');
+    const due2 = parkedRevivalDue(au, [...fixes, { class: 'newer-fix', landed_ts: '2026-07-02T12:00:00Z' }], { maxAgeDays: 7, now: nowMs });
+    ck(due2.some((d) => d.path === 'missions/pk-judged.mission.txt' && d.fixesSince.includes('newer-fix')), 'revival: a fix landing AFTER the judgment re-opens the judged park');
+    const due3 = parkedRevivalDue(au, [], { maxAgeDays: 7, now: Date.parse('2026-07-09T00:00:00Z') });
+    ck(due3.some((d) => d.path === 'missions/pk-fresh.mission.txt'), 'revival: age window alone (7d, no fixes) re-surfaces a park — the standing weekly graveyard look');
+    // parser: PARKED/SPLIT are first-class, never phantom-pending (pre-fix: "PARKED missions/x" polluted pending)
+    ck(au.parked.length === 3 && au.pending.length === 0, 'parser: PARKED lines land in autorun.parked, pending stays clean');
+    const auSplit = parseAutorun('SPLIT missions/parent.mission.txt  <!-- ts -->\nmissions/live.mission.txt\n');
+    ck(auSplit.split.length === 1 && auSplit.pending.length === 1, 'parser: SPLIT is first-class; live line still pending');
+  }
 
   // fixture 1c: REQUEUE-ON-FIX-LANDED — a fix-ledger entry naming a FAILED mission makes
   // a mechanical requeue; heal() bares the line (daemon re-fires) + flips it ONCE.
