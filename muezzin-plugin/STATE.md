@@ -112,7 +112,15 @@ BLIND-SPOT catch, humble-validated 2026-07-03T13:0x): a pre-flight proves the LO
 mission's environment — when pre-flighting, name the env deltas explicitly (preview-alias
 propagation vs prod, engine-sandbox PATH/browsers vs conductor shell) and check each is
 either covered by the mission's own design (e.g. the settle poll) or receipted-equal from a
-prior run before claiming the pre-flight covers the mission.**
+prior run before claiming the pre-flight covers the mission. LANE-EXCLUSION CLAUSE (paid for
+2026-07-03T14:35: the conductor's 620s runner pre-flight ran in the shared repo WHILE
+plan-mode-mobile's lane was live; its side-writes — docs/e2e-report-*.json + e2e-shots/ —
+tripped the mission's containment-drift guard and burned its attempt 1; the conductor's own
+receipt had called them "outside every scoped cleanliness check", which was WRONG because
+containment-drift is baseline-relative, not allowlist-scoped): a pre-flight that writes ANY
+file NEVER runs in a repo that is a RUNNING lane's REPO-ROOT — wait for the lane, use a temp
+clone, or point the tool somewhere disposable. After any preflight in a shared repo, delete
+the side-writes the same beat (rm receipts in transcript).**
 
 **SUCCESSION SCORECARD 2026-07-03 (operator re-affirmed the standard: "so good a local model
 could be the conductor... held to the same standard and forced to use tools"). Judgment that
