@@ -129,6 +129,45 @@ export function recordFix(base, { cls, fix, requeue = [] }, now = Date.now()) {
   return ledger;
 }
 
+// FALSE-DEATH SCAN (#25, blind-spot hunt wf_0b61e8ba; built 2026-07-03 under the GAP-FIRST
+// ruling): the doneness gate validates DONE marks against deliverables, but nothing ever
+// re-validated FAILED marks against the repo — 9 of 13 sampled code-repo FAILED lines were
+// byte-identical-landed at HEAD (board ~70-90% wrong for that class). This scans every
+// unresolved FAILED code-repo mission: ALLOW-FILES present at HEAD AND byte-identical to the
+// mission's source sha => FULL false-death candidate. Keyed on BYTE-IDENTITY, never bare
+// presence — the b13-aria trio (files present, map.html wiring absent) is the false-positive
+// control that presence-keying would have flagged wrongly.
+export function falseDeathScan(autorun, base, { gitFn, readTextFn } = {}) {
+  const readT = readTextFn || ((p) => { try { return readFileSync(p, 'utf8'); } catch { return ''; } });
+  const out = [];
+  for (const f of autorun.failed || []) {
+    const note = autorun.notes[f] || '';
+    if (/\bRESOLVED\b|\bSUPERSEDED\b|REVISIT-JUDGED|FALSE-DEATH-JUDGED|\bDUPLICATE-RETIRED\b/i.test(note)) continue;
+    const mtext = readT(path.join(base, f.replace(/\//g, path.sep)));
+    if (!mtext || !/MISSION-CLASS:\s*code-repo/i.test(mtext)) continue;
+    const repo = (mtext.match(/REPO-ROOT:\s*(.+)/) || [])[1]?.trim();
+    if (!repo) continue;
+    const allow = [...mtext.matchAll(/^\s{2}-\s+(\S+)/gm)].map((m) => m[1]).filter((p2) => p2 !== '.');
+    if (!allow.length) continue;
+    const srcSha = (mtext.match(/\b([a-f0-9]{7,40})\b/) || [])[1];
+    const files = {};
+    let present = 0, identical = 0;
+    for (const ap of allow) {
+      const ls = gitFn(repo, `ls-tree HEAD -- "${ap}"`);
+      if (!ls.ok || !ls.out.trim()) { files[ap] = 'absent'; continue; }
+      present++;
+      if (srcSha) {
+        const d = gitFn(repo, `diff --quiet ${srcSha}:"${ap}" HEAD:"${ap}"`);
+        files[ap] = d.ok ? (identical++, 'present-identical') : 'present-differs';
+      } else files[ap] = 'present-nosha';
+    }
+    const verdict = present === allow.length && (srcSha ? identical === allow.length : true) ? 'FULL'
+      : present > 0 ? 'PARTIAL' : 'GENUINE';
+    if (verdict !== 'GENUINE') out.push({ path: f, verdict, srcSha: srcSha || null, files });
+  }
+  return out;
+}
+
 // PARKED-REVIVAL (2026-07-02, operator: "why are things getting parked, do they go there to
 // die?" — receipt: they DID. PARKED is daemon-terminal ("DEAD, never re-promote",
 // muezzin-daemon.mjs) and this sweep blessed every engine-capability park as "(legitimate)"
@@ -574,6 +613,22 @@ export function sweep(base = HERE, now = Date.now(), routeFile = path.join(proce
       rule: 'for each: re-read its park annotation + receipts against the CURRENT engine; verdict REVIVE-NOW (un-park/requeue), RETIRE-SUPERSEDED (name successor), or STILL-BLOCKED (name the unpark event); then stamp the line REVISIT-JUDGED <ISO-date>: <verdict> — silence is the only invalid outcome',
     });
   }
+
+  // FALSE-DEATH SCAN (#25): unresolved FAILED code-repo marks whose deliverables are
+  // byte-identical-landed at HEAD surface as a judgment item instead of rotting on the board.
+  try {
+    const fdGit = gitFn || ((repo, argstr) => { try { return { ok: true, out: execSync(`git -C "${repo}" ${argstr}`, { stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 64 * 1024 * 1024 }).toString() }; } catch { return { ok: false, out: '' }; } });
+    const fdc = falseDeathScan(autorun, base, { gitFn: fdGit });
+    if (fdc.length) {
+      report.push(`false-death scan: ${fdc.length} candidate(s) — FAILED marks whose work appears landed at HEAD`);
+      actions.push({
+        id: 'FALSE-DEATH-CANDIDATES', class: 'judgment', approved_by_faith: true,
+        why: `${fdc.length} unresolved FAILED code-repo mission(s) have ALLOW-FILES ${fdc.some((c) => c.verdict === 'FULL') ? 'byte-identical-landed' : 'partially landed'} at HEAD — a FAILED mark contradicted by the repo is a false death (receipt class: 9 of 13 sampled were false, 2026-07-02 hunt)`,
+        candidates: fdc.map((c) => `${c.path} [${c.verdict}${c.srcSha ? ' vs ' + c.srcSha : ''}: ${Object.entries(c.files).map(([k, v]) => path.basename(k) + '=' + v).join(' ')}]`),
+        rule: 'verify each candidate from the repo (merge-base/byte receipts), then annotate the line RESOLVED-LANDED (+ tartib-readable # RESOLVED twin) or FALSE-DEATH-JUDGED: GENUINE <why> — never leave a candidate bare (PARTIAL = check the wiring/hunk the sweep names as differing/absent before judging)',
+      });
+    }
+  } catch { /* scan is advisory — a git hiccup must never break the sweep */ }
 
   // LOOP-CAP detection: a mission stem that appears LOOP_CAP_REPEATS or more times
   // across all AUTORUN statuses is a quota-burn loop and must be mechanically capped.
@@ -1140,6 +1195,28 @@ function selftest() {
       'revival: fix targeted AT the parked mission itself re-opens it');
     // parser: PARKED/SPLIT are first-class, never phantom-pending (pre-fix: "PARKED missions/x" polluted pending)
     ck(au.parked.length === 3 && au.pending.length === 0, 'parser: PARKED lines land in autorun.parked, pending stays clean');
+    // FALSE-DEATH SCAN (#25): byte-identity keyed, never presence-keyed.
+    {
+      const fdAu = parseAutorun('FAILED missions/fd-landed.mission.txt  <!-- t -->\nFAILED missions/fd-wiring.mission.txt  <!-- t -->\nFAILED missions/fd-gone.mission.txt  <!-- t -->\nFAILED missions/fd-judged.mission.txt  <!-- RESOLVED-LANDED earlier -->\n');
+      const mtexts = {
+        'missions/fd-landed.mission.txt': 'MISSION-CLASS: code-repo\nREPO-ROOT: C:/r\nALLOW-FILES:\n  - js/a.js\n  - css/b.css\nMaqsad: land abc1234 feature',
+        'missions/fd-wiring.mission.txt': 'MISSION-CLASS: code-repo\nREPO-ROOT: C:/r\nALLOW-FILES:\n  - js/w.js\n  - map.html\nMaqsad: land abc1234 feature',
+        'missions/fd-gone.mission.txt': 'MISSION-CLASS: code-repo\nREPO-ROOT: C:/r\nALLOW-FILES:\n  - js/gone.js\nMaqsad: land abc1234 feature',
+        'missions/fd-judged.mission.txt': 'MISSION-CLASS: code-repo\nREPO-ROOT: C:/r\nALLOW-FILES:\n  - js/a.js\nMaqsad: land abc1234 feature',
+      };
+      const fdGitStub = (repo, argstr) => {
+        if (/ls-tree HEAD -- "js\/gone.js"/.test(argstr)) return { ok: true, out: '' };            // absent
+        if (/ls-tree/.test(argstr)) return { ok: true, out: '100644 blob x\tfile' };               // present
+        if (/diff --quiet abc1234:"map.html"/.test(argstr)) return { ok: false, out: '' };         // differs (wiring dropped)
+        if (/diff --quiet/.test(argstr)) return { ok: true, out: '' };                             // identical
+        return { ok: true, out: '' };
+      };
+      const fd = falseDeathScan(fdAu, tmp, { gitFn: fdGitStub, readTextFn: (p) => mtexts[Object.keys(mtexts).find((k) => p.includes(path.basename(k)))] || '' });
+      ck(fd.find((c) => c.path.includes('fd-landed'))?.verdict === 'FULL', 'false-death: all files byte-identical at HEAD -> FULL candidate');
+      ck(fd.find((c) => c.path.includes('fd-wiring'))?.verdict === 'PARTIAL', 'false-death: file present but DIFFERS (b13-aria wiring control) -> PARTIAL, never FULL');
+      ck(!fd.some((c) => c.path.includes('fd-gone')), 'false-death: deliverable absent -> GENUINE death, not surfaced');
+      ck(!fd.some((c) => c.path.includes('fd-judged')), 'false-death: already-annotated line skipped (no churn)');
+    }
     const auSplit = parseAutorun('SPLIT missions/parent.mission.txt  <!-- ts -->\nmissions/live.mission.txt\n');
     ck(auSplit.split.length === 1 && auSplit.pending.length === 1, 'parser: SPLIT is first-class; live line still pending');
   }
