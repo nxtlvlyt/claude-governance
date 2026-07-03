@@ -657,15 +657,27 @@ export async function dispatchWithWaterfall(baseBody, { cwd, localOnly = false, 
     // killed by one zombie eval generation occupying the queue). Saturation drains in
     // minutes, not milliseconds: 3 bounded waits.
     const SAT_WAITS = [15000, 45000, 90000];
+    // THINK-STARVE HEAL (2026-07-03 receipt: qwen3.6:27b witness died once on
+    // EMPTY_CONTENT_THINKING — "reasoning consumed budget (16756 chars)" — while the main
+    // lane's identical failure healed via think:false at heal=2 minutes earlier. The
+    // localOnly branch had ONLY the saturation retry; a thinking-starved checking seat
+    // burned its whole dispatch. ONE-shot mirror of healDispatch's EMPTY_CONTENT fix.)
+    let thinkHealed = false;
+    let body = baseBody;
     for (let satTry = 0; ; satTry++) {
-      hb(`attempt-start provider=${local.id} model=${baseBody.model} (LOCAL-ONLY seat — non-local lanes skipped${satTry ? `, saturation retry ${satTry}/${SAT_WAITS.length}` : ''})`);
+      hb(`attempt-start provider=${local.id} model=${body.model} (LOCAL-ONLY seat — non-local lanes skipped${satTry ? `, saturation retry ${satTry}/${SAT_WAITS.length}` : ''}${thinkHealed ? ', think:false heal' : ''})`);
       const t0 = Date.now();
       try {
-        const out = await attemptProvider(local, baseBody, Math.max(60000, Math.min(FETCH_TIMEOUT_MS, remaining())));
-        hb(`attempt-ok provider=${local.id} model=${baseBody.model} ms=${Date.now() - t0} chars=${out.content.length} tokens=${out.usage?.prompt || 0}+${out.usage?.completion || 0}`);
-        return { ...out, provider: local.id, heals: satTry };
+        const out = await attemptProvider(local, body, Math.max(60000, Math.min(FETCH_TIMEOUT_MS, remaining())));
+        hb(`attempt-ok provider=${local.id} model=${body.model} ms=${Date.now() - t0} chars=${out.content.length} tokens=${out.usage?.prompt || 0}+${out.usage?.completion || 0}`);
+        return { ...out, provider: local.id, heals: satTry + (thinkHealed ? 1 : 0) };
       } catch (e) {
         hb(`attempt-fail provider=${local.id} ms=${Date.now() - t0}: ${String(e.message).slice(0, 120)}`);
+        if ((e.kind === 'EMPTY_CONTENT_THINKING' || e.kind === 'EMPTY_CONTENT') && !thinkHealed && remaining() > 60000) {
+          thinkHealed = true;
+          body = { ...body, think: false, max_tokens: (body.max_tokens || 8192) * 2 };
+          continue;   // one retry with reasoning suppressed + doubled budget — never a loop
+        }
         const saturated = e.kind === 'HTTP_503' || /server busy|maximum pending/i.test(String(e.message));
         if (saturated && satTry < SAT_WAITS.length && remaining() > SAT_WAITS[satTry] + 60000) {
           hb(`saturation-wait ${SAT_WAITS[satTry] / 1000}s before retry (queue busy is heal-by-waiting, not a burned attempt)`);
@@ -993,6 +1005,34 @@ if (process.argv[1]?.endsWith('seat_dispatch.mjs') && process.argv.includes('--s
     check('localOnly seat: exactly ONE request to ollama-local (nxtbeast)', localHits, 1);
     check('localOnly seat: total fetch calls = 1 (no agy/claude-tier/heal attempts)', urlsSeen.length, 1);
     check('localOnly seat: resolves with provider=ollama-local', outcome.kind === 'resolved' && outcome.provider, 'ollama-local');
+  })();
+
+  // 9b. LOCALONLY THINK-STARVE HEAL (2026-07-03): an EMPTY_CONTENT_THINKING first response
+  //     retries EXACTLY ONCE with think:false + doubled budget, then succeeds — the witness
+  //     seat no longer burns its whole dispatch on a thinking-starved reply.
+  await (async () => {
+    const realFetch = globalThis.fetch;
+    const bodies = [];
+    let call = 0;
+    globalThis.fetch = async (url, opts) => {
+      const parsed = (() => { try { return JSON.parse(opts?.body || '{}'); } catch { return {}; } })();
+      bodies.push(parsed);
+      call++;
+      const msg = call === 1
+        ? { content: '', reasoning: 'thinking forever about the answer without ever emitting it' }
+        : { content: 'healed verdict content' };
+      return { ok: true, status: 200, async json() { return { choices: [{ message: msg }], usage: { prompt_tokens: 1, completion_tokens: 1 } }; }, async text() { return 'ok'; } };
+    };
+    let outcome;
+    try {
+      const r = await dispatchWithWaterfall({ model: 'qwen3.6:27b', max_tokens: 4096, messages: [{ role: 'user', content: 'x' }] }, { localOnly: true });
+      outcome = { kind: 'resolved', content: r.content, heals: r.heals };
+    } catch (e) { outcome = { kind: 'threw', msg: String(e.message).slice(0, 80) }; }
+    globalThis.fetch = realFetch;
+    check('localOnly think-starve: retries exactly once (2 fetch calls)', bodies.length, 2);
+    check('localOnly think-starve: retry carries think:false', bodies[1]?.think, false);
+    check('localOnly think-starve: retry doubles max_tokens', bodies[1]?.max_tokens, 8192);
+    check(`localOnly think-starve: resolves with healed content (got ${outcome.kind})`, outcome.kind === 'resolved' && outcome.content.includes('healed'), true);
   })();
 
   // 10. ROLE-AWARE Claude fallback (M-ENGINE-3PHASE.1): role wins when mapped,
