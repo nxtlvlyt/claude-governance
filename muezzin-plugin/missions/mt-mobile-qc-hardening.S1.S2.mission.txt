@@ -14,7 +14,22 @@ PARENT MAQSAD: Operator audit 2026-07-03 ("will the zoom buttons always block th
 
 Maqsad: sub-mission 2 of 2 — OUTCOME CHECK: run the extended e2e (scripts/e2e-runner.mjs) against the engine's auto-provisioned preview (MT_BASE_URL injected by the harness), require both viewports to pass including the overlap detector's per-pair CHECKED receipt lines and mobile/desktop tags, proving the D1 fix via its own detector. through OUTCOME CHECK: run the extended e2e (scripts/e2e-runner.mjs) against the engine's auto-provisioned preview (MT_BASE_URL injected by the harness), require both viewports to pass including the overlap detector's per-pair CHECKED receipt lines and mobile/desktop tags, proving the D1 fix via its own detector.
 
-Steps:
-  9. OUTCOME CHECK: run the extended e2e (scripts/e2e-runner.mjs) against the engine's auto-provisioned preview (MT_BASE_URL injected by the harness), require both viewports to pass including the overlap detector's per-pair CHECKED receipt lines and mobile/desktop tags, proving the D1 fix via its own detector. [command] 
+UI-STATE COVERAGE AMENDMENT 2026-07-03T13:4x (operator challenge "I thought we already had a
+mission for all this?" exposed the real gap: the detector as authored enumerates only the
+map's DEFAULT state — the operator's 13:28 screenshot showed six defects in PLAN MODE, a
+state the detector never enters, so they would sail past it. A state the robots never visit
+stays screenshot-driven forever): the outcome run below exercises the overlap detector in
+BOTH UI states per viewport — (a) default map load, (b) PLAN MODE (programmatically enter
+the day-planner: click its entry control, wait for the arrival banner + EXIT PLAN button to
+exist) with the plan-mode controls added to the enumeration set (arrival banner,
+warning-toast lane, EXIT PLAN, gear FAB). If scripts/e2e-runner.mjs lacks a plan-mode state
+hook, ADD it in this sub-mission (the file is in ALLOW-FILES) before the run.
 
-Done means:  exist/are updated as specified
+Steps:
+  9. OUTCOME CHECK: run the extended e2e (scripts/e2e-runner.mjs, extending it first with the plan-mode state hook if absent) against the engine's auto-provisioned preview (MT_BASE_URL injected by the harness), require BOTH viewports x BOTH UI STATES (default + plan mode) to complete the overlap detector with per-pair CHECKED receipt lines, state+viewport tags on every result line, and >=6 controls enumerated per state-viewport cell — found overlaps are reported findings (the known live bugs the fix missions close), a crash or missing coverage receipts is the only step failure. [command]
+
+Done means: the step-9 run receipt shows the overlap detector executed at 1440x900 AND
+375x812, each in BOTH default and plan-mode states (four cells), with per-pair CHECKED lines
+and per-cell control counts >=6 — the robots now visit the state the operator has been
+screenshotting by hand (13:28 receipt), and every future plan-mode collision is caught the
+night it ships. Executable browser-run verification.
