@@ -555,9 +555,13 @@ export function sweep(base = HERE, now = Date.now(), routeFile = path.join(proce
   // threshold AND no attempt is in flight. Otherwise the lane is WORKING and the kill would
   // destroy the seat's in-flight work, reset the attempt, and loop forever.
   const stuckLanes = detectStuckLanes(status, now);
-  const hbWorking = hb.lastAgeMs < T.TASK_STUCK_MS || /attempt-start/.test(hb.lastLine || '');
+  // exec-start with no exec-ok/exec-fail after it = an engine-exec is IN FLIGHT (2026-07-03,
+  // LONG-RUN class: a legitimate 900s-cap exec goes heartbeat-quiet for up to 15m; it
+  // self-terminates at its own cap, so it never needs a kill — same law as a long seat call).
+  const hbInFlight = /attempt-start|exec-start/.test(hb.lastLine || '');
+  const hbWorking = hb.lastAgeMs < T.TASK_STUCK_MS || hbInFlight;
   if (stuckLanes.length && hbWorking) {
-    report.push(`STUCK-CANDIDATE suppressed: ${stuckLanes.length} lane(s) past ${mins(T.TASK_STUCK_MS)}m but heartbeat is ${/attempt-start/.test(hb.lastLine || '') ? 'IN-FLIGHT' : `${mins(hb.lastAgeMs)}m fresh`} — a long seat call is work, not a hang (no kill)`);
+    report.push(`STUCK-CANDIDATE suppressed: ${stuckLanes.length} lane(s) past ${mins(T.TASK_STUCK_MS)}m but heartbeat is ${hbInFlight ? 'IN-FLIGHT' : `${mins(hb.lastAgeMs)}m fresh`} — a long seat call/exec is work, not a hang (no kill)`);
   } else if (stuckLanes.length) {
     for (const sl of stuckLanes) report.push(`STUCK-TASK: ${sl.path} stuck for ${mins(sl.ageMs)}m (limit ${mins(T.TASK_STUCK_MS)}m)`);
     actions.push({

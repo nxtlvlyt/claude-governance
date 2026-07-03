@@ -175,6 +175,13 @@ export function execTimeoutMs(needsScriptFile, tier = 0) {
   return Math.min(900000, base * (2 ** t));
 }
 
+// LONG-RUN MARKER (2026-07-03, preflight receipt: the dual-viewport live e2e legitimately
+// takes 620s — every ladder rung below the 900s ceiling is a known wall, and climbing burns
+// attempts). A mission may PIN a known-long step by mandating the authored command carry a
+// literal `# LONG-RUN` comment; the caller starts that step at tier 2 instead of tier 0.
+// Deterministic (the command text is what the mission pins), never inferred.
+export function isLongRunCmd(cmd) { return /#\s*LONG-RUN\b/i.test(String(cmd || '')); }
+
 // the muezzin runs a verification command ITSELF and captures the receipt — the witness for a CODE claim
 // (node -c / bash -n / docker build / a test). ok=true ONLY on exit 0. This is the deed; the seat's word is not.
 export function execReceipt(cmd, cwd, opts = {}) {
@@ -208,6 +215,10 @@ export function execReceipt(cmd, cwd, opts = {}) {
   // deploy-ceremony class and get 300s. The catch below now reports ELAPSED ms so a
   // timeout-kill can never masquerade as a silent generic failure again.
   const stepTimeoutMs = execTimeoutMs(needsScriptFile, opts.timeoutTier);
+  // EXEC HEARTBEAT (2026-07-03): a 900s-class exec with a quiet dispatch heartbeat looks
+  // exactly like a hang to STUCK-TASK's "dead-quiet + no in-flight attempt" test. This line
+  // makes a long exec IN-FLIGHT by heartbeat — same law as "a long seat call is work".
+  hb(`exec-start cap=${stepTimeoutMs}ms tier=${Number(opts.timeoutTier) || 0} cmd=${String(cmd).replace(/\s+/g, ' ').slice(0, 80)}`);
   const tExec0 = Date.now();
   try {
     let out;
@@ -225,8 +236,10 @@ export function execReceipt(cmd, cwd, opts = {}) {
     } else {
       out = execFileSync('pwsh.exe', ['-NoProfile', '-NonInteractive', '-Command', cmd], { cwd, env: childEnv, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: stepTimeoutMs });  // pwsh (PS7) not powershell (5.1): seats chain with && — proven live
     }
+    hb(`exec-ok elapsed=${Date.now() - tExec0}ms`);
     return { type: 'exec', ref: cmd, ok: true, exit: 0, out: String(out).slice(0, 2000) };
   } catch (e) {
+    hb(`exec-fail elapsed=${Date.now() - tExec0}ms`);
     const captured = (String(e.stdout || '') + String(e.stderr || '')).trim();
     // DIAGNOSTIC FALLBACK (M-ENGINE-EXEC-DIAG, 2026-07-01): a 120s-timeout or signal-killed
     // child throws with EMPTY stdout/stderr — the "engine-exec with no error" OPAQUE failure
@@ -1099,6 +1112,12 @@ if (process.argv[1]?.endsWith('seat_dispatch.mjs') && process.argv.includes('--s
   check('execTimeoutMs: garbage tier falls back to base (undefined)', execTimeoutMs(false, undefined), 120000);
   check('execTimeoutMs: garbage tier falls back to base (NaN string)', execTimeoutMs(true, 'x'), 300000);
   check('execTimeoutMs: negative tier clamps to base, never shrinks below the hang guard', execTimeoutMs(false, -2), 120000);
+  // LONG-RUN marker: mission-pinned known-long steps start at tier 2 (preflight receipt: 620s live e2e)
+  check('isLongRunCmd: literal # LONG-RUN comment detected', isLongRunCmd('# LONG-RUN\n$env:MT_BASE_URL=\'x\'\nnode scripts/e2e-runner.mjs'), true);
+  check('isLongRunCmd: case/space tolerant (#long-run)', isLongRunCmd('#long-run\nnode x.mjs'), true);
+  check('isLongRunCmd: plain command without marker -> false', isLongRunCmd('node scripts/e2e-runner.mjs'), false);
+  check('isLongRunCmd: LONG-RUN as prose (no # comment) -> false, never inferred', isLongRunCmd('echo this is a LONG-RUN of tests'), false);
+  check('isLongRunCmd: null/undefined -> false', isLongRunCmd(null), false);
 
   console.log(`[selftest] ${pass} passed, ${fail} failed`);
   process.exit(fail ? 1 : 0);

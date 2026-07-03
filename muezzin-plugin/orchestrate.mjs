@@ -11,7 +11,7 @@ import { deconstruct, deconstructPanel, PANEL_INTEGRATOR_MODEL } from './deconst
 import { splitOversizedPlan, emitSubMissions } from './mission_split.mjs';
 import { isCommandClassMission, buildLiteralCommandQueue } from './command_queue.mjs';
 import { implementStep, isProseTarget } from './executor.mjs';
-import { execReceipt, dispatchSeat } from './seat_dispatch.mjs';
+import { execReceipt, dispatchSeat, isLongRunCmd } from './seat_dispatch.mjs';
 import { commitStep, rollbackStep, ensureSandboxRepo, assertRepoRoot, assertCleanOutsideAllowlist, preflightAllowlistClean, resetAllowFiles, abortInProgressGitOp, completeResolvedPickIfAny, stageFiles, commitTouchesFiles, assertNoUndeclaredShrinkage } from './git_steps.mjs';
 import { makeRepairFn } from './repair.mjs';
 import { parseMissionClass } from './mission_class.mjs';
@@ -950,7 +950,12 @@ export async function orchestrate(mission, cwd, {
     let escModel = null;                              // forced executor/repair model for the current tier (null = default badal/prose-floor)
     let lastFailReason = null;                        // captured from failStep so the escalation gate can see the class
     let lastFailError = null;                          // captured from failStep so the escalation gate can read the DIAGNOSIS (R1: a structural SPLIT-NEEDED/EMISSION-TRUNCATED emission-empty must NOT escalate)
-    let execTimeoutTier = 0;                          // TIMEOUT-ESCALATION (2026-07-03): bumped ONLY when an engine-exec receipt says TIMEOUT-SUSPECTED, so the retry gets a doubled cap (execTimeoutMs) instead of burning every attempt against the same 120s wall (qc-hardening.S1.S1 receipt: e2e runner ETIMEDOUT x3 at 120579/120000ms)
+    // TIMEOUT-ESCALATION (2026-07-03): bumped ONLY when an engine-exec receipt says TIMEOUT-SUSPECTED,
+    // so the retry gets a doubled cap (execTimeoutMs) instead of burning every attempt against the same
+    // 120s wall (qc-hardening.S1.S1 receipt: e2e runner ETIMEDOUT x3 at 120579/120000ms). A step whose
+    // authored command carries the literal `# LONG-RUN` marker STARTS at tier 2 (mission-pinned known-long
+    // work, e.g. the 620s dual-viewport live e2e) instead of climbing there two burned attempts later.
+    let execTimeoutTier = isLongRunCmd(step.validation_command) ? 2 : 0;
     // re-entrant: the outer escalation loop re-runs the WHOLE same-step attempt block on a higher tier.
     escalate: for (;;) {
     // build a tier-scoped repair seat so a forced escalation also lifts the repair attempts onto the
