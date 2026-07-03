@@ -628,7 +628,7 @@ export function canaryDue(lastRunMs, now = Date.now(), intervalMs = 6 * 3600e3) 
 // failed). Child stems never match a parent's filter: `${stem}.S1-...` does not start with
 // `${stem}-2`, so parents and children gate independently.
 export function retroRepeatBlocked(stem, retroDir, missionMtimeMs,
-  { now = Date.now(), minFails = 3, windowMs = 24 * 3600e3, readdir = readdirSync, readHead = (p) => readFileSync(p, 'utf8').slice(0, 200) } = {}) {
+  { now = Date.now(), minFails = 3, windowMs = 24 * 3600e3, preflightAfter = 5, preflightMtimeMs = null, readdir = readdirSync, readHead = (p) => readFileSync(p, 'utf8').slice(0, 200) } = {}) {
   let files = [];
   try { files = readdir(retroDir); } catch { return { blocked: false, count: 0 }; }
   const fails = [];
@@ -641,7 +641,20 @@ export function retroRepeatBlocked(stem, retroDir, missionMtimeMs,
   }
   if (fails.length < minFails) return { blocked: false, count: fails.length };
   const newestMs = Math.max(...fails);
-  if (Number.isFinite(missionMtimeMs) && missionMtimeMs > newestMs) return { blocked: false, count: fails.length, amended: true };
+  const amended = Number.isFinite(missionMtimeMs) && missionMtimeMs > newestMs;
+  // PREFLIGHT-RECEIPT ESCALATION (operator demand 2026-07-03 ~13:1x after an 8-FAILED-run
+  // burn: "a change in the conductor to be better, not hopes and dreams"): past
+  // preflightAfter failures, an amendment (mtime bump) alone NO LONGER opens the gate —
+  // the conductor must have DRY-RUN the killing step class and written the receipt to
+  // missions/_logs/preflight/<stem>.md (its mtime must be newer than the newest retro).
+  // Mechanizes the PRE-FLIGHT RULE: no dry-run evidence, no refire, regardless of how the
+  // mission text was touched.
+  if (fails.length >= preflightAfter) {
+    const preflightFresh = Number.isFinite(preflightMtimeMs) && preflightMtimeMs > newestMs;
+    if (amended && preflightFresh) return { blocked: false, count: fails.length, amended: true, preflighted: true };
+    return { blocked: true, count: fails.length, newest: new Date(newestMs).toISOString(), needsPreflight: true };
+  }
+  if (amended) return { blocked: false, count: fails.length, amended: true };
   return { blocked: true, count: fails.length, newest: new Date(newestMs).toISOString() };
 }
 
@@ -929,11 +942,15 @@ async function mainLoop() {
     // An AMENDED mission (mtime newer than the newest retro) always passes — that is the
     // legitimate-refire path (poi-tags/trip-cost class: text fixed, requeued, fired clean).
     try {
-      const rrb = retroRepeatBlocked(path.basename(raw).replace(/\.mission\.txt$/i, ''), path.join(LOGDIR, 'retro'), statSync(missionFile).mtimeMs);
+      const rrbStem = path.basename(raw).replace(/\.mission\.txt$/i, '');
+      let pfMtime = null;
+      try { pfMtime = statSync(path.join(LOGDIR, 'preflight', `${rrbStem}.md`)).mtimeMs; } catch { /* no preflight receipt yet */ }
+      const rrb = retroRepeatBlocked(rrbStem, path.join(LOGDIR, 'retro'), statSync(missionFile).mtimeMs, { preflightMtimeMs: pfMtime });
       if (rrb.blocked) {
-        evt(`RETRO-REPEAT-BLOCKED: ${raw} — ${rrb.count} FAILED retros in 24h, newest ${rrb.newest}, mission text UNCHANGED since — refusing to relitigate; amend the mission or park it (conductor judgment)`);
+        const pfNote = rrb.needsPreflight ? ` PREFLIGHT-RECEIPT REQUIRED at >=5 fails: write the dry-run evidence to missions/_logs/preflight/${rrbStem}.md (mtime newer than the newest retro) — an mtime bump on the mission alone no longer opens this gate.` : '';
+        evt(`RETRO-REPEAT-BLOCKED: ${raw} — ${rrb.count} FAILED retros in 24h, newest ${rrb.newest}${rrb.needsPreflight ? ', preflight receipt MISSING/stale' : ', mission text UNCHANGED since'} — refusing to relitigate; amend the mission or park it (conductor judgment).${pfNote}`);
         setMark(raw, 'FAILED');
-        notify(`⛔ RETRO-REPEAT gate: ${path.basename(raw).replace(/\.mission\.txt$/, '')} refused — ${rrb.count} identical-era failures in 24h with an unchanged mission text. Zero cycles burned.\n${nextUpLine()}\n${scoreLine()}`);
+        notify(`⛔ RETRO-REPEAT gate: ${rrbStem} refused — ${rrb.count} failures in 24h${rrb.needsPreflight ? '; DRY-RUN RECEIPT required before refire' : ' with an unchanged mission text'}. Zero cycles burned.\n${nextUpLine()}\n${scoreLine()}`);
         return;
       }
     } catch { /* gate is best-effort — a broken retro dir must never stop legitimate fires */ }

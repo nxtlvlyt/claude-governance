@@ -126,6 +126,42 @@ export function lintMission(text) {
     add('handrolled-localhost-preview', "mission targets a hand-rolled localhost:8788 preview server — exec steps never receive a PREVIEW-BASE-URL value and nothing serves that port (trip-cost.S2 FAILED x2 receipt, 2026-07-03). Replace the step with the engine-native verb: wrangler pages deploy . --project-name=muddytires --branch=preview (paired with the mission's git commit per RULE 8), parse the emitted *.muddytires.pages.dev URL to a scratch file, render from that URL.");
   }
 
+  // RULE 10 — CROSS-STEP SCRATCH STATE (2026-07-03, trip-cost.S2 5th-run receipt: a scratch
+  // file written by one step was GONE by the next — the engine's attempt hygiene and re-entry
+  // sweeps make untracked cross-step state unreliable BY DESIGN. Every passing mission
+  // creates+uses+deletes its scratch inside ONE step). A scratch-file token appearing in TWO
+  // OR MORE distinct numbered step lines is the doomed shape — refuse at cost zero.
+  {
+    const stepLines = t.split(/\r?\n/).filter((l) => /^\s*\d+\.\s/.test(l));
+    const seen = new Map();
+    for (let i = 0; i < stepLines.length; i++) {
+      for (const m of stepLines[i].matchAll(/\bscratch-[\w.-]+\.\w+/g)) {
+        const tok = m[0];
+        if (!seen.has(tok)) seen.set(tok, new Set());
+        seen.get(tok).add(i);
+      }
+    }
+    for (const [tok, steps] of seen) {
+      if (steps.size >= 2) {
+        add('cross-step-scratch-state', `scratch file '${tok}' spans ${steps.size} step lines — cross-step untracked state is unreliable in this engine (trip-cost.S2 receipt: written green in one step, absent the next). Create, use, and delete the scratch inside ONE step.`);
+        break;   // one finding names the class; no need to enumerate every token
+      }
+    }
+  }
+
+  // RULE 11 — GREP-ONLY VERIFICATION ON A VISUAL MISSION (2026-07-03, mobile-qc.S1.S1 panel
+  // arkan F1 receipt: a QC-tool mission whose steps only Select-String'd its own code was
+  // correctly REJECTED — "zero browser execution occurred"). A VISUAL-QC-REQUIRED mission
+  // must contain at least one step that actually EXECUTES something (node/npx/npm/wrangler/
+  // playwright invocation), not only text-match verifies.
+  if (hasVisualQcHeader) {
+    const stepLines2 = t.split(/\r?\n/).filter((l) => /^\s*\d+\.\s/.test(l));
+    const hasExecution = stepLines2.some((l) => /\b(node|npx|npm|wrangler|playwright)\s/i.test(l));
+    if (stepLines2.length && !hasExecution) {
+      add('grep-only-visual-verification', 'VISUAL-QC-REQUIRED mission has no step that executes anything (node/npx/wrangler/playwright) — the verdict panel will correctly reject static text-matches as proof of a visual deliverable (mobile-qc.S1.S1 F1 arkan receipt). Add an executable outcome step.');
+    }
+  }
+
   return { ok: problems.length === 0, problems };
 }
 
@@ -244,6 +280,20 @@ if (process.argv[1] && process.argv[1].endsWith('mission_lint.mjs')) {
   // "bound to PREVIEW-BASE-URL\'s port" phrasing without a literal localhost:8788 -> also refused.
   const portPhrase = 'MISSION-CLASS: code-repo\nREPO-ROOT: C:\\proj\\x\nALLOW-FILES:\n  - a.html\nMaqsad: verify. Steps: 4. Start a server bound to PREVIEW-BASE-URL\'s port. Done means: rendered headless via playwright.';
   ck(!lintMission(portPhrase).ok && lintMission(portPhrase).problems.some((p) => p.rule === 'handrolled-localhost-preview'), 'RULE 9: the PREVIEW-BASE-URL-port phrasing is refused even without a literal localhost:8788');
+
+  // ---- RULE 10: CROSS-STEP SCRATCH STATE (2026-07-03, trip-cost.S2 5th-run receipt) ----
+  const crossStep = 'MISSION-CLASS: code-repo\nREPO-ROOT: C:\\proj\\x\nALLOW-FILES:\n  - a.html\nMaqsad: x.\nSteps:\n  1. Deploy and write the URL to scratch-url.txt. [command]\n  2. Read scratch-url.txt and render from it. [verify]\nDone means: rendered headless via playwright; node runs the witness.';
+  const cs = lintMission(crossStep);
+  ck(!cs.ok && cs.problems.some((p) => p.rule === 'cross-step-scratch-state'), 'RULE 10: a scratch file spanning two steps is REFUSED (the vanishing cross-step state shape)');
+  const oneStep = 'MISSION-CLASS: code-repo\nREPO-ROOT: C:\\proj\\x\nALLOW-FILES:\n  - a.html\nMaqsad: x.\nSteps:\n  1. In ONE command: deploy, capture the URL in a variable, write scratch-qc.mjs, node scratch-qc.mjs, remove it. [command]\nDone means: rendered headless via playwright.';
+  ck(lintMission(oneStep).ok, 'RULE 10: create-use-delete inside ONE step passes');
+
+  // ---- RULE 11: GREP-ONLY VISUAL VERIFICATION (2026-07-03, mobile-qc.S1.S1 panel F1) ----
+  const grepOnly = 'MISSION-CLASS: code-repo\nREPO-ROOT: C:\\proj\\x\nALLOW-FILES:\n  - s.mjs\nVISUAL-QC-REQUIRED\nMaqsad: extend the QC script.\nSteps:\n  1. Edit s.mjs. [edit] s.mjs\n  2. Verify s.mjs contains the new matrix via Select-String. [verify]\nDone means: rendered headless via playwright.';
+  const go = lintMission(grepOnly);
+  ck(!go.ok && go.problems.some((p) => p.rule === 'grep-only-visual-verification'), 'RULE 11: VISUAL mission with no executing step REFUSED (the zero-browser-execution panel receipt)');
+  const withRun = 'MISSION-CLASS: code-repo\nREPO-ROOT: C:\\proj\\x\nALLOW-FILES:\n  - s.mjs\nVISUAL-QC-REQUIRED\nMaqsad: extend the QC script.\nSteps:\n  1. Edit s.mjs. [edit] s.mjs\n  2. Run it: node s.mjs and require coverage receipts. [command]\nDone means: rendered headless via playwright.';
+  ck(lintMission(withRun).ok, 'RULE 11: VISUAL mission WITH an executing step passes');
 
   console.log(`\n${fail ? fail + ' FAIL' : 'ALL PASS — mission miqat: flawed work orders refused at the boundary, zero cycles burned'}`);
   process.exit(fail ? 1 : 0);

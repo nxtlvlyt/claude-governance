@@ -5,7 +5,7 @@ ALLOW-FILES:
   - map.html
 VISUAL-QC-REQUIRED
 REQUIRES: mt-mobile-qc-hardening.S1.S1 (tartib — the overlap detector lands first and then VERIFIES this fix)
-STEPS: 5
+STEPS: 6
 
 Maqsad: The D1 half of the operator's 2026-07-03 mobile audit ("will the zoom buttons always
 block the words? the magnifying glass always block the zoom buttons?"), SPLIT OUT of
@@ -31,7 +31,8 @@ Steps:
   2. Read the existing top-left control-lane CSS (the offset-scheme comment near the top of the inline styles) to learn the current ids/classes and offsets, then APPEND the <style id="mt-mobile-lane-fix"> block immediately before </head> exactly per the Maqsad's additive-only constraint — one @media (max-width: 480px) rule-set, existing selectors, a declared z-index order, zero modifications to anything already present. [edit] map.html
   3. Verify map.html contains the literal string mt-mobile-lane-fix AND that the block sits inside <head> (Select-String receipts for both), and confirm via git diff --stat that map.html shows ONLY additions (no deleted lines). [verify]
   4. Scoped cleanliness (POLARITY PINNED 2026-07-03T12:5x — attempt 1's plan inverted this check, asserting a clean tree while map.html is EXPECTED-dirty before its own step-5 commit): the check is that NOTHING ELSE changed — run git status --porcelain and require every reported line to reference map.html only (any non-map.html line = fail); map.html itself APPEARING as modified is the CORRECT state at this step. [verify]
-  5. Commit map.html by explicit name naming this mission, the parent audit receipt, and the additive-only pattern; confirm the commit is on HEAD. [command]
+  5. git commit map.html by explicit name (git add map.html; git commit -m "<message naming this mission, the parent audit receipt, and the additive-only pattern>"); confirm the commit is on HEAD. [command]
+  6. OUTCOME CHECK (added 2026-07-03T13:2x — RULE 11 caught this mission as grep-only before first fire; panels correctly reject visual missions with zero execution): in ONE self-contained command (the proven trip-cost shape): confirm git status --porcelain -- map.html is empty (step 5 committed), run wrangler pages deploy . --project-name=muddytires --branch=preview, capture the emitted https://<subdomain>.muddytires.pages.dev URL into a variable, poll "$url/map" until HTTP 200 (up to 10x5s), write scratch-lanefix-qc.mjs via here-string (playwright, viewport 375x812 isMobile: goto $env:MT_PREVIEW_URL + '/map', wait for the map container, then print evidence lines STYLE_BLOCK=<present|absent from document.getElementById('mt-mobile-lane-fix') !== null>, PAGEERRORS=<count>, then LANEFIX_QC_PASS only if the block is present and pageerrors is 0), run it with $env:MT_PREVIEW_URL = $url; node scratch-lanefix-qc.mjs, then Remove-Item the scratch. The printed evidence lines ARE the render receipt. [command]
 
 Done means: map.html committed at HEAD carrying the appended mt-mobile-lane-fix style block
 (additions-only diff), AND the engine's headless-browser render of /map (visual witness
