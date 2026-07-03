@@ -1,0 +1,54 @@
+MISSION-ID: mt-mobile-qc-hardening.S1
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - map.html
+  - scripts/e2e-runner.mjs
+  - scripts/verify-popups-e2e.mjs
+VISUAL-QC-REQUIRED
+REQUIRES: none
+STEPS: 8
+
+Maqsad: Operator audit 2026-07-03 ("will the zoom buttons always block the words? the
+magnifying glass always block the zoom buttons? why can't our QC catch all this? is our
+QC checking both desktop and mobile renders?"). Receipts: every UI defect the operator
+caught this week (Apply below fold, FAB-over-Apply, chip-under-zoom, magnifier-over-zoom,
+invisible me-dot) is NARROW-VIEWPORT geometry, and the live e2e verifier hardcodes a
+1440x900 desktop viewport (scripts/e2e-runner.mjs) — the robots cannot see the phone.
+The mission-level visual witness already runs a 3-viewport matrix; the LIVE checkers do
+not. Three deliverables:
+(D1) FIX the magnifier/zoom stacking: the site-search FAB and the Leaflet zoom column
+both occupy the top-left control lane and visibly overlap on phones (two operator
+screenshots, current page). Rework the left-lane offsets in map.html so search FAB,
+zoom +/- and the control column stack WITHOUT intersection at 375px-wide viewports and
+above. No control may cover another.
+(D2) MOBILE PASS for the live e2e: scripts/e2e-runner.mjs gains a second viewport
+(375x812, deviceScaleFactor 2, isMobile+hasTouch) and runs its existing checks at BOTH
+viewports; verify-popups-e2e.mjs reports per-viewport results. Failures at either
+viewport fail the run.
+(D3) OVERLAP DETECTOR: a new e2e check that, at each viewport, enumerates the floating
+overlay controls by their real ids/classes found in the page (zoom column, search FAB,
+filter button, plan button, gps-add, layers pill, aurora chip, day-rhythm bar, Apply bar
+when the panel is open) and asserts ZERO bounding-box intersection between DISTINCT
+controls (parent/child and intentional containment are exempt) and that no control
+covers more than 10% of the aurora chip or the open panel's Apply bar. Print each pair
+checked so the receipt shows coverage, not just a green.
+
+niyyah: The operator's phone has been the project's only mobile QC device — that ends
+when the robots grow a phone. The overlap detector is the CLASS fix: it catches every
+future collision the same night it ships, at both viewports, in the same e2e the canary
+already runs every 6 hours (the canary inherits all of this for free). Honest coverage:
+the detector prints the pairs it checked; a silent pass over an empty control list is a
+failure, not a pass — require at least 6 controls found per viewport.
+
+Steps:
+  1. Idempotent baseline: record branch + HEAD; if scripts/e2e-runner.mjs already contains an isMobile viewport entry output CLEAN_ALREADY and treat edit steps as verify-only; else CLEAN_BASELINE. Never exit 1 on existence. [command]
+  2. D1 in map.html: rework the top-left lane offsets so search FAB + zoom column + control buttons stack cleanly at 375w (inspect the existing control-column CSS comment near the top of the inline styles for the current offset scheme before changing it). [edit] map.html
+  3. D2 in scripts/e2e-runner.mjs: viewport matrix [existing 1440x900, new 375x812 mobile], all existing checks run per-viewport, results tagged per-viewport. [edit] scripts/e2e-runner.mjs
+  4. D3 in scripts/verify-popups-e2e.mjs (or the runner, whichever owns checks): the overlap detector exactly as the Maqsad specifies — enumerated controls, pairwise bbox assertions with containment exemption, coverage floor of >=6 controls per viewport, per-pair receipt lines. [edit] scripts/verify-popups-e2e.mjs
+  5. node --check on both scripts. [verify] scripts/e2e-runner.mjs
+  6. Scoped cleanliness: git status --porcelain limited to the three ALLOW-FILES. [verify]
+  7. Commit the three ALLOW-FILES by explicit name naming this mission and the operator-audit receipt, confirm on HEAD. [command]
+  8. OUTCOME CHECK: run the extended e2e against the auto-provisioned preview (the engine injects the URL for the visual witness; this step runs node scripts/verify-popups-e2e.mjs with MT_BASE_URL set to the same preview) and require BOTH viewports to pass including the overlap detector with >=6 controls enumerated each — capture the per-pair receipt lines into the step output. [command]
+
+Done means: all three ALLOW-FILES committed at HEAD; the live e2e runs BOTH 1440x900 and 375x812 with the overlap detector enumerating >=6 floating controls per viewport and zero forbidden intersections (magnifier/zoom collision gone — the D1 fix proven by its own detector); step-8's per-pair receipts captured; AND the engine's headless-browser render of /map (visual witness against the auto-provisioned preview) shows the top-left control lane collision-free at the mobile viewport — executable + headless-browser render verification, live-outcome bar 2026-07-03.
