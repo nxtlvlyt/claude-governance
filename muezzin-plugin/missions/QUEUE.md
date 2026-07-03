@@ -1149,3 +1149,33 @@ instance (v2->v3, commit pending). GAP: add a predeploy check — diff the deplo
 against HEAD's shell-precached file list (MT_SHELL_PRECACHE in sw.js); if any
 precached file changed and MT_SW_VERSION did not, FAIL the deploy with the exact
 files owed. This affects every future muddytires.ca deploy, not just previews.
+
+## CORRECTION + NEW FINDING 2026-07-03 23:0x — "qwen3-coder-next" IS NOT QWEN (operator caught it)
+Operator: "you said we are using qwen coder? that's impossible" — right to doubt it. I named
+it from a heartbeat log label without checking, the exact mistake STATE.md already promoted
+to guaranteed-delivery after three prior misattributions tonight. Receipts (nxtbeast /api/tags
++ /api/show), digest-confirmed:
+  qwen3-coder-next:latest        digest 429d372cb9f6... family=cohere2moe parent=north-mini-code-1.0
+  kimi-k2.7-code:latest          digest 429d372cb9f6... (SAME — already flagged once tonight)
+  north-mini-code-toolcall:latest digest 429d372cb9f6... (the honest name, per STATE.md)
+THREE tags, ONE byte-identical model (Cohere North 30.5B). "qwen3-coder-next" is not Alibaba
+Qwen, not a distinct model, and not what model_rijal.mjs's own entry for it claims.
+CONNECTS TO THE EARLIER "llama/Ollama Cloud" REPORT: model_rijal.mjs:382-387's live entry for
+"qwen3-coder-next" still reads "2026-06-09 — SOTA-validated upgrade from qwen3-coder:480b...
+Confirmed SERVABLE on Ollama Cloud" — predates the 2026-07-02 NO-CLOUD ruling, is FALSE (the
+tag now points at local Cohere North, not real Qwen, not cloud-served), and per
+model-rijal.md's own charter this text is INJECTED INTO CHAIN PROMPTS for seat calibration —
+meaning "Ollama Cloud" has likely been surfacing in live chain output this whole time. This is
+almost certainly the source of the operator's earlier report, not a hallucination on my part.
+SCOPE (why not hand-fixed this beat): 8 tracked engine files reference the string
+"qwen3-coder-next" as a load-bearing seat id (seat_dispatch.mjs fallback chain literally lists
+['qwen3-coder-next','north-mini-code-toolcall','sonnet'] as three distinct waterfall rungs —
+rungs 1 and 2 are THE SAME WEIGHTS, zero actual fallback diversity); model_rijal.mjs,
+executor.mjs, repair.mjs, seat_modes.mjs, seat_record.mjs, agy_dispatch.mjs also load-bearing.
+This is a GAP-CLOSURE-PLAYBOOK-scale item, not a same-beat hand-edit, and the plugin repo is
+currently a LIVE LANE (engine-truth-of-record.S1) — lane-exclusion applies, no code edits this
+beat. QUEUED as new Unit (name pending): (1) correct/retire model_rijal.mjs's stale Ollama-
+Cloud-referencing rationale text immediately once the lane clears (highest priority — live
+ruling-violating text in a prompt-injected governance file); (2) collapse the false-diversity
+fallback rung across all 8 files to the single honest identity; (3) re-audit every OTHER
+locally-tagged model against its /api/show digest before trusting any remaining tag name.
