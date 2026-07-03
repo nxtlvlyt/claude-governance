@@ -1136,3 +1136,16 @@ census since ARM-1 (20:47, num_gpu=56): ok 20:48, ok 21:00, FAIL(CUDA illegal-me
 4days pre-fix) but did NOT eliminate the class. Self-healed both times via claude-sonnet
 fallback (no user-visible harm, Claude-budget cost only, architect role). Gap #10 stays
 OPEN — no 24h-clean claim; watch continues, closure bar unmet.
+
+## NEW GAP 2026-07-03 22:5x — SW SHELL-CACHE VERSION BUMP IS UNENFORCED (deploy reliability)
+Root cause of "photo fix still not visible" report: sw.js precaches map.html + js/
+mobile-sheet.js (+9 other files) into a versioned shell cache; sw.js's own comment
+claims "deploy ceremony checks for it" but NO script anywhere in the repo enforces
+the MT_SW_VERSION bump — grepped for deploy/predeploy scripts, none exist. Three
+consecutive pin-debug deploys today shipped fixes to the edge while every device
+with an already-installed SW kept serving pre-fix files indefinitely (no bump = no
+cache invalidation, confirmed via sw.js's own install/activate logic). Fixed this
+instance (v2->v3, commit pending). GAP: add a predeploy check — diff the deploy
+against HEAD's shell-precached file list (MT_SHELL_PRECACHE in sw.js); if any
+precached file changed and MT_SW_VERSION did not, FAIL the deploy with the exact
+files owed. This affects every future muddytires.ca deploy, not just previews.
