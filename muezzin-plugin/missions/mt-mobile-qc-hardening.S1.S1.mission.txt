@@ -7,7 +7,7 @@ ALLOW-FILES:
   - scripts/e2e-runner.mjs
 VISUAL-QC-REQUIRED
 REQUIRES: none (first in tartib order)
-STEPS: 6
+STEPS: 7
 
 RESCOPED 2026-07-03T09:1x after x2 (two DIFFERENT deaths on the same step — the map.html D1
 edit: attempt 1 landed-but-verify-string-mismatched, attempt 2 witness-REJECT-unrepaired).
@@ -43,5 +43,6 @@ Steps:
   4. Verify scripts/e2e-runner.mjs contains BOTH the dual-viewport matrix (1440x900 + 375x812 with isMobile flag) AND the overlap detector (boundingBox usage, per-pair CHECKED receipt lines, coverage floor of 6). [verify]
   5. Scoped cleanliness: git status --porcelain -- scripts/e2e-runner.mjs shows only this file modified. [verify]
   6. Commit scripts/e2e-runner.mjs by explicit name, naming this mission, restore-source e31469f, and the 2026-07-03 operator-audit receipt; idempotent no-op if already committed. [command]
+  7. OUTCOME CHECK (added 2026-07-03T11:4x — the verdict panel's F1 arkan REJECT was correct: the Done-means promises a browser render and no step ran one; a QC-tool mission must EXECUTE the QC tool): run the extended runner against the live site in ONE command — $env:MT_BASE_URL='https://muddytires.ca'; node scripts/e2e-runner.mjs — and judge it by COVERAGE receipts, not a clean pass: the output MUST show results tagged for BOTH viewports (1440x900 AND 375x812) and the overlap detector's per-pair CHECKED lines with at least 6 controls enumerated per viewport. FOUND OVERLAPS ARE AN ACCEPTABLE COMPLETION (exit nonzero WITH the coverage receipts present) — the operator's known live overlap bug is precisely what this detector exists to catch, and the sibling mt-mobile-lane-fix.S1 (tartib: after this mission) fixes it and is then verified by this same detector. Only a run that CRASHES or fails to produce the coverage receipts fails this step. Capture the full output into the step receipt. [command]
 
-Done means: map.html, scripts/e2e-runner.mjs, scripts/verify-popups-e2e.mjs exist/are updated as specified — verify by headless-browser render, not by reading the code
+Done means: scripts/e2e-runner.mjs committed at HEAD carrying the dual-viewport matrix and the overlap detector, AND the step-7 live run receipt shows both viewports executed with >=6 controls enumerated and per-pair CHECKED lines (found-overlaps acceptable and reported — the detector detecting the known live bug IS the tool working; the sibling lane-fix mission then fixes it and re-runs this detector clean) — executable browser-run verification, aligned 2026-07-03T11:4x with the panel F1 finding.
