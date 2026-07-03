@@ -1037,3 +1037,24 @@ receipted 60 blocks — 4 layers into the 192GB RAM, off the VRAM edge. Rides th
 current lane's boundary, i.e. ACTIVE BEFORE the first engine gap mission fires. #10 closes on
 the census: zero gemma CUDA crashes in a 24h window; persistence at low pressure = upstream
 bug -> demote per the recorded conditions.
+
+## 2026-07-03 20:4x OPERATOR LIVE REPORT: bylaw card on EVERY map tap (Warman/Saskatoon SK)
+Screenshots 20:4x: every tap shows municipal-parking's "OUTSIDE V1 COVERAGE / Bylaw data not
+yet available" card. Code read: that card is the map-BACKGROUND click popup
+(municipal-parking-panel.js MAP-CLICK CONTRACT — markers swallow their own clicks by design).
+TWO HYPOTHESES, one operator tap disambiguates (asked: does a DEAD-CENTER pin tap open the
+spot card, or still bylaw?):
+ H1 (likely): tiny pin tap-targets (his receipted small-dot class) -> taps MISS pins, land on
+    background; outside the 5 bylaw cities the eager full-card renders EVERY time. Fix spec:
+    (a) background popup outside coverage becomes a small dismissible toast or NOTHING (a
+    full card saying "no data" for 99% of Canada is clever-not-clear); (b) the tap-target
+    floor already queued (detector + lane-fix + aurora-humanize van marker) fixes the miss
+    rate. Mission-shape: edit js/municipal-parking-panel.js popup-eagerness + playwright
+    outcome asserting background-tap outside coverage yields toast-or-nothing and pin-tap
+    yields the spot card.
+ H2 (graver): POI dots' own popups not binding -> even dead-center taps fall through. If the
+    operator's tap receipt confirms H2, this is BITE-CLASS (live core interaction broken) and
+    JUMPS the gap queue per the standing ruling; diagnose popup binding in the pois layer
+    first (canary's popup checks are data-truth only and would not catch a bind failure).
+CLASSIFICATION: H1 = product mission behind the gap program (his solely-gaps hold governs);
+H2 = gap-class, immediate. Waiting on the one tap receipt.
