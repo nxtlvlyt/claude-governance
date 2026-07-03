@@ -19,7 +19,7 @@
 //   claude-tier heartbeat lines with no 429 in the same window -> investigate flag
 //   3+ EMPTY_CONTENT_THINKING fails in window -> known quota-burn class (QUEUE fix item)
 
-import { readFileSync, writeFileSync, existsSync, mkdirSync, rmSync, appendFileSync, readdirSync } from 'fs';
+import { readFileSync, writeFileSync, existsSync, mkdirSync, rmSync, appendFileSync, readdirSync, statSync } from 'fs';
 import { execSync } from 'child_process';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -174,6 +174,43 @@ export function falseDeathScan(autorun, base, { gitFn, readTextFn } = {}) {
     if (/\bRESOLVED\b|\bSUPERSEDED\b|REVISIT-JUDGED|FALSE-DEATH-JUDGED|\bDUPLICATE-RETIRED\b/i.test(note)) continue;
     const st = missionLandedState(readT(path.join(base, f.replace(/\//g, path.sep))), gitFn);
     if (st && st.verdict !== 'GENUINE') out.push({ path: f, verdict: st.verdict, srcSha: st.srcSha, files: st.files });
+  }
+  return out;
+}
+
+// BANKED-DELIVERABLES SCAN (#27, blind-spot hunt; built 2026-07-03): a mission that dies at
+// step N silently discards the operator-valuable artifacts steps 1..N-1 produced — six
+// verified sandboxes held ~200KB of complete research (incl. social-seo tiktok.md, 17KB
+// live-sourced, serving the operator's declared focus) that NO surfacing mechanism could
+// ever show him (review-queue requires LANDED, notify is outcome-only, the sweep judged
+// ledger lines never sandbox contents). This scans unresolved FAILED/PARKED missions'
+// sandboxes for substantive artifacts and surfaces them as a judgment item. Judging
+// protocol: stamp the ledger line `SALVAGE-JUDGED <ISO ts>: <surfaced-at | worthless-because>`
+// — stamped lines go quiet (same anchor discipline as REVISIT-JUDGED).
+export function bankedDeliverables(autorun, base, { readdirFn, statFn, minBytes = 5120 } = {}) {
+  const rd = readdirFn || ((d) => { try { return readdirSync(d); } catch { return null; } });
+  const st = statFn || ((p) => { try { return statSync(p); } catch { return null; } });
+  const out = [];
+  const items = [
+    ...(autorun.parked || []).map((p) => ({ path: p, note: autorun.notes[p] || '' })),
+    ...(autorun.failed || []).map((p) => ({ path: p, note: autorun.notes[p] || '' })),
+  ];
+  for (const it of items) {
+    if (/SALVAGE-JUDGED|\bRESOLVED\b|\bSUPERSEDED\b|\bDUPLICATE-RETIRED\b/i.test(it.note)) continue;
+    const stem = path.basename(it.path).replace(/\.mission\.txt$/i, '');
+    const sandbox = path.join(base, 'missions', stem);
+    const names = rd(sandbox);
+    if (!names) continue;
+    const artifacts = [];
+    for (const n of names) {
+      if (!/\.md$/i.test(n)) continue;
+      if (/\.numbered\.md$/i.test(n) || /^_/.test(n)) continue;      // numbered sources + _prior-attempt/_src dirs excluded per spec
+      const s = st(path.join(sandbox, n));
+      if (s && s.isFile && (typeof s.isFile !== 'function' || s.isFile()) && s.size >= minBytes) {
+        artifacts.push({ name: n, bytes: s.size });
+      }
+    }
+    if (artifacts.length) out.push({ path: it.path, stem, artifacts: artifacts.sort((a, b) => b.bytes - a.bytes).slice(0, 5) });
   }
   return out;
 }
@@ -639,6 +676,21 @@ export function sweep(base = HERE, now = Date.now(), routeFile = path.join(proce
       });
     }
   } catch { /* scan is advisory — a git hiccup must never break the sweep */ }
+
+  // BANKED-DELIVERABLES (#27): dead missions' sandboxes holding real artifacts surface as
+  // judgment; stamped SALVAGE-JUDGED lines stay quiet.
+  try {
+    const banked = bankedDeliverables(autorun, base);
+    if (banked.length) {
+      report.push(`banked deliverables: ${banked.length} dead-mission sandbox(es) hold substantive unsurfaced artifacts`);
+      actions.push({
+        id: 'BANKED-DELIVERABLES', class: 'judgment', approved_by_faith: true,
+        why: `${banked.length} unresolved FAILED/PARKED mission(s) carry >=5KB artifacts no mechanism will ever surface (receipt class: ~200KB verified buried incl. operator-focus research, hunt 2026-07-02)`,
+        banked: banked.map((b) => `${b.stem}: ${b.artifacts.map((a) => `${a.name} (${Math.round(a.bytes / 1024)}KB)`).join(', ')}`),
+        rule: 'for each: READ the top artifact; if operator-valuable, surface it (OPERATOR-REVIEW-QUEUE BANKED-SALVAGE row or notify with the path) and stamp the ledger line SALVAGE-JUDGED <ISO ts>: surfaced-at <where>; if not, stamp SALVAGE-JUDGED <ISO ts>: worthless-because <why> — an unjudged sandbox artifact is an unfinished FAILED judgment',
+      });
+    }
+  } catch { /* advisory — never breaks the sweep */ }
 
   // LOOP-CAP detection: a mission stem that appears LOOP_CAP_REPEATS or more times
   // across all AUTORUN statuses is a quota-burn loop and must be mechanically capped.
@@ -1232,6 +1284,31 @@ function selftest() {
     }
     const auSplit = parseAutorun('SPLIT missions/parent.mission.txt  <!-- ts -->\nmissions/live.mission.txt\n');
     ck(auSplit.split.length === 1 && auSplit.pending.length === 1, 'parser: SPLIT is first-class; live line still pending');
+    // BANKED-DELIVERABLES (#27) contracts: real artifacts surface; judged/numbered/underscore noise stays silent.
+    {
+      const bAu = parseAutorun('FAILED missions/bk-rich.mission.txt  <!-- t -->\nFAILED missions/bk-judged.mission.txt  <!-- SALVAGE-JUDGED 2026-07-03T04:00Z: surfaced-at review-queue -->\nPARKED missions/bk-empty.mission.txt  <!-- t -->\n');
+      const files = {
+        'bk-rich': ['part-1.md', 'notes.numbered.md', '_prior-attempt', 'small.md', 'data.json'],
+        'bk-judged': ['gold.md'],
+        'bk-empty': ['tiny.md'],
+      };
+      const sizes = { 'part-1.md': 21000, 'small.md': 800, 'gold.md': 90000, 'tiny.md': 400, 'data.json': 99999, 'notes.numbered.md': 30000 };
+      const bd = bankedDeliverables(bAu, tmp, {
+        readdirFn: (d) => files[path.basename(d)] || null,
+        statFn: (p) => ({ isFile: () => true, size: sizes[path.basename(p)] || 0 }),
+      });
+      ck(bd.length === 1 && bd[0].stem === 'bk-rich' && bd[0].artifacts.length === 1 && bd[0].artifacts[0].name === 'part-1.md',
+        'banked: >=5KB md surfaces; numbered/underscore/json/small excluded; SALVAGE-JUDGED and artifact-free sandboxes stay quiet');
+      // REAL-FS smoke (2026-07-03: the injected-statFn test above passed while the live scan
+      // returned ZERO — statSync was never imported and the default statFn swallowed its own
+      // ReferenceError. Injection-only tests cannot catch missing default deps; this one runs
+      // the REAL default readdir/stat path against a real temp sandbox.)
+      mkdirSync(path.join(tmp, 'missions', 'bk-real'), { recursive: true });
+      writeFileSync(path.join(tmp, 'missions', 'bk-real', 'real-artifact.md'), 'x'.repeat(6000));
+      const bdReal = bankedDeliverables(parseAutorun('FAILED missions/bk-real.mission.txt  <!-- t -->\n'), tmp);
+      ck(bdReal.length === 1 && bdReal[0].artifacts[0].name === 'real-artifact.md',
+        'banked REAL-FS smoke: the default readdir/stat path actually works (no injected fns — catches missing imports)');
+    }
   }
 
   // fixture 1c: REQUEUE-ON-FIX-LANDED — a fix-ledger entry naming a FAILED mission makes
