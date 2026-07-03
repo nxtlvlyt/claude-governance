@@ -1,0 +1,32 @@
+MISSION-ID: mt-dayrhythm-now.S1
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - js/day-rhythm.js
+VISUAL-QC-REQUIRED
+REQUIRES: none
+STEPS: 6
+
+Maqsad: Operator receipts 2026-07-03 (two phone screenshots, 21:54 local): the bottom
+day-rhythm strip defaults its scroll position to the START of the day — at ten to ten at
+night the visible segments were FIRST LIGHT 3:57 / ROLL OUT 4:46 / HIGH SUN 13:09, and
+the user had to scroll to find the current window. The second screenshot proves the bar
+ALREADY computes "now" (ROLL IN 21:32 rendered highlighted) — it just never scrolls
+itself there. Deliverable: on load AND whenever the highlighted segment changes, the
+strip auto-scrolls so the current segment is fully visible, centered when the strip is
+wide enough to allow it. User scrolling afterwards is never hijacked: auto-scroll fires
+on load and on segment CHANGE only, never on a timer against a user-positioned strip.
+
+niyyah: A rhythm bar that opens on the wrong part of the day makes the user do the
+work the feature exists to do. The current-segment highlight logic is the source of
+truth — reuse it, do not recompute time math. Scope every assertion to js/day-rhythm.js.
+
+Steps:
+  1. Idempotent baseline: record branch + HEAD; if js/day-rhythm.js already contains 'scrollIntoView' or an auto-scroll marker comment, output CLEAN_ALREADY and treat the edit step as a verify-only presence check; else CLEAN_BASELINE. Never exit 1 on existence. [command]
+  2. Read js/day-rhythm.js and locate (a) where segments render into the strip and (b) where the current segment receives its highlight class — then add the auto-scroll: after initial render and inside the same code path that moves the highlight, scroll the strip container so the highlighted segment element is fully visible (centered where container width allows), guarded so it no-ops when the element is already fully visible. [edit] js/day-rhythm.js
+  3. node --check js/day-rhythm.js. [verify] js/day-rhythm.js
+  4. Scoped cleanliness: git status --porcelain -- js/day-rhythm.js shows only this file modified. [verify]
+  5. Commit js/day-rhythm.js by explicit name with a message naming this mission and the two-screenshot receipt, then confirm the commit is on HEAD. [command]
+  6. OUTCOME CHECK: cwd-relative scratch harness that loads the module's segment-selection logic (or a jsdom/minimal DOM stub of the strip) with THREE fixed wall-clock fixtures (05:00, 13:00, 21:54) and asserts the auto-scroll target equals the segment the highlight logic marks current at each time — run it, require exit 0 with output DAYRHYTHM_NOW_OK, remove the scratch file. [command]
+
+Done means: js/day-rhythm.js committed at HEAD with the auto-scroll (load + segment-change, no user-scroll hijack), node --check passes, the scratch harness exits 0 with DAYRHYTHM_NOW_OK at all three wall-clock fixtures, AND the engine's headless-browser render of /map (visual witness against the auto-provisioned preview) shows the strip scrolled such that the highlighted current segment is inside the visible viewport at render time — executable + headless-browser render verification appropriate to a user-facing feature (live-outcome bar, 2026-07-03).

@@ -1,0 +1,49 @@
+MISSION-ID: mt-aurora-humanize.S1
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - js/aurora-overlay.js
+  - map.html
+VISUAL-QC-REQUIRED
+REQUIRES: none
+STEPS: 8
+
+Maqsad: Operator asks 2026-07-03 (verbatim intent): "how will the average person understand
+all that from looking at the map?" / "how do we know the time window to look north?" /
+"the 'me' dot is extremely small — can it be a van emoji?". Three deliverables, all
+grounded in data ALREADY on the page — no new science, no fabrication:
+(D1) LOCATION-AWARE aurora wording: the chip compares the map's center latitude to
+tonight's auroral southern edge (the EXISTING kpToLat table in js/aurora-overlay.js,
+~lines 92-101 — do not invent new thresholds): center north of the edge -> "right
+overhead where you are!"; within 4 degrees south of the edge -> "look north, low on the
+sky"; further south -> "probably too far south tonight". The plain-language Kp band
+headline shipped 2026-07-03 stays; this ADDS the where-you-are clause.
+(D2) BEST-WINDOW: from the cached forecast rows (3-hourly Kp values the overlay already
+holds), intersect hours with kp >= 4 against local DARKNESS at the map center computed
+via the page's already-loaded SunCalc (dusk to dawn). Render as a human window in the
+chip, e.g. "best window: 11 pm - 3 am". Honest fallbacks required: no dark hours (high-
+latitude summer) -> "sky stays too bright tonight"; no kp>=4 rows -> omit the window
+line entirely (the quiet-night headline already covers it).
+(D3) VAN MARKER: map.html's locationfound handler currently draws ONLY a translucent
+accuracy circle (receipted: no marker element at all — that IS the invisible dot). Add
+an L.divIcon marker at e.latlng with a van emoji at ~26px and a white halo/outline for
+contrast on any basemap, kept alongside the accuracy circle. One marker at a time —
+replace the previous one on re-locate, never stack.
+
+niyyah: The map should answer "can I see it, from here, when?" without the operator
+having to explain Kp science in chat — that conversation was the receipt this mission
+exists. Every wording derives from the kpToLat table, the real forecast rows, and
+SunCalc darkness — the honest-empty precedent applies: when the data cannot say, the
+chip says less, never more. Cleanliness assertions scope to the two ALLOW-FILES only.
+
+Steps:
+  1. Idempotent baseline: record branch + HEAD; if js/aurora-overlay.js already contains the string 'best window' output CLEAN_ALREADY and treat edit steps as verify-only presence checks; else output CLEAN_BASELINE. Never exit 1 on existence. [command]
+  2. In js/aurora-overlay.js: add the location-aware clause (D1) to the chip renderer — map-center latitude vs the kpToLat southern edge for tonight's peak Kp, three wordings exactly as the Maqsad specifies, appended to the existing plain-language headline. [edit] js/aurora-overlay.js
+  3. In js/aurora-overlay.js: add the best-window computation (D2) — kp >= 4 forecast rows intersected with SunCalc dusk-to-dawn at map center, rendered as 'best window: <start> - <end>' in local time; the two honest fallbacks exactly as the Maqsad specifies. [edit] js/aurora-overlay.js
+  4. In map.html: extend the locationfound handler (D3) — L.divIcon van-emoji marker (~26px, white halo) at e.latlng alongside the existing accuracy circle; module-scoped variable holds the current marker and re-locate replaces it. [edit] map.html
+  5. node --check js/aurora-overlay.js. [verify] js/aurora-overlay.js
+  6. Confirm the two ALLOW-FILES are the only modified paths (git status --porcelain -- js/aurora-overlay.js map.html scoped check; never whole-tree). [verify]
+  7. Commit both ALLOW-FILES by explicit name with a message naming this mission and all three deliverables, then confirm the commit is on HEAD. [command]
+  8. OUTCOME CHECK: write a cwd-relative scratch harness that extracts the chip-wording function's band logic and asserts the three D1 wordings fire at (edge-2°N, edge+2°S, edge+8°S) for a fixed Kp fixture, and that a fixture forecast with kp 5 rows at night yields a non-empty window string while an all-kp-2 fixture yields none — run it, require exit 0 with output AURORA_HUMANIZE_OK, remove the scratch file. [command]
+
+Done means: both ALLOW-FILES committed at HEAD carrying D1+D2+D3, node --check passes, the scratch outcome harness exits 0 with AURORA_HUMANIZE_OK, AND the engine's headless-browser render of /map (the visual witness pipeline against the auto-provisioned preview) shows the aurora chip carrying a location clause and the van-emoji marker after a simulated locate — executable + headless-browser render verification appropriate to a user-facing map feature (authored under the live-outcome bar, 2026-07-03).
