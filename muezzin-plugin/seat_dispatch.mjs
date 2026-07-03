@@ -8,9 +8,10 @@
 //   - verification seats emit a JSON verdict_contract, validated by the keystone's validateVerdictContract
 // This is the INPUT HALF of the keystone: it produces the verdicts that verdict_merge/keystone_flow consume.
 
-import { readFileSync, appendFileSync, mkdirSync } from 'fs';
+import { readFileSync, appendFileSync, mkdirSync, writeFileSync, unlinkSync } from 'fs';
 import { execSync, execFile, execFileSync } from 'node:child_process';
 import { dirname, join } from 'node:path';
+import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { validateVerdictContract, VERDICTS } from './verdict_merge.mjs';
 import { dispatchAgy, agyAvailable, resolveAgyModel } from './agy_dispatch.mjs';
@@ -179,10 +180,31 @@ export function execReceipt(cmd, cwd) {
   // stdio[0]='ignore' attaches /dev/null to stdin — any prompt reads EOF and either errors
   // cleanly or defaults, instead of blocking until the 120s timeout.
   const childEnv = { ...process.env, CI: 'true', WRANGLER_SEND_METRICS: 'false', FORCE_COLOR: '0' };
+  // HERE-STRING MANGLE FIX (2026-07-03, trip-cost.S2 FAILED x2 receipt: step-5 "Set-Content
+  // scratch-*.mjs -Value @'...'@" through -Command died with "[no stdout/stderr captured]" —
+  // pwsh's -Command parser chokes on planner-emitted multi-line here-strings; same class as
+  // qc-concern-pwa-install 2026-07-01). SURGICAL HYBRID: only MULTI-LINE or here-string
+  // commands route through a temp .ps1 run with -File (a real script file parses here-strings
+  // correctly); single-line commands keep the proven -Command path byte-identical. The -File
+  // path appends an exit-parity wrapper so native exit codes and pipeline failure map to the
+  // same ok/exit semantics -Command produced.
+  const needsScriptFile = process.platform === 'win32' && (/\r?\n/.test(cmd) || /@['"]/.test(cmd));
   try {
-    const out = process.platform === 'win32'
-      ? execFileSync('pwsh.exe', ['-NoProfile', '-NonInteractive', '-Command', cmd], { cwd, env: childEnv, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: 120000 })  // pwsh (PS7) not powershell (5.1): seats chain with && — proven live
-      : execSync(cmd, { cwd, env: childEnv, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: 120000 });
+    let out;
+    if (process.platform !== 'win32') {
+      out = execSync(cmd, { cwd, env: childEnv, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: 120000 });
+    } else if (needsScriptFile) {
+      const tmp = join(tmpdir(), `muezzin-step-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.ps1`);
+      const parityTail = `\nif ($LASTEXITCODE -is [int] -and $LASTEXITCODE -ne 0) { exit $LASTEXITCODE } elseif (-not $?) { exit 1 } else { exit 0 }\n`;
+      writeFileSync(tmp, cmd + parityTail, 'utf8');
+      try {
+        out = execFileSync('pwsh.exe', ['-NoProfile', '-NonInteractive', '-File', tmp], { cwd, env: childEnv, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: 120000 });
+      } finally {
+        try { unlinkSync(tmp); } catch { /* temp cleanup is best-effort */ }
+      }
+    } else {
+      out = execFileSync('pwsh.exe', ['-NoProfile', '-NonInteractive', '-Command', cmd], { cwd, env: childEnv, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: 120000 });  // pwsh (PS7) not powershell (5.1): seats chain with && — proven live
+    }
     return { type: 'exec', ref: cmd, ok: true, exit: 0, out: String(out).slice(0, 2000) };
   } catch (e) {
     const captured = (String(e.stdout || '') + String(e.stderr || '')).trim();
@@ -977,6 +999,31 @@ if (process.argv[1]?.endsWith('seat_dispatch.mjs') && process.argv.includes('--s
     const r = execReceipt('exit 3', '.');
     check('execReceipt: empty-output failure reports ok=false', r.ok, false);
     check('execReceipt: empty-output failure carries a NON-empty diagnostic out (not "")', r.out.trim().length > 0, true);
+  }
+
+  // 12. HERE-STRING MANGLE FIX (2026-07-03, trip-cost.S2 FAILED x2): multi-line here-string
+  //     commands route through a temp .ps1 -File and must actually WORK — the exact step-5
+  //     shape that died twice through -Command. Windows-only behavior; guarded.
+  if (process.platform === 'win32') {
+    const { mkdtempSync, rmSync, existsSync: ex2, readFileSync: rf2 } = await import('node:fs');
+    const { tmpdir: td2 } = await import('node:os');
+    const dir = mkdtempSync(join(td2(), 'muezzin-hstest-'));
+    try {
+      // (a) the trip-cost step-5 shape: Set-Content with a multi-line single-quoted here-string
+      const hs = `Set-Content -Path scratch-hs.mjs -Value @'\nimport { readFileSync } from 'fs';\nconsole.log('line2 $notExpanded');\n'@\n`;
+      const r1 = execReceipt(hs, dir);
+      check('execReceipt here-string: multi-line Set-Content @\'...\'@ succeeds via -File (the trip-cost.S2 killer shape)', r1.ok, true);
+      check('execReceipt here-string: the scratch file exists with BOTH lines intact', ex2(join(dir, 'scratch-hs.mjs')) && rf2(join(dir, 'scratch-hs.mjs'), 'utf8').includes('line2 $notExpanded'), true);
+      // (b) exit-code parity: a multi-line script whose last native command fails -> ok=false
+      const r2 = execReceipt(`$x = 1\nnode -e "process.exit(3)"\n`, dir);
+      check('execReceipt -File parity: failing native command in multi-line script reports ok=false', r2.ok, false);
+      check('execReceipt -File parity: native exit code is surfaced', r2.exit, 3);
+      // (c) single-line commands still ride -Command (no temp file, proven path untouched)
+      const r3 = execReceipt('node -e "console.log(42)"', dir);
+      check('execReceipt single-line: unchanged -Command path still works', r3.ok === true && r3.out.includes('42'), true);
+    } finally {
+      try { rmSync(dir, { recursive: true, force: true }); } catch { /* best-effort */ }
+    }
   }
 
   console.log(`[selftest] ${pass} passed, ${fail} failed`);
