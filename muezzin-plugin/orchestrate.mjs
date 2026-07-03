@@ -565,18 +565,42 @@ export async function defaultWitness(step, cwd, artifact, sources = '', dispatch
 // ctx.missionsDir / ctx.parentMissionFile let the daemon point the children at the real
 // missions dir + name them off the parent file. When absent (a bare orchestrate() call /
 // offline test), they default off cwd and queue-append is skipped (files+manifest only).
+// POSITION-INHERITANCE (2026-07-03, system-gap #4; receipt in STATE.md: "mission_split does
+// NOT inherit queue position — gap-promoted parents' children land at the TAIL — re-promote
+// manually, engine fix owed"). Insert newRel directly AFTER the line carrying anchorRel
+// (whatever its status prefix: bare/RUNNING/SPLIT), so children inherit the parent's queue
+// position in tartib order. PURE — returns the new text; anchor absent -> tail append
+// (NEVER lose the line).
+export function insertQueueLineAfter(text, anchorRel, newRel) {
+  const lines = String(text).split(/\r?\n/);
+  let at = -1;
+  for (let i = 0; i < lines.length; i++) {
+    if (lines[i].includes(anchorRel) && !/^\s*#/.test(lines[i])) at = i;   // LAST live line wins (history lines above)
+  }
+  if (at === -1) return `${String(text).replace(/\n?$/, '\n')}${newRel}\n`;
+  lines.splice(at + 1, 0, newRel);
+  return lines.join('\n');
+}
+
 // io.writeFile / io.appendQueue are injectable so the whole path is offline-testable.
 export function defaultSplitFn(mission, queue, opts = {}, ctx = {}, io = {}) {
   const plan = splitOversizedPlan(mission, queue, opts);
   if (!plan.split) return plan;   // { split:false } (run unchanged) or { fail:true } (named receipt)
   const missionsDir = ctx.missionsDir || path.dirname(cwdOf(ctx));
   const writeFile = io.writeFile || ((p, c) => { mkdirSync(path.dirname(p), { recursive: true }); writeFileSync(p, c); });
-  // appendQueue: the minimal queue flow — append each child to AUTORUN in tartib order so
-  // the daemon's readQueue picks it up. Only wired when ctx.autorunFile is known; the deeper
-  // priority/dependency-gated promotion is M-ENGINE.QUEUE-FLOW.1's job (the manifest carries
-  // the tartib REQUIRES for that layer to enforce holds).
+  // appendQueue: children INSERT after the parent's queue line (position-inheritance,
+  // gap #4) in tartib order — each child anchors on the previous insert; the first anchors
+  // on the parent. Anchor-miss falls back to tail append. Only wired when ctx.autorunFile
+  // is known; dependency-gated promotion stays M-ENGINE.QUEUE-FLOW.1's job.
+  let lastAnchor = ctx.parentMissionFile ? `missions/${path.basename(ctx.parentMissionFile)}` : null;
   const appendQueue = io.appendQueue || (ctx.autorunFile
-    ? (rel) => { try { appendFileSync(ctx.autorunFile, `\n${rel}`); } catch { /* queue append best-effort; the file+manifest is the durable handoff */ } }
+    ? (rel) => {
+        try {
+          const cur = readFileSync(ctx.autorunFile, 'utf8');
+          writeFileSync(ctx.autorunFile, lastAnchor ? insertQueueLineAfter(cur, lastAnchor, rel) : `${cur.replace(/\n?$/, '\n')}${rel}\n`);
+          lastAnchor = rel;
+        } catch { /* queue append best-effort; the file+manifest is the durable handoff */ }
+      }
     : null);
   const out = emitSubMissions(plan, { missionsDir, parentMissionFile: ctx.parentMissionFile, parentId: plan.parentId }, { writeFile, appendQueue });
   return { ...plan, emission: out };
@@ -2283,6 +2307,19 @@ if (process.argv[1]?.endsWith('orchestrate.mjs')) {
     ck(un.length === 1 && un[0] === 'js/orphan.js', 'REACHABILITY: orphan browser asset flagged; wired asset + non-browser paths (functions/, docs/) exempt');
     ck(unreachableBrowserAssets(rdir, ['docs/a.md']).length === 0, 'REACHABILITY: no browser assets -> no findings (zero behavior change for ordinary missions)');
     fs.rmSync(rdir, { recursive: true, force: true });
+  }
+
+  // POSITION-INHERITANCE (gap #4): split children insert after the parent's queue line
+  {
+    const q = '# q\nmissions/top.mission.txt\nRUNNING missions/parent.mission.txt  <!-- t -->\nmissions/later.mission.txt\n';
+    const one = insertQueueLineAfter(q, 'missions/parent.mission.txt', 'missions/parent.S1.mission.txt');
+    ck(one.split('\n').indexOf('missions/parent.S1.mission.txt') === one.split('\n').indexOf('RUNNING missions/parent.mission.txt  <!-- t -->') + 1, 'split-position: child inserts DIRECTLY after the parent line (status prefix tolerated)');
+    const two = insertQueueLineAfter(one, 'missions/parent.S1.mission.txt', 'missions/parent.S2.mission.txt');
+    const L = two.split('\n');
+    ck(L.indexOf('missions/parent.S2.mission.txt') === L.indexOf('missions/parent.S1.mission.txt') + 1 && L.indexOf('missions/later.mission.txt') > L.indexOf('missions/parent.S2.mission.txt'), 'split-position: second child chains after the first; later queue lines stay behind (tartib preserved, position inherited)');
+    ck(insertQueueLineAfter('# q\nmissions/other.mission.txt\n', 'missions/ghost.mission.txt', 'missions/ghost.S1.mission.txt').trim().endsWith('missions/ghost.S1.mission.txt'), 'split-position: absent anchor falls back to tail append (line never lost)');
+    const hist = '# RESOLVED old: missions/parent.mission.txt\nSPLIT missions/parent.mission.txt  <!-- t -->\n';
+    ck(insertQueueLineAfter(hist, 'missions/parent.mission.txt', 'missions/parent.S1.mission.txt').split('\n')[2] === 'missions/parent.S1.mission.txt', 'split-position: comment/history lines skipped — the LAST live line is the anchor');
   }
 
   fs.rmSync(dir, { recursive: true, force: true });

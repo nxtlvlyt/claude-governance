@@ -847,7 +847,7 @@ OPEN SYSTEM GAPS at ruling time, priority order:
 1. ~~tartib bare-stem REQUIRES not gating~~ CLOSED same-hour (commit + 4 fixtures + reload requested).
 2. ~~Plan-level scratch lint~~ CLOSED 17:1x (dd6953a: SCRATCH-RESIDUE rule in validateMicroQueue, allowFiles threaded through both plan paths, 5 fixtures incl. the S1.S1 receipt shape; reload requested).
 3. ~~Witness groundedness trigger unknown~~ DIAGNOSED 17:2x (see "GAP #3 DIAGNOSED" block below: non-blocking flag; 3 false-flag mechanics — 8K truncation, silent partial context, category error on authored-new rewrites; fix direction recorded, low-med priority).
-4. mission_split position-inheritance (children land at queue tail) — tracked.
+4. ~~mission_split position-inheritance~~ CLOSED 17:4x (b5e8d05: insertQueueLineAfter — children insert after the parent's line, tartib chained, tail fallback; 4 fixtures; reload requested).
 5. claude-exe-480s-hang mitigation — tracked, fires on recurrence.
 6. Windowed-edit >250KB not engaging — standing HIGH; additive-only is the live workaround.
 7. Board-truth debt: 26 false-death candidates + 13 parked revisits + 17-mission amend-on-surface pile.
