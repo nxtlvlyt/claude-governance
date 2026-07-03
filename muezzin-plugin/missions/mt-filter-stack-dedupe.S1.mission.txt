@@ -1,0 +1,42 @@
+MISSION-ID: mt-filter-stack-dedupe.S1
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - js/filter-stack.js
+VISUAL-QC-REQUIRED
+UNLINKED-OK: no page shipped — this edits a JS module already loaded by the live map
+REQUIRES: none
+STEPS: 5
+
+Maqsad: Operator screenshot 2026-07-03 ~19:0x (Filter stack panel, mobile): the "Other
+overlays" list shows "B.C." TWICE and "Alberta" TWICE, all checked, visually identical —
+the user cannot know what each duplicate controls or safely uncheck one. Two defects:
+(D1) DUPLICATE REGISTRATION: the overlay registry accepts two entries with the same label
+(likely the same layer registered by two code paths, or two distinct layers — e.g. Crown
+land vs parks — sharing a bare province label). Fix in js/filter-stack.js: the registry
+keys entries by a stable identity; a second registration with the same identity UPDATES the
+existing row instead of appending a twin. If the two rows are genuinely DIFFERENT layers,
+they must carry DISTINCT labels (see D2) — never two identical rows.
+(D2) AMBIGUOUS LABELS: a bare "B.C." tells the user nothing (clear-not-clever, the standing
+copy bar). Every overlay row's label must name WHAT it shows, not only where: e.g. "B.C.
+Crown land", "Alberta parks". Derive the label from the layer's own registration metadata;
+do not hardcode a list.
+DIAGNOSIS FIRST (step 2): before editing, print the registry's actual entries (name +
+source/id) from the live code path to RECEIPT which case D1 is — same-layer-twice or
+two-layers-same-label. The fix must match the receipted case, not a guess.
+
+niyyah: The operator opened one panel and could not trust his own checkboxes. A list where
+two identical rows do different things (or the same thing twice) erodes every other honest
+claim the map makes. Registry identity + speaking labels; smallest change in ONE file.
+
+Steps:
+  1. Idempotent baseline: record branch + HEAD; report DEDUP_PRESENT if js/filter-stack.js already contains a registry-identity dedupe (search for its marker comment mt-fs-dedupe), else CLEAN_BASELINE. Never exit 1 on existence. [command]
+  2. Diagnosis receipt: print every overlay registration site and its label source — Select-String receipts of the register/add calls in js/filter-stack.js and the callers that pass province-bare labels (read-only survey of js/*.js callers; output the receipt lines into the step log). [command]
+  3. Fix js/filter-stack.js per D1+D2 and the step-2 receipt: identity-keyed registry (marker comment mt-fs-dedupe at the dedupe site), update-not-append on duplicate identity, and labels passed through a disambiguation that appends the layer-kind when a bare region label collides. node --check passes. [edit] js/filter-stack.js
+  4. git commit js/filter-stack.js by explicit name naming this mission and the operator screenshot receipt; idempotent no-op if already committed (ALREADY_COMMITTED + exit 0 when clean and HEAD carries mt-fs-dedupe). [command]
+  5. OUTCOME CHECK: in ONE self-contained multi-line command: confirm clean tree for the file, wrangler pages deploy . --project-name=muddytires --branch=preview, poll to 200, write scratch-fsdedupe-qc.mjs via here-string (playwright 375x812 isMobile: goto $url/map, open the filter stack panel, read all overlay row labels, print evidence lines ROW_LABELS=<pipe-joined list>, DUP_LABELS=<count of labels appearing more than once>, PAGEERRORS=<n>, then FSDEDUPE_QC_PASS when DUP_LABELS=0 and pageerrors=0), run it, Remove-Item the scratch. The printed evidence lines ARE the receipt. [command]
+
+Done means: js/filter-stack.js committed at HEAD with the identity-keyed registry and
+disambiguated labels; the step-5 evidence lines show ZERO duplicate labels in the rendered
+panel at the operator's viewport class — the panel he screenshotted shows one row per real
+overlay, each saying what it controls (operator receipt 2026-07-03 ~19:0x).
