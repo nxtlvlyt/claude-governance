@@ -22,3 +22,11 @@ Steps:
   13. Headless-render trip-cost.html from the URL recorded in scratch-preview-url.txt (never a hardcoded localhost), asserting the page loads with no script (pageerror) failures and that js/trip-cost-split.js is actually referenced/loaded by the served page — the visual-witness receipt VISUAL-QC-REQUIRED demands. Remove scratch-preview-url.txt and any scratch witness file afterward so the tree stays clean. [verify]
 
 Done means: d1/migrate-trip-cost-split-2026-06-23.sql, trip-cost.html exist/are updated as specified — verify by headless-browser render, not by reading the code
+
+# ENGINE-FIX LINEAGE 2026-07-03T06:3x (answers the RETRO-REPEAT gate, which correctly noted
+# this text unchanged since the newest FAILED retro): the last x2 failures were NOT this
+# mission's text — steps 1-4 passed including the amended preview-deploy; step 5 died on the
+# pwsh here-string mangle class ("[no stdout/stderr captured]" writing the playwright scratch
+# via -Command). That class is fixed ENGINE-side: execReceipt now routes multi-line/here-string
+# commands through a temp .ps1 -File (seat_dispatch commit 2026-07-03, 36/36 selftests incl.
+# the exact killer shape). A fourth run exercises the repaired engine, not a relitigated text.
