@@ -1,0 +1,20 @@
+MISSION-ID: mt-mobile-qc-hardening.S1.S2
+MISSION-CLASS: code-repo
+PARENT: mt-mobile-qc-hardening.S1
+TARTIB-INDEX: 2 of 2
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - map.html
+  - scripts/e2e-runner.mjs
+  - scripts/verify-popups-e2e.mjs
+REQUIRES: mt-mobile-qc-hardening.S1.S1 (tartib — this sub-mission may not start until mt-mobile-qc-hardening.S1.S1's receipt exists)
+STEPS: 1
+
+PARENT MAQSAD: Operator audit 2026-07-03 ("will the zoom buttons always block the words? the
+
+Maqsad: sub-mission 2 of 2 — OUTCOME CHECK: run the extended e2e (scripts/e2e-runner.mjs) against the engine's auto-provisioned preview (MT_BASE_URL injected by the harness), require both viewports to pass including the overlap detector's per-pair CHECKED receipt lines and mobile/desktop tags, proving the D1 fix via its own detector. through OUTCOME CHECK: run the extended e2e (scripts/e2e-runner.mjs) against the engine's auto-provisioned preview (MT_BASE_URL injected by the harness), require both viewports to pass including the overlap detector's per-pair CHECKED receipt lines and mobile/desktop tags, proving the D1 fix via its own detector.
+
+Steps:
+  9. OUTCOME CHECK: run the extended e2e (scripts/e2e-runner.mjs) against the engine's auto-provisioned preview (MT_BASE_URL injected by the harness), require both viewports to pass including the overlap detector's per-pair CHECKED receipt lines and mobile/desktop tags, proving the D1 fix via its own detector. [command] 
+
+Done means:  exist/are updated as specified

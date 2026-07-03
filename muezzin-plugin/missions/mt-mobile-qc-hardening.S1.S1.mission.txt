@@ -1,0 +1,28 @@
+MISSION-ID: mt-mobile-qc-hardening.S1.S1
+MISSION-CLASS: code-repo
+PARENT: mt-mobile-qc-hardening.S1
+TARTIB-INDEX: 1 of 2
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - map.html
+  - scripts/e2e-runner.mjs
+  - scripts/verify-popups-e2e.mjs
+VISUAL-QC-REQUIRED
+REQUIRES: none (first in tartib order)
+STEPS: 8
+
+PARENT MAQSAD: Operator audit 2026-07-03 ("will the zoom buttons always block the words? the
+
+Maqsad: sub-mission 1 of 2 — Idempotent baseline: record branch + HEAD and check whether scripts/e2e-runner.mjs already contains an isMobile viewport entry; never fails on existence, just reports CLEAN_ALREADY vs CLEAN_BASELINE. through Commit the three ALLOW-FILES by explicit name, naming this mission and the 2026-07-03 operator-audit receipt; idempotent no-op if already committed.
+
+Steps:
+  1. Idempotent baseline: record branch + HEAD and check whether scripts/e2e-runner.mjs already contains an isMobile viewport entry; never fails on existence, just reports CLEAN_ALREADY vs CLEAN_BASELINE. [command] 
+  2. D1: rework the top-left control-lane offsets in map.html (search FAB, Leaflet zoom column, control buttons) so they stack without intersecting at 375px+ widths; inspect the existing offset-scheme comment near the top of the inline styles before changing it, add a mobile-width media rule and explicit z-index stacking order. [edit] map.html
+  3. D2: add the second (mobile, 375x812, deviceScaleFactor 2, isMobile+hasTouch) viewport to scripts/e2e-runner.mjs's viewport matrix alongside the existing 1440x900 desktop entry, running the full existing check suite once per viewport and tagging results per-viewport. [edit] scripts/e2e-runner.mjs
+  4. D3: add the overlap detector to scripts/verify-popups-e2e.mjs — enumerate floating overlay controls by real id/class per viewport, assert zero forbidden pairwise bounding-box intersections (parent/child exempt), assert no control covers more than 10% of the aurora chip or open Apply bar, print every pair checked, and hard-fail if fewer than 6 controls are found. [edit] scripts/verify-popups-e2e.mjs
+  5. Verify scripts/e2e-runner.mjs actually contains the dual-viewport matrix (1440x900 desktop entry plus 375x812 mobile entry with isMobile flag) after the D2 edit. [verify] 
+  6. Verify scripts/verify-popups-e2e.mjs actually contains the overlap detector (boundingBox usage, per-pair CHECKED receipt lines, detector function) after the D3 edit. [verify] 
+  7. Scoped cleanliness: confirm changes are present and limited to the three ALLOW-FILES (map.html, scripts/e2e-runner.mjs, scripts/verify-popups-e2e.mjs). [verify] 
+  8. Commit the three ALLOW-FILES by explicit name, naming this mission and the 2026-07-03 operator-audit receipt; idempotent no-op if already committed. [command] 
+
+Done means: map.html, scripts/e2e-runner.mjs, scripts/verify-popups-e2e.mjs exist/are updated as specified — verify by headless-browser render, not by reading the code
