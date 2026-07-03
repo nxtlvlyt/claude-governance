@@ -162,6 +162,26 @@ export function lintMission(text) {
     }
   }
 
+  // RULE 12 — ORPHAN PAGE (2026-07-03, trip-cost receipt: the planner shipped LIVE at
+  // /trip-cost with a panel-signed render receipt, yet the homepage and map carried ZERO
+  // inbound links — the operator, trying to verify it, could not navigate to it. Every
+  // layer judged the deliverable in isolation; none asked "can a user get here?"). A
+  // code-repo mission whose ALLOW-FILES ship a standalone page (an .html file other than
+  // the site's entry surfaces index.html/map.html) must EITHER carry reachability intent
+  // (an inbound-link/nav step or evidence line) OR declare `UNLINKED-OK: <why>` (e.g. the
+  // page is already linked, or is deliberately direct-URL-only). The declaration forces
+  // the author to actually check — the judgment that failed on trip-cost.
+  const allowHtml = [...t.matchAll(/^[ \t]*-[ \t]+(\S+\.html)\s*$/gim)].map((m) => m[1].toLowerCase());
+  const shipsPage = /MISSION-CLASS:\s*code-repo/i.test(t)
+    && allowHtml.some((f) => !/(^|\/)(index|map)\.html$/.test(f));
+  if (shipsPage) {
+    const hasReachability = /\b(inbound[- ]link|nav(igation)? (link|entry|anchor)|NAV_LINK|reachab)/i.test(t)
+      || /^UNLINKED-OK:/im.test(t);
+    if (!hasReachability) {
+      add('orphan-page-no-reachability', 'mission ships a standalone .html page but no step/evidence addresses how a user REACHES it (no inbound-link/nav step, no NAV_LINK/reachability evidence, no UNLINKED-OK declaration) — a page reachable only by typed URL is not shipped (trip-cost orphan receipt 2026-07-03). Add a nav-link step or declare UNLINKED-OK: <why>.');
+    }
+  }
+
   return { ok: problems.length === 0, problems };
 }
 
@@ -274,7 +294,7 @@ if (process.argv[1] && process.argv[1].endsWith('mission_lint.mjs')) {
 
   // the amended cure: mentions localhost:8788 only historically, carries the wrangler
   // deploy verb (+ git commit so RULE 8 stays satisfied) -> passes.
-  const amendedCure = 'MISSION-CLASS: code-repo\nREPO-ROOT: C:\\proj\\x\nALLOW-FILES:\n  - a.html\nMaqsad: verify. Steps: 12. (amended: prior step hand-rolled a localhost:8788 server) git commit is upstream in S1; confirm clean then wrangler pages deploy . --project-name=muddytires --branch=preview, parse URL, render from it. git commit receipts named. Done means: rendered headless via playwright.';
+  const amendedCure = 'MISSION-CLASS: code-repo\nREPO-ROOT: C:\\proj\\x\nUNLINKED-OK: rule-9 fixture, reachability out of scope\nALLOW-FILES:\n  - a.html\nMaqsad: verify. Steps: 12. (amended: prior step hand-rolled a localhost:8788 server) git commit is upstream in S1; confirm clean then wrangler pages deploy . --project-name=muddytires --branch=preview, parse URL, render from it. git commit receipts named. Done means: rendered headless via playwright.';
   ck(lintMission(amendedCure).ok, 'RULE 9: the amended engine-native shape passes (localhost mention is historical, deploy verb present)');
 
   // "bound to PREVIEW-BASE-URL\'s port" phrasing without a literal localhost:8788 -> also refused.
@@ -285,13 +305,21 @@ if (process.argv[1] && process.argv[1].endsWith('mission_lint.mjs')) {
   const crossStep = 'MISSION-CLASS: code-repo\nREPO-ROOT: C:\\proj\\x\nALLOW-FILES:\n  - a.html\nMaqsad: x.\nSteps:\n  1. Deploy and write the URL to scratch-url.txt. [command]\n  2. Read scratch-url.txt and render from it. [verify]\nDone means: rendered headless via playwright; node runs the witness.';
   const cs = lintMission(crossStep);
   ck(!cs.ok && cs.problems.some((p) => p.rule === 'cross-step-scratch-state'), 'RULE 10: a scratch file spanning two steps is REFUSED (the vanishing cross-step state shape)');
-  const oneStep = 'MISSION-CLASS: code-repo\nREPO-ROOT: C:\\proj\\x\nALLOW-FILES:\n  - a.html\nMaqsad: x.\nSteps:\n  1. In ONE command: deploy, capture the URL in a variable, write scratch-qc.mjs, node scratch-qc.mjs, remove it. [command]\nDone means: rendered headless via playwright.';
+  const oneStep = 'MISSION-CLASS: code-repo\nREPO-ROOT: C:\\proj\\x\nUNLINKED-OK: rule-10 fixture, reachability out of scope\nALLOW-FILES:\n  - a.html\nMaqsad: x.\nSteps:\n  1. In ONE command: deploy, capture the URL in a variable, write scratch-qc.mjs, node scratch-qc.mjs, remove it. [command]\nDone means: rendered headless via playwright.';
   ck(lintMission(oneStep).ok, 'RULE 10: create-use-delete inside ONE step passes');
 
   // ---- RULE 11: GREP-ONLY VISUAL VERIFICATION (2026-07-03, mobile-qc.S1.S1 panel F1) ----
   const grepOnly = 'MISSION-CLASS: code-repo\nREPO-ROOT: C:\\proj\\x\nALLOW-FILES:\n  - s.mjs\nVISUAL-QC-REQUIRED\nMaqsad: extend the QC script.\nSteps:\n  1. Edit s.mjs. [edit] s.mjs\n  2. Verify s.mjs contains the new matrix via Select-String. [verify]\nDone means: rendered headless via playwright.';
   const go = lintMission(grepOnly);
   ck(!go.ok && go.problems.some((p) => p.rule === 'grep-only-visual-verification'), 'RULE 11: VISUAL mission with no executing step REFUSED (the zero-browser-execution panel receipt)');
+
+  // ---- RULE 12: ORPHAN PAGE (2026-07-03, trip-cost live-but-unlinked receipt) ----
+  const orphan = 'MISSION-CLASS: code-repo\nREPO-ROOT: C:\\proj\\x\nALLOW-FILES:\n  - trip-cost.html\n  - js/trip.js\nMaqsad: ship the planner page. Done means: page renders 200.\nSteps:\n  1. author page [edit]\n';
+  const ro = lintMission(orphan);
+  ck(!ro.ok && ro.problems.some((p) => p.rule === 'orphan-page-no-reachability'), 'RULE 12: standalone page with no reachability intent REFUSED (trip-cost orphan class)');
+  ck(lintMission(orphan + '  2. add the nav link on index.html; evidence NAV_LINK=present [command]\n').ok, 'RULE 12: page mission WITH a nav-link step passes');
+  ck(lintMission('UNLINKED-OK: direct-URL tool page by design\n' + orphan).ok, 'RULE 12: explicit UNLINKED-OK declaration passes (author checked)');
+  ck(lintMission('MISSION-CLASS: code-repo\nREPO-ROOT: C:\\proj\\x\nALLOW-FILES:\n  - map.html\nMaqsad: t. Done means: t.\nSteps:\n  1. edit [edit]\n').ok, 'RULE 12: entry-surface (map.html) edits are exempt — no false positive on the dominant mission class');
   const withRun = 'MISSION-CLASS: code-repo\nREPO-ROOT: C:\\proj\\x\nALLOW-FILES:\n  - s.mjs\nVISUAL-QC-REQUIRED\nMaqsad: extend the QC script.\nSteps:\n  1. Edit s.mjs. [edit] s.mjs\n  2. Run it: node s.mjs and require coverage receipts. [command]\nDone means: rendered headless via playwright.';
   ck(lintMission(withRun).ok, 'RULE 11: VISUAL mission WITH an executing step passes');
 
