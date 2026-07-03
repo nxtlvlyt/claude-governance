@@ -88,6 +88,24 @@ propagation vs prod, engine-sandbox PATH/browsers vs conductor shell) and check 
 either covered by the mission's own design (e.g. the settle poll) or receipted-equal from a
 prior run before claiming the pre-flight covers the mission.**
 
+**SUCCESSION SCORECARD 2026-07-03 (operator re-affirmed the standard: "so good a local model
+could be the conductor... held to the same standard and forced to use tools"). Judgment that
+DRAINED OUT of the seat into machinery today — a small-model conductor inherits these free:**
+- requeue discipline → fix-ledger once-only + RETRO preflight-receipt gate (no dry-run
+  receipt file, no refire — enforced on ANY conductor, any model)
+- killer mission shapes → lint RULES 9/10/11 refuse pre-fire (localhost phantom, cross-step
+  scratch, grep-only visual verification)
+- streak awareness → CHAIN-STREAK breaker (the DAEMON notices 4+ consecutive cause-distinct
+  FAILEDs and demands strategy change — the seat no longer has to)
+- evidence presentation → head+tail verdict framing (panels see proof mechanically)
+- model identity → honest names in every seat table + /api/show discipline in memory+driftlog
+- silent failures → elapsed-ms diagnostics (every empty-output death now self-describes)
+**Judgment STILL in the seat (the honest succession gap list):** naming a genuinely-NEW
+failure class from receipts; authoring the constraint-block amendment for it; humble-
+validating witness verdicts. Each new class named should become a rule the same day —
+that is the drain mechanism. The seat's residual job trends toward: run the sweep, obey
+the gates, write the receipts.**
+
 ## Required reads (in order, after conduct-cycle.mjs first run)
 
 Per `~/.claude/CLAUDE.md`: *"STATE.md contextualizes the directives here for a specific
