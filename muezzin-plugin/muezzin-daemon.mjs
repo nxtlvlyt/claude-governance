@@ -134,19 +134,38 @@ export function stormSig(m) {
   return String(m).replace(/[a-f0-9]{7,40}/gi, 'H').replace(/\d+/g, 'N').slice(0, 120);
 }
 const stormState = { counts: new Map(), pushes: [] };
+// CAUSE-CLASS second signature (2026-07-03, live-receipted blindness: a 45-minute HTTP_503
+// storm produced ZERO pushes because each FAILED line named a DIFFERENT mission — per-mission
+// signatures rotate while the CAUSE stays constant. This was the audit's named
+// "rotating-signature churn" gap firing in production.) Alongside the per-line signature,
+// count the bare ERROR-KIND token: constant across a real storm, distinct across unrelated
+// failures. Same 3-hit/50-hit/one-shot/hourly-cap discipline.
+export function stormCauseSig(m) {
+  const c = String(m).match(/HTTP_\d{3}|\bTIMEOUT\b|missing file|EMPTY_CONTENT|MIQAT-REFUSED|RETRO-REPEAT-BLOCKED/i);
+  return c ? `CAUSE:${c[0].toUpperCase()}` : null;
+}
 export function stormWatch(m, S = stormState, notifyFn = notify, now = Date.now()) {
   try {
-    const sig = stormSig(m); if (!sig) return null;
+    const lineSig = stormSig(m); if (!lineSig) return null;
     if (S.counts.size > 500) S.counts.clear();                          // bounded memory across days-long runs
-    const n = (S.counts.get(sig) || 0) + 1; S.counts.set(sig, n);
-    if (n !== 3 && n !== 50) return null;                               // one-shot at 3, escalation at 50
-    S.pushes = S.pushes.filter((t) => now - t < 3600e3);
-    if (S.pushes.length >= 5) return null;                              // hourly cap (outcome-only ruling)
-    S.pushes.push(now);
-    const capNote = S.pushes.length === 5 ? ' [5th storm push this hour — further storm alerts suppressed]' : '';
-    const text = `ENGINE STORM${n === 50 ? ' x50 ESCALATION' : ''}: same failure signature ${n}x this daemon run — ${String(m).slice(0, 180)}${capNote}`;
-    notifyFn(text);
-    return text;
+    // The cause-class counter counts only NOVEL line signatures: identical repeats are the
+    // line-sig's job (else 50 identical failures would double-push line+cause with the same
+    // info — regression caught by the existing one-shot selftest). Rotation = novel lines,
+    // constant cause — exactly and only what the cause-class exists to catch.
+    const lineIsNovel = !S.counts.has(lineSig);
+    let fired = null;
+    for (const sig of [lineSig, lineIsNovel ? stormCauseSig(m) : null].filter(Boolean)) {
+      const n = (S.counts.get(sig) || 0) + 1; S.counts.set(sig, n);
+      if (n !== 3 && n !== 50) continue;                                // one-shot at 3, escalation at 50
+      S.pushes = S.pushes.filter((t) => now - t < 3600e3);
+      if (S.pushes.length >= 5) continue;                               // hourly cap (outcome-only ruling)
+      S.pushes.push(now);
+      const capNote = S.pushes.length === 5 ? ' [5th storm push this hour — further storm alerts suppressed]' : '';
+      const kind = sig.startsWith('CAUSE:') ? `same failure CAUSE (${sig.slice(6)}) across missions` : 'same failure signature';
+      fired = `ENGINE STORM${n === 50 ? ' x50 ESCALATION' : ''}: ${kind} ${n}x this daemon run — ${String(m).slice(0, 180)}${capNote}`;
+      notifyFn(fired);
+    }
+    return fired;
   } catch { return null; /* a storm alert must never break evt */ }
 }
 const setStatus = (s) => { try { writeFileSync(STATUS, JSON.stringify({ pid: process.pid, ...s, ts: new Date().toISOString() }, null, 2)); renderBoard(s); } catch { } };
@@ -1311,6 +1330,20 @@ if (process.argv.includes('--selftest')) {
     const a50 = stormWatch('FAILED (missing file): missions/a.mission.txt', S, nf, t0);
     ck(!!a50 && /x50 ESCALATION/.test(a50), 'storm: hit 50 -> single escalation push');
     ck(pushed.length === 2, `storm: 50 identical failures -> exactly 2 pushes total (one-shot, not a push-storm) — got ${pushed.length}`);
+    // cause-class (2026-07-03 rotating-signature fix): DIFFERENT missions, SAME cause -> pushes.
+    {
+      const Sc = { counts: new Map(), pushes: [] }; const pc = []; const nfc = (t) => pc.push(t);
+      stormWatch('FAILED (x2): missions/a.mission.txt — dispatch failed (HTTP_503): server busy', Sc, nfc, t0);
+      stormWatch('FAILED (x2): missions/b.mission.txt — dispatch failed (HTTP_503): server busy', Sc, nfc, t0);
+      const c3 = stormWatch('FAILED (x2): missions/c.mission.txt — dispatch failed (HTTP_503): server busy', Sc, nfc, t0);
+      ck(!!c3 && /CAUSE \(CAUSE:HTTP_503\)|failure CAUSE \(HTTP_503\)/.test(c3), `storm: ROTATING missions + constant cause -> cause-class push at 3 (the 45-min-silent 503 storm class) — got ${JSON.stringify(c3).slice(0, 80)}`);
+      ck(pc.length === 1, 'storm: cause-class push is one-shot too');
+      const Sd = { counts: new Map(), pushes: [] }; const pd = [];
+      stormWatch('FAILED (missing file): missions/x.mission.txt', Sd, (t) => pd.push(t), t0);
+      stormWatch('FAILED (x2): missions/y.mission.txt — dispatch failed (HTTP_503)', Sd, (t) => pd.push(t), t0);
+      stormWatch('claude-exec err model=z TIMEOUT', Sd, (t) => pd.push(t), t0);
+      ck(pd.length === 0, 'storm: three DIFFERENT causes across different missions -> no cause-class push (distinct causes stay distinct)');
+    }
     // hourly cap: 5 pushes already spent this hour -> a NEW signature's 3rd hit is suppressed.
     const Scap = { counts: new Map(), pushes: [t0 - 100, t0 - 200, t0 - 300, t0 - 400, t0 - 500] };
     const cf = []; for (let i = 0; i < 3; i++) stormWatch('FAILED other: missions/z.mission.txt', Scap, (t) => cf.push(t), t0);
