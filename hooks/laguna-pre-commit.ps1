@@ -1,7 +1,7 @@
 # ~/.claude/hooks/laguna-pre-commit.ps1
 #
 # Pre-commit code quality gate.
-# Pipes staged diff to Laguna (laguna-xs-2.1:q4_K_M) via Ollama HTTP API.
+# Pipes staged diff to Laguna (laguna-xs-2.1:q8_0) via Ollama HTTP API.
 #
 # Verdict semantics:
 #   BLOCK — security hole, data loss risk, broken dependency, production crash.
@@ -58,7 +58,7 @@ if ($repoRoot) {
         } catch {}
     }
 }
-$model      = 'laguna-xs-2.1:q4_K_M'
+$model      = 'laguna-xs-2.1:q8_0'
 
 # laguna context window: 131,072 tokens ~= 524,288 chars at 4 chars/token.
 # If the diff exceeds this, we CANNOT review it completely — BLOCK rather than

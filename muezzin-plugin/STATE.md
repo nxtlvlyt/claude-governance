@@ -1474,6 +1474,6 @@ Prompt: *"Write a javascript function to find the first non-repeating character 
 | Model | Size | Speed (tokens/s) | Duration | Total Tokens | Correctness & Formatting |
 | :--- | :---: | :---: | :---: | :---: | :--- |
 | **`ornith:35b`** | 35B | **167.82** | 7.61s | 412 | **PASS (Correct & Perfect Formatting)**. Returned only code inside a markdown block using Map. Fastest overall. |
-| **`laguna-xs-2.1:q4_K_M (v-swap 2026-07-02, was xs.2)`** | 33B | **123.05** | 11.05s | 471 | **FAIL (Formatting)**. Correct code, but verbose reasoning block pre-pended. |
+| **`laguna-xs-2.1:q8_0 (v-swap 2026-07-02, was xs.2)`** | 33B | **123.05** | 11.05s | 471 | **FAIL (Formatting)**. Correct code, but verbose reasoning block pre-pended. |
 | **`qwen3.6:27b`** | 27B | **46.61** | 77.19s | 3271 | **FAIL (Formatting)**. Correct code, but generated a huge 3271-token verbose thought block. |
 | **`granite4.1:30b`** | 30B | **46.23** | 11.94s | 131 | **PASS (Correct & Perfect Formatting)**. Returned code block only. |

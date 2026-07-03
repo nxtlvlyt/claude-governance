@@ -156,17 +156,20 @@ export const registry = {
   },
 
   // Canon name in registry key uses the id as it appears in Ollama
-  // VERSION SWAP 2026-07-02 (operator order): laguna-xs.2 -> laguna-xs-2.1:q4_K_M (Poolside
+  // VERSION SWAP 2026-07-02 (operator order): laguna-xs.2 -> laguna-xs-2.1:q8_0 (Poolside
   // XS 2.1: +5.4% SWE-bench Multilingual, native FP8 KV cache, OpenMDW-1.1 license). The
   // adala record below was EARNED BY xs.2 — it carries forward as lineage, not as xs-2.1's
   // own record; xs-2.1 rebuilds its own qualifying runs from live verdicts. BEHAVIORAL
-  // DELTA (probe-receipted 2026-07-02): reasons INLINE by design before deciding — verdict
-  // tag arrives ~650 tokens in (never at 250); Ollama exposes no thinking field for it and
-  // think:false does not suppress. Dispatch budget must be >=900; verdict extraction must
-  // take the LAST tag (reason-then-decide). Old model removed from nxtbeast same day.
+  // DELTA (probe-receipted 2026-07-02, CORRECTED same day): on raw /api/generate the model
+  // reasons INLINE (verdict tag ~650 tokens in, never at 250). On /api/chat the laguna
+  // template honors think — think:false yields a CLEAN tag-first verdict (35-51 tokens,
+  // q4 3.5s / q8 0.9s eval receipts); think:true separates reasoning into message.thinking.
+  // The >=900 dispatch budget + LAST-tag verdict extraction stay as insurance for any
+  // generate-path or think:true use. Quant: q8_0 seated 2026-07-03 (operator: 192GB RAM,
+  // speed not a concern); q4_K_M kept on disk as fast-fallback. xs.2 removed same day.
   "laguna-xs.2": {
     id: "laguna-xs.2",
-    superseded_by: "laguna-xs-2.1:q4_K_M (2026-07-02)",
+    superseded_by: "laguna-xs-2.1:q8_0 (2026-07-02)",
     role: ["code-review", "governance-scanner"],
     qualifying_runs: 7,
     correct_runs: 7, // canon: "all verdicts correct" — Gap 6 PARSE_ERROR raw content was APPROVE

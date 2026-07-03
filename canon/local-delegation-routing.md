@@ -24,7 +24,7 @@ Use exact model strings. Truncated or hallucinated model names produce errors.
 
 | Model string | Role |
 |---|---|
-| `laguna-xs-2.1:q4_K_M (v-swap 2026-07-02, was xs.2)` | Code review, syntax checks, structural analysis. 33B total / 3B active MoE — fast, purpose-built for software engineering (SWE-bench Pro 44.5%). |
+| `laguna-xs-2.1:q8_0 (v-swap 2026-07-02, was xs.2)` | Code review, syntax checks, structural analysis. 33B total / 3B active MoE — fast, purpose-built for software engineering (SWE-bench Pro 44.5%). |
 | `qwen3.6:27b` | **Deliberation team** (Alibaba/Qwen). Primary council for governance questions — consulted first before any frontier dispatch. Async deep review, frontier-adjacent reasoning. Minutes per call; async paths only. Does not satisfy the foreign-frontier gate. |
 | `nemotron-3-super:latest` | **Deliberation team** (NVIDIA). Primary council for governance questions — high-throughput deliberation, long-batch reasoning. 120B total / 12B active MoE. Does not satisfy the foreign-frontier gate. |
 | `granite4.1:30b` | **Deliberation team** (IBM). Primary council for governance questions — governance audits, canon coherence checks, change-shape review. Does not satisfy the foreign-frontier gate. |

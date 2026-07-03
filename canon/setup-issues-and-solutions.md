@@ -106,10 +106,10 @@ EMBEDDING_BASE_PATH: http://host.docker.internal:11434
 
 **Root cause:** stop-validation.ps1 line 174 checks JSONL tool use names for the pattern `mcp__ollama-*`. Dispatching a model via Invoke-RestMethod from a PowerShell tool call creates a tool use entry named `PowerShell` — not `mcp__ollama-*`. The hook does not match it.
 
-**Fix:** To satisfy the stop hook locally, dispatch laguna-xs-2.1:q4_K_M (v-swap 2026-07-02, was xs.2) via `mcp__ollama-mcp__ollama_chat` (the MCP tool call appears as `mcp__ollama-mcp__ollama_chat` in the JSONL and matches the pattern). qwen/granite/nemotron exceed the MCP timeout and must be dispatched via Invoke-RestMethod — but that path does NOT satisfy the stop hook.
+**Fix:** To satisfy the stop hook locally, dispatch laguna-xs-2.1:q8_0 (v-swap 2026-07-02, was xs.2) via `mcp__ollama-mcp__ollama_chat` (the MCP tool call appears as `mcp__ollama-mcp__ollama_chat` in the JSONL and matches the pattern). qwen/granite/nemotron exceed the MCP timeout and must be dispatched via Invoke-RestMethod — but that path does NOT satisfy the stop hook.
 
 **Satisfies the stop hook:**
-- `mcp__ollama-mcp__ollama_chat` with laguna-xs-2.1:q4_K_M (v-swap 2026-07-02, was xs.2) (only local model that does not time out via MCP)
+- `mcp__ollama-mcp__ollama_chat` with laguna-xs-2.1:q8_0 (v-swap 2026-07-02, was xs.2) (only local model that does not time out via MCP)
 - Foreign-frontier MCP workers: mcp__gemini-worker, mcp__gpt-worker, mcp__grok-worker, mcp__glm-worker
 - WebSearch, WebFetch
 

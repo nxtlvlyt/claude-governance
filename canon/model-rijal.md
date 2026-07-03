@@ -94,7 +94,7 @@ whether the verdict was accurate.
 
 ---
 
-## laguna-xs-2.1:q4_K_M (v-swap 2026-07-02, was xs.2) — Code Review Seat (Seat 4)
+## laguna-xs-2.1:q8_0 (v-swap 2026-07-02, was xs.2) — Code Review Seat (Seat 4)
 
 **Role in chain:** Structural audit, investigates qwen/Sonnet concerns. Also used
 as governance scanner (governance_scanner.faith.md) between chain runs.
