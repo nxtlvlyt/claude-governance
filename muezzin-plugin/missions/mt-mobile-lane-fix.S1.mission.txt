@@ -30,7 +30,7 @@ Steps:
   1. Idempotent baseline: record branch + HEAD; if map.html already contains id="mt-mobile-lane-fix" output CLEAN_ALREADY and treat the edit step as a verify-only presence check; else CLEAN_BASELINE. Never exit 1 on existence. [command]
   2. Read the existing top-left control-lane CSS (the offset-scheme comment near the top of the inline styles) to learn the current ids/classes and offsets, then APPEND the <style id="mt-mobile-lane-fix"> block immediately before </head> exactly per the Maqsad's additive-only constraint — one @media (max-width: 480px) rule-set, existing selectors, a declared z-index order, zero modifications to anything already present. [edit] map.html
   3. Verify map.html contains the literal string mt-mobile-lane-fix AND that the block sits inside <head> (Select-String receipts for both), and confirm via git diff --stat that map.html shows ONLY additions (no deleted lines). [verify]
-  4. Scoped cleanliness: git status --porcelain -- map.html shows only this file modified. [verify]
+  4. Scoped cleanliness (POLARITY PINNED 2026-07-03T12:5x — attempt 1's plan inverted this check, asserting a clean tree while map.html is EXPECTED-dirty before its own step-5 commit): the check is that NOTHING ELSE changed — run git status --porcelain and require every reported line to reference map.html only (any non-map.html line = fail); map.html itself APPEARING as modified is the CORRECT state at this step. [verify]
   5. Commit map.html by explicit name naming this mission, the parent audit receipt, and the additive-only pattern; confirm the commit is on HEAD. [command]
 
 Done means: map.html committed at HEAD carrying the appended mt-mobile-lane-fix style block
