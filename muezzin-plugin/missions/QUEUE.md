@@ -797,3 +797,12 @@ cloud-primary seat names carry the same supersession.
 - **tartib REQUIRES does not enforce predecessor outcome** → STILL OPEN and RE-RECEIPTED TODAY:
   mt-mobile-lane-fix.S1 (REQUIRES S1.S1) fired 14:11 while S1.S1 was FAILED. Same family as the
   tracked "tartib REQUIRES-phrasing parser gap". Engine batch item, medium: wastes cycles.
+
+## 2026-07-03 ENGINE ITEM: plan-level scratch lint (from S1.S1 attempt-3 receipts)
+RULE 10 catches cross-step scratch in MISSION text; nothing lints the PLANNER'S generated
+micro_queue — attempt 3 receipt: the plan's own step-1 command wrote scratch-baseline-runner.mjs
+(mission text asked for none) and containment-drift correctly burned 3 step-retries on the
+residue. Fix direction: run the RULE-10-class check against the generated steps' commands at
+plan-accept time (deconstructor validation seam, same place as the one-writer validator) —
+refuse/repair plans whose steps create files outside ALLOW-FILES without same-step cleanup.
+Interim mitigation live: SCRATCH CONSTRAINT block in S1.S1's text (planners read mission text).

@@ -44,6 +44,15 @@ no playwright — its own header says so) and cannot host boundingBox assertions
 laguna witness REVISE flagged exactly this and was right. verify-popups-e2e.mjs is NOT
 edited by this mission; it stays in ALLOW-FILES only as a read reference.
 
+SCRATCH CONSTRAINT (amendment 2026-07-03T16:5x — attempt-3 receipt in result.json: step 1's
+authored command wrote scratch-baseline-runner.mjs via `git show e31469f:... | Out-File`
+and never deleted it; containment-drift correctly killed all 3 step-3 retries on that
+residue; the mission text never asked for any scratch file): NO step of this plan may leave
+ANY new file in the repo other than the declared ALLOW-FILES. If a step needs a scratch
+file, that same step MUST Remove-Item it before exiting (create, use, delete — one step).
+Baseline recording (branch/HEAD/pattern checks) is stdout output or direct piping
+(`git show <sha>:<path> | Select-String ...`), never a file left in the tree.
+
 Steps:
   1. Baseline + RESTORE (extended 2026-07-03T12:5x from a conductor PRE-FLIGHT that ran the restored runner live: it FATALs on a missing catalog — "docs/FEATURE-CATALOG-2026-06-23.md not found"): record branch + HEAD; if scripts/e2e-runner.mjs is absent, restore it: git checkout e31469f -- scripts/e2e-runner.mjs; if docs/FEATURE-CATALOG-2026-06-23.md is absent, restore it from ITS stranded commit: git checkout 05696cd -- docs/FEATURE-CATALOG-2026-06-23.md (exit-code witnesses: Test-Path both files after). If the runner already contains an isMobile viewport entry report CLEAN_ALREADY, else CLEAN_BASELINE. Never exit 1 on existence. NOTE: the catalog is a restore-dependency, not an edit target — it is deliberately absent from ALLOW-FILES write scope for the D2/D3 edits, and the commit step names only scripts/e2e-runner.mjs plus (if newly restored) the catalog as restore-landings. [command]
   2. D2: add the second (mobile, 375x812, deviceScaleFactor 2, isMobile+hasTouch) viewport to scripts/e2e-runner.mjs's viewport matrix alongside the existing 1440x900 desktop entry, running the full existing check suite once per viewport and tagging results per-viewport. [edit] scripts/e2e-runner.mjs
