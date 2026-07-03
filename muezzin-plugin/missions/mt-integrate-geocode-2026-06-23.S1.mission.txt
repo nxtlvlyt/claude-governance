@@ -13,8 +13,16 @@ PARENT MAQSAD: The commit "c53ffb0 feat(geocode): add /api/geocode and /api/reve
 
 Maqsad: sub-mission 1 of 2 — In the source worktree, confirm commit c53ffb0 exists and its stat output names both new files, without modifying that worktree. through Confirm the cherry-pick touched exactly the two ALLOW-FILES entries and nothing else (guards against a same-named-file collision or unexpected third path being staged).
 
+WITNESS-SHAPE CONSTRAINT (added 2026-07-03 after THREE plan rejections on the same validator
+error, receipts in result.json: "step 8: brittle SHA-in-log-window witness"): any check that
+c53ffb0 exists or is already integrated MUST be an exit-code witness — git cat-file -e c53ffb0
+for existence, git merge-base --is-ancestor c53ffb0 HEAD for already-landed — and any landing
+witness checks the ARTIFACT (Test-Path + Select-String on the two ALLOW-FILES' content).
+NEVER a `git log -N | Select-String '<sha>'` window — the plan validator forbids that shape
+and will reject the whole plan.
+
 Steps:
-  1. In the source worktree, confirm commit c53ffb0 exists and its stat output names both new files, without modifying that worktree. [command] 
+  1. In the source worktree, confirm commit c53ffb0 exists and its stat output names both new files, without modifying that worktree. [command]
   2. In the target repo, check out TARGET-BRANCH main at its current HEAD and confirm it is the active branch. [command] 
   3. Cherry-pick c53ffb0 onto main with --no-commit (commit is already a reachable object in this repo), staging both new files without auto-committing so the final commit message can name both the feature and the origin commit. [command] 
   4. Confirm functions/api/geocode.js has real integrated content (geo:fwd: cache-key namespace present) and contains no unresolved git conflict markers, i.e. either the cherry-pick applied clean or any conflict was hand-resolved keeping both sides. [verify] functions/api/geocode.js
