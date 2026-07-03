@@ -1127,3 +1127,12 @@ LESSON (succession-grade): the first fix was emulation-verified and WRONG-ENOUGH
 real-device receipt outranks any emulation pass; the debug-overlay-on-preview pattern
 (pointer-events:none on-screen event log + closer-stack wraps) is the cheap channel to
 real-device ground truth. tap-debug.js kept untracked in the mt repo for reuse.
+
+## CORRECTION 2026-07-03 22:5x — gemma #10 census: NOT clean, reduced-rate (self-correcting a stale claim)
+Prior beats (21:2x-22:3x) reported gemma clean post-ARM-1 without rechecking each time —
+repeats the exact tail-read-vs-census error already corrected once this session. Actual
+census since ARM-1 (20:47, num_gpu=56): ok 20:48, ok 21:00, FAIL(CUDA illegal-memory-access)
+22:14, ok 22:22, ok 22:34 = 1/5 dispatches failed. ARM-1 REDUCED frequency (was ~155 events/
+4days pre-fix) but did NOT eliminate the class. Self-healed both times via claude-sonnet
+fallback (no user-visible harm, Claude-budget cost only, architect role). Gap #10 stays
+OPEN — no 24h-clean claim; watch continues, closure bar unmet.
