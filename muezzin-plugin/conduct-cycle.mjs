@@ -137,36 +137,43 @@ export function recordFix(base, { cls, fix, requeue = [] }, now = Date.now()) {
 // mission's source sha => FULL false-death candidate. Keyed on BYTE-IDENTITY, never bare
 // presence — the b13-aria trio (files present, map.html wiring absent) is the false-positive
 // control that presence-keying would have flagged wrongly.
+// missionLandedState — the per-mission identity core, ONE implementation consumed by BOTH
+// the falseDeathScan sweep (post-hoc) and the daemon's PRE-SATISFIED fire guard (#25b,
+// pre-hoc). Byte-identity keyed; nosha caps at PARTIAL (the b13-aria control).
+export function missionLandedState(mtext, gitFn) {
+  if (!mtext || !/MISSION-CLASS:\s*code-repo/i.test(mtext)) return null;
+  const repo = (mtext.match(/REPO-ROOT:\s*(.+)/) || [])[1]?.trim();
+  if (!repo) return null;
+  const allow = [...mtext.matchAll(/^\s{2}-\s+(\S+)/gm)].map((m) => m[1]).filter((p2) => p2 !== '.');
+  if (!allow.length) return null;
+  const srcSha = (mtext.match(/\b([a-f0-9]{7,40})\b/) || [])[1];
+  const files = {};
+  let present = 0, identical = 0;
+  for (const ap of allow) {
+    const ls = gitFn(repo, `ls-tree HEAD -- "${ap}"`);
+    if (!ls.ok || !ls.out.trim()) { files[ap] = 'absent'; continue; }
+    present++;
+    if (srcSha) {
+      const d = gitFn(repo, `diff --quiet ${srcSha}:"${ap}" HEAD:"${ap}"`);
+      files[ap] = d.ok ? (identical++, 'present-identical') : 'present-differs';
+    } else files[ap] = 'present-nosha';
+  }
+  // NOSHA CAP (first-live-pass fix 2026-07-03): without a source sha, presence is the ONLY
+  // evidence — that is exactly the weak keying the b13-aria control exists to forbid. FULL
+  // requires byte-identity receipts; nosha missions cap at PARTIAL (present-unverifiable).
+  const verdict = present === allow.length && srcSha && identical === allow.length ? 'FULL'
+    : present > 0 ? 'PARTIAL' : 'GENUINE';
+  return { verdict, srcSha: srcSha || null, files };
+}
+
 export function falseDeathScan(autorun, base, { gitFn, readTextFn } = {}) {
   const readT = readTextFn || ((p) => { try { return readFileSync(p, 'utf8'); } catch { return ''; } });
   const out = [];
   for (const f of autorun.failed || []) {
     const note = autorun.notes[f] || '';
     if (/\bRESOLVED\b|\bSUPERSEDED\b|REVISIT-JUDGED|FALSE-DEATH-JUDGED|\bDUPLICATE-RETIRED\b/i.test(note)) continue;
-    const mtext = readT(path.join(base, f.replace(/\//g, path.sep)));
-    if (!mtext || !/MISSION-CLASS:\s*code-repo/i.test(mtext)) continue;
-    const repo = (mtext.match(/REPO-ROOT:\s*(.+)/) || [])[1]?.trim();
-    if (!repo) continue;
-    const allow = [...mtext.matchAll(/^\s{2}-\s+(\S+)/gm)].map((m) => m[1]).filter((p2) => p2 !== '.');
-    if (!allow.length) continue;
-    const srcSha = (mtext.match(/\b([a-f0-9]{7,40})\b/) || [])[1];
-    const files = {};
-    let present = 0, identical = 0;
-    for (const ap of allow) {
-      const ls = gitFn(repo, `ls-tree HEAD -- "${ap}"`);
-      if (!ls.ok || !ls.out.trim()) { files[ap] = 'absent'; continue; }
-      present++;
-      if (srcSha) {
-        const d = gitFn(repo, `diff --quiet ${srcSha}:"${ap}" HEAD:"${ap}"`);
-        files[ap] = d.ok ? (identical++, 'present-identical') : 'present-differs';
-      } else files[ap] = 'present-nosha';
-    }
-    // NOSHA CAP (first-live-pass fix 2026-07-03): without a source sha, presence is the ONLY
-    // evidence — that is exactly the weak keying the b13-aria control exists to forbid. FULL
-    // requires byte-identity receipts; nosha missions cap at PARTIAL (present-unverifiable).
-    const verdict = present === allow.length && srcSha && identical === allow.length ? 'FULL'
-      : present > 0 ? 'PARTIAL' : 'GENUINE';
-    if (verdict !== 'GENUINE') out.push({ path: f, verdict, srcSha: srcSha || null, files });
+    const st = missionLandedState(readT(path.join(base, f.replace(/\//g, path.sep))), gitFn);
+    if (st && st.verdict !== 'GENUINE') out.push({ path: f, verdict: st.verdict, srcSha: st.srcSha, files: st.files });
   }
   return out;
 }

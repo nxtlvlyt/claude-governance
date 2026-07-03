@@ -29,7 +29,7 @@ import { readFileSync, writeFileSync, existsSync, appendFileSync, mkdirSync, rmS
 import { lintMission } from './mission_lint.mjs';
 import { parseMissionClass } from './mission_class.mjs';
 import { witnessArtifact, buildAfterContext } from './self_witness.mjs';
-import { heal as conductCycleHeal } from './conduct-cycle.mjs';
+import { heal as conductCycleHeal, missionLandedState } from './conduct-cycle.mjs';
 import { searxngPreflight } from './searxng_preflight.mjs';
 import { execSync, execFile } from 'child_process';
 import path from 'path';
@@ -937,6 +937,20 @@ async function mainLoop() {
         return;
       }
     } catch { /* gate is best-effort — a broken retro dir must never stop legitimate fires */ }
+    // PRE-SATISFIED GUARD (#25b, 2026-07-03): a code-repo mission whose ALLOW-FILES are ALL
+    // byte-identical to its source sha at HEAD has NOTHING left to do — firing it burns
+    // attempts on guaranteed baseline-check failures and mints the next false death (receipt:
+    // aurora.S1 fired post-landing, its absence-preflight failed, FALSE death recorded; 9 of
+    // 13 sampled FAILED marks were this class). Byte-identity only — PARTIAL/nosha still fire.
+    try {
+      const st = missionLandedState(readFileSync(missionFile, 'utf8'),
+        (repo, argstr) => { try { return { ok: true, out: execSync(`git -C "${repo}" ${argstr}`, { stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 16 * 1024 * 1024 }).toString() }; } catch { return { ok: false, out: '' }; } });
+      if (st && st.verdict === 'FULL') {
+        evt(`PRE-SATISFIED: ${raw} — every ALLOW-FILE byte-identical to source ${st.srcSha} at HEAD; work already landed, refusing to fire into a guaranteed baseline failure. Marking for conductor RESOLVED-LANDED stamp.`);
+        setMark(raw, 'FAILED');   // routes into the false-death judgment path with the receipt already in events
+        return;
+      }
+    } catch { /* guard is best-effort — never blocks a legitimate fire */ }
     // MIQAT (2026-06-11, operator: "how do we catch things like this"): a mission with a
     // mechanically-visible design flaw (unstaged evidence, jail-contradiction, line-cite
     // bar without numbered source, no done-means) is REFUSED at the boundary with named
