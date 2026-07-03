@@ -1,0 +1,41 @@
+MISSION-ID: mt-tripcost-nav-link.S1
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - index.html
+STEPS: 5
+
+Maqsad: The trip-cost planner is LIVE at muddytires.ca/trip-cost (HTTP 200 receipted
+2026-07-03T15:4x) but has ZERO inbound links — conductor receipt this hour: curl of the
+homepage and the map HTML both contain no occurrence of "trip-cost"; the operator, actively
+trying to verify the feature, could not navigate to it from the site ("I can't find it on
+the map or the home page"). A live page no navigation reaches is not shipped. Deliverable:
+the homepage nav links to the trip-cost planner, for BOTH desktop and mobile visitors.
+PLACEMENT (from the existing nav structure at index.html line ~76): the desktop link list is
+`<div class="hidden md:flex ...">` containing anchors like `<a href="map.html" ...>Live Map</a>`
+— add ONE anchor `<a href="trip-cost.html" class="hover:text-trail transition-colors">Trip cost</a>`
+in that list (same classes as its siblings, exactly the existing pattern). For mobile (that
+list is hidden below md), also add ONE modest visible link consistent with what the page
+already shows small viewports (if the page has a mobile menu, add it there; if not, a small
+text link near the "Open map" CTA block is acceptable) — additive only, no restructuring.
+The href is trip-cost.html (matching the sibling map.html style; Cloudflare Pages 308s it to
+/trip-cost, which is expected and fine).
+
+niyyah: The operator asked to verify the feature and the site gave him no path to it — this
+mission closes the gap between "renders at a URL" and "a person can find it". Smallest
+possible additive change to ONE file; every check anchors on the literal string
+trip-cost.html so edit and verify cannot disagree. The map-side entry point (inside the
+JS-generated panels) is deliberately OUT of scope — those surfaces are mid-repair by the
+mobile-overlap missions; a follow-up mission adds it after they land.
+
+Steps:
+  1. Idempotent baseline: record branch + HEAD; if index.html already contains trip-cost.html output CLEAN_ALREADY and treat the edit step as a verify-only presence check; else CLEAN_BASELINE. Never exit 1 on existence. [command]
+  2. index.html: add the trip-cost anchor(s) per the Maqsad PLACEMENT — one desktop-nav anchor in the existing hidden md:flex link list (sibling classes copied exactly), plus one mobile-visible link per the placement rule; ADDITIVE ONLY, nothing already present modified or deleted. [edit] index.html
+  3. Verify: Select-String receipts that index.html contains trip-cost.html at least once inside the nav block AND git diff --stat shows index.html additions-only (no deletions). [verify]
+  4. git commit index.html by explicit name (git add index.html; git commit -m "<message naming this mission and the operator navigation receipt>"); confirm committed at HEAD. IDEMPOTENT on a CLEAN_ALREADY pass: if git status --porcelain -- index.html is empty AND git show HEAD:index.html contains trip-cost.html, output ALREADY_COMMITTED and exit 0 WITHOUT running git commit. [command]
+  5. OUTCOME CHECK: in ONE self-contained multi-line command: confirm git status --porcelain -- index.html is empty, wrangler pages deploy . --project-name=muddytires --branch=preview, capture the emitted https://<subdomain>.muddytires.pages.dev URL, poll "$url/" until HTTP 200 (up to 10x5s), then print evidence lines — NAV_LINK=<present|absent> from (curl -s "$url/" | Select-String 'trip-cost.html'), LINK_TARGET_STATUS=<code> from curl -s -o NUL -w '%{http_code}' -L "$url/trip-cost.html" — and print NAVLINK_QC_PASS only when NAV_LINK=present AND LINK_TARGET_STATUS=200. The printed evidence lines ARE the receipt. [command]
+
+Done means: index.html committed at HEAD carrying the trip-cost.html anchor(s) (additions-only
+diff), and the step-5 evidence lines show NAV_LINK=present with the link target resolving 200
+on the auto-provisioned preview — a visitor can now reach the live trip-cost planner from the
+homepage instead of needing a typed URL (operator navigation receipt 2026-07-03T15:4x).
