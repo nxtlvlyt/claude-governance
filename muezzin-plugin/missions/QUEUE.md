@@ -806,3 +806,15 @@ residue. Fix direction: run the RULE-10-class check against the generated steps'
 plan-accept time (deconstructor validation seam, same place as the one-writer validator) —
 refuse/repair plans whose steps create files outside ALLOW-FILES without same-step cleanup.
 Interim mitigation live: SCRATCH CONSTRAINT block in S1.S1's text (planners read mission text).
+
+## 2026-07-03T16:4x TARTIB GAP — minimal-pair receipt (strengthens the tracked engine item)
+Same daemon event batch (16:36:35): mt-mobile-qc-hardening.S1.S2 was HELD (its REQUIRES
+dependency S1.S1 is FAILED — parser resolved it), but mt-e2e-reachability.S1 FIRED though its
+REQUIRES (mt-mobile-qc-hardening.S1.S2) had not run — dep merely PENDING was not treated as
+blocking. So the gate holds on terminal-state deps but not on not-yet-run deps: "REQUIRES X"
+currently means "X must not be FAILED", not "X must be DONE". Conductor judgment 16:4x: did
+NOT kill the live lane (single-lane = no concurrent edit; both runner changes additive;
+S1.S2 is idempotent against existing content) — order inversion tolerated once, receipted.
+Fix direction: dep must be DONE/RESOLVED to fire, not merely non-FAILED (the daemon's own
+TARTIB-HOLD message already says "not DONE/RESOLVED" — the pending-dep path just doesn't
+reach that check).
