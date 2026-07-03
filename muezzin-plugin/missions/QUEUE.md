@@ -878,3 +878,16 @@ authored-new edit steps (rewrite/author/create verbs in the step description), k
 research/data steps; (b) if kept anywhere, raise maxCtx toward the witness fix within the
 8B's window and re-ask on bare tags (laguna's no-verdict re-ask pattern); (c) surface
 dropped context deps in the flag note so partial-context flags are self-identifying.
+
+## OPERATOR CONDITION 2026-07-03 ~17:3x — GAP-LIST-DRY UNLOCKS THE BIG-PROJECT DISCUSSION
+Operator word: "let me know once all of the Gap fixes are done so that we can discuss the
+big project that the gate unlocked." CONDITION (mechanical, survives instances): when every
+item in the OPEN SYSTEM GAPS list above is struck CLOSED/DIAGNOSED-with-fix-landed, the
+conductor sends ONE outcome push (compliant with the pushes-are-outcome-only ruling: this IS
+the outcome) + a board report opening the big-project discussion. Items whose honest close
+is "monitor-only" (e.g. #5 480s-hang if it never recurs) are closed by writing that
+classification with its receipt — not left dangling. Progress: #1 ✅ #2 ✅ #3 ✅ diagnosed;
+open: #4 split position-inheritance, #5 480s-hang classification, #6 windowed-edit (HIGH,
+the big build), #7 board-truth bulk passes (26 false-death + 13 parked + 17 amend-on-surface),
+#8 repo-process (main/master divergence, undeployed commits, stranded deliverables),
+#9 identity hygiene (kimi tag rm, per-era seat-record split, eval-v3 cells).
