@@ -15,6 +15,12 @@ PARENT MAQSAD: Operator audit 2026-07-03 ("will the zoom buttons always block th
 
 Maqsad: sub-mission 1 of 2 — Idempotent baseline: record branch + HEAD and check whether scripts/e2e-runner.mjs already contains an isMobile viewport entry; never fails on existence, just reports CLEAN_ALREADY vs CLEAN_BASELINE. through Commit the three ALLOW-FILES by explicit name, naming this mission and the 2026-07-03 operator-audit receipt; idempotent no-op if already committed.
 
+X2 CONCLUSION RECEIPT 2026-07-03T07:37:23 (appended post-amendment so the RETRO-REPEAT gate
+sees honest lineage, not a bare mtime touch): attempt 2 died on the SAME absent-file wall at
+step 1 — the amendment below was committed 07:36, one minute before attempt 2 concluded, and
+could not affect its already-generated plan. The next fire is the FIRST run that plans
+against the corrected text.
+
 AMENDED 2026-07-03T07:4x (two receipted corrections after attempt-1 died at step 1):
 (1) scripts/e2e-runner.mjs is ABSENT from HEAD — it lives only in stranded commit e31469f
 ("feat(qc): e2e-runner.mjs — feature-catalog-driven visual end-to-end QC"); step 1 now
