@@ -13,13 +13,22 @@ PARENT MAQSAD: The commit "c53ffb0 feat(geocode): add /api/geocode and /api/reve
 
 Maqsad: sub-mission 1 of 2 — In the source worktree, confirm commit c53ffb0 exists and its stat output names both new files, without modifying that worktree. through Confirm the cherry-pick touched exactly the two ALLOW-FILES entries and nothing else (guards against a same-named-file collision or unexpected third path being staged).
 
-WITNESS-SHAPE CONSTRAINT (added 2026-07-03 after THREE plan rejections on the same validator
-error, receipts in result.json: "step 8: brittle SHA-in-log-window witness"): any check that
-c53ffb0 exists or is already integrated MUST be an exit-code witness — git cat-file -e c53ffb0
-for existence, git merge-base --is-ancestor c53ffb0 HEAD for already-landed — and any landing
-witness checks the ARTIFACT (Test-Path + Select-String on the two ALLOW-FILES' content).
-NEVER a `git log -N | Select-String '<sha>'` window — the plan validator forbids that shape
-and will reject the whole plan.
+PLAN-CONSTRAINT BLOCK (v2, 2026-07-03T08:0x — v1 fixed the sha-window rejection and the next
+plan promptly tripped the NEXT validator rule at step 2; this block now covers EVERY
+enumerable validator rule so plans stop failing one rule per generation):
+- EXISTENCE/ANCESTRY WITNESSES: git cat-file -e c53ffb0 (exists), git merge-base
+  --is-ancestor c53ffb0 HEAD (already landed). NEVER `git log -N | Select-String '<sha>'`.
+- CHERRY-PICK COMPLETION: every command that runs `git cherry-pick` MUST complete the pick
+  in the SAME command — append `; if (Test-Path (git rev-parse --git-path CHERRY_PICK_HEAD))
+  { git cherry-pick --continue --no-edit }` (or handle --abort explicitly). A bare pick whose
+  auto-resolved conflicts exit non-zero deterministically fails the step. This applies to
+  step 3's --no-commit pick as well: guard its exit state in the same command.
+- LANDING WITNESSES check the ARTIFACT: Test-Path + Select-String on the ALLOW-FILES'
+  expected content (geo:fwd: / geo:rev: namespaces) — never a commit SHA assertion.
+- CLEAN-TREE checks scope to the two ALLOW-FILES (`git status --porcelain -- <files>`),
+  never the whole tree.
+- Any REMOTE claim needs a positive-assertion witness that exits non-zero when the outcome
+  is absent (no hollow greens).
 
 Steps:
   1. In the source worktree, confirm commit c53ffb0 exists and its stat output names both new files, without modifying that worktree. [command]
