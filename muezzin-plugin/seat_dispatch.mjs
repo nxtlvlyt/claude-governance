@@ -607,15 +607,30 @@ export async function dispatchWithWaterfall(baseBody, { cwd, localOnly = false, 
   // serialization cost in exchange for never spending cloud quota on a checking call.
   if (localOnly) {
     const local = PROVIDERS[1];
-    hb(`attempt-start provider=${local.id} model=${baseBody.model} (LOCAL-ONLY seat — cloud/agy/claude-tier skipped)`);
-    const t0 = Date.now();
-    try {
-      const out = await attemptProvider(local, baseBody, Math.max(60000, Math.min(FETCH_TIMEOUT_MS, remaining())));
-      hb(`attempt-ok provider=${local.id} model=${baseBody.model} ms=${Date.now() - t0} chars=${out.content.length} tokens=${out.usage?.prompt || 0}+${out.usage?.completion || 0}`);
-      return { ...out, provider: local.id, heals: 0 };
-    } catch (e) {
-      hb(`attempt-fail provider=${local.id} ms=${Date.now() - t0}: ${String(e.message).slice(0, 120)}`);
-      throw new WaterfallError(e.kind || 'LOCAL_ONLY_FAILED', local.id, baseBody.model, `local-only seat failed, no cloud fallback by design: ${e.message}`);
+    // SATURATION RETRY (2026-07-03): this branch was single-shot, so a transient Ollama
+    // "503 server busy / maximum pending requests" burned the seat's WHOLE attempt in ~400ms
+    // (receipts: gpx.S2 both attempts, trip-cost.S1 attempt-2, trip-cost.S2 attempt-1 — all
+    // killed by one zombie eval generation occupying the queue). The healCloud HTTP_503 patch
+    // never applied here (that heal path is cloud-waterfall-only — wrong layer, receipted by
+    // the instant failures). Saturation drains in minutes, not milliseconds: 3 bounded waits.
+    const SAT_WAITS = [15000, 45000, 90000];
+    for (let satTry = 0; ; satTry++) {
+      hb(`attempt-start provider=${local.id} model=${baseBody.model} (LOCAL-ONLY seat — cloud/agy/claude-tier skipped${satTry ? `, saturation retry ${satTry}/${SAT_WAITS.length}` : ''})`);
+      const t0 = Date.now();
+      try {
+        const out = await attemptProvider(local, baseBody, Math.max(60000, Math.min(FETCH_TIMEOUT_MS, remaining())));
+        hb(`attempt-ok provider=${local.id} model=${baseBody.model} ms=${Date.now() - t0} chars=${out.content.length} tokens=${out.usage?.prompt || 0}+${out.usage?.completion || 0}`);
+        return { ...out, provider: local.id, heals: satTry };
+      } catch (e) {
+        hb(`attempt-fail provider=${local.id} ms=${Date.now() - t0}: ${String(e.message).slice(0, 120)}`);
+        const saturated = e.kind === 'HTTP_503' || /server busy|maximum pending/i.test(String(e.message));
+        if (saturated && satTry < SAT_WAITS.length && remaining() > SAT_WAITS[satTry] + 60000) {
+          hb(`saturation-wait ${SAT_WAITS[satTry] / 1000}s before retry (queue busy is heal-by-waiting, not a burned attempt)`);
+          await new Promise((r) => setTimeout(r, SAT_WAITS[satTry]));
+          continue;
+        }
+        throw new WaterfallError(e.kind || 'LOCAL_ONLY_FAILED', local.id, baseBody.model, `local-only seat failed, no cloud fallback by design: ${e.message}`);
+      }
     }
   }
   // -- ROUTE-PREFERENCE WINDOW: Claude first when declared (use-it-or-lose-it); one
