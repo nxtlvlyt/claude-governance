@@ -453,12 +453,40 @@ export async function defaultVerdictPhase(mission, cwd, steps, opts = {}) {
 // has no injection seam and would otherwise force a live Ollama/Claude call in a self-test).
 // NEVER sets merged.consensus or merged.dispositions — advisory only, per visual_witness.mjs's
 // own pending-sign-off note (a real voting Phase-3 seat is a separate, not-yet-locked decision).
+// provisionPreview — deploy the mission's worktree to the Cloudflare Pages PREVIEW alias and
+// return its URL, or null. Extracted from conduct-cycle's --deploy-preview verb (2026-07-03,
+// receipt: trip-cost.S2 FAILED NO_PREVIEW_BASE_URL — the header/verb plumbing existed on both
+// sides but nothing CONNECTED them, so every VISUAL-QC mission without a hand-written header
+// died at the witness. Auto-provisioning makes visual missions chain-self-sufficient: no
+// conductor hands on product verification — the operator's fable-tax correction, mechanized).
+export async function provisionPreview(cwd) {
+  let out = '';
+  try {
+    out = execSync('wrangler pages deploy . --project-name=muddytires --branch=preview --commit-dirty=true',
+      { cwd, stdio: ['ignore', 'pipe', 'pipe'], timeout: 300000, maxBuffer: 8 * 1024 * 1024 }).toString();
+  } catch { return null; }
+  const url = (out.match(/https:\/\/[a-z0-9-]+\.muddytires\.pages\.dev/i) || [])[0];
+  if (!url) return null;
+  // SETTLE: fresh preview aliases 404 for a few seconds while Cloudflare propagates.
+  for (let i = 0; i < 10; i++) {
+    try { const r = await fetch(url + '/map'); if (r.ok) return url; } catch { /* not yet */ }
+    await new Promise((res) => setTimeout(res, 5000));
+  }
+  return null;
+}
+
 export async function applyVisualWitness(mission, cwd, merged, opts = {}) {
   if (!/VISUAL-QC-REQUIRED/i.test(mission)) return merged;
   const baseUrlMatch = mission.match(/PREVIEW-BASE-URL:\s*(\S+)/i);
-  if (!baseUrlMatch) {
-    merged.visualWitness = { ok: false, error: { kind: 'NO_PREVIEW_BASE_URL', detail: 'VISUAL-QC-REQUIRED set but no PREVIEW-BASE-URL header found in mission text' } };
-    return merged;
+  let baseUrl = baseUrlMatch ? baseUrlMatch[1] : null;
+  if (!baseUrl) {
+    // AUTO-PROVISION (2026-07-03): header absent -> the engine provisions its own preview.
+    const provisionFn = opts.provisionPreviewFn || provisionPreview;
+    baseUrl = await provisionFn(cwd);
+    if (!baseUrl) {
+      merged.visualWitness = { ok: false, error: { kind: 'NO_PREVIEW_BASE_URL', detail: 'VISUAL-QC-REQUIRED set, no PREVIEW-BASE-URL header, and auto-provision (wrangler preview deploy) failed or never became reachable' } };
+      return merged;
+    }
   }
   try {
     const capturePreviewsFn = opts.capturePreviewsFn || capturePreviews;
@@ -468,7 +496,7 @@ export async function applyVisualWitness(mission, cwd, merged, opts = {}) {
     // /map.html renders the REAL interactive page, not wrangler-dev's SSR-fallback redirect
     // (proven root cause of zero visual-QC completions). staticRoot = the mission's own repo
     // (cwd). The PREVIEW-BASE-URL header stays the fallback for non-staticRoot / offline paths.
-    await capturePreviewsFn(baseUrlMatch[1], previewDir, { staticRoot: cwd });
+    await capturePreviewsFn(baseUrl, previewDir, { staticRoot: cwd });
     merged.visualWitness = await witnessVisualDiffFn(buildPreviewPathFn(previewDir));
   } catch (e) {
     merged.visualWitness = { ok: false, error: { kind: 'CAPTURE_OR_WITNESS_THREW', detail: String(e?.message || e) } };
@@ -2190,9 +2218,20 @@ if (process.argv[1]?.endsWith('orchestrate.mjs')) {
     ck(m1.consensus === 'APPROVE', 'VISUAL WITNESS: a block verdict NEVER mutates merged.consensus — advisory only, not a voting seat');
 
     const m2 = { consensus: 'APPROVE', dispositions: [] };
-    await applyVisualWitness('VISUAL-QC-REQUIRED\nMaqsad: x. Done means: y.', dir, m2, { capturePreviewsFn: mockCapture, witnessVisualDiffFn: mockWitnessBlock });
-    ck(m2.visualWitness?.ok === false && m2.visualWitness?.error?.kind === 'NO_PREVIEW_BASE_URL', 'VISUAL WITNESS: VISUAL-QC-REQUIRED with no PREVIEW-BASE-URL header -> NO_PREVIEW_BASE_URL, no capture attempted');
+    await applyVisualWitness('VISUAL-QC-REQUIRED\nMaqsad: x. Done means: y.', dir, m2, { capturePreviewsFn: mockCapture, witnessVisualDiffFn: mockWitnessBlock, provisionPreviewFn: async () => null });
+    ck(m2.visualWitness?.ok === false && m2.visualWitness?.error?.kind === 'NO_PREVIEW_BASE_URL', 'VISUAL WITNESS: no header AND auto-provision fails -> NO_PREVIEW_BASE_URL (fail-closed preserved)');
     ck(m2.consensus === 'APPROVE', 'VISUAL WITNESS: the missing-header case also never touches consensus');
+
+    // AUTO-PROVISION (2026-07-03, trip-cost.S2 NO_PREVIEW_BASE_URL receipt): header absent but
+    // provision succeeds -> the witness runs against the provisioned URL, no conductor hands.
+    const m2b = { consensus: 'APPROVE', dispositions: [] };
+    let capturedUrl = null;
+    await applyVisualWitness('VISUAL-QC-REQUIRED\nMaqsad: x. Done means: y.', dir, m2b, {
+      capturePreviewsFn: async (u) => { capturedUrl = u; return { ok: true }; },
+      witnessVisualDiffFn: async () => ({ ok: true, verdict: 'pass', blocking_findings: [] }),
+      provisionPreviewFn: async () => 'https://auto-prov.muddytires.pages.dev',
+    });
+    ck(capturedUrl === 'https://auto-prov.muddytires.pages.dev' && m2b.visualWitness?.verdict === 'pass', 'VISUAL WITNESS: AUTO-PROVISION supplies the preview URL and the witness runs against it (visual missions chain-self-sufficient)');
 
     const m3 = { consensus: 'APPROVE', dispositions: [] };
     await applyVisualWitness('Maqsad: an ordinary mission with no visual QC opt-in. Done means: y.', dir, m3, { capturePreviewsFn: mockCapture, witnessVisualDiffFn: mockWitnessBlock });
