@@ -1,0 +1,73 @@
+MISSION-ID: engine-model-identity-audit
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\.claude\muezzin-plugin
+ALLOW-FILES:
+  - conduct-cycle.mjs
+  - model_rijal.mjs
+UNLINKED-OK: engine module edits — no user-facing page
+REQUIRES: none
+STEPS: 6
+
+Maqsad: Operator caught a model-identity misattribution FOUR times tonight (kimi-k2.7-code,
+then this session's qwen3-coder-next — both digest-confirmed to be the SAME local model,
+Cohere North 30.5B, digest 429d372cb9f6). This is the exact failure class STATE.md already
+promoted to guaranteed-delivery after three prior misses ("NEVER assert a model's lab/size/
+history from its tag name"). Discipline alone has failed four times; this mission builds the
+mechanism instead: a digest-grouping audit that finds every alias automatically, run as part
+of the standard sweep, plus correction of the ONE piece of live governance text that is
+independently false and prompt-injected (model_rijal.mjs's qwen3-coder-next entry still
+claims "Confirmed SERVABLE on Ollama Cloud" — pre-dates the 2026-07-02 NO-CLOUD ruling and
+is almost certainly the source of the operator's separate "you're naming llama Cloud models"
+report, since model-rijal's dispatch summaries are injected into chain prompts).
+
+Scouting already done (conductor, this session, receipts below — do not re-derive):
+nxtbeast /api/tags + /api/show, 54 total tags, 49 unique digests, exactly 4 alias groups:
+  429d372cb9f6... :: qwen3-coder-next, kimi-k2.7-code, north-mini-code-toolcall  (cohere2moe 30.5B) — THE fraud group, already named dishonest in STATE.md for 2 of its 3 names
+  bf31604e25c2... :: llama4:scout, llama4:latest  (llama4 108.6B) — benign :latest pointer
+  07d35212591f... :: qwen3.6:35b, qwen3.6:latest  (qwen35moe 36.0B) — benign :latest pointer
+  e0705e3fe8f7... :: nemotron-cascade-2:30b, nemotron-cascade-2:latest  (nemotron_h_moe 31.6B) — benign :latest pointer
+A benign group's names share the SAME base string before the colon (a real :latest tag);
+the fraud group's three names share nothing textually — that distinction is the detector.
+
+(A) MODEL_RIJAL CORRECTION: model_rijal.mjs's "qwen3-coder-next" entry (selection_basis
+field) still reads "2026-06-09 — SOTA-validated upgrade from qwen3-coder:480b... Confirmed
+SERVABLE on Ollama Cloud... tied 13/13 with qwen3-coder:480b". Replace selection_basis with
+an honest statement: this LOCAL tag's digest matches north-mini-code-toolcall (Cohere North
+30.5B) as of 2026-07-03, is NOT the Qwen model the original entry describes, contains no
+Ollama Cloud claim, and instructs any reader to treat the three shared-digest names in this
+file as ONE seat's history, not three. Do not delete the entry (other files reference the id
+"qwen3-coder-next" as a seat/role key — renaming the KEY is out of scope for this mission,
+tracked separately) — correct only the prose inside it.
+
+(B) STANDING AUDIT: add a pure function to conduct-cycle.mjs, auditModelIdentities(models)
+— input is the array shape returned by Ollama's /api/tags (each item has .name and .digest);
+group by digest; a group is a BENIGN pointer only if every name's substring before its first
+colon is identical (the :latest-tag pattern); every other multi-name group is a FRAUD
+CANDIDATE. Return {fraudGroups, benignGroups}. Wire it into the sweep: fetch nxtbeast
+/api/tags (same host/timeout pattern the sweep already uses elsewhere in this file — reuse,
+do not reinvent; on fetch failure, skip the check silently, never crash the sweep), run the
+audit, and if fraudGroups is non-empty print one FLAG line per group naming all its aliased
+names and the shared digest prefix, plus the judgment action text: "a shared-digest group
+with no textual relation is an identity-fraud candidate — verify against model_rijal.mjs
+before trusting any name in it; per STATE.md's promoted rule, do not assert lab/size/history
+from a name without this receipt." Add this as a --selftest fixture: a synthetic 5-model
+array reproducing one fraud group + one benign :latest group; assert exactly one fraud group
+detected and the benign one is not flagged.
+
+niyyah: Four operator-caught misattributions is a discipline failure, not a bad-luck streak.
+The fix that actually stops it is a script that runs every sweep and needs no one to
+remember — the fraud stays caught even when a fifth instance forgets to check.
+
+Steps:
+  1. Baseline: record branch + HEAD; print PRESENT/ABSENT for the marker mt-model-audit-fn in conduct-cycle.mjs (idempotence anchor). Never exit 1 on existence. [command]
+  2. (A) Edit model_rijal.mjs: replace the qwen3-coder-next entry's selection_basis field per the Maqsad's exact correction — no backtick-quoted example filenames or invented citations (reuse the citation-guard lesson from this session: describe file relationships in prose, not fabricated backtick tokens). [edit] model_rijal.mjs
+  3. (B) Edit conduct-cycle.mjs: add auditModelIdentities(models) tagged with the literal comment mt-model-audit-fn at its definition site; wire it into the sweep's existing nxtbeast-reachability pattern; add the --selftest fixture per the Maqsad. [edit] conduct-cycle.mjs
+  4. Verify: node --check both files; Select-String receipt for mt-model-audit-fn; node conduct-cycle.mjs --selftest shows the new fixture name and ALL PASS. [verify]
+  5. git commit both ALLOW-FILES by explicit name naming this mission and the operator's four-strikes receipt; idempotent no-op if already committed. [command]
+  6. OUTCOME CHECK: node conduct-cycle.mjs --selftest (full suite ALL PASS including the new fixture) AND a live run of node conduct-cycle.mjs against nxtbeast printing the real fraud-group FLAG line for the qwen3-coder-next/kimi-k2.7-code/north-mini-code-toolcall group (or SKIP-line if nxtbeast unreachable — never a hard failure on network absence). [command]
+
+Done means: model_rijal.mjs no longer makes a false Ollama-Cloud claim for any local tag;
+conduct-cycle.mjs's sweep automatically flags any future shared-digest, textually-unrelated
+model group without a human needing to remember to check; the selftest fixture proves the
+detector distinguishes real fraud from benign :latest pointers; a live sweep run shows the
+mechanism catching the exact group the operator caught by ear tonight.
