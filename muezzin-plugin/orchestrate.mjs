@@ -1443,6 +1443,9 @@ export async function orchestrate(mission, cwd, {
 // --------------------------------------------------------------------------- self-test (offline, real git)
 if (process.argv[1]?.endsWith('orchestrate.mjs')) {
   process.env.MUEZZIN_GUARDIAN = 'off';   // offline selftest: never dispatch the live groundedness model
+  const { tmpdir: _hbTmp } = await import('node:os');
+  const { join: _hbJoin } = await import('node:path');
+  process.env.MUEZZIN_HB_FILE = _hbJoin(_hbTmp(), 'muezzin-selftest-hb.log');   // selftest execReceipt fixtures must NEVER write the production heartbeat the STUCK-TASK decision reads (2026-07-03 receipt: gate-run exec-start lines interleaved with the live lane)
   const { execSync } = await import('node:child_process');
   const fs = await import('fs'); const os = await import('os');
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'orch_test_'));

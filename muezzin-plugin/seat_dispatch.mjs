@@ -20,9 +20,17 @@ import { dispatchAgy, agyAvailable, resolveAgyModel } from './agy_dispatch.mjs';
 // retry math (3 heals x doubling timeouts up to 10 min + waits) was invisible from
 // outside, so "working" and "hung" looked identical. Every attempt start/end/heal now
 // writes one line here. Watchdogs are for the watcher.
-const HB_LOG = join(dirname(fileURLToPath(import.meta.url)), 'missions', '_logs', 'dispatch-heartbeat.log');
+// MUEZZIN_HB_FILE override (2026-07-03): selftests + the pre-commit gate run execReceipt
+// fixtures, and their heartbeats were landing in the PRODUCTION log the STUCK-TASK
+// suppress/kill decision reads (receipt: conductor selftest `exec-start ... node -c f2.mjs`
+// interleaved with the live lane's real dispatches at 15:13:56Z — a test exec-start as the
+// log's last line could suppress a genuine daemon hang). Test entrypoints set the env to a
+// temp path; production leaves it unset and behavior is byte-identical.
+const HB_LOG_DEFAULT = join(dirname(fileURLToPath(import.meta.url)), 'missions', '_logs', 'dispatch-heartbeat.log');
 function hb(line) {
-  try { mkdirSync(dirname(HB_LOG), { recursive: true }); appendFileSync(HB_LOG, `${new Date().toISOString()} ${line}\n`); } catch { /* heartbeat must never break dispatch */ }
+  // env read PER CALL (not at import) so a selftest entry block can redirect after load
+  const target = process.env.MUEZZIN_HB_FILE || HB_LOG_DEFAULT;
+  try { mkdirSync(dirname(target), { recursive: true }); appendFileSync(target, `${new Date().toISOString()} ${line}\n`); } catch { /* heartbeat must never break dispatch */ }
 }
 
 const FAITH_DIR = 'C:/Users/marka/.agents/faiths';
@@ -901,6 +909,7 @@ export async function dispatchSeat(seat, framing, { wantVerdict = true, envManif
 // calls past the old round-7 cap is ALLOWED up to the hard ceiling; a dispatch that stops
 // progressing (or exceeds the ceiling) TRIPS. M-ENGINE.RELIABILITY.1, 2026-06-15.
 if (process.argv[1]?.endsWith('seat_dispatch.mjs') && process.argv.includes('--selftest')) {
+  process.env.MUEZZIN_HB_FILE = join(tmpdir(), 'muezzin-selftest-hb.log');   // selftest execReceipt fixtures must NEVER write the production heartbeat the STUCK-TASK decision reads (hb() reads this env per call)
   let pass = 0, fail = 0;
   const check = (name, got, want) => {
     const ok = got === want;
