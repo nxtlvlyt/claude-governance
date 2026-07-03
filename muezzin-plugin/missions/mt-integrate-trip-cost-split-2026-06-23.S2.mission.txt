@@ -22,6 +22,13 @@ Steps:
 
 Done means: d1/migrate-trip-cost-split-2026-06-23.sql, trip-cost.html exist/are updated as specified — verify by headless-browser render, not by reading the code
 
+# ENGINE-FIX LINEAGE v3 2026-07-03T12:4x (answers the 8-retro block at 12:19:30): the 7th
+# run's x2 was the panel refusing a TRUNCATED receipt — root-caused to the verdict framing's
+# head-only EXEC_OUT_CAP slice feeding panels deploy noise and cutting tail evidence. Fixed
+# ENGINE-side (head+tail slicing, committed, reload pending) + this text's evidence-receipt
+# rule (witness prints RENDER_URL/STATUS/SPLIT_JS_REQUEST/PAGEERRORS before QC_PASS). The
+# 8th run is the first where the witness prints proof AND the panel can read it.
+
 # ENGINE-FIX LINEAGE v2 2026-07-03T11:2x (answers the RETRO gate's 7-retro block at 11:06:28):
 # the 6th run's x2 was the SILENT 120s STEP-TIMEOUT killing the merged deploy+render step —
 # an ENGINE defect, fixed engine-side (execReceipt -File lane now 300s + elapsed-ms
