@@ -706,16 +706,25 @@ panel per SEAT-PLAN-OPERATOR-ORIGINAL intent. Version maintenance (same labs, no
 kimi-k2.6 -> kimi-k2.7-code:latest; integrator nemotron-3-ultra -> nemotron-3-super:latest.
 Evidence: dispatch-FAILED heartbeat receipts 19:24-19:28 + /api/show probes. Ratify or name the
 replacement lab and the conductor will re-seat.
-**⚠ IDENTITY CORRECTION 2026-07-03 (operator catch: "Kimi K2.7 is 1.04T parameters, how could
-that ever run on a 4090"):** the "same labs" claim above is FALSE for seat A. The local tag
-`kimi-k2.7-code:latest` is an ALIAS of `north-mini-code-toolcall:latest` — same blob digest
-429d372cb9f6, /api/show general.name=North, arch cohere2moe, 30.5B. That is COHERE's North
-code model, not Moonshot; Moonshot's real Kimi K2.7 (1.04T) cannot run locally and is
-cloud-only, i.e. unreachable under the NO-CLOUD ruling. Seat A's lab is therefore Cohere-North
-(panel = Cohere/Alibaba/IBM — 3 distinct labs, diversity intact IN FACT, label was wrong).
-The seat's recorded performance (bake-off ratio 0.43, 16 completions) was earned by North and
-stands — it describes the blob, not the name. Owed: rename the seat strings + retire the
-misleading ollama tag when no lane is on the chain (same digest = zero behavior change).
+**⚠ IDENTITY CORRECTION 2026-07-03, v2 (operator caught BOTH of the conductor's attributions —
+"Kimi K2.7 is 1.04T parameters, how could that ever run on a 4090", then "that's false and not
+what we have been running for 4 days"). The receipted three-era timeline:**
+- **06-15 → 06-30T23:38Z (cloud era):** 654 heartbeat dispatches of model=kimi-k2.7-code on
+  provider=ollama-cloud — ollama.com's catalog served Moonshot's REAL Kimi. The 2026-06-17
+  bake-off seat-record (ratio 0.43) was earned in THIS era, by real Kimi. (The conductor's
+  first correction claimed North earned it — FALSE, over-correction.)
+- **06-25T05:07 (the shim):** local tag `kimi-k2.7-code:latest` created — an alias of
+  `north-mini-code-toolcall:latest` (created 04:57 same morning; same digest 429d372cb9f6;
+  /api/show general.name=North, cohere2moe, 30.5B). HYPOTHESIS (untested, plausible): created
+  as the local-fallback shim so a cloud 429/failure on the kimi seat name could fail over to a
+  local blob instead of 404ing — 06-25 was the budget-crunch day.
+- **06-29 → now (the local 4 days):** 168 dispatches of the name on provider=ollama-local —
+  the North blob is what actually sat in this seat for the past 4 days, exclusively since the
+  NO-CLOUD enforcement. Real Kimi is cloud-only and unreachable under the ruling.
+Panel labs IN FACT today: Cohere-North/Alibaba/IBM — 3 distinct labs, diversity intact; only
+the label lied. Owed: rename the seat strings + retire the misleading tag when no lane is on
+the chain (same digest = zero behavior change); split per-era rows out of seat-record.json
+before citing the ratio for the LOCAL seat again.
 
 ## 2026-07-02 SEAT-PLAN DEVIATION — WITHDRAWN (operator catch was correct)
 The 404s were Ollama Cloud CATALOG NAMING drift (:cloud tags now required), not dead labs.
