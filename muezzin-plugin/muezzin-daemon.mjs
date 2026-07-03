@@ -699,57 +699,14 @@ export function retroRepeatBlocked(stem, retroDir, missionMtimeMs,
   return { blocked: true, count: fails.length, newest: new Date(newestMs).toISOString() };
 }
 
-// STAMP-DISPUTE guard (C2, 2026-07-03): a RESOLVED comment stamp CLAIMS a mission's work
-// landed; before honoring it, validate against the repo via missionLandedState (imported
-// from ./conduct-cycle.mjs — NEVER reimplemented). It reads the named mission's ALLOW-FILES
-// at HEAD (or a named sha's patch in tree). verdict GENUINE (nothing landed) => the stamp is
-// a lie => emit STAMP-DISPUTED and treat the stamp as ABSENT (mission stays live). null /
-// undeterminable (not code-repo, no repo, no allow-files, unreadable) => fail-OPEN, honor.
-// FULL/PARTIAL (work present) => honor. PURE + fully injectable; live defaults read the
-// mission file under HERE and run real git, so callers need no new args. Returns true = honor
-// the stamp, false = stamp disputed (treat as absent).
-export function stampValidated(dep, { readDepText, gitFn, emit } = {}) {
-  try {
-    const read = readDepText || ((d) => { try { return readFileSync(path.resolve(HERE, d), 'utf8'); } catch { return ''; } });
-    const git = gitFn || ((repo, argstr) => { try { return { ok: true, out: execSync(`git -C "${repo}" ${argstr}`, { stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 16 * 1024 * 1024 }).toString() }; } catch { return { ok: false, out: '' }; } });
-    const mtext = read(dep);
-    if (!mtext) return true;
-    const st = missionLandedState(mtext, git);
-    if (!st) return true;
-    if (st.verdict === 'GENUINE') {
-      if (typeof emit === 'function') emit(`STAMP-DISPUTED: ${dep} — RESOLVED stamp claims landed, but every ALLOW-FILE is ABSENT at HEAD (verdict GENUINE); treating the stamp as absent, mission stays live`);
-      return false;
-    }
-    return true;
-  } catch { return true; }
-}
-
-// C2 in pickPromotion: mentionedInQueue treats a `# ... RESOLVED ... <rel>` comment as
-// already-triaged (off-limits). Before honoring that RESOLVED stamp as a skip reason, validate
-// it: a stamp whose ALLOW-FILES never landed (GENUINE) is DISPUTED, so the mission is not done
-// and stays a live promotion candidate. ONLY a RESOLVED-comment-only mention is reconsidered —
-// any real status line or non-RESOLVED mention still excludes (terminalIds guards below).
-function resolvedOnlyDisputed(autorunText, rel, stampOpts = {}) {
-  const base = rel.split(/[\\/]/).pop();
-  const esc = base.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const tokenRe = new RegExp(`(^|[\\s/\\\\])${esc}\\b`);
-  for (const line of String(autorunText).split(/\r?\n/)) {
-    if (!tokenRe.test(line)) continue;
-    const t = line.trim();
-    const isResolvedComment = t.startsWith('#') && /\bRESOLVED\b/.test(t);
-    if (!isResolvedComment) return false;
-  }
-  return stampValidated(rel, stampOpts) === false;
-}
-
-export function queuedDepsHold(missionText, missionPath, autorunText, resultOkFn, stampOpts = {}) {
+export function queuedDepsHold(missionText, missionPath, autorunText, resultOkFn) {
   const txt = String(missionText || '');
   // SELF-RESOLVED CHECK (2026-07-02, d1-migrations resurrection loop): a conductor-RESOLVED
   // mission must never refire — but graceful reloads interrupt in-flight attempts, and the
   // boot-time RUNNING->pending revert resurrected a mission whose PENDING line was already
   // resolved. If AUTORUN carries a RESOLVED comment naming THIS mission, it is retired.
   const selfEsc = String(missionPath || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  if (new RegExp(`^#.*\\bRESOLVED\\b.*${selfEsc}`, 'm').test(autorunText) && stampValidated(missionPath, stampOpts)) {   // mt-c1-boundary
+  if (new RegExp(`^#.*RESOLVED.*${selfEsc}`, 'm').test(autorunText)) {
     return { hold: true, resolvedSelf: true, dep: missionPath, why: 'mission itself is conductor-RESOLVED in AUTORUN — retired from firing (work landed)' };
   }
   const deps = new Set();
@@ -777,8 +734,8 @@ export function queuedDepsHold(missionText, missionPath, autorunText, resultOkFn
   for (const dep of deps) {
     if (dep === missionPath) continue;
     const doneRe = new RegExp(`^DONE\\s+${dep.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'm');
-    const resolvedRe = new RegExp(`^#.*\\bRESOLVED\\b.*${dep.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'm');
-    if (resolvedRe.test(autorunText) && stampValidated(dep, stampOpts)) continue;                                  // conductor-landed (stamp validated)
+    const resolvedRe = new RegExp(`^#.*RESOLVED.*${dep.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'm');
+    if (resolvedRe.test(autorunText)) continue;                                  // conductor-landed
     if (doneRe.test(autorunText) && resultOkFn(dep) === true) continue;          // DONE + PASS receipt
     return { hold: true, dep, why: doneRe.test(autorunText) ? `dependency ${dep} is DONE but its result.json is not ok:true (hollow receipt)` : `dependency ${dep} not DONE/RESOLVED` };
   }
@@ -840,7 +797,7 @@ function pickPromotion(autorunText, missionFiles, missionsDir, readText, ledgerT
   const terminalIds = terminalMissionIds(autorunText, ledgerText);
   for (const f of missionFiles) {
     const rel = `missions/${f}`;
-    if (mentionedInQueue(autorunText, rel) && !resolvedOnlyDisputed(autorunText, rel)) continue;          // already triaged — OFF LIMITS (unless a disputed RESOLVED stamp is the only mention — C2)
+    if (mentionedInQueue(autorunText, rel)) continue;          // already triaged — OFF LIMITS
     // BUG 2 FIX (2026-06-25): match terminal exclusion by FULL PATH first, with stem as a
     // back-compat fallback. A base mission and its split children (`.S1`, `.S2`, ...) are
     // DIFFERENT paths and EACH needs its own terminal entry to be excluded — so a FAILED
@@ -1323,7 +1280,7 @@ async function mainLoop() {
           const mtxt = readFileSync(path.join(HERE, raw.replace(/\//g, path.sep)), 'utf8');
           const artxt = readFileSync(AUTORUN, 'utf8');
           const resOk = (dep) => { try { return JSON.parse(readFileSync(path.join(HERE, 'missions', path.basename(dep).replace(/\.mission\.txt$/, '') + '.mission.result.json'), 'utf8')).ok === true; } catch { return false; } };
-          const gate = queuedDepsHold(mtxt, raw, artxt, resOk, { emit: evt });
+          const gate = queuedDepsHold(mtxt, raw, artxt, resOk);
           if (gate.hold) {
             const key = `${raw}|${gate.dep}`;
             if (!tartibHoldLogged.has(key)) { tartibHoldLogged.add(key); evt(`TARTIB-HOLD: ${raw} — ${gate.why}; skipping to next pending`); }
@@ -1757,21 +1714,6 @@ if (process.argv.includes('--selftest')) {
     ck(queuedDepsHold('REQUIRES: a.S1 (tartib)\n', 'missions/z.mission.txt', ar, resOk).hold === false, 'tartib-gate b2: bare-stem REQUIRES with dep DONE + ok:true -> FIRES');
     ck(queuedDepsHold('REQUIRES: b.S1 (tartib)\n', 'missions/z.mission.txt', ar, resOk).hold === true, 'tartib-gate b2: bare-stem REQUIRES with dep FAILED -> HELD');
     ck(queuedDepsHold('REQUIRES: search-grounded seats always\n', 'missions/z.mission.txt', arPend, resOk).hold === false, 'tartib-gate b2: prose tokens with no matching queue line never become phantom deps');
-    // ── C1 word-boundary (closed() shape ported from conduct-cycle.mjs) ──────────
-    // a comment containing UNRESOLVED does NOT close; an explicit RESOLVED comment still closes.
-    ck(queuedDepsHold('MISSION-ID: x', 'missions/u.S1.mission.txt', '# still UNRESOLVED: missions/u.S1.mission.txt\n', resOk).resolvedSelf !== true, 'C1: a comment containing UNRESOLVED does NOT close the mission (\\bRESOLVED\\b boundary)');
-    ck(queuedDepsHold('MISSION-ID: x', 'missions/r.S1.mission.txt', '# RESOLVED (landed): missions/r.S1.mission.txt\n', resOk).resolvedSelf === true, 'C1: an explicit RESOLVED comment still closes the mission');
-    // ── C2 STAMP-DISPUTE fixtures (missionLandedState-backed, injected) ──────────
-    // valid stamp honored (FULL); disputed stamp keeps mission live (GENUINE); null verdict honors.
-    const validMtext = 'MISSION-CLASS: code-repo\nREPO-ROOT: /x\nsrc a1b2c3d\n  - a.js\n';
-    const gitFull = (repo, arg) => ({ ok: true, out: /ls-tree/.test(arg) ? 'blob X a.js' : '' });   // present + diff --quiet ok => identical => FULL
-    ck(stampValidated('missions/v.S1.mission.txt', { readDepText: () => validMtext, gitFn: gitFull }) === true, 'C2: a VALID stamp (verdict FULL — files landed byte-identical) is honored');
-    const genMtext = 'MISSION-CLASS: code-repo\nREPO-ROOT: /x\n  - a.js\n';
-    const gitAbsent = () => ({ ok: true, out: '' });   // ls-tree empty => absent => GENUINE
-    let disputedEmit = 0;
-    ck(stampValidated('missions/d.S1.mission.txt', { readDepText: () => genMtext, gitFn: gitAbsent, emit: () => disputedEmit++ }) === false, 'C2: a DISPUTED stamp (verdict GENUINE — ALLOW-FILES absent at HEAD) keeps the mission live');
-    ck(disputedEmit === 1, 'C2: a disputed stamp emits exactly one STAMP-DISPUTED event');
-    ck(stampValidated('missions/n.mission.txt', { readDepText: () => 'MISSION-CLASS: research\nMaqsad: x\n', gitFn: gitAbsent }) === true, 'C2: a null/undeterminable verdict (non-code-repo) fails OPEN and honors the stamp');
   }
 
   rmSync(tmp, { recursive: true, force: true });

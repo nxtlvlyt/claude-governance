@@ -382,7 +382,7 @@ export const registry = {
   "qwen3-coder-next": {
     id: "qwen3-coder-next", role: ["executor"],
     chosen: true,
-    selection_basis: "2026-06-09 — SOTA-validated upgrade from qwen3-coder:480b (SWE-Bench Verified 70.6-71.3, current Qwen agentic coder). Confirmed SERVABLE on Ollama Cloud + tied 13/13 with qwen3-coder:480b on the live evaluate test -> newer, purpose-built for agentic coding, no observed regression.",
+    selection_basis: "2026-06-09 — SOTA-validated upgrade from qwen3-coder:480b (SWE-Bench Verified 70.6-71.3, current Qwen agentic coder). Digest matches north-mini-code-toolcall (same local model under a different alias, not a distinct Ollama Cloud-servable seat) + tied 13/13 with qwen3-coder:480b on the live evaluate test -> newer, purpose-built for agentic coding, no observed regression.",
     qualifying_runs: 0, correct_runs: 0, established: false, adala_record: []
   },
 
