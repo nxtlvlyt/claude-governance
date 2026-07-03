@@ -768,3 +768,32 @@ in QUEUE the moment the ruling landed (operator-rulings.md line 6 mandates it) a
 stamped 2026-07-02T23:3xZ by the authority-decay sweep (blind-spot workflow wf_0b61e8ba) —
 until now the stale text sat as this file's LAST WORD. SEAT-PLAN-OPERATOR-ORIGINAL.md's
 cloud-primary seat names carry the same supersession.
+
+## 2026-07-03 INBOX TRIAGE (10 items dated 2026-06-18, sat untriaged 15 days — conductor's
+## truncated head-reads reported "INBOX empty" twice on 2026-07-03; owned. Full original text
+## in git history of INBOX.md; dispositions verified against current substrate this beat.)
+- **moderation API (product)** → PARKED-EXTERNAL: worker source lives on E:\AI_Storage\muddytires-d1-wt;
+  Test-Path E:\ = False this beat (van season, same blocker as m01-1). UNPARKS when E:/nxtbeast
+  path returns; then it is command-class (author endpoint + wrangler deploy, non-prod).
+- **windowed-edit not engaging on >250KB files (HIGH)** → STILL-OPEN ENGINE GAP, already the
+  de-facto standing constraint: every map.html mission since uses the receipted ADDITIVE-ONLY
+  pattern (STATE.md names this INBOX item as the reason). Tracked here; engine batch item.
+- **deterministic-first validation (operator-sourced principle)** → PARTIALLY EMBODIED since
+  (executable outcome checks with printed evidence lines, lint RULE 11, exit-code witnesses);
+  remaining direction: audit witness/verdict layer for mechanical criteria still judged by LLM.
+- **witness false-rejects** → (A) truncation cap RESOLVED 2026-06-18 (receipted in the item);
+  (B) not-a-bug (corrected in item); (C) groundedness `<score>no</score>` trigger UNKNOWN —
+  re-diagnosis owed before any fix (the localhost theory was refuted in-item).
+- **panel divergence on approach freedom** → MITIGATED by mission-spec practice (single
+  canonical approach is now standard authoring); panel-layer convergence gate not built.
+- **reachability write-gates false-fail (2 items, systemic)** → MITIGATED at mission-spec layer
+  (READ probes + structured-{ok:false}=live now standard); the durable architect-faith rule
+  (never side-effecting liveness writes) is NOT yet in the faith text — small standing item.
+- **hung cloud seat freezes daemon (HIGH then)** → MOOT: NO-CLOUD ruling (2026-07-02) deleted
+  cloud seats structurally; local lane + Claude CLI now; STUCK-TASK + liveness checks cover
+  the residual hang class (and 2026-07-03 exec heartbeats widen coverage).
+- **size-ceiling splits cohesive UI missions** → KNOWN/tracked (mission_split position-inheritance
+  gap already in this file); splits verified coherent; low urgency.
+- **tartib REQUIRES does not enforce predecessor outcome** → STILL OPEN and RE-RECEIPTED TODAY:
+  mt-mobile-lane-fix.S1 (REQUIRES S1.S1) fired 14:11 while S1.S1 was FAILED. Same family as the
+  tracked "tartib REQUIRES-phrasing parser gap". Engine batch item, medium: wastes cycles.
