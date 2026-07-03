@@ -161,7 +161,10 @@ export function falseDeathScan(autorun, base, { gitFn, readTextFn } = {}) {
         files[ap] = d.ok ? (identical++, 'present-identical') : 'present-differs';
       } else files[ap] = 'present-nosha';
     }
-    const verdict = present === allow.length && (srcSha ? identical === allow.length : true) ? 'FULL'
+    // NOSHA CAP (first-live-pass fix 2026-07-03): without a source sha, presence is the ONLY
+    // evidence — that is exactly the weak keying the b13-aria control exists to forbid. FULL
+    // requires byte-identity receipts; nosha missions cap at PARTIAL (present-unverifiable).
+    const verdict = present === allow.length && srcSha && identical === allow.length ? 'FULL'
       : present > 0 ? 'PARTIAL' : 'GENUINE';
     if (verdict !== 'GENUINE') out.push({ path: f, verdict, srcSha: srcSha || null, files });
   }
@@ -625,7 +628,7 @@ export function sweep(base = HERE, now = Date.now(), routeFile = path.join(proce
         id: 'FALSE-DEATH-CANDIDATES', class: 'judgment', approved_by_faith: true,
         why: `${fdc.length} unresolved FAILED code-repo mission(s) have ALLOW-FILES ${fdc.some((c) => c.verdict === 'FULL') ? 'byte-identical-landed' : 'partially landed'} at HEAD — a FAILED mark contradicted by the repo is a false death (receipt class: 9 of 13 sampled were false, 2026-07-02 hunt)`,
         candidates: fdc.map((c) => `${c.path} [${c.verdict}${c.srcSha ? ' vs ' + c.srcSha : ''}: ${Object.entries(c.files).map(([k, v]) => path.basename(k) + '=' + v).join(' ')}]`),
-        rule: 'verify each candidate from the repo (merge-base/byte receipts), then annotate the line RESOLVED-LANDED (+ tartib-readable # RESOLVED twin) or FALSE-DEATH-JUDGED: GENUINE <why> — never leave a candidate bare (PARTIAL = check the wiring/hunk the sweep names as differing/absent before judging)',
+        rule: 'verify each candidate from the repo (merge-base/byte receipts), then annotate the line RESOLVED-LANDED (+ tartib-readable # RESOLVED twin) or FALSE-DEATH-JUDGED: GENUINE <why> — never leave a candidate bare (PARTIAL = check the wiring/hunk the sweep names as differing/absent before judging; S2/verify-class missions whose ALLOW-FILES mirror their S1 are EXECUTION work — file identity proves nothing, judge from their own Done-means)',
       });
     }
   } catch { /* scan is advisory — a git hiccup must never break the sweep */ }
@@ -1216,6 +1219,9 @@ function selftest() {
       ck(fd.find((c) => c.path.includes('fd-wiring'))?.verdict === 'PARTIAL', 'false-death: file present but DIFFERS (b13-aria wiring control) -> PARTIAL, never FULL');
       ck(!fd.some((c) => c.path.includes('fd-gone')), 'false-death: deliverable absent -> GENUINE death, not surfaced');
       ck(!fd.some((c) => c.path.includes('fd-judged')), 'false-death: already-annotated line skipped (no churn)');
+      const fdAu2 = parseAutorun('FAILED missions/fd-nosha.mission.txt  <!-- t -->\n');
+      const fd2 = falseDeathScan(fdAu2, tmp, { gitFn: fdGitStub, readTextFn: () => 'MISSION-CLASS: code-repo\nREPO-ROOT: C:/r\nALLOW-FILES:\n  - js/a.js\nMaqsad: no sha named here' });
+      ck(fd2.find((c) => c.path.includes('fd-nosha'))?.verdict === 'PARTIAL', 'false-death: NO source sha -> presence-only evidence caps at PARTIAL, never FULL (first-live-pass hole, pinned)');
     }
     const auSplit = parseAutorun('SPLIT missions/parent.mission.txt  <!-- ts -->\nmissions/live.mission.txt\n');
     ck(auSplit.split.length === 1 && auSplit.pending.length === 1, 'parser: SPLIT is first-class; live line still pending');

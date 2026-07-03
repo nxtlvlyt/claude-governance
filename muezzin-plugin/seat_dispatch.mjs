@@ -421,6 +421,12 @@ export function healCloud(err, body, healCount, kindCounts = {}) {
   // backoff). Give up on cloud immediately so the waterfall falls through to the next provider.
   if (k === 'HTTP_429' && /weekly usage limit/i.test(msg)) return null;
   if (k === 'HTTP_429') return { waitMs: 800 * (healCount + 1) * (healCount + 1), body };                    // backoff, same body
+  // HTTP_503 SATURATION HEAL (2026-07-03 receipts: gpx.S2 + trip-cost.S1 attempt-2 both burned
+  // BOTH attempts on "503 maximum pending requests" while a conductor seat-eval saturated the
+  // local Ollama queue — a transient the seat never retried). Server-busy is the definition of
+  // heal-by-waiting: longer backoff than 429 (saturation drains slower than rate spikes).
+  if (k === 'HTTP_503' || /server busy|maximum pending/i.test(msg))
+    return { waitMs: 5000 * (healCount + 1) * (healCount + 1), body };
   if (k === 'HTTP_400' || /context|num_ctx|too long|exceed|maximum/i.test(msg)) {                            // drop ctx (FIXING heal)
     const cur = body.options?.num_ctx || 32768;
     return { waitMs: 0, body: { ...body, options: { ...(body.options || {}), num_ctx: Math.max(8192, cur >> 1) } } };

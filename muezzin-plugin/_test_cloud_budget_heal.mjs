@@ -55,6 +55,12 @@ ck(pMsg && pMsg.body.options.num_ctx === 16384, 'context error via MESSAGE patte
 const p404 = healCloud(E('HTTP_404', 'unknown model'), { model: 'kimi-k2.6:cloud', options: {} }, 0, {});
 ck(p404 && p404.body.model === 'kimi-k2.6', `HTTP_404 model-suffix fix still heals: -> ${p404?.body?.model}`);
 
+// ---------- 7b. HTTP_503 saturation heal (2026-07-03: eval saturated Ollama; gpx.S2 burned both attempts) ----------
+const p503 = healCloud(E('HTTP_503', '503: server busy, please try again. maximum pending requests'), body, 0, {});
+ck(p503 && p503.waitMs === 5000 && p503.body === body, `HTTP_503 saturation: backoff heal (waitMs=${p503?.waitMs}), never a burned attempt`);
+const p503msg = healCloud(E('API_ERROR', 'server busy, please try again'), body, 1, {});
+ck(p503msg && p503msg.waitMs === 20000, `server-busy via MESSAGE pattern heals with growing backoff (waitMs=${p503msg?.waitMs})`);
+
 // ---------- 7. WEEKLY-QUOTA circuit breaker (audit 2026-07-02: 92 repeats over 31h) ----------
 // A 429 naming the WEEKLY usage limit is an unhealable wall — backoff seconds cannot heal a
 // weekly reset. First hit must return null (immediate failover), never a backoff plan.
