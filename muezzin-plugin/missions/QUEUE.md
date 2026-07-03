@@ -927,3 +927,24 @@ feature family (4 entries) — profiles/accounts/reviews/add-spot are NOT in the
 at all. Catalog expansion (one entry per feature family, each with reachable_from) is a
 follow-up mission after reachability.S1 lands; the operator's trip-cost orphan class can
 recur on any uncataloged surface until then.
+
+## 2026-07-03 19:0x PRODUCTION DEPLOY (operator-authorized) + THE PARITY GUARD'S FOUNDING RECEIPT
+Deployed 5eb9dd5 to production; fail-closed marker stamped (live /map == HEAD, e2e PASS).
+THE CATCH (operator's warning "we lose things like our apply on our filter menu" was the
+trigger): pre-deploy DIFF audit found 44da372 ("baseline hardening" — an innocuous message)
+had GUTTED map.html: 314 deletions = the filter panel + Apply button + search + header +
+every script include. HEAD had ZERO occurrences of "Apply". A commit-MESSAGE audit passed
+it; only the DIFF audit caught it. Healed by restore-from-47d8682 + re-append of the two
+legitimate additive blocks; post-deploy parity: every BEFORE marker == AFTER (Apply 3/3,
+filtbtn 2/2) + new features live (trip-cost nav link, both mobile blocks).
+STANDING PARITY GUARD (manual protocol NOW, deploy-gate code per the gap #8 spec — future
+instances: this is NOT optional):
+1. BEFORE any production deploy: `git diff <deployed-sha>..HEAD -- <user-facing files>` —
+   ANY deletion in map.html/index.html/js/ demands per-commit diff audit (messages LIE);
+2. marker snapshot of production (filter/Apply/search/script-include counts);
+3. deploy only from a clean tree == HEAD;
+4. AFTER: same markers on production must be >= BEFORE, plus the new features' markers;
+5. conduct-cycle --record-deploy (refuses unless live==HEAD).
+Also: 44da372's gut PASSED every chain guard (witness/panel/render QC) because no check
+compares user-facing marker inventories across an edit — the deploy-gate build (gap #8)
+gets this as its core check, receipt attached.
