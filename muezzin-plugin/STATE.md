@@ -37,6 +37,39 @@ Reading status.json before running this script IS a drift signal — record it v
 | `node orchestrate-cli.mjs "<mission Maqsad+niyyah>"` | One-shot mission via /muezzin |
 | `node run-mission.mjs <mission-file> <cwd>` | Detached single-mission launcher |
 
+## ⚡ 2026-07-03 OVERNIGHT SESSION BLOCK (read before touching seats, providers, or the gate shot)
+
+**NO-CLOUD is now STRUCTURAL, not config:** the ollama-cloud provider was DELETED from
+seat_dispatch's waterfall (local → 3 heals → Claude tier); ollama_vision_verdict is
+LOCAL-ONLY fail-closed (gemma4:31b); doctor.mjs no longer pings ollama.com; deconstructor's
+parallel-safe set is EMPTY (every ollama name is LOCAL → GR10 serial; only Claude names
+parallelize). Last real cloud dispatch 2026-07-02T13:37Z, adversarially verified.
+
+**HONEST-NAME ROSTER:** 'kimi-k2.7-code:latest' was an ALIAS of north-mini-code-toolcall
+(Cohere North 30.5B, digest 429d372cb9f6) — every seat SELECTION now says the north name;
+old map keys kept for compat. The cloud-era bake-off record belongs to REAL Kimi (654 cloud
+dispatches 06-15→06-30); the local North blob ran 06-29→now. NEVER assert a model's
+lab/size/history from its tag name: /api/show + digest + dated heartbeat census first
+(three operator-caught misattributions in one night; driftlog entry at
+missions/_logs/conductor-driftlog.json names the blocking-gate escalation if repeated).
+
+**ENGINE FIXES LIVE:** execReceipt routes multi-line/here-string commands via temp .ps1
+-File (the -Command mangle class is dead; 36/36 selftests); FETCH_TIMEOUT_MS 300s (25K-token
+local plans are legitimate); lint RULE 9 refuses hand-rolled localhost:8788 preview steps
+(31 sibling texts carry the pattern — amend on surface); mission_split does NOT inherit
+queue position (gap-promoted parents' children land at the TAIL — re-promote manually,
+engine fix owed).
+
+**GATE SHOT (visual 0/1, non-visual 1/1):** trip-cost.S2 has burned six runs, each killing
+one receipted class: localhost phantom → here-string mangle → cross-step scratch vanish →
+plan path-drop → stale six-vs-two wording (panel F1, correct) → witness racing the ES-module
+import ("never requested" while production provably serves the module — curl receipts).
+Current text: ONE self-contained deploy+render step, waitForResponse armed pre-goto,
+308-following. mobile-qc S1.S1 (GAP-priority, promoted): restore of e2e-runner.mjs from
+stranded e31469f WORKS; watch for plan-internal edit-vs-verify string mismatches.
+Amendment discipline that emerged: cite the validator's OWN error text, pin ALL enumerable
+validator rules in one constraint block (one-rule-per-failure convergence is a treadmill).
+
 ## Required reads (in order, after conduct-cycle.mjs first run)
 
 Per `~/.claude/CLAUDE.md`: *"STATE.md contextualizes the directives here for a specific

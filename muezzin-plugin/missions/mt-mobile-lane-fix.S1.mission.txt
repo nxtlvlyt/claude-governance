@@ -1,0 +1,41 @@
+MISSION-ID: mt-mobile-lane-fix.S1
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - map.html
+VISUAL-QC-REQUIRED
+REQUIRES: mt-mobile-qc-hardening.S1.S1 (tartib — the overlap detector lands first and then VERIFIES this fix)
+STEPS: 5
+
+Maqsad: The D1 half of the operator's 2026-07-03 mobile audit ("will the zoom buttons always
+block the words? the magnifying glass always block the zoom buttons?"), SPLIT OUT of
+mt-mobile-qc-hardening.S1.S1 after x2 receipts showed dense in-place edits to the 393KB
+map.html dying in the known windowed-edit engine gap (INBOX HIGH 2026-06-18). Deliverable:
+the top-left control lane (site-search FAB, Leaflet zoom column, control buttons) stacks
+WITHOUT intersection at 375px-wide viewports and above.
+ADDITIVE-ONLY CONSTRAINT (the receipted cure for map.html — reviews/add-spot/confidence-badge
+all landed this way while in-place reworks died): the edit APPENDS one new, self-contained
+<style id="mt-mobile-lane-fix"> block immediately before </head> containing a single
+@media (max-width: 480px) rule-set that repositions the lane elements by their EXISTING
+ids/classes (absolute offsets + a declared z-index order). Nothing already present in
+map.html is modified or deleted — the new block wins by cascade order and specificity. The verify step
+anchors on the literal id string "mt-mobile-lane-fix" so edit and verify cannot disagree
+(the x2's attempt-1 killer was a plan asserting a breakpoint string its own edit never wrote).
+
+niyyah: One appended style block a 4-line diff can review, verified by the overlap detector
+that lands before it (tartib) — the robots check the fix on the phone the operator no longer
+has to be. Scope every assertion to map.html only.
+
+Steps:
+  1. Idempotent baseline: record branch + HEAD; if map.html already contains id="mt-mobile-lane-fix" output CLEAN_ALREADY and treat the edit step as a verify-only presence check; else CLEAN_BASELINE. Never exit 1 on existence. [command]
+  2. Read the existing top-left control-lane CSS (the offset-scheme comment near the top of the inline styles) to learn the current ids/classes and offsets, then APPEND the <style id="mt-mobile-lane-fix"> block immediately before </head> exactly per the Maqsad's additive-only constraint — one @media (max-width: 480px) rule-set, existing selectors, a declared z-index order, zero modifications to anything already present. [edit] map.html
+  3. Verify map.html contains the literal string mt-mobile-lane-fix AND that the block sits inside <head> (Select-String receipts for both), and confirm via git diff --stat that map.html shows ONLY additions (no deleted lines). [verify]
+  4. Scoped cleanliness: git status --porcelain -- map.html shows only this file modified. [verify]
+  5. Commit map.html by explicit name naming this mission, the parent audit receipt, and the additive-only pattern; confirm the commit is on HEAD. [command]
+
+Done means: map.html committed at HEAD carrying the appended mt-mobile-lane-fix style block
+(additions-only diff), AND the engine's headless-browser render of /map (visual witness
+against the auto-provisioned preview) at the mobile viewport shows the top-left control lane
+collision-free — with the sibling detector mission's overlap check (which lands first by
+tartib) as the standing regression guard. Executable + headless-browser render verification
+(live-outcome bar, 2026-07-03).
