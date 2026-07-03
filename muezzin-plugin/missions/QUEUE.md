@@ -699,6 +699,17 @@ removes Tier 2's NAS dependency — after it, the public site + intake stop need
   installer-correctness) stay BLOCKED pending the engine batch — un-holding them = blind relaunch.
 - MAX_LANES stays 1 (budget-conservative) until operator restores 2 by his word.
 
+## 2026-07-03 EVAL-V3 REMAINING CELLS (tracked, gated on a free GPU lane)
+The operator-ordered fairness eval (his words: "make sure the models are running right or
+its not fair"; roster HIS list: laguna-xs-2.1, north-mini-code variants, ornith variants,
+qwen) was STOPPED mid-run 2026-07-02 when the bench saturated the local Ollama queue and
+burned live mission attempts (the 503-storm receipts). Banked: laguna-xs-2.1 tool-less 5/6.
+UNRUN: qwen / north-mini-code / ornith cells through the engine's own seat_dispatch tool
+loop. Runs when no lane is on the chain, via seat_dispatch (sixth law — never a hand-rolled
+bench again). Prior evals already on record: 2026-06-30 seat eval (qwen 6/6, laguna 5/6,
+ornith 5/6, granite30b 5/6, nemotron 3/6, guardian 0/6) + final-auditor-bench-v2 (north
+16/16 unanimous). Operator has been owed this report since 2026-07-02 — delivered 07-03.
+
 ## 2026-07-02 SEAT-PLAN DEVIATION RECEIPT (operator ratification requested)
 Panel architect seat C: minimax-m3 is a dead 404 and NO minimax model exists on the server.
 Substituted qwen3.6:35b (Alibaba — lab-distinct from seats A/B) to restore the 3-blind-architect
