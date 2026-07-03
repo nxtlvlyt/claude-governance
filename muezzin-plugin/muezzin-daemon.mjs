@@ -431,9 +431,30 @@ export function shouldWitnessAfter(r) { return !!(r && r.ok && !r.split); }
 function readQueue() {
   if (!existsSync(AUTORUN)) return { lines: [], pending: [] };
   const lines = readFileSync(AUTORUN, 'utf8').split(/\r?\n/);
-  const pending = lines
-    .map((line, i) => ({ raw: missionPath(line), i }))
-    .filter(({ raw, i }) => raw && !lines[i].trim().startsWith('#') && !statusOf(lines[i]));
+  // QUEUE-DUP GUARD (2026-07-03, operator: "is there nothing stopping the conductor from
+  // double-queuing missions?" — receipts: the heal double-requeue DUPLICATE-RETIRED scar +
+  // the 06:43 gap-promotion dup, both hand-caught). The same path on two actionable lines
+  // means the second copy refires after the first concludes (setMark marks only the FIRST
+  // match) — a stealth attempt-counter reset. Mechanics: only the FIRST bare line per path
+  // is pending; later bare copies are skipped + surfaced as QUEUE-DUP events. A bare line
+  // whose path carries a STATUS on any other line is likewise never fired (the legitimate
+  // requeue pattern re-bares the EXISTING line; an appended second line beside a FAILED
+  // mark is exactly the anti-pattern the scar names).
+  const statusPaths = new Set(lines.filter((l) => !l.trim().startsWith('#') && statusOf(l)).map((l) => missionPath(l)).filter(Boolean));
+  const seen = new Set();
+  const pending = [];
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (line.trim().startsWith('#') || statusOf(line)) continue;
+    const raw = missionPath(line);
+    if (!raw) continue;
+    if (seen.has(raw) || statusPaths.has(raw)) {
+      try { evt(`QUEUE-DUP skipped: line ${i + 1} duplicates ${raw} (${seen.has(raw) ? 'an earlier pending line' : 'a status line elsewhere'}) — not fired; conductor should DUPLICATE-RETIRE the extra line`); } catch { /* event log is best-effort */ }
+      continue;
+    }
+    seen.add(raw);
+    pending.push({ raw, i });
+  }
   return { lines, pending };
 }
 
