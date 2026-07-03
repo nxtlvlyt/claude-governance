@@ -948,3 +948,12 @@ instances: this is NOT optional):
 Also: 44da372's gut PASSED every chain guard (witness/panel/render QC) because no check
 compares user-facing marker inventories across an edit — the deploy-gate build (gap #8)
 gets this as its core check, receipt attached.
+
+## 2026-07-03 19:2x WATCH-ITEM: gemma4:31b CUDA crash (single occurrence)
+19:15:48 dispatch-FAILED architect gemma4:31b: "CUDA error: an illegal memory access" on
+nxtbeast. Ollama recovered by evicting (ps empty after; laguna probe generates fine); the
+chain self-routed to Sonnet — no mission impact. gemma4:31b serves architect-C + the vision
+verdict seat. CONDITION: on a SECOND gemma CUDA failure, restart the Ollama service via ssh
+at a lane boundary (a wedged CUDA context degrades every large local load); on a third,
+demote gemma from the architect roster pending a driver/VRAM diagnosis and note the vision
+verdict falls back fail-closed.
