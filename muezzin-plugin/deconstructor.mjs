@@ -426,7 +426,7 @@ export async function deconstruct(mission, { model = PANEL_ARCHITECTS[0], today 
 // swap, then a ":cloud" restoration, were both tried the same day before the operator
 // ruled NO CLOUD AT ALL. Final: local nxtbeast trio, 3 labs, all verified in /api/tags.
 // Cloud names must not return here — the ruling, not availability, decides.
-export const PANEL_ARCHITECTS = ['kimi-k2.7-code:latest', 'qwen3.6:35b', 'granite4.1:30b'];  // NO-CLOUD ruling 2026-07-02: local nxtbeast trio, 3 labs (Moonshot/Alibaba/IBM)
+export const PANEL_ARCHITECTS = ['kimi-k2.7-code:latest', 'qwen3.6:35b', 'granite4.1:30b'];  // NO-CLOUD ruling 2026-07-02: local nxtbeast trio, 3 labs (Cohere-North/Alibaba/IBM). IDENTITY CORRECTION 2026-07-03 (operator catch: "Kimi K2.7 is 1.04T params, how could that ever run on a 4090"): the 'kimi-k2.7-code:latest' tag is an ALIAS of north-mini-code-toolcall:latest (same digest 429d372cb9f6; /api/show general.name=North, arch cohere2moe, 30.5B) — NOT Moonshot. Lab diversity holds in fact; the prior "Moonshot" label was wrong. Rename to the honest tag queued for a clear lane (same blob = zero behavior change).
 export const PANEL_INTEGRATOR_MODEL = 'nemotron-3-super:latest';  // local (NVIDIA)
 
 // --------------------------------------------------------------- PER-MISSION ARCHITECT ROUTING

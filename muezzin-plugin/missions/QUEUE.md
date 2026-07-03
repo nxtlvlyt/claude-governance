@@ -706,6 +706,16 @@ panel per SEAT-PLAN-OPERATOR-ORIGINAL intent. Version maintenance (same labs, no
 kimi-k2.6 -> kimi-k2.7-code:latest; integrator nemotron-3-ultra -> nemotron-3-super:latest.
 Evidence: dispatch-FAILED heartbeat receipts 19:24-19:28 + /api/show probes. Ratify or name the
 replacement lab and the conductor will re-seat.
+**⚠ IDENTITY CORRECTION 2026-07-03 (operator catch: "Kimi K2.7 is 1.04T parameters, how could
+that ever run on a 4090"):** the "same labs" claim above is FALSE for seat A. The local tag
+`kimi-k2.7-code:latest` is an ALIAS of `north-mini-code-toolcall:latest` — same blob digest
+429d372cb9f6, /api/show general.name=North, arch cohere2moe, 30.5B. That is COHERE's North
+code model, not Moonshot; Moonshot's real Kimi K2.7 (1.04T) cannot run locally and is
+cloud-only, i.e. unreachable under the NO-CLOUD ruling. Seat A's lab is therefore Cohere-North
+(panel = Cohere/Alibaba/IBM — 3 distinct labs, diversity intact IN FACT, label was wrong).
+The seat's recorded performance (bake-off ratio 0.43, 16 completions) was earned by North and
+stands — it describes the blob, not the name. Owed: rename the seat strings + retire the
+misleading ollama tag when no lane is on the chain (same digest = zero behavior change).
 
 ## 2026-07-02 SEAT-PLAN DEVIATION — WITHDRAWN (operator catch was correct)
 The 404s were Ollama Cloud CATALOG NAMING drift (:cloud tags now required), not dead labs.

@@ -61,9 +61,9 @@ export const MODES = ['balance', 'anthropic-heavy', 'local-heavy', 'reasoning-he
 // phase-2 smell-test seat (its Claude fallback is governed by CLAUDE_SEAT_MAP, kept strong).
 const TABLE = {
   'balance': {
-    architects: ['kimi-k2.7-code:latest', 'qwen3.6:35b', 'granite4.1:30b'],   // ollama-cloud, 3 labs (today's PANEL_ARCHITECTS)
+    architects: ['kimi-k2.7-code:latest', 'qwen3.6:35b', 'granite4.1:30b'],   // LOCAL trio (today's PANEL_ARCHITECTS). IDENTITY NOTE 2026-07-03: 'kimi-k2.7-code' is an alias of north-mini-code-toolcall (Cohere North 30.5B, digest 429d372cb9f6) — not Moonshot; real Kimi K2.7 is 1.04T and never local.
     integrator: 'nemotron-3-super:latest',                                // CLAUDE_SEAT_MAP-routed: Opus-first window (today's PANEL_INTEGRATOR_MODEL)
-    executor: 'kimi-k2.7-code',                                    // 2026-06-17: qwen3-coder-next->kimi-k2.7-code (guardian+laguna APPROVE). seat-record: kimi ratio 0.43 (5 fewer fab) beats qwen 0.484; canon/bake-off = reliable Phase-2 executor; the 2026-06-15 qwen-revert ("kimi auditioning, no completions") is stale — kimi now has 16 recorded. Sonnet fallback via CLAUDE_SEAT_MAP
+    executor: 'kimi-k2.7-code',                                    // 2026-06-17: qwen3-coder-next->kimi-k2.7-code (guardian+laguna APPROVE). seat-record: ratio 0.43 (5 fewer fab) beats qwen 0.484; canon/bake-off = reliable Phase-2 executor; 16 recorded completions. Sonnet fallback via CLAUDE_SEAT_MAP. IDENTITY NOTE 2026-07-03: this tag is Cohere North (north-mini-code-toolcall alias, digest 429d372cb9f6) — the whole seat-record above was EARNED BY NORTH, misattributed to Moonshot until the operator's 1.04T catch.
     validator: 'qwen3.6:27b',                                  // ollama-cloud verdict (today)
     auditor: 'granite4.1:30b',                                         // ollama-cloud verdict (today)
     final_auditor: 'nemotron-3-super',                             // M-ENGINE-3PHASE.3: consensus seat reads the two boundary verdicts (ollama-cloud)
