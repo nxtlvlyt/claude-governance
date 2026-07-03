@@ -161,7 +161,14 @@ export function parkedRevivalDue(autorun, fixEntries = [], { maxAgeDays = 7, now
     const judged = Date.parse((it.note.match(/REVISIT-JUDGED[: ]+(\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2}(?::\d{2})?(?:\.\d+)?Z?)?)/i) || [])[1] || '');
     const parked = Date.parse((it.note.match(/\d{4}-\d{2}-\d{2}(?:T[\d:.]+Z?)?/) || [])[0] || '');
     const anchor = Number.isFinite(judged) ? judged : (Number.isFinite(parked) ? parked : null);
+    const stem = path.basename(it.path).replace(/\.mission\.txt$/i, '');
     const fixesSince = fixEntries
+      // TARGETED-HEAL FILTER (2026-07-03, first live churn receipt): a fix entry with a
+      // non-empty requeue[] naming OTHER missions is a mission-targeted heal, not a park-
+      // relevant engine capability — it must not re-open every judged park (two targeted
+      // entries re-opened all 13 stamps within 90 minutes of judging). CLASS-level entries
+      // (empty requeue) still re-open parks: that is the mechanism working as designed.
+      .filter((e) => !(Array.isArray(e.requeue) && e.requeue.length && !e.requeue.some((s) => stem === s || stem === String(s).replace(/\.mission\.txt$/i, '').replace(/^missions\//, ''))))
       .filter((e) => anchor == null || (Number.isFinite(Date.parse(e.landed_ts)) && Date.parse(e.landed_ts) > anchor))
       .map((e) => e.class);
     const ageDays = anchor == null ? null : Math.floor((now - anchor) / 86400e3);
@@ -1120,6 +1127,17 @@ function selftest() {
     ck(due2.some((d) => d.path === 'missions/pk-judged.mission.txt' && d.fixesSince.includes('newer-fix')), 'revival: a fix landing AFTER the judgment re-opens the judged park');
     const due3 = parkedRevivalDue(au, [], { maxAgeDays: 7, now: Date.parse('2026-07-09T00:00:00Z') });
     ck(due3.some((d) => d.path === 'missions/pk-fresh.mission.txt'), 'revival: age window alone (7d, no fixes) re-surfaces a park — the standing weekly graveyard look');
+    // targeted-heal filter (2026-07-03 churn receipt): a fix entry requeue-targeted at OTHER
+    // missions must NOT re-open a judged park; a class-level entry (empty requeue) MUST.
+    const targeted = [{ class: 'other-heal', landed_ts: '2026-07-02T23:50:00Z', requeue: ['some-other-mission'] }];
+    ck(!parkedRevivalDue(au, targeted, { maxAgeDays: 7, now: nowMs }).some((d) => d.path === 'missions/pk-judged.mission.txt'),
+      'revival: mission-TARGETED fix (requeue names another mission) does NOT re-open a judged park');
+    const classLevel = [{ class: 'engine-capability', landed_ts: '2026-07-02T23:50:00Z', requeue: [] }];
+    ck(parkedRevivalDue(au, classLevel, { maxAgeDays: 7, now: nowMs }).some((d) => d.path === 'missions/pk-judged.mission.txt'),
+      'revival: CLASS-level fix (empty requeue) still re-opens the judged park');
+    const selfTargeted = [{ class: 'own-heal', landed_ts: '2026-07-02T23:50:00Z', requeue: ['pk-judged'] }];
+    ck(parkedRevivalDue(au, selfTargeted, { maxAgeDays: 7, now: nowMs }).some((d) => d.path === 'missions/pk-judged.mission.txt'),
+      'revival: fix targeted AT the parked mission itself re-opens it');
     // parser: PARKED/SPLIT are first-class, never phantom-pending (pre-fix: "PARKED missions/x" polluted pending)
     ck(au.parked.length === 3 && au.pending.length === 0, 'parser: PARKED lines land in autorun.parked, pending stays clean');
     const auSplit = parseAutorun('SPLIT missions/parent.mission.txt  <!-- ts -->\nmissions/live.mission.txt\n');
