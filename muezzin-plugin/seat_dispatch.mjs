@@ -189,21 +189,29 @@ export function execReceipt(cmd, cwd) {
   // path appends an exit-parity wrapper so native exit codes and pipeline failure map to the
   // same ok/exit semantics -Command produced.
   const needsScriptFile = process.platform === 'win32' && (/\r?\n/.test(cmd) || /@['"]/.test(cmd));
+  // STEP-TIMEOUT SPLIT (2026-07-03, trip-cost.S2 6th-run receipt: the merged deploy+render
+  // mega-step — wrangler deploy + settle poll + playwright — died SILENTLY at the 120s cap,
+  // "[no stdout/stderr captured]" with no killed/code flags on the Windows timeout-kill).
+  // Single-line commands keep the 120s hang guard; multi-line/-File steps are exactly the
+  // deploy-ceremony class and get 300s. The catch below now reports ELAPSED ms so a
+  // timeout-kill can never masquerade as a silent generic failure again.
+  const stepTimeoutMs = needsScriptFile ? 300000 : 120000;
+  const tExec0 = Date.now();
   try {
     let out;
     if (process.platform !== 'win32') {
-      out = execSync(cmd, { cwd, env: childEnv, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: 120000 });
+      out = execSync(cmd, { cwd, env: childEnv, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: stepTimeoutMs });
     } else if (needsScriptFile) {
       const tmp = join(tmpdir(), `muezzin-step-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.ps1`);
       const parityTail = `\nif ($LASTEXITCODE -is [int] -and $LASTEXITCODE -ne 0) { exit $LASTEXITCODE } elseif (-not $?) { exit 1 } else { exit 0 }\n`;
       writeFileSync(tmp, cmd + parityTail, 'utf8');
       try {
-        out = execFileSync('pwsh.exe', ['-NoProfile', '-NonInteractive', '-File', tmp], { cwd, env: childEnv, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: 120000 });
+        out = execFileSync('pwsh.exe', ['-NoProfile', '-NonInteractive', '-File', tmp], { cwd, env: childEnv, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: stepTimeoutMs });
       } finally {
         try { unlinkSync(tmp); } catch { /* temp cleanup is best-effort */ }
       }
     } else {
-      out = execFileSync('pwsh.exe', ['-NoProfile', '-NonInteractive', '-Command', cmd], { cwd, env: childEnv, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: 120000 });  // pwsh (PS7) not powershell (5.1): seats chain with && — proven live
+      out = execFileSync('pwsh.exe', ['-NoProfile', '-NonInteractive', '-Command', cmd], { cwd, env: childEnv, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: stepTimeoutMs });  // pwsh (PS7) not powershell (5.1): seats chain with && — proven live
     }
     return { type: 'exec', ref: cmd, ok: true, exit: 0, out: String(out).slice(0, 2000) };
   } catch (e) {
@@ -215,9 +223,11 @@ export function execReceipt(cmd, cwd) {
     // already captured; the gap is that a hung/killed command has none, and the catch threw
     // away the exception's OWN metadata. When nothing was captured, surface killed/signal/
     // code/message so result.json steps[].error says WHY (e.g. a 120s hang) instead of "".
+    const elapsedMs = Date.now() - tExec0;
     const diag = captured || (
-      `[no stdout/stderr captured]`
-      + (e.killed ? ` KILLED${e.signal ? ` ${e.signal}` : ''} (likely the 120s step timeout)` : '')
+      `[no stdout/stderr captured] elapsed=${elapsedMs}ms/${stepTimeoutMs}ms`
+      + (e.killed ? ` KILLED${e.signal ? ` ${e.signal}` : ''} (step timeout)` : '')
+      + (elapsedMs >= stepTimeoutMs - 2000 ? ' TIMEOUT-SUSPECTED (elapsed at the cap)' : '')
       + (e.code ? ` code=${e.code}` : '')
       + (e.message ? ` msg=${String(e.message).slice(0, 300)}` : '')
     ).replace(/\s+/g, ' ').trim();

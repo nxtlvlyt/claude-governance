@@ -19,7 +19,7 @@ removed from ALLOW-FILES (read-only references).
 
 PARENT MAQSAD: Operator audit 2026-07-03 ("will the zoom buttons always block the words? the
 
-Maqsad: sub-mission 1 of 2 — Idempotent baseline: record branch + HEAD and check whether scripts/e2e-runner.mjs already contains an isMobile viewport entry; never fails on existence, just reports CLEAN_ALREADY vs CLEAN_BASELINE. through Commit the three ALLOW-FILES by explicit name, naming this mission and the 2026-07-03 operator-audit receipt; idempotent no-op if already committed.
+Maqsad: sub-mission 1 of 2 — Idempotent baseline: record branch + HEAD and check whether scripts/e2e-runner.mjs already contains an isMobile viewport entry; never fails on existence, just reports CLEAN_ALREADY vs CLEAN_BASELINE. through Commit scripts/e2e-runner.mjs (the ONE allow-file — Maqsad corrected 2026-07-03T09:4x after the laguna witness caught the stale "three ALLOW-FILES" splitter wording contradicting the rescope) by explicit name, naming this mission and the 2026-07-03 operator-audit receipt; idempotent no-op if already committed.
 
 X2 CONCLUSION RECEIPT 2026-07-03T07:37:23 (appended post-amendment so the RETRO-REPEAT gate
 sees honest lineage, not a bare mtime touch): attempt 2 died on the SAME absent-file wall at
