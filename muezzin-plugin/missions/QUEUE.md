@@ -912,3 +912,18 @@ BOUNDARY PLAN (repo write deferred per LANE-EXCLUSION; nav-link live in that rep
 (2) requeue S1.S1 via fix-ledger (class: catalog-fabrication-reverted) + preflight
     addendum (6th-fail gate needs receipt newer than newest retro);
 (3) reachability.S1 attempt 2 then edits a TRACKED real catalog with rails.
+
+## CORRECTION 2026-07-03 ~18:1x to the 18:0x fabrication record (operator: "we are supposed
+## to have user profiles" — verified TRUE: profile.html at HEAD, live /profile HTTP 200)
+The 6957863 catalog commit was NOT all fiction: it mixed REAL features (User Profile — live;
+Trip Cost) with UNVERIFIED ones (a "Booking Engine" with payment processing — no substrate
+found; site policy explicitly avoids payment handling). The class is renamed to what the
+receipts support: REWRITE-WITHOUT-READING — the seat authored a from-scratch replacement of
+a file it never read, destroying the parser-compatible format (0 features parsed) and mixing
+plausible truth with invention. Blend-of-real-and-invented is HARDER to catch than pure
+fiction — strengthens the case for the byte-comparison guard on untracked-file edits.
+COVERAGE NOTE the correction surfaced: the REAL catalog (05696cd) covers only the plan-mode
+feature family (4 entries) — profiles/accounts/reviews/add-spot are NOT in the e2e catalog
+at all. Catalog expansion (one entry per feature family, each with reachable_from) is a
+follow-up mission after reachability.S1 lands; the operator's trip-cost orphan class can
+recur on any uncataloged surface until then.
