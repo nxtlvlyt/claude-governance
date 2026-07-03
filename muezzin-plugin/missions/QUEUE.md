@@ -1058,3 +1058,22 @@ spot card, or still bylaw?):
     first (canary's popup checks are data-truth only and would not catch a bind failure).
 CLASSIFICATION: H1 = product mission behind the gap program (his solely-gaps hold governs);
 H2 = gap-class, immediate. Waiting on the one tap receipt.
+
+## 2026-07-03 21:0x BUBBLED-PIN GUARD shipped + WITNESS REVISE owed verification
+Hotfix deployed (guard in municipal-parking-panel.js handleClick; operator's dead-center-pin
+receipt = H2 confirmed; pins now open their own cards). LAGUNA REVISE, humble-validated
+REAL RISK: map.html uses L.canvas({tolerance:22}) + circleMarkers — if Leaflet's shared
+canvas element carries .leaflet-interactive, the guard vetoes ALL clicks over the canvas and
+the bylaw card NEVER opens (silent feature death in the 5 coverage cities; benign vs the
+reported breakage, but a real over-correction).
+DISAMBIGUATION (two paths, either closes this):
+ 1. OPERATOR TAP (asked): tap EMPTY background — "outside coverage" card appearing = guard
+    correct as shipped; nothing appearing = laguna right.
+ 2. PLAYWRIGHT VERIFY (mission-shape): production, click background inside Toronto bbox ->
+    bylaw card MUST open; click a pin -> pin card MUST open, no bylaw. Add BOTH assertions
+    to the detector family (no automated check ever asserted WHOSE popup opens — the class
+    receipt from tonight).
+IF laguna is right, the better guard (design, do NOT improvise): pin-click flag — the POI
+layer's own click handler stamps map._mtLayerClickAt=Date.now(); handleClick skips when the
+stamp is <150ms old (layer click always dispatches BEFORE the bubbled map click). Canvas-safe,
+no DOM-class dependence.
