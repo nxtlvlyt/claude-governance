@@ -60,10 +60,12 @@ local plans are legitimate); lint RULE 9 refuses hand-rolled localhost:8788 prev
 queue position (gap-promoted parents' children land at the TAIL — re-promote manually,
 engine fix owed).
 
-**GATE SHOT (visual 0/1, non-visual 1/1):** trip-cost.S2 has burned six runs, each killing
+**GATE SHOT (visual 0/1, non-visual 1/1):** trip-cost.S2 has burned seven runs, each killing
 one receipted class: localhost phantom → here-string mangle → cross-step scratch vanish →
 plan path-drop → stale six-vs-two wording (panel F1, correct) → witness racing the ES-module
-import ("never requested" while production provably serves the module — curl receipts).
+import ("never requested" while production provably serves the module — curl receipts) →
+SILENT 120s step-timeout kill of the deploy+render mega-step (execReceipt -File lane now
+300s with elapsed-ms diagnostics; single-line commands keep the 120s hang guard).
 Current text: ONE self-contained deploy+render step, waitForResponse armed pre-goto,
 308-following. mobile-qc S1.S1 (GAP-priority, promoted): restore of e2e-runner.mjs from
 stranded e31469f WORKS; watch for plan-internal edit-vs-verify string mismatches.
