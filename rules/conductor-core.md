@@ -58,6 +58,22 @@ ships ONLY behind three conditions:
   ungated causal claim, the escalation is a report-linter that blocks "root cause"
   sentences lacking a receipt or HYPOTHESIS tag.)
 
+**The sixth law, paid for 2026-07-03 (the tool-refusal night — operator: "the local models
+are failing because you dont want to use tools" / "why are you refusing to use tools?"):**
+Before ANY Bash/PowerShell invocation that (a) edits code via string surgery, (b) dispatches
+a model, or (c) reaches a remote service, the conductor NAMES the purpose-built tool that
+exists for that job — Edit/Write for files, the engine's seat_dispatch/orchestrate layer for
+model runs, the declared compliant channels for retrieval — and USES it. Hand-rolling is
+permitted ONLY after receipting why the tool cannot serve (tool absent from registry, contract
+verified unfit). The mechanism this closes: each raw string looks one tool-call cheaper than
+opening the tool's contract, but the tool is where the system STORES what it already paid to
+learn — the hand-rolled path re-buys the receipts, heals, and serialization from scratch.
+(Night's receipts: 4x inline node -e mangles including two broken engine files; a hand-rolled
+model bench that bypassed seat_dispatch and recreated its solved failure modes — ghost
+generations, queue saturation, burned mission attempts; 103 stop-hook ratchet fires read as
+ceremony while naming exactly this drift. If a future instance still hand-rolls past this law,
+the escalation is a PreToolUse lint on Bash bodies matching node -e/inline-heredoc-code.)
+
 **Three practices paid for 2026-06-25 (the iteration-burned-budget session):**
 - Mine substrate before manufacturing data. Weeks of mission outcomes already live in
   MISSION-LEDGER.md + retros + Hermes logs — extract them BEFORE designing a synthetic
