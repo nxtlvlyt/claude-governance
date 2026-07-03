@@ -31,9 +31,12 @@ if (/TOOL-CANNOT-SERVE:/.test(cmd)) process.exit(0);   // receipted bypass — v
 const inlineEval = cmd.match(/\b(node\s+(-e|--eval)|python3?\s+-c)\s+["']([\s\S]{0,4000})/);
 if (inlineEval) {
   const body = inlineEval[3] || '';
-  const writesFiles = /writeFileSync|Set-Content|fs\.write|splice\(/.test(body) && /readFileSync|Get-Content/.test(body);
-  const multiStatement = (body.match(/;/g) || []).length >= 3 && /const |let |function |=>/.test(body) && body.length > 300;
-  if (writesFiles || multiStatement) {
+  // Write-evidence REQUIRED (tuned 2026-07-03 after two read-only inspection one-liners were
+  // false-blocked): surgery = read-modify-write or in-place mutation. Pure console.log
+  // reporting, however long, is a receipt-maker, not a file edit — it stays legal.
+  const writesFiles = /writeFileSync|Set-Content|appendFileSync|fs\.write|splice\(/.test(body) && /readFileSync|Get-Content/.test(body);
+  const replaceSurgery = /\.replace\(/.test(body) && /writeFileSync|Set-Content/.test(body);
+  if (writesFiles || replaceSurgery) {
     console.error(
       'TOOL-FIRST LINT (sixth law, conductor-core.md 2026-07-03) — BLOCKED.\n\n' +
       'This Bash body is inline code surgery (node -e/python -c with read-modify-write or\n' +
