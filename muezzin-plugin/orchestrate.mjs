@@ -950,6 +950,7 @@ export async function orchestrate(mission, cwd, {
     let escModel = null;                              // forced executor/repair model for the current tier (null = default badal/prose-floor)
     let lastFailReason = null;                        // captured from failStep so the escalation gate can see the class
     let lastFailError = null;                          // captured from failStep so the escalation gate can read the DIAGNOSIS (R1: a structural SPLIT-NEEDED/EMISSION-TRUNCATED emission-empty must NOT escalate)
+    let execTimeoutTier = 0;                          // TIMEOUT-ESCALATION (2026-07-03): bumped ONLY when an engine-exec receipt says TIMEOUT-SUSPECTED, so the retry gets a doubled cap (execTimeoutMs) instead of burning every attempt against the same 120s wall (qc-hardening.S1.S1 receipt: e2e runner ETIMEDOUT x3 at 120579/120000ms)
     // re-entrant: the outer escalation loop re-runs the WHOLE same-step attempt block on a higher tier.
     escalate: for (;;) {
     // build a tier-scoped repair seat so a forced escalation also lifts the repair attempts onto the
@@ -996,7 +997,7 @@ export async function orchestrate(mission, cwd, {
     // 7 mission failures on 2026-06-10. Trust surface is unchanged: execReceipt already
     // runs planner-authored validation_commands for every step today.
     if (step.action_type === 'command' || step.action_type === 'verify') {
-      emit({ phase: 'step', event: 'engine-exec', step: step.step_index, desc: String(step.description).slice(0, 80), cmd: String(step.validation_command).slice(0, 120) });
+      emit({ phase: 'step', event: 'engine-exec', step: step.step_index, desc: String(step.description).slice(0, 80), cmd: String(step.validation_command).slice(0, 120), ...(execTimeoutTier ? { timeoutTier: execTimeoutTier } : {}) });
       // NO automatic retry (laguna witness finding 3, 2026-06-10): a non-idempotent
       // command (append, POST) must never silently run twice on partial success. A
       // failure fails the mission honestly; the daemon's attempt-2 re-runs the WHOLE
@@ -1035,8 +1036,9 @@ export async function orchestrate(mission, cwd, {
         const st = stageFiles(writeRoot, gitFiles(allowFiles));
         emit({ phase: 'step', event: 'pre-commit-stage', step: step.step_index, staged: st.staged ?? 0, ok: st.ok, error: st.ok ? undefined : String(st.error || '').slice(0, 160) });
       }
-      const receipt = execReceipt(step.validation_command, writeRoot);
+      const receipt = execReceipt(step.validation_command, writeRoot, { timeoutTier: execTimeoutTier });
       if (!receipt.ok) {
+        if (/TIMEOUT-SUSPECTED/.test(String(receipt.out || ''))) execTimeoutTier++;   // next attempt rides a doubled cap (900s ceiling in execTimeoutMs)
         emit({ phase: 'step', event: 'engine-exec-fail', step: step.step_index, exit: receipt.exit, error: String(receipt.out || '').slice(0, 200) });
         const d = failStep('engine-exec', String(receipt.out || ''));
         if (d.retry) continue;

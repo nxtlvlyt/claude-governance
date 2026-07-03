@@ -163,9 +163,21 @@ function sanitizeToolCalls(toolCalls) {
   }).filter(Boolean);
 }
 
+// TIMEOUT-ESCALATION (2026-07-03, qc-hardening.S1.S1 receipt: "node scripts/e2e-runner.mjs" —
+// a legitimate dual-viewport live e2e — died ETIMEDOUT at the 120s single-line cap on ALL 3
+// attempts; the retry loop burned every attempt against the SAME wall). A caller that saw
+// TIMEOUT-SUSPECTED on the prior attempt passes timeoutTier=1,2,3; each tier DOUBLES the base
+// cap, ceiling 900s. Tier 0 is byte-identical to the pre-existing 120s/300s split, so the
+// fast hang-guard stays the default and only a receipted cap-death buys a longer window.
+export function execTimeoutMs(needsScriptFile, tier = 0) {
+  const base = needsScriptFile ? 300000 : 120000;
+  const t = Math.max(0, Math.min(3, Math.floor(Number(tier) || 0)));
+  return Math.min(900000, base * (2 ** t));
+}
+
 // the muezzin runs a verification command ITSELF and captures the receipt — the witness for a CODE claim
 // (node -c / bash -n / docker build / a test). ok=true ONLY on exit 0. This is the deed; the seat's word is not.
-export function execReceipt(cmd, cwd) {
+export function execReceipt(cmd, cwd, opts = {}) {
   // WITNESS SHELL = PowerShell on Windows (2026-06-10 receipts: agy-import + vanlife-muddy
   // both witness-halted on "'Get-ChildItem' is not recognized" — architects write PS-flavored
   // validation commands; cmd.exe judged the work in the wrong language). PowerShell runs
@@ -195,7 +207,7 @@ export function execReceipt(cmd, cwd) {
   // Single-line commands keep the 120s hang guard; multi-line/-File steps are exactly the
   // deploy-ceremony class and get 300s. The catch below now reports ELAPSED ms so a
   // timeout-kill can never masquerade as a silent generic failure again.
-  const stepTimeoutMs = needsScriptFile ? 300000 : 120000;
+  const stepTimeoutMs = execTimeoutMs(needsScriptFile, opts.timeoutTier);
   const tExec0 = Date.now();
   try {
     let out;
@@ -1075,6 +1087,18 @@ if (process.argv[1]?.endsWith('seat_dispatch.mjs') && process.argv.includes('--s
       try { rmSync(dir, { recursive: true, force: true }); } catch { /* best-effort */ }
     }
   }
+
+  // TIMEOUT-ESCALATION ladder (2026-07-03, qc-hardening.S1.S1: e2e runner ETIMEDOUT x3 at the
+  // same 120s cap). Tier 0 must be byte-identical to the pre-existing split; tiers double; 900s ceiling.
+  check('execTimeoutMs: tier 0 single-line = the proven 120s hang guard', execTimeoutMs(false, 0), 120000);
+  check('execTimeoutMs: tier 0 script-file = the proven 300s deploy-ceremony cap', execTimeoutMs(true, 0), 300000);
+  check('execTimeoutMs: tier 1 doubles (120s -> 240s)', execTimeoutMs(false, 1), 240000);
+  check('execTimeoutMs: tier 2 doubles again (120s -> 480s)', execTimeoutMs(false, 2), 480000);
+  check('execTimeoutMs: tier 3 hits the 900s ceiling, never 960s', execTimeoutMs(false, 3), 900000);
+  check('execTimeoutMs: script-file tier 2 capped at 900s (not 1200s)', execTimeoutMs(true, 2), 900000);
+  check('execTimeoutMs: garbage tier falls back to base (undefined)', execTimeoutMs(false, undefined), 120000);
+  check('execTimeoutMs: garbage tier falls back to base (NaN string)', execTimeoutMs(true, 'x'), 300000);
+  check('execTimeoutMs: negative tier clamps to base, never shrinks below the hang guard', execTimeoutMs(false, -2), 120000);
 
   console.log(`[selftest] ${pass} passed, ${fail} failed`);
   process.exit(fail ? 1 : 0);

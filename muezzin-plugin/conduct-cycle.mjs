@@ -574,9 +574,30 @@ export function sweep(base = HERE, now = Date.now(), routeFile = path.join(proce
   // merge, then restore each TRACKED unmerged file from HEAD (discards uncommitted conflict
   // residue = failed-mission orphan, per the engine's commit-on-success model). NEVER reset
   // --hard, NEVER delete untracked (those are report-only). heal() runs it via exec().
+  // LIVE-LANE SUPPRESSION (2026-07-03, same law as STUCK-CANDIDATE: work is not a hang):
+  // porcelain cannot distinguish a RUNNING mission's own staged work (a step-1
+  // `git checkout <sha> -- file` restore STAGES the file) from a failed-mission orphan.
+  // Receipt: 13:48Z sweep flagged mt-mobile-qc-hardening.S1.S1's in-flight catalog restore
+  // as "1 staged-orphan" and queued a reset that would have destroyed the live lane's work.
+  // A repo that is any RUNNING lane's REPO-ROOT is never healed — reported suppressed,
+  // re-checked next beat once the lane ends (orphans persist; live work does not).
+  const liveRepoRoots = new Set();
+  const laneMissions = new Set([
+    ...(autorun.running || []),
+    ...((status?.lanes || []).map((l) => (typeof l === 'string' ? l : l?.path)).filter(Boolean)),
+  ]);
+  for (const m of laneMissions) {
+    const mtext = readText(path.join(base, String(m).replace(/\//g, path.sep)));
+    const rr = (mtext.match(/^REPO-ROOT:\s*(\S.*?)\s*$/im) || [])[1];
+    if (rr) liveRepoRoots.add(rr.replace(/\\/g, '/').replace(/\/+$/, '').toLowerCase());
+  }
   for (const repoRoot of (worktreeReposFn() || [])) {
     const wt = detectWorktreeCorruption(repoRoot, gitFn ? (args) => gitFn(repoRoot, args) : null);
     if (!wt.corrupted) continue;
+    if (liveRepoRoots.has(String(repoRoot).replace(/\\/g, '/').replace(/\/+$/, '').toLowerCase())) {
+      report.push(`WORKTREE-HEAL suppressed: ${repoRoot} is a RUNNING lane's REPO-ROOT — staged/dirty state is the live mission's own in-flight work, not corruption (no heal while the lane runs; re-checked next beat)`);
+      continue;
+    }
     report.push(`WORKTREE-HEAL: ${repoRoot} is corrupted — ${wt.unmerged.length} unmerged, ${wt.staged.length} staged-orphan${wt.midOp ? `, mid-${wt.midOp}` : ''}${wt.untracked.length ? `, ${wt.untracked.length} untracked` : ''}`);
     const cmds = [];
     if (wt.midOp) cmds.push(`git -C "${repoRoot}" ${wt.midOp === 'merge' ? 'merge' : 'cherry-pick'} --abort`);
@@ -1460,6 +1481,17 @@ function selftest() {
   ck(wha.untracked_orphans.includes('aurora-render-witness.html') && !wha.commands.some((c) => /aurora-render-witness/.test(c)), 'WORKTREE-HEAL: untracked orphan is report-only, never in a command');
   ck(wha.commands.some((c) => /reset -q -- "js\/onboarding\.js"/.test(c)), 'WORKTREE-HEAL: staged orphan gets an UNSTAGE (git reset --) command');
   ck(!wha.commands.some((c) => /checkout HEAD -- "js\/onboarding\.js"|rm .*onboarding/.test(c)), 'WORKTREE-HEAL: staged orphan is UNSTAGED only, never checkout/rm (non-destructive)');
+  // LIVE-LANE suppression (2026-07-03): a repo that is a RUNNING lane's REPO-ROOT is never
+  // healed — porcelain cannot tell the mission's OWN in-flight staged work (a step-1
+  // checkout-restore stages the file) from an orphan. Receipt: 13:48Z sweep queued an
+  // unstage against S1.S1's live catalog restore. Fixture uses backslash + case-mangled
+  // REPO-ROOT to prove path normalization.
+  writeFileSync(path.join(tmp, 'missions', 'live-wt.mission.txt'), 'MISSION-ID: live-wt\nMISSION-CLASS: code-repo\nREPO-ROOT: C:\\FAKE\\repo\nMaqsad: t\n');
+  writeFileSync(path.join(tmp, 'missions', 'AUTORUN.md'), '# q\nRUNNING missions/live-wt.mission.txt  <!-- t -->\n');
+  const rLive = sweep(tmp, now, noRoute, { ...sightOk, worktreeReposFn: () => ['C:/fake/repo'], gitFn: wtGit });
+  ck(!rLive.actions.some((a) => String(a.id).startsWith('WORKTREE-HEAL-')), 'WORKTREE-HEAL: repo with a RUNNING lane -> NO heal action (live mission staged work protected)');
+  ck(rLive.report.some((l) => /WORKTREE-HEAL suppressed/.test(l)), 'WORKTREE-HEAL: live-lane suppression is reported, never silent');
+  writeFileSync(path.join(tmp, 'missions', 'AUTORUN.md'), '# q\nRUNNING missions/stuck.mission.txt  <!-- t -->\n');   // restore: heal-performer fixture below needs the heal UNsuppressed
   // heal() runs the recovery commands via exec()
   const wtRan = [];
   const rwHeal = sweep(tmp, now, noRoute, { ...sightOk, worktreeReposFn: () => ['C:/fake/repo'], gitFn: wtGit });

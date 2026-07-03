@@ -60,6 +60,22 @@ local plans are legitimate); lint RULE 9 refuses hand-rolled localhost:8788 prev
 queue position (gap-promoted parents' children land at the TAIL — re-promote manually,
 engine fix owed).
 
+**14:xx BEAT ADDITIONS (2026-07-03):** (1) TIMEOUT-ESCALATION — execTimeoutMs(needsScriptFile,
+tier) in seat_dispatch: orchestrate bumps the tier ONLY on a TIMEOUT-SUSPECTED receipt, each
+tier doubles the cap (120→240→480 / 300→600), 900s ceiling; tier 0 byte-identical to the old
+split; 49/49 + ALL PASS (receipt: qc-hardening.S1.S1's live e2e died ETIMEDOUT x3 at the SAME
+120s wall). (2) WORKTREE-HEAL LIVE-LANE SUPPRESSION in conduct-cycle sweep(): a repo that is
+any RUNNING lane's REPO-ROOT is never healed — porcelain cannot tell a mission's own in-flight
+staged work (step-1 checkout-restore STAGES the file) from an orphan; reported suppressed,
+89/89 (receipt: 13:48Z sweep queued an unstage against S1.S1's live catalog restore — would
+have destroyed the running lane's work). (3) `--record --requeue` takes BARE STEMS, not paths
+(failedStems.has(stem)); a path arg silently never matches — receipted+ledger-amended this
+beat. (4) QUEUE-DUP consolidation invariant: ONE live line per path; a FAILED status line +
+intended bare fire line = the guard skips the fire every loop (spot-share-card, retired to
+comment 14:3x). (5) RETRO-REPEAT gate cannot see ENGINE-side fixes — after an engine fix, the
+mission text still needs an amendment (lineage note counts) to refresh mtime past the newest
+retro, or the requeue is refused (S1.S1 receipt 14:19:49).
+
 **🏁 BIG-PROJECT GATE: MET 2026-07-03T13:16:24Z.** Non-visual 1/1 = damm-books-assembly
 (DONE 2026-07-02T23:36, chain e2e). Visual 1/1 = trip-cost.S2 (DONE 13:16:24, 8th run:
 all steps green incl. the single-step deploy + live-preview playwright render; verdict
