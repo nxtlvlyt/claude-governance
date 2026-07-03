@@ -81,7 +81,12 @@ pre-flights (same hour as the correction): (1) found the e2e-runner FATALs on a 
 catalog + exits 0 on FATAL — amended into the mission BEFORE its next fire; (2) proved the
 trip-cost witness spec produces its evidence lines against prod (QC_PASS receipt). Mechanics
 note: scratch scripts importing repo deps must live in the REPO cwd — /tmp cannot resolve
-node_modules (receipted ERR_MODULE_NOT_FOUND).**
+node_modules (receipted ERR_MODULE_NOT_FOUND). ENVIRONMENT-PARITY CLAUSE (laguna witness
+BLIND-SPOT catch, humble-validated 2026-07-03T13:0x): a pre-flight proves the LOGIC, not the
+mission's environment — when pre-flighting, name the env deltas explicitly (preview-alias
+propagation vs prod, engine-sandbox PATH/browsers vs conductor shell) and check each is
+either covered by the mission's own design (e.g. the settle poll) or receipted-equal from a
+prior run before claiming the pre-flight covers the mission.**
 
 ## Required reads (in order, after conduct-cycle.mjs first run)
 
