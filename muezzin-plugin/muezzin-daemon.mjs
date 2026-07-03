@@ -1008,7 +1008,13 @@ async function mainLoop() {
       // identity cannot prove. The scanner's rule text already named this class; the guard
       // now inherits it mechanically: TARTIB-INDEX >= 2 missions never pre-satisfy.)
       const tartibIdx = Number((mtextGuard.match(/TARTIB-INDEX:\s*(\d+)\s+of/i) || [])[1] || 1);
-      const st = tartibIdx >= 2 ? null : missionLandedState(mtextGuard,
+      // VISUAL-QC EXEMPTION (2026-07-03, live false-refusal 14:35:11: lane-fix.S1 refused as
+      // "work already landed" while production served ZERO bytes of the fix — muddytires.ca/map
+      // grep mt-mobile-lane-fix = 0. A VISUAL-QC-REQUIRED mission's Done-means includes deploy +
+      // render verification, which file identity cannot prove — the SAME class as tartib>=2
+      // execution missions, inherited mechanically the same way.)
+      const visualQC = /^VISUAL-QC-REQUIRED\b/m.test(mtextGuard);
+      const st = (tartibIdx >= 2 || visualQC) ? null : missionLandedState(mtextGuard,
         (repo, argstr) => { try { return { ok: true, out: execSync(`git -C "${repo}" ${argstr}`, { stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 16 * 1024 * 1024 }).toString() }; } catch { return { ok: false, out: '' }; } });
       if (st && st.verdict === 'FULL') {
         evt(`PRE-SATISFIED: ${raw} — every ALLOW-FILE byte-identical to source ${st.srcSha} at HEAD; work already landed, refusing to fire into a guaranteed baseline failure. Marking for conductor RESOLVED-LANDED stamp.`);
