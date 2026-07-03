@@ -25,7 +25,13 @@ function hb(line) {
 }
 
 const FAITH_DIR = 'C:/Users/marka/.agents/faiths';
-const FETCH_TIMEOUT_MS = 180000;
+// 180000 -> 300000 (2026-07-03, geocode.S1 receipts): the abort is PER TOOL-ROUND, and a
+// local kimi architect plan legitimately emits 25K+ completion tokens in ONE round
+// (attempt-ok ms=209383, tokens=69107+25352) — the 180s cap killed two such genuine
+// generations first (04:37/04:40 TIMEOUT kills, 12 wasted minutes, attempt 1 plan-failed).
+// 300s covers ~36K tokens at kimi's observed rate; true hangs are still caught (heartbeat
+// lines + storm-watch), just 2 minutes later.
+const FETCH_TIMEOUT_MS = 300000;
 const MAX_CLOUD_HEALS = 3;            // operator spec: 3 reattempts to fix the cloud failure before local
 const SEARXNG_URL = process.env.SEARXNG_URL || 'http://localhost:8080/search';
 
