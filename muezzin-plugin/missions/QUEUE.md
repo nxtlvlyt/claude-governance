@@ -974,3 +974,18 @@ MITIGATION QUEUED (engine/config, clear-lane work): run gemma seats with reduced
 a smaller quant; measure crash rate before/after via the census; if crashes persist at low
 VRAM pressure, that CONFIRMS the upstream-bug hypothesis and gemma demotes from the roster
 (vision verdict falls back fail-closed; architect-C reseats).
+
+## ADDENDUM 2026-07-03 19:5x to the gemma CUDA mitigation (operator: "system ram 192gb")
+The operator's point sharpens the mechanism: gemma4:31b at 19.8GB BARELY fits the 24GB 4090,
+so Ollama full-GPU loads it and the 192GB system RAM never engages — runtime KV/batch growth
+then overruns the sliver of free VRAM (the illegal-memory-access zone). A clearly-oversized
+model would auto-split into RAM and be stable-but-slower; barely-fits is the worst case.
+EXPERIMENT ARMS, re-ordered (clear-lane work, crash census is the metric):
+  ARM 1 (new, operator-informed): force partial offload — num_gpu a few layers short of
+    full so a slice always lives in the 192GB RAM; full quality, physically off the edge;
+    latency cost acceptable for vision-verdict/architect seats (consistent with the standing
+    two-serial-lanes ruling: "the massive system-RAM overflow absorbs them").
+  ARM 2: num_ctx reduction (smaller KV) — combine with ARM 1 if needed.
+  ARM 3: smaller quant — only if 1+2 fail (quality re-eval required).
+  CONFIRMATION RULE unchanged: crashes persisting at low VRAM pressure = upstream runner
+  bug -> gemma demotes, vision falls back fail-closed, architect-C reseats.
