@@ -1086,3 +1086,25 @@ not match .leaflet-interactive in this Leaflet build) — the witness was wrong 
 process (flag plausible hole -> cheap experiment settles) was right, and stays. STILL QUEUED
 (unchanged): the whose-popup-opens detector assertion; the H1 eagerness fix (full card ->
 toast outside coverage, clear-not-clever) as product work behind the gap program.
+
+## 2026-07-03 21:5x — iOS PIN-TAP ROOT-CAUSED + FIXED ON PREVIEW (bite-class, conductor-direct)
+Operator + real user: NO POI selectable on iPhone. Playwright-webkit reproduced BOTH defects
+(chromium clean): (1) iOS canvas hit-test misses circleMarker taps — tap fell through to the
+municipal bylaw handler (receipt: canvasClick=1 layerClick=0 mapClick=1, bylaw card at pin
+pixel); (2) mobile-sheet.js popupopen hook bound once, no retry — sheet permanently unbound
+when init raced map creation (receipt: popupopen handlers 6 webkit vs 7 chromium). FIXES on
+mt repo commit 6fe643c (additive 29+/2-): nearest-pin rescue in municipal handleClick
+(radius+22px manual hit-test) + waitForMap retry in hookMapPopups. PREVIEW VERIFIED both
+engines (pin tap → pin's own card): https://pin-fix-preview.muddytires.pages.dev/map.html
+Sheet absence under webkit = EMULATION ARTIFACT (maxTouchPoints=0 on playwright-webkit/Win;
+real iOS = 5). Production deploy AWAITS OPERATOR WORD. Chain path was unavailable twice over:
+GAP-PRIORITY-HOLD skips mt-* (bare regex, no exception) and adding one = editing the daemon
+inside the LIVE truth-of-record lane's repo (lane-exclusion).
+
+## NEW GAP (ledger #11-class): QC IS CHROMIUM-ONLY — iOS-CLASS BREAKAGE STRUCTURALLY INVISIBLE
+Every e2e/visual QC pass (missions, canary, deploy checks) runs chromium only. This entire
+bug class shipped through ALL QC green. webkit engine is NOW INSTALLED (playwright webkit
+2311). Gap fix owed: e2e-runner.mjs + mission visual-QC steps + canary run BOTH engines
+(chromium + webkit) with per-engine evidence lines; a webkit-only failure FAILS the run.
+Emulation caveat recorded: webkit-on-Windows maxTouchPoints=0 — touch-gated features need
+the gate receipted separately, not assumed from webkit pass/fail.
