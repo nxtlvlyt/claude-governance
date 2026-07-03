@@ -627,6 +627,26 @@ export function canaryDue(lastRunMs, now = Date.now(), intervalMs = 6 * 3600e3) 
 // mission file's mtime is OLDER than the newest of them (nothing changed since it last
 // failed). Child stems never match a parent's filter: `${stem}.S1-...` does not start with
 // `${stem}-2`, so parents and children gate independently.
+// CHAIN-STREAK BREAKER (operator 2026-07-03 ~13:1x: "our self healing is failing too because
+// I shouldn't have had to ask" — 8 consecutive FAILED runs never alarmed anyone because every
+// failure had a DIFFERENT cause and stormWatch is cause-novelty-gated BY DESIGN; a streak of
+// distinct failures is invisible to it. This counts REAL run conclusions across missions,
+// cause-blind: DONE resets, terminal-FAILED increments; at `alertAt` (then every `every`
+// afterward) the daemon itself escalates — an outcome-dense push + a CHAIN-STREAK event the
+// conductor sweep surfaces. PURE + injectable for selftest.)
+export function chainStreak(outcome, statePath, { alertAt = 4, every = 3, readFile = readFileSync, writeFile = writeFileSync } = {}) {
+  let s = { count: 0, lastAlertAt: 0 };
+  try { s = JSON.parse(readFile(statePath, 'utf8')); } catch { /* fresh state */ }
+  if (outcome === 'DONE') { s = { count: 0, lastAlertAt: 0 }; }
+  else if (outcome === 'FAILED') { s.count = (s.count || 0) + 1; }
+  let alert = false;
+  if (s.count >= alertAt && s.count - (s.lastAlertAt || 0) >= (s.lastAlertAt ? every : 0) && s.count !== s.lastAlertAt) {
+    if (!s.lastAlertAt || s.count >= s.lastAlertAt + every) { alert = true; s.lastAlertAt = s.count; }
+  }
+  try { writeFile(statePath, JSON.stringify(s)); } catch { /* state write is best-effort */ }
+  return { count: s.count, alert };
+}
+
 export function retroRepeatBlocked(stem, retroDir, missionMtimeMs,
   { now = Date.now(), minFails = 3, windowMs = 24 * 3600e3, preflightAfter = 5, preflightMtimeMs = null, readdir = readdirSync, readHead = (p) => readFileSync(p, 'utf8').slice(0, 200) } = {}) {
   let files = [];
@@ -1055,6 +1075,7 @@ async function mainLoop() {
         if (r?.ok) {
           evt(`DONE: ${raw}`);
           setMark(raw, 'DONE');
+          try { chainStreak('DONE', path.join(LOGDIR, 'fail-streak.json')); } catch { /* breaker is best-effort */ }
           // CONDUCTOR-SELF-WITNESS — AFTER PASS (M-ENGINE.CONDUCTOR-SELF-WITNESS.1, operator
           // principle 2026-06-16 06:24 "witness BEFORE *and* AFTER"). The before pass (at fire)
           // witnessed the mission's DESIGN. This second pass witnesses the produced RESULT
@@ -1118,6 +1139,13 @@ async function mainLoop() {
             : '';
           notify(`${early ? '⛔ RECURRING-HALT' : `❌ FAILED x${n}`}: ${path.basename(raw).replace(/\.mission\.txt$/, '')}\nROOT step ${failedStep?.step ?? '?'}: ${why.slice(0, 140)}${recurringFlag}${early ? `\nHALTED at attempt ${n}/${MAX_ATTEMPTS} — pattern already proven, remaining attempt(s) skipped` : ''}\nDISPOSITION: conductor diagnoses at next beat; fix-ledgered classes auto-requeue${pt ? `\nPOINT: ${pt}` : ''}\n${nextUpLine()}\n${scoreLine()}`);
           writeRetro(raw, r, n); attempts.delete(raw);
+          try {
+            const streak = chainStreak('FAILED', path.join(LOGDIR, 'fail-streak.json'));
+            if (streak.alert) {
+              evt(`CHAIN-STREAK: ${streak.count} consecutive terminal-FAILED runs across missions (cause-blind counter) — the chain itself is the anomaly; conductor must change strategy, not requeue the next mission`);
+              notify(`🚨 CHAIN-STREAK: ${streak.count} missions FAILED in a row (different causes — invisible to the cause-class storm watch).\nThe chain is the problem, not any one mission. Conductor strategy change required at next beat.\n${scoreLine()}`);
+            }
+          } catch { /* breaker is best-effort */ }
         }
         else { evt(`attempt ${n} failed (${r?.phase}); will retry: ${raw}`); setMark(raw, ''); }
         lanes.delete(raw);
