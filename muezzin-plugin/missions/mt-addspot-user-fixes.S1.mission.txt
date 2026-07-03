@@ -1,0 +1,53 @@
+MISSION-ID: mt-addspot-user-fixes.S1
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - map.html
+  - js/add-spot-worker.js
+VISUAL-QC-REQUIRED
+UNLINKED-OK: edits to the live map page and a module it already loads
+REQUIRES: none
+STEPS: 6
+
+Maqsad: A REAL USER's add-spot session (operator relay 2026-07-03 ~21:1x) surfaced three
+defects in the community feature's core loop:
+(D1) NEW SPOT UNCLICKABLE: the user added a spot; its pin appeared but clicks on it do
+nothing. Substrate: js/add-spot-worker.js:104-108 DOES bind a minimal popup to the
+just-added L.marker — so the break is subtler. DIAGNOSE FIRST (playwright against the
+preview): add a test spot, click its fresh marker, receipt WHOSE popup (if any) opens; also
+reload and click the same spot as served from pois.json (community spots may render via the
+canvas circleMarker path with different binding, or pending-moderation spots may skip popup
+binding). Fix what the receipt names — binding, z-order, or the post-reload path. If the fix
+needs a file outside ALLOW-FILES, STOP and report the exact file (do not widen scope
+silently).
+(D2) NO IMAGE PREVIEWS: the user uploads images and sees nothing. ROOT ALREADY KNOWN
+(stranded deliverable): js/photo-upload-ux.js is a COMPLETE implementation — thumbnails via
+createObjectURL, per-file progress, EXIF/GPS strip, HEIC convert, done/failed row states —
+committed but referenced by map.html ZERO times (its integrate mission FAILED before the
+wire-in). Fix: ONE additive script tag `<script src="js/photo-upload-ux.js" defer></script>`
+appended to map.html's script list (the receipted additive pattern; nothing existing
+modified), placed AFTER add-spot-worker.js which it augments.
+(D3) NO POST-UPLOAD GUIDANCE: the user doesn't know what to do after choosing images.
+VERIFY photo-upload-ux.js's built-in states (progress rows, done/failed marks) answer this
+once wired; if its copy still leaves the next action unclear, ADD plain-language guidance
+strings (grade <=6 per the copy bar) in js/add-spot-worker.js's flow: what happens on
+submit, that photos upload with the spot, and what the user sees when it worked.
+
+niyyah: The first real community contributor hit a wall at every step of the loop the site
+exists for — and half the cure was already built, committed, and stranded. Wire what is
+paid for; diagnose before touching what is not understood; every claim receipted by a
+browser run.
+
+Steps:
+  1. Idempotent baseline: record branch + HEAD; report WIRED if map.html already references photo-upload-ux.js, else UNWIRED. Never exit 1 on existence. [command]
+  2. D1 DIAGNOSIS (no edits): deploy the CURRENT tree to the auto-provisioned preview, then a playwright run at 430x932 that adds a test spot via the add flow, clicks the fresh marker, and prints evidence lines FRESH_PIN_POPUP=<own|bylaw|none>, then reloads, finds the same spot from pois.json, clicks it, prints RELOADED_PIN_POPUP=<own|bylaw|none>. These receipts DECIDE step 3's fix. [command]
+  3. D1 FIX per the step-2 receipts (binding/z-order/post-reload path — smallest change in the two ALLOW-FILES; if the receipt points outside them, STOP and report the file). D2: append the photo-upload-ux.js script tag to map.html (additive, after add-spot-worker.js). D3: verify-or-add the guidance strings per the Maqsad. [edit] map.html
+  4. node --check js/add-spot-worker.js; Select-String receipts: map.html contains photo-upload-ux.js exactly once; git diff --stat shows additions-only in map.html. [verify]
+  5. git commit both ALLOW-FILES by explicit name naming this mission and the user receipts; idempotent no-op if already committed. [command]
+  6. OUTCOME CHECK: one multi-line command — deploy preview, poll to 200, playwright 430x932: run the FULL user journey (open add flow, attach two test images, assert thumbnail previews render (PREVIEWS=<n>), submit, assert the success/guidance state is visible (GUIDANCE=present), click the fresh pin, assert its own popup opens (FRESH_PIN_POPUP=own), print PAGEERRORS=<n>, then ADDSPOT_QC_PASS when previews>=2 AND guidance present AND popup own AND pageerrors 0), Remove-Item the scratch. The printed evidence lines ARE the receipt. [command]
+
+Done means: the complete add-a-spot journey — attach, SEE previews, submit, KNOW it worked,
+CLICK the new pin and get its card — passes as browser-run evidence lines on the preview;
+photo-upload-ux.js finally serves the users it was built for (stranded-deliverable wire-in);
+the D1 diagnosis receipts name the clickability root regardless of which fix applied
+(real-user receipts, operator relay 2026-07-03).
