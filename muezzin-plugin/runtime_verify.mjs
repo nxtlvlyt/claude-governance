@@ -154,6 +154,17 @@ try {
     const m = err.match(/RTV_THROW:([\s\S]*)/);
     if (m) {
       const thrown = m[1].trim() || `exit ${r.status}`;
+      // BROWSER-GLOBAL CLASS -> fail OPEN (2026-07-03, plan-mode-mobile FAILED x2 receipt:
+      // "load-throw: document is not defined" — but the ORIGINAL production plan-day.js throws
+      // the IDENTICAL error in bare Node, so the gate structurally doomed EVERY edit to any
+      // browser module that touches DOM at load. Baseline proof in the retro/QUEUE). A
+      // ReferenceError on a browser global proves the probe runtime has no DOM — not that the
+      // module is broken. Same reasoning as the fetch stub above. Genuine defects keep failing
+      // CLOSED: SyntaxError ("Unexpected token") and every non-browser-global throw.
+      const browserGlobal = /^(ReferenceError:\s*)?(document|window|navigator|location|localStorage|sessionStorage|HTMLElement|customElements|CustomEvent|MutationObserver|requestAnimationFrame|addEventListener) is not defined/.test(thrown);   // probe writes e.message (no error-name prefix)
+      if (browserGlobal) {
+        return { ok: true, error: null, detail: `browser-global ReferenceError at load (${thrown.slice(0, 80)}) — browser-targeted module in a DOM-less probe, not a load defect; fail-open (witness/panel still judge)` };
+      }
       return { ok: false, error: 'load-throw', detail: `module threw at import/load: ${thrown.slice(0, 400)}` };
     }
     return { ok: true, error: null, detail: `module self-exited ${r.status} with no caught throw — not a definitive load defect, fail-open` };
@@ -226,3 +237,22 @@ export async function runtimeVerify(targetPath, bytes) {
 }
 
 export default { runtimeVerify };
+
+// ----- offline selftest: node runtime_verify.mjs --selftest (real probe spawns, tiny fixtures)
+if (process.argv[1]?.endsWith('runtime_verify.mjs') && process.argv.includes('--selftest')) {
+  const os = await import('node:os');
+  let pass = 0, fail = 0;
+  const ck = (c, m) => { console.log(`${c ? 'PASS' : 'FAIL'}  ${m}`); c ? pass++ : fail++; };
+  const tmpBase = mkdtempSync(path.join(os.tmpdir(), 'rtv-selftest-'));   // real dir: verifyCode scandirs the target's parent for sibling imports
+  // browser-global module (the plan-day.js class): must FAIL-OPEN with the named detail
+  const rBrowser = await runtimeVerify(path.join(tmpBase, 'browser-mod.js'), `const el = document.getElementById('x');\nexport function mount() { return el; }\n`);
+  ck(rBrowser.ok === true && /browser-global ReferenceError/.test(rBrowser.detail), 'browser-global ReferenceError (document) -> fail-open with named detail (plan-mode-mobile x2 class)');
+  // genuinely broken module: must STILL fail closed
+  const rSyntax = await runtimeVerify(path.join(tmpBase, 'broken-mod.js'), `export function x() { return 1; }\n}\n`);
+  ck(rSyntax.ok === false && rSyntax.error === 'load-throw', 'SyntaxError module still fails CLOSED (real load defects keep blocking)');
+  // non-browser ReferenceError (a real bug): must STILL fail closed
+  const rRef = await runtimeVerify(path.join(tmpBase, 'refbug-mod.js'), `const v = totallyUndefinedIdentifier;\nexport default v;\n`);
+  ck(rRef.ok === false && rRef.error === 'load-throw', 'non-browser ReferenceError still fails CLOSED (only DOM globals are exempt)');
+  console.log(`[selftest] ${pass} passed, ${fail} failed`);
+  process.exit(fail ? 1 : 0);
+}
