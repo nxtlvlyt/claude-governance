@@ -60,7 +60,17 @@ local plans are legitimate); lint RULE 9 refuses hand-rolled localhost:8788 prev
 queue position (gap-promoted parents' children land at the TAIL — re-promote manually,
 engine fix owed).
 
-**GATE SHOT (visual 0/1, non-visual 1/1):** trip-cost.S2 has burned seven runs, each killing
+**🏁 BIG-PROJECT GATE: MET 2026-07-03T13:16:24Z.** Non-visual 1/1 = damm-books-assembly
+(DONE 2026-07-02T23:36, chain e2e). Visual 1/1 = trip-cost.S2 (DONE 13:16:24, 8th run:
+all steps green incl. the single-step deploy + live-preview playwright render; verdict
+panel SIGNED with the evidence block visible — RENDER_URL/STATUS=200/SPLIT_JS 200/
+PAGEERRORS=0/QC_PASS in the step receipt). LIVE-OUTCOME bar: independently receipted
+against PRODUCTION (conductor pre-flight 12:5x: muddytires.ca/trip-cost QC_PASS — the
+feature works where users see it). Conductor assists = between-run amendments only,
+within the operator's explicit allowance. The big-project ask is SURFACED to the operator
+as of the 13:2x beat report.
+
+**GATE SHOT HISTORY (visual, now closed):** trip-cost.S2 burned seven runs, each killing
 one receipted class: localhost phantom → here-string mangle → cross-step scratch vanish →
 plan path-drop → stale six-vs-two wording (panel F1, correct) → witness racing the ES-module
 import ("never requested" while production provably serves the module — curl receipts) →
