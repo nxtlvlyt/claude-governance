@@ -853,6 +853,7 @@ OPEN SYSTEM GAPS at ruling time, priority order:
 7. Board-truth debt: 26 false-death candidates + 13 parked revisits + 17-mission amend-on-surface pile.
 8. Repo-process: main/master divergence (14 commits), 5 undeployed commits, 3 stranded deliverables.
 9. Identity hygiene owed: ollama rm kimi tag (clear lane), per-era seat-record split, eval-v3 cells.
+10. gemma4:31b CUDA crash class (added 19:5x per operator — "is the Gemma issue queued for a gap fix?"): the DETECTION half is closed (sweep FLAG live, cdbdd3e); the FIX half is the 3-arm experiment in the "gemma CUDA mitigation" addendum below (ARM 1 num_gpu partial-offload into the 192GB RAM, operator-informed) — runs at the first clear GPU lane, crash census is the metric; closes when the census shows zero crashes over a 24h window OR gemma demotes on the confirmation rule.
 
 ## 2026-07-03 17:2x GAP #3 DIAGNOSED — witness groundedness <score>no</score> (INBOX item C closed)
 Re-diagnosis from code + live receipts (the localhost-SearXNG theory was already refuted):
