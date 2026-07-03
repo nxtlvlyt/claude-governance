@@ -32,6 +32,16 @@ rulings. This file is the loudness fix.)
   never do level-2 jobs when budget is tight. The dial is muezzin-route.json.
 
 ## Mission & engine rulings
+- **GAP ISSUES ARE ALWAYS PRIORITY** (operator word 2026-07-03 ~01:2x: "gap issues is always
+  priority", after asking "how is the conductor still failing at this"). An open gap of
+  bite-class (bites the queue OR the live site's truth) outranks EVERY product mission —
+  not as conductor prose but MECHANICALLY: the conductor sets missions/_logs/GAP-PRIORITY-HOLD
+  while bite-class gaps are open; the daemon skips product-class fires while it exists;
+  the conductor's beat capacity goes to the gap until closed, then clears the flag. The
+  failure this mechanizes: the daemon drains product at machine speed while gap fixes wait
+  for conductor beats — a prose priority loses to an autonomous queue every time (receipted
+  2026-07-03: aurora shipped hollow while canary #29 sat queued-with-receipts for 2 days).
+  "Queued with receipts" is NOT "handled."
 - **nxtbeast concurrency: TWO SERIAL LANES that MAY overlap** (operator word 2026-07-02
   ~22:30): small models (witness pair ornith/guardian, laguna, north-mini) may run IN
   PARALLEL WITH the chain's big local models — the massive system-RAM overflow absorbs

@@ -31,7 +31,7 @@ import { parseMissionClass } from './mission_class.mjs';
 import { witnessArtifact, buildAfterContext } from './self_witness.mjs';
 import { heal as conductCycleHeal } from './conduct-cycle.mjs';
 import { searxngPreflight } from './searxng_preflight.mjs';
-import { execSync } from 'child_process';
+import { execSync, execFile } from 'child_process';
 import path from 'path';
 import os from 'os';
 import { fileURLToPath } from 'url';
@@ -40,6 +40,9 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 const AUTORUN = path.join(HERE, 'missions', 'AUTORUN.md');
 const LOGDIR = path.join(HERE, 'missions', '_logs');
 const RELOAD_FLAG = path.join(LOGDIR, 'RELOAD-REQUEST');   // graceful self-reload, honored between missions (see mainLoop)
+const CANARY_STATE = path.join(LOGDIR, 'live-canary.json');            // LIVE-CANARY (#29): last run + verdict, survives reloads
+const CANARY_SCRIPT = 'C:/Users/marka/code/mt-integration-2026-06-22/scripts/verify-popups-e2e.mjs';
+let canaryRunning = false;                                             // one canary at a time; never blocks the drain loop
 const STATUS = path.join(LOGDIR, 'daemon-status.json');
 const EVENTS = path.join(LOGDIR, 'daemon-events.log');
 const POLL_MS = 60_000;
@@ -574,6 +577,30 @@ function shouldHaltMission(n, maxAttempts, failedStep) {
 // Satisfier: AUTORUN has "DONE <path>" AND <stem>.mission.result.json ok===true, OR an
 // AUTORUN comment line containing both "RESOLVED" and the dependency path (the conductor's
 // landed judgment). "REQUIRES: none" and prose preconditions (search/credentials) pass.
+// GAP-PRIORITY-HOLD classifier (operator ruling 2026-07-03). PURE + exported: which pending
+// lines does the hold defer? PRODUCT-class = mt-* website missions. Engine/gap/damm/qc-of-
+// engine missions keep firing — holding THOSE would defeat the ruling's purpose.
+const gapHoldLogged = new Set();
+export function gapHoldSkips(raw) {
+  const stem = path.basename(String(raw)).replace(/\.mission\.txt$/i, '');
+  return /^mt-/i.test(stem);            // product namespace; engine-*, damm-*, qc-engine stay live
+}
+
+// LIVE-CANARY transition (blind-spot #29, built 2026-07-03 under the GAP-FIRST ruling after
+// aurora shipped hollow-live and the OPERATOR was the detector — third instance of that
+// class). The canary runs the real e2e verifier against the LIVE site on an interval; this
+// pure function decides when a push is owed. Outcome-only ruling: push on FIRST failure and
+// on RECOVERY — never on repeats (the sweep/board carries standing state; storm-watch has
+// the repeat beat).
+export function canaryTransition(prevVerdict, currVerdict) {
+  if (currVerdict === 'FAIL' && prevVerdict !== 'FAIL') return { push: true, text: '🔴 LIVE CANARY FAIL: muddytires.ca e2e regressed between deploys — the class the operator kept catching by hand now alerts itself' };
+  if (currVerdict === 'PASS' && prevVerdict === 'FAIL') return { push: true, text: '🟢 LIVE CANARY recovered: muddytires.ca e2e passing again' };
+  return { push: false, text: '' };
+}
+export function canaryDue(lastRunMs, now = Date.now(), intervalMs = 6 * 3600e3) {
+  return !Number.isFinite(lastRunMs) || now - lastRunMs >= intervalMs;
+}
+
 // RETRO-REPEAT GATE decision (blind-spot hunt #24). PURE + exported to selftest: reads the
 // retro corpus for THIS stem via injectable fs hooks. Filename contract (set by the retro
 // writer below): `<stem>-<ISO ts with dashes>.md`, outcome in the header line ("# RETRO
@@ -866,6 +893,15 @@ async function mainLoop() {
   const fire = async (raw) => {
     const missionFile = path.resolve(HERE, raw);
     if (!existsSync(missionFile)) { evt(`FAILED (missing file): ${raw}`); setMark(raw, 'FAILED'); return; }
+    // GAP-PRIORITY-HOLD (operator ruling 2026-07-03: "gap issues is always priority" —
+    // mechanized, because a prose priority loses to an autonomous queue every time): while
+    // the conductor holds this flag open (bite-class gaps in progress), PRODUCT-class fires
+    // are skipped — engine/gap/damm missions still fire. The flag is a file so it survives
+    // reloads and is visible to every instance; the conductor clears it when the gap closes.
+    if (existsSync(path.join(LOGDIR, 'GAP-PRIORITY-HOLD')) && gapHoldSkips(raw)) {
+      if (!gapHoldLogged.has(raw)) { gapHoldLogged.add(raw); evt(`GAP-PRIORITY-HOLD: ${raw} — product fire deferred while bite-class gap work is open (operator ruling 2026-07-03); skipping to next pending`); }
+      return;
+    }
     // RETRO-REPEAT GATE (blind-spot hunt #24, 2026-07-03 — receipt: 924 retros for ONE stem
     // at 30-second refire cadence while zero engine code read the retro corpus back): if this
     // stem has already FAILED >=3 times in 24h AND the mission text is UNCHANGED since the
@@ -1065,6 +1101,31 @@ async function mainLoop() {
       evt('GRACEFUL-RELOAD: flag honored between missions — exiting for supervisor respawn with fresh code');
       process.exit(0);
     }
+    // LIVE-CANARY (blind-spot #29, GAP-FIRST ruling 2026-07-03): every 6h, lane-free only
+    // (puppeteer is heavy; missions keep right of way), run the REAL e2e verifier against
+    // the LIVE site. Fire-and-forget with a hard timeout — the drain loop never waits on it.
+    // State survives reloads in _logs/live-canary.json; pushes are transition-based only.
+    if (lanes.size === 0 && !canaryRunning) {
+      try {
+        const cst = existsSync(CANARY_STATE) ? JSON.parse(readFileSync(CANARY_STATE, 'utf8')) : {};
+        if (canaryDue(Date.parse(cst.last_run || ''))) {
+          canaryRunning = true;
+          const started = new Date().toISOString();
+          execFile('node', [CANARY_SCRIPT], {
+            cwd: path.dirname(path.dirname(CANARY_SCRIPT)), timeout: 5 * 60000, windowsHide: true,
+            env: { ...process.env, MT_BASE_URL: 'https://muddytires.ca' },
+          }, (err, stdout, stderr) => {
+            canaryRunning = false;
+            const verdict = err ? 'FAIL' : 'PASS';
+            const tail = String(stdout || '').slice(-300).replace(/\s+/g, ' ');
+            const tr = canaryTransition(cst.last_verdict, verdict);
+            try { writeFileSync(CANARY_STATE, JSON.stringify({ last_run: started, last_verdict: verdict, tail }, null, 2)); } catch { }
+            evt(`LIVE-CANARY ${verdict}: muddytires.ca e2e ${verdict === 'PASS' ? 'healthy' : `REGRESSED — ${(String(stderr || stdout || '').slice(-200)).replace(/\s+/g, ' ')}`}`);
+            if (tr.push) notify(`${tr.text}\n${scoreLine()}`);
+          });
+        }
+      } catch { canaryRunning = false; /* canary must never break the drain loop */ }
+    }
     try {
       if (Date.now() - lastHealTs >= HEAL_INTERVAL_MS) {
         lastHealTs = Date.now();
@@ -1217,6 +1278,16 @@ if (process.argv.includes('--selftest')) {
     ck(retroRepeatBlocked('st', '/r', oldMtime, mk([`st.S1-${ts(0)}.md`, `st.S1-2026-07-03T00-20-00-000Z.md`, `st.S1-2026-07-03T00-40-00-000Z.md`])).blocked === false, 'retro-gate: CHILD-stem retros do not gate the parent');
     ck(retroRepeatBlocked('st', '/nonexistent', oldMtime, { readdir: () => { throw new Error('ENOENT'); }, now: NOW }).blocked === false, 'retro-gate: unreadable retro dir -> never blocks a fire (best-effort)');
   }
+  // ──────────────────────────────────────────────────────────────────────────
+  // LIVE-CANARY (#29) + GAP-PRIORITY-HOLD (operator ruling 2026-07-03) contracts.
+  ck(canaryTransition(undefined, 'FAIL').push === true, 'canary: FIRST failure pushes (aurora hollow-live class now self-alerts)');
+  ck(canaryTransition('FAIL', 'FAIL').push === false, 'canary: repeat failure is SILENT (outcome-only ruling; board carries standing state)');
+  ck(canaryTransition('FAIL', 'PASS').push === true, 'canary: recovery pushes once');
+  ck(canaryTransition('PASS', 'PASS').push === false, 'canary: steady-green is silent');
+  ck(canaryDue(NaN) === true, 'canary: never-ran -> due');
+  ck(canaryDue(Date.now() - 7 * 3600e3) === true && canaryDue(Date.now() - 3600e3) === false, 'canary: 6h interval respected');
+  ck(gapHoldSkips('missions/mt-integrate-anything.S1.mission.txt') === true, 'gap-hold: product (mt-*) fires DEFERRED while flag open');
+  ck(gapHoldSkips('missions/engine-fix-something.mission.txt') === false && gapHoldSkips('missions/damm-repay.mission.txt') === false, 'gap-hold: engine/damm missions keep firing (holding them would defeat the ruling)');
   // ──────────────────────────────────────────────────────────────────────────
   // STORM-ALERT (self-healing audit 2026-07-02): repeating failure signatures push once at
   // 3 hits + once at 50, normalized over numbers/hashes, capped at 5 pushes/hour, and benign
