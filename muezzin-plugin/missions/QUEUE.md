@@ -699,6 +699,19 @@ removes Tier 2's NAS dependency — after it, the public site + intake stop need
   installer-correctness) stay BLOCKED pending the engine batch — un-holding them = blind relaunch.
 - MAX_LANES stays 1 (budget-conservative) until operator restores 2 by his word.
 
+## 2026-07-03 NAMED CLASS: claude-exe-480s-hang (tracked with receipts, diagnosis owed on
+## next occurrence or at S1.S1's conclusion)
+claude.exe -p dispatches hanging to the full 480s timeout with stdout_len=0, stderr="",
+code=1 — receipts in dispatch-heartbeat.log: sonnet 10:16→10:24 (483237ms), recovery on
+retry 10:28 (210972ms, 2635 chars — so NOT a hard breakage; 539 successes earlier tonight),
+opus 10:36→10:44 (480357ms), opus retry in flight at annotation time. Intermittent
+subprocess hang class. HYPOTHESES (untested): concurrent claude.exe contention (the
+conductor session is itself claude.exe), auth/token refresh stall, CLI-internal MCP init
+hang. Prior fix lineage: 4031fc1 (direct exe launch) + 504ecee (path). The engine's rails
+bound the burn (480s cap + step attempts) but two hangs per step ≈ 16 wasted minutes.
+Candidate cheap mitigation when receipts justify: drop CLAUDE_TIMEOUT for retry attempts
+(a hang is a hang at 90s as surely as at 480s — first-token latency is never 8 minutes).
+
 ## 2026-07-03 EVAL-V3 REMAINING CELLS (tracked, gated on a free GPU lane)
 The operator-ordered fairness eval (his words: "make sure the models are running right or
 its not fair"; roster HIS list: laguna-xs-2.1, north-mini-code variants, ornith variants,
