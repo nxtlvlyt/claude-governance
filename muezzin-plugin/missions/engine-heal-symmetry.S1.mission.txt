@@ -1,0 +1,49 @@
+MISSION-ID: engine-heal-symmetry.S1
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\.claude\muezzin-plugin
+ALLOW-FILES:
+  - seat_dispatch.mjs
+  - conduct-cycle.mjs
+UNLINKED-OK: engine module edits — no user-facing page
+REQUIRES: engine-truth-of-record.S1 (tartib — SERIAL engine missions, one per reload window; do not plan against stale code)
+STEPS: 6
+
+Maqsad: UNIT B of GAP-CLOSURE-PLAYBOOK.md — dispatch heal SYMMETRY. Evidence in
+missions/_logs/GAP-HUNT-2026-07-03.json (read the items before editing):
+(B1) "Local-only dispatch TIMEOUT/NETWORK is one-shot terminal": seat_dispatch.mjs's
+localOnly branch heals only HTTP_503 saturation (3 waits) and EMPTY_CONTENT/THINKING (one
+think:false retry); kind=TIMEOUT and NETWORK throw terminally — while the main waterfall
+heals TIMEOUT with one extend-retry and NETWORK/5xx with a short-delay retry (healDispatch),
+and the named-Claude lane got HANG-RETRY today. Same-day receipts: 16:27:18 witness qwen
+TIMEOUT burned with no retry; 18:54:57 architect gemma NETWORK 'fetch failed' burned. Fix:
+the localOnly branch gains the waterfall's EXACT bounded heals — TIMEOUT -> one extend-retry,
+NETWORK/5xx -> one short-delay retry — mirroring healDispatch's caps verbatim (no new
+policy; read healDispatch first and reuse its constants). Tag the addition with the literal
+comment mt-b1-local-heal.
+(B2) "conduct-cycle's heartbeat failure-class vocabulary is frozen": the sweep's failure
+flags are hand-coded per class (thinkingBurn, cudaCrash). Fix: generalize into a TABLE —
+an exported array of { key, regex, threshold, flagText } rows the sweep iterates; migrate
+the existing EMPTY_CONTENT_THINKING and CUDA rows byte-equivalent (same thresholds, same
+flag texts — the report lines must not change), and ADD two rows: local TIMEOUT
+(attempt-fail provider=ollama-local + kind=TIMEOUT, threshold 3) and local NETWORK (same
+shape, kind=NETWORK, threshold 3). Tag the table mt-b2-flag-table. Existing selftests that
+assert the old flag lines MUST still pass unchanged (byte-equivalence is the acceptance).
+
+niyyah: The lanes that check the work deserve the same resilience as the lanes that produce
+it — a witness burned by one transient timeout becomes a BLOCK verdict nobody earned. And a
+failure-class vocabulary that requires code changes per class is why 155 CUDA crashes went
+unseen; a table row is the cost a chronic class should pay to become visible.
+
+Steps:
+  1. Baseline: record branch + HEAD; print PRESENT/ABSENT for mt-b1-local-heal in seat_dispatch.mjs (idempotence anchor; if PRESENT, edit steps are verify-only). Never exit 1 on existence. [command]
+  2. B1 in seat_dispatch.mjs: read healDispatch's TIMEOUT/NETWORK handling first, then add the same bounded heals to the localOnly branch (one extend-retry for TIMEOUT, one short-delay retry for NETWORK/5xx, healDispatch's caps verbatim), tagged mt-b1-local-heal; add selftest fixtures asserting the heal fires once per kind and the second failure still throws the local-only terminal error. [edit] seat_dispatch.mjs
+  3. B2 in conduct-cycle.mjs: the flag TABLE (mt-b2-flag-table) with byte-equivalent migration of the two existing rows + the two new local rows; selftest fixtures: old flag lines unchanged on the same inputs, new rows fire at threshold, below-threshold silent. [edit] conduct-cycle.mjs
+  4. Verify: Select-String receipts for mt-b1-local-heal and mt-b2-flag-table; node --check both files. [verify]
+  5. git commit both ALLOW-FILES by explicit name naming this mission + playbook UNIT B + the hunt items; idempotent no-op if already committed (ALREADY_COMMITTED + exit 0 when clean and HEAD carries both markers). [command]
+  6. OUTCOME CHECK: run node seat_dispatch.mjs --selftest AND node conduct-cycle.mjs --selftest as a multi-line block; the receipt MUST show BOTH suites ending ALL PASS with the new fixture names visible (local TIMEOUT heals once / local NETWORK heals once / old flag lines byte-unchanged / new rows fire at threshold). Any FAIL line or missing fixture name fails this step. [command]
+
+Done means: both files committed at HEAD carrying mt-b1-local-heal and mt-b2-flag-table;
+both suites ALL PASS with the new fixtures in the step-6 receipt; after the next reload, a
+transient local timeout or network blip costs one bounded retry instead of a burned witness
+dispatch, and a new chronic failure class costs one table row to surface instead of code
+(GAP-CLOSURE-PLAYBOOK UNIT B).
