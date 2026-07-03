@@ -218,7 +218,7 @@ export function execReceipt(cmd, cwd) {
 // launched with NO shell.
 const CLAUDE_CMD = 'C:\\Users\\marka\\AppData\\Roaming\\npm\\node_modules\\@anthropic-ai\\claude-code\\bin\\claude.exe';
 const CLAUDE_SEAT_MAP = {
-  'qwen3-coder-next': 'sonnet', 'kimi-k2.6': 'opus', 'kimi-k2.7-code': 'sonnet',
+  'qwen3-coder-next': 'sonnet', 'kimi-k2.6': 'opus', 'kimi-k2.7-code': 'sonnet', 'north-mini-code-toolcall': 'sonnet',   // north = honest name for the ex-kimi-alias blob (2026-07-03); old key kept so in-flight missions still resolve
   // verdict seats (phase-3 adversarial verify, wired 2026-06-10): outage must not skip
   // the verify phase (absence is not APPROVE). Per the locked seat plan: validator
   // (deepseek) falls to Sonnet; auditor (minimax) falls to HAIKU — a fast rigorous
@@ -258,7 +258,8 @@ const AGY_TIMEOUT_MS = 8 * 60 * 1000;
 // Per the locked seat plan: executor is qwen3-coder-next (or kimi-k2.7-code / sonnet).
 const AGY_EXECUTOR_SEATS = new Set([
   'qwen3-coder-next',  // canonical Phase-2 executor
-  'kimi-k2.7-code',    // alternate executor
+  'kimi-k2.7-code',    // alternate executor (legacy alias name — kept for in-flight compat)
+  'north-mini-code-toolcall',    // alternate executor (honest name for the same blob, 2026-07-03)
   'sonnet',            // direct-Claude executor via seating-modes (anthropic-heavy mode)
   'gemini-3.5-flash',  // Gemini flash alias
   'gemini-3-ultra',    // Gemini ultra alias
@@ -340,8 +341,8 @@ export function recognizeClaudeModel(model) {
 // MODEL ESCALATION TIERS: per-base ordered escalation chains.
 // tier 0 = local coder, tier 1 = big local coder, tier 2 = premium (Claude).
 const MODEL_ESCALATION_TIERS = {
-  'qwen3-coder-next': ['qwen3-coder-next', 'kimi-k2.7-code', 'sonnet'],
-  'qwen3.6:27b': ['qwen3.6:27b', 'kimi-k2.7-code', 'sonnet'],
+  'qwen3-coder-next': ['qwen3-coder-next', 'north-mini-code-toolcall', 'sonnet'],
+  'qwen3.6:27b': ['qwen3.6:27b', 'north-mini-code-toolcall', 'sonnet'],
 };
 
 const escalationHits = new Map();

@@ -79,7 +79,7 @@ export function findFabricatedAbsenceClaims(findings, cwd) {
 // that rite itself). An untested candidate is never promoted to proxy — if nobody
 // qualifies, the default keeps the rite (visible in the record; the conductor's beat
 // can see a disqualified seat with no eligible proxy).
-export const ESCALATION_LADDER = ['kimi-k2.7-code', 'kimi-k2.6', 'deepseek-v4-pro'];
+export const ESCALATION_LADDER = ['north-mini-code-toolcall', 'qwen3.6:27b', 'sonnet'];   // 2026-07-03: honest-name rename (was the kimi-alias) + kimi-k2.6/deepseek-v4-pro removed — cloud-only names, unreachable under the NO-CLOUD ruling; local qwen + Claude sonnet are the real rungs
 export function badalSelect(recordPath, rite, defaultModel) {
   const record = loadSeatRecord(recordPath);
   const own = proxyEligible(record, defaultModel, rite);
@@ -138,14 +138,14 @@ if (process.argv[1] && process.argv[1].endsWith('seat_record.mjs')) {
   recordSeatOutcome(rec2, 'qwen3-coder-next', 'emission', 'fabrication');   // 1 pass + 1 fab = ratio 0.75 -> disqualified
   const noProxy = badalSelect(rec2, 'emission', 'qwen3-coder-next');
   ck(noProxy.escalated === false && /NO eligible proxy/.test(noProxy.blocked || ''), 'badal: disqualified default + UNTESTED candidates -> refuse substitution (visible block, no blind promotion)');
-  recordSeatOutcome(rec2, 'kimi-k2.6', 'emission', 'pass');                  // kimi completes its own Hajj
+  recordSeatOutcome(rec2, 'qwen3.6:27b', 'emission', 'pass');                // a ladder rung completes its own Hajj (rung renamed with the 2026-07-03 honest-name ladder)
   const esc = badalSelect(rec2, 'emission', 'qwen3-coder-next');
-  ck(esc.escalated === true && esc.model === 'kimi-k2.6', 'badal: disqualified default + PROVEN proxy -> escalate to the proxy');
+  ck(esc.escalated === true && esc.model === 'qwen3.6:27b', 'badal: disqualified default + PROVEN proxy -> escalate to the proxy');
 
   // fast-revert: an untested failing default (0 passes + any failure) auto-reverts
   recordSeatOutcome(rec2, 'fresh-model', 'emission', 'miss');
   const untestedFailing = badalSelect(rec2, 'emission', 'fresh-model');
-  ck(untestedFailing.escalated === true && untestedFailing.model === 'kimi-k2.6', 'badal: untested-and-failing default (0 passes + miss) -> escalate to first eligible proxy');
+  ck(untestedFailing.escalated === true && untestedFailing.model === 'qwen3.6:27b', 'badal: untested-and-failing default (0 passes + miss) -> escalate to first eligible proxy');
 
   rmSync(dir, { recursive: true, force: true });
   console.log(`\n${fail ? fail + ' FAIL' : 'ALL PASS — badal track record + absence-claim detector sound'}`);

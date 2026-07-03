@@ -374,7 +374,8 @@ export async function implementStep(step, cwd, { dispatch = dispatchSeat, model 
     // targets (.html/.md/.txt) to the faithful seat (sonnet) — removes the fabrication surface for content; CODE/config emission
     // stays on the local coder (kimi via the mode) to conserve Claude budget. Per-seat record auto-separates prose vs code quality.
     const proseTarget = isProseTarget(step.target_files?.[0]);
-    const floor = (proseTarget && process.env.MUEZZIN_CLAUDE_TIER === 'on') ? 'sonnet' : pickSeat('executor', 'kimi-k2.7-code');
+    // default floor renamed kimi-k2.7-code -> north-mini-code-toolcall 2026-07-03 (honest name, same blob 429d372cb9f6)
+    const floor = (proseTarget && process.env.MUEZZIN_CLAUDE_TIER === 'on') ? 'sonnet' : pickSeat('executor', 'north-mini-code-toolcall');
     try { badal = badalSelect(path.join(path.dirname(cwd), '_logs', 'seat-record.json'), 'emission', floor); model = badal.model; }
     catch { model = floor; }
   }
@@ -720,8 +721,8 @@ if (process.argv[1]?.endsWith('executor.mjs')) {
     // CODE targets (.mjs) test the MODE's executor floor:
     ck(await captureSeatModel('anthropic-heavy') === 'sonnet', 'SEATING MODE anthropic-heavy: the executor floor is sonnet (Sonnet executes) when no explicit model is forced');
     // "absent mode": an INVALID sentinel env value -> readMode null (env-set-but-invalid -> default).
-    ck(await captureSeatModel('__none__') === 'kimi-k2.7-code', 'SEATING MODE absent: executor floor falls back to kimi-k2.7-code (2026-06-17 qwen->kimi: better-recorded coder)');
-    ck(await captureSeatModel('local-heavy') === 'kimi-k2.7-code', 'SEATING MODE local-heavy: executor floor is the local coder kimi-k2.7-code (≈zero Claude)');
+    ck(await captureSeatModel('__none__') === 'north-mini-code-toolcall', 'SEATING MODE absent: executor floor falls back to north-mini-code-toolcall (honest name for the ex-kimi-alias local coder)');
+    ck(await captureSeatModel('local-heavy') === 'north-mini-code-toolcall', 'SEATING MODE local-heavy: executor floor is the local coder north-mini-code-toolcall (≈zero Claude)');
     // PROSE targets route to the faithful seat (sonnet) REGARDLESS of mode (2026-06-17 prose-split, fabrication fix):
     ck(await captureSeatModel('local-heavy', 'page.md') === 'sonnet', 'PROSE-FAITHFUL FLOOR: a .md target -> sonnet even under local-heavy');
     ck(await captureSeatModel('__none__', 'index.html') === 'sonnet', 'PROSE-FAITHFUL FLOOR: a .html target -> sonnet even with no mode');

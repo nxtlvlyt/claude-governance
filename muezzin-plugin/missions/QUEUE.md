@@ -722,9 +722,10 @@ what we have been running for 4 days"). The receipted three-era timeline:**
   the North blob is what actually sat in this seat for the past 4 days, exclusively since the
   NO-CLOUD enforcement. Real Kimi is cloud-only and unreachable under the ruling.
 Panel labs IN FACT today: Cohere-North/Alibaba/IBM — 3 distinct labs, diversity intact; only
-the label lied. Owed: rename the seat strings + retire the misleading tag when no lane is on
-the chain (same digest = zero behavior change); split per-era rows out of seat-record.json
-before citing the ratio for the LOCAL seat again.
+the label lied. RENAME PERFORMED 2026-07-03 (muezzin-plugin git): every seat SELECTION now
+says north-mini-code-toolcall; old map keys kept for in-flight compat; selftests green x5.
+Still owed: (a) `ollama rm kimi-k2.7-code:latest` on nxtbeast when no lane is on the chain,
+(b) per-era split of seat-record.json before citing the 0.43 ratio for the LOCAL seat.
 
 ## 2026-07-02 SEAT-PLAN DEVIATION — WITHDRAWN (operator catch was correct)
 The 404s were Ollama Cloud CATALOG NAMING drift (:cloud tags now required), not dead labs.

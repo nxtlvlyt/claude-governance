@@ -47,7 +47,8 @@ const SENTINEL_TIMEOUT_MS = 30 * 1000;    // 30s sentinel for quota-tap detectio
 // with seat_dispatch.mjs's CLAUDE_MODEL_MAP (mirror semantics: seat → underlying family).
 const SEAT_TO_AGY_MODEL = {
   'qwen3-coder-next': 'claude-sonnet-4-6',  // executor seat → Sonnet 4.6 via agy
-  'kimi-k2.7-code': 'claude-sonnet-4-6',    // alternate executor → same
+  'kimi-k2.7-code': 'claude-sonnet-4-6',    // alternate executor → same (legacy alias name, kept for compat)
+  'north-mini-code-toolcall': 'claude-sonnet-4-6',    // honest name for the same blob (2026-07-03) → same
   'sonnet': 'claude-sonnet-4-6',             // direct sonnet alias
   'opus': 'claude-opus-4-5',                 // when an Opus-class seat escalates
   'gemini-3.5-flash': 'gemini-3.5-flash',   // Gemini flash alias

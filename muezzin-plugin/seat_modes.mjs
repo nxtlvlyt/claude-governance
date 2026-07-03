@@ -61,9 +61,9 @@ export const MODES = ['balance', 'anthropic-heavy', 'local-heavy', 'reasoning-he
 // phase-2 smell-test seat (its Claude fallback is governed by CLAUDE_SEAT_MAP, kept strong).
 const TABLE = {
   'balance': {
-    architects: ['kimi-k2.7-code:latest', 'qwen3.6:35b', 'granite4.1:30b'],   // LOCAL trio (today's PANEL_ARCHITECTS). IDENTITY NOTE 2026-07-03: 'kimi-k2.7-code' is an alias of north-mini-code-toolcall (Cohere North 30.5B, digest 429d372cb9f6) — not Moonshot; real Kimi K2.7 is 1.04T and never local.
+    architects: ['north-mini-code-toolcall:latest', 'qwen3.6:35b', 'granite4.1:30b'],   // LOCAL trio (today's PANEL_ARCHITECTS). HONEST-NAME RENAME 2026-07-03: was 'kimi-k2.7-code:latest' — an alias of this same North blob (digest 429d372cb9f6, Cohere 30.5B, never Moonshot); renamed to end the recurring cross-instance kimi arguments.
     integrator: 'nemotron-3-super:latest',                                // CLAUDE_SEAT_MAP-routed: Opus-first window (today's PANEL_INTEGRATOR_MODEL)
-    executor: 'kimi-k2.7-code',                                    // 2026-06-17: qwen3-coder-next->kimi-k2.7-code (guardian+laguna APPROVE). seat-record: ratio 0.43 (5 fewer fab) beats qwen 0.484; canon/bake-off = reliable Phase-2 executor; 16 recorded completions. Sonnet fallback via CLAUDE_SEAT_MAP. IDENTITY NOTE 2026-07-03 v2 (receipted timeline, both prior attributions were wrong): the NAME was served by REAL Moonshot Kimi via cloud 06-15..06-30 (654 heartbeat dispatches — the 06-17 bake-off record is THAT model's); the LOCAL tag is a North alias (north-mini-code-toolcall, digest 429d372cb9f6, created 06-25) and is what actually ran 06-29..now (168 local dispatches). Per-era split lives in seat-record.json; do not cite the cloud-era ratio for the local North seat.
+    executor: 'north-mini-code-toolcall',                          // HONEST-NAME RENAME 2026-07-03 (was 'kimi-k2.7-code' — a North alias, same digest 429d372cb9f6). Receipted history: the kimi NAME was served by REAL Moonshot Kimi via cloud 06-15..06-30 (654 dispatches — the 06-17 bake-off ratio 0.43 belongs to THAT model); this North blob is what actually ran locally 06-29..now (168 dispatches). Do not cite the cloud-era ratio for this seat; per-era split lives in seat-record.json. Sonnet fallback via CLAUDE_SEAT_MAP.
     validator: 'qwen3.6:27b',                                  // ollama-cloud verdict (today)
     auditor: 'granite4.1:30b',                                         // ollama-cloud verdict (today)
     final_auditor: 'nemotron-3-super',                             // M-ENGINE-3PHASE.3: consensus seat reads the two boundary verdicts (ollama-cloud)
@@ -93,7 +93,7 @@ const TABLE = {
     // NEVER the Claude tier (no name here maps to a Claude model as PRIMARY).
     architects: ['glm-5.1', 'deepseek-v4-pro', 'nemotron-3-super'],
     integrator: 'nemotron-3-super:latest',                                 // ollama-cloud integrator
-    executor: 'kimi-k2.7-code',                                    // Ollama Cloud executor (ornith:35b local fallback)
+    executor: 'north-mini-code-toolcall',                          // local North coder (was the kimi-alias; ornith:35b alternate) — renamed 2026-07-03
     validator: 'qwen3.6:27b',                                  // ollama verdict
     auditor: 'granite4.1:30b',                                         // ollama verdict
     final_auditor: 'north-mini-code-1.0:q4_K_M',                   // M-ENGINE-3PHASE.3: consensus seat — local, structural-code judge (bench 16/16 unanimous)
@@ -109,7 +109,7 @@ const TABLE = {
     // JUDGMENT seats (witness/auditor); a reliable open coder GRINDS the executor to save Claude on the highest-token seat.
     architects: ['opus', 'sonnet', 'qwen3.6:35b'],                  // haiku -> minimax-m3: bigger open reasoner + cross-lab diversity on the blind plans
     integrator: 'opus',                                            // Opus synthesis (heaviest-context job)
-    executor: 'kimi-k2.7-code',                                    // Kimi-2.7 (ollama-cloud coder) — co-best+RELIABLE per bake-off; Sonnet fallback via CLAUDE_SEAT_MAP
+    executor: 'north-mini-code-toolcall',                          // local North coder (was the kimi-alias; the cloud-era bake-off record belongs to real Kimi) — renamed 2026-07-03; Sonnet fallback via CLAUDE_SEAT_MAP
     validator: 'sonnet',                                           // Claude verdict (stronger per-seat than open deepseek for hard work)
     auditor: 'opus',                                               // Opus boundary auditor (sharpest judgment on difficult work)
     final_auditor: 'opus',                                         // M-ENGINE-3PHASE.3: consensus seat — Opus on judgment seats per this profile
@@ -245,7 +245,7 @@ if (process.argv[1]?.endsWith('seat_modes.mjs') && process.argv.includes('--self
   {
     const s = resolveMode('balance');
     ckT('balance: 3 architects, NONE a Claude model (ollama-cloud, stretch Claude only at fallback)', s.architects.length === 3 && s.architects.every((m) => !isClaude(m)));
-    ck('balance: executor = kimi-k2.7-code (2026-06-17: better-recorded than qwen, canon Phase-2 executor)', s.executor, 'kimi-k2.7-code');
+    ck('balance: executor = north-mini-code-toolcall (honest-name rename 2026-07-03; same blob as the old kimi-alias)', s.executor, 'north-mini-code-toolcall');
     ckT('balance: witness = gemini-3-flash-preview (Google Gemini witness)', s.witness === 'gemini-3-flash-preview');
   }
 
