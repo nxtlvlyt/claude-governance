@@ -1030,3 +1030,10 @@ to Sonnet, which inherits: GAP-CLOSURE-PLAYBOOK.md (repo root), this ledger (#7�
 STATE.md session-close block, and engine-truth-of-record.S1 as the mission template.
 CLARIFIED same turn: the big-project discussion fires only when ALL 29 pieces (#7,#8,#9,#10
 + the 25 inside #11) are struck — the numbering never shrinks the obligation.
+
+## GAP #10 ARM 1 LANDED 2026-07-03 20:4x (operator re-prioritized: the seat runs the gap program)
+MODEL_OPTIONS overlay committed (57/57): gemma4:31b dispatches carry num_gpu=56 of the
+receipted 60 blocks — 4 layers into the 192GB RAM, off the VRAM edge. Rides the reload at the
+current lane's boundary, i.e. ACTIVE BEFORE the first engine gap mission fires. #10 closes on
+the census: zero gemma CUDA crashes in a 24h window; persistence at low pressure = upstream
+bug -> demote per the recorded conditions.

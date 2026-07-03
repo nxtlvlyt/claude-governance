@@ -551,7 +551,25 @@ export function mayContinueToolLoop(rounds, progressedLastRound, base = BASE_TOO
 }
 
 // one provider attempt: full OpenAI-compatible tool-call loop (SearXNG), returns accumulated text content.
-async function attemptProvider(provider, body, timeoutMs) {
+// PER-MODEL OPTIONS OVERLAY (2026-07-03, gap #10 ARM 1, operator-prioritized: "gemma is a
+// seat in the chain that will be doing [the gap] work"). gemma4:31b (19.8GB) BARELY fits the
+// 24GB 4090, so Ollama full-GPU loads it and runtime KV/batch growth overruns the sliver —
+// the 155-crash CUDA class (census in QUEUE). num_gpu=56 of the receipted 60 blocks
+// (/api/show gemma4.block_count=60) forces 4 layers into the 192GB system RAM: full quality,
+// physically off the VRAM edge, latency cost acceptable for architect/vision seats (the
+// operator's standing overflow ruling). Merge order: overlay FIRST, explicit per-call
+// options WIN (a caller that sets num_gpu deliberately is never overridden).
+// METRIC: the CUDA census — zero gemma crashes over 24h closes ARM 1; crashes persisting at
+// low VRAM pressure confirm the upstream-bug hypothesis and gemma demotes (QUEUE conditions).
+export const MODEL_OPTIONS = { 'gemma4:31b': { num_gpu: 56 } };
+export function applyModelOptions(body) {
+  const overlay = MODEL_OPTIONS[body?.model];
+  if (!overlay) return body;
+  return { ...body, options: { ...overlay, ...(body.options || {}) } };
+}
+
+async function attemptProvider(provider, rawBody, timeoutMs) {
+  const body = applyModelOptions(rawBody);
   const apiKey = keyFor(provider);
   if (provider.envKeys.length && !apiKey) throw new WaterfallError('NETWORK', provider.id, body.model, `Missing ${provider.envKeys.join('/')}`);
 
@@ -1137,6 +1155,10 @@ if (process.argv[1]?.endsWith('seat_dispatch.mjs') && process.argv.includes('--s
   check('isLongRunCmd: plain command without marker -> false', isLongRunCmd('node scripts/e2e-runner.mjs'), false);
   check('isLongRunCmd: LONG-RUN as prose (no # comment) -> false, never inferred', isLongRunCmd('echo this is a LONG-RUN of tests'), false);
   check('isLongRunCmd: null/undefined -> false', isLongRunCmd(null), false);
+  // MODEL_OPTIONS overlay (gap #10 ARM 1: gemma partial-offload into system RAM)
+  check('applyModelOptions: gemma gets num_gpu 56 (4 of 60 receipted blocks to RAM)', applyModelOptions({ model: 'gemma4:31b', messages: [] }).options.num_gpu, 56);
+  check('applyModelOptions: explicit per-call num_gpu WINS over the overlay', applyModelOptions({ model: 'gemma4:31b', messages: [], options: { num_gpu: 60 } }).options.num_gpu, 60);
+  check('applyModelOptions: other models untouched (no options object invented)', applyModelOptions({ model: 'qwen3.6:27b', messages: [] }).options, undefined);
 
   console.log(`[selftest] ${pass} passed, ${fail} failed`);
   process.exit(fail ? 1 : 0);
