@@ -1,0 +1,19 @@
+MISSION-ID: mt-integrate-geocode-2026-06-23.S1.S2
+MISSION-CLASS: code-repo
+PARENT: mt-integrate-geocode-2026-06-23.S1
+TARTIB-INDEX: 2 of 2
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - scratch-geocode-test.mjs
+REQUIRES: mt-integrate-geocode-2026-06-23.S1.S1 (tartib — this sub-mission may not start until mt-integrate-geocode-2026-06-23.S1.S1's receipt exists)
+STEPS: 2
+
+PARENT MAQSAD: sub-mission 1 of 2 — In the source worktree, confirm commit c53ffb0 exists and its stat output names both new files, without modifying that worktree. through Confirm the cherry-pick touched exactly the two ALLOW-FILES entries and nothing else (guards against a same-named-file collision or unexpected third path being staged).
+
+Maqsad: sub-mission 2 of 2 — Commit the two ALLOW-FILES by explicit name (never -A or .) with a message naming both the geocode feature and origin c53ffb0. Idempotent: only stages/commits when the two files still show pending changes, so a re-run after a prior successful commit no-ops cleanly instead of failing on an empty commit. through Write a cwd-relative scratch harness (scratch-geocode-test.mjs) that imports each committed handler, feeds one inline request fixture per endpoint (forward: a known Canadian place string; reverse: a known lat/lng), asserts a structured non-error response shape from each, run it requiring exit 0 with output GEOCODE_OK, then remove the scratch file so the tree stays clean.
+
+Steps:
+  9. Commit the two ALLOW-FILES by explicit name (never -A or .) with a message naming both the geocode feature and origin c53ffb0. Idempotent: only stages/commits when the two files still show pending changes, so a re-run after a prior successful commit no-ops cleanly instead of failing on an empty commit. [command] 
+  10. Write a cwd-relative scratch harness (scratch-geocode-test.mjs) that imports each committed handler, feeds one inline request fixture per endpoint (forward: a known Canadian place string; reverse: a known lat/lng), asserts a structured non-error response shape from each, run it requiring exit 0 with output GEOCODE_OK, then remove the scratch file so the tree stays clean. [command] scratch-geocode-test.mjs
+
+Done means: scratch-geocode-test.mjs exist/are updated as specified

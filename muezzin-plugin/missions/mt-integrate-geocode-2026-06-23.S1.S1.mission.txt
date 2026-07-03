@@ -1,0 +1,26 @@
+MISSION-ID: mt-integrate-geocode-2026-06-23.S1.S1
+MISSION-CLASS: code-repo
+PARENT: mt-integrate-geocode-2026-06-23.S1
+TARTIB-INDEX: 1 of 2
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - functions/api/geocode.js
+  - functions/api/reverse-geocode.js
+REQUIRES: none (first in tartib order)
+STEPS: 8
+
+PARENT MAQSAD: sub-mission 1 of 2 — In the source worktree, confirm commit c53ffb0 exists and its stat output names both new files, without modifying that worktree. through Confirm the cherry-pick touched exactly the two ALLOW-FILES entries and nothing else (guards against a same-named-file collision or unexpected third path being staged).
+
+Maqsad: sub-mission 1 of 2 — Confirm commit c53ffb0 exists as a git object and is already an ancestor of HEAD in this repo (it is a cherry-pick source, not a live branch tip). through Confirm the cherry-pick's staged (index) changes touch exactly the two ALLOW-FILES and nothing else, guarding against a same-named-file collision or an unexpected third path being staged. Scoped to the staged index rather than the whole working tree, so pre-existing unrelated untracked files elsewhere in the repo cannot false-fail this check.
+
+Steps:
+  1. Confirm commit c53ffb0 exists as a git object and is already an ancestor of HEAD in this repo (it is a cherry-pick source, not a live branch tip). [command] 
+  2. Check out main at its current HEAD and confirm it is the active branch before mutating anything. [command] 
+  3. Cherry-pick c53ffb0 onto main with --no-commit so both new files land staged without auto-committing; complete the pick in the same command if conflicts auto-resolve, then assert no unmerged/added/deleted conflict state remains on the two target paths. [command] 
+  4. Verify functions/api/geocode.js has real integrated content (the geo:fwd: cache-key namespace present) and contains no unresolved git conflict markers. [verify] functions/api/geocode.js
+  5. Verify functions/api/reverse-geocode.js has real integrated content (the geo:rev: cache-key namespace present) and contains no unresolved git conflict markers. [verify] functions/api/reverse-geocode.js
+  6. Run node --check on functions/api/geocode.js to confirm it is syntactically sound after integration. [verify] functions/api/geocode.js
+  7. Run node --check on functions/api/reverse-geocode.js to confirm it is syntactically sound after integration. [verify] functions/api/reverse-geocode.js
+  8. Confirm the cherry-pick's staged (index) changes touch exactly the two ALLOW-FILES and nothing else, guarding against a same-named-file collision or an unexpected third path being staged. Scoped to the staged index rather than the whole working tree, so pre-existing unrelated untracked files elsewhere in the repo cannot false-fail this check. [verify] 
+
+Done means: functions/api/geocode.js, functions/api/reverse-geocode.js exist/are updated as specified — verify by headless-browser render, not by reading the code
