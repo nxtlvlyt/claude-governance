@@ -39,6 +39,17 @@ niyyah: A record system that reads UNRESOLVED as resolved, trusts unverified sta
 drops queued work on partial requeues cannot be the substrate a smaller conductor inherits.
 Truth of record first; every acceptance below is a selftest, not an opinion.
 
+CITATION-GUARD CONSTRAINT (attempt-2 killer, receipts in this mission's result.json:
+fabricated-citation x3, flagged tokens were the executor's OWN illustrative retro
+filenames in code comments). The engine's citation guard flags EVERY backtick-quoted
+token ending in a file extension that is not a real staged source — including invented
+EXAMPLES in comments. This mission's subject matter (retro file naming) makes that trap
+near-certain, so the constraint is absolute: in ALL authored code and comments, NEVER
+write a backtick-quoted example filename. Compliant forms instead: (a) describe naming in
+prose without backticks (stem plus ISO timestamp, dot md); (b) use template-literal form
+with interpolation, which the guard exempts; (c) reference only files that actually exist
+in the repo. This applies to comments, commit messages, and selftest fixture strings alike.
+
 Steps:
   1. Baseline: record branch + HEAD; print PRESENT/ABSENT for the marker mt-c1-boundary in muezzin-daemon.mjs (idempotence anchor; if PRESENT, edit steps are verify-only). Never exit 1 on existence. [command]
   2. C1+C2 in ONE edit of muezzin-daemon.mjs: the \b regex fix at every RESOLVED-comment match site (tag the first fixed site with the literal comment mt-c1-boundary) AND the missionLandedState-backed stamp verification in queuedDepsHold + pickPromotion per the Maqsad contract (import from ./conduct-cycle.mjs; STAMP-DISPUTED event on mismatch; fail-open on null). Port the closed() selftest pair + add stamp-verification fixtures (valid stamp honored / disputed stamp keeps mission live / null verdict honors stamp) to the daemon selftest block. [edit] muezzin-daemon.mjs
