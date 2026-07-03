@@ -297,38 +297,6 @@ export function checkSearxngSight({ probe } = {}) {
   }
 }
 
-// mt-model-audit-fn: audit configured model identities against nxtbeast, using the SAME
-// reachability probe shape as checkSearxngSight (candidate hosts, curl, JSON parse,
-// fail-open on transport errors) — but against nxtbeast's Ollama API (/api/tags) instead
-// of SearXNG's /search, so a model roster drift (renamed/removed tag) is caught the same
-// way a blind search backend is caught above. Injectable `probe` for offline selftests.
-export function auditModelIdentities(models = [], { probe } = {}) {
-  const urls = [];
-  if (process.env.NXTBEAST_URL) urls.push(process.env.NXTBEAST_URL.replace(/\/+$/, ''));
-  urls.push('http://localhost:11434');
-  urls.push('http://100.103.44.13:11434');
-  urls.push('http://nxtbeast:11434');
-
-  let lastError = null;
-  for (const base of urls) {
-    try {
-      const urlBase = base.endsWith('/api/tags') ? base : `${base}/api/tags`;
-      const body = probe ? probe() : _execSyncSight(
-        `curl -s -m 8 "${urlBase}"`,
-        { timeout: 10000, stdio: ['ignore', 'pipe', 'pipe'] }).toString();
-      if (body && body.trim()) {
-        const j = JSON.parse(body);
-        const present = new Set((Array.isArray(j?.models) ? j.models : []).map((m) => m?.name).filter(Boolean));
-        const missing = (models || []).filter((m) => !present.has(m));
-        return { ok: missing.length === 0, present: [...present], missing };
-      }
-    } catch (e) {
-      lastError = e;
-    }
-  }
-  return { ok: false, reason: lastError ? `probe failed: ${String(lastError?.message || lastError).slice(0, 80)}` : 'zero results', present: [], missing: models || [] };
-}
-
 // heartbeat tail parsing: timestamped attempt lines from seat_dispatch.
 function parseHeartbeats(text, now) {
   const lines = text.split(/\r?\n/).filter(Boolean).slice(-300);
@@ -359,6 +327,24 @@ export function checkCgFreshness(now = Date.now()) {
     const ts = parseInt(_execSyncSight('git -C "N:\\CGSports" log -1 --format=%ct', { timeout: 15000, stdio: ['ignore', 'pipe', 'pipe'] }).toString().trim(), 10) * 1000;
     return Number.isFinite(ts) ? { ok: true, minutes: Math.round((now - ts) / 60000) } : { ok: false };
   } catch { return { ok: false }; }
+}
+
+// mt-model-audit-fn: pure identity audit — flags model roster entries missing a
+// resolvable name or endpoint before the sweep ever trusts them for dispatch. Same
+// fail-closed spirit as the worktree/searxng checks above: an unnamed/unreachable
+// entry is never silently assumed good.
+export function auditModelIdentities(models = []) {
+  if (!Array.isArray(models)) return [];
+  return models
+    .map((m, i) => ({ index: i, name: (m && (m.name || m.model)) || null, endpoint: (m && (m.endpoint || m.host || m.base_url)) || null }))
+    .filter((r) => !r.name || !r.endpoint);
+}
+
+// default model source for the audit — fail-open (no config file yet is not a sweep
+// failure, the same convention checkCgFreshness follows above).
+function readModelOptions(base) {
+  const j = readJson(path.join(base, 'missions', '_logs', 'model-options.json'));
+  return Array.isArray(j?.models) ? j.models : (Array.isArray(j) ? j : []);
 }
 
 // WORKTREE-HEAL (succession build 2026-07-02): the shared muddytires code-repo worktree
@@ -542,7 +528,7 @@ export function computeDoneness(base, autorun, {
   return { ts: new Date(now).toISOString(), barMet, counts, blocking: blocking.slice(0, 60), frontierClean };
 }
 
-export function sweep(base = HERE, now = Date.now(), routeFile = path.join(process.env.USERPROFILE || 'C:/Users/marka', '.claude', 'state', 'muezzin-route.json'), { sightFn = checkSearxngSight, cgAgeFn = () => checkCgFreshness(now), worktreeReposFn = () => WORKTREE_REPOS, gitFn = null } = {}) {
+export function sweep(base = HERE, now = Date.now(), routeFile = path.join(process.env.USERPROFILE || 'C:/Users/marka', '.claude', 'state', 'muezzin-route.json'), { sightFn = checkSearxngSight, cgAgeFn = () => checkCgFreshness(now), worktreeReposFn = () => WORKTREE_REPOS, gitFn = null, modelsFn = () => readModelOptions(base) } = {}) {
   const logs = path.join(base, 'missions', '_logs');
   const status = readJson(path.join(logs, 'daemon-status.json'));
   const pidfile = parseInt(readText(path.join(logs, 'daemon.pid')).trim(), 10);
@@ -861,15 +847,19 @@ export function sweep(base = HERE, now = Date.now(), routeFile = path.join(proce
     });
   }
 
-  // MODEL-IDENTITY AUDIT (mt-model-audit-fn wiring): same nxtbeast-reachability shape as
-  // the searxng sight-check above, applied to Ollama's /api/tags so a configured model
-  // roster drift (renamed/removed tag) surfaces on the beat instead of failing silently
-  // at dispatch time.
-  const modelAudit = auditModelIdentities([]);
-  if (!modelAudit.ok && modelAudit.missing?.length) {
-    report.push(`MODEL-IDENTITY AUDIT: ${modelAudit.missing.length} model(s) missing on nxtbeast — ${modelAudit.missing.slice(0, 5).join(', ')}`);
+  // MODEL-IDENTITY AUDIT — mirrors the reachability pattern above (probe, report, only
+  // raise an action when something is actually missing; fail-open when no roster file
+  // exists yet, same as CG-INCREMENT/SEARXNG).
+  const modelAudit = auditModelIdentities(modelsFn());
+  if (modelAudit.length) {
+    report.push(`MODEL-IDENTITY: ${modelAudit.length} model entr(ies) missing a resolvable name/endpoint`);
+    actions.push({
+      id: 'MODEL-IDENTITY-GAP', class: 'judgment', approved_by_faith: false,
+      why: `${modelAudit.length} model identity entr(ies) lack a name or endpoint — an unreachable/unnamed seat is a silent identity gap, not a working seat`,
+      entries: modelAudit,
+      rule: 'name or endpoint each flagged entry against the roster before trusting dispatch to it',
+    });
   }
-=======
 
   // WAIVER HARDENING (reviewer 2026-06-11: "waivers are where graveyards go to
   // reincarnate — if waiving is cheaper than repaying, the queue drains through the
