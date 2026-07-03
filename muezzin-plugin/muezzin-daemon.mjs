@@ -943,7 +943,14 @@ async function mainLoop() {
     // aurora.S1 fired post-landing, its absence-preflight failed, FALSE death recorded; 9 of
     // 13 sampled FAILED marks were this class). Byte-identity only — PARTIAL/nosha still fire.
     try {
-      const st = missionLandedState(readFileSync(missionFile, 'utf8'),
+      const mtextGuard = readFileSync(missionFile, 'utf8');
+      // EXECUTION-CLASS EXEMPTION (2026-07-03, two live false-refusals 30s after this guard
+      // shipped: gpx.S2 + trip-cost.S2 refused because their ALLOW-FILES MIRROR their S1's
+      // landed files — but an S2's work is EXECUTION (apply/verify/render), which file
+      // identity cannot prove. The scanner's rule text already named this class; the guard
+      // now inherits it mechanically: TARTIB-INDEX >= 2 missions never pre-satisfy.)
+      const tartibIdx = Number((mtextGuard.match(/TARTIB-INDEX:\s*(\d+)\s+of/i) || [])[1] || 1);
+      const st = tartibIdx >= 2 ? null : missionLandedState(mtextGuard,
         (repo, argstr) => { try { return { ok: true, out: execSync(`git -C "${repo}" ${argstr}`, { stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 16 * 1024 * 1024 }).toString() }; } catch { return { ok: false, out: '' }; } });
       if (st && st.verdict === 'FULL') {
         evt(`PRE-SATISFIED: ${raw} — every ALLOW-FILE byte-identical to source ${st.srcSha} at HEAD; work already landed, refusing to fire into a guaranteed baseline failure. Marking for conductor RESOLVED-LANDED stamp.`);
