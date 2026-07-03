@@ -5,6 +5,7 @@ TARTIB-INDEX: 1 of 2
 REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
 ALLOW-FILES:
   - scripts/e2e-runner.mjs
+  - docs/FEATURE-CATALOG-2026-06-23.md
 VISUAL-QC-REQUIRED
 REQUIRES: none (first in tartib order)
 STEPS: 7
@@ -44,9 +45,9 @@ laguna witness REVISE flagged exactly this and was right. verify-popups-e2e.mjs 
 edited by this mission; it stays in ALLOW-FILES only as a read reference.
 
 Steps:
-  1. Baseline + RESTORE: record branch + HEAD; if scripts/e2e-runner.mjs is absent from the working tree, restore it from the stranded commit: git checkout e31469f -- scripts/e2e-runner.mjs (exit-code witness: Test-Path scripts/e2e-runner.mjs after). If it already contains an isMobile viewport entry report CLEAN_ALREADY, else CLEAN_BASELINE. Never exit 1 on existence. [command]
+  1. Baseline + RESTORE (extended 2026-07-03T12:5x from a conductor PRE-FLIGHT that ran the restored runner live: it FATALs on a missing catalog — "docs/FEATURE-CATALOG-2026-06-23.md not found"): record branch + HEAD; if scripts/e2e-runner.mjs is absent, restore it: git checkout e31469f -- scripts/e2e-runner.mjs; if docs/FEATURE-CATALOG-2026-06-23.md is absent, restore it from ITS stranded commit: git checkout 05696cd -- docs/FEATURE-CATALOG-2026-06-23.md (exit-code witnesses: Test-Path both files after). If the runner already contains an isMobile viewport entry report CLEAN_ALREADY, else CLEAN_BASELINE. Never exit 1 on existence. NOTE: the catalog is a restore-dependency, not an edit target — it is deliberately absent from ALLOW-FILES write scope for the D2/D3 edits, and the commit step names only scripts/e2e-runner.mjs plus (if newly restored) the catalog as restore-landings. [command]
   2. D2: add the second (mobile, 375x812, deviceScaleFactor 2, isMobile+hasTouch) viewport to scripts/e2e-runner.mjs's viewport matrix alongside the existing 1440x900 desktop entry, running the full existing check suite once per viewport and tagging results per-viewport. [edit] scripts/e2e-runner.mjs
-  3. D3: add the overlap detector to scripts/e2e-runner.mjs (the BROWSER runner — it owns boundingBox) — enumerate floating overlay controls by real id/class per viewport, assert zero forbidden pairwise bounding-box intersections (parent/child exempt), assert no control covers more than 10% of the aurora chip or open Apply bar, print every pair checked, and hard-fail if fewer than 6 controls are found. [edit] scripts/e2e-runner.mjs
+  3. D3: add the overlap detector to scripts/e2e-runner.mjs (the BROWSER runner — it owns boundingBox) — enumerate floating overlay controls by real id/class per viewport, assert zero forbidden pairwise bounding-box intersections (parent/child exempt), assert no control covers more than 10% of the aurora chip or open Apply bar, print every pair checked, and hard-fail if fewer than 6 controls are found. WHILE EDITING, also fix the runner's exit-0-on-FATAL defect (pre-flight receipt 2026-07-03: "[e2e-runner] FATAL: ... not found" then exit 0 — a hollow green): every FATAL path must process.exit(1). [edit] scripts/e2e-runner.mjs
   4. Verify scripts/e2e-runner.mjs contains BOTH the dual-viewport matrix (1440x900 + 375x812 with isMobile flag) AND the overlap detector (boundingBox usage, per-pair CHECKED receipt lines, coverage floor of 6). [verify]
   5. Scoped cleanliness: git status --porcelain -- scripts/e2e-runner.mjs shows only this file modified. [verify]
   6. Commit scripts/e2e-runner.mjs by explicit name, naming this mission, restore-source e31469f, and the 2026-07-03 operator-audit receipt; idempotent no-op if already committed. [command]

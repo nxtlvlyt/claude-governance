@@ -72,6 +72,17 @@ stranded e31469f WORKS; watch for plan-internal edit-vs-verify string mismatches
 Amendment discipline that emerged: cite the validator's OWN error text, pin ALL enumerable
 validator rules in one constraint block (one-rule-per-failure convergence is a treadmill).
 
+**PRE-FLIGHT RULE (operator correction 2026-07-03 ~12:55 — "the real failure is the
+conductor because they are supposed to be proactive"): before ANY requeue, the conductor
+DRY-RUNS the step class that killed the previous attempt — run the witness scratch against
+production, invoke the restored script, execute the planned command shape. A conductor
+pre-flight costs minutes; letting the mission discover it costs a 20-40min cycle. First two
+pre-flights (same hour as the correction): (1) found the e2e-runner FATALs on a stranded
+catalog + exits 0 on FATAL — amended into the mission BEFORE its next fire; (2) proved the
+trip-cost witness spec produces its evidence lines against prod (QC_PASS receipt). Mechanics
+note: scratch scripts importing repo deps must live in the REPO cwd — /tmp cannot resolve
+node_modules (receipted ERR_MODULE_NOT_FOUND).**
+
 ## Required reads (in order, after conduct-cycle.mjs first run)
 
 Per `~/.claude/CLAUDE.md`: *"STATE.md contextualizes the directives here for a specific
