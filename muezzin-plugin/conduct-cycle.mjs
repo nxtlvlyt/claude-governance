@@ -312,6 +312,11 @@ function parseHeartbeats(text, now) {
     claudeTier: within.filter((x) => /provider=claude-/.test(x.l)),
     rateLimited: within.filter((x) => /HTTP_429/.test(x.l)),
     thinkingBurn: within.filter((x) => /EMPTY_CONTENT_THINKING/.test(x.l) && /attempt-fail/.test(x.l)),
+    // CUDA-CLASS (2026-07-03, the self-healing-masking receipt: 155 gemma4:31b CUDA
+    // illegal-memory-access crashes accumulated over 4 DAYS — every one healed-around
+    // per-event, so no beat ever saw the pattern; the operator asked "why did gemma fail"
+    // before any flag did. A heal that retries forever hides chronic degradation.)
+    cudaCrash: within.filter((x) => /CUDA error/i.test(x.l)),
   };
 }
 
@@ -867,6 +872,10 @@ export function sweep(base = HERE, now = Date.now(), routeFile = path.join(proce
   }
   if (hb.thinkingBurn.length >= T.THINKING_BURN_COUNT) {
     report.push(`FLAG: ${hb.thinkingBurn.length} EMPTY_CONTENT_THINKING failures in window — known quota-burn class (QUEUE: KIMI THINKING-BURN FIX)`);
+  }
+  if (hb.cudaCrash.length >= 1) {
+    report.push(`FLAG: ${hb.cudaCrash.length} CUDA error(s) in window — GPU-runner crash class; heals mask chronic degradation (155-over-4-days receipt 2026-07-03). Name the model, check the census (grep CUDA dispatch-heartbeat.log | count by model), escalate per the QUEUE watch-item conditions`);
+    actions.push({ id: 'CUDA-CRASH-CLASS', class: 'judgment', approved_by_faith: false, read_first: [path.join(logs, 'dispatch-heartbeat.log')], rule: 'attribute the crash to a model via the census BEFORE any restart; one model at the VRAM edge is a roster/config call, every-model is an Ollama/driver call (ssh nxtbeast nvidia-smi + service restart at a lane boundary)' });
   }
 
   report.push(`ledger: ${autorun.done.length} DONE / ${autorun.failed.length} FAILED / ${autorun.running.length} running / ${autorun.pending.length} pending / ${(autorun.parked || []).length} PARKED / ${(autorun.split || []).length} SPLIT`);

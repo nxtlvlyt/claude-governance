@@ -957,3 +957,20 @@ verdict seat. CONDITION: on a SECOND gemma CUDA failure, restart the Ollama serv
 at a lane boundary (a wedged CUDA context degrades every large local load); on a third,
 demote gemma from the architect roster pending a driver/VRAM diagnosis and note the vision
 verdict falls back fail-closed.
+
+## CORRECTION + DIAGNOSIS 2026-07-03 19:4x — gemma4:31b CUDA class (supersedes the 19:2x
+## "single occurrence" watch-item, which was WRONG — tail-read instead of census)
+CENSUS (EXECUTED): 155 CUDA-error lines in dispatch-heartbeat.log across 4 days (06-30: 2,
+07-01: 33, 07-02: 66, 07-03: 54). EVERY model-attributed line = gemma4:31b. Other local
+models: thousands of clean runs, same GPU, same window. nvidia-smi live: 4090 healthy, 68C,
+21.6/24.5GB used. VERDICT: nxtbeast hardware is FINE (EXECUTED); the failing combination is
+gemma4:31b (19.8GB, the roster's largest) at the VRAM edge in Ollama (EXECUTED correlation;
+exact mechanism — near-OOM CUDA fault vs upstream Ollama/gemma runner bug — HYPOTHESIS,
+distinguishable by a reduced-num_ctx/smaller-quant experiment at a clear lane).
+THE REAL GAP (now closed, cdbdd3e): self-healing MASKED all 155 — per-event heals hid the
+chronic pattern; no flag existed for the class. Sweep now FLAGs >=1 CUDA error per window
+with an attribution-first rule (census before restart, per the fifth law).
+MITIGATION QUEUED (engine/config, clear-lane work): run gemma seats with reduced num_ctx OR
+a smaller quant; measure crash rate before/after via the census; if crashes persist at low
+VRAM pressure, that CONFIRMS the upstream-bug hypothesis and gemma demotes from the roster
+(vision verdict falls back fail-closed; architect-C reseats).
