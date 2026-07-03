@@ -1,0 +1,54 @@
+MISSION-ID: engine-truth-of-record.S1
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\.claude\muezzin-plugin
+ALLOW-FILES:
+  - muezzin-daemon.mjs
+  - conduct-cycle.mjs
+UNLINKED-OK: engine module edits — no user-facing page
+REQUIRES: none
+STEPS: 6
+
+Maqsad: UNIT C of GAP-CLOSURE-PLAYBOOK.md (operator ruling: gaps close CHAIN-FIRST) — make
+the mission RECORDS honest, because every later gap fix is judged by them. Three verified
+defects, evidence in missions/_logs/GAP-HUNT-2026-07-03.json (read each item's evidence
+before editing; titles below):
+(C1) "Daemon tartib/self-retire regex reads 'UNRESOLVED' as RESOLVED": muezzin-daemon.mjs's
+RESOLVED-comment regexes (queuedDepsHold selfEsc/resolvedRe and any sibling use) lack the \b
+word-boundary that conduct-cycle's closed() gained 2026-07-02 — the string UNRESOLVED
+matches /RESOLVED/ and retires missions that are explicitly NOT resolved. Fix: apply the
+identical \b shape; port conduct-cycle's closed() selftest pair (UNRESOLVED does NOT close;
+explicit RESOLVED still closes) into the daemon's selftest block.
+(C2) "RESOLVED-LANDED stamp is a pure-trust input": before honoring a # RESOLVED comment,
+queuedDepsHold and pickPromotion must verify the claim mechanically via missionLandedState
+(imported from conduct-cycle — it is the ONE identity core; do NOT reimplement): the named
+mission's ALLOW-FILES present at HEAD, or a named sha's patch in tree. On verification
+failure: log a STAMP-DISPUTED event (evt) and treat the stamp as ABSENT (the mission stays
+live) — never retire on a disputed stamp, never crash (missionLandedState returning null =
+undeterminable = honor the stamp as today, fail-open, because absence of ALLOW-FILES parsing
+is not evidence of a false stamp).
+(C3) "Fix-ledger requeue-once entries are consumed whole on partial requeue": in
+conduct-cycle.mjs heal()'s requeue performer, the ledger entry is marked requeued when ANY
+one of its stems requeued (.some()) — multi-stem entries permanently lose their un-requeued
+stems. Fix: per-stem requeued tracking — entries' requeue arrays become objects
+{stem, requeued} on write; READ path migrates legacy string entries transparently (a string
+stem = {stem, requeued:false}); the entry-level requeued flag becomes true only when EVERY
+stem is requeued. Selftests: legacy-array migration, partial requeue leaves the second stem
+live, full requeue closes the entry.
+
+niyyah: A record system that reads UNRESOLVED as resolved, trusts unverified stamps, and
+drops queued work on partial requeues cannot be the substrate a smaller conductor inherits.
+Truth of record first; every acceptance below is a selftest, not an opinion.
+
+Steps:
+  1. Baseline: record branch + HEAD; print PRESENT/ABSENT for the marker mt-c1-boundary in muezzin-daemon.mjs (idempotence anchor; if PRESENT, edit steps are verify-only). Never exit 1 on existence. [command]
+  2. C1+C2 in ONE edit of muezzin-daemon.mjs: the \b regex fix at every RESOLVED-comment match site (tag the first fixed site with the literal comment mt-c1-boundary) AND the missionLandedState-backed stamp verification in queuedDepsHold + pickPromotion per the Maqsad contract (import from ./conduct-cycle.mjs; STAMP-DISPUTED event on mismatch; fail-open on null). Port the closed() selftest pair + add stamp-verification fixtures (valid stamp honored / disputed stamp keeps mission live / null verdict honors stamp) to the daemon selftest block. [edit] muezzin-daemon.mjs
+  3. C3 in conduct-cycle.mjs: per-stem requeue tracking with transparent legacy migration per the Maqsad contract, tagged mt-c3-perstem at the migration site; three fixtures (migration, partial, full). [edit] conduct-cycle.mjs
+  4. Verify: Select-String receipts for mt-c1-boundary and mt-c3-perstem; node --check both files. [verify]
+  5. git commit both ALLOW-FILES by explicit name naming this mission + the playbook UNIT C + the hunt items; idempotent no-op if already committed (ALREADY_COMMITTED + exit 0 when clean and HEAD carries both markers). [command]
+  6. OUTCOME CHECK: run node muezzin-daemon.mjs --selftest AND node conduct-cycle.mjs --selftest as a multi-line block; the step receipt MUST show BOTH suites ending ALL PASS, including the new fixture names (UNRESOLVED does NOT close / disputed stamp keeps mission live / partial requeue leaves second stem live). A missing fixture name or any FAIL line fails this step. [command]
+
+Done means: both files committed at HEAD carrying mt-c1-boundary and mt-c3-perstem; both
+selftest suites ALL PASS with the new fixtures visible in the step-6 receipt; after the
+next daemon reload, UNRESOLVED-annotated missions stop being retired, unverified RESOLVED
+stamps are disputed-not-honored, and partial requeues no longer eat their siblings — the
+truth-of-record floor every later gap fix stands on (GAP-CLOSURE-PLAYBOOK UNIT C).
