@@ -25,7 +25,7 @@
 //      Start-Process node muezzin-daemon.mjs  (standing)
 // Self-test: node muezzin-daemon.mjs --selftest
 
-import { readFileSync, writeFileSync, existsSync, appendFileSync, mkdirSync, rmSync, mkdtempSync, readdirSync } from 'fs';
+import { readFileSync, writeFileSync, existsSync, appendFileSync, mkdirSync, rmSync, mkdtempSync, readdirSync, statSync } from 'fs';
 import { lintMission } from './mission_lint.mjs';
 import { parseMissionClass } from './mission_class.mjs';
 import { witnessArtifact, buildAfterContext } from './self_witness.mjs';
@@ -574,6 +574,31 @@ function shouldHaltMission(n, maxAttempts, failedStep) {
 // Satisfier: AUTORUN has "DONE <path>" AND <stem>.mission.result.json ok===true, OR an
 // AUTORUN comment line containing both "RESOLVED" and the dependency path (the conductor's
 // landed judgment). "REQUIRES: none" and prose preconditions (search/credentials) pass.
+// RETRO-REPEAT GATE decision (blind-spot hunt #24). PURE + exported to selftest: reads the
+// retro corpus for THIS stem via injectable fs hooks. Filename contract (set by the retro
+// writer below): `<stem>-<ISO ts with dashes>.md`, outcome in the header line ("# RETRO
+// <stem> — FAILED(plan) ..."). Blocked ⇔ >=minFails FAILED retros inside windowMs AND the
+// mission file's mtime is OLDER than the newest of them (nothing changed since it last
+// failed). Child stems never match a parent's filter: `${stem}.S1-...` does not start with
+// `${stem}-2`, so parents and children gate independently.
+export function retroRepeatBlocked(stem, retroDir, missionMtimeMs,
+  { now = Date.now(), minFails = 3, windowMs = 24 * 3600e3, readdir = readdirSync, readHead = (p) => readFileSync(p, 'utf8').slice(0, 200) } = {}) {
+  let files = [];
+  try { files = readdir(retroDir); } catch { return { blocked: false, count: 0 }; }
+  const fails = [];
+  for (const f of files) {
+    if (!f.startsWith(`${stem}-2`) || !f.endsWith('.md')) continue;   // '-2' pins the timestamp year; excludes .S-children
+    const tsRaw = f.slice(stem.length + 1, -3);                        // 2026-07-01T00-00-00-000Z
+    const ms = Date.parse(tsRaw.replace(/T(\d{2})-(\d{2})-(\d{2})-(\d{3})Z$/, 'T$1:$2:$3.$4Z'));
+    if (!Number.isFinite(ms) || now - ms > windowMs) continue;
+    try { if (/FAILED/i.test(readHead(path.join(retroDir, f)))) fails.push(ms); } catch { /* unreadable retro = no evidence */ }
+  }
+  if (fails.length < minFails) return { blocked: false, count: fails.length };
+  const newestMs = Math.max(...fails);
+  if (Number.isFinite(missionMtimeMs) && missionMtimeMs > newestMs) return { blocked: false, count: fails.length, amended: true };
+  return { blocked: true, count: fails.length, newest: new Date(newestMs).toISOString() };
+}
+
 export function queuedDepsHold(missionText, missionPath, autorunText, resultOkFn) {
   const txt = String(missionText || '');
   // SELF-RESOLVED CHECK (2026-07-02, d1-migrations resurrection loop): a conductor-RESOLVED
@@ -841,6 +866,22 @@ async function mainLoop() {
   const fire = async (raw) => {
     const missionFile = path.resolve(HERE, raw);
     if (!existsSync(missionFile)) { evt(`FAILED (missing file): ${raw}`); setMark(raw, 'FAILED'); return; }
+    // RETRO-REPEAT GATE (blind-spot hunt #24, 2026-07-03 — receipt: 924 retros for ONE stem
+    // at 30-second refire cadence while zero engine code read the retro corpus back): if this
+    // stem has already FAILED >=3 times in 24h AND the mission text is UNCHANGED since the
+    // newest failure, firing again is relitigating documented futility. Refuse with the
+    // evidence quoted; the FAILED mark routes it into the normal conductor DIAGNOSE judgment.
+    // An AMENDED mission (mtime newer than the newest retro) always passes — that is the
+    // legitimate-refire path (poi-tags/trip-cost class: text fixed, requeued, fired clean).
+    try {
+      const rrb = retroRepeatBlocked(path.basename(raw).replace(/\.mission\.txt$/i, ''), path.join(LOGDIR, 'retro'), statSync(missionFile).mtimeMs);
+      if (rrb.blocked) {
+        evt(`RETRO-REPEAT-BLOCKED: ${raw} — ${rrb.count} FAILED retros in 24h, newest ${rrb.newest}, mission text UNCHANGED since — refusing to relitigate; amend the mission or park it (conductor judgment)`);
+        setMark(raw, 'FAILED');
+        notify(`⛔ RETRO-REPEAT gate: ${path.basename(raw).replace(/\.mission\.txt$/, '')} refused — ${rrb.count} identical-era failures in 24h with an unchanged mission text. Zero cycles burned.\n${nextUpLine()}\n${scoreLine()}`);
+        return;
+      }
+    } catch { /* gate is best-effort — a broken retro dir must never stop legitimate fires */ }
     // MIQAT (2026-06-11, operator: "how do we catch things like this"): a mission with a
     // mechanically-visible design flaw (unstaged evidence, jail-contradiction, line-cite
     // bar without numbered source, no done-means) is REFUSED at the boundary with named
@@ -1156,6 +1197,26 @@ if (process.argv.includes('--selftest')) {
   ck(pend('SPLIT missions/parent.mission.txt  <!-- ts -->').length === 0, 'SPLIT: a SPLIT line is NOT pending (the parent is never re-fired — its children carry the work)');
   // and a SPLIT-marked line does not interfere with a sibling live line being pending.
   ck(JSON.stringify(pend('SPLIT missions/p.mission.txt\nmissions/p.S1.mission.txt')) === JSON.stringify(['missions/p.S1.mission.txt']), 'SPLIT: a SPLIT parent + a live child -> only the child is pending');
+  // ──────────────────────────────────────────────────────────────────────────
+  // RETRO-REPEAT GATE (blind-spot #24): >=3 same-stem FAILED retros in 24h + unchanged
+  // mission text -> refuse the fire; amended text or sparse failures -> pass. These lock
+  // the exact 924-retro-storm class and the legitimate-refire path.
+  {
+    const NOW = Date.parse('2026-07-03T01:00:00Z');
+    const ts = (h) => `2026-07-03T0${h}-00-00-000Z`;
+    const mk = (names, failHead = '# RETRO x — FAILED(plan)') => ({
+      readdir: () => names, readHead: () => failHead, now: NOW,
+    });
+    const three = [`st-${ts(0)}.md`, `st-2026-07-03T00-20-00-000Z.md`, `st-2026-07-03T00-40-00-000Z.md`];
+    const oldMtime = Date.parse('2026-07-02T00:00:00Z'), newMtime = Date.parse('2026-07-03T00:50:00Z');
+    ck(retroRepeatBlocked('st', '/r', oldMtime, mk(three)).blocked === true, 'retro-gate: 3 FAILED in 24h + unchanged mission -> BLOCKED (924-storm class)');
+    ck(retroRepeatBlocked('st', '/r', newMtime, mk(three)).blocked === false && retroRepeatBlocked('st', '/r', newMtime, mk(three)).amended === true, 'retro-gate: AMENDED mission (mtime newer than newest retro) -> passes (the poi-tags/trip-cost path)');
+    ck(retroRepeatBlocked('st', '/r', oldMtime, mk(three.slice(0, 2))).blocked === false, 'retro-gate: only 2 failures -> passes');
+    ck(retroRepeatBlocked('st', '/r', oldMtime, mk([`st-2026-07-01T00-00-00-000Z.md`, `st-2026-07-01T01-00-00-000Z.md`, `st-2026-07-01T02-00-00-000Z.md`])).blocked === false, 'retro-gate: 3 failures but OUTSIDE 24h window -> passes');
+    ck(retroRepeatBlocked('st', '/r', oldMtime, mk(three, '# RETRO st — DONE (5m)')).blocked === false, 'retro-gate: DONE retros never count as failures');
+    ck(retroRepeatBlocked('st', '/r', oldMtime, mk([`st.S1-${ts(0)}.md`, `st.S1-2026-07-03T00-20-00-000Z.md`, `st.S1-2026-07-03T00-40-00-000Z.md`])).blocked === false, 'retro-gate: CHILD-stem retros do not gate the parent');
+    ck(retroRepeatBlocked('st', '/nonexistent', oldMtime, { readdir: () => { throw new Error('ENOENT'); }, now: NOW }).blocked === false, 'retro-gate: unreadable retro dir -> never blocks a fire (best-effort)');
+  }
   // ──────────────────────────────────────────────────────────────────────────
   // STORM-ALERT (self-healing audit 2026-07-02): repeating failure signatures push once at
   // 3 hits + once at 50, normalized over numbers/hashes, capped at 5 pushes/hour, and benign
