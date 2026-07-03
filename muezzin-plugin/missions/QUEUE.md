@@ -1108,3 +1108,22 @@ bug class shipped through ALL QC green. webkit engine is NOW INSTALLED (playwrig
 (chromium + webkit) with per-engine evidence lines; a webkit-only failure FAILS the run.
 Emulation caveat recorded: webkit-on-Windows maxTouchPoints=0 — touch-gated features need
 the gate receipted separately, not assumed from webkit pass/fail.
+
+## 2026-07-03 22:2x — PIN-TAP TRUE ROOT FOUND + FIXED (third defect was THE one)
+Operator's real-device receipt refuted the first fix (preview still broken). Debug-overlay
+deploy (pin-debug alias, tap-debug.js) captured the killer ON DEVICE-CLASS ENGINE:
+POPUPOPEN -> POPUPCLOSE 400ms, CLOSER stack = removeLayer at map.html:235 (renderCommunity).
+EVERY data re-render removed all markers; Leaflet closes a removed marker's popup; on
+phones autoPan ALWAYS moves the map -> moveend refetch -> re-render -> card dies ~400ms.
+Viewport-triggered, not engine-triggered: desktop popups fit (no pan) = never saw it;
+chromium-mobile masked by sheet takeover. THREE defects total, all landed on mt repo main:
+6fe643c (webkit hit-test rescue + sheet bind retry), 37a922e (rescue before guard — real
+iOS stamps .leaflet-interactive on the canvas via synthesized hover), 0e0be25/HEAD (popup-
+preserving re-render in render()+renderCommunity()). RECEIPTS: webkit card visible 4s
+post-tap popupCloseEvents=0; chromium sheet unchanged. PRODUCTION AWAITS OPERATOR WORD
+(classifier blocked auto-deploy). Operator verify link (with live tap-log overlay):
+https://pin-debug.muddytires.pages.dev/map.html
+LESSON (succession-grade): the first fix was emulation-verified and WRONG-ENOUGH — a
+real-device receipt outranks any emulation pass; the debug-overlay-on-preview pattern
+(pointer-events:none on-screen event log + closer-stack wraps) is the cheap channel to
+real-device ground truth. tap-debug.js kept untracked in the mt repo for reuse.
