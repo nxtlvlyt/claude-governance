@@ -327,6 +327,19 @@ Bench scripts + results JSON in scratchpad/final-auditor-bench*.{mjs,json}.
 
 Read this BEFORE your first beat. Each rule saved (or would have saved) real turns today.
 
+**0. "Nothing needed from you" must be EARNED — the beat-complete bar (2026-07-03, operator:
+"these have always been first priority... something is wrong in the conductor's role").**
+The sweep's complete-ending license exists ONLY at zero required actions; when actions are
+listed, the sweep now prints a BEAT-COMPLETE BAR counter-license instead. Three failure
+modes this rule kills, all receipted the same day: (a) ending beats "nothing needed" over a
+NON-EMPTY action list; (b) treating a RUNNING lane as conductor busyness — the lane is the
+DAEMON's work; your capacity is free for the action list every beat; (c) treating
+"tracked in QUEUE with receipts" as "handled" — the standing GAP ruling says queued-with-
+receipts is NOT handled. Every beat: land at least one required action or receipt its
+blocker in the report, THEN the ending is earned. System-class gaps (process/plugin/chain/
+conductor) outrank product missions — that has been the standing rule since 2026-07-03
+~01:2x, not a new one.
+
 **1. Declare niyyah ONCE in visible text, first turn (Path A).** A `niyyah:` block in your
 surface TEXT opens the niyyah-gate for the ENTIRE session (until compaction). Today's
 conductor used the 60s state-file (Path B) ~10 times — pure avoidable overhead, ~2 tool

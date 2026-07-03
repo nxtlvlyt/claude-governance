@@ -716,6 +716,18 @@ export function queuedDepsHold(missionText, missionPath, autorunText, resultOkFn
   // (b) tartib child form — resolve the predecessor ID to a path if a file matches
   const pred = (reqLine.match(/predecessor\s+(\S+)\s+DONE/i) || [])[1];
   if (pred) deps.add(`missions/${pred.replace(/^missions\//, '').replace(/\.mission\.txt$/, '')}.mission.txt`);
+  // (b2) BARE-STEM form (2026-07-03 minimal-pair receipt: same event batch held S1.S2 via
+  // the implicit rule but FIRED mt-e2e-reachability.S1, whose "REQUIRES:
+  // mt-mobile-qc-hardening.S1.S2 (tartib — ...)" is a bare stem none of (a)/(b)/(c) parse —
+  // so "REQUIRES X" meant "X isn't FAILED", not "X is DONE"). A token from the REQUIRES
+  // head (before any parenthetical) is a dep IFF AUTORUN actually queues it as
+  // missions/<token>.mission.txt — purity kept (resolved against autorunText, no fs), and
+  // prose words self-exclude because no matching queue line exists for them.
+  const reqHead = reqLine.split('(')[0];
+  for (const tok of reqHead.matchAll(/[\w][\w.-]{3,}/g)) {
+    const cand = `missions/${tok[0].replace(/^missions\//, '').replace(/\.mission\.txt$/, '')}.mission.txt`;
+    if (autorunText.includes(cand)) deps.add(cand);
+  }
   // (c) implicit .Sn -> .S(n-1)
   const sn = String(missionPath || '').match(/^(.*\.S)(\d+)\.mission\.txt$/);
   if (sn && parseInt(sn[2], 10) >= 2) deps.add(`${sn[1]}${parseInt(sn[2], 10) - 1}.mission.txt`);
@@ -1696,6 +1708,12 @@ if (process.argv.includes('--selftest')) {
     ck(queuedDepsHold('REQUIRES: search-grounded seats\n', 'missions/z.mission.txt', ar, resOk).hold === false, 'tartib-gate: prose precondition does not mechanically hold');
     const selfRes = queuedDepsHold('MISSION-ID: x', 'missions/c.S1.mission.txt', ar, resOk);
     ck(selfRes.hold === true && selfRes.resolvedSelf === true, 'tartib-gate: a mission ITSELF conductor-RESOLVED never refires (the reload-resurrection loop)');
+    // (b2) BARE-STEM form (2026-07-03 minimal pair: reachability fired past a pending dep)
+    const arPend = ar + 'missions/e.S1.mission.txt  <!-- pending -->\n';
+    ck(queuedDepsHold('REQUIRES: e.S1 (tartib — same-file serialization)\n', 'missions/z.mission.txt', arPend, resOk).hold === true, 'tartib-gate b2: bare-stem REQUIRES with dep merely PENDING -> HELD (today\'s reachability class)');
+    ck(queuedDepsHold('REQUIRES: a.S1 (tartib)\n', 'missions/z.mission.txt', ar, resOk).hold === false, 'tartib-gate b2: bare-stem REQUIRES with dep DONE + ok:true -> FIRES');
+    ck(queuedDepsHold('REQUIRES: b.S1 (tartib)\n', 'missions/z.mission.txt', ar, resOk).hold === true, 'tartib-gate b2: bare-stem REQUIRES with dep FAILED -> HELD');
+    ck(queuedDepsHold('REQUIRES: search-grounded seats always\n', 'missions/z.mission.txt', arPend, resOk).hold === false, 'tartib-gate b2: prose tokens with no matching queue line never become phantom deps');
   }
 
   rmSync(tmp, { recursive: true, force: true });

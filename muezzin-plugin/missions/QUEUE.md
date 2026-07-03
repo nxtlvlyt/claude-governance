@@ -831,3 +831,25 @@ free to queue when shaped.
 END-GATE (do not lose): once the AI-track missions land and test green, the conductor
 surfaces ONE loud reminder to rotate the key (identity-bound, his aimlapi.com dashboard) —
 rotation is deferred, not cancelled.
+
+## 2026-07-03 ~17:0x — SYSTEM GAPS FIRST (CONDUCTOR-FAILURE CORRECTION, not a new ruling)
+CORRECTED SAME HOUR (operator: "this isn't new information... it was baked into the
+conductor's rule, so for you not to understand that means something is wrong in the
+conductor's role still"): the priority below was ALWAYS the standing GAP ruling (2026-07-03
+~01:2x, operator-rulings.md). What failed was the CONDUCTOR: beats ended "nothing needed
+from you" over a non-empty REQUIRED ACTIONS list, a running lane was treated as conductor
+busyness, and tracked-in-QUEUE was treated as handled. Structural closes landed this hour:
+conduct-cycle BEAT-COMPLETE BAR (counter-license printed whenever actions exist; selftested)
++ playbook rule 0 (guaranteed first-read). Conductor beat capacity goes to the open
+system-gap list (below) until dry; the daemon's product drain continues in parallel (it
+needs no conductor beats).
+OPEN SYSTEM GAPS at ruling time, priority order:
+1. ~~tartib bare-stem REQUIRES not gating~~ CLOSED same-hour (commit + 4 fixtures + reload requested).
+2. Plan-level scratch lint (RULE-10 check on the GENERATED micro_queue) — receipted 16:35, filed, next build.
+3. Witness groundedness <score>no</score> trigger unknown — re-diagnosis owed (INBOX triage item C).
+4. mission_split position-inheritance (children land at queue tail) — tracked.
+5. claude-exe-480s-hang mitigation — tracked, fires on recurrence.
+6. Windowed-edit >250KB not engaging — standing HIGH; additive-only is the live workaround.
+7. Board-truth debt: 26 false-death candidates + 13 parked revisits + 17-mission amend-on-surface pile.
+8. Repo-process: main/master divergence (14 commits), 5 undeployed commits, 3 stranded deliverables.
+9. Identity hygiene owed: ollama rm kimi tag (clear lane), per-era seat-record split, eval-v3 cells.

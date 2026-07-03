@@ -890,6 +890,12 @@ export function sweep(base = HERE, now = Date.now(), routeFile = path.join(proce
     }
   } catch (e) { report.push(`DONENESS: compute failed — ${String(e.message).slice(0, 80)} (fail-closed: treat as NOT done)`); }
   if (!actions.length) report.push('required actions: none — "nothing needed from you" is a complete ending');
+  // BEAT-COMPLETE BAR (operator correction 2026-07-03 ~17:0x: system gaps were ALWAYS first
+  // priority, yet conductor beats kept ending "nothing needed from you" while this list sat
+  // non-empty — the complete-ending license above only exists at ZERO actions, and the beat
+  // prompt's blanket phrasing let the conductor override it by habit. A running lane is the
+  // DAEMON's work, not the conductor's busyness — same law as the CG rule below.)
+  else report.push(`BEAT-COMPLETE BAR: ${actions.length} required action(s) above are CONDUCTOR work this beat — "nothing needed from you" is EARNED only after at least one lands (or its blocker is receipted in the report); a running lane is the daemon's work, not yours`);
   return { daemonAlive, report, actions, autorun, doneness };
 }
 
@@ -1541,7 +1547,14 @@ function selftest() {
   ck(r.daemonAlive === true, 'healthy daemon detected');
   ck(r.actions.length === 0, 'healthy state -> zero required actions');
   ck(r.report.some((l) => l.includes('nothing needed')), 'complete-ending line present');
+  ck(!r.report.some((l) => l.includes('BEAT-COMPLETE BAR')), 'healthy zero-action state does NOT print the beat-complete bar');
   ck(r.doneness && r.doneness.barMet === true, 'healthy fixture reaches barMet (frontier clean + deployed-current)');
+  // BEAT-COMPLETE BAR fires whenever required actions exist (operator correction 2026-07-03:
+  // the conductor kept saying "nothing needed" over a non-empty action list)
+  writeFileSync(path.join(tmp, 'missions', 'AUTORUN.md'), '# q\nFAILED missions/bar1.mission.txt  <!-- t -->\nFAILED missions/bar1.mission.txt  <!-- t -->\n');
+  const rBar = sweep(tmp, now, noRoute, sightOk);
+  ck(rBar.actions.length > 0 && rBar.report.some((l) => l.includes('BEAT-COMPLETE BAR') && l.includes("daemon's work, not yours")), 'non-empty actions -> BEAT-COMPLETE BAR counter-license printed (complete ending must be EARNED)');
+  writeFileSync(path.join(tmp, 'missions', 'AUTORUN.md'), '# q\nDONE missions/good.mission.txt  <!-- t -->\n');   // restore healthy fixture for downstream checks
 
   // AUDIT REGRESSION TESTS 2026-07-02 (each encodes a live-confirmed audit finding):
   // (a) closed(): "UNRESOLVED" must NOT read as resolved (the missing-\b inversion).
