@@ -53,7 +53,10 @@ These are part of "que everything" but cannot fire into a wall — each names ex
 - **photos → R2 (spot photos)** — UNPARKS when the R2 perms wall is cleared (operator) — earlier attempts hit a permissions wall.
 - **off-machine backup of the 1.4 GB DB tar** — UNPARKS on an upload path (fix R2 perms / install rclone / accept it stays on E:).
 - **AI track (mt-25 NL-Oracle / mt-26 moderation / mt-27 POI-enrichment)** — missions already drafted in _blocked/; model decided
-  (aimlapi + Gemma-4-31b). UNPARKS on the operator's AIMLAPI key rotation + a security review (the key was exposed). Rotation is
+  (aimlapi + Gemma-4-31b). ~~UNPARKS on the operator's AIMLAPI key rotation + a security review (the key was exposed).~~
+  **SUPERSEDED by operator ruling 2026-07-03 ~16:5x (QUEUE.md "AIMLAPI KEY: BUILD NOW, ROTATE AT THE END"): build/wire/test on the
+  current budget-capped key; rotate ONCE at the end (end-gate reminder owed).** mt-25 is LIVE (nl-brief probe receipt 16:0x). mt-26
+  stays blocked separately (worker source on E:, Test-Path False this day). mt-27 free to shape+queue. Rotation remains
   identity-bound (his aimlapi.com dashboard — probed: no programmatic rotation).
 - **community / social platform ("create once, post everywhere")** — the operator's biggest-leverage idea. Gated behind accounts
   live (the account UI/add-spot/reviews/profile missions are running now) + a cost decision: rent Post-for-Me ($10/mo) to validate

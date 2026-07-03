@@ -818,3 +818,16 @@ S1.S2 is idempotent against existing content) — order inversion tolerated once
 Fix direction: dep must be DONE/RESOLVED to fire, not merely non-FAILED (the daemon's own
 TARTIB-HOLD message already says "not DONE/RESOLVED" — the pending-dep path just doesn't
 reach that check).
+
+## OPERATOR RULING 2026-07-03 ~16:5x — AIMLAPI KEY: BUILD NOW, ROTATE AT THE END
+Operator word (verbatim intent): don't hold the AI lanes on the key exposure — "get
+everything done, get it wired and get it tested, and once it's done then we can change the
+key." He has a DAILY BUDGET LIMIT on the key, so leak blast-radius is bounded and accepted.
+Effect: the AI-track park condition "UNPARKS on AIMLAPI key rotation + security review" is
+LIFTED for build/wire/test work. mt-25 NL-Oracle is already live (nl-brief probe receipt
+16:0x). mt-tripcost-receipt-ai.S1 (queued) is freed of the key question. mt-26 moderation
+stays blocked SEPARATELY (worker source on E:, Test-Path False). mt-27 POI-enrichment:
+free to queue when shaped.
+END-GATE (do not lose): once the AI-track missions land and test green, the conductor
+surfaces ONE loud reminder to rotate the key (identity-bound, his aimlapi.com dashboard) —
+rotation is deferred, not cancelled.
