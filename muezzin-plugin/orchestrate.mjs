@@ -285,17 +285,28 @@ export async function defaultVerdictPhase(mission, cwd, steps, opts = {}) {
   // greens — step-1 out "num_tables": 0, step-8 out "True" on a 0-row query — but the panel
   // only ever saw the produced files, never the command outputs. Per-output cap ~500 chars,
   // whole block bounded to a few KB, so a verbose command can never drown the artifacts.
-  const EXEC_OUT_CAP = 500, EXEC_BLOCK_CAP = 4000;
+  // HEAD+TAIL SLICING (2026-07-03, trip-cost.S2 7th-run receipts: BOTH panel attempts refused
+  // on "command truncated / QC PASS cannot be cross-checked" — the head-only slice fed the
+  // panel wrangler-deploy noise and cut the CONCLUSION lines at the end, where witnesses print
+  // their evidence (RENDER_URL/STATUS/PAGEERRORS). Conclusions live at the TAIL; a head-only
+  // cap structurally starves every long-step verdict. Head keeps the d1-1 hollow-green
+  // visibility; tail carries the evidence.)
+  const EXEC_OUT_CAP = 500, EXEC_BLOCK_CAP = 6000;
+  const headTail = (raw, cap) => {
+    const t = String(raw || '');
+    if (t.length <= cap) return { text: t, truncated: false };
+    const head = Math.floor(cap * 0.4), tail = cap - head;
+    return { text: `${t.slice(0, head)} …[${t.length - cap} chars omitted]… ${t.slice(-tail)}`, truncated: true };
+  };
   let execTotal = 0;
   const execLines = (steps || [])
     .filter((s) => s.ok && s.engineExec && (s.execCmd || s.execOut))
     .map((s) => {
       if (execTotal > EXEC_BLOCK_CAP) return null;   // block cap reached — stop adding
-      const cmd = String(s.execCmd || '(command not recorded)').slice(0, EXEC_OUT_CAP);
-      const rawOut = String(s.execOut || '');
-      const out = rawOut.slice(0, EXEC_OUT_CAP);
-      const outNote = rawOut.length > out.length ? ' (truncated)' : '';
-      const line = `- step ${s.step} command: ${cmd}\n  output${outNote}: ${out.trim() || '(no output — exited 0 with empty stdout)'}`;
+      const cmd = headTail(s.execCmd || '(command not recorded)', EXEC_OUT_CAP);
+      const out = headTail(s.execOut || '', EXEC_OUT_CAP);
+      const outNote = out.truncated ? ' (middle truncated — head+tail shown)' : '';
+      const line = `- step ${s.step} command${cmd.truncated ? ' (middle truncated)' : ''}: ${cmd.text}\n  output${outNote}: ${out.text.trim() || '(no output — exited 0 with empty stdout)'}`;
       execTotal += line.length;
       return line;
     })
