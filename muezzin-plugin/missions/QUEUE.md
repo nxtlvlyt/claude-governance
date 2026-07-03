@@ -849,7 +849,7 @@ OPEN SYSTEM GAPS at ruling time, priority order:
 3. ~~Witness groundedness trigger unknown~~ DIAGNOSED 17:2x (see "GAP #3 DIAGNOSED" block below: non-blocking flag; 3 false-flag mechanics — 8K truncation, silent partial context, category error on authored-new rewrites; fix direction recorded, low-med priority).
 4. ~~mission_split position-inheritance~~ CLOSED 17:4x (b5e8d05: insertQueueLineAfter — children insert after the parent's line, tartib chained, tail fallback; 4 fixtures; reload requested).
 5. ~~claude-exe-480s-hang mitigation~~ CLOSED 17:5x (af03247: HANG-RETRY, one same-model retry on the TIMEOUT signature. Diagnosis REVERSED the tracked candidate: 479s attempt-ok receipts refute shorter timeouts, 210s recovery refutes short retry caps; the real gap was terminal-fail-on-first-hang — receipt 15:35:37 dispatch-FAILED with no retry).
-6. Windowed-edit >250KB not engaging — standing HIGH; additive-only is the live workaround.
+6. ~~Windowed-edit >250KB not engaging~~ CLOSED 18:2x (a737b64: root cause was the DEP path — context_dependencies raw-inlined uncapped while only targets windowed; now per-dep 60KB anchor-window + 150KB total budget in both framing builders; 408KB-dep selftest -> 1.8KB. Scope note: if a >180KB-TARGET path ever 400s again that is a NEW receipt, not this item).
 7. Board-truth debt: 26 false-death candidates + 13 parked revisits + 17-mission amend-on-surface pile.
 8. Repo-process: main/master divergence (14 commits), 5 undeployed commits, 3 stranded deliverables.
 9. Identity hygiene owed: ollama rm kimi tag (clear lane), per-era seat-record split, eval-v3 cells.

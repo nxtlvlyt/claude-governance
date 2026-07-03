@@ -121,9 +121,7 @@ function readDep(cwd, rel) {
 // the FULL contents of the single target file in one code block (no prose, no diff, no partial edit).
 function buildFraming(step, cwd) {
   const target = step.target_files?.[0];
-  const deps = (step.context_dependencies || [])
-    .map((rel) => `--- BEGIN ${rel} ---\n${readDep(cwd, rel)}\n--- END ${rel} ---`)
-    .join('\n\n');
+  const deps = windowDepsForPrompt(step, cwd);   // gap #6: deps are budget-windowed, never raw-inlined
   const contextBlock = deps
     ? `CONTEXT DEPENDENCIES (read-only — for your reference while writing the target):\n\n${deps}\n\n`
     : 'CONTEXT DEPENDENCIES: none declared.\n\n';
@@ -279,9 +277,39 @@ export function windowLargeFileForEdit(current, step, maxBytes = EDIT_FULL_FILE_
   return out || null;
 }
 
+// DEP WINDOWING (2026-07-03, gap #6 root cause: windowing engaged only on the TARGET —
+// context_dependencies were injected FULL-SIZE via readDep, so a step listing 358KB
+// map.html as a DEP blew the prompt to 265K tokens / HTTP 400 regardless of target
+// windowing; receipt reviews-ui-2 2026-06-18). Per-dep cap: anchor-window first (same
+// helper as targets — the step's terms locate the relevant regions); head+tail fallback
+// (deps are read-only reference, unlike targets where a blind slice would corrupt SEARCH
+// anchors). A running TOTAL budget bounds many-medium-deps; every cut carries a marker.
+const DEP_MAX_BYTES = 60000;
+const DEPS_TOTAL_MAX_BYTES = 150000;
+export function windowDepsForPrompt(step, cwd, { perDep = DEP_MAX_BYTES, total = DEPS_TOTAL_MAX_BYTES, readFn = readDep } = {}) {
+  let budget = total;
+  const blocks = [];
+  for (const rel of (step.context_dependencies || [])) {
+    const raw = String(readFn(cwd, rel) ?? '');
+    const cap = Math.max(0, Math.min(perDep, budget));
+    let body = raw, note = '';
+    if (raw.length > cap) {
+      const win = cap > 2000 ? windowLargeFileForEdit(raw, step, cap) : null;
+      if (win) { body = win; note = ` [dep windowed: ${raw.length} bytes -> anchor-relevant regions; line-range markers inside]`; }
+      else if (cap > 400) {
+        const head = raw.slice(0, Math.floor(cap * 0.6)), tail = raw.slice(-Math.floor(cap * 0.3));
+        body = `${head}\n... [${raw.length - head.length - tail.length} bytes omitted — dep over the ${perDep}-byte budget] ...\n${tail}`;
+        note = ` [dep truncated head+tail: ${raw.length} bytes]`;
+      } else { body = `[dep omitted: ${raw.length} bytes, no prompt budget left]`; note = ''; }
+    }
+    blocks.push(`--- BEGIN ${rel}${note} ---\n${body}\n--- END ${rel} ---`);
+    budget -= Math.min(body.length, budget);
+  }
+  return blocks.join('\n\n');
+}
+
 export function buildEditFraming(step, cwd, current) {
-  const deps = (step.context_dependencies || [])
-    .map((rel) => `--- BEGIN ${rel} ---\n${readDep(cwd, rel)}\n--- END ${rel} ---`).join('\n\n');
+  const deps = windowDepsForPrompt(step, cwd);
   const contextBlock = deps ? `CONTEXT DEPENDENCIES (read-only):\n\n${deps}\n\n` : '';
   // WINDOWED-EDIT: a file larger than a model's context can't be embedded whole (HTTP 400 prompt-too-long).
   // Show only the regions the edit needs to anchor against; correctness is preserved by applyEditBlocks.
@@ -669,6 +697,17 @@ if (process.argv[1]?.endsWith('executor.mjs')) {
     ck(phrases.every((p) => ef.includes(p)), `edit-framing: carries all block-discipline phrases (${phrases.filter((p) => !ef.includes(p)).join(',') || 'all present'})`);
     ck(ef.includes('<<<<<<< SEARCH') && ef.includes('=======') && ef.includes('>>>>>>> REPLACE'), 'edit-framing: shows the exact SEARCH/REPLACE block format');
     ck(/EXAMPLE[\s\S]*<<<<<<< SEARCH[\s\S]*const max = 3;[\s\S]*const max = 1;[\s\S]*>>>>>>> REPLACE/.test(ef), 'edit-framing: includes a CONCRETE correct few-shot block');
+
+    // DEP WINDOWING (gap #6): deps are budget-windowed, never raw-inlined (HTTP-400 class)
+    const bigDep = Array.from({ length: 20000 }, (_, i) => (i === 15000 ? 'const anchorTermXyz = 1;' : `// filler line ${i}`)).join('\n');
+    const dwStep = { step_index: 1, description: 'wire anchorTermXyz into the panel', action_type: 'edit', target_files: ['x.mjs'], context_dependencies: ['big.js'], validation_command: 'node -c x.mjs' };
+    const dw = windowDepsForPrompt(dwStep, dir, { readFn: () => bigDep });
+    ck(dw.length < 70000 && /dep windowed|dep truncated/.test(dw), `dep-window: ${bigDep.length}-byte dep is capped with a marker (got ${dw.length} bytes)`);
+    ck(dw.includes('anchorTermXyz'), 'dep-window: anchor-relevant region survives the windowing');
+    const small = windowDepsForPrompt(dwStep, dir, { readFn: () => 'tiny dep content' });
+    ck(small.includes('tiny dep content') && !/windowed|truncated|omitted/.test(small), 'dep-window: small dep passes verbatim, no markers');
+    const multi = windowDepsForPrompt({ ...dwStep, context_dependencies: ['a.js', 'b.js', 'c.js'] }, dir, { readFn: () => 'y'.repeat(80000), perDep: 60000, total: 100000 });
+    ck(/dep omitted|dep truncated|dep windowed/.test(multi) && multi.length < 200000, 'dep-window: TOTAL budget bounds many medium deps (later deps trimmed with markers)');
     ck(ef.includes('OVERLAPPING:') && ef.includes('NON-UNIQUE:') && ef.includes('TOO MUCH CONTEXT:'), 'edit-framing: names the three common mistakes (overlapping / non-unique / too-much-context)');
     ck(ef.includes('export const max = 3;'), 'edit-framing: embeds the CURRENT file contents to edit against');
   }
