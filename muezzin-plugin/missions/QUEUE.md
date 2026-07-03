@@ -1020,3 +1020,13 @@ EXPERIMENT ARMS, re-ordered (clear-lane work, crash census is the metric):
   23. [med] Fifth-law escalation condition FIRED today (ungated absence claims, operator-caught) and the named report-linter was neither built nor queued
   24. [med] Preflight-receipt refire gate is mtime-only — a hollow touch of missions/_logs/preflight/<stem>.md opens the gate; nothing binds the receipt to the killing step class
   25. [low] Laguna structural REJECTs with thinking-leak notes are recorded as adjudicable verdicts — the re-ask fires only on NO-verdict replies, so leak-REJECTs pass through (guard
+
+## OPERATOR RATIFICATION 2026-07-03 ~20:2x — SUCCESSOR SEAT = SONNET
+Operator word: "you're right — sonnet has been a better conductor than Opus." Confirms the
+standing seat ruling (conductor: Fable primary; SONNET economy fallback; NEVER Opus —
+confabulation receipts). When this session's Fable budget exhausts, the conductor seat goes
+to Sonnet, which inherits: GAP-CLOSURE-PLAYBOOK.md (repo root), this ledger (#7–#11; #11 =
+25 sub-items, ALL must strike before the gap-dry push), GAP-HUNT-2026-07-03.json evidence,
+STATE.md session-close block, and engine-truth-of-record.S1 as the mission template.
+CLARIFIED same turn: the big-project discussion fires only when ALL 29 pieces (#7,#8,#9,#10
++ the 25 inside #11) are struck — the numbering never shrinks the obligation.
