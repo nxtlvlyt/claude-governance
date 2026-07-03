@@ -837,8 +837,8 @@ export function sweep(base = HERE, now = Date.now(), routeFile = path.join(proce
     routePreferred = (rt.prefer === 'claude' && Date.parse(rt.until) > now) || (Array.isArray(rt.standing_prefer) && rt.standing_prefer.length > 0);
   } catch { /* no route file = no preference */ }
   if (hb.claudeTier.length && !hb.rateLimited.length && !routePreferred) {
-    report.push(`FLAG: ${hb.claudeTier.length} claude-tier dispatch(es) in last ${mins(T.HB_WINDOW_MS)}m with NO 429 seen — claude should only carry seats during cloud limits`);
-    actions.push({ id: 'CHECK-CLAUDE-TIER', class: 'judgment', approved_by_faith: false, read_first: [path.join(logs, 'dispatch-heartbeat.log')], rule: 'persistent claude lines after quota reset = cloud auth/endpoint problem, not quota — check OLLAMA_API_KEY and ollama.com status before suspecting the tier' });
+    report.push(`FLAG: ${hb.claudeTier.length} claude-tier dispatch(es) in last ${mins(T.HB_WINDOW_MS)}m with NO rate-limit seen — claude fallback should only carry seats when the LOCAL lane is failing`);
+    actions.push({ id: 'CHECK-CLAUDE-TIER', class: 'judgment', approved_by_faith: false, read_first: [path.join(logs, 'dispatch-heartbeat.log')], rule: 'persistent claude-tier lines = the LOCAL lane failing over — check nxtbeast Ollama health (api/ps, queue saturation, model 404s) before suspecting the Claude tier (de-clouded 2026-07-03: ollama.com is not a provider)' });
   }
   if (hb.thinkingBurn.length >= T.THINKING_BURN_COUNT) {
     report.push(`FLAG: ${hb.thinkingBurn.length} EMPTY_CONTENT_THINKING failures in window — known quota-burn class (QUEUE: KIMI THINKING-BURN FIX)`);
@@ -1189,7 +1189,7 @@ function selftest() {
   ck(r.daemonAlive === false, 'dead daemon detected (stale status + dead pid)');
   ck(r.actions.some((a) => a.id === 'RESTART-DAEMON' && a.command.includes('muezzin-daemon.mjs')), 'restart action with exact command emitted');
   ck(r.actions.some((a) => a.id === 'DIAGNOSE-broken' && a.class === 'judgment'), 'FAILED mission gets diagnose action, not a refire');
-  ck(r.report.some((l) => l.includes('claude-tier') && l.includes('NO 429')), 'claude-without-429 flag raised');
+  ck(r.report.some((l) => l.includes('claude-tier') && l.includes('NO rate-limit')), 'claude-without-rate-limit flag raised (wording de-clouded 2026-07-03)');
   ck(r.autorun.pending.length === 1, 'pending parse correct');
 
   // fixture 1a: DIAGNOSE-<stem> read_first must use the REAL on-disk names (2026-07-01

@@ -1,12 +1,22 @@
 // seat_modes.mjs — the ONE toggle that remaps WHICH model fills each engine seat, per phase.
 //
+// ⛔ NO-CLOUD SUPERSESSION (operator ruling 2026-07-02, enforced structurally 2026-07-03):
+// the ollama-cloud lane was REMOVED from seat_dispatch.mjs at the provider level. Every
+// ollama-named seat in EVERY mode below dispatches to nxtbeast-LOCAL only (Claude names go
+// to the Claude tier). Mode tables below that still name cloud-served models
+// (gemini-3-flash-preview, glm-5.1, deepseek-v4-pro, nemotron variants, minimax) are
+// STALE-AS-LABELED: those names either resolve locally or 404 into the Claude fallback /
+// a loud failure — they can never reach ollama.com. Re-seating the non-active modes to
+// honest local rosters is queued conductor work; the ACTIVE mode (claude-local-hybrid)
+// was already local+Claude only.
+//
 // WHY (operator ruling "use the two budgets TOGETHER intelligently", operator-rulings.md
 // 2026-06-10): the route file already flips Claude-first per-seat/per-window, but the
 // operator ratified THREE NAMED MODES as a single switchable dial — "these modes ARE that
 // ruling made switchable" (mode-build dispatch, 2026-06-15). One `mode` field in
 // muezzin-route.json (env override MUEZZIN_MODE) remaps the seat DEFINITIONS for every
 // phase. It does NOT touch phase LOGIC — only which model name each seat is handed; the
-// existing seat_dispatch waterfall (ollama-cloud -> 3 heals -> CLAUDE tier -> local) then
+// seat_dispatch waterfall (local -> 3 heals -> CLAUDE tier, post NO-CLOUD) then
 // resolves THAT name to a provider, so the safe default + per-seat fallback are preserved
 // for free, every mode.
 //

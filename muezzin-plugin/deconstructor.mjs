@@ -361,7 +361,7 @@ async function runQueueLoop(seat, baseFraming, { research = false, codeRepo = fa
         const fs = await import('fs');
         fs.mkdirSync(diagDir, { recursive: true });
         fs.writeFileSync(`${diagDir}/${diagTag}-attempt-${attempt + 1}.raw.txt`,
-          `provider: ${r?.provider ?? 'unknown'}  heals: ${r?.heals ?? '?'}  cloudError: ${r?.cloudError ?? ''}\n--- raw content ---\n${String(r?.content ?? '(empty)')}`, 'utf8');
+          `provider: ${r?.provider ?? 'unknown'}  heals: ${r?.heals ?? '?'}  laneError: ${r?.localError ?? ''}\n--- raw content ---\n${String(r?.content ?? '(empty)')}`, 'utf8');
       } catch { /* diagnosis must never break the run */ }
     }
     lastErrors = v.errors;
@@ -484,20 +484,19 @@ export function chooseArchitectRoute(missionText, opts = {}) {
   return 'panel';
 }
 
-// CLOUD-PARALLEL-SAFE seat classifier (GR10 — never two LOCAL models at once). A seat is
-// parallel-safe ONLY when it dispatches to a CLOUD provider that can never collide on the 4090:
-//   - a Claude family name (opus/sonnet/haiku/claude-*) -> the Claude tier, cloud;
-//   - a known OLLAMA-CLOUD model (the cloud labs the panel seats by default: kimi/deepseek/
-//     minimax/glm/nemotron-3-ultra) -> ollama-cloud, GPU-free/parallel-safe per the cloud waterfall.
-// Anything ELSE — a bare local tag (qwen3.6:27b, granite4.1:30b, the local-heavy architects) or
-// an unrecognized name — is treated as LOCAL/UNKNOWN -> NOT parallel-safe (the conservative rail:
-// "if uncertain, stay serial"). The default PANEL_ARCHITECTS (kimi/deepseek/minimax) are all cloud,
-// so the common path parallelizes; local-heavy mode stays serial; the Claude outage panel parallelizes.
-// :cloud-suffixed names are cloud by definition; the bare legacy names stay for back-compat.
-const CLOUD_OLLAMA_MODELS = new Set(['kimi-k2.5:cloud', 'deepseek-v4-pro:cloud', 'minimax-m2.1:cloud', 'nemotron-3-ultra:cloud', 'kimi-k2.6', 'deepseek-v4-pro', 'minimax-m3', 'glm-5.1', 'nemotron-3-ultra']);
+// PARALLEL-SAFE seat classifier (GR10 — never two LOCAL models at once). A seat is
+// parallel-safe ONLY when it dispatches OFF the 4090 entirely — which, since the NO-CLOUD
+// ruling (2026-07-02) and the ollama-cloud lane removal in seat_dispatch (2026-07-03),
+// means exactly ONE thing: a Claude family name (opus/sonnet/haiku/claude-*) -> Claude tier.
+// EVERY ollama-named model now dispatches to nxtbeast-LOCAL, so the former "cloud labs"
+// list (kimi/deepseek/minimax/glm/nemotron-3-ultra) is deliberately EMPTY — treating those
+// names as parallel-safe would plan two big local models at once, the exact queue
+// saturation GR10 exists to prevent (receipt class: the 2026-07-03 503 saturation storm).
+// Conservative rail unchanged: uncertain -> serial. Export name kept for call-site stability.
+const CLOUD_OLLAMA_MODELS = new Set([]);
 export function isCloudParallelSafe(model) {
-  if (recognizeClaudeModel(model)) return true;            // Claude tier -> cloud
-  return CLOUD_OLLAMA_MODELS.has(String(model || ''));     // known ollama-cloud labs -> cloud; else local/unknown -> serial
+  if (recognizeClaudeModel(model)) return true;            // Claude tier -> off-GPU, parallel-safe
+  return CLOUD_OLLAMA_MODELS.has(String(model || ''));     // EMPTY since 2026-07-03: every ollama name is LOCAL -> serial
 }
 
 // default grounding detector: did the seat actually search? Inspect the dispatch result for a
@@ -1050,25 +1049,27 @@ Maqsad: implement seven modules.`;
   // -------------------------------------------- (10) PANEL PARALLELIZATION (P1 #2, GR10-guarded)
   // isCloudParallelSafe + the panel's all-cloud parallel branch.
   {
-    ck(isCloudParallelSafe('opus') && isCloudParallelSafe('sonnet') && isCloudParallelSafe('haiku'), 'PARALLEL: Claude family names are cloud-parallel-safe');
-    ck(['kimi-k2.6', 'deepseek-v4-pro', 'minimax-m3'].every(isCloudParallelSafe), 'PARALLEL: the default PANEL_ARCHITECTS (kimi/deepseek/minimax) are all cloud-parallel-safe');
+    ck(isCloudParallelSafe('opus') && isCloudParallelSafe('sonnet') && isCloudParallelSafe('haiku'), 'PARALLEL: Claude family names are parallel-safe (off-GPU tier)');
+    ck(!['kimi-k2.6', 'deepseek-v4-pro', 'minimax-m3'].some(isCloudParallelSafe), 'PARALLEL: former cloud-lab names (kimi/deepseek/minimax) are NOT parallel-safe post NO-CLOUD removal — they dispatch LOCAL now (GR10 -> serial)');
     ck(!isCloudParallelSafe('qwen3.6:27b') && !isCloudParallelSafe('granite4.1:30b'), 'PARALLEL: local-heavy bare local tags are NOT parallel-safe (GR10 -> serial)');
     ck(!isCloudParallelSafe('totally-unknown-model'), 'PARALLEL: an unknown model is NOT parallel-safe (conservative: uncertain -> serial)');
 
-    // ALL-CLOUD architects -> CONCURRENT dispatch. Prove concurrency with an injected fake that
-    // records how many architect dispatches are IN FLIGHT simultaneously: parallel -> peak 3.
+    // ALL-OFF-GPU architects (Claude family — the only parallel-safe class post NO-CLOUD) ->
+    // CONCURRENT dispatch. Prove concurrency with an injected fake that records how many
+    // architect dispatches are IN FLIGHT simultaneously: parallel -> peak 3. (Pre-2026-07-03
+    // this test seated kimi/deepseek/minimax as the parallel trio — those names are LOCAL now.)
     {
       let inFlight = 0, peak = 0;
       const dispatch = async (seat) => {
-        if (seat.role === 'integrator') return { content: VALID_QUEUE_JSON, provider: 'ollama-cloud' };
+        if (seat.role === 'integrator') return { content: VALID_QUEUE_JSON, provider: 'claude-sonnet' };
         inFlight++; peak = Math.max(peak, inFlight);
         await new Promise((res) => setTimeout(res, 5));   // hold the seat 'busy' so peers can overlap
         inFlight--;
         return groundedArch;
       };
-      const r = await deconstructPanel('Maqsad: add a module.', { dispatchFn: dispatch, maxRepairs: 0, route: 'panel', architects: ['kimi-k2.6', 'deepseek-v4-pro', 'minimax-m3'] });
-      ck(r.ok === true && r._panel === true, 'PARALLEL all-cloud: panel still synthesizes a valid queue');
-      ck(peak === 3, 'PARALLEL all-cloud: all 3 architects dispatched CONCURRENTLY (peak in-flight = 3 — Promise.all, not serial)');
+      const r = await deconstructPanel('Maqsad: add a module.', { dispatchFn: dispatch, maxRepairs: 0, route: 'panel', architects: ['opus', 'sonnet', 'haiku'] });
+      ck(r.ok === true && r._panel === true, 'PARALLEL all-Claude: panel still synthesizes a valid queue');
+      ck(peak === 3, 'PARALLEL all-Claude: all 3 architects dispatched CONCURRENTLY (peak in-flight = 3 — Promise.all, not serial)');
     }
 
     // ANY LOCAL architect -> SERIAL (GR10: never two local models at once). peak in-flight = 1.

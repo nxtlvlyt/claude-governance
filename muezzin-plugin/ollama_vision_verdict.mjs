@@ -1,33 +1,28 @@
-// ollama_vision_verdict.mjs — multimodal visual verdict via Ollama Cloud's
-// gemini-3-flash-preview. Replaces the broken agy --print path for e2e visual QC.
+// ollama_vision_verdict.mjs — multimodal visual verdict via LOCAL Ollama (nxtbeast),
+// gemma4:31b. Replaces the broken agy --print path for e2e visual QC.
 //
 // Why this exists: agy CLI --print mode returns empty stdout even for trivial
 // prompts (substrate-verified 2026-06-24); the agy visual-witness path is therefore
-// non-functional on this install. Ollama Cloud has gemini-3-flash-preview which
-// is multimodal and accessible via the standard /v1/chat/completions endpoint
-// using OpenAI-style image_url content blocks with base64 inline data.
+// non-functional on this install. gemma4:31b is multimodal and accessible via the
+// standard /v1/chat/completions endpoint using OpenAI-style image_url content
+// blocks with base64 inline data.
 //
-// Aligned with operator-rulings.md: "use Ollama" — this is Ollama Cloud, allowed.
-// NOT a frontier-worker dispatch (mcp__gemini-worker is forbidden); this is the
-// Ollama-routed Gemini model on the operator's plan, which is the sanctioned
-// access path.
+// LOCAL-ONLY (NO-CLOUD ruling 2026-07-02, operator-rulings.md; enforced here 2026-07-03):
+// this module previously defaulted to Ollama Cloud's gemini-3-flash-preview with three
+// separate ollama.com fallback paths — the last hardcoded cloud dispatch in the plugin
+// after seat_dispatch's lane removal. All ollama.com paths are GONE; on local failure the
+// verdict fails CLOSED with a named error instead of reaching for a forbidden provider.
+// Seat choice is receipted, not arbitrary: gemma4:31b live-benchmarked 12/12 on real
+// qc-baseline screenshot pairs (2026-07-01), beating both qwen3.6:27b (failed outright)
+// and the old cloud gemini path (EMPTY_CONTENT_THINKING bug).
 
 import { readFileSync, existsSync } from 'node:fs';
 import path from 'node:path';
 
-const OLLAMA_URL = 'https://ollama.com/v1/chat/completions';
-const DEFAULT_MODEL = 'gemini-3-flash-preview';
-// LOCAL-FIRST (2026-07-01, operator-ratified): live-tested against real qc-baseline
-// screenshots (12/12 correct — identical-pair + different-pair discrimination), gemma4:31b
-// on nxtbeast beat both qwen3.6:27b (failed outright, called two different real pages
-// identical) and the cloud gemini-3-flash-preview path (which also has a known
-// EMPTY_CONTENT_THINKING bug, see below). Ollama Cloud is also rate-limited on this account
-// as of 2026-07-01 for ~4 days. Try local FIRST now, unconditionally — not just as a 429
-// fallback — cloud stays as the safety net if nxtbeast is ever unreachable.
 const LOCAL_URL = 'http://nxtbeast:11434/v1/chat/completions';
 const LOCAL_MODEL = 'gemma4:31b';
 
-// Convert a PNG path to a data URL Ollama Cloud accepts as image content
+// Convert a PNG path to a data URL the OpenAI-compat endpoint accepts as image content
 function pngToDataUrl(filePath) {
   if (!existsSync(filePath)) throw new Error(`image not found: ${filePath}`);
   const bytes = readFileSync(filePath);
@@ -38,11 +33,7 @@ function pngToDataUrl(filePath) {
 // Returns { ok, verdict, response, error?, raw? }
 export async function ollamaVisionVerdict(promptText, imagePaths, opts = {}) {
   const t0 = Date.now();
-  const model = opts.model || DEFAULT_MODEL;
-  const apiKey = process.env.OLLAMA_API_KEY || process.env.OLLAMA_CLOUD_API_KEY;
-  if (!apiKey) {
-    return { ok: false, verdict: 'error', error: 'NO_API_KEY', elapsedMs: Date.now() - t0 };
-  }
+  const model = opts.model || LOCAL_MODEL;
   if (!imagePaths || imagePaths.length === 0) {
     return { ok: false, verdict: 'error', error: 'NO_IMAGES', elapsedMs: Date.now() - t0 };
   }
@@ -57,42 +48,6 @@ export async function ollamaVisionVerdict(promptText, imagePaths, opts = {}) {
     return { ok: false, verdict: 'error', error: `IMAGE_ENCODE_FAIL: ${e.message}`, elapsedMs: Date.now() - t0 };
   }
 
-  // LOCAL-FIRST attempt (see LOCAL_URL/LOCAL_MODEL comment above) — unconditional, not
-  // gated on a prior cloud failure. Falls through to the cloud path below on any local
-  // failure (unreachable, empty response, non-200), so cloud remains the real safety net.
-  if (!opts._skipLocalFirst) {
-    try {
-      const localBody = {
-        model: LOCAL_MODEL,
-        messages: [{ role: 'user', content }],
-        temperature: opts.temperature ?? 0.2,
-        max_tokens: opts.maxTokens ?? 2000,
-      };
-      const localResp = await fetch(LOCAL_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(localBody),
-        signal: AbortSignal.timeout(opts.timeoutMs || 120000),
-      });
-      if (localResp.ok) {
-        const localJson = await localResp.json();
-        const localMsg = localJson?.choices?.[0]?.message || {};
-        const localText = (localMsg.content || '').trim() || (localMsg.reasoning || '').trim();
-        if (localText) {
-          const vm = localText.match(/VERDICT:\s*(clean|concern|block)/i);
-          return {
-            ok: true,
-            verdict: vm ? vm[1].toLowerCase() : 'concern',
-            response: localText,
-            model: `${LOCAL_MODEL}@nxtbeast`,
-            images_sent: imagePaths.length,
-            elapsedMs: Date.now() - t0,
-          };
-        }
-      }
-    } catch { /* nxtbeast unreachable or errored -- fall through to cloud below */ }
-  }
-
   const body = {
     model,
     messages: [{ role: 'user', content }],
@@ -100,91 +55,21 @@ export async function ollamaVisionVerdict(promptText, imagePaths, opts = {}) {
     max_tokens: opts.maxTokens ?? 2000,
   };
 
-  const ctl = new AbortController();
-  const killer = setTimeout(() => ctl.abort(), opts.timeoutMs || 120000);
-
   let resp;
   try {
-    resp = await fetch(OLLAMA_URL, {
+    resp = await fetch(LOCAL_URL, {
       method: 'POST',
-      headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
-      signal: ctl.signal,
+      signal: AbortSignal.timeout(opts.timeoutMs || 120000),
     });
   } catch (e) {
-    clearTimeout(killer);
-    return { ok: false, verdict: 'error', error: `FETCH_FAIL: ${e.message}`, elapsedMs: Date.now() - t0 };
+    // FAIL CLOSED: no non-local fallback exists by design (NO-CLOUD ruling 2026-07-02).
+    return { ok: false, verdict: 'error', error: `LOCAL_FETCH_FAIL: ${e.message}`, elapsedMs: Date.now() - t0 };
   }
-  clearTimeout(killer);
 
   if (!resp.ok) {
     const t = await resp.text().catch(() => '');
-    // 2026-06-25: on 429 from Ollama Cloud, fall back to local nxtbeast multimodal
-    // FIRST (no rate limit, no cloud spend) -- gemma4 series supports vision, runs
-    // via Tailscale-accessible nxtbeast Ollama's OpenAI-compat endpoint, no auth
-    // needed on the local network. Only retry cloud (last resort) if nxtbeast is
-    // itself unreachable -- verified live 2026-06-30 that nxtbeast:11434 answers
-    // HTTP 200, so silently dropping this path (an earlier uncommitted edit did)
-    // would have thrown away a currently-working local fallback for no reason.
-    if (resp.status === 429 && !opts._isFallback) {
-      try {
-        const localUrl = 'http://nxtbeast:11434/v1/chat/completions';
-        const localBody = { ...body, model: 'gemma4:31b' };
-        const localResp = await fetch(localUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(localBody),
-          signal: AbortSignal.timeout(opts.timeoutMs || 120000),
-        });
-        if (localResp.ok) {
-          const localJson = await localResp.json();
-          const localMsg = localJson?.choices?.[0]?.message || {};
-          const localText = (localMsg.content || '').trim() || (localMsg.reasoning || '').trim();
-          if (localText) {
-            const vm = localText.match(/VERDICT:\s*(clean|concern|block)/i);
-            return {
-              ok: true,
-              verdict: vm ? vm[1].toLowerCase() : 'concern',
-              response: localText,
-              model: 'gemma4:31b@nxtbeast (cloud-429 fallback)',
-              images_sent: imagePaths.length,
-              elapsedMs: Date.now() - t0,
-            };
-          }
-        }
-      } catch { /* nxtbeast unreachable -- fall through to cloud retry below */ }
-
-      // last resort: nxtbeast fallback failed or was unreachable -- retry cloud with
-      // the alt model in case the 429 was model-specific rather than account-wide.
-      try {
-        const retryBody = { ...body, model: 'gemma4:31b' };
-        const retryResp = await fetch(OLLAMA_URL, {
-          method: 'POST',
-          headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-          body: JSON.stringify(retryBody),
-          signal: AbortSignal.timeout(opts.timeoutMs || 120000),
-        });
-        if (retryResp.ok) {
-          const retryJson = await retryResp.json();
-          const retryMsg = retryJson?.choices?.[0]?.message || {};
-          const retryText = (retryMsg.content || '').trim() || (retryMsg.reasoning || '').trim();
-          if (retryText) {
-            const vm = retryText.match(/VERDICT:\s*(clean|concern|block)/i);
-            return {
-              ok: true,
-              verdict: vm ? vm[1].toLowerCase() : 'concern',
-              response: retryText,
-              model: 'gemma4:31b (cloud-429 fallback)',
-              images_sent: imagePaths.length,
-              elapsedMs: Date.now() - t0,
-            };
-          }
-        }
-        return { ok: false, verdict: 'error', error: `CLOUD_429_AND_FALLBACK_FAIL_HTTP_${retryResp.status}`, elapsedMs: Date.now() - t0 };
-      } catch (fbErr) {
-        return { ok: false, verdict: 'error', error: `CLOUD_429_AND_FALLBACK_FAIL: ${fbErr.message}`, elapsedMs: Date.now() - t0 };
-      }
-    }
     return { ok: false, verdict: 'error', error: `HTTP_${resp.status}`, raw: t.slice(0, 400), elapsedMs: Date.now() - t0 };
   }
 
@@ -192,9 +77,8 @@ export async function ollamaVisionVerdict(promptText, imagePaths, opts = {}) {
   try { json = await resp.json(); }
   catch (e) { return { ok: false, verdict: 'error', error: `JSON_PARSE_FAIL: ${e.message}`, elapsedMs: Date.now() - t0 }; }
 
-  // 2026-06-24: gemini-3-flash-preview on Ollama Cloud has the EMPTY_CONTENT_THINKING bug
-  // (substrate-verified) — actual answer lands in message.reasoning, content stays empty.
-  // Fall back to reasoning when content is empty so the verdict path keeps working.
+  // Some thinking-style models land the answer in message.reasoning with empty content —
+  // fall back to reasoning when content is empty so the verdict path keeps working.
   const msg = json?.choices?.[0]?.message || {};
   const responseText = (msg.content || '').trim() || (msg.reasoning || '').trim();
   if (!responseText) {
@@ -209,14 +93,14 @@ export async function ollamaVisionVerdict(promptText, imagePaths, opts = {}) {
     ok: true,
     verdict,
     response: responseText,
-    model,
+    model: `${model}@nxtbeast`,
     images_sent: imagePaths.length,
     elapsedMs: Date.now() - t0,
   };
 }
 
 // argv-guarded self-test: encode 1 baseline PNG + send a trivial "describe this image"
-// prompt to verify the pipeline works end-to-end. Set OLLAMA_API_KEY first.
+// prompt to verify the pipeline works end-to-end against LOCAL nxtbeast (no auth needed).
 const _scriptPath = process.argv[1] ? process.argv[1].replace(/\\/g, '/') : '';
 const _selfMatches = _scriptPath && (import.meta.url.endsWith(_scriptPath) || import.meta.url.endsWith('/' + _scriptPath));
 if (_selfMatches && process.argv.includes('--selftest')) {
@@ -227,7 +111,7 @@ if (_selfMatches && process.argv.includes('--selftest')) {
       console.error('FAIL: no sample image at', sample);
       process.exit(1);
     }
-    console.log('sending sample image to', LOCAL_MODEL, `(local-first, cloud fallback ${DEFAULT_MODEL})`, '...');
+    console.log('sending sample image to', LOCAL_MODEL, '(LOCAL-ONLY — no cloud path exists in this module)', '...');
     const r = await ollamaVisionVerdict(
       'Describe this screenshot in one short sentence. End with: VERDICT: clean',
       [sample],

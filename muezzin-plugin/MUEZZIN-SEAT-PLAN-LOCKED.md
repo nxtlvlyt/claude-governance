@@ -6,9 +6,19 @@ operator this session; supersedes the shipped roster, MISSION_ARCHITECTURE, and 
 need operator sign-off recorded here.
 
 ## Universal waterfall (every seat unless noted)
-**Ollama Cloud → Claude → local GPU.** Three real failure domains. (A same-provider
-Ollama→Ollama fallback is nonsense — one account, one limit.) Claude tier is also the
-use-it-or-lose-it budget lever (route file `~/.claude/state/muezzin-route.json`).
+**REVISED BY OPERATOR WORD — 2026-07-02 NO-CLOUD ruling (operator-rulings.md: "we are not
+supposed to be using any ollama cloud models"), re-affirmed 2026-07-03 ("please stop talking
+about ollama cloud models... you told me it wouldn't happen again"). That word is the
+operator sign-off this doc's preamble requires. New waterfall:**
+
+**local GPU (adaptive heals) → Claude tier.** Two failure domains, both allowed providers.
+The ollama-cloud lane was removed from seat_dispatch.mjs at the PROVIDERS level 2026-07-03,
+so no config drift, mode flip, or env change can restore it silently. Claude tier remains
+the use-it-or-lose-it budget lever (route file `~/.claude/state/muezzin-route.json`).
+
+~~Original locked text (superseded 2026-07-02): Ollama Cloud → Claude → local GPU. Three
+real failure domains. (A same-provider Ollama→Ollama fallback is nonsense — one account,
+one limit.)~~
 
 ---
 

@@ -1,8 +1,8 @@
-// seat_dispatch.mjs — Muezzin seat dispatch: faith-loaded open-weight cloud seat -> structured JSON verdict.
+// seat_dispatch.mjs — Muezzin seat dispatch: faith-loaded open-weight LOCAL seat -> structured JSON verdict.
 //
-// Ported from antigravity-muezzin.mjs (getFaith / attemptProvider / PROVIDERS waterfall / SearXNG tool loop),
+// Ported from antigravity-muezzin.mjs (getFaith / attemptProvider / waterfall / SearXNG tool loop),
 // adapted for the Claude muezzin's locked design:
-//   - waterfall = cloud -> 3 ADAPTIVE HEALS -> local  (operator spec: 3 reattempts before local fallback)
+//   - waterfall = local -> 3 ADAPTIVE HEALS -> Claude tier  (NO-CLOUD ruling 2026-07-02; lane removed 2026-07-03)
 //   - systemAnchor injected into every seat (current date + "search SOTA, do not answer from stale training")
 //   - SearXNG ONLY as the search tool (no raw web_search), per the locked design
 //   - verification seats emit a JSON verdict_contract, validated by the keystone's validateVerdictContract
@@ -32,14 +32,17 @@ const FAITH_DIR = 'C:/Users/marka/.agents/faiths';
 // 300s covers ~36K tokens at kimi's observed rate; true hangs are still caught (heartbeat
 // lines + storm-watch), just 2 minutes later.
 const FETCH_TIMEOUT_MS = 300000;
-const MAX_CLOUD_HEALS = 3;            // operator spec: 3 reattempts to fix the cloud failure before local
+const MAX_HEALS = 3;                  // adaptive-heal budget per dispatch lane (formerly the cloud-lane heal spec; retargeted to the local lane 2026-07-03)
 const SEARXNG_URL = process.env.SEARXNG_URL || 'http://localhost:8080/search';
 
-// cloud first, then local. Cloud key: antigravity uses OLLAMA_API_KEY; this env also has OLLAMA_CLOUD_API_KEY.
-const PROVIDERS = [
-  { id: 'ollama-cloud', url: 'https://ollama.com/v1/chat/completions', envKeys: ['OLLAMA_API_KEY', 'OLLAMA_CLOUD_API_KEY'] },
-  { id: 'ollama-local', url: 'http://nxtbeast:11434/v1/chat/completions', envKeys: [] },
-];
+// THE ONLY OLLAMA PROVIDER IS LOCAL (operator NO-CLOUD ruling 2026-07-02, operator-rulings.md:
+// "we are not supposed to be using any ollama cloud models" — LOCAL Ollama + Claude tier only).
+// The ollama-cloud entry (https://ollama.com/v1, OLLAMA_API_KEY) was REMOVED 2026-07-03 after the
+// operator caught cloud vocabulary still leaking into reports ("you told me it wouldn't happen
+// again"): removal at the provider level is the structural guarantee — no seating mode, config
+// drift, or env flip can dispatch to ollama.com when no provider carries its URL. Last real cloud
+// dispatch: 2026-07-02T13:37Z (429-refused); zero since, adversarially verified (wf_526bff17).
+const LOCAL_PROVIDER = { id: 'ollama-local', url: 'http://nxtbeast:11434/v1/chat/completions', envKeys: [] };
 
 class WaterfallError extends Error {
   constructor(kind, provider, model, msg) { super(msg); this.kind = kind; this.provider = provider; this.model = model; }
@@ -200,11 +203,11 @@ export function execReceipt(cmd, cwd) {
   }
 }
 
-// CLAUDE TIER (#29, operator ruling 2026-06-10): when Ollama Cloud is rate-limited or
-// failing, Sonnet relieves the executor seat (qwen3-coder-next) and Opus relieves the
-// architect/validator seat (kimi-k2.6). Slots BETWEEN cloud heals and local fallback —
-// every dispatch still tries cloud first, so cloud takes back over per-call the moment
-// quota returns. Transport: claude CLI print mode (subscription auth; no ANTHROPIC_API_KEY
+// CLAUDE TIER (#29, operator ruling 2026-06-10; de-clouded 2026-07-03): when the LOCAL lane
+// is failing, a mapped Claude model relieves the seat (Sonnet for executor-class, Opus for
+// architect/validator-class). Slots AFTER the local lane's adaptive heals — every ollama-named
+// dispatch tries local first, so local takes back over per-call the moment it recovers.
+// Transport: claude CLI print mode (subscription auth; no ANTHROPIC_API_KEY
 // on this machine). Async execFile, never execSync — the daemon runs 3 lanes in one
 // process and a sync child would freeze the other lanes' timers. Prompt fed via stdin
 // (framings can exceed Windows arg limits). Identity is never silent: heartbeats label
@@ -242,7 +245,7 @@ const AGY_TIMEOUT_MS = 8 * 60 * 1000;
 
 // AGY LANE (2026-06-23, lock pending in MUEZZIN-SEAT-PLAN-LOCKED.md "Pending revision"):
 // When env USE_AGY_EXECUTOR=true OR route file declares prefer:"agy", the dispatch tries
-// agy FIRST (before namedClaude and the cloud waterfall). Burns agy's separate 4-hour
+// agy FIRST (before namedClaude and the local waterfall). Burns agy's separate 4-hour
 // rolling quota; spares the weekly direct-API Claude budget for the heaviest phase.
 // OFF BY DEFAULT — existing waterfall behavior unchanged when flag not set.
 //
@@ -297,7 +300,7 @@ async function attemptAgy(body, seatOrModel, timeoutMs, cwd) {
 
 // ROUTE PREFERENCE (operator ruling 2026-06-10: "we are not using our claude and ollama
 // usage together in a smart way" — receipt: Ollama ran dry while 75% of the Claude window
-// sat expiring). A declared window flips the order: Claude FIRST, cloud as fallback —
+// sat expiring). A declared window flips the order: Claude FIRST, local as fallback —
 // use-it-or-lose-it budget gets spent instead of expiring. State file read PER CALL
 // (webhook pattern — no restart to arm/disarm): {"prefer":"claude","until":"<ISO>"}.
 // Conductor or operator sets it; expiry self-disarms. Absent/invalid/expired = normal order.
@@ -324,10 +327,8 @@ function routePrefersClaude(model) {
 // phase-1 architects as opus/sonnet/haiku and the executor as sonnet. Those are not in
 // CLAUDE_SEAT_MAP (that map is ollama-name -> claude-fallback) and routePrefersClaude only
 // matches standing_prefer entries — so without this, a bare "opus" would be dispatched to the
-// OLLAMA cloud endpoint as model "opus" (a 404 that heals into local). This recognizer makes a
-// Claude family name dispatch CLAUDE-FIRST, with the SAME cloud->local waterfall as the
-// fallback (the safe rail: if the Claude seat is unavailable, the existing waterfall still
-// runs). Pure string check — never reads the route file.
+// local OLLAMA endpoint as model "opus" (a guaranteed 404). This recognizer makes a
+// Claude family name dispatch CLAUDE-FIRST. Pure string check — never reads the route file.
 const CLAUDE_MODELS = new Set(['opus', 'sonnet', 'haiku']);
 export function recognizeClaudeModel(model) {
   const m = String(model || '').toLowerCase();
@@ -337,7 +338,7 @@ export function recognizeClaudeModel(model) {
 }
 
 // MODEL ESCALATION TIERS: per-base ordered escalation chains.
-// tier 0 = local coder, tier 1 = cloud coder, tier 2 = premium.
+// tier 0 = local coder, tier 1 = big local coder, tier 2 = premium (Claude).
 const MODEL_ESCALATION_TIERS = {
   'qwen3-coder-next': ['qwen3-coder-next', 'kimi-k2.7-code', 'sonnet'],
   'qwen3.6:27b': ['qwen3.6:27b', 'kimi-k2.7-code', 'sonnet'],
@@ -414,17 +415,19 @@ function attemptClaude(body, claudeModel, timeoutMs, cwd) {
   });
 }
 
-// adaptive heal: given a cloud WaterfallError, return a (possibly mutated) request body + backoff, or null = give up on cloud.
-// kindCounts (cloud-budget cut, 2026-06-15): per-error-kind heal tally so a single kind can be capped
-// WITHOUT lowering the global MAX_CLOUD_HEALS (which would also kneecap the cheap FIXING heals below).
-// It records how many times each kind has ALREADY been healed before this call.
-export function healCloud(err, body, healCount, kindCounts = {}) {
+// adaptive heal: given a lane WaterfallError, return a (possibly mutated) request body + backoff, or null = give up on this lane.
+// Renamed healCloud -> healDispatch 2026-07-03 with the ollama-cloud lane removal: every heal here
+// (429/503 backoff, ctx-drop, model-suffix fix, think:false, one timeout extend) is provider-generic
+// and now serves the LOCAL lane. kindCounts (budget-cut design, 2026-06-15): per-error-kind heal tally
+// so a single kind can be capped WITHOUT lowering the global MAX_HEALS (which would also kneecap the
+// cheap FIXING heals below). It records how many times each kind has ALREADY been healed before this call.
+export function healDispatch(err, body, healCount, kindCounts = {}) {
   const k = err.kind || '';
   const msg = err.message || '';
-  // WEEKLY-QUOTA CIRCUIT BREAKER (audit receipt 2026-07-02: 92 repeats over 31h — 23 dispatches
-  // x 4 backoff heals each against "you have reached your weekly usage limit", ~8+ min wasted per
-  // dispatch before the tier takeover; a wall that resets WEEKLY cannot be healed by seconds of
-  // backoff). Give up on cloud immediately so the waterfall falls through to the next provider.
+  // WEEKLY-QUOTA CIRCUIT BREAKER (audit receipt 2026-07-02: 92 repeats over 31h against "you have
+  // reached your weekly usage limit" — a wall that resets WEEKLY cannot be healed by seconds of
+  // backoff; give up on the lane immediately). Kept post-lane-removal: local Ollama never emits
+  // this message, so the branch is inert but harmless — and correct if any provider ever does.
   if (k === 'HTTP_429' && /weekly usage limit/i.test(msg)) return null;
   if (k === 'HTTP_429') return { waitMs: 800 * (healCount + 1) * (healCount + 1), body };                    // backoff, same body
   // HTTP_503 SATURATION HEAL (2026-07-03 receipts: gpx.S2 + trip-cost.S1 attempt-2 both burned
@@ -440,12 +443,12 @@ export function healCloud(err, body, healCount, kindCounts = {}) {
   if (k === 'HTTP_404' || /not found|unknown model|no such model/i.test(msg))                                // fix model suffix (FIXING heal)
     return { waitMs: 0, body: { ...body, model: body.model.replace(/:cloud$/, '').replace(/-cloud$/, '') } };
   if (k === 'TIMEOUT') {
-    // CLOUD-BUDGET CUT (2026-06-15, mission M-ENGINE.RELIABILITY.1): a timing-out cloud call
-    // does NOT get fixed by a longer timeout — extending just re-dispatches the same full call
-    // at 360s then 600s (up to 4 cloud dispatches = most of the receipted 20%/day burn). Unlike
+    // BUDGET CUT (2026-06-15, mission M-ENGINE.RELIABILITY.1): a timing-out call does NOT get
+    // fixed by a longer timeout — extending just re-dispatches the same full call at 360s then
+    // 600s (up to 4 dispatches = most of the receipted 20%/day burn at the time). Unlike
     // ctx-drop or think:false, this heal does not REPAIR the call, it just retries it bigger.
-    // So allow ONE extend-and-retry, then fail over to the Claude/local tier. This is the only
-    // branch capped per-kind; every FIXING heal keeps its full behavior under MAX_CLOUD_HEALS.
+    // So allow ONE extend-and-retry, then fail over to the Claude tier. This is the only
+    // branch capped per-kind; every FIXING heal keeps its full behavior under MAX_HEALS.
     if ((kindCounts.TIMEOUT || 0) >= 1) return null;                                                         // already extended once -> fail over
     return { waitMs: 0, body, extendTimeout: true };                                                         // first timeout: one extend + retry
   }
@@ -584,7 +587,7 @@ async function attemptProvider(provider, body, timeoutMs) {
     // EMPTY CONTENT IS AN ERROR, NEVER A RESULT (P0-CORPUS root cause, 2026-06-09: a
     // thinking architect consumed the default output budget on reasoning; content came
     // back empty and was silently passed downstream as "no valid JSON micro_queue").
-    // Throwing lets healCloud retry with think:false + a bigger budget.
+    // Throwing lets healDispatch retry with think:false + a bigger budget.
     if (!accumulated.trim()) {
       throw new WaterfallError(
         reasoning ? 'EMPTY_CONTENT_THINKING' : 'EMPTY_CONTENT',
@@ -596,7 +599,9 @@ async function attemptProvider(provider, body, timeoutMs) {
   }
 }
 
-// cloud (3 adaptive heals) -> local. Returns { content, provider, heals }.
+// local (adaptive heals) -> Claude tier. Returns { content, provider, heals }.
+// De-clouded 2026-07-03 (operator NO-CLOUD ruling): the former cloud lane is gone at the
+// provider level; the local lane inherited its adaptive-heal loop.
 // TOTAL WALL-CLOCK BUDGET (bug #5): retry math could legally run 30+ min invisible.
 // The whole waterfall now fits inside TOTAL_BUDGET_MS; each attempt gets the smaller of
 // its own timeout and what remains. Budget exhaustion throws into the normal heal path.
@@ -605,23 +610,22 @@ export async function dispatchWithWaterfall(baseBody, { cwd, localOnly = false, 
   let lastErr;
   const deadline = Date.now() + TOTAL_BUDGET_MS;
   const remaining = () => deadline - Date.now();
-  // LOCAL-ONLY SEAT (claude-local-hybrid checking seats, 2026-06-30): a real per-seat flag,
-  // additive — NOT a PROVIDERS reorder (that band-aid was tried and reverted the same night;
-  // it broke healCloud/Claude-tier index assumptions elsewhere in this file). When set, skip
-  // every cloud/agy/claude-tier lane below and dispatch straight to ollama-local. This is for
-  // seats whose tokens are local/free and where the operator has accepted the GR10
-  // serialization cost in exchange for never spending cloud quota on a checking call.
+  // LOCAL-ONLY SEAT (claude-local-hybrid checking seats, 2026-06-30): a real per-seat flag.
+  // When set, skip every non-local lane below (agy / named-Claude / preferred / Claude tier)
+  // and dispatch straight to ollama-local. This is for seats whose tokens are local/free and
+  // where the operator has accepted the GR10 serialization cost on a checking call. (History:
+  // this flag was built INSTEAD of a PROVIDERS reorder — that band-aid was tried and reverted
+  // 2026-06-30; the array itself was finally removed 2026-07-03 with the lane.)
   if (localOnly) {
-    const local = PROVIDERS[1];
+    const local = LOCAL_PROVIDER;
     // SATURATION RETRY (2026-07-03): this branch was single-shot, so a transient Ollama
     // "503 server busy / maximum pending requests" burned the seat's WHOLE attempt in ~400ms
     // (receipts: gpx.S2 both attempts, trip-cost.S1 attempt-2, trip-cost.S2 attempt-1 — all
-    // killed by one zombie eval generation occupying the queue). The healCloud HTTP_503 patch
-    // never applied here (that heal path is cloud-waterfall-only — wrong layer, receipted by
-    // the instant failures). Saturation drains in minutes, not milliseconds: 3 bounded waits.
+    // killed by one zombie eval generation occupying the queue). Saturation drains in
+    // minutes, not milliseconds: 3 bounded waits.
     const SAT_WAITS = [15000, 45000, 90000];
     for (let satTry = 0; ; satTry++) {
-      hb(`attempt-start provider=${local.id} model=${baseBody.model} (LOCAL-ONLY seat — cloud/agy/claude-tier skipped${satTry ? `, saturation retry ${satTry}/${SAT_WAITS.length}` : ''})`);
+      hb(`attempt-start provider=${local.id} model=${baseBody.model} (LOCAL-ONLY seat — non-local lanes skipped${satTry ? `, saturation retry ${satTry}/${SAT_WAITS.length}` : ''})`);
       const t0 = Date.now();
       try {
         const out = await attemptProvider(local, baseBody, Math.max(60000, Math.min(FETCH_TIMEOUT_MS, remaining())));
@@ -635,20 +639,20 @@ export async function dispatchWithWaterfall(baseBody, { cwd, localOnly = false, 
           await new Promise((r) => setTimeout(r, SAT_WAITS[satTry]));
           continue;
         }
-        throw new WaterfallError(e.kind || 'LOCAL_ONLY_FAILED', local.id, baseBody.model, `local-only seat failed, no cloud fallback by design: ${e.message}`);
+        throw new WaterfallError(e.kind || 'LOCAL_ONLY_FAILED', local.id, baseBody.model, `local-only seat failed (no fallback lane by design): ${e.message}`);
       }
     }
   }
   // -- ROUTE-PREFERENCE WINDOW: Claude first when declared (use-it-or-lose-it); one
-  // attempt, then the normal cloud waterfall as fallback. preferTried suppresses the
-  // post-cloud claude tier so a failed preferred attempt is never double-charged.
+  // attempt, then the normal local waterfall as fallback. preferTried suppresses the
+  // post-local claude tier so a failed preferred attempt is never double-charged.
   let preferTried = false;
   // -- AGY LANE: when USE_AGY_EXECUTOR=true OR route prefer:"agy", try agy first.
   // Burns agy's separate 4-hour quota instead of the weekly Claude budget. On any
   // failure (binary missing, timeout, non-zero exit, etc) falls through to the
-  // existing namedClaude/cloud/local waterfall — same safe rail as the Claude tier.
+  // existing namedClaude/local waterfall — same safe rail as the Claude tier.
   if (routePrefersAgy(baseBody.model) && remaining() > 30000) {
-    preferTried = true;   // suppress post-cloud claude tier (same anti-double-charge logic as routePrefersClaude path)
+    preferTried = true;   // suppress post-local claude tier (same anti-double-charge logic as routePrefersClaude path)
     const agyModel = resolveAgyModel(baseBody.model);
     hb(`attempt-start provider=agy-${agyModel} (USE_AGY_EXECUTOR or route prefer) timeout=${Math.min(AGY_TIMEOUT_MS, remaining())}ms`);
     const ta = Date.now();
@@ -658,16 +662,16 @@ export async function dispatchWithWaterfall(baseBody, { cwd, localOnly = false, 
       return { ...out, provider: `agy-${agyModel}`, heals: 0 };
     } catch (e) {
       hb(`attempt-fail provider=agy-${agyModel} ms=${Date.now() - ta} kind=${e.kind || e.name}: ${String(e.message).slice(0, 120)} — falling through to existing waterfall`);
-      /* fall through to existing namedClaude / cloud / local waterfall */
+      /* fall through to existing namedClaude / local waterfall */
     }
   }
   // DIRECTLY-NAMED CLAUDE SEAT first (seating-modes): a seat whose model IS a Claude family
   // name (opus/sonnet/haiku/claude-*, from seat_modes anthropic-heavy) dispatches Claude-FIRST.
   // Honors the kill switch (MUEZZIN_CLAUDE_TIER=off -> skip, fall straight to the waterfall, so
-  // a Claude-named seat still runs on cloud/local if Claude is disabled — never a hard-fail).
+  // a Claude-named seat still runs on local if Claude is disabled — never a hard-fail).
   const namedClaude = (process.env.MUEZZIN_CLAUDE_TIER === 'off') ? null : recognizeClaudeModel(baseBody.model);
   if (namedClaude && remaining() > 30000) {
-    preferTried = true;   // suppress the post-cloud claude tier (no double-charge on a failed named-claude attempt)
+    preferTried = true;   // suppress the post-local claude tier (no double-charge on a failed named-claude attempt)
     hb(`attempt-start provider=claude-${namedClaude} (NAMED claude seat — seating mode) timeout=${Math.min(CLAUDE_TIMEOUT_MS, remaining())}ms`);
     const tn = Date.now();
     try {
@@ -676,9 +680,9 @@ export async function dispatchWithWaterfall(baseBody, { cwd, localOnly = false, 
       return { ...out, provider: `claude-${namedClaude}`, heals: 0 };
     } catch (e) {
       // Claude seat unavailable (budget/outage). The OLD "safe rail" fell through to the
-      // cloud->local waterfall with the SAME base model name — but a Claude-family name
-      // ('opus'/'sonnet'/'haiku'/'claude-*') is ANTHROPIC-ONLY: ollama-cloud AND ollama-local
-      // both 404 on it ("model 'sonnet' not found", proven live 2026-06-10), wasting two
+      // ollama waterfall with the SAME base model name — but a Claude-family name
+      // ('opus'/'sonnet'/'haiku'/'claude-*') is ANTHROPIC-ONLY: ollama-local
+      // 404s on it ("model 'sonnet' not found", proven live 2026-06-10), wasting
       // attempts before any real fallback. CLAUDE_SEAT_MAP is the REVERSE mapping
       // (ollama-name -> claude-fallback) so it cannot resolve a Claude name to an ollama model.
       // Correct behavior: do NOT re-dispatch the Claude name to ollama. Surface the Claude
@@ -702,32 +706,35 @@ export async function dispatchWithWaterfall(baseBody, { cwd, localOnly = false, 
       hb(`attempt-fail provider=claude-${preferModel} (preferred) ms=${Date.now() - tp} kind=${e.kind || e.name}: ${String(e.message).slice(0, 120)}`);
     }
   }
-  // -- cloud, with up to MAX_CLOUD_HEALS adaptive heal attempts
-  const cloud = PROVIDERS[0];
+  // -- LOCAL LANE (the only ollama lane, NO-CLOUD ruling 2026-07-02): up to MAX_HEALS
+  // adaptive heal attempts. This loop was the former cloud lane, retargeted 2026-07-03 —
+  // the heals (429/503 backoff, ctx-drop, suffix fix, think:false, one timeout extend)
+  // are provider-generic and the local queue benefits from every one of them.
+  const local = LOCAL_PROVIDER;
   let body = baseBody, timeout = FETCH_TIMEOUT_MS;
-  const kindCounts = {};   // per-error-kind heal tally (cloud-budget cut): lets healCloud cap a single kind (TIMEOUT) without touching the global heal budget the FIXING heals need
-  for (let heal = 0; heal <= MAX_CLOUD_HEALS; heal++) {
-    if (remaining() < 10000) { hb(`BUDGET-EXHAUSTED cloud model=${body.model} after ${heal} heals`); break; }
-    hb(`attempt-start provider=${cloud.id} model=${body.model} heal=${heal} timeout=${Math.min(timeout, remaining())}ms`);
+  const kindCounts = {};   // per-error-kind heal tally: lets healDispatch cap a single kind (TIMEOUT) without touching the global heal budget the FIXING heals need
+  for (let heal = 0; heal <= MAX_HEALS; heal++) {
+    if (remaining() < 10000) { hb(`BUDGET-EXHAUSTED local model=${body.model} after ${heal} heals`); break; }
+    hb(`attempt-start provider=${local.id} model=${body.model} heal=${heal} timeout=${Math.min(timeout, remaining())}ms`);
     const t0 = Date.now();
     try {
-      const out = await attemptProvider(cloud, body, Math.min(timeout, remaining()));
-      hb(`attempt-ok provider=${cloud.id} model=${body.model} heal=${heal} ms=${Date.now() - t0} chars=${out.content.length} tokens=${out.usage?.prompt || 0}+${out.usage?.completion || 0}`);
-      return { ...out, provider: cloud.id, heals: heal };
+      const out = await attemptProvider(local, body, Math.min(timeout, remaining()));
+      hb(`attempt-ok provider=${local.id} model=${body.model} heal=${heal} ms=${Date.now() - t0} chars=${out.content.length} tokens=${out.usage?.prompt || 0}+${out.usage?.completion || 0}`);
+      return { ...out, provider: local.id, heals: heal };
     }
     catch (e) {
       lastErr = e;
-      hb(`attempt-fail provider=${cloud.id} model=${body.model} heal=${heal} ms=${Date.now() - t0} kind=${e.kind || e.name}: ${String(e.message).slice(0, 120)}`);
-      if (heal === MAX_CLOUD_HEALS) break;
-      const plan = healCloud(e, body, heal, kindCounts);  // kindCounts holds prior tallies; healCloud reads TIMEOUT count to cap the retry-storm
+      hb(`attempt-fail provider=${local.id} model=${body.model} heal=${heal} ms=${Date.now() - t0} kind=${e.kind || e.name}: ${String(e.message).slice(0, 120)}`);
+      if (heal === MAX_HEALS) break;
+      const plan = healDispatch(e, body, heal, kindCounts);  // kindCounts holds prior tallies; healDispatch reads TIMEOUT count to cap the retry-storm
       kindCounts[e.kind || ''] = (kindCounts[e.kind || ''] || 0) + 1;   // record THIS kind's heal AFTER the decision (so the cap is "already healed once")
-      if (!plan) break;                                   // unhealable (4xx) OR capped kind (TIMEOUT after 1 extend) -> fall to local/claude now
+      if (!plan) break;                                   // unhealable (4xx) OR capped kind (TIMEOUT after 1 extend) -> fall to the claude tier now
       if (plan.waitMs) { hb(`heal-wait ${plan.waitMs}ms`); await new Promise((r) => setTimeout(r, Math.min(plan.waitMs, Math.max(0, remaining() - 10000)))); }
       body = plan.body; if (plan.extendTimeout) timeout = Math.min(timeout * 2, 600000);
     }
   }
-  // -- CLAUDE TIER (#29): mapped seats only, only when cloud failed, never when disabled,
-  // and never re-tried when the preferred-route attempt already failed this dispatch.
+  // -- CLAUDE TIER (#29): mapped seats only, only when the local lane failed, never when
+  // disabled, and never re-tried when the preferred-route attempt already failed this dispatch.
   const claudeModel = (process.env.MUEZZIN_CLAUDE_TIER === 'off' || preferTried) ? null : claudeFallbackFor(baseBody.model, role);
   if (claudeModel && remaining() > 30000) {
     hb(`attempt-start provider=claude-${claudeModel} (claude tier for ${baseBody.model}) timeout=${Math.min(CLAUDE_TIMEOUT_MS, remaining())}ms`);
@@ -735,21 +742,13 @@ export async function dispatchWithWaterfall(baseBody, { cwd, localOnly = false, 
     try {
       const out = await attemptClaude(baseBody, claudeModel, Math.min(CLAUDE_TIMEOUT_MS, remaining()), cwd);
       hb(`attempt-ok provider=claude-${claudeModel} ms=${Date.now() - t2} chars=${out.content.length}`);
-      return { ...out, provider: `claude-${claudeModel}`, heals: MAX_CLOUD_HEALS, cloudError: lastErr?.message };
+      return { ...out, provider: `claude-${claudeModel}`, heals: MAX_HEALS, localError: lastErr?.message };
     } catch (e) {
       hb(`attempt-fail provider=claude-${claudeModel} ms=${Date.now() - t2} kind=${e.kind || e.name}: ${String(e.message).slice(0, 120)}`);
+      throw new WaterfallError('ALL_FAILED', 'waterfall', baseBody.model, `local: ${lastErr?.message}; claude-tier: ${e.message}`);
     }
   }
-  // -- local fallback (gets a floor of 60s even if the cloud burned the budget)
-  const local = PROVIDERS[1];
-  hb(`attempt-start provider=${local.id} model=${baseBody.model} (local fallback)`);
-  const t1 = Date.now();
-  try {
-    const out = await attemptProvider(local, baseBody, Math.max(60000, Math.min(FETCH_TIMEOUT_MS, remaining())));
-    hb(`attempt-ok provider=${local.id} model=${baseBody.model} ms=${Date.now() - t1} chars=${out.content.length} tokens=${out.usage?.prompt || 0}+${out.usage?.completion || 0}`);
-    return { ...out, provider: local.id, heals: MAX_CLOUD_HEALS, cloudError: lastErr?.message };
-  }
-  catch (e) { hb(`attempt-fail provider=${local.id} ms=${Date.now() - t1}: ${String(e.message).slice(0, 120)}`); throw new WaterfallError('ALL_FAILED', 'waterfall', baseBody.model, `cloud: ${lastErr?.message}; local: ${e.message}`); }
+  throw new WaterfallError('ALL_FAILED', 'waterfall', baseBody.model, `local: ${lastErr?.message}; no claude-tier mapping for this seat`);
 }
 
 function extractJson(text) {
@@ -878,7 +877,7 @@ if (process.argv[1]?.endsWith('seat_dispatch.mjs') && process.argv.includes('--s
   check('true loop (distinct only 3 rounds) stops at round 7 (base+1), not infinity', stoppedAt, 7);
 
   // 7. NAMED-CLAUDE RECOGNIZER (seating-modes): a bare Claude family name is recognized so it
-  //    dispatches Claude-first; an ollama name is NOT (it stays on the cloud->local waterfall).
+  //    dispatches Claude-first; an ollama name is NOT (it stays on the local waterfall).
   check('recognizeClaudeModel: opus -> opus (Claude-first)', recognizeClaudeModel('opus'), 'opus');
   check('recognizeClaudeModel: SONNET (case) -> sonnet', recognizeClaudeModel('SONNET'), 'sonnet');
   check('recognizeClaudeModel: haiku -> haiku', recognizeClaudeModel('haiku'), 'haiku');
@@ -890,8 +889,8 @@ if (process.argv[1]?.endsWith('seat_dispatch.mjs') && process.argv.includes('--s
   // 8. CLAUDE-NAMED SEAT NEVER DISPATCHES TO OLLAMA (bug fix 2026-06-10: live heartbeat
   //    "attempt-fail provider=ollama-local ms=7: 404: model 'sonnet' not found"). A seat
   //    whose model is a Claude family name tries the Claude tier first; when THAT fails, the
-  //    ollama cloud/local waterfall must NOT re-dispatch the Anthropic-only name (it 404s on
-  //    both). We assert dispatchWithWaterfall(model='sonnet') issues ZERO ollama fetches and
+  //    local ollama waterfall must NOT re-dispatch the Anthropic-only name (it 404s
+  //    there). We assert dispatchWithWaterfall(model='sonnet') issues ZERO ollama fetches and
   //    surfaces the Claude failure (which dispatchSeat converts to BLOCK). Offline: the Claude
   //    attempt fails fast (CLAUDE_CMD missing/erroring in the test env), and we intercept
   //    globalThis.fetch — attemptProvider is the only thing that fetch()es a provider URL.
@@ -937,7 +936,7 @@ if (process.argv[1]?.endsWith('seat_dispatch.mjs') && process.argv.includes('--s
   })();
 
   // 9. LOCAL-ONLY SEAT (claude-local-hybrid checking seats, 2026-06-30): localOnly:true must
-  //    issue ZERO requests to any non-local endpoint (cloud, claude tier, agy) and dispatch
+  //    issue ZERO requests to any non-local endpoint (claude tier, agy, anything remote) and dispatch
   //    straight to the local provider — proving the flag actually bypasses the waterfall
   //    rather than just being accepted and ignored.
   await (async () => {
@@ -994,7 +993,7 @@ if (process.argv[1]?.endsWith('seat_dispatch.mjs')) {
     'Question for you, Auditor: does this PASS the boundary check, or is there a violation? Emit your verdict.',
   ].join('\n');
 
-  console.log(`[live] dispatching seat=${seat.role} model=${seat.model} (cloud->3heals->local)...`);
+  console.log(`[live] dispatching seat=${seat.role} model=${seat.model} (local->3heals->claude-tier)...`);
   const verdict = await dispatchSeat(seat, framing);
   console.log('[live] verdict contract:', JSON.stringify({ ...verdict, _tools: undefined }, null, 2));
   const trace = verdict._tools || [];

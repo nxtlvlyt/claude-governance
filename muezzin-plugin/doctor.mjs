@@ -1,8 +1,12 @@
 // doctor.mjs — one-shot conduct-readiness check.
-// Checks in order: (a) node present + version via process.version; (b) the four env keys rendered PRESENT/MISSING (boolean computed); (c) wrangler auth via exit code; (d) cloud canary ping + claude CLI ping; (e) git status (offline-safe); (f) governance present.
+// Checks in order: (a) node present + version via process.version; (b) the env keys rendered PRESENT/MISSING (boolean computed); (c) wrangler auth via exit code; (d) LOCAL Ollama (nxtbeast) ping + claude CLI ping; (e) git status (offline-safe); (f) governance present.
 // Render two-column PASS/FAIL board with final RESULT line.
-// Conduct-critical gate = node OK AND (>=1 of {Ollama Cloud, Claude} reachable) AND governance present; process.exit(0) only when all conduct-critical pass, else process.exit(1).
+// Conduct-critical gate = node OK AND (>=1 of {local Ollama, Claude} reachable) AND governance present; process.exit(0) only when all conduct-critical pass, else process.exit(1).
 // Non-critical fails (wrangler, git-behind, one tier down) print WARN/FAIL but do not flip the exit code.
+// DE-CLOUDED 2026-07-03 (operator NO-CLOUD ruling 2026-07-02): the Ollama Cloud ping and the
+// ollama.com model-catalog fetch are GONE — doctor itself was sending live requests to the
+// banned provider on every run. The provider leg and the seat-model 404 check now resolve
+// against nxtbeast's LOCAL catalog + the Claude CLI only.
 
 import { execSync } from 'node:child_process';
 import { readFileSync, existsSync } from 'node:fs';
@@ -14,11 +18,9 @@ import path from 'node:path';
 import { activeSeats, readMode, resolveMode, MODES } from './seat_modes.mjs';
 import { searxngPreflight } from './searxng_preflight.mjs';
 
-const ENV_KEYS = ['OLLAMA_API_KEY', 'OLLAMA_CLOUD_API_KEY', 'GOOGLE_PLACES_API_KEY', 'AIMLAPI_KEY'];
-const OLLAMA_CLOUD_BASE = 'https://ollama.com/v1';
+const ENV_KEYS = ['OLLAMA_API_KEY', 'OLLAMA_CLOUD_API_KEY', 'GOOGLE_PLACES_API_KEY', 'AIMLAPI_KEY'];   // informational only: the OLLAMA_* keys serve agy/antigravity, not any doctor check
 // OPERATOR RULING 2026-06-26: local models live on nxtbeast only, never the laptop.
 const OLLAMA_LOCAL_TAGS = 'http://nxtbeast:11434/api/tags';
-const CLOUD_TIMEOUT_MS = 10000;
 const GOV_FILES = ['~/.claude/practice/core.md', '~/.claude/CANON-MANIFEST.md'];
 // SearXNG endpoints: SEAT_SEARXNG mirrors seat_dispatch.mjs's resolution EXACTLY (SEARXNG_URL
 // base, else the localhost tunnel) — that is the URL seats actually hit, so it is the
@@ -58,34 +60,8 @@ function checkWrangler() {
   }
 }
 
-async function pingOllamaCloud() {
-  try {
-    const ctl = new AbortController();
-    const timer = setTimeout(() => ctl.abort(), CLOUD_TIMEOUT_MS);
-    const key = process.env.OLLAMA_API_KEY || process.env.OLLAMA_CLOUD_API_KEY;
-    if (!key) {
-      clearTimeout(timer);
-      return { ok: false, detail: 'no OLLAMA_API_KEY or OLLAMA_CLOUD_API_KEY set' };
-    }
-    try {
-      const res = await fetch(`${OLLAMA_CLOUD_BASE}/chat/completions`, {
-        method: 'GET',
-        headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
-        signal: ctl.signal,
-      });
-      clearTimeout(timer);
-      return { ok: true, detail: 'Ollama Cloud reachable' };
-    } catch (e) {
-      clearTimeout(timer);
-      if (e.name === 'AbortError') {
-        return { ok: false, detail: 'Ollama Cloud unreachable (timeout)' };
-      }
-      return { ok: false, detail: 'Ollama Cloud unreachable (network error)' };
-    }
-  } catch (e) {
-    return { ok: false, detail: `Ollama Cloud ping failed: ${e.message}` };
-  }
-}
+// (pingOllamaCloud removed 2026-07-03 — NO-CLOUD ruling. checkOllamaLocal below is the
+// ollama provider leg now; it was already the fire-critical one in practice.)
 
 function checkClaudeCLI() {
   try {
@@ -160,24 +136,14 @@ async function fetchJson(url, opts = {}, timeoutMs = 8000) {
   } finally { clearTimeout(timer); }
 }
 
-// ollama-local reachable + its model list (needed for the local fallback, local-only models,
-// and per-seat availability resolution). Non-fatal if down WHEN cloud is up, but reported loud.
+// ollama-local reachable + its model list — the ONLY ollama catalog (NO-CLOUD ruling): the
+// authority for whether an ollama seat name will resolve or 404, AND the provider leg of the
+// conduct-critical gate.
 async function checkOllamaLocal() {
   const r = await fetchJson(OLLAMA_LOCAL_TAGS, {}, 6000);
-  if (!r.ok) return { ok: false, names: new Set(), detail: `unreachable (${r.error || 'HTTP ' + r.status}) — local fallback + local-only models unavailable` };
+  if (!r.ok) return { ok: false, names: new Set(), detail: `unreachable (${r.error || 'HTTP ' + r.status}) — every ollama-named seat unavailable` };
   const names = new Set((r.data?.models || []).map((m) => m.name));
   return { ok: true, names, detail: `up — ${names.size} local models` };
-}
-
-// the cloud model CATALOG (OpenAI-compatible /v1/models) — the authority for whether a cloud
-// seat name will resolve or 404. Distinct from the cloud reachability PING above.
-async function fetchCloudModels() {
-  const key = process.env.OLLAMA_API_KEY || process.env.OLLAMA_CLOUD_API_KEY;
-  if (!key) return { ok: false, ids: new Set(), detail: 'no OLLAMA_API_KEY — cannot list cloud catalog' };
-  const r = await fetchJson(`${OLLAMA_CLOUD_BASE}/models`, { headers: { Authorization: `Bearer ${key}` } }, CLOUD_TIMEOUT_MS);
-  if (!r.ok) return { ok: false, ids: new Set(), detail: `cloud catalog fetch failed (${r.error || 'HTTP ' + r.status})` };
-  const ids = new Set((r.data?.data || []).map((m) => m.id));
-  return { ok: true, ids, detail: `cloud catalog — ${ids.size} models` };
 }
 
 // pwsh availability. NOTE the witness-shell fix (seat_dispatch execReceipt, 2026-06-26): PS7
@@ -218,15 +184,16 @@ async function checkSearxng() {
   return { ok: false, detail: `SearXNG unusable on BOTH ${SEAT_SEARXNG_URL} (${seat.reason}) and ${CANON_SEARXNG_URL} (${canon.reason}) — search-grounded seats will BLOCK` };
 }
 
-// Resolve whether a seat model name can be served by SOME provider. A name that resolves
-// NOWHERE is the 404-on-fire case this preflight exists to catch.
-function resolveModelProvider(name, cloudIds, localNames, claudeOK) {
+// Resolve whether a seat model name can be served by SOME allowed provider (local ollama or
+// Claude — NO-CLOUD ruling). A name that resolves NOWHERE is the 404-on-fire case this
+// preflight exists to catch: post-ruling, every former cloud-lab name that has no local pull
+// and no Claude mapping SHOULD show up here as unresolved — that is the check working.
+function resolveModelProvider(name, localNames, claudeOK) {
   if (/^(opus|sonnet|haiku|claude-)/i.test(name)) return claudeOK ? 'claude' : null;
-  if (cloudIds.has(name)) return 'cloud';
   if (localNames.has(name)) return 'local';
-  const bare = name.replace(/:cloud$/, '').replace(/-cloud$/, '');   // waterfall heals these suffixes
-  if (cloudIds.has(bare)) return 'cloud';
-  if (localNames.has(name + ':cloud')) return 'local';
+  const bare = name.replace(/:cloud$/, '').replace(/-cloud$/, '');   // the waterfall heals these stale suffixes to local names
+  if (localNames.has(bare)) return 'local';
+  if (localNames.has(name + ':latest')) return 'local';
   return null;
 }
 
@@ -263,9 +230,9 @@ checks.node = checkNode();
 checks.env = checkEnvKeys();
 
 checks.wrangler = checkWrangler();
-const cloudPing = await pingOllamaCloud();
+const ollamaLocal = await checkOllamaLocal();
 const claudePing = checkClaudeCLI();
-checks.cloud = cloudPing;
+checks.localOllama = ollamaLocal;
 checks.claude = claudePing;
 
 checks.git = checkGit();
@@ -273,20 +240,18 @@ checks.git = checkGit();
 checks.gov = checkGovernance();
 
 // ---- PREFLIGHT (fire-readiness) ----
-const ollamaLocal = await checkOllamaLocal();
-const cloudCatalog = await fetchCloudModels();
 const pwsh = checkPwsh();
 const gitBin = checkGitBinary();
 const searxng = await checkSearxng();
 
-// per-seat model availability — the anti-404 check
+// per-seat model availability — the anti-404 check (local catalog + Claude only)
 const { mode: activeMode, models: seatModels } = gatherSeatModels();
 const claudeOK = checks.claude.ok;
-const modelRows = seatModels.map((s) => ({ ...s, provider: resolveModelProvider(s.model, cloudCatalog.ids, ollamaLocal.names, claudeOK) }));
+const modelRows = seatModels.map((s) => ({ ...s, provider: resolveModelProvider(s.model, ollamaLocal.names, claudeOK) }));
 const unresolved = modelRows.filter((r) => !r.provider);
-// If we could not fetch the cloud catalog, model resolution is UNRELIABLE (a real cloud model
+// If we could not fetch the LOCAL catalog, model resolution is UNRELIABLE (a real local model
 // would look unresolved) — flag that explicitly instead of a false 404 alarm.
-const catalogReliable = cloudCatalog.ok;
+const catalogReliable = ollamaLocal.ok;
 const modelsOK = catalogReliable && unresolved.length === 0;
 
 // Render two-column PASS/FAIL board
@@ -306,7 +271,7 @@ const renderEnv = (k, present) => {
 renderCheck('Node runtime', checks.node, true);
 for (const e of checks.env) renderEnv(e.name, e.present);
 renderCheck('Wrangler auth', checks.wrangler);
-renderCheck('Ollama Cloud ping', checks.cloud, true);
+renderCheck('Ollama local (nxtbeast)', checks.localOllama, true);
 renderCheck('Claude CLI ping', checks.claude, true);
 renderCheck('Git health', checks.git);
 for (const g of checks.gov) renderCheck(`Governance ${path.basename(g.file)}`, { ok: g.present, detail: g.present ? 'found' : 'missing' }, true);
@@ -321,53 +286,52 @@ const renderPf = (label, obj, crit = false) => {
   pf.push(`[${status}] ${label.padEnd(30)} ${obj.detail || ''}`);
   return obj.ok;
 };
-renderPf('Ollama-local reachable', ollamaLocal);                 // WARN if down (cloud can still serve)
-renderPf('Cloud model catalog', cloudCatalog, true);            // FAIL: needed to validate seats won't 404
+renderPf('Ollama-local reachable', ollamaLocal, true);           // FAIL: the only ollama provider (NO-CLOUD) + the model catalog
 renderPf('pwsh / witness shell', pwsh, pwsh.ok ? false : true); // WARN if only 5.1 (fallback active); FAIL if neither shell
 renderPf('Git binary', gitBin);
 renderPf('SearXNG (seat URL)', searxng, true);                   // FAIL: search-grounded seats fail-closed
 // model availability rows
 if (!catalogReliable) {
-  pf.push(`[WARN] ${'Seat model availability'.padEnd(30)} cloud catalog unavailable — cannot confirm models won't 404 (mode=${activeMode})`);
+  pf.push(`[WARN] ${'Seat model availability'.padEnd(30)} local catalog unavailable (nxtbeast down) — cannot confirm models won't 404 (mode=${activeMode})`);
 } else if (unresolved.length === 0) {
   pf.push(`[PASS] ${'Seat model availability'.padEnd(30)} all ${modelRows.length} seat models resolve (mode=${activeMode})`);
 } else {
-  pf.push(`[FAIL] ${'Seat model availability'.padEnd(30)} ${unresolved.length}/${modelRows.length} seat models 404 on ALL providers (mode=${activeMode})`);
+  pf.push(`[FAIL] ${'Seat model availability'.padEnd(30)} ${unresolved.length}/${modelRows.length} seat models 404 on ALL allowed providers (mode=${activeMode})`);
 }
 for (const r of modelRows) {
-  const tag = r.provider ? `-> ${r.provider}` : '-> UNRESOLVED (404 on cloud+local+claude)';
+  const tag = r.provider ? `-> ${r.provider}` : '-> UNRESOLVED (404 on local+claude)';
   pf.push(`        ${String(r.role).padEnd(16)} ${String(r.model).padEnd(22)} ${tag}`);
 }
 
 console.log('\n=== PREFLIGHT (fire-readiness) ===\n');
 for (const line of pf) console.log(line);
 
-// Compute conduct-critical gate: node OK AND (>=1 of {Ollama Cloud, Claude} reachable) AND governance present
+// Compute conduct-critical gate: node OK AND (>=1 of {local Ollama, Claude} reachable) AND governance present
 const nodeOK = checks.node.ok;
-const cloudOrClaudeOK = checks.cloud.ok || checks.claude.ok;
+const localOrClaudeOK = checks.localOllama.ok || checks.claude.ok;
 const govOK = checks.gov.every((g) => g.present);
 
-const conductPass = nodeOK && cloudOrClaudeOK && govOK;
+const conductPass = nodeOK && localOrClaudeOK && govOK;
 
-// Fire-readiness gate (ENGINE-READINESS, 2026-06-26): on top of conduct-critical, a mission
-// must not fire without a working witness shell, a usable search backend, and every active
-// seat model resolvable. Ollama-local / pwsh7 / git-sync are WARN-only (cloud serves, 5.1
-// fallback exists). OLLAMA_API_KEY is implied by cloudOrClaude + catalog.
+// Fire-readiness gate (ENGINE-READINESS, 2026-06-26; de-clouded 2026-07-03): on top of
+// conduct-critical, a mission must not fire without a working witness shell, a usable search
+// backend, and every active seat model resolvable. pwsh7 / git-sync are WARN-only (5.1
+// fallback exists).
 const witnessShellOK = pwsh.ok;            // true even on 5.1 fallback; false only if NO shell
 const searxngOK = searxng.ok;
 const firePass = conductPass && witnessShellOK && searxngOK && modelsOK;
 
 console.log(`\nRESULT: ${firePass ? 'PASS' : 'FAIL'}`);
-console.log(`  conduct-critical: node=${nodeOK ? 'OK' : 'FAIL'}, cloud/claude=${cloudOrClaudeOK ? 'OK' : 'FAIL'}, governance=${govOK ? 'OK' : 'FAIL'}`);
+console.log(`  conduct-critical: node=${nodeOK ? 'OK' : 'FAIL'}, local/claude=${localOrClaudeOK ? 'OK' : 'FAIL'}, governance=${govOK ? 'OK' : 'FAIL'}`);
 console.log(`  fire-readiness:   witness-shell=${witnessShellOK ? 'OK' : 'FAIL'}, searxng=${searxngOK ? 'OK' : 'FAIL'}, seat-models=${modelsOK ? 'OK' : (catalogReliable ? 'FAIL' : 'UNKNOWN')}`);
 if (!firePass) {
   const reasons = [];
   if (!nodeOK) reasons.push('node down');
-  if (!cloudOrClaudeOK) reasons.push('no cloud/claude provider');
+  if (!localOrClaudeOK) reasons.push('no local/claude provider');
   if (!govOK) reasons.push('governance files missing');
   if (!witnessShellOK) reasons.push('no PowerShell (code receipts cannot run)');
   if (!searxngOK) reasons.push(`searxng unusable: ${searxng.detail}`);
-  if (!modelsOK) reasons.push(catalogReliable ? `seat models 404: ${unresolved.map((u) => u.model).join(', ')}` : 'cloud catalog unavailable (model check inconclusive)');
+  if (!modelsOK) reasons.push(catalogReliable ? `seat models 404: ${unresolved.map((u) => u.model).join(', ')}` : 'local catalog unavailable (model check inconclusive)');
   console.log(`  RED: ${reasons.join(' | ')}`);
 }
 
