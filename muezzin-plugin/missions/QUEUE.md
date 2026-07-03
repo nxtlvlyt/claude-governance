@@ -990,3 +990,33 @@ EXPERIMENT ARMS, re-ordered (clear-lane work, crash census is the metric):
   ARM 3: smaller quant — only if 1+2 fail (quality re-eval required).
   CONFIRMATION RULE unchanged: crashes persisting at low VRAM pressure = upstream runner
   bug -> gemma demotes, vision falls back fail-closed, architect-C reseats.
+
+## 2026-07-03 20:0x GAP HUNT RESULTS -> LEDGER ITEM #11 (operator completeness ask; 42 agents,
+## 6 lenses, refute-first verified: 36 candidates -> 25 OPEN / 10 covered / 1 refuted; FULL
+## evidence+verdicts: missions/_logs/GAP-HUNT-2026-07-03.json — work items from THE FILE, not memory)
+11. THE 25 VERIFIED-OPEN HUNT GAPS (each closes individually; #11 closes when all 25 are struck):
+   1. [high] Split-child sandbox collision: retros for every dotted-stem mission are hollow (events:0) and the RECURRING-HALT early-exit counts parent/sibling failures as its own
+   2. [med] Local-only dispatch TIMEOUT/NETWORK is one-shot terminal — the heal asymmetry the Claude lane just got fixed for still exists on the local lane
+   3. [med] Supervisor halt is a silent terminal state: no push notification and conduct-cycle never reads the halt markers
+   4. [med] conduct-cycle's heartbeat failure-class vocabulary is frozen at two 2026-06-10 classes — every newer dispatch failure class is invisible to the mechanical sweep
+   5. [high] Daemon tartib/self-retire regex reads 'UNRESOLVED' as RESOLVED — the \\b inversion bug fixed in conduct-cycle closed() on 2026-07-02 was never applied to its daemon twins
+   6. [high] RESOLVED-LANDED stamp is a pure-trust input with three mechanical consumers and zero validation — a wrong stamp self-silences, and the two readers accept different stamp 
+   7. [high] LANE-EXCLUSION clause (paid for 14:35 today) has zero mechanical enforcement — nothing stops a conductor write into a RUNNING lane's REPO-ROOT, and the engine's own guard
+   8. [med] PRE-FLIGHT RULE says 'before ANY requeue' but the mechanical gate only engages at >=5 FAILED retros inside a 24h window and is content-blind — the succession scorecard's 
+   9. [high] Self-witness prompt truncation (maxArt 9000 / maxCtx 7000) false-flags every mission text over ~7-9KB as 'incomplete / cuts off mid-sentence' — already parked a healthy m
+  10. [med] Self-witness receipts hardcode the seat label 'laguna' — the actually-dispatched model (ornith:9b default since 2026-06-30) is never recorded, and witness dispatches bypa
+  11. [med] Witness seat quality is unmeasured for the verdict ROLE: ornith:9b was defaulted on same-session anecdote, the built divergence-selector (witness_select.mjs) is wired to 
+  12. [low] The no-verdict re-ask prompt forbids the concern line, so every recovered REVISE/REJECT is a bare tag — unadjudicable by construction, and GAP #3 recommends propagating t
+  13. [high] Re-split children are silently unfireable: QUEUE-DUP guard (landed 2026-07-03) skips any newly-inserted split-child line whose path already carries a FAILED/DONE status l
+  14. [med] queuedDepsHold remaining parse gaps after the bare-stem fix: MISSION-ID-vs-filename citations resolve to nonexistent paths and are silently dropped; bare-stem matching is
+  15. [med] Fix-ledger requeue-once entries are consumed whole on partial requeue: .some() marks a multi-stem entry requeued when ANY one stem was requeued, permanently burning the o
+  16. [med] Stranded split child has no recovery path: appendQueue failures are swallowed silently, the _split-manifest is write-only, and promotionHold's tartib regex matches a REQU
+  17. [low] GAP-PRIORITY-HOLD product classifier covers only the mt-* namespace: product missions in historical namespaces (b13-*, card-*, cgsports-*, quirky-*) would fire straight t
+  18. [med] Ratio-based deletion floors structurally cannot catch the 44da372 class at commit time; no commit-time marker guard queued
+  19. [low] conduct-cycle divergence guard fails OPEN on git error
+  20. [low] STATE.md standing DEPLOY keystroke (--commit-dirty=true) contradicts parity step 3 and --record-deploy's dirty refusal
+  21. [high] Deferred prose conditions in QUEUE have no mechanical trigger — conduct-cycle.mjs never reads QUEUE.md, so a succession conductor's sweep is blind to five live obligation
+  22. [high] GAP-LIST-DRY unlock binds to the numbered ledger, but two receipted engine classes named AFTER 17:0x were never enrolled — a successor sends the 'gaps dry' push with both
+  23. [med] Fifth-law escalation condition FIRED today (ungated absence claims, operator-caught) and the named report-linter was neither built nor queued
+  24. [med] Preflight-receipt refire gate is mtime-only — a hollow touch of missions/_logs/preflight/<stem>.md opens the gate; nothing binds the receipt to the killing step class
+  25. [low] Laguna structural REJECTs with thinking-leak notes are recorded as adjudicable verdicts — the re-ask fires only on NO-verdict replies, so leak-REJECTs pass through (guard
