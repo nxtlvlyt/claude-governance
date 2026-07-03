@@ -846,10 +846,35 @@ needs no conductor beats).
 OPEN SYSTEM GAPS at ruling time, priority order:
 1. ~~tartib bare-stem REQUIRES not gating~~ CLOSED same-hour (commit + 4 fixtures + reload requested).
 2. ~~Plan-level scratch lint~~ CLOSED 17:1x (dd6953a: SCRATCH-RESIDUE rule in validateMicroQueue, allowFiles threaded through both plan paths, 5 fixtures incl. the S1.S1 receipt shape; reload requested).
-3. Witness groundedness <score>no</score> trigger unknown — re-diagnosis owed (INBOX triage item C).
+3. ~~Witness groundedness trigger unknown~~ DIAGNOSED 17:2x (see "GAP #3 DIAGNOSED" block below: non-blocking flag; 3 false-flag mechanics — 8K truncation, silent partial context, category error on authored-new rewrites; fix direction recorded, low-med priority).
 4. mission_split position-inheritance (children land at queue tail) — tracked.
 5. claude-exe-480s-hang mitigation — tracked, fires on recurrence.
 6. Windowed-edit >250KB not engaging — standing HIGH; additive-only is the live workaround.
 7. Board-truth debt: 26 false-death candidates + 13 parked revisits + 17-mission amend-on-surface pile.
 8. Repo-process: main/master divergence (14 commits), 5 undeployed commits, 3 stranded deliverables.
 9. Identity hygiene owed: ollama rm kimi tag (clear lane), per-era seat-record split, eval-v3 cells.
+
+## 2026-07-03 17:2x GAP #3 DIAGNOSED — witness groundedness <score>no</score> (INBOX item C closed)
+Re-diagnosis from code + live receipts (the localhost-SearXNG theory was already refuted):
+FIRST FACT: the gate NEVER blocks — orchestrate:1171 comment + code: flag-only into the event
+log; SELF-WITNESS carries it as an advisory reason. No mission has died OF groundedness; the
+old fear "falsely tainting correct missions" is bounded to receipt noise + one guardian
+dispatch per edit step.
+THREE FALSE-FLAG MECHANICS (receipted from source):
+(1) TRUNCATION: buildGuardianPrompt maxCtx=8000 — an emission grounded past 8KB of a dep
+    reads as invented. Identical class to the FIXED witness-truncation bug (witness went
+    12K->48K; guardian never followed).
+(2) PARTIAL CONTEXT: orchestrate:1180 readMaybe() silently DROPS absent context files —
+    guardian judges against a subset and cannot know it.
+(3) CATEGORY ERROR (the big one, live receipt): the gate runs on EDIT steps whose emissions
+    are ORDERED NEW CONTENT — plan-mode-mobile step 3 rewrote fuel-warning strings to plain
+    language; the new strings are BY DESIGN not in the context, so "unsupported claim" fires
+    on every legitimate creative rewrite. Groundedness is meaningful for research/data
+    claims (its stated purpose: invented values/versions/stats), not authored rewrites.
+PLUS: today's live flags carry a BARE <score>no</score> with NO named claim (the system
+prompt demands one line naming the claim; granite omitted it) — unadjudicable receipts.
+FIX DIRECTION (not built; low-med priority, non-blocking gate): (a) scope the gate OFF
+authored-new edit steps (rewrite/author/create verbs in the step description), keep it for
+research/data steps; (b) if kept anywhere, raise maxCtx toward the witness fix within the
+8B's window and re-ask on bare tags (laguna's no-verdict re-ask pattern); (c) surface
+dropped context deps in the flag note so partial-context flags are self-identifying.
