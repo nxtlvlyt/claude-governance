@@ -891,3 +891,24 @@ open: #4 split position-inheritance, #5 480s-hang classification, #6 windowed-ed
 the big build), #7 board-truth bulk passes (26 false-death + 13 parked + 17 amend-on-surface),
 #8 repo-process (main/master divergence, undeployed commits, stranded deliverables),
 #9 identity hygiene (kimi tag rm, per-era seat-record split, eval-v3 cells).
+
+## 2026-07-03 18:0x S1.S1 6th-FAIL JUDGED + CATALOG FABRICATION FOUND (receipts)
+S1.S1 attempt receipts PROVE the engine fixes work: step-7 ran with `exec-start
+cap=900000ms tier=2 cmd=# LONG-RUN` (seat authored the marker; 900s granted attempt 1 —
+the timeout class is DEAD) and failed on CONTENT: "parsed 0 features from catalog ->
+FATAL" (the exit-0-on-FATAL fix, added by this same mission, catching it — working).
+ROOT CAUSE upstream: mt-e2e-reachability.S1 attempt-1 step 2 (commit 6957863, 32
+insertions 0 deletions, file ABSENT in parent) CREATED A FABRICATED CATALOG from scratch
+— "Booking Engine (reservations, checkout, payment processing)", "User Profile /profile"
+— features muddytires does not have; the real catalog (untracked 05696cd restore, 4
+features, preflight-proven 14:26) was overwritten in the worktree. The witness passed the
+fabrication; doc-shrinkage could not fire (no prior tracked version).
+NEW RECEIPTED CLASS for the gap list: fabricated-rewrite-of-untracked-file — a seat
+"editing" a file it never read, inventing plausible content; no guard compares the
+emission against the PRE-EDIT worktree bytes when the file is untracked.
+BOUNDARY PLAN (repo write deferred per LANE-EXCLUSION; nav-link live in that repo):
+(1) at lane end: git checkout 05696cd -- docs/FEATURE-CATALOG-2026-06-23.md + commit
+    (real catalog finally TRACKED at HEAD — gives every future edit a diffable base);
+(2) requeue S1.S1 via fix-ledger (class: catalog-fabrication-reverted) + preflight
+    addendum (6th-fail gate needs receipt newer than newest retro);
+(3) reachability.S1 attempt 2 then edits a TRACKED real catalog with rails.
