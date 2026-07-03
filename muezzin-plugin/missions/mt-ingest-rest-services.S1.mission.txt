@@ -26,6 +26,8 @@ entry with nothing derivable beyond coordinates keeps ONLY {osm_id, osm_type, no
 lat, lng}; no fabricated names or amenities (the popup's honest empty state handles the
 rest, per the 2026-07-02 scenic-honesty precedent).
 
+TAG GROUNDING (live OSM-wiki receipts, 2026-07-03): highway=rest_area canonical (de facto status); amenity=sanitary_dump_station canonical (approved); highway=services = WITH-fuel service plazas (wiki contrast confirmed). Truck stops have NO canonical OSM tag — the hgv-fuel + brand filter below is an explicit HEURISTIC, not canon; the step-4 count floor is the guard against it matching nothing.
+
 niyyah: The homepage claims services the map does not carry — this mission supplies the
 true data so the claim becomes honest (or its counter shows the real number). File-first
 approach (data/ JSON + builder script, not direct D1 writes) mirrors mt-enrich-scenic-osm:
