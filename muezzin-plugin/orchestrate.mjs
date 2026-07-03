@@ -519,7 +519,11 @@ export async function defaultWitness(step, cwd, artifact, sources = '', dispatch
   // mode / unknown -> today's nemotron-3-super (safe default). The witness LOGIC is unchanged.
   const witnessModel = pickSeat('witness', 'nemotron-3-super');
   // LOCAL-ONLY (claude-local-hybrid, 2026-06-30): see seat_modes.mjs's isLocalOnlySeat.
-  const seat = { role: 'local_witness_validator', model: witnessModel, today: new Date().toISOString().slice(0, 10), max_tokens: 4096, sampling: { temperature: 0.2, top_p: 0.9 }, localOnly: isLocalOnlySeat('witness', witnessModel) };
+  // max_tokens 4096 -> 12288 (2026-07-03 receipts: qwen3.6:27b IGNORES think:false on the
+  // /v1 endpoint — 16K chars of unsuppressible reasoning starved the 4096 budget to
+  // EMPTY_CONTENT_THINKING; the heal's success came from the DOUBLED budget, not the flag.
+  // 12288 = observed reasoning (~4K tokens) + verdict content headroom, still bounded.)
+  const seat = { role: 'local_witness_validator', model: witnessModel, today: new Date().toISOString().slice(0, 10), max_tokens: 12288, sampling: { temperature: 0.2, top_p: 0.9 }, localOnly: isLocalOnlySeat('witness', witnessModel) };
   // STAGED SOURCES (CLASS 1, witness-wall fix): the witness used to get ONLY the step
   // goal + artifact and never the citation sources, so it could not resolve a `[file Lnn]`
   // citation and (correctly, given its blindness) flagged every one "unverifiable" — an
@@ -760,7 +764,16 @@ export async function orchestrate(mission, cwd, {
   // which share this mission's cwd and therefore this same event log) while closing the
   // cross-step conflation. See the STEP-SCOPING self-test below for the exact failure this fixes.
   function countPriorOccurrences(errorText, reason, stepIndex) {
-    const needle = String(errorText || '').trim().slice(0, 160);
+    // VOLATILE-TOKEN NORMALIZATION (2026-07-03, caught same-day by the RECURRING-ERROR
+    // selftest): execReceipt's diagnostic now carries per-run values (elapsed=Nms, temp
+    // .ps1 names) — identical failures stopped being byte-identical, silently killing
+    // recurrence detection. Normalize BOTH sides before comparing; the full detail stays
+    // in the receipt itself.
+    const normalize = (t) => String(t || '')
+      .replace(/elapsed=\d+ms\/\d+ms/g, 'elapsed=X')
+      .replace(/muezzin-step-[\w-]+\.ps1/g, 'muezzin-step-X.ps1')
+      .trim().slice(0, 160);
+    const needle = normalize(errorText);
     const emptyTextFallback = !needle;
     try {
       const raw = readFileSync(path.join(cwd, 'mission-events.jsonl'), 'utf8');
@@ -771,7 +784,7 @@ export async function orchestrate(mission, cwd, {
           const e = JSON.parse(line);
           if (e.event !== 'step-failed') continue;
           if (e.step !== stepIndex) continue;   // STEP-SCOPED: never conflate a different step's failure, even on identical error text
-          const evText = String(e.error || '').trim().slice(0, 160);
+          const evText = normalize(e.error);
           if (emptyTextFallback) {
             if (!evText && e.reason === reason) count++;
           } else if (evText && evText === needle) count++;
