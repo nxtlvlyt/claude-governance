@@ -845,7 +845,7 @@ system-gap list (below) until dry; the daemon's product drain continues in paral
 needs no conductor beats).
 OPEN SYSTEM GAPS at ruling time, priority order:
 1. ~~tartib bare-stem REQUIRES not gating~~ CLOSED same-hour (commit + 4 fixtures + reload requested).
-2. Plan-level scratch lint (RULE-10 check on the GENERATED micro_queue) — receipted 16:35, filed, next build.
+2. ~~Plan-level scratch lint~~ CLOSED 17:1x (dd6953a: SCRATCH-RESIDUE rule in validateMicroQueue, allowFiles threaded through both plan paths, 5 fixtures incl. the S1.S1 receipt shape; reload requested).
 3. Witness groundedness <score>no</score> trigger unknown — re-diagnosis owed (INBOX triage item C).
 4. mission_split position-inheritance (children land at queue tail) — tracked.
 5. claude-exe-480s-hang mitigation — tracked, fires on recurrence.

@@ -226,6 +226,13 @@ export function validateMicroAction(step, i, opts = {}) {
   return errs;
 }
 
+// parseAllowFiles(mission) — the mission text's ALLOW-FILES block as normalized repo-relative
+// paths (lowercase, forward slashes). Empty array when the mission declares none.
+export function parseAllowFiles(mission) {
+  const block = (String(mission || '').match(/ALLOW-FILES:\s*\r?\n((?:[ \t]*-[ \t]+\S.*\r?\n?)+)/i) || [])[1] || '';
+  return [...block.matchAll(/^[ \t]*-[ \t]+(\S+)/gm)].map((m) => m[1].toLowerCase().replace(/\\/g, '/'));
+}
+
 // validate a whole micro_queue. Returns { ok, errors }. opts.research per mission class.
 export function validateMicroQueue(queue, opts = {}) {
   const errors = [];
@@ -257,6 +264,27 @@ export function validateMicroQueue(queue, opts = {}) {
       else writers.set(key, s.step_index);
     }
   });
+  // SCRATCH-RESIDUE (2026-07-03, S1.S1 attempt-3 receipt: the PLAN's step 1 authored
+  // `git show ... | Out-File scratch-baseline-runner.mjs`, DECLARED it as the step target,
+  // never deleted it — and containment-drift killed 3 step-retries 25 minutes later. The
+  // mission-text lint (RULE 10) never sees generated plans; THIS is the plan-level half.)
+  // A command that CREATES a file outside the mission's ALLOW-FILES must Remove-Item it in
+  // the SAME command (create-use-delete, one step) — else the plan is rejected here, before
+  // any seat runs, and the error feeds the repair loop the planner cannot ignore.
+  if (opts.codeRepo && Array.isArray(opts.allowFiles) && opts.allowFiles.length) {
+    const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    (queue.steps || []).forEach((s) => {
+      if (s?.action_type !== 'command' && s?.action_type !== 'verify') return;
+      const cmd = String(s?.validation_command || '');
+      const created = [...cmd.matchAll(/(?:Out-File(?:\s+-\w+(?:\s+\S+)?)*\s+|Set-Content\s+(?:-Path\s+)?|Add-Content\s+(?:-Path\s+)?|New-Item\s+(?:-ItemType\s+\w+\s+)?(?:-Path\s+)?|>{1,2}\s*)["']?([\w][\w./\\-]*\.\w{1,6})["']?/g)].map((m) => m[1]);
+      for (const raw of created) {
+        const norm = raw.toLowerCase().replace(/\\/g, '/');
+        if (opts.allowFiles.includes(norm)) continue;                                   // declared deliverable
+        if (new RegExp(`(?:Remove-Item|\\brm\\b|\\bdel\\b)[^\\n]*${esc(raw)}`, 'i').test(cmd)) continue;   // create-use-delete, one step
+        errors.push(`scratch-residue: step ${s.step_index} creates '${raw}' outside the mission's ALLOW-FILES without a same-command Remove-Item — the engine's containment-drift guard WILL kill the run on this residue (S1.S1 receipt 2026-07-03). Create-use-delete in ONE command, write to stdout instead, or pipe directly (git show <sha>:<path> | Select-String ...).`);
+      }
+    });
+  }
   return { ok: errors.length === 0, errors };
 }
 
@@ -310,7 +338,7 @@ const researchNoteFor = (research) => research
 // user message; on a validation failure it re-dispatches with the errors appended, up to
 // maxRepairs. diagDir/diagTag persist the raw seat output of each failed attempt. dispatchFn is
 // injectable (default dispatchSeat) so the panel is offline-testable without real dispatch.
-async function runQueueLoop(seat, baseFraming, { research = false, codeRepo = false, maxRepairs = 2, diagDir = null, diagTag = 'plan', dispatchFn = dispatchSeat, escalationState = { tier: 0, reason: 'initial' } } = {}) {
+async function runQueueLoop(seat, baseFraming, { research = false, codeRepo = false, allowFiles = [], maxRepairs = 2, diagDir = null, diagTag = 'plan', dispatchFn = dispatchSeat, escalationState = { tier: 0, reason: 'initial' } } = {}) {
   let framing = baseFraming;
   let lastErrors = ['no attempt made'];
   let previousFailedStepIndices = new Set();
@@ -334,7 +362,7 @@ async function runQueueLoop(seat, baseFraming, { research = false, codeRepo = fa
     // same generic 'no valid JSON' as malformed output, BURYING the prior attempts' real validation
     // errors in result.json. Name the empty-emission class explicitly and carry the prior errors
     // forward so the FAILED receipt says what actually went wrong.
-    const v = queue ? validateMicroQueue(queue, { research, codeRepo })
+    const v = queue ? validateMicroQueue(queue, { research, codeRepo, allowFiles })
       : { ok: false, errors: rawContent.trim()
           ? ['no valid JSON micro_queue in the seat output']
           : [r?._error ? `DISPATCH FAILED (not an empty emission): ${r._error}` : `seat returned EMPTY content (attempt ${attempt + 1}) — empty-emission class`,
@@ -388,7 +416,7 @@ export async function deconstruct(mission, { model = PANEL_ARCHITECTS[0], today 
   const research = isResearchMission(mission);
   const codeRepo = isCodeRepoMission(mission);
   const baseFraming = `${QUEUE_INSTRUCTION}${researchNoteFor(research)}${codeRepoNoteFor(codeRepo)}\n\nMISSION:\n${mission}`;
-  return runQueueLoop(seat, baseFraming, { research, codeRepo, maxRepairs, diagDir, diagTag: 'plan', dispatchFn, escalationState });
+  return runQueueLoop(seat, baseFraming, { research, codeRepo, allowFiles: parseAllowFiles(mission), maxRepairs, diagDir, diagTag: 'plan', dispatchFn, escalationState });
 }
 
 // ----------------------------------------------------------------------- PHASE 1 BLIND PANEL
@@ -636,7 +664,7 @@ export async function deconstructPanel(mission, {
     `The three reads exist to catch what one misses — prefer the safest, most-verifiable decomposition. Output ONLY the final json micro_queue.\n\n` +
     `MISSION:\n${mission}\n\n${planBlock}`;
   const integSeat = { role: 'integrator', model: integratorModel, today, max_tokens: 32768, sampling: { temperature: 0.3, top_p: 0.9 } };
-  const synth = await runQueueLoop(integSeat, integratorFraming, { research, codeRepo, maxRepairs, diagDir, diagTag: 'integrator', dispatchFn, escalationState });
+  const synth = await runQueueLoop(integSeat, integratorFraming, { research, codeRepo, allowFiles: parseAllowFiles(mission), maxRepairs, diagDir, diagTag: 'integrator', dispatchFn, escalationState });
   if (synth.ok) return { ...synth, _panel: true, _architects: plans.map((p) => p.model), _grounded: grounded };
   // integrator could not emit a valid queue -> fall back to the single architect (never hard-break).
   return fallback(`integrator failed to synthesize a valid queue (${(synth.errors || []).join('; ').slice(0, 200)})`);
@@ -762,6 +790,16 @@ Context: Node + TypeScript project; DB schema in prisma/schema.prisma; tests run
   ] }).ok, 'out-of-order step_index is REJECTED (tartib)');
 
   ck(!validateMicroQueue({ mission_id: 'M-X', steps: [] }).ok, 'empty queue is REJECTED');
+
+  // SCRATCH-RESIDUE (plan-level half of RULE 10; S1.S1 attempt-3 receipt 2026-07-03)
+  const srOpts = { codeRepo: true, allowFiles: ['scripts/e2e-runner.mjs'] };
+  const srStep = (cmd) => ({ mission_id: 'M-X', steps: [{ step_index: 1, description: 'baseline', action_type: 'command', target_files: ['scratch-baseline-runner.mjs'], context_dependencies: [], validation_command: cmd }] });
+  const srBad = validateMicroQueue(srStep('git show e31469f:scripts/e2e-runner.mjs | Out-File -Encoding utf8 scratch-baseline-runner.mjs; Test-Path scratch-baseline-runner.mjs'), srOpts);
+  ck(!srBad.ok && srBad.errors.some((e) => /scratch-residue/.test(e)), 'scratch-residue: the S1.S1 Out-File-no-delete shape is REJECTED at plan time');
+  ck(validateMicroQueue(srStep('git show e31469f:x | Out-File tmpfile.mjs; node tmpfile.mjs; Remove-Item tmpfile.mjs'), srOpts).ok, 'scratch-residue: create-use-delete in ONE command passes');
+  ck(validateMicroQueue(srStep('Set-Content scripts/e2e-runner.mjs -Value $x'), srOpts).ok, 'scratch-residue: writing a declared ALLOW-FILE is a deliverable, not residue');
+  ck(validateMicroQueue(srStep('echo hi > scratch-x.txt'), { codeRepo: true, allowFiles: [] }).ok, 'scratch-residue: missions with no parseable ALLOW-FILES skip the rule (fail-open)');
+  ck(JSON.stringify(parseAllowFiles('MISSION-CLASS: code-repo\nALLOW-FILES:\n  - scripts\\e2e-runner.mjs\n  - Docs/CAT.md\nSTEPS: 2\n')) === JSON.stringify(['scripts/e2e-runner.mjs', 'docs/cat.md']), 'parseAllowFiles extracts + normalizes (lowercase, forward slashes)');
 
   ck(!validateMicroQueue({ mission_id: 'M-X', steps: [
     { step_index: 1, description: 'edit', action_type: 'edit', target_files: ['C:\\Users\\x\\hooks\\a.mjs'], context_dependencies: [], validation_command: 'node -c a.mjs' },
