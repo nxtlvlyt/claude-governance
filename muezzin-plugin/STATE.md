@@ -1594,3 +1594,35 @@ Prompt: *"Write a javascript function to find the first non-repeating character 
 | **`laguna-xs-2.1:q8_0 (v-swap 2026-07-02, was xs.2)`** | 33B | **123.05** | 11.05s | 471 | **FAIL (Formatting)**. Correct code, but verbose reasoning block pre-pended. |
 | **`qwen3.6:27b`** | 27B | **46.61** | 77.19s | 3271 | **FAIL (Formatting)**. Correct code, but generated a huge 3271-token verbose thought block. |
 | **`granite4.1:30b`** | 30B | **46.23** | 11.94s | 131 | **PASS (Correct & Perfect Formatting)**. Returned code block only. |
+
+## 🔚 2026-07-03 EVENING SESSION CLOSE (written at 5% Fable remaining — operator's word; next instance may seat on Sonnet)
+THE DAY: big-project gate MET (trip-cost live e2e). Then the operator re-centered on SYSTEM
+GAPS FIRST (standing rule since 01:2x — the conductor had drifted; BEAT-COMPLETE BAR +
+playbook rule 0 now enforce it mechanically). GAP LEDGER (QUEUE.md "SYSTEM GAPS FIRST"
+block): #1-6 CLOSED same-day with commits+fixtures (tartib bare-stem, plan scratch lint,
+groundedness diagnosis, split position, hang-retry, dep windowing); #7-9 OPEN (board-truth
+bulk passes; repo-process incl. deploy-gate-as-code + main/master divergence; identity
+hygiene). GAP-DRY => ONE push + big-project discussion (condition in the ledger block).
+PRODUCTION: deployed 5eb9dd5 (operator-authorized) after HIS warning caught 44da372's
+314-line map.html gut (Apply/filter/scripts) — parity guard protocol now standing in QUEUE
+(founding receipt); post-deploy all markers verified; trip-cost nav link LIVE.
+IN-FLIGHT / RESUME POINTERS:
+- Completeness hunt workflow STOPPED at 5% budget: resume Workflow({scriptPath:
+  '<session workflows dir>/gap-completeness-hunt-wf_55794b38-cc3.js', resumeFromRunId:
+  'wf_55794b38-cc3'}) — add model:'sonnet'/effort:'low' to agent opts when resuming;
+  completed lenses replay cached.
+- gemma4:31b CUDA class: 155/4-days census, box healthy, model-at-VRAM-edge; sweep FLAG
+  live (cdbdd3e). Experiment queued (QUEUE addendum): ARM 1 num_gpu partial offload into
+  the 192GB RAM (operator-informed), ARM 2 num_ctx, ARM 3 quant; census = metric.
+- Mobile chain queued in order: S1.S1 (in lane, attempt cycles) -> lane-fix v2 (overlap
+  pairs + 44px tap targets) -> S1.S2 (state+size detector) -> plan-mode -> filter-dedupe
+  (operator screenshot: dup B.C./Alberta rows) -> aurora-humanize (VAN-EMOJI me-dot,
+  operator raised TWICE, promoted).
+- geocode RESOLVED-LANDED b42ff03 (sha-ancestry gates can never pass post-pick — patch-id
+  class); its tartib children unblocked.
+- Witness reliability receipt: laguna before-witness emits <antThinking> garble/REJECT on
+  LONG lineage-heavy mission texts — advisory-only today, candidate gap for the hunt.
+- Operator asks OPEN: AIMLAPI key rotation END-GATE (build-now ruling recorded); trip-cost
+  keep/kill verdict (review row 6) not yet given.
+BUDGET LAW OBEYED: workflow stopped, marathons ended; the daemon's Sonnet seats draw a
+SEPARATE bucket and keep draining product regardless of this session's Fable state.
