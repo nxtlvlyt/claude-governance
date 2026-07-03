@@ -1077,3 +1077,12 @@ IF laguna is right, the better guard (design, do NOT improvise): pin-click flag 
 layer's own click handler stamps map._mtLayerClickAt=Date.now(); handleClick skips when the
 stamp is <150ms old (layer click always dispatches BEFORE the bubbled map click). Canvas-safe,
 no DOM-class dependence.
+
+## CLOSED 2026-07-03 21:0x — BUBBLED-PIN GUARD VERIFIED (operator background-tap receipt)
+Operator screenshot (0-POI area, empty background tap): bylaw card OPENS on background =
+guard correct as shipped; pin taps vetoed from the background handler so pin cards win (the
+original complaint). Laguna's canvas concern REFUTED ON PRODUCTION (the shared canvas does
+not match .leaflet-interactive in this Leaflet build) — the witness was wrong this time; the
+process (flag plausible hole -> cheap experiment settles) was right, and stays. STILL QUEUED
+(unchanged): the whose-popup-opens detector assertion; the H1 eagerness fix (full card ->
+toast outside coverage, clear-not-clever) as product work behind the gap program.
