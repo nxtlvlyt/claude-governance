@@ -11,8 +11,15 @@ STEPS: 6
 
 Maqsad: A REAL USER's add-spot session (operator relay 2026-07-03 ~21:1x) surfaced three
 defects in the community feature's core loop:
-(D1) NEW SPOT UNCLICKABLE: the user added a spot; its pin appeared but clicks on it do
-nothing. Substrate: js/add-spot-worker.js:104-108 DOES bind a minimal popup to the
+(D1) NEW SPOT UNCLICKABLE — WIDENED 21:3x: the same user reports NO POI on the map is
+selectable (site-wide, not just their fresh pin). TIMELINE MATTERS: the BUBBLED-PIN GUARD
+hotfix deployed ~21:00 fixed the bylaw-card-hijacks-pin-taps class; a user session on
+pre-fix cached js/municipal-parking-panel.js still experiences "no POI selectable". The
+step-2 diagnosis MUST therefore test on the CURRENT deploy (the preview) with a clean
+browser context (no cache), and its receipts distinguish: pins fine on current code (user
+was cached — document, no code fix for D1) vs pins broken on current code (real regression —
+fix per receipts). Original narrow receipt: the user added a spot; its pin appeared but
+clicks on it did nothing. Substrate: js/add-spot-worker.js:104-108 DOES bind a minimal popup to the
 just-added L.marker — so the break is subtler. DIAGNOSE FIRST (playwright against the
 preview): add a test spot, click its fresh marker, receipt WHOSE popup (if any) opens; also
 reload and click the same spot as served from pois.json (community spots may render via the
