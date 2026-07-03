@@ -111,6 +111,21 @@ export function lintMission(text) {
     add('deploy-without-commit', 'mission runs a wrangler deploy command but contains no "git commit" step anywhere in its text — production can go live with content that exists in NO git branch (confirmed live receipt: MT_ATTRIB_FIX6 deployed straight from a since-deleted worktree, in zero branches). Every deploy step needs a paired commit in the SAME mission so git and Cloudflare never diverge.');
   }
 
+  // RULE 9 — HANDROLLED LOCALHOST PREVIEW (2026-07-03 receipt: trip-cost.S2 FAILED x2,
+  // NO_PREVIEW_BASE_URL at step 5 with steps 1-4 green): split-era mission texts bake in
+  // "start a local preview server bound to PREVIEW-BASE-URL's port (localhost:8788)" exec
+  // steps. Exec steps never receive a preview URL — only the verdict-phase visual witness
+  // auto-provisions — so nothing ever serves that port and the step fails
+  // deterministically. 31 sibling mission files carried the same pattern at rule-add time.
+  // The cure is the engine-native verb (the amendment that fixed trip-cost.S2): wrangler
+  // pages deploy --branch=preview, parse the emitted *.pages.dev URL, render from it — so
+  // a mission that carries the wrangler deploy verb is exempt (it may legitimately mention
+  // localhost:8788 in an amendment-history note).
+  const handrollsLocalhost = /localhost:8788|bound to PREVIEW-BASE-URL'?s port/i.test(t);
+  if (handrollsLocalhost && !deploysViaWrangler) {
+    add('handrolled-localhost-preview', "mission targets a hand-rolled localhost:8788 preview server — exec steps never receive a PREVIEW-BASE-URL value and nothing serves that port (trip-cost.S2 FAILED x2 receipt, 2026-07-03). Replace the step with the engine-native verb: wrangler pages deploy . --project-name=muddytires --branch=preview (paired with the mission's git commit per RULE 8), parse the emitted *.muddytires.pages.dev URL to a scratch file, render from that URL.");
+  }
+
   return { ok: problems.length === 0, problems };
 }
 
@@ -214,6 +229,21 @@ if (process.argv[1] && process.argv[1].endsWith('mission_lint.mjs')) {
   // zero commits — it never bypasses git the way a pages/worker deploy does.
   const d1Mission = 'MISSION-CLASS: ops-deploy\nMISSION-ID: X\nREPO-ROOT: C:\\proj\\x\nMaqsad: load data. Done means: rows exist.\n```pwsh\nwrangler d1 execute mydb --remote --command "SELECT 1"\n```';
   ck(lintMission(d1Mission).ok, 'RULE 8: "wrangler d1 execute" is a data command, never flagged as a deploy-without-commit');
+
+  // ---- RULE 9: HANDROLLED LOCALHOST PREVIEW (2026-07-03, trip-cost.S2 receipt) ----
+  // the exact split-era shape: a step starting a localhost:8788 server, no wrangler deploy.
+  const handrolled = 'MISSION-CLASS: code-repo\nREPO-ROOT: C:\\proj\\x\nALLOW-FILES:\n  - a.html\nMaqsad: verify. Steps: 12. Start a local static/functions preview server bound to PREVIEW-BASE-URL\'s port (localhost:8788). Done means: rendered headless via playwright.';
+  const hr = lintMission(handrolled);
+  ck(!hr.ok && hr.problems.some((p) => p.rule === 'handrolled-localhost-preview'), 'RULE 9: hand-rolled localhost:8788 preview step REFUSED (the trip-cost.S2 FAILED x2 shape)');
+
+  // the amended cure: mentions localhost:8788 only historically, carries the wrangler
+  // deploy verb (+ git commit so RULE 8 stays satisfied) -> passes.
+  const amendedCure = 'MISSION-CLASS: code-repo\nREPO-ROOT: C:\\proj\\x\nALLOW-FILES:\n  - a.html\nMaqsad: verify. Steps: 12. (amended: prior step hand-rolled a localhost:8788 server) git commit is upstream in S1; confirm clean then wrangler pages deploy . --project-name=muddytires --branch=preview, parse URL, render from it. git commit receipts named. Done means: rendered headless via playwright.';
+  ck(lintMission(amendedCure).ok, 'RULE 9: the amended engine-native shape passes (localhost mention is historical, deploy verb present)');
+
+  // "bound to PREVIEW-BASE-URL\'s port" phrasing without a literal localhost:8788 -> also refused.
+  const portPhrase = 'MISSION-CLASS: code-repo\nREPO-ROOT: C:\\proj\\x\nALLOW-FILES:\n  - a.html\nMaqsad: verify. Steps: 4. Start a server bound to PREVIEW-BASE-URL\'s port. Done means: rendered headless via playwright.';
+  ck(!lintMission(portPhrase).ok && lintMission(portPhrase).problems.some((p) => p.rule === 'handrolled-localhost-preview'), 'RULE 9: the PREVIEW-BASE-URL-port phrasing is refused even without a literal localhost:8788');
 
   console.log(`\n${fail ? fail + ' FAIL' : 'ALL PASS — mission miqat: flawed work orders refused at the boundary, zero cycles burned'}`);
   process.exit(fail ? 1 : 0);
