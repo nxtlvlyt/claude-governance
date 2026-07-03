@@ -750,25 +750,35 @@ export async function dispatchWithWaterfall(baseBody, { cwd, localOnly = false, 
   const namedClaude = (process.env.MUEZZIN_CLAUDE_TIER === 'off') ? null : recognizeClaudeModel(baseBody.model);
   if (namedClaude && remaining() > 30000) {
     preferTried = true;   // suppress the post-local claude tier (no double-charge on a failed named-claude attempt)
-    hb(`attempt-start provider=claude-${namedClaude} (NAMED claude seat — seating mode) timeout=${Math.min(CLAUDE_TIMEOUT_MS, remaining())}ms`);
-    const tn = Date.now();
-    try {
-      const out = await attemptClaude(baseBody, namedClaude, Math.min(CLAUDE_TIMEOUT_MS, remaining()), cwd);
-      hb(`attempt-ok provider=claude-${namedClaude} (named) ms=${Date.now() - tn} chars=${out.content.length}`);
-      return { ...out, provider: `claude-${namedClaude}`, heals: 0 };
-    } catch (e) {
-      // Claude seat unavailable (budget/outage). The OLD "safe rail" fell through to the
-      // ollama waterfall with the SAME base model name — but a Claude-family name
-      // ('opus'/'sonnet'/'haiku'/'claude-*') is ANTHROPIC-ONLY: ollama-local
-      // 404s on it ("model 'sonnet' not found", proven live 2026-06-10), wasting
-      // attempts before any real fallback. CLAUDE_SEAT_MAP is the REVERSE mapping
-      // (ollama-name -> claude-fallback) so it cannot resolve a Claude name to an ollama model.
-      // Correct behavior: do NOT re-dispatch the Claude name to ollama. Surface the Claude
-      // failure so the caller's own fallback (dispatchSeat -> BLOCK; "absence is not APPROVE")
-      // handles it, instead of burning two guaranteed-404 ollama attempts.
-      hb(`attempt-fail provider=claude-${namedClaude} (named) ms=${Date.now() - tn} kind=${e.kind || e.name}: ${String(e.message).slice(0, 120)}`);
-      throw new WaterfallError(e.kind || 'CLAUDE_FAILED', 'claude', namedClaude,
-        `claude-named seat '${namedClaude}' failed and has no ollama equivalent (Anthropic-only name) — not re-dispatching to ollama: ${String(e.message).slice(0, 160)}`);
+    // HANG-RETRY (2026-07-03, gap #5 diagnosis): the claude-exe-480s-hang class (zero-output
+    // TIMEOUT, ~1% of 14,865 claude attempts, 156 lifetime receipts) used to fail this branch
+    // TERMINALLY — receipt 15:35:37: one hang -> dispatch-FAILED, no retry, executor seat dead.
+    // Receipts REFUTE shorter timeouts (attempt-ok at 479s; successful recovery at 210s), so
+    // the fix is ONE same-model retry gated strictly on the TIMEOUT signature. Bounded: a
+    // genuine outage costs one extra window; every other failure kind still throws immediately.
+    for (let hangTry = 0; hangTry < 2; hangTry++) {
+      hb(`attempt-start provider=claude-${namedClaude} (NAMED claude seat — seating mode)${hangTry ? ' HANG-RETRY' : ''} timeout=${Math.min(CLAUDE_TIMEOUT_MS, remaining())}ms`);
+      const tn = Date.now();
+      try {
+        const out = await attemptClaude(baseBody, namedClaude, Math.min(CLAUDE_TIMEOUT_MS, remaining()), cwd);
+        hb(`attempt-ok provider=claude-${namedClaude} (named${hangTry ? ', hang-retry' : ''}) ms=${Date.now() - tn} chars=${out.content.length}`);
+        return { ...out, provider: `claude-${namedClaude}`, heals: hangTry };
+      } catch (e) {
+        const isHang = /TIMEOUT/i.test(String(e.kind || e.name || ''));
+        if (isHang && hangTry === 0 && remaining() > 60000) {
+          hb(`attempt-fail provider=claude-${namedClaude} (named) ms=${Date.now() - tn} kind=${e.kind || e.name}: zero-output hang class — ONE same-model retry (gap #5 fix)`);
+          continue;
+        }
+        // Claude seat unavailable (budget/outage) or second hang. A Claude-family name
+        // ('opus'/'sonnet'/'haiku'/'claude-*') is ANTHROPIC-ONLY: ollama-local 404s on it
+        // ("model 'sonnet' not found", proven live 2026-06-10), so CLAUDE_SEAT_MAP cannot
+        // resolve it and re-dispatching to ollama burns guaranteed-404 attempts. Correct
+        // behavior: surface the failure so the caller's own fallback (dispatchSeat ->
+        // BLOCK; "absence is not APPROVE") handles it.
+        hb(`attempt-fail provider=claude-${namedClaude} (named${hangTry ? ', post-hang-retry' : ''}) ms=${Date.now() - tn} kind=${e.kind || e.name}: ${String(e.message).slice(0, 120)}`);
+        throw new WaterfallError(e.kind || 'CLAUDE_FAILED', 'claude', namedClaude,
+          `claude-named seat '${namedClaude}' failed and has no ollama equivalent (Anthropic-only name) — not re-dispatching to ollama: ${String(e.message).slice(0, 160)}`);
+      }
     }
   }
   const preferModel = (!namedClaude && routePrefersClaude(baseBody.model)) ? claudeFallbackFor(baseBody.model, role) : null;

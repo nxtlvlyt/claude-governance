@@ -848,7 +848,7 @@ OPEN SYSTEM GAPS at ruling time, priority order:
 2. ~~Plan-level scratch lint~~ CLOSED 17:1x (dd6953a: SCRATCH-RESIDUE rule in validateMicroQueue, allowFiles threaded through both plan paths, 5 fixtures incl. the S1.S1 receipt shape; reload requested).
 3. ~~Witness groundedness trigger unknown~~ DIAGNOSED 17:2x (see "GAP #3 DIAGNOSED" block below: non-blocking flag; 3 false-flag mechanics — 8K truncation, silent partial context, category error on authored-new rewrites; fix direction recorded, low-med priority).
 4. ~~mission_split position-inheritance~~ CLOSED 17:4x (b5e8d05: insertQueueLineAfter — children insert after the parent's line, tartib chained, tail fallback; 4 fixtures; reload requested).
-5. claude-exe-480s-hang mitigation — tracked, fires on recurrence.
+5. ~~claude-exe-480s-hang mitigation~~ CLOSED 17:5x (af03247: HANG-RETRY, one same-model retry on the TIMEOUT signature. Diagnosis REVERSED the tracked candidate: 479s attempt-ok receipts refute shorter timeouts, 210s recovery refutes short retry caps; the real gap was terminal-fail-on-first-hang — receipt 15:35:37 dispatch-FAILED with no retry).
 6. Windowed-edit >250KB not engaging — standing HIGH; additive-only is the live workaround.
 7. Board-truth debt: 26 false-death candidates + 13 parked revisits + 17-mission amend-on-surface pile.
 8. Repo-process: main/master divergence (14 commits), 5 undeployed commits, 3 stranded deliverables.
