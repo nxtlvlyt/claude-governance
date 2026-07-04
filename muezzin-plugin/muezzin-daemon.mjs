@@ -706,7 +706,10 @@ export function queuedDepsHold(missionText, missionPath, autorunText, resultOkFn
   // boot-time RUNNING->pending revert resurrected a mission whose PENDING line was already
   // resolved. If AUTORUN carries a RESOLVED comment naming THIS mission, it is retired.
   const selfEsc = String(missionPath || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  if (new RegExp(`^#.*RESOLVED.*${selfEsc}`, 'm').test(autorunText)) {
+  // mt-c1-boundary: \b guards against 'UNRESOLVED' substring-matching 'RESOLVED' (the
+  // exact inversion bug conduct-cycle.mjs's closed() was \b-fixed for on 2026-07-02 —
+  // this daemon's twin regex was left out of that fix).
+  if (new RegExp(`^#.*\\bRESOLVED\\b.*${selfEsc}`, 'm').test(autorunText)) {
     return { hold: true, resolvedSelf: true, dep: missionPath, why: 'mission itself is conductor-RESOLVED in AUTORUN — retired from firing (work landed)' };
   }
   const deps = new Set();
@@ -734,7 +737,8 @@ export function queuedDepsHold(missionText, missionPath, autorunText, resultOkFn
   for (const dep of deps) {
     if (dep === missionPath) continue;
     const doneRe = new RegExp(`^DONE\\s+${dep.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'm');
-    const resolvedRe = new RegExp(`^#.*RESOLVED.*${dep.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'm');
+    // sibling of mt-c1-boundary: same \b guard for the dependency-satisfier check.
+    const resolvedRe = new RegExp(`^#.*\\bRESOLVED\\b.*${dep.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'm');
     if (resolvedRe.test(autorunText)) continue;                                  // conductor-landed
     if (doneRe.test(autorunText) && resultOkFn(dep) === true) continue;          // DONE + PASS receipt
     return { hold: true, dep, why: doneRe.test(autorunText) ? `dependency ${dep} is DONE but its result.json is not ok:true (hollow receipt)` : `dependency ${dep} not DONE/RESOLVED` };
@@ -1714,6 +1718,27 @@ if (process.argv.includes('--selftest')) {
     ck(queuedDepsHold('REQUIRES: a.S1 (tartib)\n', 'missions/z.mission.txt', ar, resOk).hold === false, 'tartib-gate b2: bare-stem REQUIRES with dep DONE + ok:true -> FIRES');
     ck(queuedDepsHold('REQUIRES: b.S1 (tartib)\n', 'missions/z.mission.txt', ar, resOk).hold === true, 'tartib-gate b2: bare-stem REQUIRES with dep FAILED -> HELD');
     ck(queuedDepsHold('REQUIRES: search-grounded seats always\n', 'missions/z.mission.txt', arPend, resOk).hold === false, 'tartib-gate b2: prose tokens with no matching queue line never become phantom deps');
+  }
+
+  // ---- mt-c1-boundary regression pair (ported from conduct-cycle.mjs's closed() selftest):
+  // an UNRESOLVED-noted line must NOT satisfy either RESOLVED check (self or dependency);
+  // an explicit RESOLVED-noted line still must. Fixture strings are built by runtime
+  // concatenation, never typed as a single literal.
+  {
+    const stem = ['q', 'boundary', 'stem'].join('-');
+    const selfPath = 'missions/' + stem + '.mission.txt';
+    const unresolvedSelfNote = '# UN' + 'RESOLVED' + ' — still failing, do not treat as landed: ' + selfPath;
+    const resolvedSelfNote = '# ' + 'RESOLVED' + ' — landed: ' + selfPath;
+    ck(queuedDepsHold('MISSION-ID: x', selfPath, unresolvedSelfNote, () => false).hold === false, 'mt-c1-boundary: an UNRESOLVED-noted comment must NOT satisfy the self-resolved check');
+    ck(queuedDepsHold('MISSION-ID: x', selfPath, resolvedSelfNote, () => false).hold === true, 'mt-c1-boundary: an explicit RESOLVED-noted comment still satisfies the self-resolved check');
+
+    const depPath = 'missions/' + stem + '.dep.mission.txt';
+    const childPath = 'missions/' + stem + '.child.mission.txt';
+    const reqText = 'REQUIRES: ' + depPath + '\n';
+    const unresolvedDepNote = '# UN' + 'RESOLVED' + ' — still failing: ' + depPath;
+    const resolvedDepNote = '# ' + 'RESOLVED' + ' — landed: ' + depPath;
+    ck(queuedDepsHold(reqText, childPath, unresolvedDepNote, () => false).hold === true, 'mt-c1-boundary(dep): an UNRESOLVED-noted dependency comment must NOT satisfy the dependency check — stays held');
+    ck(queuedDepsHold(reqText, childPath, resolvedDepNote, () => false).hold === false, 'mt-c1-boundary(dep): an explicit RESOLVED-noted dependency comment satisfies the dependency check');
   }
 
   rmSync(tmp, { recursive: true, force: true });
