@@ -1320,3 +1320,51 @@ matching-content-but-stale-mtime still blocks, unextractable-class falls back to
 blocked result surfaces killingClass). Reload requested.
 Hunt-list tally: 15 of 25 struck this session (#1, #2, #3, #4, #5, #6, #9, #10, #12, #13,
 #15, #17, #19, #20, #24).
+
+## Hunt-item #18 INVESTIGATED, CORRECTS the item's own framing, NOT LANDED 2026-07-04 22:0xZ
+Item's text: "Ratio-based deletion floors structurally cannot catch the 44da372 class at commit
+time; no commit-time marker guard queued." Checked the ACTUAL 44da372 commit rather than
+assuming from the item's framing (mt-integration-2026-06-22 repo): `git show 44da372^:map.html
+| wc -l` = 313 lines before; `git show 44da372:map.html | wc -l` = 1 line after -- a 99.7%
+deletion. integrity_guard.mjs's existing LARGE-DELETION rule (ratio-based: prevLines>=40 &&
+removed>=60 && nextLines<=prevLines*0.65) WOULD have caught this trivially -- 1 <= 313*0.65 is
+true by a huge margin. The item's framing (the ratio THRESHOLD is the problem) is WRONG.
+REAL root cause, traced via missions/mt-mobile-qc-hardening.S1/mission-events.jsonl: the
+gutting commit was made by a [command]-type step's own raw git-add+git-commit
+("cmd":"if (git log ... ALREADY_COMMITED) {...} else {...git add...git commit..."), NOT an
+[edit]-type step. integrity_guard.mjs's Rule 4 (and Rule 5, duplication) only run when
+`step?.action_type === 'edit'` -- a [command] step that stages+commits whatever is ALREADY
+sitting in the working tree (already gutted by some earlier, untracked process before this
+step ever ran) never gets its content diffed against ANY rule, ratio-based or otherwise. This
+is a materially different, more architecturally significant fix than "adjust a ratio
+threshold" or "add a marker list" -- it requires extending content-diff protection to
+[command]-type steps' own commits, not just widening the same [edit]-only check. Not landed
+this beat (needs real design: which command steps commit, how to diff their pre-commit vs
+post-commit state, whether to run the SAME Rule 4/5 logic or a parity-marker check per
+STATE.md's "STANDING PARITY GUARD" text) -- moved to a different, better-scoped item instead
+of forcing a rushed implementation on a still-forming design. Correcting the item's own stated
+premise is itself real progress: the next instance should NOT go looking for a ratio-threshold
+bug that doesn't exist.
+
+## Hunt-item #14 PARTIAL LANDED 2026-07-04 22:1xZ, commit 58821f3
+A REQUIRES token that fails to resolve to any AUTORUN line was silently dropped from
+queuedDepsHold's dependency set -- correct when the token is prose, but the same silence hides
+a genuine citation typo/naming-drift for a dependency that's actually still pending, letting a
+mission fire without ever having waited on it.
+DELIBERATELY did NOT change the hold/fire decision -- fail-closed on every unresolved
+hyphenated token risks permanent stalls on legitimate already-retired citations or looser
+prose; fail-open (current + unchanged) risks the premature-fire class this item names. That
+tradeoff is a real design call, not a mechanical fix, and forcing one without more evidence
+would repeat the #11/#18 mistake of guessing at an under-designed change.
+Landed the visibility half only: a hyphenated token (mission stems are consistently hyphenated;
+REQUIRES prose rarely is) that resolves to no AUTORUN line now fires a named diagnostic event
+instead of vanishing silently. muezzin-daemon.mjs --selftest ALL PASS (2 new fixtures: hold
+behavior provably unchanged via an explicit assertion, diagnostic event fires and names the
+exact token). Reload requested.
+HONEST STATUS: counted as struck because the item's own stated complaint ("silently dropped")
+is directly and verifiably fixed -- but the deeper "should this actually gate" question is
+still open, unlike a fully-closed item. Watch daemon-events.log for real citation-drift
+diagnostics firing; if one fires on a genuinely still-pending mission, that's the evidence
+needed to make the fail-closed design call with confidence instead of guessing.
+Hunt-list tally: 16 of 25 struck this session (#1, #2, #3, #4, #5, #6, #9, #10, #12, #13,
+#14(partial), #15, #17, #19, #20, #24).

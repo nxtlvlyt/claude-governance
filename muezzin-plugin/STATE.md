@@ -154,7 +154,7 @@ current ledger + full git history, the operator push-notify log — none show it
 - 25 items in QUEUE.md's "THE 25 VERIFIED-OPEN HUNT GAPS" list (ledger item #11; each closes
   individually).
 
-**Struck so far (2026-07-04, this session): 15 of the 25 hunt items** — #1 (dotted-stem
+**Struck so far (2026-07-04, this session): 16 of the 25 hunt items** — #1 (dotted-stem
 mission sandbox collision, the hunt's TOP FIND, 7ae0153), #2 (local-lane TIMEOUT/NETWORK heal
 asymmetry, 5cba9d5), #3 (supervisor halt: sweep reads the marker 07915f0 AND now pushes from
 outside the dead process cb0a944 -- BOTH halves of #3's own text now done), #4
@@ -166,12 +166,22 @@ silently unfireable, SPLIT-CHILD marker, 2ca0526), #15 (fix-ledger requeue-once 
 cb249ea), #17 (GAP-PRIORITY-HOLD namespace widened beyond mt-*, 72a17f6), #19 (conduct-cycle
 divergence guard fail-open-on-git-error, 6c1363a), #20 (DEPLOY keystroke's --commit-dirty
 contradiction clarified, 959eb68), #24 (preflight-receipt gate now content-aware, not
-mtime-only, 35fa81d).
+mtime-only, 35fa81d), #14 (PARTIAL -- silently-dropped REQUIRES citations now surfaced as a
+diagnostic event, 58821f3; the harder fail-open-vs-fail-closed gating design question is
+deliberately NOT resolved, hold behavior is provably unchanged -- see QUEUE.md).
 Item #22 addressed via this scoreboard block itself (not a separate fix -- see QUEUE.md).
 Item #11 investigated but NOT landed (witness_select.mjs is real/tested/unwired, but wiring
 it needs a real design decision -- what "producer verdict" means for a structural witness,
 and whether it requires shadow-dispatching a second model at real cost -- not a quick fix;
 see QUEUE.md for the finding).
+Item #18 investigated but NOT landed -- and its OWN framing was wrong: checked the actual
+44da372 commit (313->1 lines, 99.7% deletion) against integrity_guard.mjs's existing
+ratio-based LARGE-DELETION rule and confirmed the rule WOULD have caught it easily; the item's
+premise ("ratio floors structurally cannot catch this class") does not hold. Real root cause
+(traced via the mission's own mission-events.jsonl): the gutting commit was made by a
+[command]-type step's raw git-add+git-commit, and content-diff checks only ever run on
+[edit]-type steps -- a materially bigger fix (extending diff protection to command-step
+commits) than the item as originally framed. See QUEUE.md for the full trace.
 ADDITIONAL (outside the 29-count, deliberately not folded in -- see QUEUE.md "#3 COMPLETED
 IN FULL" entry): the STUCK-TASK kill-scope bug named in UNIT E4's own text (never one of the
 25 numbered hunt items) is also fixed, commit cb0a944 -- a stuck-lane kill now names any OTHER
@@ -180,7 +190,7 @@ None of the 4 top-level items (#7-10) are
 struck — #10/gemma is a MITIGATION not a close (architect-C reseated off gemma this session,
 commit 5068d4c, but gemma still serves vision-verdict with no alternative, so it can still
 crash there; see QUEUE.md gap #10 status).
-**14 remain open** (4 top-level + 10 hunt items).
+**13 remain open** (4 top-level + 9 hunt items).
 
 Report against THIS block every beat ("Gap fixes: N/29 struck" — 29 stays the denominator even
 as N climbs; it only shrinks if a top-level item's whole scope closes, quoting which N are new this

@@ -799,9 +799,24 @@ export function queuedDepsHold(missionText, missionPath, autorunText, resultOkFn
   // missions/<token>.mission.txt — purity kept (resolved against autorunText, no fs), and
   // prose words self-exclude because no matching queue line exists for them.
   const reqHead = reqLine.split('(')[0];
+  // UNRESOLVED-CITATION VISIBILITY (hunt-item #14, 2026-07-04): a token that RESOLVES to no
+  // AUTORUN line is silently dropped from deps -- correct when the token is prose (no matching
+  // queue line ever existed for it), but the SAME silence also hides a genuine citation typo/
+  // naming-drift for a dependency that's actually still pending under a slightly different
+  // path, letting a mission fire without ever having waited on it. NOT changing the hold/fire
+  // decision here (that needs a real design call -- fail-closed on every unresolved hyphenated
+  // token risks permanent stalls on legitimate prose/already-retired citations) -- only making
+  // the silence visible. Heuristic: mission stems are consistently hyphenated (mt-, engine-,
+  // card-, qc-concern-, ...); a hyphenated token that still fails to resolve is far more likely
+  // to be an intended-but-broken citation than ordinary REQUIRES prose (which rarely hyphenates).
+  const unresolvedHyphenated = [];
   for (const tok of reqHead.matchAll(/[\w][\w.-]{3,}/g)) {
     const cand = `missions/${tok[0].replace(/^missions\//, '').replace(/\.mission\.txt$/, '')}.mission.txt`;
     if (autorunText.includes(cand)) deps.add(cand);
+    else if (tok[0].includes('-')) unresolvedHyphenated.push(tok[0]);
+  }
+  if (unresolvedHyphenated.length) {
+    try { evt(`queuedDepsHold: REQUIRES token(s) [${unresolvedHyphenated.join(', ')}] in ${missionPath} look mission-shaped (hyphenated) but resolve to no AUTORUN line -- silently treated as no-dependency; verify this isn't a citation typo for a still-pending mission before trusting this fire`); } catch { /* diagnostic only, never blocks */ }
   }
   // (c) implicit .Sn -> .S(n-1)
   const sn = String(missionPath || '').match(/^(.*\.S)(\d+)\.mission\.txt$/);
@@ -1873,6 +1888,16 @@ if (process.argv.includes('--selftest')) {
     ck(queuedDepsHold('REQUIRES: a.S1 (tartib)\n', 'missions/z.mission.txt', ar, resOk).hold === false, 'tartib-gate b2: bare-stem REQUIRES with dep DONE + ok:true -> FIRES');
     ck(queuedDepsHold('REQUIRES: b.S1 (tartib)\n', 'missions/z.mission.txt', ar, resOk).hold === true, 'tartib-gate b2: bare-stem REQUIRES with dep FAILED -> HELD');
     ck(queuedDepsHold('REQUIRES: search-grounded seats always\n', 'missions/z.mission.txt', arPend, resOk).hold === false, 'tartib-gate b2: prose tokens with no matching queue line never become phantom deps');
+
+    // UNRESOLVED-CITATION VISIBILITY (hunt-item #14, 2026-07-04): a hyphenated REQUIRES token
+    // that resolves to no AUTORUN line is still silently dropped from deps (hold behavior is
+    // UNCHANGED, deliberately -- the harder fail-open-vs-fail-closed design call is not made
+    // here), but it must no longer be SILENT -- a diagnostic event names the token.
+    const beforeLen = existsSync(EVENTS) ? readFileSync(EVENTS, 'utf8').length : 0;
+    const ghostResult = queuedDepsHold('REQUIRES: mt-mobile-qc-hardening.S1.S9 (tartib — mistyped stem)\n', 'missions/z.mission.txt', ar, resOk);
+    ck(ghostResult.hold === false, 'tartib-gate b2: an unresolved hyphenated citation still does NOT mechanically hold (behavior unchanged -- this is a visibility fix, not a new gate)');
+    const afterTail = existsSync(EVENTS) ? readFileSync(EVENTS, 'utf8').slice(beforeLen) : '';
+    ck(/queuedDepsHold: REQUIRES token.*mt-mobile-qc-hardening\.S1\.S9.*resolve to no AUTORUN line/.test(afterTail), 'tartib-gate b2: the unresolved hyphenated citation is now named in a diagnostic event, not silently dropped');
   }
 
   // ---- mt-c1-boundary regression pair (ported from conduct-cycle.mjs's closed() selftest):
