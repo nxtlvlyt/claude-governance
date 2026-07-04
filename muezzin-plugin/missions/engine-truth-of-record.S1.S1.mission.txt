@@ -1,0 +1,52 @@
+MISSION-ID: engine-truth-of-record.S1.S1
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\.claude\muezzin-plugin
+LINEAGE-NOTE 2026-07-04T01:3x: split from engine-truth-of-record.S1 after its plan phase
+repeatedly failed mechanical validation (deconstructor receipts, this same beat): a manual
+split into "C1 alone" + "C2 alone" edit steps on the SAME file (muezzin-daemon.mjs) violates
+the one-writer-per-file invariant (one step may author a file; later steps may only verify
+it) -- the auto-planner correctly refused that shape three times. The real fix is a MISSION-
+level split, not a step-level one: this mission carries ONLY C1 (the \b word-boundary regex
+fix), a single authoring step on a single file. C2 + C3 move to
+engine-truth-of-record.S1.S2 (REQUIRES this mission DONE).
+ALLOW-FILES:
+  - muezzin-daemon.mjs
+UNLINKED-OK: engine module edits — no user-facing page
+REQUIRES: none
+STEPS: 4
+
+Maqsad: UNIT C of GAP-CLOSURE-PLAYBOOK.md, part 1 of 2 (operator ruling: gaps close
+CHAIN-FIRST). Evidence in missions/_logs/GAP-HUNT-2026-07-03.json (read before editing).
+(C1) "Daemon tartib/self-retire regex reads 'UNRESOLVED' as RESOLVED": muezzin-daemon.mjs's
+RESOLVED-comment regexes (queuedDepsHold selfEsc/resolvedRe and any sibling use) lack the \b
+word-boundary that conduct-cycle's closed() gained 2026-07-02 — the string UNRESOLVED
+matches /RESOLVED/ and retires missions that are explicitly NOT resolved. Fix: apply the
+identical \b shape at every RESOLVED-comment match site (tag the first fixed site with the
+literal comment mt-c1-boundary); port conduct-cycle's closed() selftest pair (UNRESOLVED
+does NOT close; explicit RESOLVED still closes) into the daemon's selftest block.
+
+niyyah: A record system that reads UNRESOLVED as resolved cannot be the substrate a smaller
+conductor inherits. Truth of record first; the acceptance below is a selftest, not an
+opinion.
+
+CITATION-GUARD CONSTRAINT (carried forward — the SAME fabricated-citation class hit this
+file family repeatedly across attempts of the parent mission before this split). Escape
+hatches are WITHDRAWN. Do not write ANY illustrative example of a retro filename, stem name,
+or timestamp-derived name — not in a comment, not as a selftest fixture literal, not as a
+worked example — in any form, backtick-quoted or not, template-literal or not. If explaining
+what a name looks like is unavoidable, describe the SHAPE abstractly (a mission stem, a
+hyphen, an ISO-8601 timestamp with colons replaced by hyphens, the literal extension)
+without ever typing one concrete instance end to end. Selftest fixtures needing a retro-like
+string must build it via runtime string concatenation in the test code (parts assembled
+from variables) rather than a single literal typed out whole.
+
+Steps:
+  1. Baseline: record branch + HEAD; print PRESENT/ABSENT for the marker mt-c1-boundary in muezzin-daemon.mjs (idempotence anchor; if PRESENT, edit step is verify-only). Never exit 1 on existence. [command]
+  2. C1 edit of muezzin-daemon.mjs ONLY: the \b word-boundary regex fix at every RESOLVED-comment match site (queuedDepsHold selfEsc/resolvedRe and any sibling use) — tag the first fixed site with the literal comment mt-c1-boundary. Port conduct-cycle's closed() selftest pair (UNRESOLVED does NOT close; explicit RESOLVED still closes) into the daemon's selftest block. Do not touch missionLandedState, stamp verification, or conduct-cycle.mjs in this mission — that is the next mission in the sequence. [edit] muezzin-daemon.mjs
+  3. Verify: Select-String receipt for mt-c1-boundary; node --check muezzin-daemon.mjs. [verify]
+  4. Commit muezzin-daemon.mjs by explicit name naming this mission + the playbook UNIT C + the C1 hunt item; idempotent no-op if already committed (ALREADY_COMMITTED + exit 0 when clean and HEAD carries the marker). Then run node muezzin-daemon.mjs --selftest as the outcome check — the step receipt MUST show the suite ending ALL PASS, including the new UNRESOLVED/RESOLVED fixture pair by name. A missing fixture name or any FAIL line fails this step. [command]
+
+Done means: muezzin-daemon.mjs committed at HEAD carrying mt-c1-boundary; its selftest suite
+ALL PASS with the new UNRESOLVED/RESOLVED fixture pair visible in the step-4 receipt; after
+the next daemon reload, UNRESOLVED-annotated missions stop being retired. C2 (stamp
+verification) and C3 (per-stem requeue) continue in engine-truth-of-record.S1.S2.
