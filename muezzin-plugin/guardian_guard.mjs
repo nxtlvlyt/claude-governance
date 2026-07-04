@@ -42,7 +42,18 @@ export function parseGuardianVerdict(text) {
 
 // PURE: build the guardian user prompt from context + response (bounded — the verdict does
 // not need the whole artifact, and a huge prompt risks the 8B model's context).
-export function buildGuardianPrompt(contextText, responseText, { maxCtx = 8000, maxResp = 8000 } = {}) {
+// CAP RAISED 2026-07-04 (Fable's own 2026-07-03 note, QUEUE.md: "identical class to the
+// FIXED witness-truncation bug (witness went 12K->48K; guardian never followed)" — flagged,
+// never landed, until this pass): 8000 chars alone was never the real ceiling. guardianDispatch
+// serves this model at num_ctx:4096 TOKENS (below, raised alongside this) -- 8000 chars of
+// context + 8000 chars of response already approached that limit before the model's own
+// output had room. Raised together: num_ctx 4096->16384, maxCtx 8000->24000 (~6000 tokens),
+// maxResp left at 8000 (~2000 tokens) -- ctx+resp+system prompt fits with headroom inside the
+// new window. granite4.1-guardian:8b's native context is 131072 (verified via /api/show);
+// 16384 is a deliberate 4x increase, not a max-out, since this model shares nxtbeast's VRAM
+// with the same big-model contention this session's gap #10 work is about -- raising it
+// further than needed would recreate the problem this session spent hours fixing elsewhere.
+export function buildGuardianPrompt(contextText, responseText, { maxCtx = 24000, maxResp = 8000 } = {}) {
   const ctx = String(contextText ?? '').slice(0, maxCtx) || '(no context provided)';
   const resp = String(responseText ?? '').slice(0, maxResp);
   return `CONTEXT:\n${ctx}\n\nRESPONSE:\n${resp}`;
@@ -60,7 +71,7 @@ export async function guardianDispatch(system, prompt, { model = GUARDIAN_MODEL,
       body: JSON.stringify({
         model,
         messages: [{ role: 'system', content: system }, { role: 'user', content: prompt }],
-        stream: true, think: false, options: { num_predict, temperature: 0, num_ctx: 4096 },
+        stream: true, think: false, options: { num_predict, temperature: 0, num_ctx: 16384 },
       }),
       signal: ctrl.signal,
     });
@@ -107,7 +118,7 @@ if (process.argv[1] && process.argv[1].endsWith('guardian_guard.mjs')) {
   // prompt builder: bounded + labels present
   const p = buildGuardianPrompt('ctx here', 'resp here');
   ck(p.includes('CONTEXT:\nctx here') && p.includes('RESPONSE:\nresp here'), 'prompt: labels CONTEXT and RESPONSE present');
-  ck(buildGuardianPrompt('x'.repeat(20000), 'y').length < 9000, 'prompt: context bounded (no unbounded blowup)');
+  ck(buildGuardianPrompt('x'.repeat(50000), 'y').length < 25000, 'prompt: context bounded at the raised 24000-char cap (no unbounded blowup)');
 
   // checkGroundedness with MOCK dispatch — grounded path
   const grounded = await checkGroundedness('port=8080', 'listens on 8080', { dispatch: async () => '<score>yes</score> matches' });
