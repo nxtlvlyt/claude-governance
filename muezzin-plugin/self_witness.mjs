@@ -107,6 +107,19 @@ export const LAGUNA_SYSTEM =
   'has fixable flaws, or "<verdict>REJECT</verdict>" if the reasoning is unsound — then one ' +
   'short line naming the most important concern (or "none").';
 
+// PURE: strip a leaked reasoning-tag preamble (hunt-item #25, 2026-07-04, GAP-HUNT-2026-07-03
+// receipts: live daemon-events.log lines 2026-07-03T17:24:12/19:15:26 show recorded notes
+// that were ENTIRELY leaked "<antThinking> The user wants me to review an ARTIFACT..." preamble,
+// not an adjudicable rationale). Distinct from the NORMAL inline reasoning laguna-xs-2.1 is
+// designed to do (that's fine, expected, and the LAST-tag-wins verdict logic already handles
+// it) -- this specifically targets UNSTRIPPED reasoning-tag wrappers (<antThinking>, <think>)
+// that should never have reached the recorded notes at all. Closed pairs only (non-greedy) --
+// an unclosed tag is left alone rather than risk swallowing real content after a truncated
+// response.
+function stripThinkingLeak(text) {
+  return String(text ?? '').replace(/<(antThinking|think)>[\s\S]*?<\/\1>/gi, ' ');
+}
+
 // PURE: extract laguna's structural verdict. Tag first; fall back to a leading bare word.
 // Returns { verdict: 'APPROVE'|'REVISE'|'REJECT'|null, notes }. null = unparseable = no
 // signal (never a block). Mirrors parseGuardianVerdict's shape so the two read alike.
@@ -119,10 +132,11 @@ export function parseLagunaVerdict(text) {
   const tags = [...t.matchAll(/<verdict>\s*(APPROVE|REVISE|REJECT|BLOCK)\s*<\/verdict>/gi)];
   const tag = tags.length ? tags[tags.length - 1] : null;
   const norm = (w) => { const u = String(w).toUpperCase(); return u === 'BLOCK' ? 'REJECT' : u; };
-  if (tag) return { verdict: norm(tag[1]), notes: t.replace(/\s+/g, ' ').trim().slice(0, 400) };
+  const buildNotes = (s) => stripThinkingLeak(s).replace(/\s+/g, ' ').trim().slice(0, 400);
+  if (tag) return { verdict: norm(tag[1]), notes: buildNotes(t) };
   const bare = t.trim().match(/^[^A-Za-z]*(APPROVE|REVISE|REJECT|BLOCK)\b/i);
-  if (bare) return { verdict: norm(bare[1]), notes: t.replace(/\s+/g, ' ').trim().slice(0, 400) };
-  return { verdict: null, notes: t.replace(/\s+/g, ' ').trim().slice(0, 400) };
+  if (bare) return { verdict: norm(bare[1]), notes: buildNotes(t) };
+  return { verdict: null, notes: buildNotes(t) };
 }
 
 // PURE: strip JSON tool-call artifacts that local models sometimes emit instead of prose.
@@ -590,6 +604,22 @@ if (process.argv[1] && process.argv[1].endsWith('self_witness.mjs') && !process.
   ck(parseLagunaVerdict('<verdict>BLOCK</verdict>').verdict === 'REJECT', 'parse: BLOCK normalizes to REJECT');
   ck(parseLagunaVerdict('the model rambled with no verdict').verdict === null, 'parse: no verdict -> null (no signal, never a block)');
   ck(parseLagunaVerdict(null).verdict === null, 'parse: null input -> null, no throw');
+
+  // ---- thinking-leak stripping (hunt-item #25, 2026-07-04) -- the exact live receipt shape
+  // from daemon-events.log (2026-07-03T17:24:12/19:15:26): "<antThinking> The user wants me to
+  // review an ARTIFACT..." leaking into notes with a real verdict tag AFTER it, so the re-ask
+  // never fires (verdict is non-null) but the recorded rationale used to be pure leak, not an
+  // adjudicable one-liner ----
+  {
+    const leaked = parseLagunaVerdict('<antThinking> The user wants me to review an ARTIFACT for reasoning soundness. Let me check each cited receipt carefully against the source files one by one. </antThinking>\n<verdict>REJECT</verdict> cites a receipt that does not exist');
+    ck(leaked.verdict === 'REJECT', 'thinking-leak: verdict still extracts correctly (re-ask logic is unaffected -- this is a notes fix, not a parse fix)');
+    ck(!leaked.notes.includes('antThinking') && !leaked.notes.includes('wants me to review'), 'thinking-leak: the leaked preamble is stripped OUT of notes entirely');
+    ck(leaked.notes.includes('cites a receipt that does not exist'), 'thinking-leak: the actual post-verdict concern text survives in notes (the adjudicable part)');
+    const think = parseLagunaVerdict('<think>internal deliberation here</think><verdict>APPROVE</verdict> looks sound');
+    ck(!think.notes.includes('internal deliberation'), 'thinking-leak: the generic <think> tag form is also stripped, not just <antThinking>');
+    const unclosed = parseLagunaVerdict('<antThinking> this response got cut off mid-thought and never closed');
+    ck(unclosed.verdict === null && unclosed.notes.includes('cut off mid-thought'), 'thinking-leak: an UNCLOSED tag is left alone (no verdict found anyway -> the existing re-ask path already handles this case) rather than risk swallowing real content');
+  }
 
   // ---- sanitizeWitnessContent -----------------------------------------------------------
   const swEmpty = sanitizeWitnessContent('');

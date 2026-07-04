@@ -1444,3 +1444,39 @@ shapes both ungated -- flagged -- and gated by a commit sha / HYPOTHESIS tag / f
 -- not flagged).
 Hunt-list tally: 19 of 25 struck this session (#1, #2, #3, #4, #5, #6, #9, #10, #12, #13,
 #14(partial), #15, #16(partial), #17, #19, #20, #21(partial), #23, #24).
+
+## Hunt-item #25 LANDED 2026-07-04 23:0xZ, commit 22fc08d
+parseLagunaVerdict's LAST-tag-wins verdict logic correctly handles laguna-xs-2.1's DESIGNED
+inline reasoning (verdict tag at the end of deliberation is normal, expected, already handled).
+But a response that leaks an unstripped reasoning-tag wrapper (<antThinking>...</antThinking>)
+BEFORE the verdict tag still parses a real, non-null verdict -- so the existing no-verdict
+re-ask never fires. Confirmed via the exact live receipts named in GAP-HUNT-2026-07-03.json:
+daemon-events.log 2026-07-03T17:24:12/19:15:26, "FLAG: laguna(structural): REJECT —
+<antThinking> The user wants me to review an ARTIFACT..." -- the recorded notes (whole text,
+truncated to 400 chars from the start) were almost entirely leaked preamble, not an adjudicable
+rationale; the real concern text was buried past the cutoff.
+notes construction now strips closed <antThinking>/<think> tag pairs before truncating --
+non-greedy, closed-pairs-only (an unclosed tag is left alone; that case already has no verdict
+and already re-asks via the existing path, so nothing is lost). Verdict extraction itself is
+untouched -- this only fixes what gets RECORDED, never what gets DECIDED.
+self_witness.mjs --selftest ALL PASS (5 new fixtures using the exact receipted leak shape:
+verdict still extracts, leaked preamble stripped, real concern text survives, generic <think>
+form also covered, unclosed tags left alone). orchestrate.mjs --selftest ALL PASS. Reload
+requested.
+CORRECTION (caught before this beat closed): I initially wrote "remaining are #7/#8 top-level,
+unstarted" here -- WRONG. #7 and #8 are hunt-list items in their own right, distinct from the
+4 top-level OPEN SYSTEM GAPS items (which are a SEPARATE numbering, also #7-#10, that happens
+to overlap in digits and misled me). Actual hunt-list #7: "LANE-EXCLUSION clause has zero
+mechanical enforcement" (maps to GAP-CLOSURE-PLAYBOOK UNIT E1, never touched this session).
+Actual hunt-list #8: "PRE-FLIGHT RULE... mechanical gate only engages at >=5 FAILED retros...
+and is content-blind" -- NOT the same gate as #24 (which fixed retroRepeatBlocked's preflight
+CONTENT check); #8 references a DIFFERENT "PRE-FLIGHT RULE" mechanism per STATE.md's own
+playbook language about dry-running before requeues. Neither #7 nor #8 has been investigated
+yet. Correcting the record now rather than letting a wrong "5 remain, all accounted for" claim
+stand uncorrected -- exactly the numbering-precision mistake this session has worked hard to
+stop making.
+Hunt-list tally: 20 of 25 struck this session (#1, #2, #3, #4, #5, #6, #9, #10, #12, #13,
+#14(partial), #15, #16(partial), #17, #19, #20, #21(partial), #23, #24, #25). 5 hunt items are
+NOT counted as struck: #7 and #8 (genuinely untouched, not yet investigated), #11 and #18
+(investigated this session but not landed -- real design questions, not quick fixes), #22
+(addressed via the STATE.md scoreboard itself, not a separate code fix).
