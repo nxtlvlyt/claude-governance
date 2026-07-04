@@ -297,6 +297,30 @@ export function checkSearxngSight({ probe } = {}) {
   }
 }
 
+// mt-model-audit-fn — auditModelIdentities(models): a nxtbeast-reachability-class integrity
+// check over the model roster, the same discipline as checkSearxngSight (a control that
+// surfaces a blind/misconfigured backend BEFORE it produces confident-wrong work). A roster
+// whose entries collide — one identity claiming two conflicting selection tags, or two entries
+// for the same identity — silently mis-seats dispatch (the wrong model answers a seat, and
+// nothing witnesses it). PURE: reads the injected roster only, never a live service; defensive
+// against malformed entries so a config hiccup can never break the sweep.
+export function auditModelIdentities(models) {
+  const roster = Array.isArray(models) ? models : [];
+  const seen = new Map();
+  const conflicts = [];
+  for (const m of roster) {
+    if (!m || typeof m !== 'object') continue;
+    const id = String(m.id || m.name || m.model || '').trim();
+    if (!id) { conflicts.push({ reason: 'roster entry with no id/name/model identity' }); continue; }
+    const tag = String(m.select || m.tag || m.seat || '').trim();
+    const prev = seen.get(id);
+    if (prev === undefined) seen.set(id, tag);
+    else if (prev !== tag) conflicts.push({ id, reason: `identity '${id}' claims conflicting tags '${prev}' vs '${tag}'` });
+    else conflicts.push({ id, reason: `duplicate roster entry for identity '${id}'` });
+  }
+  return { ok: conflicts.length === 0, count: roster.length, conflicts };
+}
+
 // heartbeat tail parsing: timestamped attempt lines from seat_dispatch.
 function parseHeartbeats(text, now) {
   const lines = text.split(/\r?\n/).filter(Boolean).slice(-300);
@@ -327,24 +351,6 @@ export function checkCgFreshness(now = Date.now()) {
     const ts = parseInt(_execSyncSight('git -C "N:\\CGSports" log -1 --format=%ct', { timeout: 15000, stdio: ['ignore', 'pipe', 'pipe'] }).toString().trim(), 10) * 1000;
     return Number.isFinite(ts) ? { ok: true, minutes: Math.round((now - ts) / 60000) } : { ok: false };
   } catch { return { ok: false }; }
-}
-
-// mt-model-audit-fn: pure identity audit — flags model roster entries missing a
-// resolvable name or endpoint before the sweep ever trusts them for dispatch. Same
-// fail-closed spirit as the worktree/searxng checks above: an unnamed/unreachable
-// entry is never silently assumed good.
-export function auditModelIdentities(models = []) {
-  if (!Array.isArray(models)) return [];
-  return models
-    .map((m, i) => ({ index: i, name: (m && (m.name || m.model)) || null, endpoint: (m && (m.endpoint || m.host || m.base_url)) || null }))
-    .filter((r) => !r.name || !r.endpoint);
-}
-
-// default model source for the audit — fail-open (no config file yet is not a sweep
-// failure, the same convention checkCgFreshness follows above).
-function readModelOptions(base) {
-  const j = readJson(path.join(base, 'missions', '_logs', 'model-options.json'));
-  return Array.isArray(j?.models) ? j.models : (Array.isArray(j) ? j : []);
 }
 
 // WORKTREE-HEAL (succession build 2026-07-02): the shared muddytires code-repo worktree
@@ -528,7 +534,7 @@ export function computeDoneness(base, autorun, {
   return { ts: new Date(now).toISOString(), barMet, counts, blocking: blocking.slice(0, 60), frontierClean };
 }
 
-export function sweep(base = HERE, now = Date.now(), routeFile = path.join(process.env.USERPROFILE || 'C:/Users/marka', '.claude', 'state', 'muezzin-route.json'), { sightFn = checkSearxngSight, cgAgeFn = () => checkCgFreshness(now), worktreeReposFn = () => WORKTREE_REPOS, gitFn = null, modelsFn = () => readModelOptions(base) } = {}) {
+export function sweep(base = HERE, now = Date.now(), routeFile = path.join(process.env.USERPROFILE || 'C:/Users/marka', '.claude', 'state', 'muezzin-route.json'), { sightFn = checkSearxngSight, cgAgeFn = () => checkCgFreshness(now), worktreeReposFn = () => WORKTREE_REPOS, gitFn = null, modelsFn = () => [] } = {}) {
   const logs = path.join(base, 'missions', '_logs');
   const status = readJson(path.join(logs, 'daemon-status.json'));
   const pidfile = parseInt(readText(path.join(logs, 'daemon.pid')).trim(), 10);
@@ -847,19 +853,23 @@ export function sweep(base = HERE, now = Date.now(), routeFile = path.join(proce
     });
   }
 
-  // MODEL-IDENTITY AUDIT — mirrors the reachability pattern above (probe, report, only
-  // raise an action when something is actually missing; fail-open when no roster file
-  // exists yet, same as CG-INCREMENT/SEARXNG).
-  const modelAudit = auditModelIdentities(modelsFn());
-  if (modelAudit.length) {
-    report.push(`MODEL-IDENTITY: ${modelAudit.length} model entr(ies) missing a resolvable name/endpoint`);
-    actions.push({
-      id: 'MODEL-IDENTITY-GAP', class: 'judgment', approved_by_faith: false,
-      why: `${modelAudit.length} model identity entr(ies) lack a name or endpoint — an unreachable/unnamed seat is a silent identity gap, not a working seat`,
-      entries: modelAudit,
-      rule: 'name or endpoint each flagged entry against the roster before trusting dispatch to it',
-    });
-  }
+  // MODEL-IDENTITY AUDIT (mt-model-audit-fn wiring): same reachability-class discipline as the
+  // SearXNG sight-check above — a roster whose identities collide silently mis-seats dispatch,
+  // and a mis-seated model produces confident-wrong work with no witness. Injectable modelsFn
+  // defaults to empty (no roster wired = no check), so a git/config read hiccup never breaks the
+  // sweep (advisory-only, same fail-open contract as the other injected probes).
+  try {
+    const mAudit = auditModelIdentities(modelsFn());
+    if (!mAudit.ok) {
+      report.push(`MODEL-IDENTITY FAULT: ${mAudit.conflicts.length} roster conflict(s) of ${mAudit.count} entries — dispatch may seat the wrong model`);
+      actions.push({
+        id: 'AUDIT-MODEL-IDENTITY', class: 'judgment', approved_by_faith: false,
+        why: `${mAudit.conflicts.length} model-identity conflict(s) — a duplicated/conflicting roster identity mis-seats dispatch silently (same blind-backend class as a wedged search)`,
+        conflicts: mAudit.conflicts.slice(0, 8),
+        rule: 'reconcile the roster (model_rijal): each identity carries ONE stable id and ONE selection tag; never two entries claiming the same identity with different seats',
+      });
+    }
+  } catch { /* advisory — a roster read hiccup must never break the sweep */ }
 
   // WAIVER HARDENING (reviewer 2026-06-11: "waivers are where graveyards go to
   // reincarnate — if waiving is cheaper than repaying, the queue drains through the
