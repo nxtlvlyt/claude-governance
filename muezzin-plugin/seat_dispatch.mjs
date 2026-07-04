@@ -15,6 +15,7 @@ import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { validateVerdictContract, VERDICTS } from './verdict_merge.mjs';
 import { dispatchAgy, agyAvailable, resolveAgyModel } from './agy_dispatch.mjs';
+import { psProbe, wouldOversubscribe } from './self_witness.mjs';
 
 // DISPATCH HEARTBEAT (bug #5, 2026-06-10): two lanes hung 39-46 min SILENT — legal
 // retry math (3 heals x doubling timeouts up to 10 min + waits) was invisible from
@@ -715,6 +716,28 @@ export async function dispatchWithWaterfall(baseBody, { cwd, localOnly = false, 
     // burned its whole dispatch. ONE-shot mirror of healDispatch's EMPTY_CONTENT fix.)
     let thinkHealed = false;
     let body = baseBody;
+    // GEMMA-VRAM-ADMISSION GUARD (2026-07-04, operator: "192gb system ram — should not
+    // crash"): CUDA "illegal memory access" crashes on gemma4:31b were being blamed on
+    // insufficient headroom, but the real receipt (nvidia-smi + /api/ps during a live crash)
+    // showed the 4090 at ~88% VRAM with a DIFFERENT large model (the mislabeled
+    // qwen3-coder-next tag, byte-identical to north-mini-code-toolcall, 30.5B/~19GB)
+    // sitting fully resident and NOT explicitly unloaded between phases — a genuine
+    // GR10/two-serial-lanes violation (two big local models contending for one 24GB card),
+    // not a system-RAM shortfall num_gpu offload could ever fix. The witness pair
+    // (self_witness.mjs) already has proven, tested admission logic for exactly this
+    // (psProbe + wouldOversubscribe); reused here rather than reinvented. Bounded — never
+    // hangs the seat if the probe is flaky or the other model never clears: same 3-wait
+    // shape as the existing saturation retry below, then proceeds regardless (fail-open).
+    if (body.model === 'gemma4:31b') {
+      const GEMMA_NEED_BYTES = 19.9 * 1024 * 1024 * 1024;   // full untrimmed size — conservative
+      for (const waitMs of [0, 15000, 45000, 90000]) {
+        if (waitMs) await new Promise((r) => setTimeout(r, waitMs));
+        let ps;
+        try { ps = await psProbe(); } catch { break; }   // flaky probe — proceed, never hang the gate
+        if (!wouldOversubscribe(ps, body.model, GEMMA_NEED_BYTES)) break;
+        hb(`gemma-vram-admission: oversubscribe risk (resident=${(ps.residentVram / 1e9).toFixed(1)}GB) — waiting for another big local model to clear before dispatch`);
+      }
+    }
     for (let satTry = 0; ; satTry++) {
       hb(`attempt-start provider=${local.id} model=${body.model} (LOCAL-ONLY seat — non-local lanes skipped${satTry ? `, saturation retry ${satTry}/${SAT_WAITS.length}` : ''}${thinkHealed ? ', think:false heal' : ''})`);
       const t0 = Date.now();

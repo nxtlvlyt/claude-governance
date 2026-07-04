@@ -1248,3 +1248,20 @@ srcSha extraction should require proximity to an explicit "RESOLVED" (or similar
 keyword, not match any bare hex substring in the whole mission text. Immediate workaround
 applied to this mission: reworded the lineage note to avoid any bare commit-hash-shaped
 token; verified programmatically against the actual regex before requeuing.
+
+## GAP #10 REAL FIX 2026-07-04 05:5x — gemma CUDA crash was VRAM CONTENTION, not RAM capacity
+Operator correctly challenged ARM 1's own theory: "we have 192gb system ram and it should
+not crash" -- right instinct. Investigated directly (nvidia-smi + /api/ps on nxtbeast during
+this session): the 4090 was at ~88% VRAM (21.7/24.5GB) with the mislabeled qwen3-coder-next
+tag (byte-identical to north-mini-code-toolcall, ~19GB) fully resident and never explicitly
+unloaded between mission phases -- two big local models genuinely contending for one 24GB
+card, a two-serial-lanes violation, NOT a capacity problem system RAM could ever fix (CUDA
+"illegal memory access" is a fault class distinct from OOM; more RAM does not address it).
+REAL FIX landed (commit fa9d147, seat_dispatch.mjs): reused self_witness.mjs's already-proven
+GR10 admission logic (psProbe + wouldOversubscribe, built for the witness pair) as a bounded
+pre-dispatch check specifically before gemma4:31b fires -- waits for VRAM headroom if another
+big model is resident, fail-open if the probe is flaky or nothing clears. 57/57+ selftests
+pass, zero regressions. NOT yet live in the running daemon (PID unchanged since this commit;
+same in-memory-import staleness as the citation-guard fix earlier tonight) -- needs a
+RELOAD-REQUEST once the current lane clears, same as before. Gap #10 stays open until a
+live, reloaded daemon shows a clean multi-hour census with this guard active.
