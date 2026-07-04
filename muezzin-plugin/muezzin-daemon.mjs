@@ -803,7 +803,7 @@ function doneMissionIds(autorunText, missionsDir, readText) {
 // hold. Ordering: files are considered in the order given (the caller sorts them — by the
 // OPERATOR PRIORITY ORDER when it can, else lexical), and the FIRST ready one wins. Minimal
 // + safe: one promotion per call, so the daemon re-reads truth before the next.
-function pickPromotion(autorunText, missionFiles, missionsDir, readText, ledgerText = '') {
+function pickPromotion(autorunText, missionFiles, missionsDir, readText, ledgerText = '', gitFn = (repo, argstr) => { try { return { ok: true, out: execSync(`git -C "${repo}" ${argstr}`, { stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 64 * 1024 * 1024 }).toString() }; } catch { return { ok: false, out: '' }; } }) {
   const doneIds = doneMissionIds(autorunText, missionsDir, readText);
   // TERMINAL GUARD (spam-loop root fix): a FAILED-x2 / DONE / SPLIT mission — recorded in
   // AUTORUN status lines OR the persistent MISSION-LEDGER.md — is DEAD and must never be
@@ -831,6 +831,17 @@ function pickPromotion(autorunText, missionFiles, missionsDir, readText, ledgerT
     try { txt = readText(path.isAbsolute(f) ? f : path.join(missionsDir, f)); } catch { continue; }
     const gate = promotionHold(txt, doneIds);
     if (gate.hold) continue;                                    // held/blocked/unsatisfied-deps — SKIP
+    // mt-c2b-pickpromotion: verify any landed-state claim in this candidate's own text
+    // against the repo (reuses missionLandedState, already imported for queuedDepsHold)
+    // before promoting it. A disputed verdict (GENUINE — the claim doesn't match HEAD)
+    // excludes this mission from promotion; a null verdict (undeterminable) fails OPEN,
+    // unchanged from prior behavior.
+    let landed = null;
+    try { landed = missionLandedState(txt, gitFn); } catch { landed = null; }
+    if (landed && landed.verdict === 'GENUINE') {
+      evt(`STAMP-DISPUTED: ${rel} — missionLandedState verdict GENUINE (claim disputed against HEAD) — excluding from promotion`);
+      continue;
+    }
     return { rel, file: f };
   }
   return null;
@@ -1563,6 +1574,23 @@ if (process.argv.includes('--selftest')) {
     const allQueued = '# q\nmissions/ready.mission.txt\nmissions/child.mission.txt';
     const picked3 = pickPromotion(allQueued, ['ready.mission.txt', 'child.mission.txt', 'held.mission.txt', 'blocked.mission.txt'], '/fake/missions', readText);
     ck(picked3 === null, 'HALF B: when no unqueued+ready mission exists, pickPromotion returns null (manual append untouched, no spurious promotion)');
+
+    // mt-c2b-pickpromotion: a candidate whose own text carries a landed-state claim disputed
+    // by missionLandedState (verdict GENUINE — nothing matches at HEAD) must NOT be promoted.
+    const stampDiskDisputed = {
+      'missions/disputed.mission.txt': [
+        'MISSION-ID: DSP', 'MISSION-CLASS: code-repo', 'REQUIRES: none',
+        'REPO-ROOT: ' + ['C:', 'fake', 'repo'].join('/'),
+        '  - ' + ['some', 'file.mjs'].join('/'),
+      ].join('\n'),
+      'missions/ready.mission.txt': 'MISSION-ID: R\nREQUIRES: none\nMaqsad: the ready one',
+    };
+    const stampReadDisputed = (p) => { const rel = 'missions/' + p.split(/[\\/]/).pop(); if (rel in stampDiskDisputed) return stampDiskDisputed[rel]; throw new Error('ENOENT'); };
+    const absentGitFnPick = () => ({ ok: true, out: '' });
+    const pickedDisputedOnly = pickPromotion('# q', ['disputed.mission.txt'], '/fake/missions', stampReadDisputed, '', absentGitFnPick);
+    ck(pickedDisputedOnly === null, 'mt-c2b-pickpromotion: a disputed stamp (verdict GENUINE) as the ONLY candidate -> null, never promoted');
+    const pickedDisputedSkipped = pickPromotion('# q', ['disputed.mission.txt', 'ready.mission.txt'], '/fake/missions', stampReadDisputed, '', absentGitFnPick);
+    ck(pickedDisputedSkipped && pickedDisputedSkipped.file === 'ready.mission.txt', 'mt-c2b-pickpromotion: a disputed stamp is SKIPPED; the next ready candidate is promoted instead');
 
     // orderByPriority: a name appearing in the OPERATOR PRIORITY ORDER block sorts ahead of
     // an unlisted one; unlisted ties break lexically.
