@@ -313,6 +313,43 @@ export function checkSearxngSight({ probe } = {}) {
   }
 }
 
+// HEARTBEAT FLAG TABLE (mt-b2-flag-table, step B2): each row both classifies heartbeat lines
+// and emits its own flag once threshold is met — replaces the hand-coded per-class parser
+// fields (thinkingBurn/cudaCrash) and their two hand-written flag-emitting if-blocks with one
+// iterated definition point. EMPTY_CONTENT_THINKING and CUDA are byte-equivalent migrations
+// (same regex intent, same threshold, same flagText); LOCAL_TIMEOUT/LOCAL_NETWORK are new.
+export const HEARTBEAT_FLAG_TABLE = [
+  {
+    key: 'EMPTY_CONTENT_THINKING',
+    regex: /(?=.*attempt-fail)(?=.*EMPTY_CONTENT_THINKING)/,
+    threshold: T.THINKING_BURN_COUNT,
+    flagText: (n) => `FLAG: ${n} EMPTY_CONTENT_THINKING failures in window — known quota-burn class (QUEUE: KIMI THINKING-BURN FIX)`,
+  },
+  {
+    key: 'CUDA',
+    // CUDA-CLASS (2026-07-03, the self-healing-masking receipt: 155 gemma4:31b CUDA
+    // illegal-memory-access crashes accumulated over 4 DAYS — every one healed-around
+    // per-event, so no beat ever saw the pattern; the operator asked "why did gemma fail"
+    // before any flag did. A heal that retries forever hides chronic degradation.)
+    regex: /CUDA error/i,
+    threshold: 1,
+    flagText: (n) => `FLAG: ${n} CUDA error(s) in window — GPU-runner crash class; heals mask chronic degradation (155-over-4-days receipt 2026-07-03). Name the model, check the census (grep CUDA dispatch-heartbeat.log | count by model), escalate per the QUEUE watch-item conditions`,
+    action: (logsDir) => ({ id: 'CUDA-CRASH-CLASS', class: 'judgment', approved_by_faith: false, read_first: [path.join(logsDir, 'dispatch-heartbeat.log')], rule: 'attribute the crash to a model via the census BEFORE any restart; one model at the VRAM edge is a roster/config call, every-model is an Ollama/driver call (ssh nxtbeast nvidia-smi + service restart at a lane boundary)' }),
+  },
+  {
+    key: 'LOCAL_TIMEOUT',
+    regex: /(?=.*provider=ollama-local)(?=.*attempt-fail)(?=.*kind=TIMEOUT)/,
+    threshold: 3,
+    flagText: (n) => `FLAG: ${n} local TIMEOUT failures (provider=ollama-local) in window — local lane instability class`,
+  },
+  {
+    key: 'LOCAL_NETWORK',
+    regex: /(?=.*provider=ollama-local)(?=.*attempt-fail)(?=.*kind=NETWORK)/,
+    threshold: 3,
+    flagText: (n) => `FLAG: ${n} local NETWORK failures (provider=ollama-local) in window — local lane instability class`,
+  },
+];
+
 // heartbeat tail parsing: timestamped attempt lines from seat_dispatch.
 function parseHeartbeats(text, now) {
   const lines = text.split(/\r?\n/).filter(Boolean).slice(-300);
@@ -322,17 +359,14 @@ function parseHeartbeats(text, now) {
     if (Number.isFinite(ts) && now - ts <= T.HB_WINDOW_MS) within.push({ ts, l });
   }
   const last = lines.length ? lines[lines.length - 1] : '';
+  const flags = {};
+  for (const row of HEARTBEAT_FLAG_TABLE) flags[row.key] = within.filter((x) => row.regex.test(x.l));
   return {
     lastLine: last,
     lastAgeMs: last ? age(last.slice(0, 24), now) : Infinity,
     claudeTier: within.filter((x) => /provider=claude-/.test(x.l)),
     rateLimited: within.filter((x) => /HTTP_429/.test(x.l)),
-    thinkingBurn: within.filter((x) => /EMPTY_CONTENT_THINKING/.test(x.l) && /attempt-fail/.test(x.l)),
-    // CUDA-CLASS (2026-07-03, the self-healing-masking receipt: 155 gemma4:31b CUDA
-    // illegal-memory-access crashes accumulated over 4 DAYS — every one healed-around
-    // per-event, so no beat ever saw the pattern; the operator asked "why did gemma fail"
-    // before any flag did. A heal that retries forever hides chronic degradation.)
-    cudaCrash: within.filter((x) => /CUDA error/i.test(x.l)),
+    flags,
   };
 }
 
@@ -888,12 +922,11 @@ export function sweep(base = HERE, now = Date.now(), routeFile = path.join(proce
     report.push(`FLAG: ${hb.claudeTier.length} claude-tier dispatch(es) in last ${mins(T.HB_WINDOW_MS)}m with NO rate-limit seen — claude fallback should only carry seats when the LOCAL lane is failing`);
     actions.push({ id: 'CHECK-CLAUDE-TIER', class: 'judgment', approved_by_faith: false, read_first: [path.join(logs, 'dispatch-heartbeat.log')], rule: 'persistent claude-tier lines = the LOCAL lane failing over — check nxtbeast Ollama health (api/ps, queue saturation, model 404s) before suspecting the Claude tier (de-clouded 2026-07-03: ollama.com is not a provider)' });
   }
-  if (hb.thinkingBurn.length >= T.THINKING_BURN_COUNT) {
-    report.push(`FLAG: ${hb.thinkingBurn.length} EMPTY_CONTENT_THINKING failures in window — known quota-burn class (QUEUE: KIMI THINKING-BURN FIX)`);
-  }
-  if (hb.cudaCrash.length >= 1) {
-    report.push(`FLAG: ${hb.cudaCrash.length} CUDA error(s) in window — GPU-runner crash class; heals mask chronic degradation (155-over-4-days receipt 2026-07-03). Name the model, check the census (grep CUDA dispatch-heartbeat.log | count by model), escalate per the QUEUE watch-item conditions`);
-    actions.push({ id: 'CUDA-CRASH-CLASS', class: 'judgment', approved_by_faith: false, read_first: [path.join(logs, 'dispatch-heartbeat.log')], rule: 'attribute the crash to a model via the census BEFORE any restart; one model at the VRAM edge is a roster/config call, every-model is an Ollama/driver call (ssh nxtbeast nvidia-smi + service restart at a lane boundary)' });
+  for (const row of HEARTBEAT_FLAG_TABLE) {   // mt-b2-flag-table: one iteration classifies + emits
+    const count = (hb.flags[row.key] || []).length;
+    if (count < row.threshold) continue;
+    report.push(row.flagText(count));
+    if (row.action) actions.push(row.action(logs));
   }
 
   report.push(`ledger: ${autorun.done.length} DONE / ${autorun.failed.length} FAILED / ${autorun.running.length} running / ${autorun.pending.length} pending / ${(autorun.parked || []).length} PARKED / ${(autorun.split || []).length} SPLIT`);
@@ -1602,6 +1635,60 @@ function selftest() {
   // happen is heal() finding MORE to retire on a second pass (idempotent -- nothing bare left).
   const healedLoop2 = heal(tmp, now, { exec: () => {} });
   ck(!healedLoop2.performed.some((p) => p.action === 'loop-cap-retire'), 'heal(): idempotent -- a second heal() pass retires nothing further (no bare line remains for this stem)');
+
+  // fixture 1j: HEARTBEAT FLAG TABLE (mt-b2-flag-table, step B2) — EMPTY_CONTENT_THINKING and
+  // CUDA are byte-equivalent migrations off the old hand-written if-blocks; LOCAL_TIMEOUT and
+  // LOCAL_NETWORK are new local-lane rows riding the same iteration.
+  {
+    const mkLine = (mn, text) => `${new Date(now - mn * 60000).toISOString()} ${text}`;
+    // old EMPTY_CONTENT_THINKING fixture: byte-identical flag line at threshold (3)
+    writeFileSync(path.join(logs, 'dispatch-heartbeat.log'), [
+      mkLine(3, 'attempt-fail provider=ollama-cloud model=kimi-k2.6 EMPTY_CONTENT_THINKING'),
+      mkLine(2, 'attempt-fail provider=ollama-cloud model=kimi-k2.6 EMPTY_CONTENT_THINKING'),
+      mkLine(1, 'attempt-fail provider=ollama-cloud model=kimi-k2.6 EMPTY_CONTENT_THINKING'),
+    ].join('\n') + '\n');
+    let rf = sweep(tmp, now, noRoute, sightOk);
+    ck(rf.report.includes('FLAG: 3 EMPTY_CONTENT_THINKING failures in window — known quota-burn class (QUEUE: KIMI THINKING-BURN FIX)'), 'mt-b2-flag-table: EMPTY_CONTENT_THINKING row is byte-identical to the old hand-written flag line');
+
+    // old CUDA fixture: byte-identical flag line + action at threshold (1)
+    writeFileSync(path.join(logs, 'dispatch-heartbeat.log'), mkLine(1, 'attempt-fail provider=ollama-cloud model=gemma4:31b CUDA error: illegal memory access') + '\n');
+    rf = sweep(tmp, now, noRoute, sightOk);
+    ck(rf.report.includes('FLAG: 1 CUDA error(s) in window — GPU-runner crash class; heals mask chronic degradation (155-over-4-days receipt 2026-07-03). Name the model, check the census (grep CUDA dispatch-heartbeat.log | count by model), escalate per the QUEUE watch-item conditions'), 'mt-b2-flag-table: CUDA row is byte-identical to the old hand-written flag line');
+    ck(rf.actions.some((a) => a.id === 'CUDA-CRASH-CLASS'), 'mt-b2-flag-table: CUDA row still emits its CUDA-CRASH-CLASS action');
+
+    // new LOCAL_TIMEOUT row: fires exactly at its threshold (3)
+    writeFileSync(path.join(logs, 'dispatch-heartbeat.log'), [
+      mkLine(3, 'attempt-fail provider=ollama-local model=qwen3.6 kind=TIMEOUT ms=9000'),
+      mkLine(2, 'attempt-fail provider=ollama-local model=qwen3.6 kind=TIMEOUT ms=9000'),
+      mkLine(1, 'attempt-fail provider=ollama-local model=qwen3.6 kind=TIMEOUT ms=9000'),
+    ].join('\n') + '\n');
+    rf = sweep(tmp, now, noRoute, sightOk);
+    ck(rf.report.some((l) => l.includes('FLAG: 3') && l.includes('local TIMEOUT')), 'mt-b2-flag-table: new local-TIMEOUT row fires its flag line at threshold');
+
+    // new LOCAL_NETWORK row: fires exactly at its threshold (3)
+    writeFileSync(path.join(logs, 'dispatch-heartbeat.log'), [
+      mkLine(3, 'attempt-fail provider=ollama-local model=qwen3.6 kind=NETWORK ms=100'),
+      mkLine(2, 'attempt-fail provider=ollama-local model=qwen3.6 kind=NETWORK ms=100'),
+      mkLine(1, 'attempt-fail provider=ollama-local model=qwen3.6 kind=NETWORK ms=100'),
+    ].join('\n') + '\n');
+    rf = sweep(tmp, now, noRoute, sightOk);
+    ck(rf.report.some((l) => l.includes('FLAG: 3') && l.includes('local NETWORK')), 'mt-b2-flag-table: new local-NETWORK row fires its flag line at threshold');
+
+    // below threshold (2 of 3) for either new row stays silent
+    writeFileSync(path.join(logs, 'dispatch-heartbeat.log'), [
+      mkLine(2, 'attempt-fail provider=ollama-local model=qwen3.6 kind=TIMEOUT ms=9000'),
+      mkLine(1, 'attempt-fail provider=ollama-local model=qwen3.6 kind=TIMEOUT ms=9000'),
+    ].join('\n') + '\n');
+    rf = sweep(tmp, now, noRoute, sightOk);
+    ck(!rf.report.some((l) => l.includes('local TIMEOUT')), 'mt-b2-flag-table: local-TIMEOUT below threshold stays silent');
+
+    writeFileSync(path.join(logs, 'dispatch-heartbeat.log'), [
+      mkLine(2, 'attempt-fail provider=ollama-local model=qwen3.6 kind=NETWORK ms=100'),
+      mkLine(1, 'attempt-fail provider=ollama-local model=qwen3.6 kind=NETWORK ms=100'),
+    ].join('\n') + '\n');
+    rf = sweep(tmp, now, noRoute, sightOk);
+    ck(!rf.report.some((l) => l.includes('local NETWORK')), 'mt-b2-flag-table: local-NETWORK below threshold stays silent');
+  }
 
   // fixture 2: healthy daemon (our own pid alive, fresh status), clean ledger. A healthy state now
   // INCLUDES a current deploy marker (L4): healthy means deployed-current, not merely committed.

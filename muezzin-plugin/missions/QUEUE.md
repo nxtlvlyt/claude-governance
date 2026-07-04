@@ -1041,3 +1041,23 @@ report this gap as closed until a live census shows a clean multi-hour window wi
 dispatches actually occurring under fix #4 -- the pattern so far is "fixed the mechanism in
 front of me, a different one surfaces," which is a real reason for caution before declaring
 victory on the next clean stretch.
+
+## PATTERN (recurring, 2026-07-04): idempotent-commit guard checks the wrong signal
+engine-heal-symmetry.S1 attempt 2, step 6 ("commit both ALLOW-FILES together") failed with
+git exit 1 ("nothing to commit, untracked files present") even though both files were
+ALREADY committed individually by steps 2/3's own auto-commit-per-implement-step behavior
+(5cba9d5, fe46e4a2). Root cause: the step's own idempotency guard was
+`if (git log --oneline -30 | Select-String '<mission-stem>') { ALREADY_COMMITTED } else { git add+commit }`
+-- but the auto-commits from implement-steps use generic messages ("step: N: <truncated
+desc>"), never the mission stem, so the guard can never see them and always falls through
+to a redundant commit attempt with nothing staged. This is the SAME shape as the earlier
+idempotent-commit ternary bugs (S1.S1, S1.S2.S1, pre-2026-07-04 compaction) -- third/fourth
+occurrence of "a plan step's own freshness/idempotency check greps for a signal the engine's
+own auto-commit mechanism never produces." Not hand-fixed this beat (mission is still
+actively retrying on its own, attempt 3 in progress, no stall) -- but per
+pattern-amortization-signal.md this has repeated enough times to warrant a structural fix:
+either (a) deconstructor.mjs should stop authoring separate "commit both files together"
+steps when the plan already has one auto-commit-per-file step each (redundant by
+construction), or (b) the auto-commit-per-implement-step mechanism should tag its commit
+message with the mission stem so idempotency greps actually work. Engine item, not chased
+further this beat.

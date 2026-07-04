@@ -715,6 +715,9 @@ export async function dispatchWithWaterfall(baseBody, { cwd, localOnly = false, 
     // localOnly branch had ONLY the saturation retry; a thinking-starved checking seat
     // burned its whole dispatch. ONE-shot mirror of healDispatch's EMPTY_CONTENT fix.)
     let thinkHealed = false;
+    let timeoutHealed = false;   // mt-b1-local-heal: healDispatch TIMEOUT parity — one extend-and-retry, then fail over
+    let networkHealed = false;   // mt-b1-local-heal: healDispatch NETWORK/HTTP_5xx parity — one short-delay retry
+    let localTimeoutMs = FETCH_TIMEOUT_MS;   // mt-b1-local-heal: extended (doubled, capped 600000ms) on a TIMEOUT heal, mirroring the main lane's `timeout` variable
     let body = baseBody;
     // GEMMA-VRAM-ADMISSION GUARD (2026-07-04, operator: "192gb system ram — should not
     // crash"): CUDA "illegal memory access" crashes on gemma4:31b were being blamed on
@@ -796,7 +799,7 @@ export async function dispatchWithWaterfall(baseBody, { cwd, localOnly = false, 
       hb(`attempt-start provider=${local.id} model=${body.model} (LOCAL-ONLY seat — non-local lanes skipped${satTry ? `, saturation retry ${satTry}/${SAT_WAITS.length}` : ''}${thinkHealed ? ', think:false heal' : ''})`);
       const t0 = Date.now();
       try {
-        const out = await attemptProvider(local, body, Math.max(60000, Math.min(FETCH_TIMEOUT_MS, remaining())));
+        const out = await attemptProvider(local, body, Math.max(60000, Math.min(localTimeoutMs, remaining())));   // mt-b1-local-heal: localTimeoutMs (extendable) replaces the fixed FETCH_TIMEOUT_MS
         hb(`attempt-ok provider=${local.id} model=${body.model} ms=${Date.now() - t0} chars=${out.content.length} tokens=${out.usage?.prompt || 0}+${out.usage?.completion || 0}`);
         return { ...out, provider: local.id, heals: satTry + (thinkHealed ? 1 : 0) };
       } catch (e) {
@@ -810,6 +813,21 @@ export async function dispatchWithWaterfall(baseBody, { cwd, localOnly = false, 
         if (saturated && satTry < SAT_WAITS.length && remaining() > SAT_WAITS[satTry] + 60000) {
           hb(`saturation-wait ${SAT_WAITS[satTry] / 1000}s before retry (queue busy is heal-by-waiting, not a burned attempt)`);
           await new Promise((r) => setTimeout(r, SAT_WAITS[satTry]));
+          continue;
+        }
+        // mt-b1-local-heal: TIMEOUT — healDispatch's exact one extend-and-retry (timeout doubled, capped 600000ms), then fail over
+        if (e.kind === 'TIMEOUT' && !timeoutHealed && remaining() > 60000) {
+          timeoutHealed = true;
+          localTimeoutMs = Math.min(localTimeoutMs * 2, 600000);   // mt-b1-local-heal
+          continue;
+        }
+        // mt-b1-local-heal: NETWORK/HTTP_5xx (excluding HTTP_503, already healed above by the saturation ladder) —
+        // healDispatch's exact catch-all short-delay (600ms) retry, exactly once
+        const isNetworkOr5xx = e.kind === 'NETWORK' || (/^HTTP_5/.test(e.kind || '') && e.kind !== 'HTTP_503');
+        if (isNetworkOr5xx && !networkHealed && remaining() > 60000) {
+          networkHealed = true;
+          hb('heal-wait 600ms');   // mt-b1-local-heal
+          await new Promise((r) => setTimeout(r, 600));   // mt-b1-local-heal
           continue;
         }
         throw new WaterfallError(e.kind || 'LOCAL_ONLY_FAILED', local.id, baseBody.model, `local-only seat failed (no fallback lane by design): ${e.message}`);
@@ -1172,6 +1190,54 @@ if (process.argv[1]?.endsWith('seat_dispatch.mjs') && process.argv.includes('--s
     check('localOnly think-starve: retry carries think:false', bodies[1]?.think, false);
     check('localOnly think-starve: retry doubles max_tokens', bodies[1]?.max_tokens, 8192);
     check(`localOnly think-starve: resolves with healed content (got ${outcome.kind})`, outcome.kind === 'resolved' && outcome.content.includes('healed'), true);
+  })();
+
+  // 9c. LOCALONLY TIMEOUT HEAL (mt-b1-local-heal): a TIMEOUT kind heals ONCE (extend-and-retry,
+  //     healDispatch parity) then throws on a second consecutive TIMEOUT.
+  await (async () => {
+    const realFetch = globalThis.fetch;
+    let calls = 0;
+    globalThis.fetch = async () => { calls++; const err = new Error('simulated timeout'); err.name = 'AbortError'; throw err; };
+    let outcome;
+    try {
+      await dispatchWithWaterfall({ model: 'qwen3.6:27b', messages: [{ role: 'user', content: 'x' }] }, { localOnly: true });
+      outcome = { kind: 'resolved' };
+    } catch (e) { outcome = { kind: 'threw', kindOf: e.kind }; }
+    globalThis.fetch = realFetch;
+    check('localOnly TIMEOUT heal: exactly 2 attempts (1 initial + 1 extend-retry)', calls, 2);
+    check('localOnly TIMEOUT heal: throws after second consecutive TIMEOUT', outcome.kind, 'threw');
+  })();
+
+  // 9d. LOCALONLY NETWORK/HTTP_5xx HEAL (mt-b1-local-heal): heals ONCE (short ~600ms delay,
+  //     healDispatch parity) then throws on a second consecutive occurrence.
+  await (async () => {
+    const realFetch = globalThis.fetch;
+    let calls = 0;
+    globalThis.fetch = async () => { calls++; return { ok: false, status: 500, async text() { return 'internal error'; } }; };
+    let outcome;
+    try {
+      await dispatchWithWaterfall({ model: 'qwen3.6:27b', messages: [{ role: 'user', content: 'x' }] }, { localOnly: true });
+      outcome = { kind: 'resolved' };
+    } catch (e) { outcome = { kind: 'threw', kindOf: e.kind }; }
+    globalThis.fetch = realFetch;
+    check('localOnly NETWORK/5xx heal: exactly 2 attempts (1 initial + 1 short-delay retry)', calls, 2);
+    check('localOnly NETWORK/5xx heal: throws after second consecutive HTTP_5xx', outcome.kind, 'threw');
+  })();
+
+  // 9e. LOCALONLY UNHEALED/OTHER KIND (mt-b1-local-heal): the terminal error text for a kind
+  //     with no heal path (e.g. HTTP_404) is unchanged from today — single attempt, immediate throw.
+  await (async () => {
+    const realFetch = globalThis.fetch;
+    let calls = 0;
+    globalThis.fetch = async () => { calls++; return { ok: false, status: 404, async text() { return 'model not found'; } }; };
+    let outcome;
+    try {
+      await dispatchWithWaterfall({ model: 'qwen3.6:27b', messages: [{ role: 'user', content: 'x' }] }, { localOnly: true });
+      outcome = { kind: 'resolved' };
+    } catch (e) { outcome = { kind: 'threw', msg: e.message }; }
+    globalThis.fetch = realFetch;
+    check('localOnly unhealed kind (HTTP_404): exactly 1 attempt, no retry', calls, 1);
+    check('localOnly unhealed kind: terminal error text format unchanged', outcome.kind === 'threw' && outcome.msg.startsWith('local-only seat failed (no fallback lane by design): '), true);
   })();
 
   // 10. ROLE-AWARE Claude fallback (M-ENGINE-3PHASE.1): role wins when mapped,
