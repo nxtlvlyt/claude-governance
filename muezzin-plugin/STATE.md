@@ -140,6 +140,34 @@ validating witness verdicts. Each new class named should become a rule the same 
 that is the drain mechanism. The seat's residual job trends toward: run the sweep, obey
 the gates, write the receipts.**
 
+## 🎯 GAP SCOREBOARD (corrected 2026-07-04 ~19:1x — read this, not a remembered number)
+A prior part of this session reported "0/30 struck" every beat for 24+ hours. That "30" was
+NEVER re-derived from the actual checklist below — it was carried forward in conversation
+only and is NOT recoverable from any committed substrate (checked: this file, QUEUE.md's
+current ledger + full git history, the operator push-notify log — none show it or a
+"SW-cache" item). Operator flagged the discrepancy 2026-07-04; do not silently re-adopt 30.
+
+**The real, currently-countable total is 29**, composed of:
+- 4 top-level items still open in QUEUE.md's "OPEN SYSTEM GAPS" list (#7 board-truth bulk
+  pass, #8 repo-process/main-master divergence, #9 identity hygiene, #10 gemma4:31b CUDA —
+  #1-6 of that same 10-item list were already closed 2026-07-03, before this count starts).
+- 25 items in QUEUE.md's "THE 25 VERIFIED-OPEN HUNT GAPS" list (ledger item #11; each closes
+  individually).
+
+**Struck so far (2026-07-04, this session): 7 of the 25 hunt items** — #2 (local-lane
+TIMEOUT/NETWORK heal asymmetry, 5cba9d5), #4 (heartbeat failure-class table, fe46e4a2), #5
+(daemon UNRESOLVED-as-RESOLVED \b inversion, 548635f), #6 (RESOLVED-LANDED stamp validation,
+1b65287+f05d0e3), #9 (self-witness prompt truncation, 831dead), #10 (self-witness receipts
+mislabeling ornith:9b as 'laguna', b13ff7c), #15 (fix-ledger requeue-once .some() bug,
+cb249ea). None of the 4 top-level items (#7-10) are struck — #10/gemma explicitly NOT closed
+(5th crash occurred AFTER a fix landed this session; see QUEUE.md gap #10 status).
+**22 remain open** (4 top-level + 18 hunt items).
+
+Report against THIS block every beat ("Gap fixes: N/29 struck", quoting which N are new this
+beat) — do not restate "30" from memory, and do not let this block itself go stale: update
+the struck-count and commit-list here the same beat a hunt item lands, the same discipline as
+QUEUE.md's own per-fix records.
+
 ## Required reads (in order, after conduct-cycle.mjs first run)
 
 Per `~/.claude/CLAUDE.md`: *"STATE.md contextualizes the directives here for a specific
