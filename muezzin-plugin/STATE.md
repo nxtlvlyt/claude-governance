@@ -1,5 +1,17 @@
 # STATE.md — muezzin-plugin (this project's contextualization of CLAUDE.md)
 
+## 📊 GAP SCOREBOARD — LEAD EVERY BEAT REPORT WITH THIS LINE (operator ask 2026-07-03 ~23:5x)
+Operator: "will you keep me up to date with how many missions out of how many are left for
+the gap fixes?" — this is a standing ask, not a one-off. Every conductor beat report (any
+model, any future session) opens with one line: **"Gap fixes: N/M struck"** where M is the
+CURRENT total (QUEUE.md's #11 25-item hunt list + any items added since — grep QUEUE.md for
+"## NEW GAP" headers to find additions past the original 25) and N is how many carry a
+CLOSED/STRUCK/landed annotation. As of 2026-07-03 23:5x: **0/27 struck** (25 original hunt
+items + 2 new: SW-cache-version-bump gap, model-identity-fraud gap) — honest count, not a
+proxy; missions authored/queued/diagnosed do NOT count as struck, only landed-and-verified
+does. Update the denominator when a new gap is found; update the numerator only on a real
+landed receipt (commit + selftest + outcome check per that gap's own mission Done-means).
+
 ## ⛔ THE FIRST TOOL CALL OF EVERY CONDUCTOR TURN
 
 ```
