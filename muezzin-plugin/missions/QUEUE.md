@@ -1461,3 +1461,18 @@ VRAM. NOT yet adopted as the standing config -- q8_0 costs real generation speed
 model on CPU) and this was one clean load-test, not a crash census. If ARM 1's staleness
 keeps recurring despite the fix, ARM 3 is the next real candidate, with actual numbers behind
 it now instead of a theory.
+
+## GAP #10 STALE-LOAD SELF-CHECK LANDED 2026-07-04 08:0xZ -- the standing risk this file
+## itself flagged, closed the same beat it bit a third time
+Third gemma CUDA crash this session (14:02:58Z, mid engine-truth-of-record.S1.S2.S2's
+architect dispatch), same window the contention-guard was proven working. Verified live
+(again): /api/ps showed size_vram===size, fully resident, not partial-offloaded -- the exact
+"standing risk" this file already named after the SECOND crash ("nothing currently forces a
+periodic re-check... it can drift back into the stale fully-resident state silently"). Fixed
+live a third time by hand (evict+reload), then landed it as code (commit 3ec7123) instead of
+leaving it as a note for the next crash to rediscover: self_witness.mjs's summarizePs now
+carries `size` alongside `size_vram`; new pure isFullyVramResident() flags a model stuck fully
+VRAM-resident; seat_dispatch.mjs's gemma guard now force-evicts a stale load before every
+dispatch, not just checking for contention from OTHER models. RELOAD-REQUEST set. Gap #10
+stays open until a live census shows this actually prevents a recurrence, not just until the
+code lands -- same discipline as every other claim in this file.

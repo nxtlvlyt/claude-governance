@@ -15,7 +15,7 @@ import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { validateVerdictContract, VERDICTS } from './verdict_merge.mjs';
 import { dispatchAgy, agyAvailable, resolveAgyModel } from './agy_dispatch.mjs';
-import { psProbe, wouldOversubscribe } from './self_witness.mjs';
+import { psProbe, wouldOversubscribe, isFullyVramResident, lagunaStop } from './self_witness.mjs';
 
 // DISPATCH HEARTBEAT (bug #5, 2026-06-10): two lanes hung 39-46 min SILENT — legal
 // retry math (3 heals x doubling timeouts up to 10 min + waits) was invisible from
@@ -730,13 +730,32 @@ export async function dispatchWithWaterfall(baseBody, { cwd, localOnly = false, 
     // shape as the existing saturation retry below, then proceeds regardless (fail-open).
     if (body.model === 'gemma4:31b') {
       const GEMMA_NEED_BYTES = 19.9 * 1024 * 1024 * 1024;   // full untrimmed size — conservative
+      let lastPs = null;
       for (const waitMs of [0, 15000, 45000, 90000]) {
         if (waitMs) await new Promise((r) => setTimeout(r, waitMs));
         let ps;
         try { ps = await psProbe(); } catch { break; }   // flaky probe — proceed, never hang the gate
+        lastPs = ps;
         if (!wouldOversubscribe(ps, body.model, GEMMA_NEED_BYTES)) break;
         hb(`gemma-vram-admission: oversubscribe risk (resident=${(ps.residentVram / 1e9).toFixed(1)}GB) — waiting for another big local model to clear before dispatch`);
       }
+      // STALE-LOAD SELF-CHECK (2026-07-04 receipt: gemma crashed a THIRD time the same
+      // window this admission guard was proven working — the guard only ever asked "is
+      // something ELSE crowding gemma out", never "is gemma ITSELF still stuck fully
+      // GPU-resident from a load that predates/skipped num_gpu:56". wouldOversubscribe
+      // treats an already-resident gemma as "fine, no new VRAM needed" (correct for
+      // contention, blind to this class) — num_gpu is load-time-only, so a gemma instance
+      // loaded before/without the overlay stays badly configured until forced to reload,
+      // silently, with no log signal, until it crashes again. Force-evict here (best-effort;
+      // never blocks the dispatch below on a stop failure) so the upcoming attemptProvider
+      // call is a genuinely fresh load that applyModelOptions() will correctly overlay.
+      try {
+        const ps = lastPs || await psProbe();
+        if (isFullyVramResident(ps, body.model)) {
+          hb(`gemma-stale-load: found fully VRAM-resident (not partial-offloaded) — forcing evict+reload so num_gpu:56 actually applies`);
+          await lagunaStop(body.model);
+        }
+      } catch { /* self-check is best-effort — never blocks a legitimate dispatch */ }
     }
     for (let satTry = 0; ; satTry++) {
       hb(`attempt-start provider=${local.id} model=${body.model} (LOCAL-ONLY seat — non-local lanes skipped${satTry ? `, saturation retry ${satTry}/${SAT_WAITS.length}` : ''}${thinkHealed ? ', think:false heal' : ''})`);

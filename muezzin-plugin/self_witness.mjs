@@ -258,11 +258,31 @@ export async function psProbe({ base = OLLAMA_BASE, timeoutMs = 8000 } = {}) {
 }
 
 // PURE: turn an /api/ps body into { models, residentVram }. Defensive against shape drift.
+// `size` carried alongside `size_vram` (2026-07-04, gemma stale-load receipt) so callers can
+// tell a genuinely partial-offloaded model (size_vram < size) from one Ollama pinned fully to
+// VRAM despite an intended offload -- size defaults to size_vram when absent (older callers/
+// fixtures that never set it: size===size_vram reads as "fully resident", the safe default).
 export function summarizePs(data) {
   const arr = Array.isArray(data?.models) ? data.models : [];
-  const models = arr.map((m) => ({ name: m?.name ?? m?.model ?? '?', size_vram: Number(m?.size_vram) || 0 }));
+  const models = arr.map((m) => {
+    const size_vram = Number(m?.size_vram) || 0;
+    const size = Number(m?.size) || size_vram;
+    return { name: m?.name ?? m?.model ?? '?', size_vram, size };
+  });
   const residentVram = models.reduce((s, m) => s + m.size_vram, 0);
   return { models, residentVram };
+}
+
+// PURE: is a named resident model stuck fully in VRAM despite the caller expecting some of it
+// offloaded to system RAM? (the gemma stale-load class: num_gpu was correct in the request but
+// never took effect because the model was already loaded before/without it). marginBytes
+// tolerates rounding -- Ollama's size/size_vram don't always land byte-exact even on a real
+// partial offload. Absent model -> false (nothing to force-correct; the dispatch will load it
+// fresh with whatever options the caller sends).
+export function isFullyVramResident(ps, modelName, { marginBytes = 64 * 1024 * 1024 } = {}) {
+  const m = (ps?.models || []).find((x) => x.name === modelName);
+  if (!m) return false;
+  return m.size_vram >= m.size - marginBytes;
 }
 
 // PURE: GR10 admission decision. Given the current /api/ps summary and the VRAM a model
@@ -596,6 +616,13 @@ if (process.argv[1] && process.argv[1].endsWith('self_witness.mjs') && !process.
   ck(psEmpty.residentVram === 0 && psEmpty.models.length === 0, 'summarizePs: empty -> 0 resident');
   const psLag = summarizePs({ models: [{ name: 'laguna-xs-2.1:q8_0', size_vram: 22 * GB }] });
   ck(psLag.residentVram === 22 * GB, 'summarizePs: sums size_vram');
+  ck(psLag.models[0].size === 22 * GB, 'summarizePs: size defaults to size_vram when the source omits it (fully-resident-safe default)');
+  const psPartial = summarizePs({ models: [{ name: 'gemma4:31b', size: 21 * GB, size_vram: 18 * GB }] });
+  ck(psPartial.models[0].size === 21 * GB && psPartial.models[0].size_vram === 18 * GB, 'summarizePs: size and size_vram both carried through when the source has both');
+  // isFullyVramResident: the gemma stale-load class -- num_gpu was requested but never took
+  ck(isFullyVramResident(psLag, 'laguna-xs-2.1:q8_0') === true, 'isFullyVramResident: size===size_vram (no size field) -> fully resident');
+  ck(isFullyVramResident(psPartial, 'gemma4:31b') === false, 'isFullyVramResident: size_vram meaningfully below size -> genuinely partial-offloaded, not stuck');
+  ck(isFullyVramResident(psEmpty, 'gemma4:31b') === false, 'isFullyVramResident: model not resident at all -> false (nothing to force-correct)');
   // empty GPU: laguna fits (22 + 1.5 margin < 24) -> no oversubscribe
   ck(wouldOversubscribe(psEmpty, 'laguna-xs-2.1:q8_0', 22 * GB) === false, 'GR10: empty GPU, laguna fits -> no oversubscribe');
   // big model already resident (e.g. a daemon seat) -> dispatching laguna WOULD oversubscribe -> YIELD
