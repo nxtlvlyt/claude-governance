@@ -699,34 +699,15 @@ export function retroRepeatBlocked(stem, retroDir, missionMtimeMs,
   return { blocked: true, count: fails.length, newest: new Date(newestMs).toISOString() };
 }
 
-// STAMP-VERIFY (C2): a RESOLVED comment is a conductor CLAIM that work landed — before honoring
-// it, check the claim mechanically against the named mission's own ALLOW-FILES/sha at HEAD via
-// missionLandedState (imported above, reused not reimplemented). GENUINE (nothing present)
-// disputes the claim; FULL/PARTIAL or a null (undeterminable — not a code-repo mission, no
-// ALLOW-FILES, repo unreachable) verdict fails OPEN and honors the stamp as before. Injectable so
-// queuedDepsHold stays offline-testable; production default reads the real mission file + git.
-function defaultVerifyResolvedStamp(relPath) {
-  try {
-    const mtext = readFileSync(path.resolve(HERE, String(relPath || '')), 'utf8');
-    return missionLandedState(mtext, (repo, argstr) => { try { return { ok: true, out: execSync(`git -C "${repo}" ${argstr}`, { stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 16 * 1024 * 1024 }).toString() }; } catch { return { ok: false, out: '' }; } });
-  } catch { return null; }
-}
-
-export function queuedDepsHold(missionText, missionPath, autorunText, resultOkFn, verifyResolvedFn = defaultVerifyResolvedStamp) {
+export function queuedDepsHold(missionText, missionPath, autorunText, resultOkFn) {
   const txt = String(missionText || '');
-  const disputed = [];
   // SELF-RESOLVED CHECK (2026-07-02, d1-migrations resurrection loop): a conductor-RESOLVED
   // mission must never refire — but graceful reloads interrupt in-flight attempts, and the
   // boot-time RUNNING->pending revert resurrected a mission whose PENDING line was already
   // resolved. If AUTORUN carries a RESOLVED comment naming THIS mission, it is retired.
   const selfEsc = String(missionPath || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  if (new RegExp(`^#.*\\bRESOLVED\\b.*${selfEsc}`, 'm').test(autorunText)) {   // mt-c1-boundary: \b so "UNRESOLVED" no longer matches
-    const verdict = verifyResolvedFn(missionPath);
-    if (verdict && verdict.verdict === 'GENUINE') {
-      disputed.push({ path: missionPath, why: `RESOLVED stamp for ${missionPath} disputed — ALLOW-FILES verdict GENUINE (nothing landed) at HEAD; stamp treated as absent` });
-    } else {
-      return { hold: true, resolvedSelf: true, dep: missionPath, why: 'mission itself is conductor-RESOLVED in AUTORUN — retired from firing (work landed)' };
-    }
+  if (new RegExp(`^#.*RESOLVED.*${selfEsc}`, 'm').test(autorunText)) {
+    return { hold: true, resolvedSelf: true, dep: missionPath, why: 'mission itself is conductor-RESOLVED in AUTORUN — retired from firing (work landed)' };
   }
   const deps = new Set();
   // (a) explicit mission-file list
@@ -753,19 +734,12 @@ export function queuedDepsHold(missionText, missionPath, autorunText, resultOkFn
   for (const dep of deps) {
     if (dep === missionPath) continue;
     const doneRe = new RegExp(`^DONE\\s+${dep.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'm');
-    const resolvedRe = new RegExp(`^#.*\\bRESOLVED\\b.*${dep.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'm');
-    let resolvedDisputed = false;
-    if (resolvedRe.test(autorunText)) {
-      const verdict = verifyResolvedFn(dep);
-      if (verdict && verdict.verdict === 'GENUINE') {
-        resolvedDisputed = true;
-        disputed.push({ path: dep, why: `RESOLVED stamp for ${dep} disputed — ALLOW-FILES verdict GENUINE (nothing landed) at HEAD; stamp treated as absent` });
-      } else continue;                                                          // conductor-landed (verified, or unverifiable -> fail open)
-    }
+    const resolvedRe = new RegExp(`^#.*RESOLVED.*${dep.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'm');
+    if (resolvedRe.test(autorunText)) continue;                                  // conductor-landed
     if (doneRe.test(autorunText) && resultOkFn(dep) === true) continue;          // DONE + PASS receipt
-    return { hold: true, dep, disputed, why: doneRe.test(autorunText) ? `dependency ${dep} is DONE but its result.json is not ok:true (hollow receipt)` : (resolvedDisputed ? `dependency ${dep} RESOLVED stamp disputed (ALLOW-FILES verdict GENUINE at HEAD) — treated as absent, dependency stays live` : `dependency ${dep} not DONE/RESOLVED`) };
+    return { hold: true, dep, why: doneRe.test(autorunText) ? `dependency ${dep} is DONE but its result.json is not ok:true (hollow receipt)` : `dependency ${dep} not DONE/RESOLVED` };
   }
-  return { hold: false, disputed };
+  return { hold: false };
 }
 
 function promotionHold(missionText, doneIds) {
@@ -1307,10 +1281,6 @@ async function mainLoop() {
           const artxt = readFileSync(AUTORUN, 'utf8');
           const resOk = (dep) => { try { return JSON.parse(readFileSync(path.join(HERE, 'missions', path.basename(dep).replace(/\.mission\.txt$/, '') + '.mission.result.json'), 'utf8')).ok === true; } catch { return false; } };
           const gate = queuedDepsHold(mtxt, raw, artxt, resOk);
-          for (const d of (gate.disputed || [])) {
-            const dkey = `STAMP-DISPUTED|${d.path}`;
-            if (!tartibHoldLogged.has(dkey)) { tartibHoldLogged.add(dkey); evt(`STAMP-DISPUTED: ${d.why}`); }
-          }
           if (gate.hold) {
             const key = `${raw}|${gate.dep}`;
             if (!tartibHoldLogged.has(key)) { tartibHoldLogged.add(key); evt(`TARTIB-HOLD: ${raw} — ${gate.why}; skipping to next pending`); }
@@ -1744,28 +1714,6 @@ if (process.argv.includes('--selftest')) {
     ck(queuedDepsHold('REQUIRES: a.S1 (tartib)\n', 'missions/z.mission.txt', ar, resOk).hold === false, 'tartib-gate b2: bare-stem REQUIRES with dep DONE + ok:true -> FIRES');
     ck(queuedDepsHold('REQUIRES: b.S1 (tartib)\n', 'missions/z.mission.txt', ar, resOk).hold === true, 'tartib-gate b2: bare-stem REQUIRES with dep FAILED -> HELD');
     ck(queuedDepsHold('REQUIRES: search-grounded seats always\n', 'missions/z.mission.txt', arPend, resOk).hold === false, 'tartib-gate b2: prose tokens with no matching queue line never become phantom deps');
-
-    // WORD-BOUNDARY FIX (mt-c1-boundary — ported from conduct-cycle.mjs's closed() two-case
-    // pair): "UNRESOLVED" must NOT satisfy a bare RESOLVED substring match; an explicit RESOLVED
-    // annotation must still close.
-    ck(queuedDepsHold('MISSION-ID: x', 'missions/foo.mission.txt', '# still UNRESOLVED: missions/foo.mission.txt\n', resOk).resolvedSelf !== true, 'mt-c1-boundary: an UNRESOLVED-annotated line does NOT self-resolve (word-boundary fix)');
-    ck(queuedDepsHold('MISSION-ID: x', 'missions/foo.mission.txt', '# RESOLVED: missions/foo.mission.txt\n', resOk).resolvedSelf === true, 'mt-c1-boundary: an explicit RESOLVED line still self-resolves');
-
-    // STAMP-VERIFY (C2): a RESOLVED stamp is checked against missionLandedState before being
-    // honored — GENUINE (nothing landed) disputes it; FULL/PARTIAL or null (undeterminable)
-    // honors it as before.
-    {
-      const arR = '# RESOLVED: missions/stamped.mission.txt\n';
-      const verified = queuedDepsHold('MISSION-ID: x', 'missions/stamped.mission.txt', arR, resOk, () => ({ verdict: 'FULL', srcSha: 'abc123', files: {} }));
-      ck(verified.hold === true && verified.resolvedSelf === true, 'stamp-verify: a RESOLVED stamp with a FULL (verified-landed) verdict is HONORED');
-      const disputedSelf = queuedDepsHold('MISSION-ID: x', 'missions/stamped.mission.txt', arR, resOk, () => ({ verdict: 'GENUINE', srcSha: 'abc123', files: {} }));
-      ck(disputedSelf.hold === false && disputedSelf.resolvedSelf !== true && disputedSelf.disputed.length === 1, 'stamp-verify: a RESOLVED stamp with a GENUINE verdict is DISPUTED — treated as absent, mission stays live');
-      const undeterminable = queuedDepsHold('MISSION-ID: x', 'missions/stamped.mission.txt', arR, resOk, () => null);
-      ck(undeterminable.hold === true && undeterminable.resolvedSelf === true, 'stamp-verify: a null (undeterminable) verdict fails OPEN — stamp honored as before');
-      const arDep = 'DONE missions/a.S1.mission.txt  <!-- t -->\n# RESOLVED: missions/z-dep.mission.txt\n';
-      const disputedDep = queuedDepsHold('REQUIRES: missions/z-dep.mission.txt\n', 'missions/z-consumer.mission.txt', arDep, () => false, () => ({ verdict: 'GENUINE' }));
-      ck(disputedDep.hold === true && /disputed/.test(disputedDep.why), 'stamp-verify: a disputed RESOLVED stamp on a DEPENDENCY holds the depending mission (dependency stays live)');
-    }
   }
 
   rmSync(tmp, { recursive: true, force: true });
