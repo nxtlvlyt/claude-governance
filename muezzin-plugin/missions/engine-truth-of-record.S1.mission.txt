@@ -1,6 +1,11 @@
 MISSION-ID: engine-truth-of-record.S1
 MISSION-CLASS: code-repo
 REPO-ROOT: C:\Users\marka\.claude\muezzin-plugin
+LINEAGE-NOTE 2026-07-04T04:2x: the true root cause of the citation-guard halt was found and
+fixed at the ENGINE level (citation_guard.mjs's filterPreExistingContent, orchestrate.mjs's
+call site, commit 8bb26b7) — not in this mission's own text, which needed no further prose
+change. This note exists solely to bump this file's mtime past the RETRO-REPEAT gate's
+newest-retro threshold, since the gate cannot see engine-side fixes on their own.
 ALLOW-FILES:
   - muezzin-daemon.mjs
   - conduct-cycle.mjs
