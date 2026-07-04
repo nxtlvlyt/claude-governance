@@ -1476,3 +1476,26 @@ VRAM-resident; seat_dispatch.mjs's gemma guard now force-evicts a stale load bef
 dispatch, not just checking for contention from OTHER models. RELOAD-REQUEST set. Gap #10
 stays open until a live census shows this actually prevents a recurrence, not just until the
 code lands -- same discipline as every other claim in this file.
+
+## LIKELY SAME BUG CLASS AS get-upgrade's OLD $-STRIPPING RECEIPT 2026-07-04 09:5xZ -- named,
+## not root-caused, matching the old entry's own unresolved state
+engine-truth-of-record.S1.S2.S2's step 2 exhausted all three tiers on an identical, frozen
+`validation_command` -- Select-String arriving mangled as ". h 'muezzin-daemon.mjs' -Pattern
+...", same shape as this file's OWN much older get-upgrade receipt (3rd cycle): "witness
+command arrived $-STRIPPED ([ref]$null -> [ref], $errors.Count -> .Count) -> guaranteed
+ParserError regardless of work quality... somewhere between Opus plan emission and pwsh the
+$ tokens vanish (suspects: claude CLI stdin path, JSON extract, repair re-emission)." That
+entry was never root-caused -- it was worked around ("architects should avoid $-variables in
+validation commands"), which is exactly the SAME class of workaround I reached for tonight
+(a mission-text constraint steering away from PowerShell ternary syntax) rather than the
+underlying transport bug.
+
+Traced as far as one read this session got: orchestrate.mjs passes step.validation_command
+straight into execReceipt() with no transformation in between plan-JSON and execution -- so
+if corruption is real, it happens BEFORE that point (the model's own JSON generation, or
+however the plan JSON gets extracted from the model's raw response, likely in
+deconstructor.mjs). NOT chased further this beat -- this is a real, separate investigation
+(trace the JSON-extraction step specifically), not a tangent to run while a mission is
+mid-flight. Naming it here so the NEXT instance that hits a PowerShell command arriving with
+chunks missing checks this entry first instead of re-diagnosing the symptom from scratch a
+third time (get-upgrade, then tonight, then whoever's next).
