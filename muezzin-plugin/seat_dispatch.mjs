@@ -731,13 +731,36 @@ export async function dispatchWithWaterfall(baseBody, { cwd, localOnly = false, 
     if (body.model === 'gemma4:31b') {
       const GEMMA_NEED_BYTES = 19.9 * 1024 * 1024 * 1024;   // full untrimmed size — conservative
       let lastPs = null;
+      let stillOversubscribed = false;
       for (const waitMs of [0, 15000, 45000, 90000]) {
         if (waitMs) await new Promise((r) => setTimeout(r, waitMs));
         let ps;
-        try { ps = await psProbe(); } catch { break; }   // flaky probe — proceed, never hang the gate
+        try { ps = await psProbe(); } catch { stillOversubscribed = false; break; }   // flaky probe — proceed, never hang the gate
         lastPs = ps;
-        if (!wouldOversubscribe(ps, body.model, GEMMA_NEED_BYTES)) break;
+        stillOversubscribed = wouldOversubscribe(ps, body.model, GEMMA_NEED_BYTES);
+        if (!stillOversubscribed) break;
         hb(`gemma-vram-admission: oversubscribe risk (resident=${(ps.residentVram / 1e9).toFixed(1)}GB) — waiting for another big local model to clear before dispatch`);
+      }
+      // FORCE-CLEAR ON WAIT-EXHAUSTION (2026-07-04 receipt: a 4th crash — qwen3.6:27b's own
+      // dispatch call had already RETURNED but the model stayed resident on keep_alive past
+      // this guard's entire ~150s wait budget; the guard correctly detected contention four
+      // times running, then gave up and dispatched gemma directly into it, crashing 32s
+      // later). Waiting for another lane to clear on ITS OWN schedule is not the same as
+      // enforcing the two-serial-lanes rule — if the risk is STILL live after the full wait,
+      // force-evict the contending model(s) ourselves rather than fail-open into a guaranteed
+      // crash. Best-effort; a stop failure never blocks the dispatch below.
+      // GR10 says small models may run IN PARALLEL WITH big ones (only big-vs-big is
+      // serial) — only force-evict models big enough to plausibly be the actual cause of
+      // the oversubscribe risk, never a small witness-class model just because it's
+      // resident. 10GB is comfortably above the small-seat class (ornith/guardian, ~6-9GB)
+      // and comfortably below every big local seat this session (17GB+).
+      const BIG_MODEL_THRESHOLD_BYTES = 10 * 1024 * 1024 * 1024;
+      if (stillOversubscribed && lastPs) {
+        for (const m of lastPs.models) {
+          if (m.name === body.model || m.size_vram < BIG_MODEL_THRESHOLD_BYTES) continue;
+          hb(`gemma-vram-admission: wait budget exhausted, ${m.name} still resident (${(m.size_vram / 1e9).toFixed(1)}GB) — force-evicting it rather than dispatching gemma into contention`);
+          try { await lagunaStop(m.name); } catch { /* best-effort */ }
+        }
       }
       // STALE-LOAD SELF-CHECK (2026-07-04 receipt: gemma crashed a THIRD time the same
       // window this admission guard was proven working — the guard only ever asked "is

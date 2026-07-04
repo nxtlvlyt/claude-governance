@@ -1499,3 +1499,31 @@ deconstructor.mjs). NOT chased further this beat -- this is a real, separate inv
 mid-flight. Naming it here so the NEXT instance that hits a PowerShell command arriving with
 chunks missing checks this entry first instead of re-diagnosing the symptom from scratch a
 third time (get-upgrade, then tonight, then whoever's next).
+
+## GAP #10 FOURTH CRASH 2026-07-04 10:0xZ -- traced to the exact minute, real gap in the
+## admission guard's own fail-open design, fixed (commit ba29d7e)
+Precise timeline from dispatch-heartbeat.log (not a guess): qwen3.6:27b's own dispatch call
+returned at 16:02:56 but stayed resident on Ollama's keep_alive. The admission guard
+correctly detected the oversubscribe risk on ALL FOUR of its backoff checks (16:02:56 /
+16:03:14 / 16:04:45 / 16:06:15) -- the detection logic worked exactly as designed. But qwen
+never cleared inside the guard's ~150s total wait budget, so the guard did what it was built
+to do on exhaustion (fail-open) and dispatched gemma directly into the still-live
+contention. Crashed 32s later, same "illegal memory access". This is NOT the stale-load bug
+fixed earlier tonight (commit 3ec7123) -- that one was gemma itself stuck badly-configured;
+this one is gemma correctly configured but dispatched while a genuinely different big model
+was still occupying the card.
+
+FIX (commit ba29d7e): when the wait budget exhausts and oversubscribe risk is still live,
+force-evict the contending model(s) instead of dispatching into them -- waiting for another
+lane to clear on its own schedule was never the same as ENFORCING the two-serial-lanes rule.
+Only evicts models above a 10GB threshold (above the small witness-class seats GR10
+explicitly allows alongside big models, below every big local seat this session) so a small
+model resident for a legitimate reason is never touched. node --check clean, full
+seat_dispatch.mjs selftest zero FAIL / SPINE OK. RELOAD-REQUEST set.
+
+Fourth distinct gemma finding this session (contention -> admission guard; staleness ->
+self-correction; now wait-exhaustion -> force-clear). Gap #10 still not struck -- each fix
+has addressed a real, different mechanism and each has held once found, but the pattern of
+"fixed, then a new mechanism surfaces" means the honest status is "no confirmed mechanism
+left uncovered," not "definitely done." Watch the next several gemma dispatches specifically
+for whether force-clear ever fires and whether it actually prevents the crash it's aimed at.
