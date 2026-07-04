@@ -1219,3 +1219,21 @@ now all 3 distinct). orchestrate.mjs + conduct-cycle.mjs --selftest both clean. 
 requested.
 Hunt-list tally: 12 of 25 struck this session (#1, #2, #4, #5, #6, #9, #10, #12, #15, #17,
 #19, #20).
+
+## Hunt-item #3 LANDED 2026-07-04 21:0xZ, commit 07915f0
+daemon-supervisor.ps1 writes missions/_logs/supervisor-halted.txt and stops restarting after
+5+ deaths in 10 minutes -- a real, silent terminal state. Nothing read this marker: no push,
+and sweep()'s dead-daemon detection always emitted the same generic RESTART-DAEMON action
+whether this was an ordinary single stale heartbeat or a supervisor that had already tried
+restarting 5+ times and gave up. Blindly restarting after a halt just repeats whatever
+crash-looped it -- the right first move is reading daemon-stderr.log (the actual crash
+evidence, appended not truncated per the 2026-07-02 fix), not restarting again.
+sweep() now checks for the marker when the daemon is dead: present -> SUPERVISOR-HALTED
+judgment action (read_first: daemon-stderr.log) instead of the generic mechanical restart;
+absent -> unchanged. conduct-cycle.mjs --selftest ALL PASS (4 new fixtures: halt text
+surfaced verbatim, action points at the real evidence file, RESTART-DAEMON replaced not
+duplicated, ordinary case provably unchanged with the marker absent). No reload needed --
+sweep() only runs when the conductor invokes conduct-cycle.mjs fresh each beat, the daemon
+process itself doesn't import this function.
+Hunt-list tally: 13 of 25 struck this session (#1, #2, #3, #4, #5, #6, #9, #10, #12, #15,
+#17, #19, #20).

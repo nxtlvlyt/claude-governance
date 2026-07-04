@@ -584,12 +584,30 @@ export function sweep(base = HERE, now = Date.now(), routeFile = path.join(proce
     ? `daemon: UP (PID ${pidfile}, status ${mins(statusAge)}m fresh) — lanes ${status.lanes.length}, queued ${status.queued}`
     : `daemon: DEAD or HUNG (pidfile=${pidfile || 'none'}, pid-alive=${Number.isInteger(pidfile) ? pidAlive(pidfile) : false}, status age ${mins(statusAge)}m)`);
   if (!daemonAlive) {
-    actions.push({
-      id: 'RESTART-DAEMON', class: 'mechanical', approved_by_faith: true,
-      why: `status heartbeat ${mins(statusAge)}m old (limit 5m) or PID dead — singleton makes restart safe; RUNNING lanes revert and refire`,
-      command: RESTART_CMD,
-      verify: `daemon-status.json ts becomes fresh + 'daemon UP' line in ${path.join(logs, 'daemon-events.log')}`,
-    });
+    // SUPERVISOR-HALTED (hunt-item #3, 2026-07-04): daemon-supervisor.ps1 writes
+    // supervisor-halted.txt and stops restarting after 5+ deaths in 10 minutes -- a silent
+    // terminal state until now: no push, and this sweep never checked for it, so a dead
+    // daemon from a halted supervisor looked identical to an ordinary single stale-heartbeat
+    // death. Blindly restarting after a halt repeats whatever crash-looped it in the first
+    // place; the right first move is diagnosing daemon-stderr.log, not restarting again.
+    const haltMarker = path.join(logs, 'supervisor-halted.txt');
+    const haltText = existsSync(haltMarker) ? readText(haltMarker).trim() : '';
+    if (haltText) {
+      report.push(`SUPERVISOR-HALTED: ${haltText}`);
+      actions.push({
+        id: 'SUPERVISOR-HALTED', class: 'judgment', approved_by_faith: true,
+        why: `daemon-supervisor.ps1 gave up after repeated crash-looping and wrote ${haltMarker} -- read_first: missions/_logs/daemon-stderr.log (the death evidence, appended not truncated) before restarting; a blind restart repeats the same crash-loop the supervisor already tried 5+ times`,
+        command: RESTART_CMD,
+        verify: `daemon-status.json ts becomes fresh + 'daemon UP' line in ${path.join(logs, 'daemon-events.log')} + supervisor-halted.txt removed (the supervisor script clears it on next start)`,
+      });
+    } else {
+      actions.push({
+        id: 'RESTART-DAEMON', class: 'mechanical', approved_by_faith: true,
+        why: `status heartbeat ${mins(statusAge)}m old (limit 5m) or PID dead — singleton makes restart safe; RUNNING lanes revert and refire`,
+        command: RESTART_CMD,
+        verify: `daemon-status.json ts becomes fresh + 'daemon UP' line in ${path.join(logs, 'daemon-events.log')}`,
+      });
+    }
   }
 
   // lanes + stall detection: a lane is stalled when the GLOBAL dispatch heartbeat has
@@ -1298,6 +1316,21 @@ function selftest() {
   ck(r.actions.some((a) => a.id === 'DIAGNOSE-broken' && a.class === 'judgment'), 'FAILED mission gets diagnose action, not a refire');
   ck(r.report.some((l) => l.includes('claude-tier') && l.includes('NO rate-limit')), 'claude-without-rate-limit flag raised (wording de-clouded 2026-07-03)');
   ck(r.autorun.pending.length === 1, 'pending parse correct');
+
+  // fixture: SUPERVISOR-HALTED (hunt-item #3, 2026-07-04) -- daemon-supervisor.ps1's
+  // silent halt marker must be surfaced distinctly from an ordinary dead-daemon restart,
+  // with a read_first pointing at the crash evidence instead of a blind restart.
+  {
+    const haltMarker = path.join(logs, 'supervisor-halted.txt');
+    writeFileSync(haltMarker, 'Halted 2026-07-04T20:50:00 -- daemon died 6 times in 10 minutes. Diagnose before restarting manually.');
+    const rHalted = sweep(tmp, now, noRoute, sightOk);
+    ck(rHalted.report.some((l) => l.startsWith('SUPERVISOR-HALTED:') && l.includes('died 6 times')), 'SUPERVISOR-HALTED: halt marker text surfaced verbatim in the report, not silently skipped');
+    ck(rHalted.actions.some((a) => a.id === 'SUPERVISOR-HALTED' && a.class === 'judgment' && /daemon-stderr\.log/.test(a.why)), 'SUPERVISOR-HALTED: action points at daemon-stderr.log as read_first, not a blind restart');
+    ck(!rHalted.actions.some((a) => a.id === 'RESTART-DAEMON'), 'SUPERVISOR-HALTED: the generic RESTART-DAEMON action is replaced, not duplicated alongside it');
+    rmSync(haltMarker, { force: true });
+    const rClean = sweep(tmp, now, noRoute, sightOk);
+    ck(rClean.actions.some((a) => a.id === 'RESTART-DAEMON'), 'SUPERVISOR-HALTED: with the marker gone, an ordinary dead-daemon death goes back to the plain RESTART-DAEMON action (zero behavior change for the common case)');
+  }
 
   // fixture 1a: DIAGNOSE-<stem> read_first must use the REAL on-disk names (2026-07-01
   // fix — was `<stem>.result.json`/fixed `.retro.md`, neither of which ever exists on
