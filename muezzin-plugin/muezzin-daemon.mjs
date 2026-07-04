@@ -699,7 +699,7 @@ export function retroRepeatBlocked(stem, retroDir, missionMtimeMs,
   return { blocked: true, count: fails.length, newest: new Date(newestMs).toISOString() };
 }
 
-export function queuedDepsHold(missionText, missionPath, autorunText, resultOkFn) {
+export function queuedDepsHold(missionText, missionPath, autorunText, resultOkFn, gitFn = (repo, argstr) => { try { return { ok: true, out: execSync(`git -C "${repo}" ${argstr}`, { stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 16 * 1024 * 1024 }).toString() }; } catch { return { ok: false, out: '' }; } }) {
   const txt = String(missionText || '');
   // SELF-RESOLVED CHECK (2026-07-02, d1-migrations resurrection loop): a conductor-RESOLVED
   // mission must never refire — but graceful reloads interrupt in-flight attempts, and the
@@ -710,7 +710,16 @@ export function queuedDepsHold(missionText, missionPath, autorunText, resultOkFn
   // exact inversion bug conduct-cycle.mjs's closed() was \b-fixed for on 2026-07-02 —
   // this daemon's twin regex was left out of that fix).
   if (new RegExp(`^#.*\\bRESOLVED\\b.*${selfEsc}`, 'm').test(autorunText)) {
-    return { hold: true, resolvedSelf: true, dep: missionPath, why: 'mission itself is conductor-RESOLVED in AUTORUN — retired from firing (work landed)' };
+    // mt-c2a-queueddeps: a RESOLVED comment is a conductor CLAIM, not a receipt — verify it
+    // against the mission's actual landed state before honoring it. GENUINE (nothing landed
+    // at HEAD) disputes the stamp: log it and keep the mission LIVE rather than retiring it
+    // on a false victory. A null/undeterminable verdict fails open and honors the stamp
+    // exactly as before this check existed.
+    const landed = missionLandedState(txt, gitFn);
+    if (landed === null || landed.verdict !== 'GENUINE') {
+      return { hold: true, resolvedSelf: true, dep: missionPath, why: 'mission itself is conductor-RESOLVED in AUTORUN — retired from firing (work landed)' };
+    }
+    evt(`STAMP-DISPUTED: ${missionPath} carries a RESOLVED comment in AUTORUN but missionLandedState reports GENUINE (no ALLOW-FILES landed at HEAD) — keeping mission live, refusing to retire on a disputed stamp`);
   }
   const deps = new Set();
   // (a) explicit mission-file list
@@ -1718,6 +1727,33 @@ if (process.argv.includes('--selftest')) {
     ck(queuedDepsHold('REQUIRES: a.S1 (tartib)\n', 'missions/z.mission.txt', ar, resOk).hold === false, 'tartib-gate b2: bare-stem REQUIRES with dep DONE + ok:true -> FIRES');
     ck(queuedDepsHold('REQUIRES: b.S1 (tartib)\n', 'missions/z.mission.txt', ar, resOk).hold === true, 'tartib-gate b2: bare-stem REQUIRES with dep FAILED -> HELD');
     ck(queuedDepsHold('REQUIRES: search-grounded seats always\n', 'missions/z.mission.txt', arPend, resOk).hold === false, 'tartib-gate b2: prose tokens with no matching queue line never become phantom deps');
+  }
+
+  // ---- mt-c2a-queueddeps: RESOLVED stamps are verified against missionLandedState before
+  // being honored — a disputed stamp (verdict GENUINE, nothing actually landed at HEAD) must
+  // keep the mission LIVE rather than retiring it on a false victory; a null/undeterminable
+  // verdict fails open and honors the stamp exactly as before this check existed.
+  {
+    const stem2 = ['q', 'c2a', 'stamp'].join('-');
+    const mp2 = 'missions/' + stem2 + '.mission.txt';
+    const arNote = '# ' + 'RESOLVED' + ' — landed: ' + mp2;
+    console.log('disputed-stamp-keeps-mission-live');
+    const disputedText = [
+      'MISSION-ID: C2A',
+      'MISSION-CLASS: code-repo',
+      'REPO-ROOT: /fake/repo',
+      'Maqsad: x deadbeef1234567',
+      'ALLOW-FILES:',
+      '  - some/file.mjs',
+    ].join('\n');
+    const absentGit = (repo, argstr) => ({ ok: true, out: '' });   // ls-tree returns nothing -> absent -> GENUINE
+    const rDisputed = queuedDepsHold(disputedText, mp2, arNote, () => false, absentGit);
+    ck(rDisputed.hold === false, 'disputed-stamp-keeps-mission-live: a disputed RESOLVED stamp (missionLandedState=GENUINE) keeps the mission LIVE (never retired on a disputed stamp)');
+
+    console.log('null-verdict-honors-stamp-fail-open');
+    const nullText = 'MISSION-ID: C2A\nMaqsad: no repo class here';
+    const rNull = queuedDepsHold(nullText, mp2, arNote, () => false);
+    ck(rNull.hold === true && rNull.resolvedSelf === true, 'null-verdict-honors-stamp-fail-open: an undeterminable (null) verdict fails open and honors the RESOLVED stamp exactly as before');
   }
 
   // ---- mt-c1-boundary regression pair (ported from conduct-cycle.mjs's closed() selftest):
