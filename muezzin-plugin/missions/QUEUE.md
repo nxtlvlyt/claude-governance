@@ -1196,3 +1196,26 @@ with instructions to update it the same beat any item lands, replacing the prior
 scattered per-item notes a successor would have to manually re-tally. Addressed by that
 existing mechanism, not a new one -- no separate commit for this item.
 Hunt-list tally unchanged at 11 (this item resolves via existing infrastructure, not a new fix).
+
+## Hunt-item #1 LANDED 2026-07-04 20:4xZ, commit 7ae0153 — THE HUNT'S TOP FIND
+Operator pushed back on "idle" and asked directly whether I was refusing to close gaps; picked
+the highest-priority remaining item to answer with action. runMission's cwd computation
+(muezzin-daemon.mjs, was line ~915) stripped an EXTRA trailing dotted segment beyond the
+mission's own stem -- `.replace(/\.mission\.txt$/i,'').replace(/\.[^.]+$/,'')` -- while
+writeRetro used a DIFFERENT, correct derivation (full stem, no second strip). Verified against
+the EXACT geocode chain in GAP-HUNT-2026-07-03.json: root and S1 both computed cwd
+"mt-integrate-geocode-2026-06-23" (collision -- S1 ran inside its own parent's directory), and
+S1.S1 computed cwd "mt-integrate-geocode-2026-06-23.S1" (colliding with wherever S1's own
+writeRetro looked for its events). Two live consequences the hunt evidence proved: (1) hollow
+retros for nearly every dotted-stem mission -- S1.S1's real engine-exec-fail event sat in the
+S1 directory while its own retro said "events: 0"; (2) countPriorOccurrences's RECURRING-HALT
+early-exit read a SHARED event log with the colliding parent/sibling, so a first-attempt
+mission could be early-halted on a DIFFERENT mission's failures.
+Factored ONE exported canonical function, missionSandboxStem(), used by both runMission's cwd
+and writeRetro's directory lookup so they can never diverge again (matching the playbook's
+prescribed shape exactly). muezzin-daemon.mjs --selftest ALL PASS (5 new fixtures built
+directly from the hunt evidence's geocode root/S1/S1.S1 chain -- previously 2 of 3 collided,
+now all 3 distinct). orchestrate.mjs + conduct-cycle.mjs --selftest both clean. Reload
+requested.
+Hunt-list tally: 12 of 25 struck this session (#1, #2, #4, #5, #6, #9, #10, #12, #15, #17,
+#19, #20).

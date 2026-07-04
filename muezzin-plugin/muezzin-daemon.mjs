@@ -275,9 +275,26 @@ function computeRetryOf(name, ledgerPath) {
   return '';
 }
 
+// CANONICAL SANDBOX STEM (hunt-item #1, 2026-07-04, GAP-CLOSURE-PLAYBOOK UNIT A): the ONE
+// place a mission file's full dotted stem is derived -- runMission's cwd computation used to
+// strip an EXTRA trailing dotted segment (`.replace(/\.[^.]+$/, '')`) that writeRetro never
+// had, so "engine-heal-symmetry.S1.mission.txt" ran in cwd "missions/engine-heal-symmetry"
+// (its own PARENT's directory) while writeRetro looked for events at
+// "missions/engine-heal-symmetry.S1" -- two different directories for the same mission.
+// Live-verified collision class (geocode.S1 / geocode.S1.S1 hit the identical bug): every
+// dotted-stem mission's real cwd was one directory ABOVE where its own retro-writer looked,
+// producing hollow retros (events:0, since the events were never written there) AND feeding
+// RECURRING-HALT a shared event log with the parent/sibling mission that legitimately DOES
+// own that over-stripped directory -- their failures got counted as this mission's own
+// recurring streak. Exported so both call sites (below, and any future consumer) import the
+// SAME derivation instead of each computing their own and silently drifting apart again.
+export function missionSandboxStem(missionFile) {
+  return path.basename(String(missionFile)).replace(/\.mission\.txt$/i, '');
+}
+
 function writeRetro(raw, result, attempt) {
   try {
-    const name = path.basename(raw).replace(/\.mission\.txt$/i, '');
+    const name = missionSandboxStem(raw);
     const evPath = path.join(HERE, 'missions', name, 'mission-events.jsonl');
     const evs = existsSync(evPath) ? readFileSync(evPath, 'utf8').trim().split('\n').map((l) => { try { return JSON.parse(l); } catch { return null; } }).filter(Boolean) : [];
     const planTries = evs.filter((e) => e.phase === 'plan' && e.event === 'start').length;
@@ -912,7 +929,7 @@ function autoPromoteFromSubstrate() {
 async function runMission(missionFile) {
   const { orchestrate } = await import('./orchestrate.mjs');
   const mission = readFileSync(missionFile, 'utf8');
-  const cwd = path.join(HERE, 'missions', path.basename(missionFile).replace(/\.mission\.txt$/i, '').replace(/\.[^.]+$/, ''));
+  const cwd = path.join(HERE, 'missions', missionSandboxStem(missionFile));
   mkdirSync(cwd, { recursive: true });
   // REQUIRES: search now WIRES the blind-backend preflight (2026-06-11: the operator's
   // "if SOTA search was broken, every phase 1 failed" audit found searxngPreflight
@@ -1821,6 +1838,22 @@ if (process.argv.includes('--selftest')) {
     const neverCalledGitFn = () => { throw new Error('gitFn must not be invoked when missionLandedState is undeterminable'); };
     const honored = queuedDepsHold(plainMissionText, selfPath2, resolvedNote2, () => false, neverCalledGitFn);
     ck(honored.hold === true && honored.resolvedSelf === true, 'mt-c2a-queueddeps: a null/undeterminable verdict fails OPEN, stamp honored unchanged (mission retired as before)');
+  }
+
+  // ---- missionSandboxStem: the geocode S1/S1.S1 collision fixture (hunt-item #1, GAP-HUNT-
+  // 2026-07-03.json) ---- OLD behavior (verified against the hunt evidence before this fix):
+  // root -> ".../geocode-2026-06-23", S1 -> ".../geocode-2026-06-23" (COLLIDED with root),
+  // S1.S1 -> ".../geocode-2026-06-23.S1" (COLLIDED with what S1's own writeRetro looked for).
+  // Fixed: each dotted stem now maps to its own unique, unshared directory name.
+  {
+    const root = missionSandboxStem('mt-integrate-geocode-2026-06-23.mission.txt');
+    const s1 = missionSandboxStem('mt-integrate-geocode-2026-06-23.S1.mission.txt');
+    const s1s1 = missionSandboxStem('mt-integrate-geocode-2026-06-23.S1.S1.mission.txt');
+    ck(root === 'mt-integrate-geocode-2026-06-23', 'missionSandboxStem: root mission keeps its full stem');
+    ck(s1 === 'mt-integrate-geocode-2026-06-23.S1', 'missionSandboxStem: S1 keeps its OWN full dotted stem, no second-segment strip (the exact bug: old code collapsed this to match root)');
+    ck(s1s1 === 'mt-integrate-geocode-2026-06-23.S1.S1', 'missionSandboxStem: S1.S1 keeps its own full dotted stem (old code collapsed this to match S1)');
+    ck(new Set([root, s1, s1s1]).size === 3, 'missionSandboxStem: root/S1/S1.S1 are three DISTINCT directories -- zero collision (previously: 2 distinct out of 3, a real collision)');
+    ck(missionSandboxStem('missions/mt-integrate-geocode-2026-06-23.S1.mission.txt') === 'mt-integrate-geocode-2026-06-23.S1', 'missionSandboxStem: basename-strips any leading directory path first');
   }
 
   rmSync(tmp, { recursive: true, force: true });
