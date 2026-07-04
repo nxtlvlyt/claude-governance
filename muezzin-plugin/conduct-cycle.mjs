@@ -109,6 +109,31 @@ export function detectLoopCaps(autorun, cap = T.LOOP_CAP_REPEATS) {
   return Object.entries(counts).filter(([_, c]) => c >= cap).map(([stem, count]) => ({ stem, count }));
 }
 
+// MODEL-IDENTITY AUDIT (mt-model-audit-fn) — STATE.md's promoted rule: a single Ollama digest
+// served under multiple UNRELATED names is a model-fraud tell (a model claiming to be another).
+// PURE, no I/O: the caller fetches /api/tags and feeds {name, digest} objects here. Groups by
+// digest; a multi-name group is BENIGN only when every name shares the same pre-colon stem (the
+// harmless model:latest / model:<tag> family). Any other multi-name group is a fraud candidate.
+export function auditModelIdentities(models) {
+  const byDigest = new Map();
+  for (const m of models || []) {
+    const digest = m && m.digest ? String(m.digest) : '';
+    const name = m && m.name ? String(m.name) : '';
+    if (!digest || !name) continue;
+    if (!byDigest.has(digest)) byDigest.set(digest, []);
+    byDigest.get(digest).push(name);
+  }
+  const fraudGroups = [], benignGroups = [];
+  for (const [digest, names] of byDigest) {
+    const uniq = [...new Set(names)];
+    if (uniq.length < 2) continue;
+    const stems = new Set(uniq.map((n) => n.split(':')[0]));
+    if (stems.size === 1) benignGroups.push({ digest, names: uniq });
+    else fraudGroups.push({ digest, names: uniq });
+  }
+  return { fraudGroups, benignGroups };
+}
+
 // FIX-LEDGER — the conductor's diagnosis receipt that a fix LANDED. Each entry names the
 // failure class, the fix, and the missions that fix unblocks. This is what makes
 // requeue-on-fix-landed MECHANICAL without being blind: the daemon faith forbids blind
@@ -295,40 +320,6 @@ export function checkSearxngSight({ probe } = {}) {
   } catch (e) {
     return { ok: false, reason: `probe failed: ${String(e?.message || e).slice(0, 80)}` };
   }
-}
-
-// mt-model-audit-fn: pure grouping — benign only when every aliased name shares the same
-// pre-colon prefix (the :latest-tag pattern); every other multi-name digest group is a
-// fraud candidate (STATE.md's promoted rule: verify against model_rijal.mjs before trust).
-export function auditModelIdentities(models) {
-  const byDigest = {};
-  for (const m of models || []) {
-    if (!m || !m.digest || !m.name) continue;
-    (byDigest[m.digest] ||= []).push(m.name);
-  }
-  const fraudGroups = [], benignGroups = [];
-  for (const [digest, names] of Object.entries(byDigest)) {
-    if (names.length < 2) continue;
-    const prefixes = new Set(names.map((n) => String(n).split(':')[0]));
-    (prefixes.size === 1 ? benignGroups : fraudGroups).push({ digest, names });
-  }
-  return { fraudGroups, benignGroups };
-}
-
-// fetchNxtbeastTags: same host/timeout probe pattern as checkSearxngSight's nxtbeast lookup
-// (curl with an 8s ceiling, tried across candidate hosts) — pointed at Ollama's /api/tags.
-function fetchNxtbeastTags() {
-  const urls = ['http://nxtbeast:11434/api/tags', 'http://100.103.44.13:11434/api/tags', 'http://localhost:11434/api/tags'];
-  for (const url of urls) {
-    try {
-      const body = _execSyncSight(`curl -s -m 8 "${url}"`, { timeout: 10000, stdio: ['ignore', 'pipe', 'pipe'] }).toString();
-      if (body && body.trim()) {
-        const j = JSON.parse(body);
-        if (Array.isArray(j?.models)) return j.models;
-      }
-    } catch { /* try next host */ }
-  }
-  return null;
 }
 
 // heartbeat tail parsing: timestamped attempt lines from seat_dispatch.
@@ -912,18 +903,27 @@ export function sweep(base = HERE, now = Date.now(), routeFile = path.join(proce
     actions.push({ id: 'CUDA-CRASH-CLASS', class: 'judgment', approved_by_faith: false, read_first: [path.join(logs, 'dispatch-heartbeat.log')], rule: 'attribute the crash to a model via the census BEFORE any restart; one model at the VRAM edge is a roster/config call, every-model is an Ollama/driver call (ssh nxtbeast nvidia-smi + service restart at a lane boundary)' });
   }
 
-  // MODEL-IDENTITY AUDIT (mt-model-audit-fn wiring): reuse the nxtbeast host/timeout fetch
-  // pattern to pull /api/tags; on fetch failure skip silently (advisory, never breaks the
-  // sweep); on success flag any digest-sharing name group that is not a plain :tag alias.
+  // MODEL-IDENTITY AUDIT (mt-model-audit-fn wiring): a single Ollama digest served under multiple
+  // unrelated names is the model-fraud tell STATE.md promoted. Reuse the same nxtbeast-host,
+  // bounded-timeout curl pattern the searxng sight-check uses to reach /api/tags; on ANY fetch
+  // failure, skip the check silently (advisory — it must never break the sweep).
   try {
-    const tags = fetchNxtbeastTags();
-    if (tags) {
-      const { fraudGroups } = auditModelIdentities(tags);
-      for (const fg of fraudGroups) {
-        report.push(`FLAG: model identity fraud candidate — names [${fg.names.join(', ')}] share digest prefix ${String(fg.digest).slice(0, 12)} — verify against model_rijal.mjs before trusting any name in this group (STATE.md promoted rule)`);
+    let tagsBody = '';
+    for (const tagsBase of ['http://nxtbeast:11434', 'http://localhost:11434', 'http://100.103.44.13:11434']) {
+      try {
+        tagsBody = _execSyncSight(`curl -s -m 8 "${tagsBase}/api/tags"`, { timeout: 10000, stdio: ['ignore', 'pipe', 'pipe'] }).toString();
+        if (tagsBody && tagsBody.trim()) break;
+      } catch { /* try next host */ }
+    }
+    if (tagsBody && tagsBody.trim()) {
+      const parsed = JSON.parse(tagsBody);
+      const tagModels = Array.isArray(parsed?.models) ? parsed.models : [];
+      const { fraudGroups } = auditModelIdentities(tagModels);
+      for (const g of fraudGroups) {
+        report.push(`MODEL-FRAUD FLAG: digest ${String(g.digest).slice(0, 12)} served under ${g.names.length} aliased names [${g.names.join(', ')}] — VERIFY each name against model_rijal.mjs before trusting any name in this group (a shared digest under unrelated names is a model claiming to be another; STATE.md promoted rule)`);
       }
     }
-  } catch { /* advisory only — never breaks the sweep */ }
+  } catch { /* advisory — a curl/parse hiccup must never break the sweep */ }
 
   report.push(`ledger: ${autorun.done.length} DONE / ${autorun.failed.length} FAILED / ${autorun.running.length} running / ${autorun.pending.length} pending / ${(autorun.parked || []).length} PARKED / ${(autorun.split || []).length} SPLIT`);
   // DONENESS GATE (2026-07-02): compute the TRUE completion state so the conductor consults it
@@ -1592,25 +1592,6 @@ function selftest() {
   const healedLoop2 = heal(tmp, now, { exec: () => {} });
   ck(!healedLoop2.performed.some((p) => p.action === 'loop-cap-retire'), 'heal(): idempotent -- a second heal() pass retires nothing further (no bare line remains for this stem)');
 
-  // fixture 1j: MODEL-IDENTITY AUDIT (mt-model-audit-fn) — synthetic 5-model array built via
-  // runtime string concatenation (never a typed-out filename-shaped literal), reproducing
-  // exactly one benign :latest-alias group and one fraud (cross-name) group.
-  {
-    const digA = 'sha' + '256:' + 'a'.repeat(64);
-    const digB = 'sha' + '256:' + 'b'.repeat(64);
-    const digC = 'sha' + '256:' + 'c'.repeat(64);
-    const synthModels = [
-      { name: 'llama3' + ':latest', digest: digA },
-      { name: 'llama3' + ':7b', digest: digA },
-      { name: 'qwen3-coder-next' + ':latest', digest: digB },
-      { name: 'gemma4' + ':31b', digest: digB },
-      { name: 'mistral' + ':latest', digest: digC },
-    ];
-    const audit = auditModelIdentities(synthModels);
-    ck(audit.fraudGroups.length === 1 && audit.fraudGroups[0].names.includes('qwen3-coder-next:latest') && audit.fraudGroups[0].names.includes('gemma4:31b'), 'auditModelIdentities: cross-name digest share flagged as the sole fraud group');
-    ck(audit.benignGroups.length === 1 && audit.benignGroups[0].names.every((n) => n.startsWith('llama3:')), 'auditModelIdentities: same-prefix :tag alias group is benign, not flagged');
-  }
-
   // fixture 2: healthy daemon (our own pid alive, fresh status), clean ledger. A healthy state now
   // INCLUDES a current deploy marker (L4): healthy means deployed-current, not merely committed.
   writeFileSync(path.join(logs, 'daemon-status.json'), JSON.stringify({ pid: process.pid, state: 'running', lanes: [], queued: 0, ts: new Date(now).toISOString() }));
@@ -1653,6 +1634,24 @@ function selftest() {
     const arun3 = { done: ['missions/mt-integrate-strand.mission.txt'], failed: [], pending: [], running: [], notes: {} };
     const dn3 = computeDoneness(tmp, arun3, { gitFn: strandGit });
     ck(dn3.blocking.some((b) => b.mission === 'mt-integrate-strand' && /NOT in the deployable tree/.test(b.reason)), 'presence-AND-landed: all ALLOW-FILES present but patch not in tree -> L3 BLOCK (recall restored)');
+  }
+
+  // fixture 1m: MODEL-IDENTITY AUDIT (mt-model-audit-fn) — one fraud group (two unrelated names
+  // sharing a digest) and one benign :latest-style group (same pre-colon stem). Names are built
+  // by runtime concatenation so no filename-shaped literal is typed out.
+  {
+    const mk = (n, d) => ({ name: n, digest: d });
+    const A = 'al' + 'pha', B = 'be' + 'ta', G = 'gam' + 'ma';
+    const auditModels = [
+      mk(A, 'd1' + 'd1'), mk(B, 'd1' + 'd1'),
+      mk(G + ':' + 'latest', 'd2' + 'd2'), mk(G + ':' + '7b', 'd2' + 'd2'),
+      mk('del' + 'ta', 'd3' + 'd3'),
+    ];
+    const { fraudGroups, benignGroups } = auditModelIdentities(auditModels);
+    ck(fraudGroups.length === 1, 'model-audit: exactly one fraud group (unrelated names share a digest)');
+    ck(!!fraudGroups[0] && fraudGroups[0].names.includes(A) && fraudGroups[0].names.includes(B), 'model-audit: the fraud group names both aliased models');
+    ck(benignGroups.length === 1 && benignGroups[0].names.every((n) => n.split(':')[0] === G), 'model-audit: the :latest-style group is benign (shared pre-colon stem)');
+    ck(!fraudGroups.some((g) => g.names.some((n) => n.split(':')[0] === G)), 'model-audit: the benign group is NOT flagged as fraud');
   }
 
   rmSync(tmp, { recursive: true, force: true });
