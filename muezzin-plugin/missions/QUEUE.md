@@ -1271,3 +1271,32 @@ fires, untagged anti-pattern still skipped, same-batch dedup still applies). orc
 assertion). Reload requested.
 Hunt-list tally: 14 of 25 struck this session (#1, #2, #3, #4, #5, #6, #9, #10, #12, #13,
 #15, #17, #19, #20).
+
+## #3 COMPLETED IN FULL 2026-07-04 21:3xZ + ONE ADDITIONAL FINDING beyond the 25-item list
+Operator asked directly to make sure I was pulling everything usable from the handbook before
+continuing -- re-read GAP-CLOSURE-PLAYBOOK.md's UNIT E section in full rather than working
+from memory of it, and found two things not yet done:
+(1) Hunt-item #3's own text names TWO things: "no push notification AND conduct-cycle never
+reads the halt markers." The earlier fix (commit 07915f0) only did the second half. Added the
+first half: daemon-supervisor.ps1 now sends a push directly (same webhook file + ntfy-vs-
+generic branch as muezzin-daemon.mjs's notify(), best-effort) at the exact point it writes the
+halt marker -- "outside the dead process" per the playbook's own phrasing, since the daemon's
+own notify() is useless by definition once the daemon is the thing that died. This is NOT a
+new hunt-list item -- it's completing #3, already counted in the tally above. IMPORTANT
+CAVEAT: daemon-supervisor.ps1 is a long-running PowerShell loop, not something the Node
+graceful-reload mechanism touches -- this fix sits dormant in the file until the SUPERVISOR
+PROCESS ITSELF restarts (not just the daemon it manages), which hasn't been forced this beat
+(disruptive, and the fix only matters in an already-rare 5-deaths-in-10-min scenario). Until
+then, a real halt tonight would still be silent -- do not report this as fully live.
+(2) UNIT E4's OWN text names a SEPARATE bug never in the original 25-item hunt list at all:
+"the STUCK-TASK kill-scope bug the supervisor header names (taskkill hits the daemon's own
+pid)." Verified real: missions run in-process (MAX_LANES=2 default), so the STUCK-TASK
+healer's taskkill always hits the WHOLE daemon PID -- killing one stuck lane silently also
+kills any OTHER genuinely healthy lane's in-flight work. Fixed conduct-cycle.mjs's STUCK-TASK
+action to name the collateral lanes explicitly (new `collateral_paths` field + an honest `why`
+string) instead of silently expanding its own blast radius. conduct-cycle.mjs --selftest ALL
+PASS (3 new fixtures with a second healthy lane present). Commit cb0a944 (bundles both fixes).
+DELIBERATELY NOT added to the hunt-list tally or the 29-count -- it was never one of the 25
+numbered items, and folding it in now would repeat the exact "quietly redefine the denominator"
+mistake already caught and corrected earlier tonight. This is real, additional, playbook-
+sourced work sitting OUTSIDE the tracked 29, named honestly as such.

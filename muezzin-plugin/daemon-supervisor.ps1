@@ -56,6 +56,28 @@ while ($true) {
     if ($deaths.Count -gt 5) {
         Add-Content -Path (Join-Path $logDir "supervisor.log") -Value "$ts SUPERVISOR HALTED -- 5+ deaths in 10 minutes, crash-loop suspected, not restarting further"
         Set-Content -Path $haltMarker -Value "Halted $ts -- daemon died $($deaths.Count) times in 10 minutes. Diagnose before restarting manually."
+        # PUSH FROM OUTSIDE THE DEAD PROCESS (GAP-CLOSURE-PLAYBOOK UNIT E4, 2026-07-04): the
+        # daemon's own notify() (muezzin-daemon.mjs) is useless here BY DEFINITION -- the
+        # daemon is the thing that just died and is not being restarted. This supervisor is
+        # the one live process that knows the halt happened in real time; it sends the push
+        # directly rather than leaving it for a future conductor beat to notice on its own.
+        # Mirrors muezzin-daemon.mjs's notify(): same webhook file, same ntfy-vs-generic
+        # branch, same best-effort silence on failure (a push failure must never stop this
+        # script from writing the halt marker above, which already happened).
+        try {
+            $webhookFile = Join-Path $env:USERPROFILE ".claude\state\muezzin-webhook.txt"
+            if (Test-Path $webhookFile) {
+                $url = (Get-Content $webhookFile -Raw).Trim()
+                if ($url -like "https://*") {
+                    $msg = "🔴 muezzin daemon-supervisor HALTED -- $($deaths.Count) deaths in 10 minutes, crash-loop suspected, NOT auto-restarting. Diagnose missions/_logs/daemon-stderr.log before manual restart."
+                    if ($url -match "ntfy\.sh/|/ntfy/") {
+                        Invoke-RestMethod -Uri $url -Method Post -Headers @{ Title = "muezzin"; Tags = "mosque" } -Body $msg -TimeoutSec 10 | Out-Null
+                    } else {
+                        Invoke-RestMethod -Uri $url -Method Post -ContentType "application/json" -Body (@{ content = $msg } | ConvertTo-Json) -TimeoutSec 10 | Out-Null
+                    }
+                }
+            }
+        } catch { }
         break
     }
     Start-Sleep -Seconds 3

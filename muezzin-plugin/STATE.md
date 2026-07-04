@@ -156,7 +156,8 @@ current ledger + full git history, the operator push-notify log — none show it
 
 **Struck so far (2026-07-04, this session): 14 of the 25 hunt items** — #1 (dotted-stem
 mission sandbox collision, the hunt's TOP FIND, 7ae0153), #2 (local-lane TIMEOUT/NETWORK heal
-asymmetry, 5cba9d5), #3 (supervisor halt marker now surfaced, not silent, 07915f0), #4
+asymmetry, 5cba9d5), #3 (supervisor halt: sweep reads the marker 07915f0 AND now pushes from
+outside the dead process cb0a944 -- BOTH halves of #3's own text now done), #4
 (heartbeat failure-class table, fe46e4a2), #5 (daemon UNRESOLVED-as-RESOLVED \b inversion,
 548635f), #6 (RESOLVED-LANDED stamp validation, 1b65287+f05d0e3), #9 (self-witness prompt
 truncation, 831dead), #10 (self-witness receipts mislabeling ornith:9b as 'laguna', b13ff7c),
@@ -170,6 +171,10 @@ Item #11 investigated but NOT landed (witness_select.mjs is real/tested/unwired,
 it needs a real design decision -- what "producer verdict" means for a structural witness,
 and whether it requires shadow-dispatching a second model at real cost -- not a quick fix;
 see QUEUE.md for the finding).
+ADDITIONAL (outside the 29-count, deliberately not folded in -- see QUEUE.md "#3 COMPLETED
+IN FULL" entry): the STUCK-TASK kill-scope bug named in UNIT E4's own text (never one of the
+25 numbered hunt items) is also fixed, commit cb0a944 -- a stuck-lane kill now names any OTHER
+healthy lane it will collaterally also kill, instead of silently expanding its blast radius.
 None of the 4 top-level items (#7-10) are
 struck — #10/gemma is a MITIGATION not a close (architect-C reseated off gemma this session,
 commit 5068d4c, but gemma still serves vision-verdict with no alternative, so it can still

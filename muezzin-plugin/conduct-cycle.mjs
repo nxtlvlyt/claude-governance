@@ -644,11 +644,23 @@ export function sweep(base = HERE, now = Date.now(), routeFile = path.join(proce
     report.push(`STUCK-CANDIDATE suppressed: ${stuckLanes.length} lane(s) past ${mins(T.TASK_STUCK_MS)}m but heartbeat is ${hbInFlight ? 'IN-FLIGHT' : `${mins(hb.lastAgeMs)}m fresh`} — a long seat call/exec is work, not a hang (no kill)`);
   } else if (stuckLanes.length) {
     for (const sl of stuckLanes) report.push(`STUCK-TASK: ${sl.path} stuck for ${mins(sl.ageMs)}m (limit ${mins(T.TASK_STUCK_MS)}m)`);
+    // KILL-SCOPE HONESTY (hunt-item #3's second half, GAP-CLOSURE-PLAYBOOK UNIT E4, 2026-07-04):
+    // missions run IN-PROCESS (no per-mission subprocess to target), so this taskkill ALWAYS
+    // hits the daemon's own whole PID -- with MAX_LANES=2 (the default), a stuck lane's kill
+    // collaterally destroys any OTHER lane's genuinely healthy in-flight work too, silently,
+    // with no warning that this is happening. Name the collateral lanes explicitly so a
+    // conductor reading the action knows the real blast radius before approving it, rather
+    // than assuming "STUCK-TASK" only touches the one stuck lane it names.
+    const stuckPaths = new Set(stuckLanes.map((x) => x.path));
+    const collateralLanes = (Array.isArray(status?.lanes) ? status.lanes : [])
+      .map((l) => (typeof l === 'string' ? l : l?.path)).filter(Boolean)
+      .filter((p) => !stuckPaths.has(p));
     actions.push({
       id: 'STUCK-TASK', class: 'mechanical', approved_by_faith: true,
-      why: `${stuckLanes.length} lane(s) RUNNING over ${mins(T.TASK_STUCK_MS)}m with a dead-quiet heartbeat (${mins(hb.lastAgeMs)}m, no in-flight attempt) — hung, not working; kill and requeue`,
+      why: `${stuckLanes.length} lane(s) RUNNING over ${mins(T.TASK_STUCK_MS)}m with a dead-quiet heartbeat (${mins(hb.lastAgeMs)}m, no in-flight attempt) — hung, not working; kill and requeue. KILL SCOPE: missions run in-process, so this taskkill hits the WHOLE daemon PID${collateralLanes.length ? ` — ${collateralLanes.length} OTHER lane(s) currently running (${collateralLanes.join(', ')}) will ALSO be killed and requeued, even though they are not stuck` : ' — no other lanes are currently running, so this kill is scoped to just the stuck lane in practice'}`,
       command: `taskkill /PID ${status?.pid ?? pidfile} /F /T`,
       stuck_paths: stuckLanes.map((x) => x.path),
+      collateral_paths: collateralLanes,
       rule: 'heal() will kill the process tree and bare the RUNNING lines so the daemon re-fires them; logged to daemon-events.log',
     });
   }
@@ -1601,6 +1613,28 @@ function selftest() {
   ck(afterStuck.pending.includes('missions/stuck.mission.txt'), 'heal(): RUNNING line bared to pending');
   const events = readText(path.join(logs, 'daemon-events.log'));
   ck(events.includes('SWEEP-HEAL') && events.includes('STUCK-TASK') && events.includes('stuck.mission.txt'), 'heal(): SWEEP-HEAL event logged to daemon-events.log');
+
+  // fixture: STUCK-TASK kill-scope honesty (hunt-item #3's second half, GAP-CLOSURE-PLAYBOOK
+  // UNIT E4, 2026-07-04) -- with a SECOND, genuinely healthy lane also running (MAX_LANES=2
+  // default), the taskkill on the whole daemon PID collaterally kills it too. The action must
+  // name that lane explicitly, not silently expand its own blast radius.
+  {
+    writeFileSync(path.join(logs, 'daemon-status.json'), JSON.stringify({
+      pid: 77777, state: 'running',
+      lanes: [
+        { path: 'missions/stuck.mission.txt', start_ts: new Date(now - 16 * 60000).toISOString() },
+        { path: 'missions/healthy-other.mission.txt', start_ts: new Date(now - 2 * 60000).toISOString() },
+      ],
+      queued: 0, ts: new Date(now).toISOString(),
+    }));
+    writeFileSync(path.join(tmp, 'missions', 'AUTORUN.md'), '# q\nRUNNING missions/stuck.mission.txt  <!-- t -->\nRUNNING missions/healthy-other.mission.txt  <!-- t -->\n');
+    writeFileSync(path.join(logs, 'dispatch-heartbeat.log'), `${new Date(now - 20 * 60000).toISOString()} attempt-ok provider=ollama-cloud model=kimi-k2.6 heal=0 ms=1 chars=10\n`);
+    const rCollateral = sweep(tmp, now, noRoute, sightOk);
+    const stuckAction2 = rCollateral.actions.find((a) => a.id === 'STUCK-TASK');
+    ck(!!stuckAction2 && stuckAction2.collateral_paths.includes('missions/healthy-other.mission.txt'), 'STUCK-TASK: the genuinely healthy second lane is named in collateral_paths, not silently dropped');
+    ck(/healthy-other\.mission\.txt.*ALSO be killed/.test(stuckAction2.why), 'STUCK-TASK: the why text explicitly warns the healthy lane will ALSO be killed (real blast radius, not assumed single-lane scope)');
+    ck(!stuckAction2.stuck_paths.includes('missions/healthy-other.mission.txt'), 'STUCK-TASK: the healthy lane is in collateral_paths, never misclassified as stuck_paths');
+  }
 
   // fixture 1i: detectStuckLanes and detectLoopCaps direct checks + LOOP-CAP sweep.
   const dl = detectStuckLanes({ pid: 1, lanes: [{ path: 'missions/a.mission.txt', start_ts: new Date(now - 16 * 60000).toISOString() }, { path: 'missions/b.mission.txt', start_ts: new Date(now - 2 * 60000).toISOString() }, 'missions/c.mission.txt'] }, now);
