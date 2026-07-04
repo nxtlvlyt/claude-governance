@@ -1300,3 +1300,23 @@ DELIBERATELY NOT added to the hunt-list tally or the 29-count -- it was never on
 numbered items, and folding it in now would repeat the exact "quietly redefine the denominator"
 mistake already caught and corrected earlier tonight. This is real, additional, playbook-
 sourced work sitting OUTSIDE the tracked 29, named honestly as such.
+
+## Hunt-item #24 LANDED 2026-07-04 21:5xZ, commit 35fa81d
+At >=5 FAILED retros in 24h, the refire gate required a preflight-receipt file with a fresh
+mtime -- but never read its CONTENT. A hollow touch (empty file) or a stale receipt from an
+EARLIER, different failure class satisfied the gate exactly as well as a genuine fresh
+dry-run for the CURRENT killing class, because nothing bound the receipt to what actually
+killed the mission most recently.
+retroRepeatBlocked now extracts the killing class from the newest failing retro's own header
+(writeRetro's existing FAILED(${phase}) tag -- no new taxonomy invented) and requires the
+preflight file to contain a matching "COVERS: FAILED(<class>)" line before the mtime check can
+pass. Falls back to mtime-only when no class is extractable (fail-open on the CONTENT check,
+never a permanent block on a check the gate cannot perform). Production report text now names
+the exact required COVERS line, not a generic instruction.
+This escalation branch had ZERO direct unit test coverage before this fix -- only ever
+exercised live. muezzin-daemon.mjs --selftest ALL PASS (6 new fixtures: hollow-preflight now
+blocks, stale-class-preflight still blocks, matching-class-preflight passes,
+matching-content-but-stale-mtime still blocks, unextractable-class falls back to mtime-only,
+blocked result surfaces killingClass). Reload requested.
+Hunt-list tally: 15 of 25 struck this session (#1, #2, #3, #4, #5, #6, #9, #10, #12, #13,
+#15, #17, #19, #20, #24).
