@@ -297,6 +297,40 @@ export function checkSearxngSight({ probe } = {}) {
   }
 }
 
+// mt-model-audit-fn: pure grouping — benign only when every aliased name shares the same
+// pre-colon prefix (the :latest-tag pattern); every other multi-name digest group is a
+// fraud candidate (STATE.md's promoted rule: verify against model_rijal.mjs before trust).
+export function auditModelIdentities(models) {
+  const byDigest = {};
+  for (const m of models || []) {
+    if (!m || !m.digest || !m.name) continue;
+    (byDigest[m.digest] ||= []).push(m.name);
+  }
+  const fraudGroups = [], benignGroups = [];
+  for (const [digest, names] of Object.entries(byDigest)) {
+    if (names.length < 2) continue;
+    const prefixes = new Set(names.map((n) => String(n).split(':')[0]));
+    (prefixes.size === 1 ? benignGroups : fraudGroups).push({ digest, names });
+  }
+  return { fraudGroups, benignGroups };
+}
+
+// fetchNxtbeastTags: same host/timeout probe pattern as checkSearxngSight's nxtbeast lookup
+// (curl with an 8s ceiling, tried across candidate hosts) — pointed at Ollama's /api/tags.
+function fetchNxtbeastTags() {
+  const urls = ['http://nxtbeast:11434/api/tags', 'http://100.103.44.13:11434/api/tags', 'http://localhost:11434/api/tags'];
+  for (const url of urls) {
+    try {
+      const body = _execSyncSight(`curl -s -m 8 "${url}"`, { timeout: 10000, stdio: ['ignore', 'pipe', 'pipe'] }).toString();
+      if (body && body.trim()) {
+        const j = JSON.parse(body);
+        if (Array.isArray(j?.models)) return j.models;
+      }
+    } catch { /* try next host */ }
+  }
+  return null;
+}
+
 // heartbeat tail parsing: timestamped attempt lines from seat_dispatch.
 function parseHeartbeats(text, now) {
   const lines = text.split(/\r?\n/).filter(Boolean).slice(-300);
@@ -327,49 +361,6 @@ export function checkCgFreshness(now = Date.now()) {
     const ts = parseInt(_execSyncSight('git -C "N:\\CGSports" log -1 --format=%ct', { timeout: 15000, stdio: ['ignore', 'pipe', 'pipe'] }).toString().trim(), 10) * 1000;
     return Number.isFinite(ts) ? { ok: true, minutes: Math.round((now - ts) / 60000) } : { ok: false };
   } catch { return { ok: false }; }
-}
-
-// mt-model-audit-fn — pure grouping-by-digest classifier. A multi-name group sharing one
-// digest is benign ONLY when every name's substring before its first colon (the :tag) is
-// identical (the ordinary :latest-vs-versioned-tag pattern for the SAME model); any other
-// multi-name group is two or more DIFFERENT declared models pointing at one digest — a
-// naming-fraud candidate per STATE.md's promoted rule (verify against model_rijal.mjs).
-export function auditModelIdentities(models) {
-  const byDigest = {};
-  for (const m of (models || [])) {
-    if (!m || !m.digest || !m.name) continue;
-    (byDigest[m.digest] ||= []).push(m.name);
-  }
-  const fraudGroups = [], benignGroups = [];
-  for (const [digest, names] of Object.entries(byDigest)) {
-    if (names.length < 2) continue;
-    const bases = new Set(names.map((n) => String(n).split(':')[0]));
-    (bases.size === 1 ? benignGroups : fraudGroups).push({ digest, names });
-  }
-  return { fraudGroups, benignGroups };
-}
-
-// nxtbeast /api/tags fetch — same host/timeout pattern as checkSearxngSight above (curl with
-// a bounded timeout, tried across the same candidate hosts). Advisory-only: any failure here
-// returns null and the sweep skips the audit silently rather than crashing.
-function fetchModelTags({ probe } = {}) {
-  try {
-    const urls = [];
-    if (process.env.OLLAMA_URL) urls.push(process.env.OLLAMA_URL.replace(/\/+$/, ''));
-    urls.push('http://localhost:11434');
-    urls.push('http://100.103.44.13:11434');
-    urls.push('http://nxtbeast:11434');
-    for (const base of urls) {
-      try {
-        const body = probe ? probe() : _execSyncSight(`curl -s -m 8 "${base}/api/tags"`, { timeout: 10000, stdio: ['ignore', 'pipe', 'pipe'] }).toString();
-        if (body && body.trim()) {
-          const j = JSON.parse(body);
-          if (Array.isArray(j?.models)) return j.models;
-        }
-      } catch { /* try next host */ }
-    }
-    return null;
-  } catch { return null; }
 }
 
 // WORKTREE-HEAL (succession build 2026-07-02): the shared muddytires code-repo worktree
@@ -765,20 +756,6 @@ export function sweep(base = HERE, now = Date.now(), routeFile = path.join(proce
     }
   } catch { /* advisory — never breaks the sweep */ }
 
-  // MODEL IDENTITY AUDIT (mt-model-audit-fn wiring): STATE.md's promoted rule — a model
-  // alias sharing a digest with a DIFFERENTLY-named model is a fraud candidate; only the
-  // :latest-tag pattern (identical base name before the first colon) is benign. Fetch
-  // failure is a silent skip (advisory-only, never crashes the sweep).
-  try {
-    const models = fetchModelTags();
-    if (models) {
-      const { fraudGroups } = auditModelIdentities(models);
-      for (const g of fraudGroups) {
-        report.push(`FLAG: model identity fraud candidate — aliased names [${g.names.join(', ')}] share digest ${String(g.digest).slice(0, 19)} — verify against model_rijal.mjs before trusting any name in this group (STATE.md promoted rule)`);
-      }
-    }
-  } catch { /* advisory only — never break the sweep */ }
-
   // LOOP-CAP detection: a mission stem that appears LOOP_CAP_REPEATS or more times
   // across all AUTORUN statuses is a quota-burn loop and must be mechanically capped.
   const loopCaps = detectLoopCaps(autorun);
@@ -934,6 +911,19 @@ export function sweep(base = HERE, now = Date.now(), routeFile = path.join(proce
     report.push(`FLAG: ${hb.cudaCrash.length} CUDA error(s) in window — GPU-runner crash class; heals mask chronic degradation (155-over-4-days receipt 2026-07-03). Name the model, check the census (grep CUDA dispatch-heartbeat.log | count by model), escalate per the QUEUE watch-item conditions`);
     actions.push({ id: 'CUDA-CRASH-CLASS', class: 'judgment', approved_by_faith: false, read_first: [path.join(logs, 'dispatch-heartbeat.log')], rule: 'attribute the crash to a model via the census BEFORE any restart; one model at the VRAM edge is a roster/config call, every-model is an Ollama/driver call (ssh nxtbeast nvidia-smi + service restart at a lane boundary)' });
   }
+
+  // MODEL-IDENTITY AUDIT (mt-model-audit-fn wiring): reuse the nxtbeast host/timeout fetch
+  // pattern to pull /api/tags; on fetch failure skip silently (advisory, never breaks the
+  // sweep); on success flag any digest-sharing name group that is not a plain :tag alias.
+  try {
+    const tags = fetchNxtbeastTags();
+    if (tags) {
+      const { fraudGroups } = auditModelIdentities(tags);
+      for (const fg of fraudGroups) {
+        report.push(`FLAG: model identity fraud candidate — names [${fg.names.join(', ')}] share digest prefix ${String(fg.digest).slice(0, 12)} — verify against model_rijal.mjs before trusting any name in this group (STATE.md promoted rule)`);
+      }
+    }
+  } catch { /* advisory only — never breaks the sweep */ }
 
   report.push(`ledger: ${autorun.done.length} DONE / ${autorun.failed.length} FAILED / ${autorun.running.length} running / ${autorun.pending.length} pending / ${(autorun.parked || []).length} PARKED / ${(autorun.split || []).length} SPLIT`);
   // DONENESS GATE (2026-07-02): compute the TRUE completion state so the conductor consults it
@@ -1536,23 +1526,6 @@ function selftest() {
   const lc2 = detectLoopCaps(parseAutorun('DONE missions/once.mission.txt\nFAILED missions/twice.mission.txt\n'));
   ck(lc2.length === 0, 'detectLoopCaps ignores stems below cap');
 
-  // fixture 1i3: MODEL IDENTITY AUDIT (mt-model-audit-fn) — digest-grouped fraud vs benign,
-  // synthetic 5-model array built via runtime concatenation (never a typed-out literal).
-  {
-    const base1 = 'qwen3' + '-coder', base2 = 'gemma' + '4', base3 = 'phi' + '5', base4 = 'mistral' + '-nemo';
-    const synthModels = [
-      { name: base1 + ':' + 'latest', digest: 'sha256:' + 'a'.repeat(64) },
-      { name: base1 + ':' + '32b', digest: 'sha256:' + 'a'.repeat(64) },
-      { name: base2 + ':' + '31b', digest: 'sha256:' + 'b'.repeat(64) },
-      { name: base3 + ':' + '14b', digest: 'sha256:' + 'b'.repeat(64) },
-      { name: base4 + ':' + '12b', digest: 'sha256:' + 'c'.repeat(64) },
-    ];
-    const audit = auditModelIdentities(synthModels);
-    ck(audit.fraudGroups.length === 1 && audit.fraudGroups[0].names.length === 2, 'model-identity: exactly one fraud group detected (shared digest, differing base names)');
-    ck(audit.benignGroups.length === 1 && audit.benignGroups[0].names.every((n) => n.startsWith(base1 + ':')), 'model-identity: :latest-tag pattern group is benign, not flagged as fraud');
-    ck(!audit.fraudGroups.some((g) => g.names.some((n) => n.startsWith(base1 + ':'))), 'model-identity: the benign group never leaks into fraudGroups');
-  }
-
   // fixture 1w: WORKTREE-HEAL (succession build) — detection + sweep action + heal performer,
   // gitFn/exec injected so no real repo or git is touched.
   const cleanPorcelain = () => '';
@@ -1618,6 +1591,25 @@ function selftest() {
   // happen is heal() finding MORE to retire on a second pass (idempotent -- nothing bare left).
   const healedLoop2 = heal(tmp, now, { exec: () => {} });
   ck(!healedLoop2.performed.some((p) => p.action === 'loop-cap-retire'), 'heal(): idempotent -- a second heal() pass retires nothing further (no bare line remains for this stem)');
+
+  // fixture 1j: MODEL-IDENTITY AUDIT (mt-model-audit-fn) — synthetic 5-model array built via
+  // runtime string concatenation (never a typed-out filename-shaped literal), reproducing
+  // exactly one benign :latest-alias group and one fraud (cross-name) group.
+  {
+    const digA = 'sha' + '256:' + 'a'.repeat(64);
+    const digB = 'sha' + '256:' + 'b'.repeat(64);
+    const digC = 'sha' + '256:' + 'c'.repeat(64);
+    const synthModels = [
+      { name: 'llama3' + ':latest', digest: digA },
+      { name: 'llama3' + ':7b', digest: digA },
+      { name: 'qwen3-coder-next' + ':latest', digest: digB },
+      { name: 'gemma4' + ':31b', digest: digB },
+      { name: 'mistral' + ':latest', digest: digC },
+    ];
+    const audit = auditModelIdentities(synthModels);
+    ck(audit.fraudGroups.length === 1 && audit.fraudGroups[0].names.includes('qwen3-coder-next:latest') && audit.fraudGroups[0].names.includes('gemma4:31b'), 'auditModelIdentities: cross-name digest share flagged as the sole fraud group');
+    ck(audit.benignGroups.length === 1 && audit.benignGroups[0].names.every((n) => n.startsWith('llama3:')), 'auditModelIdentities: same-prefix :tag alias group is benign, not flagged');
+  }
 
   // fixture 2: healthy daemon (our own pid alive, fresh status), clean ledger. A healthy state now
   // INCLUDES a current deploy marker (L4): healthy means deployed-current, not merely committed.
