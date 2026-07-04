@@ -154,7 +154,7 @@ current ledger + full git history, the operator push-notify log — none show it
 - 25 items in QUEUE.md's "THE 25 VERIFIED-OPEN HUNT GAPS" list (ledger item #11; each closes
   individually).
 
-**Struck so far (2026-07-04, this session): 17 of the 25 hunt items** — #1 (dotted-stem
+**Struck so far (2026-07-04, this session): 18 of the 25 hunt items** — #1 (dotted-stem
 mission sandbox collision, the hunt's TOP FIND, 7ae0153), #2 (local-lane TIMEOUT/NETWORK heal
 asymmetry, 5cba9d5), #3 (supervisor halt: sweep reads the marker 07915f0 AND now pushes from
 outside the dead process cb0a944 -- BOTH halves of #3's own text now done), #4
@@ -170,7 +170,10 @@ mtime-only, 35fa81d), #14 (PARTIAL -- silently-dropped REQUIRES citations now su
 diagnostic event, 58821f3; the harder fail-open-vs-fail-closed gating design question is
 deliberately NOT resolved, hold behavior is provably unchanged -- see QUEUE.md), #16 (PARTIAL
 -- stranded split children recovered via the manifest, cbd18b8; appendQueue's silent catch and
-promotionHold's narrower tartib regex are separate, smaller bugs not folded into this fix).
+promotionHold's narrower tartib regex are separate, smaller bugs not folded into this fix), #21
+(PARTIAL -- sweep now reads QUEUE.md and reports open UNPARKS condition counts, 7d12a97; a
+full conditions-registry that understands WHICH conditions have actually fired is a real
+design project, not built here -- report-only, never a blocking action).
 Item #22 addressed via this scoreboard block itself (not a separate fix -- see QUEUE.md).
 Item #11 investigated but NOT landed (witness_select.mjs is real/tested/unwired, but wiring
 it needs a real design decision -- what "producer verdict" means for a structural witness,
@@ -192,7 +195,7 @@ None of the 4 top-level items (#7-10) are
 struck — #10/gemma is a MITIGATION not a close (architect-C reseated off gemma this session,
 commit 5068d4c, but gemma still serves vision-verdict with no alternative, so it can still
 crash there; see QUEUE.md gap #10 status).
-**12 remain open** (4 top-level + 8 hunt items).
+**11 remain open** (4 top-level + 7 hunt items).
 
 Report against THIS block every beat ("Gap fixes: N/29 struck" — 29 stays the denominator even
 as N climbs; it only shrinks if a top-level item's whole scope closes, quoting which N are new this

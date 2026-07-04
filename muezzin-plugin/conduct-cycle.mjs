@@ -580,6 +580,22 @@ export function sweep(base = HERE, now = Date.now(), routeFile = path.join(proce
   const actions = [];
 
   report.push(`CONDUCT-CYCLE ${new Date(now).toISOString()}`);
+  // QUEUE.md VISIBILITY (hunt-item #21, 2026-07-04): the sweep literally never read QUEUE.md
+  // at all (grep confirmed zero references) despite STATE.md telling every conductor "the
+  // script reads everything you need" -- deferred prose conditions written there (UNPARKS
+  // triggers the operator and past conductors wrote down) were invisible to any conductor who
+  // trusted the sweep over reading QUEUE.md by hand. Report-only, NOT a required action: an
+  // UNPARKS condition being present does not mean it's currently MET (that needs the actual
+  // check named in its own text, e.g. a real Test-Path on a drive letter) -- making every one
+  // of these a blocking action regardless of whether its trigger fired would manufacture noise
+  // every beat, the opposite of this session's own discipline. This closes the literal
+  // complaint (the sweep is no longer BLIND to their existence) without overclaiming judgment
+  // it cannot perform.
+  try {
+    const queueText = readText(path.join(base, 'missions', 'QUEUE.md'));
+    const unparksCount = (queueText.match(/\bUNPARKS\b/g) || []).length;
+    if (unparksCount > 0) report.push(`QUEUE.md: ${unparksCount} UNPARKS condition(s) on record — review missions/QUEUE.md for whether any have actually fired (not auto-checked here; conductor judgment)`);
+  } catch { /* QUEUE.md read is best-effort visibility, never breaks the sweep */ }
   report.push(daemonAlive
     ? `daemon: UP (PID ${pidfile}, status ${mins(statusAge)}m fresh) — lanes ${status.lanes.length}, queued ${status.queued}`
     : `daemon: DEAD or HUNG (pidfile=${pidfile || 'none'}, pid-alive=${Number.isInteger(pidfile) ? pidAlive(pidfile) : false}, status age ${mins(statusAge)}m)`);
@@ -1854,6 +1870,17 @@ function selftest() {
   const rBar = sweep(tmp, now, noRoute, sightOk);
   ck(rBar.actions.length > 0 && rBar.report.some((l) => l.includes('BEAT-COMPLETE BAR') && l.includes("daemon's work, not yours")), 'non-empty actions -> BEAT-COMPLETE BAR counter-license printed (complete ending must be EARNED)');
   writeFileSync(path.join(tmp, 'missions', 'AUTORUN.md'), '# q\nDONE missions/good.mission.txt  <!-- t -->\n');   // restore healthy fixture for downstream checks
+
+  // QUEUE.md VISIBILITY (hunt-item #21, 2026-07-04): the sweep used to never read QUEUE.md at
+  // all -- now it counts UNPARKS conditions and reports them (never as a blocking action).
+  {
+    ck(!r.report.some((l) => l.startsWith('QUEUE.md:')), 'QUEUE.md-visibility: no QUEUE.md file present (the ordinary fixture case) -> no report line, never an error');
+    writeFileSync(path.join(tmp, 'missions', 'QUEUE.md'), '- some parked item. UNPARKS when the drive returns.\n- another one. UNPARKS on key rotation.\n');
+    const rQueue = sweep(tmp, now, noRoute, sightOk);
+    ck(rQueue.report.some((l) => l === 'QUEUE.md: 2 UNPARKS condition(s) on record — review missions/QUEUE.md for whether any have actually fired (not auto-checked here; conductor judgment)'), 'QUEUE.md-visibility: 2 UNPARKS conditions in QUEUE.md are counted and surfaced in the report');
+    ck(!rQueue.actions.some((a) => /UNPARKS|QUEUE\.md/i.test(JSON.stringify(a))), 'QUEUE.md-visibility: report-only, never a blocking action -- a present-but-unfired UNPARKS condition must not manufacture required-action noise every beat');
+    rmSync(path.join(tmp, 'missions', 'QUEUE.md'), { force: true });
+  }
 
   // AUDIT REGRESSION TESTS 2026-07-02 (each encodes a live-confirmed audit finding):
   // (a) closed(): "UNRESOLVED" must NOT read as resolved (the missing-\b inversion).

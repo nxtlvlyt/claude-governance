@@ -1393,3 +1393,30 @@ queuedDepsHold's own (b2) logic already handles -- a DIFFERENT, more complete ga
 elsewhere in the same file that this one doesn't share).
 Hunt-list tally: 17 of 25 struck this session (#1, #2, #3, #4, #5, #6, #9, #10, #12, #13,
 #14(partial), #15, #16(partial), #17, #19, #20, #24).
+
+## Hunt-item #21 PARTIAL LANDED 2026-07-04 22:3xZ, commit 7d12a97
+grep confirmed zero references to QUEUE.md anywhere in conduct-cycle.mjs, despite STATE.md
+telling every conductor "the script reads everything you need." The original hunt evidence
+(GAP-HUNT-2026-07-03.json) named 5 specific deferred prose obligations that existed ONLY as
+QUEUE.md text with judgment-evaluated triggers, invisible to the mechanical sweep: (1) a
+lane-end catalog-restore plan, (2) the AIMLAPI key-rotation end-gate, (3) gemma4:31b CUDA
+occurrence-counting ("nothing counts them" -- this session's own gemma work did this by hand,
+manually, all night), (4) a never-constructed catalog-expansion follow-up mission, (5) the
+GAP-LIST-DRY outcome push (this session's own STATE.md GAP SCOREBOARD is the closest thing to
+a fix for this specific one).
+Did NOT build a full conditions registry -- parsing arbitrary prose triggers and knowing
+WHETHER each has actually fired is a real design project (a Test-Path check for one
+obligation, an occurrence-counter for another, a "has X landed" check for a third -- no single
+mechanism covers all 5, let alone future ones). Did NOT make this a blocking action either --
+an UNPARKS condition being PRESENT doesn't mean its trigger has FIRED; forcing every beat to
+treat every one as required-action noise would manufacture exactly the alarm fatigue this
+session has been careful to avoid.
+Landed the literal, narrow fix: sweep() now reads QUEUE.md and reports a count of UNPARKS
+occurrences (2 currently: moderation-API E:\ drive access, AIMLAPI key rotation) -- report-only,
+so "nothing needed from you" still only prints when genuinely nothing is required, but the
+sweep is no longer BLIND to their existence. conduct-cycle.mjs --selftest ALL PASS (3 new
+fixtures: no QUEUE.md -> no line, 2 UNPARKS -> counted verbatim, never becomes a blocking
+action). No reload needed -- sweep() is CLI-invoked fresh each beat, never imported by the
+running daemon.
+Hunt-list tally: 18 of 25 struck this session (#1, #2, #3, #4, #5, #6, #9, #10, #12, #13,
+#14(partial), #15, #16(partial), #17, #19, #20, #21(partial), #24).
