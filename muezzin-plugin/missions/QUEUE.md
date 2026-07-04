@@ -1399,3 +1399,46 @@ which model authored it. This is very likely why several OTHER missions in tonig
 CHAIN-STREAK also failed on "truncated mid-function" wording (mt-mobile-qc-hardening
 included) -- worth checking those files' sizes against this same math as a follow-up, not
 re-litigated here.
+
+## GAP #10 CORRECTION 2026-07-04 07:1xZ -- ARM 1 (num_gpu=56 partial offload) was NOT actually
+## engaging on the live model; a fresh CUDA crash proved it, found and fixed live
+A live gemma4:31b crash happened DURING this beat: dispatch-heartbeat.log,
+`13:17:18Z dispatch-FAILED role=architect model=gemma4:31b kind=HTTP_500 ... CUDA error: an
+illegal memory access`. Investigated immediately since the operator had just been told (this
+session, minutes earlier) that ARM 1 + the VRAM-admission guard together should prevent this.
+The admission guard was NOT the applicable defense here -- no "gemma-vram-admission" hold
+line fired, meaning wouldOversubscribe() found nothing else resident (no two-model
+contention this time). So this crash falsifies the OTHER half of the stacked mitigation:
+ARM 1's num_gpu=56 partial-offload.
+
+VERIFIED DIRECTLY (Invoke-RestMethod /api/ps + nvidia-smi, both live, not memory): the
+resident gemma4:31b instance showed `size_vram === size` byte-for-byte -- fully GPU-resident,
+NOT partial-offloaded -- and nvidia-smi confirmed the card at 23253/24564 MiB used (96%,
+886MiB free). This is exactly the "barely fits, zero headroom for KV-cache growth" crash
+mechanism documented 2026-07-03, and it was live despite num_gpu:56 being correctly coded
+into MODEL_OPTIONS (confirmed: applyModelOptions() IS called unconditionally inside
+attemptProvider() for every dispatch through dispatchWithWaterfall, `role` is a log label
+only and does not bypass it).
+
+ROOT CAUSE: num_gpu is a LOAD-TIME setting. If a model is already resident (loaded earlier,
+before this option was ever correctly applied, or from any call that didn't carry it), later
+calls carrying `options.num_gpu` do NOT retroactively change its VRAM footprint -- Ollama
+does not hot-reconfigure an already-loaded model. Gemma had been sitting loaded in the
+stale, fully-GPU-resident configuration this whole time.
+
+FIX APPLIED LIVE (administrative, not code): evicted gemma4:31b via
+`api/generate {model, keep_alive:0}` (confirmed `done_reason: unload`, `/api/ps` empty),
+then forced a fresh load with `options.num_gpu:56` explicit. Result, verified: `/api/ps` now
+shows `size_vram` (18.1GB) meaningfully LESS than `size` (21.1GB) -- ~3GB genuinely offloaded
+to system RAM this time. nvidia-smi confirms real headroom: 20220/24564 MiB used, 3919MiB
+free (was 886MiB free pre-fix). This is the FIRST TIME ARM 1 has been confirmed actually
+working as designed, not just present in the code.
+
+STANDING RISK NOT YET CLOSED: nothing currently forces a periodic re-check that gemma is
+loaded with the correct options -- if it's ever evicted and reloaded by a path that doesn't
+carry the num_gpu overlay (or Ollama itself changes eviction/reload behavior), it can drift
+back into the stale fully-resident state silently, with no log signal, until the next crash.
+Worth a follow-up: a periodic /api/ps size_vram-vs-size check (reuse psProbe) that force-
+evicts and warns if gemma is found fully-resident, rather than waiting for a crash to notice.
+Gap #10 still NOT struck -- this correction resets the crash-free census clock to
+2026-07-04T07:2xZ (this fix), not the earlier 00:30Z reload.
