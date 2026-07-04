@@ -329,6 +329,49 @@ export function checkCgFreshness(now = Date.now()) {
   } catch { return { ok: false }; }
 }
 
+// mt-model-audit-fn — pure grouping-by-digest classifier. A multi-name group sharing one
+// digest is benign ONLY when every name's substring before its first colon (the :tag) is
+// identical (the ordinary :latest-vs-versioned-tag pattern for the SAME model); any other
+// multi-name group is two or more DIFFERENT declared models pointing at one digest — a
+// naming-fraud candidate per STATE.md's promoted rule (verify against model_rijal.mjs).
+export function auditModelIdentities(models) {
+  const byDigest = {};
+  for (const m of (models || [])) {
+    if (!m || !m.digest || !m.name) continue;
+    (byDigest[m.digest] ||= []).push(m.name);
+  }
+  const fraudGroups = [], benignGroups = [];
+  for (const [digest, names] of Object.entries(byDigest)) {
+    if (names.length < 2) continue;
+    const bases = new Set(names.map((n) => String(n).split(':')[0]));
+    (bases.size === 1 ? benignGroups : fraudGroups).push({ digest, names });
+  }
+  return { fraudGroups, benignGroups };
+}
+
+// nxtbeast /api/tags fetch — same host/timeout pattern as checkSearxngSight above (curl with
+// a bounded timeout, tried across the same candidate hosts). Advisory-only: any failure here
+// returns null and the sweep skips the audit silently rather than crashing.
+function fetchModelTags({ probe } = {}) {
+  try {
+    const urls = [];
+    if (process.env.OLLAMA_URL) urls.push(process.env.OLLAMA_URL.replace(/\/+$/, ''));
+    urls.push('http://localhost:11434');
+    urls.push('http://100.103.44.13:11434');
+    urls.push('http://nxtbeast:11434');
+    for (const base of urls) {
+      try {
+        const body = probe ? probe() : _execSyncSight(`curl -s -m 8 "${base}/api/tags"`, { timeout: 10000, stdio: ['ignore', 'pipe', 'pipe'] }).toString();
+        if (body && body.trim()) {
+          const j = JSON.parse(body);
+          if (Array.isArray(j?.models)) return j.models;
+        }
+      } catch { /* try next host */ }
+    }
+    return null;
+  } catch { return null; }
+}
+
 // WORKTREE-HEAL (succession build 2026-07-02): the shared muddytires code-repo worktree
 // gets left dirty/unmerged by a failed or interrupted cherry-pick, and then EVERY later
 // code-repo mission fails its clean-worktree preflight ("map.html is unmerged"). Hand-fixed
@@ -721,6 +764,20 @@ export function sweep(base = HERE, now = Date.now(), routeFile = path.join(proce
       });
     }
   } catch { /* advisory — never breaks the sweep */ }
+
+  // MODEL IDENTITY AUDIT (mt-model-audit-fn wiring): STATE.md's promoted rule — a model
+  // alias sharing a digest with a DIFFERENTLY-named model is a fraud candidate; only the
+  // :latest-tag pattern (identical base name before the first colon) is benign. Fetch
+  // failure is a silent skip (advisory-only, never crashes the sweep).
+  try {
+    const models = fetchModelTags();
+    if (models) {
+      const { fraudGroups } = auditModelIdentities(models);
+      for (const g of fraudGroups) {
+        report.push(`FLAG: model identity fraud candidate — aliased names [${g.names.join(', ')}] share digest ${String(g.digest).slice(0, 19)} — verify against model_rijal.mjs before trusting any name in this group (STATE.md promoted rule)`);
+      }
+    }
+  } catch { /* advisory only — never break the sweep */ }
 
   // LOOP-CAP detection: a mission stem that appears LOOP_CAP_REPEATS or more times
   // across all AUTORUN statuses is a quota-burn loop and must be mechanically capped.
@@ -1478,6 +1535,23 @@ function selftest() {
   ck(lc.length === 1 && lc[0].stem === 'loop' && lc[0].count === 3, 'detectLoopCaps caps a stem appearing LOOP_CAP_REPEATS times');
   const lc2 = detectLoopCaps(parseAutorun('DONE missions/once.mission.txt\nFAILED missions/twice.mission.txt\n'));
   ck(lc2.length === 0, 'detectLoopCaps ignores stems below cap');
+
+  // fixture 1i3: MODEL IDENTITY AUDIT (mt-model-audit-fn) — digest-grouped fraud vs benign,
+  // synthetic 5-model array built via runtime concatenation (never a typed-out literal).
+  {
+    const base1 = 'qwen3' + '-coder', base2 = 'gemma' + '4', base3 = 'phi' + '5', base4 = 'mistral' + '-nemo';
+    const synthModels = [
+      { name: base1 + ':' + 'latest', digest: 'sha256:' + 'a'.repeat(64) },
+      { name: base1 + ':' + '32b', digest: 'sha256:' + 'a'.repeat(64) },
+      { name: base2 + ':' + '31b', digest: 'sha256:' + 'b'.repeat(64) },
+      { name: base3 + ':' + '14b', digest: 'sha256:' + 'b'.repeat(64) },
+      { name: base4 + ':' + '12b', digest: 'sha256:' + 'c'.repeat(64) },
+    ];
+    const audit = auditModelIdentities(synthModels);
+    ck(audit.fraudGroups.length === 1 && audit.fraudGroups[0].names.length === 2, 'model-identity: exactly one fraud group detected (shared digest, differing base names)');
+    ck(audit.benignGroups.length === 1 && audit.benignGroups[0].names.every((n) => n.startsWith(base1 + ':')), 'model-identity: :latest-tag pattern group is benign, not flagged as fraud');
+    ck(!audit.fraudGroups.some((g) => g.names.some((n) => n.startsWith(base1 + ':'))), 'model-identity: the benign group never leaks into fraudGroups');
+  }
 
   // fixture 1w: WORKTREE-HEAL (succession build) — detection + sweep action + heal performer,
   // gitFn/exec injected so no real repo or git is touched.
