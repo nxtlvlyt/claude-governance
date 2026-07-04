@@ -1442,3 +1442,22 @@ Worth a follow-up: a periodic /api/ps size_vram-vs-size check (reuse psProbe) th
 evicts and warns if gemma is found fully-resident, rather than waiting for a crash to notice.
 Gap #10 still NOT struck -- this correction resets the crash-free census clock to
 2026-07-04T07:2xZ (this fix), not the earlier 00:30Z reload.
+
+## ARM 3 (bigger quant) TESTED LIVE 2026-07-04 07:5xZ -- confirms the operator's hypothesis,
+## and it's structurally MORE robust than ARM 1
+Operator, building on something Fable said (num_ctx tricking Ollama's own fit-estimate into
+auto-splitting), asked whether a bigger quant would do the same thing. Pulled
+gemma4:31b-it-q8_0 (34GB, was not previously on nxtbeast) and tested live rather than
+theorize: `/api/ps` after a fresh load showed `size` 35601524979 vs `size_vram` 21882816429
+-- ~13.7GB automatically pushed to system RAM, zero explicit num_gpu override needed.
+nvidia-smi confirmed real headroom: 18966/24564 MiB used, 5173MiB free -- BETTER margin than
+ARM 1's num_gpu:56 partial-offload currently gives (3919MB free), and obtained for free
+because the file is unambiguously too big for the card, not because any option was correctly
+threaded through every dispatch path. This is exactly the robustness gap ARM 1 just proved
+it has (num_gpu silently not sticking on an already-loaded instance, found this same beat-
+window) -- a bigger quant can't have that failure mode, since there's no option to skip.
+Test model evicted after (keep_alive:0, confirmed /api/ps empty) so it doesn't sit on shared
+VRAM. NOT yet adopted as the standing config -- q8_0 costs real generation speed (more of the
+model on CPU) and this was one clean load-test, not a crash census. If ARM 1's staleness
+keeps recurring despite the fix, ARM 3 is the next real candidate, with actual numbers behind
+it now instead of a theory.
