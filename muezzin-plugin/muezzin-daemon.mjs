@@ -699,17 +699,8 @@ export function retroRepeatBlocked(stem, retroDir, missionMtimeMs,
   return { blocked: true, count: fails.length, newest: new Date(newestMs).toISOString() };
 }
 
-export function queuedDepsHold(missionText, missionPath, autorunText, resultOkFn, opts = {}) {
+export function queuedDepsHold(missionText, missionPath, autorunText, resultOkFn) {
   const txt = String(missionText || '');
-  // mt-c2a-queueddeps: injectable landed-state prober + logger. The defaults call the real
-  // missionLandedState (imported above) with a real gitFn and route logging through the
-  // daemon evt; the selftest injects both so it runs offline. Purpose: a RESOLVED stamp must
-  // never retire a mission whose work did not actually land (dispute), while an
-  // undeterminable verdict fails open and honors the stamp exactly as before.
-  const landedState = opts.landedState || ((mtext) => {
-    try { return missionLandedState(mtext, (repo, argstr) => { try { return { ok: true, out: execSync(`git -C "${repo}" ${argstr}`, { stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 16 * 1024 * 1024 }).toString() }; } catch { return { ok: false, out: '' }; } }); } catch { return null; }
-  });
-  const evtFn = opts.evt || evt;
   // SELF-RESOLVED CHECK (2026-07-02, d1-migrations resurrection loop): a conductor-RESOLVED
   // mission must never refire — but graceful reloads interrupt in-flight attempts, and the
   // boot-time RUNNING->pending revert resurrected a mission whose PENDING line was already
@@ -719,16 +710,7 @@ export function queuedDepsHold(missionText, missionPath, autorunText, resultOkFn
   // exact inversion bug conduct-cycle.mjs's closed() was \b-fixed for on 2026-07-02 —
   // this daemon's twin regex was left out of that fix).
   if (new RegExp(`^#.*\\bRESOLVED\\b.*${selfEsc}`, 'm').test(autorunText)) {
-    // mt-c2a-queueddeps: dispute the RESOLVED stamp against the repo BEFORE honoring it. A
-    // GENUINE verdict (nothing landed at HEAD) DISPUTES the stamp — log STAMP-DISPUTED and
-    // keep the mission live (fall through, never retire). FULL/PARTIAL honor the stamp; a
-    // null/undeterminable verdict FAILS OPEN and honors the stamp exactly as before.
-    const st = landedState(txt);
-    if (st && st.verdict === 'GENUINE') {
-      evtFn(`STAMP-DISPUTED: ${missionPath} — RESOLVED stamp claims work landed but missionLandedState verdict=GENUINE (nothing at HEAD); keeping mission live, not retiring`);
-    } else {
-      return { hold: true, resolvedSelf: true, dep: missionPath, why: 'mission itself is conductor-RESOLVED in AUTORUN — retired from firing (work landed)' };
-    }
+    return { hold: true, resolvedSelf: true, dep: missionPath, why: 'mission itself is conductor-RESOLVED in AUTORUN — retired from firing (work landed)' };
   }
   const deps = new Set();
   // (a) explicit mission-file list
@@ -1757,36 +1739,6 @@ if (process.argv.includes('--selftest')) {
     const resolvedDepNote = '# ' + 'RESOLVED' + ' — landed: ' + depPath;
     ck(queuedDepsHold(reqText, childPath, unresolvedDepNote, () => false).hold === true, 'mt-c1-boundary(dep): an UNRESOLVED-noted dependency comment must NOT satisfy the dependency check — stays held');
     ck(queuedDepsHold(reqText, childPath, resolvedDepNote, () => false).hold === false, 'mt-c1-boundary(dep): an explicit RESOLVED-noted dependency comment satisfies the dependency check');
-  }
-
-  // ---- mt-c2a-queueddeps: RESOLVED-stamp dispute via missionLandedState ----
-  // Before honoring a self-RESOLVED stamp, queuedDepsHold probes the repo landed-state.
-  // A GENUINE verdict disputes the stamp (mission kept live); a null verdict fails open
-  // and honors the stamp as before. Fixture strings that look retro/timestamp-like are
-  // built by runtime concatenation of variables, never typed as a single literal.
-  {
-    const yr = '2026', mo = '07', dy = '04';
-    const tsish = yr + '-' + mo + '-' + dy + 'T00:00:00Z';
-    const stem = ['q', 'c2a', 'stamp'].join('-');
-    const selfPath = 'missions/' + stem + '.mission.txt';
-    const kw = 'RESOL' + 'VED';
-    const resolvedNote = '# ' + kw + ' — landed ' + tsish + ': ' + selfPath;
-    const mtext = 'MISSION-ID: ' + stem;
-    // disputed-stamp-keeps-mission-live: landed-state GENUINE (nothing landed) disputes the
-    // stamp -> STAMP-DISPUTED logged, mission NOT retired (hold === false).
-    {
-      const logs = [];
-      const disputed = queuedDepsHold(mtext, selfPath, resolvedNote, () => false,
-        { landedState: () => ({ verdict: 'GENUINE', srcSha: null, files: {} }), evt: (m) => logs.push(m) });
-      ck(disputed.hold === false && logs.some((l) => /STAMP-DISPUTED/.test(l)), 'disputed-stamp-keeps-mission-live');
-    }
-    // null-verdict-honors-stamp-fail-open: landed-state undeterminable (null) -> fail open,
-    // honor the RESOLVED stamp exactly as before (mission retired: hold + resolvedSelf).
-    {
-      const nullRes = queuedDepsHold(mtext, selfPath, resolvedNote, () => false,
-        { landedState: () => null, evt: () => { } });
-      ck(nullRes.hold === true && nullRes.resolvedSelf === true, 'null-verdict-honors-stamp-fail-open');
-    }
   }
 
   rmSync(tmp, { recursive: true, force: true });
