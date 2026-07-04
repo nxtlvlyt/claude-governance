@@ -389,7 +389,18 @@ the failure reason is genuinely transient by reading the result.json — a missi
 steps create the failing state (email-redaction's incomplete cherry-pick) fails
 deterministically and must have its TEXT amended, never requeued; (c) after any shared-
 worktree failure, check `git status` in `C:\Users\marka\code\mt-integration-2026-06-22`
-live — abandoned cherry-picks and scratch files cascade into every later mission.
+live — abandoned cherry-picks and scratch files cascade into every later mission; (d) A
+FAILED mission does NOT auto-refire on its own once unblocked (2026-07-04 receipt: I wrongly
+assumed it did, then watched 20+ minutes of real idle daemon time confirm it doesn't).
+`readQueue()` (muezzin-daemon.mjs) only treats a BARE AUTORUN line as pending — `statusOf()`
+matching `FAILED `/`DONE `/etc. excludes it. Amending the mission text (mtime bump, split,
+whatever fix) only clears the RETRO-REPEAT gate's OWN check; it does NOT bare the line. The
+actual bare-ing mechanism is `heal()`'s ledger-driven requeue: run
+`node conduct-cycle.mjs --record --class <c> --fix <text> --requeue <bare-stem>` (bare
+stem, not path) to append a fix-ledger entry, THEN `node conduct-cycle.mjs --heal` to
+perform it immediately (`HEAL performed: - requeue <stem>`) rather than waiting up to 5 min
+for the daemon's own auto-heal cadence. Verify with `grep <stem> missions/AUTORUN.md` that
+the line lost its FAILED prefix before assuming it will refire.
 
 **6. Processes cache code.** After committing an engine fix, the running daemon still
 executes the OLD code (receipt: 2 broken splits generated 20 min AFTER the fix was
