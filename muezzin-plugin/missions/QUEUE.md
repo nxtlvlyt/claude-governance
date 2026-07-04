@@ -1480,3 +1480,41 @@ Hunt-list tally: 20 of 25 struck this session (#1, #2, #3, #4, #5, #6, #9, #10, 
 NOT counted as struck: #7 and #8 (genuinely untouched, not yet investigated), #11 and #18
 (investigated this session but not landed -- real design questions, not quick fixes), #22
 (addressed via the STATE.md scoreboard itself, not a separate code fix).
+
+## Hunt-item #7 INVESTIGATED, NOT LANDED 2026-07-04 23:2xZ
+"LANE-EXCLUSION clause (paid for 14:35 today) has zero mechanical enforcement -- nothing stops
+a conductor write into a RUNNING lane's REPO-ROOT." This maps to GAP-CLOSURE-PLAYBOOK UNIT E1
+("LANE-EXCLUSION mechanical guard (hooks): block conductor writes into a RUNNING lane's
+REPO-ROOT unless the heartbeat shows plan-phase"). Checked ~/.claude/hooks/ for an existing
+mechanism first: pre-tool-use-substrate.mjs is the closest-named candidate but is unrelated --
+it gates CLAUDE.md/canon/faiths/practice/hooks-directory edits behind a foreign-frontier
+dispatch requirement, nothing to do with mission REPO-ROOTs or running lanes.
+NOT landed this beat, deliberately -- this is a materially different RISK CLASS than every
+other fix this session. Every other hunt-item fix lived inside ONE project's own .mjs files,
+independently --selftest-verified before commit, with a blast radius scoped to muezzin-plugin
+itself. A NEW PreToolUse hook lives in ~/.claude/hooks/, fires on EVERY Edit/Write/Bash call
+across EVERY future session and EVERY project, and a bug in it (e.g. incorrectly identifying
+"conductor editing muezzin-plugin's own engine code" as "writing into a running lane's
+REPO-ROOT" when it should only fire for the ACTUAL target repo, or a path-normalization bug
+locking out legitimate edits) could break basic file-editing globally, not just leave a gap
+unfixed. That is a categorically higher stakes mistake than anything else landed tonight.
+What the real fix needs: a hook reading missions/_logs/daemon-status.json's live lanes, cross-
+referencing each lane's REPO-ROOT (parsed from the mission's own text) against the edit/write
+target path, and checking the dispatch heartbeat for the receipted plan-phase exception before
+blocking. Left for a dedicated pass with room to test against real lane scenarios, not forced
+into a 15-minute beat.
+
+## Hunt-item #8 INVESTIGATED, PARTIALLY OVERLAPS #24, NOT LANDED 2026-07-04 23:2xZ
+"PRE-FLIGHT RULE says 'before ANY requeue' but the mechanical gate only engages at >=5 FAILED
+retros inside a 24h window and is content-blind." The content-blind half is ALREADY fixed --
+hunt-item #24 (commit 35fa81d, this session) made retroRepeatBlocked's preflight check require
+a matching COVERS: line, not just a fresh mtime. What remains: the mechanical gate (as coded)
+only engages preflight-receipt enforcement at preflightAfter=5 failures, while STATE.md's
+PRE-FLIGHT RULE text says "before ANY requeue" (i.e., every single retry, from the first).
+NOT landed -- the 5-failure threshold is a DELIBERATE, receipted operator decision ("operator
+demand 2026-07-03 ~13:1x after an 8-FAILED-run burn: 'a change in the conductor to be better,
+not hopes and dreams'"), not an arbitrary bug. Lowering it to "every requeue" would require a
+preflight-content receipt on the VERY FIRST retry of every mission -- a real workflow-shape
+change (ceremony on every retry, not just chronic failures) that needs operator confirmation
+of intent, not a same-beat guess at what "ANY" was actually meant to mean in the mechanical
+gate versus the aspirational STATE.md prose. Flagging the gap between the two, not resolving it.
