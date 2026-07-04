@@ -96,6 +96,28 @@ export function filterQuotedMentions(cwd, flagged, { maxFiles = 200, maxBytes = 
   return [...remaining.values()];
 }
 
+// mt-preexisting-content-guard: content that already existed in a target file BEFORE this
+// step's edit (its committed HEAD revision) cannot be a fabrication — the step is quoting or
+// simply preserving real pre-existing code, not inventing anything. filterQuotedMentions above
+// deliberately excludes a step's own target_files from its content scan (a step must never use
+// its BRAND-NEW, uncommitted claim as self-evidence for itself) — but that guard's reach is too
+// wide: it also blinds the checker to legitimate, UNRELATED content that was already sitting in
+// that same file before this edit ever touched it (receipt: a pre-existing selftest fixture a
+// few lines from an unrelated edit target, flagged nine times across three different models
+// because it happens to look like a filename). This is a SEPARATE, narrower exemption: a
+// flagged token survives only if its basename appears in NONE of the supplied pre-edit text
+// blobs (the caller is responsible for sourcing those from each target's committed, pre-edit
+// revision — never the working-tree content the edit just produced, which would defeat the
+// self-reference guard's real purpose). Pure + testable: no fs/git access here.
+export function filterPreExistingContent(flagged, preEditTexts) {
+  if (!flagged?.length || !preEditTexts?.length) return flagged || [];
+  const texts = preEditTexts.map((t) => String(t || '').toLowerCase());
+  return flagged.filter((f) => {
+    const base = String(f).split(/[\\/]/).pop().toLowerCase();
+    return !texts.some((t) => t.includes(base));
+  });
+}
+
 // fs: collect the lowercased basenames of every file the seat could legitimately cite —
 // every file present in the sandbox (recursively, bounded), plus the step's declared
 // context_dependencies and its own target_files. .git is skipped. Bounded so a huge
@@ -198,6 +220,24 @@ if (process.argv[1] && process.argv[1].endsWith('citation_guard.mjs')) {
   // 9. end-to-end: allowed from collector clears a citation to a declared dep
   const allow9 = collectAllowedBasenames('Z:\\nope', { context_dependencies: ['research-notes.md'], target_files: [] });
   eq('collector feeds matcher', findFabricatedCitations('Per `research-notes.md` the finding holds.', allow9), []);
+  // 10. mt-preexisting-content-guard: a token present in a target's PRE-EDIT (HEAD) content is
+  // exempt even though filterQuotedMentions' own scan always excludes target_files; a token the
+  // edit introduces fresh, matching no pre-edit text, still flags.
+  {
+    const preexistingName = 'fixture-' + ['20', '26', '01', '01'].join('-') + '.md';
+    const invented = 'ghost-invented-name.md';
+    const preEditTexts = ['// test data: const three = [`' + preexistingName + '`];'];
+    const flagged10 = [preexistingName, invented];
+    eq('preexisting content exempt, fresh invention still flags',
+      filterPreExistingContent(flagged10, preEditTexts),
+      [invented]);
+    eq('no preEditTexts supplied -> passthrough unchanged',
+      filterPreExistingContent(flagged10, []),
+      flagged10);
+    eq('empty flagged list -> empty, never throws',
+      filterPreExistingContent([], preEditTexts),
+      []);
+  }
   console.log(`\n${pass} passed, ${fail} failed`);
   process.exit(fail ? 1 : 0);
 }

@@ -16,7 +16,7 @@ import { commitStep, rollbackStep, ensureSandboxRepo, assertRepoRoot, assertClea
 import { makeRepairFn } from './repair.mjs';
 import { parseMissionClass } from './mission_class.mjs';
 import { checkReceiptIntegrity } from './integrity_guard.mjs';
-import { findFabricatedCitations, collectAllowedBasenames, filterQuotedMentions } from './citation_guard.mjs';
+import { findFabricatedCitations, collectAllowedBasenames, filterQuotedMentions, filterPreExistingContent } from './citation_guard.mjs';
 import { checkGroundedness } from './guardian_guard.mjs';
 import { findFabricatedAbsenceClaims, recordSeatOutcome } from './seat_record.mjs';
 import { searxngPreflight } from './searxng_preflight.mjs';
@@ -1171,16 +1171,31 @@ export async function orchestrate(mission, cwd, {
     // (command-only, no target) steps already skipped above.
     if (step.action_type === 'edit' && cur && maxRepairs >= 0) {
       const allowed = collectAllowedBasenames(writeRoot, step);
+      // mt-preexisting-content-guard: filterQuotedMentions (below) deliberately excludes the
+      // step's own target_files from its content scan — a step must never use its BRAND-NEW,
+      // uncommitted claim as self-evidence for itself. That guard over-reached: it also blinded
+      // the checker to a target file's OWN pre-existing, unrelated content that was already
+      // real before this edit touched the file (receipt: a pre-existing selftest fixture a few
+      // lines from an edit target, false-flagged nine times across three models because it
+      // happens to look like a filename). Captured ONCE here, before any repair rewrites the
+      // file, from each target's committed HEAD revision — never the working-tree content this
+      // edit just produced, which would defeat the self-reference guard's real purpose. A
+      // target with no HEAD revision (new/untracked) simply contributes no pre-edit text.
+      const preEditTexts = (step.target_files || []).map((t) => {
+        try {
+          return execSync(`git show HEAD:"${String(t).replace(/\\/g, '/')}"`, { cwd: writeRoot, stdio: ['ignore', 'pipe', 'pipe'] }).toString();
+        } catch { return ''; }
+      });
       // quoted-mention second pass (census class): a name present inside a file the seat
       // HAD is a reported mention, not a fabricated cite. The artifact itself is excluded
       // so it can never self-exempt.
-      let fabricated = filterQuotedMentions(writeRoot, findFabricatedCitations(cur, allowed), { exclude: step.target_files || [] });
+      let fabricated = filterPreExistingContent(filterQuotedMentions(writeRoot, findFabricatedCitations(cur, allowed), { exclude: step.target_files || [] }), preEditTexts);
       let citeRep = 0;
       while (fabricated.length && citeRep < maxRepairs) {
         citeRep++;
         emit({ phase: 'step', event: 'citation-flag', step: step.step_index, attempt: citeRep, fabricated: fabricated.slice(0, 8) });
         await tierRepairFn(step, { ok: false, out: 'FABRICATED CITATIONS — you referenced files that do not exist in your sandbox or declared inputs: ' + fabricated.join(', ') + '. Cite ONLY files you actually have; remove or replace these.' });
-        fabricated = filterQuotedMentions(writeRoot, findFabricatedCitations(readTarget(target), collectAllowedBasenames(writeRoot, step)), { exclude: step.target_files || [] });
+        fabricated = filterPreExistingContent(filterQuotedMentions(writeRoot, findFabricatedCitations(readTarget(target), collectAllowedBasenames(writeRoot, step)), { exclude: step.target_files || [] }), preEditTexts);
       }
       if (fabricated.length) {
         recEmission('fabrication');                        // badal feed: invented citations strike the emission seat x3

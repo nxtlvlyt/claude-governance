@@ -1212,3 +1212,23 @@ DISPOSITION: engine-truth-of-record.S1 stays live this beat (mid-dispatch, not k
 it next reaches terminal FAILED, do NOT requeue with another text change — author and land
 the citation_guard.mjs fix first (separate mission, since this repo has a live lane right now
 and citation_guard.mjs is outside the current lane's ALLOW-FILES — lane-exclusion applies).
+
+## 2026-07-04T02:2x — SELF-INFLICTED REPO CORRUPTION, FOUND + FIXED SAME BEAT + REAL FIX LANDED
+While attempting to land the citation-guard fix faster (via `git worktree add`, to avoid
+waiting for the live lane), the command flipped `core.bare=true` on the MAIN repo's git
+config -- a metadata flag only, zero data loss, but it made the daemon see the repo as
+"not inside a git repository," causing BOTH engine-model-identity-audit and
+engine-citation-guard-preexisting-content to fail with REPO-ROOT-invalid. Caught via the
+operator's phone screenshot (push notifications naming the exact error) within the same
+beat. Fix: `git config core.bare false` -- instant, safe, verified (git status/log clean
+immediately after, all working-tree files intact). The worktree itself also got
+contaminated separately (a stray "baseline" test commit appeared, likely from an
+orchestrate.mjs selftest's temp-repo fixture operating on the real worktree dir instead of
+an isolated tmp dir -- not fully root-caused, not urgent since the worktree was discarded).
+RESOLUTION: verified file contents extracted from the worktree, worktree discarded
+(`git worktree remove --force`), the SAME fix re-applied directly to the (now-healthy) main
+repo, fully re-verified there (18/18 citation_guard selftests + full orchestrate ALL PASS +
+muezzin-gate hook PASS), committed 8bb26b7. engine-truth-of-record.S1 requeued to test it
+for real. LESSON: git worktree operations on this specific repo/git-version combination are
+NOT safe to treat as risk-free isolation -- verify `git worktree list` shows the main repo
+correctly (not "(bare)") immediately after any worktree add, before trusting it.
