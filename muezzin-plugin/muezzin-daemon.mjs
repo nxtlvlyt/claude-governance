@@ -803,7 +803,7 @@ function doneMissionIds(autorunText, missionsDir, readText) {
 // hold. Ordering: files are considered in the order given (the caller sorts them — by the
 // OPERATOR PRIORITY ORDER when it can, else lexical), and the FIRST ready one wins. Minimal
 // + safe: one promotion per call, so the daemon re-reads truth before the next.
-function pickPromotion(autorunText, missionFiles, missionsDir, readText, ledgerText = '') {
+function pickPromotion(autorunText, missionFiles, missionsDir, readText, ledgerText = '', gitFn = (repo, argstr) => { try { return { ok: true, out: execSync(`git -C "${repo}" ${argstr}`, { stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 16 * 1024 * 1024 }).toString() }; } catch { return { ok: false, out: '' }; } }) {
   const doneIds = doneMissionIds(autorunText, missionsDir, readText);
   // TERMINAL GUARD (spam-loop root fix): a FAILED-x2 / DONE / SPLIT mission — recorded in
   // AUTORUN status lines OR the persistent MISSION-LEDGER.md — is DEAD and must never be
@@ -831,6 +831,18 @@ function pickPromotion(autorunText, missionFiles, missionsDir, readText, ledgerT
     try { txt = readText(path.isAbsolute(f) ? f : path.join(missionsDir, f)); } catch { continue; }
     const gate = promotionHold(txt, doneIds);
     if (gate.hold) continue;                                    // held/blocked/unsatisfied-deps — SKIP
+    // mt-c2b-pickpromotion: verify the candidate's landed-state before promoting it.
+    // Reuses the missionLandedState import already present (conduct-cycle.mjs) — no
+    // re-import/reimplementation. A DISPUTED verdict (GENUINE) excludes the candidate
+    // from promotion with a logged STAMP-DISPUTED receipt; a null (undeterminable —
+    // not code-repo class / no REPO-ROOT/ALLOW-FILES) verdict fails OPEN, promoting the
+    // candidate exactly as before this check existed.
+    let landed = null;
+    try { landed = missionLandedState(txt, gitFn); } catch { landed = null; }
+    if (landed && landed.verdict === 'GENUINE') {
+      evt(`STAMP-DISPUTED: ${rel} — missionLandedState verdict is GENUINE (disputed); excluding from auto-promotion`);
+      continue;
+    }
     return { rel, file: f };
   }
   return null;
@@ -1679,6 +1691,26 @@ if (process.argv.includes('--selftest')) {
     const parkedIds = terminalMissionIds('# q\nPARKED missions/baz.mission.txt  <!-- ts -->', '');
     ck(parkedIds.has('missions/baz.mission.txt'), 'BUG 3: terminalMissionIds stores a PARKED line by FULL PATH (the bug-2 form)');
     ck(parkedIds.has('baz'), 'BUG 3: terminalMissionIds also stores a PARKED line by bare stem (back-compat alias)');
+
+    // mt-c2b-pickpromotion: a candidate whose missionLandedState verdict is DISPUTED
+    // (GENUINE — nothing landed at HEAD) is excluded from promotion with a logged
+    // STAMP-DISPUTED receipt; the next ready candidate is picked instead.
+    const disputedDisk = {
+      'missions/disputed.mission.txt': [
+        'MISSION-ID: DQ',
+        'MISSION-CLASS: code-repo',
+        'REPO-ROOT: ' + ['C:', 'fake', 'repo'].join('/'),
+        '  - ' + ['some', 'file.mjs'].join('/'),
+      ].join('\n'),
+      'missions/plain-ready.mission.txt': 'MISSION-ID: PR\nREQUIRES: none\nMaqsad: plain ready one',
+    };
+    const disputedFiles = ['disputed.mission.txt', 'plain-ready.mission.txt'];
+    const disputedRead = (p) => { const rel = 'missions/' + p.split(/[\\/]/).pop(); if (rel in disputedDisk) return disputedDisk[rel]; throw new Error('ENOENT'); };
+    const absentGit = () => ({ ok: true, out: '' });   // repo absent -> ALLOW-FILES not at HEAD -> GENUINE (disputed)
+    const pickDisputed = pickPromotion('# q', disputedFiles, '/fake/missions', disputedRead, '', absentGit);
+    ck(pickDisputed && pickDisputed.file === 'plain-ready.mission.txt', 'mt-c2b-pickpromotion: a DISPUTED-stamp candidate is excluded from promotion; the plain ready candidate is picked instead');
+    const pickDisputedOnly = pickPromotion('# q', ['disputed.mission.txt'], '/fake/missions', disputedRead, '', absentGit);
+    ck(pickDisputedOnly === null, 'mt-c2b-pickpromotion: a DISPUTED-stamp candidate as the ONLY candidate => null (never promoted)');
   }
 
   // ──────────────────────────────────────────────────────────────────────────
