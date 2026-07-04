@@ -15,7 +15,7 @@ import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { validateVerdictContract, VERDICTS } from './verdict_merge.mjs';
 import { dispatchAgy, agyAvailable, resolveAgyModel } from './agy_dispatch.mjs';
-import { psProbe, wouldOversubscribe, isFullyVramResident, lagunaStop } from './self_witness.mjs';
+import { psProbe, wouldOversubscribe, isFullyVramResident, lagunaStop, pollUntilUnloaded } from './self_witness.mjs';
 
 // DISPATCH HEARTBEAT (bug #5, 2026-06-10): two lanes hung 39-46 min SILENT — legal
 // retry math (3 heals x doubling timeouts up to 10 min + waits) was invisible from
@@ -755,11 +755,23 @@ export async function dispatchWithWaterfall(baseBody, { cwd, localOnly = false, 
       // resident. 10GB is comfortably above the small-seat class (ornith/guardian, ~6-9GB)
       // and comfortably below every big local seat this session (17GB+).
       const BIG_MODEL_THRESHOLD_BYTES = 10 * 1024 * 1024 * 1024;
+      // WAIT FOR THE CLEAR, NOT JUST THE REQUEST (2026-07-04 receipt: TWO MORE crashes after
+      // the force-clear fix landed, both within a second of the evict call — lagunaStop()
+      // only waits for Ollama to ACCEPT the keep_alive:0 request, not for the ~17GB to
+      // actually leave VRAM; dispatching immediately after raced the real unload). Use
+      // pollUntilUnloaded (self_witness.mjs, already built+proven for exactly this ordering
+      // in the laguna/guardian witness pair) so the dispatch below only proceeds once /api/ps
+      // actually confirms the model is gone, not once the stop request was merely sent.
       if (stillOversubscribed && lastPs) {
         for (const m of lastPs.models) {
           if (m.name === body.model || m.size_vram < BIG_MODEL_THRESHOLD_BYTES) continue;
-          hb(`gemma-vram-admission: wait budget exhausted, ${m.name} still resident (${(m.size_vram / 1e9).toFixed(1)}GB) — force-evicting it rather than dispatching gemma into contention`);
-          try { await lagunaStop(m.name); } catch { /* best-effort */ }
+          hb(`gemma-vram-admission: wait budget exhausted, ${m.name} still resident (${(m.size_vram / 1e9).toFixed(1)}GB) — force-evicting and waiting for it to actually clear before dispatching gemma`);
+          try {
+            const cleared = await pollUntilUnloaded(m.name, { timeoutMs: 30000 });
+            if (cleared.models.some((x) => x.name === m.name)) {
+              hb(`gemma-vram-admission: ${m.name} still resident after 30s force-clear wait — proceeding anyway (fail-open, never hang the seat)`);
+            }
+          } catch { /* best-effort */ }
         }
       }
       // STALE-LOAD SELF-CHECK (2026-07-04 receipt: gemma crashed a THIRD time the same

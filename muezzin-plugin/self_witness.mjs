@@ -300,7 +300,12 @@ export function wouldOversubscribe(ps, modelName, needBytes, { ceiling = GPU_VRA
 // poll /api/ps until a named model is NO LONGER resident (used after laguna, before
 // guardian, so the 33B unloads and the 8B has room). Bounded; returns the final ps summary.
 // fail-soft: a probe throw ends the poll (we proceed; never hang the gate on a flaky probe).
-async function pollUntilUnloaded(modelName, { probe = psProbe, stop = lagunaStop, timeoutMs = 60000, intervalMs = 2000 } = {}) {
+// EXPORTED 2026-07-04 (gap #10 receipt): seat_dispatch.mjs's force-clear guard called bare
+// lagunaStop() and dispatched immediately after -- lagunaStop only waits for Ollama to ACCEPT
+// the unload request, not for the ~17GB to actually clear VRAM, so gemma could still load
+// into a card that hadn't finished freeing. This was already solved here; it just wasn't
+// reachable from outside this file.
+export async function pollUntilUnloaded(modelName, { probe = psProbe, stop = lagunaStop, timeoutMs = 60000, intervalMs = 2000 } = {}) {
   const deadline = Date.now() + timeoutMs;
   try { await stop(modelName); } catch { /* stop is best-effort; the poll is the real wait */ }
   let ps = { models: [], residentVram: 0 };

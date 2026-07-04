@@ -1020,3 +1020,24 @@ EXPERIMENT ARMS, re-ordered (clear-lane work, crash census is the metric):
   23. [med] Fifth-law escalation condition FIRED today (ungated absence claims, operator-caught) and the named report-linter was neither built nor queued
   24. [med] Preflight-receipt refire gate is mtime-only — a hollow touch of missions/_logs/preflight/<stem>.md opens the gate; nothing binds the receipt to the killing step class
   25. [low] Laguna structural REJECTs with thinking-leak notes are recorded as adjudicable verdicts — the re-ask fires only on NO-verdict replies, so leak-REJECTs pass through (guard
+
+## GAP #10 gemma CUDA -- STATUS 2026-07-04, NOT CLOSED, live count 6 crashes tonight
+Not fixed yet -- honest count, checked from dispatch-heartbeat.log directly rather than
+assumed. Four distinct mechanisms found and fixed in sequence, each real and each holding
+once found, but each new fix has been followed by a NEW crash via a mechanism the previous
+fix didn't cover:
+1. Two big models resident at once (contention) -> admission guard (wait for the other lane).
+2. gemma itself stuck fully-VRAM-resident from a stale load (num_gpu never applied) ->
+   self-check + force-reload before dispatch.
+3. Admission guard's wait budget exhausting while the OTHER model was still resident ->
+   force-evict the contender instead of dispatching into it.
+4. Just found and fixed: the force-evict in #3 only waited for Ollama to ACCEPT the stop
+   request, not for the ~17GB to actually leave VRAM -- two more crashes landed within ~1s
+   of the evict firing. Fixed by using the already-built (but not exported)
+   pollUntilUnloaded() instead of bare lagunaStop(), so dispatch now waits for /api/ps to
+   confirm the model is actually gone.
+Reload requested for fix #4; not yet confirmed live against a real crash attempt. Do not
+report this gap as closed until a live census shows a clean multi-hour window with gemma
+dispatches actually occurring under fix #4 -- the pattern so far is "fixed the mechanism in
+front of me, a different one surfaces," which is a real reason for caution before declaring
+victory on the next clean stretch.
