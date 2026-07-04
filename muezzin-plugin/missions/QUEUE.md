@@ -1078,3 +1078,19 @@ beyond dispatch-heartbeat.log's visibility, out of scope for a 15-min beat). Hon
 gap #10 is NOT closed, NOT trending closed -- the crash surfaces regardless of whether
 contention is present. Do not report further clean dispatches as progress without also
 checking for crashes in the same window.
+
+## UNIT D1 (GAP-CLOSURE-PLAYBOOK) LANDED 2026-07-04 18:3xZ, commit 831dead
+self_witness.mjs's buildLagunaPrompt had the SAME truncation-class caps as the two already
+fixed this session (orchestrate.mjs defaultWitness, guardian_guard.mjs buildGuardianPrompt):
+maxArt/maxCtx were 9000/7000 chars, AND lagunaDispatch's actual /api/chat call never set
+num_ctx at all (worse than guardian's original 4096 -- no override means Ollama's undocumented
+default, likely 2048-4096). Verified the REAL dispatched model first per honest-name
+discipline: checkStructure defaults to ornith9bDispatch, not LAGUNA_MODEL, despite the
+function names -- /api/show confirms ornith:9b's native context is 262144 tokens. Raised
+maxArt/maxCtx to 36000/24000 chars and added explicit num_ctx:16384 to lagunaDispatch (same
+shared-VRAM-caution proportion as guardian's 16384, not maxed to 262144). self_witness.mjs
+--selftest 67/67 PASS, orchestrate.mjs --selftest ALL PASS. Reload requested at a clean idle
+window (no lane running). This likely explains some fraction of past laguna/ornith structural
+REJECTs on longer mission specs -- same class as the witness-cap bug that unblocked
+engine-truth-of-record.S1 earlier today -- but that is a hypothesis, not yet receipted; watch
+for a drop in structural REJECT-then-overturned rate on long artifacts, don't assert it.

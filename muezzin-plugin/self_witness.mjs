@@ -146,7 +146,16 @@ export function sanitizeWitnessContent(raw) {
 
 // PURE: bounded laguna prompt. The verdict does not need the whole artifact, and a huge
 // prompt risks the model's context (same discipline as buildGuardianPrompt).
-export function buildLagunaPrompt(artifactText, contextText, { maxArt = 9000, maxCtx = 7000 } = {}) {
+// Caps raised 9000/7000 -> 36000/24000 chars (GAP-CLOSURE-PLAYBOOK UNIT D1, 2026-07-04):
+// this is the SAME truncation-class bug already fixed twice this session (orchestrate.mjs's
+// defaultWitness 48000->180000; guardian_guard.mjs's buildGuardianPrompt 8000->24000) --
+// the actual dispatched model (checkStructure's default `dispatch = ornith9bDispatch`, NOT
+// LAGUNA_MODEL despite the function's name -- honest-name discipline) is ornith:9b, real
+// native context 262144 tokens (/api/show receipt). Chose 16384 for lagunaDispatch's new
+// explicit num_ctx (below) for the same shared-VRAM caution as guardian's 16384, NOT maxed
+// out; 36000+24000=60000 chars (~15000 tokens) leaves headroom for the system prompt (~160
+// tokens) and the num_predict=900 response budget within that window.
+export function buildLagunaPrompt(artifactText, contextText, { maxArt = 36000, maxCtx = 24000 } = {}) {
   const art = String(artifactText ?? '').slice(0, maxArt);
   const ctx = String(contextText ?? '').slice(0, maxCtx) || '(no context provided)';
   return `CONTEXT (cited receipts / source the artifact reasons from):\n${ctx}\n\nARTIFACT (reasoning to review):\n${art}`;
@@ -154,7 +163,7 @@ export function buildLagunaPrompt(artifactText, contextText, { maxArt = 9000, ma
 
 // real local dispatch to laguna-xs.2 (streaming-accumulate, bounded). Throws on transport
 // error; the caller is fail-soft and swallows it. Same transport shape as guardianDispatch.
-export async function lagunaDispatch(system, prompt, { model = LAGUNA_MODEL, num_predict = 900, timeoutMs = 600000 } = {}) {
+export async function lagunaDispatch(system, prompt, { model = LAGUNA_MODEL, num_predict = 900, num_ctx = 16384, timeoutMs = 600000 } = {}) {
   // num_predict raised 200 -> 512 (2026-07-02): at 200 the structural witness (ornith:9b) ran out
   // of tokens mid-reasoning and never emitted its <verdict> tag — receipt: trip-diary-backend
   // SELF-WITNESS[before] REVISE "The analysis is incomplete and cuts off mid-sentence, failing to
@@ -174,7 +183,7 @@ export async function lagunaDispatch(system, prompt, { model = LAGUNA_MODEL, num
       body: JSON.stringify({
         model,
         messages: [{ role: 'system', content: system }, { role: 'user', content: prompt }],
-        stream: true, think: false, options: { num_predict, temperature: 0 },
+        stream: true, think: false, options: { num_predict, num_ctx, temperature: 0 },
       }),
       signal: ctrl.signal,
     });
@@ -589,7 +598,7 @@ if (process.argv[1] && process.argv[1].endsWith('self_witness.mjs') && !process.
   // ---- prompt builder bounded ----
   const lp = buildLagunaPrompt('art body', 'ctx body');
   ck(lp.includes('ARTIFACT (reasoning to review):\nart body') && lp.includes('ctx body'), 'prompt: ARTIFACT + CONTEXT labels present');
-  ck(buildLagunaPrompt('x'.repeat(20000), 'y'.repeat(20000)).length < 17000, 'prompt: bounded (no unbounded blowup)');
+  ck(buildLagunaPrompt('x'.repeat(80000), 'y'.repeat(80000)).length < 61000, 'prompt: bounded (no unbounded blowup)');
 
   // ---- checkStructure fail-soft ----
   const cs = await checkStructure('art', 'ctx', { dispatch: async () => '<verdict>APPROVE</verdict> ok' });
