@@ -14,7 +14,7 @@ ALLOW-FILES:
   - conduct-cycle.mjs
 UNLINKED-OK: engine module edits — no user-facing page
 REQUIRES: engine-truth-of-record.S1.S2.S1 (tartib — this sub-mission may not start until engine-truth-of-record.S1.S2.S1's receipt exists)
-STEPS: 6
+STEPS: 7
 
 Maqsad: UNIT C of GAP-CLOSURE-PLAYBOOK.md, C2 part B of B, plus C3. Evidence in
 missions/_logs/GAP-HUNT-2026-07-03.json (read before editing).
@@ -54,9 +54,10 @@ Steps:
   1. Baseline: record branch + HEAD; print PRESENT/ABSENT for the marker mt-c3-perstem in conduct-cycle.mjs (idempotence anchor; if PRESENT, edit steps are verify-only). Never exit 1 on existence. [command]
   2. C2 part B edit of muezzin-daemon.mjs ONLY, pickPromotion function alone: reuse the missionLandedState import already present from S1.S2.S1 (do not re-import or reimplement it); tag the call site with the literal comment mt-c2b-pickpromotion; on a disputed verdict, log evt('STAMP-DISPUTED: ...') and exclude that mission from promotion; on a null verdict, fail-open (unchanged behavior). Add one selftest fixture: a disputed stamp is not promoted by pickPromotion. Do not touch queuedDepsHold or conduct-cycle.mjs in this step. [edit] muezzin-daemon.mjs
   3. C3 edit of conduct-cycle.mjs ONLY: per-stem requeue tracking with transparent legacy migration per the Maqsad contract, tagged mt-c3-perstem at the migration site; three fixtures (migration, partial, full). Do not touch muezzin-daemon.mjs in this step. [edit] conduct-cycle.mjs
-  4. Verify: Select-String receipts for mt-c2b-pickpromotion and mt-c3-perstem; node --check both files. [verify]
-  5. git commit both ALLOW-FILES by explicit name naming this mission + the playbook UNIT C + the C2/C3 hunt items; idempotent no-op if already committed (ALREADY_COMMITTED + exit 0 when clean and HEAD carries both markers). [command]
-  6. OUTCOME CHECK: run node muezzin-daemon.mjs --selftest AND node conduct-cycle.mjs --selftest as a multi-line block; the step receipt MUST show BOTH suites ending ALL PASS, including every new fixture name from this mission AND from engine-truth-of-record.S1.S1 and engine-truth-of-record.S1.S2.S1 (UNRESOLVED does NOT close / disputed stamp keeps mission live / null verdict honors stamp / disputed stamp not promoted / partial requeue leaves second stem live). A missing fixture name or any FAIL line fails this step. [command]
+  4. Verify muezzin-daemon.mjs ONLY: Select-String receipt for mt-c2b-pickpromotion; node --check muezzin-daemon.mjs. [verify] muezzin-daemon.mjs
+  5. Verify conduct-cycle.mjs ONLY: Select-String receipt for mt-c3-perstem; node --check conduct-cycle.mjs. [verify] conduct-cycle.mjs
+  6. git commit both ALLOW-FILES by explicit name naming this mission + the playbook UNIT C + the C2/C3 hunt items; idempotent no-op if already committed (ALREADY_COMMITTED + exit 0 when clean and HEAD carries both markers). [command]
+  7. OUTCOME CHECK: run node muezzin-daemon.mjs --selftest AND node conduct-cycle.mjs --selftest as a multi-line block; the step receipt MUST show BOTH suites ending ALL PASS, including every new fixture name from this mission AND from engine-truth-of-record.S1.S1 and engine-truth-of-record.S1.S2.S1 (UNRESOLVED does NOT close / disputed stamp keeps mission live / null verdict honors stamp / disputed stamp not promoted / partial requeue leaves second stem live). A missing fixture name or any FAIL line fails this step. [command]
 
 Done means: both files committed at HEAD carrying mt-c1-boundary, mt-c2a-queueddeps,
 mt-c2b-pickpromotion, and mt-c3-perstem; both selftest suites ALL PASS with every new
