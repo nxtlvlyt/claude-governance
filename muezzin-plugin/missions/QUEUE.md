@@ -1292,3 +1292,8 @@ under-contention-and-survived. Still not struck: ~32 min into the post-reload ce
 dispatch, not the multi-hour bar the gap itself sets. Tracking clock: reload at
 2026-07-04T00:30:36 local -- struck when a multi-hour window shows zero gemma crashes with
 the guard active.
+
+THIRD clean dispatch 2026-07-04T01:47-01:48Z local (dispatch-heartbeat.log): identical
+pattern -- guard held (4 backoff cycles, resident=17.6GB), fail-opened, then
+attempt-ok ms=69450, zero errors. Three-for-three now, ~78 min into the post-reload census
+(00:30:36 -> 01:48). Still not struck -- continuing to accumulate toward the multi-hour bar.
