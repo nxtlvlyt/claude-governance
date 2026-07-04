@@ -544,8 +544,19 @@ export async function defaultWitness(step, cwd, artifact, sources = '', dispatch
     ? `--- STAGED SOURCES (resolve every [file Lnn] citation against these) ---\n${String(sources).slice(0, 8000)}\n--- END STAGED SOURCES ---\n\n` +
       `A citation that resolves to a line in these sources is VERIFIED; only flag a citation you cannot resolve here.\n\n`
     : '';
+  // ARTIFACT CAP (2026-07-04 receipt, engine-truth-of-record.S1 family): the old 48000-char
+  // default cap sliced muezzin-daemon.mjs (137945 bytes) BEFORE queuedDepsHold's edit was
+  // fully visible -- byte offsets confirmed directly (head -c 48000 lands at line 709;
+  // queuedDepsHold spans lines 702-747, bytes 47350-50655) -- so the witness correctly
+  // reported "truncated mid-function" for a view that genuinely WAS truncated, even though
+  // the actual file on disk was complete and its own selftest passed. Four independent
+  // dispatches (default-local, sonnet, opus x2) were false-REJECTed by this, not by any
+  // defect in their output. Raised to match EDIT_FULL_FILE_MAX_BYTES (executor.mjs) — the
+  // SAME threshold already used to decide a file is "small enough" not to need windowing
+  // for edits; the witness should not truncate below the size the editor itself treats as
+  // whole-file-safe.
   const framing =
-    `Step goal: ${step.description}\n\nThe implementation written for this step:\n--- BEGIN ${step.target_files?.[0] || 'artifact'} ---\n${String(artifact).slice(0, Number(process.env.MUEZZIN_WITNESS_ARTIFACT_CAP) || 48000)}\n--- END ---\n\n` +
+    `Step goal: ${step.description}\n\nThe implementation written for this step:\n--- BEGIN ${step.target_files?.[0] || 'artifact'} ---\n${String(artifact).slice(0, Number(process.env.MUEZZIN_WITNESS_ARTIFACT_CAP) || 180000)}\n--- END ---\n\n` +
     stagedBlock +
     `Witness review: report ONLY logical leaps, hidden assumptions, or claims the code does not actually support. ` +
     `Reply with a verdict line "APPROVE" (clean) or "REJECT" (flagged) then findings. Do not rewrite the code.`;

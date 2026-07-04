@@ -1370,3 +1370,32 @@ of the whole truth-of-record saga -- worth a dedicated investigation mission onc
 either lands via opus or exhausts. Not fixed this beat: opus's current attempt is still
 live and gets the chance first; guessing at a fix without reading the real plan object
 would be exactly the kind of unverified action Directive 11 warns against.
+
+## ROOT CAUSE CONFIRMED + FIXED 2026-07-04 05:2xZ -- it was the WITNESS's artifact cap, not edit-mode
+Found it with byte-offset math, not a guess (Read: orchestrate.mjs defaultWitness()). The
+witness framing sliced the artifact at a flat 48000-char default
+(MUEZZIN_WITNESS_ARTIFACT_CAP) before sending it for review. `head -c 48000
+muezzin-daemon.mjs` lands at line 709; queuedDepsHold spans lines 702-747 (bytes
+47350-50655) -- the cap fell MID-FUNCTION. Every witness (default-local, sonnet, opus x2)
+was being shown a genuinely truncated view and correctly reported what it saw. The actual
+file on disk (verified independently: node --check clean, node muezzin-daemon.mjs --selftest
+ALL PASS including both new C2a fixtures by name) was complete and correct the whole time --
+the witness was not wrong about its input, the input construction was wrong.
+
+FIX landed (commit 854b31a, orchestrate.mjs): raised the default cap 48000 -> 180000,
+matching EDIT_FULL_FILE_MAX_BYTES (executor.mjs) -- the SAME threshold already used to
+decide a file doesn't need windowing for edits; the witness should not truncate below what
+the editor treats as whole-file-safe. node --check clean, orchestrate.mjs --selftest ALL
+PASS, zero regressions. RELOAD-REQUEST set. Does NOT touch muezzin-daemon.mjs itself -- the
+mission's own uncommitted C2a edit stays in the working tree, to land through its own step
+machinery (not a conductor side-channel commit, which the auto-mode classifier correctly
+blocked when first attempted) once the daemon reloads with this fix and the mission's next
+attempt gets witnessed against the FULL file.
+
+Why this matters beyond this mission: ANY code-repo mission editing a file between roughly
+48KB and 180KB, where the target function sits at or past the 48K mark, was structurally
+unwitnessable -- correct work would be false-REJECTed every time, forever, regardless of
+which model authored it. This is very likely why several OTHER missions in tonight's
+CHAIN-STREAK also failed on "truncated mid-function" wording (mt-mobile-qc-hardening
+included) -- worth checking those files' sizes against this same math as a follow-up, not
+re-litigated here.
