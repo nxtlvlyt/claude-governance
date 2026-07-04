@@ -58,6 +58,18 @@ niyyah: Four operator-caught misattributions is a discipline failure, not a bad-
 The fix that actually stops it is a script that runs every sweep and needs no one to
 remember — the fraud stays caught even when a fifth instance forgets to check.
 
+CITATION-GUARD CONSTRAINT (added after ~1h burned across sonnet + opus escalation, receipts
+in mission-events.jsonl step 3: fabricated tokens "<stem>.mission.result.json",
+"<stem>-<stamp>.md", ".retro.md", "<stem>.result.json" — this mission's own subject matter
+made the SAME trap already fought and fixed tonight on engine-truth-of-record.S1, and this
+mission's original text never carried the fix). Applies to BOTH steps 2 and 3, superseding
+step 2's weaker parenthetical: do not write ANY illustrative example of a mission, retro, or
+result filename — not in a comment, not in the FLAG message text, not as a selftest fixture
+literal — in any form, backtick-quoted or not. Describe such names abstractly in prose (a
+mission stem, the literal extension) without ever typing one concrete instance end to end.
+Selftest fixtures needing a filename-shaped string must build it via runtime concatenation
+in the test code, not a typed-out literal.
+
 Steps:
   1. Baseline: record branch + HEAD; print PRESENT/ABSENT for the marker mt-model-audit-fn in conduct-cycle.mjs (idempotence anchor). Never exit 1 on existence. [command]
   2. (A) Edit model_rijal.mjs: replace the qwen3-coder-next entry's selection_basis field per the Maqsad's exact correction — no backtick-quoted example filenames or invented citations (reuse the citation-guard lesson from this session: describe file relationships in prose, not fabricated backtick tokens). [edit] model_rijal.mjs
