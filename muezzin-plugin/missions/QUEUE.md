@@ -1261,7 +1261,11 @@ REAL FIX landed (commit fa9d147, seat_dispatch.mjs): reused self_witness.mjs's a
 GR10 admission logic (psProbe + wouldOversubscribe, built for the witness pair) as a bounded
 pre-dispatch check specifically before gemma4:31b fires -- waits for VRAM headroom if another
 big model is resident, fail-open if the probe is flaky or nothing clears. 57/57+ selftests
-pass, zero regressions. NOT yet live in the running daemon (PID unchanged since this commit;
-same in-memory-import staleness as the citation-guard fix earlier tonight) -- needs a
-RELOAD-REQUEST once the current lane clears, same as before. Gap #10 stays open until a
-live, reloaded daemon shows a clean multi-hour census with this guard active.
+pass, zero regressions. NOW LIVE 2026-07-04T00:32Z: RELOAD-REQUEST honored once
+engine-truth-of-record.S1's lane cleared -- daemon PID changed 35824 -> 44836, exit code 0
+(clean, per supervisor.log). Post-reload receipt (Invoke-RestMethod /api/ps + nvidia-smi,
+both direct, not memory): only ornith:9b resident (6GB), GPU at 8538/24564 MiB used --
+15.6GB free, down from the prior 88%-full state. This is consistent with the fix but is
+NOT yet the proof gate -- no gemma dispatch has occurred yet under the live guard. Gap #10
+stays open until a live, reloaded daemon shows a clean multi-hour census with a gemma
+dispatch actually exercised under this guard.

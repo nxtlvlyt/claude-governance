@@ -10,12 +10,18 @@ their own. (Earlier phrasing of this exact note named the fixing commit by its s
 prose — that bare hex string was misread by missionLandedState's unscoped source-sha
 extraction as a landed-work stamp, producing a false PRE-SATISFIED skip twice; this revision
 deliberately avoids writing any bare commit-hash-shaped token anywhere in this mission's text.)
+LINEAGE-NOTE 2026-07-04T00:3x: the combined step (old step 2, C1+C2 in one edit) has now failed
+identically on THREE separate escalation tiers within one attempt (default-local, then sonnet,
+then opus) — every witness-flag named the same truncated-mid-function-inside-queuedDepsHold
+defect, confirming a step-size problem, not a seat-capability gap. This attempt's step is now
+split into two (C1 alone, then C2 alone) in the Steps section below; STEPS is now 7. This note
+also bumps this file's mtime past the newest retro so the next fire is not RETRO-REPEAT-BLOCKED.
 ALLOW-FILES:
   - muezzin-daemon.mjs
   - conduct-cycle.mjs
 UNLINKED-OK: engine module edits — no user-facing page
 REQUIRES: none
-STEPS: 6
+STEPS: 7
 
 Maqsad: UNIT C of GAP-CLOSURE-PLAYBOOK.md (operator ruling: gaps close CHAIN-FIRST) — make
 the mission RECORDS honest, because every later gap fix is judged by them. Three verified
@@ -65,11 +71,12 @@ runtime is not a static token the guard can see.
 
 Steps:
   1. Baseline: record branch + HEAD; print PRESENT/ABSENT for the marker mt-c1-boundary in muezzin-daemon.mjs (idempotence anchor; if PRESENT, edit steps are verify-only). Never exit 1 on existence. [command]
-  2. C1+C2 in ONE edit of muezzin-daemon.mjs: the \b regex fix at every RESOLVED-comment match site (tag the first fixed site with the literal comment mt-c1-boundary) AND the missionLandedState-backed stamp verification in queuedDepsHold + pickPromotion per the Maqsad contract (import from ./conduct-cycle.mjs; STAMP-DISPUTED event on mismatch; fail-open on null). Port the closed() selftest pair + add stamp-verification fixtures (valid stamp honored / disputed stamp keeps mission live / null verdict honors stamp) to the daemon selftest block. [edit] muezzin-daemon.mjs
-  3. C3 in conduct-cycle.mjs: per-stem requeue tracking with transparent legacy migration per the Maqsad contract, tagged mt-c3-perstem at the migration site; three fixtures (migration, partial, full). [edit] conduct-cycle.mjs
-  4. Verify: Select-String receipts for mt-c1-boundary and mt-c3-perstem; node --check both files. [verify]
-  5. git commit both ALLOW-FILES by explicit name naming this mission + the playbook UNIT C + the hunt items; idempotent no-op if already committed (ALREADY_COMMITTED + exit 0 when clean and HEAD carries both markers). [command]
-  6. OUTCOME CHECK: run node muezzin-daemon.mjs --selftest AND node conduct-cycle.mjs --selftest as a multi-line block; the step receipt MUST show BOTH suites ending ALL PASS, including the new fixture names (UNRESOLVED does NOT close / disputed stamp keeps mission live / partial requeue leaves second stem live). A missing fixture name or any FAIL line fails this step. [command]
+  2. C1 ALONE, edit of muezzin-daemon.mjs: the \b word-boundary regex fix at every RESOLVED-comment match site (queuedDepsHold selfEsc/resolvedRe and any sibling use) — tag the first fixed site with the literal comment mt-c1-boundary. Port conduct-cycle's closed() selftest pair (UNRESOLVED does NOT close; explicit RESOLVED still closes) into the daemon's selftest block. Do NOT touch missionLandedState or stamp verification in this step — that is step 3. [edit] muezzin-daemon.mjs
+  3. C2 ALONE, edit of muezzin-daemon.mjs (step 2's mt-c1-boundary edit is already present at HEAD before this step runs): add the missionLandedState-backed stamp verification in queuedDepsHold + pickPromotion per the Maqsad contract (import from ./conduct-cycle.mjs; on verification failure log a STAMP-DISPUTED event (evt) and treat the stamp as ABSENT — the mission stays live; when missionLandedState returns null/undeterminable, fail-open and honor the stamp as today). Add stamp-verification fixtures (valid stamp honored / disputed stamp keeps mission live / null verdict honors stamp) to the daemon selftest block. [edit] muezzin-daemon.mjs
+  4. C3 in conduct-cycle.mjs: per-stem requeue tracking with transparent legacy migration per the Maqsad contract, tagged mt-c3-perstem at the migration site; three fixtures (migration, partial, full). [edit] conduct-cycle.mjs
+  5. Verify: Select-String receipts for mt-c1-boundary and mt-c3-perstem; node --check both files. [verify]
+  6. git commit both ALLOW-FILES by explicit name naming this mission + the playbook UNIT C + the hunt items; idempotent no-op if already committed (ALREADY_COMMITTED + exit 0 when clean and HEAD carries both markers). [command]
+  7. OUTCOME CHECK: run node muezzin-daemon.mjs --selftest AND node conduct-cycle.mjs --selftest as a multi-line block; the step receipt MUST show BOTH suites ending ALL PASS, including the new fixture names (UNRESOLVED does NOT close / disputed stamp keeps mission live / partial requeue leaves second stem live). A missing fixture name or any FAIL line fails this step. [command]
 
 Done means: both files committed at HEAD carrying mt-c1-boundary and mt-c3-perstem; both
 selftest suites ALL PASS with the new fixtures visible in the step-6 receipt; after the

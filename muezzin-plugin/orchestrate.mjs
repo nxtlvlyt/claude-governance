@@ -1184,12 +1184,10 @@ export async function orchestrate(mission, cwd, {
       const preEditTexts = (step.target_files || []).map((t) => {
         try {
           return execSync(`git show HEAD:"${String(t).replace(/\\/g, '/')}"`, { cwd: writeRoot, stdio: ['ignore', 'pipe', 'pipe'] }).toString();
-        } catch (e) {
-          process.stderr.write(`[mt-preexisting-content-guard-DEBUG] git show failed for t=${JSON.stringify(t)} writeRoot=${JSON.stringify(writeRoot)} err=${String(e && e.message || e).slice(0, 200)}\n`);
+        } catch {
           return '';
         }
       });
-      process.stderr.write(`[mt-preexisting-content-guard-DEBUG] step=${step.step_index} target_files=${JSON.stringify(step.target_files)} preEditTexts.lengths=${JSON.stringify(preEditTexts.map(t => t.length))}\n`);
       // quoted-mention second pass (census class): a name present inside a file the seat
       // HAD is a reported mention, not a fabricated cite. The artifact itself is excluded
       // so it can never self-exempt.
