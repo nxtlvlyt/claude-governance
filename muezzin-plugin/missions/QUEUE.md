@@ -1269,3 +1269,12 @@ both direct, not memory): only ornith:9b resident (6GB), GPU at 8538/24564 MiB u
 NOT yet the proof gate -- no gemma dispatch has occurred yet under the live guard. Gap #10
 stays open until a live, reloaded daemon shows a clean multi-hour census with a gemma
 dispatch actually exercised under this guard.
+
+FIRST LIVE FIRING 2026-07-04T00:59Z (dispatch-heartbeat.log, direct not memory): the guard
+caught a REAL oversubscription risk in production -- "gemma-vram-admission: oversubscribe
+risk (resident=17.6GB) — waiting for another big local model to clear before dispatch",
+repeating on its designed poll cadence (~15s apart). Invoke-RestMethod /api/ps confirmed the
+resident model: qwen3.6:27b (17.58GB, the mission's own plan-panel architect seat), not a
+crash -- the guard correctly held rather than firing gemma into a near-full card. This is the
+mechanism working exactly as designed, not just clean headroom by coincidence. Gap #10 still
+not struck: this is one held-and-waited dispatch, not yet a multi-hour crash-free census.
