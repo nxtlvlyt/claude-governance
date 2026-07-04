@@ -1,28 +1,5 @@
 # STATE.md — muezzin-plugin (this project's contextualization of CLAUDE.md)
 
-## 📊 GAP SCOREBOARD — LEAD EVERY BEAT REPORT WITH THIS LINE (operator ask 2026-07-03 ~23:5x)
-Operator: "will you keep me up to date with how many missions out of how many are left for
-the gap fixes?" — this is a standing ask, not a one-off. Every conductor beat report (any
-model, any future session) opens with one line: **"Gap fixes: N/M struck"**.
-
-CORRECTED 2026-07-04T00:1x (operator caught the denominator was wrong — "I thought we had
-more than 27"): the base is NOT just the 25-item hunt list. QUEUE.md's own operator
-clarification (line 1031, verbatim: "the big-project discussion fires only when ALL 29
-pieces (#7,#8,#9,#10 + the 25 inside #11) are struck") sets the floor at **29** — items
-#7 (board-truth debt), #8 (repo-process), #9 (identity hygiene), #10 (gemma CUDA), PLUS
-the 25 verified-open hunt items inside #11. My first scoreboard entry silently dropped
-#7-#10 and only counted 25 + 2 new = 27 — an undercount, not a completion; NONE of #7-#10
-carry any strike yet either (checked: zero ~~7~~/~~8~~/~~9~~/~~10~~ markers in QUEUE.md).
-Since then: +1 clean new distinct gap (SW-cache-version-bump, deploy reliability — does not
-overlap any of #7-#10). The model-identity-fraud finding (qwen3-coder-next mislabeling)
-EXPANDS #9's existing "identity hygiene" scope (that item already covers ollama tag
-cleanup) rather than being a 31st separate count — folded in, not double-counted.
-CURRENT TOTAL: **30** (29 original + 1 new SW-cache item). As of 2026-07-04T00:1x:
-**0/30 struck** — honest count, not a proxy; missions authored/queued/diagnosed do NOT
-count as struck, only landed-and-verified does. Update the denominator when a new gap is
-found (grep QUEUE.md for "## NEW GAP" headers); update the numerator only on a real
-landed receipt (commit + selftest + outcome check per that gap's own mission Done-means).
-
 ## ⛔ THE FIRST TOOL CALL OF EVERY CONDUCTOR TURN
 
 ```
@@ -389,18 +366,7 @@ the failure reason is genuinely transient by reading the result.json — a missi
 steps create the failing state (email-redaction's incomplete cherry-pick) fails
 deterministically and must have its TEXT amended, never requeued; (c) after any shared-
 worktree failure, check `git status` in `C:\Users\marka\code\mt-integration-2026-06-22`
-live — abandoned cherry-picks and scratch files cascade into every later mission; (d) A
-FAILED mission does NOT auto-refire on its own once unblocked (2026-07-04 receipt: I wrongly
-assumed it did, then watched 20+ minutes of real idle daemon time confirm it doesn't).
-`readQueue()` (muezzin-daemon.mjs) only treats a BARE AUTORUN line as pending — `statusOf()`
-matching `FAILED `/`DONE `/etc. excludes it. Amending the mission text (mtime bump, split,
-whatever fix) only clears the RETRO-REPEAT gate's OWN check; it does NOT bare the line. The
-actual bare-ing mechanism is `heal()`'s ledger-driven requeue: run
-`node conduct-cycle.mjs --record --class <c> --fix <text> --requeue <bare-stem>` (bare
-stem, not path) to append a fix-ledger entry, THEN `node conduct-cycle.mjs --heal` to
-perform it immediately (`HEAL performed: - requeue <stem>`) rather than waiting up to 5 min
-for the daemon's own auto-heal cadence. Verify with `grep <stem> missions/AUTORUN.md` that
-the line lost its FAILED prefix before assuming it will refire.
+live — abandoned cherry-picks and scratch files cascade into every later mission.
 
 **6. Processes cache code.** After committing an engine fix, the running daemon still
 executes the OLD code (receipt: 2 broken splits generated 20 min AFTER the fix was

@@ -4,24 +4,9 @@ REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
 ALLOW-FILES:
   - index.html
   - map.html
-  - trip-cost.html
 VISUAL-QC-REQUIRED
-UNLINKED-OK: trip-cost.html reachability is owned by mt-tripcost-nav-link.S1 (queued AHEAD of this mission; this one only rewrites copy on the already-live page)
 REQUIRES: none
-STEPS: 8
-
-TRIP-COST SURFACE AMENDMENT 2026-07-03T16:3x (operator receipt, live on the page: "it's
-really hard to understand... I don't see this feature being clear instead of clever"):
-trip-cost.html joins the graded surfaces, with three NAMED defects beyond the grade check —
-(TC1) the copy says "each person adds their receipts" but the form only accepts TYPED
-name/amount/category — "receipts" implies photographing a receipt (the operator expected
-photo upload + AI ingestion, which does NOT exist on this page and is a separate PARKED
-track). Rewrite to say what it does: people type in what they paid for. NEVER promise
-photo upload here.
-(TC2) "Trip: <CODE>" + "Copy share link" leads before any explanation of WHY a code exists —
-one plain sentence first: this code is how your group shares one expense list.
-(TC3) "Settle plan appears once contributions exist" — say it plainly: once people add what
-they paid, we show who owes who.
+STEPS: 7
 
 Maqsad: Operator-sent growth transcript 2026-07-03 ("clear not clever": run every user-facing
 string through a reading-grade check; below grade 5 minimum, grade 3 if you're awesome — the
@@ -54,10 +39,8 @@ Steps:
   3. Rewrite the offending strings in index.html per D2 (grade >8 -> plain language <=6, trust claims preserved, 'Discovery Vectors' and 'Critical infra' eliminated). [edit] index.html
   4. Rewrite the offending strings in map.html per D2 under the same rules (layer names, control labels, section copy — leave the aurora chip strings untouched). [edit] map.html
   5. Re-run the scratch grader: require every extracted headline/CTA/blurb string to grade <=8 with headline+CTA strings <=6, output COPY_CLARITY_OK, then remove the scratch file. [verify]
-  5b. Rewrite trip-cost.html per the TRIP-COST SURFACE AMENDMENT — TC1/TC2/TC3 fixed by name, every rewritten string graded <=6 by the same scratch grader (extend its extraction to trip-cost.html), no promise of photo upload or AI anywhere in the copy. [edit] trip-cost.html
-  6. Scoped cleanliness: git status --porcelain -- index.html map.html trip-cost.html shows only these three files modified. [verify]
-  7. git commit the three ALLOW-FILES by explicit name (git add index.html map.html trip-cost.html; git commit -m "<message naming this mission and listing every before -> after string pair>"), confirm the commit is on HEAD. [command]
-  8. OUTCOME CHECK: in ONE self-contained multi-line command (the proven shape): confirm the three files are committed clean, wrangler pages deploy . --project-name=muddytires --branch=preview, capture the preview URL, poll "$url/" to 200, write scratch-copy-render.mjs via here-string (playwright: goto $url/ and $url/trip-cost, assert the rewritten hero copy renders and the literal string "receipts" is ABSENT from trip-cost's user-visible text, print evidence lines HERO_RENDERED=<yes|no>, RECEIPTS_WORD_GONE=<yes|no>, PAGEERRORS=<n>, then COPY_RENDER_QC_PASS when hero yes + receipts-gone yes + pageerrors 0), run it, Remove-Item the scratch. The printed evidence lines ARE the render receipt. [command]
+  6. Scoped cleanliness: git status --porcelain -- index.html map.html shows only these two files modified. [verify]
+  7. Commit the two ALLOW-FILES by explicit name with a message naming this mission and listing every before -> after string pair, confirm the commit is on HEAD. [command]
 
 Done means: index.html and map.html committed at HEAD with every user-facing copy string at
 grade <=8 (headlines/CTAs <=6) proven by the scratch grader's COPY_CLARITY_OK run whose

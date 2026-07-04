@@ -117,14 +117,30 @@ export function detectLoopCaps(autorun, cap = T.LOOP_CAP_REPEATS) {
 // (the `requeued` flag), so a mission that fails AGAIN after requeue needs fresh
 // diagnosis — it never auto-loops.  Path: missions/_logs/fix-ledger.json
 const fixLedgerPath = (base) => path.join(base, 'missions', '_logs', 'fix-ledger.json');
-function readFixLedger(base) { const o = readJson(fixLedgerPath(base)); return (o && Array.isArray(o.entries)) ? o : { entries: [] }; }
+// requeueStemOf: the per-stem shape is {stem, requeued} (mt-c3-perstem migration below);
+// tolerate a bare legacy string too, since callers that build fixEntries arrays directly
+// (not via readFixLedger) may still pass one.
+const requeueStemOf = (item) => (typeof item === 'string' ? item : item?.stem);
+function readFixLedger(base) {
+  const o = readJson(fixLedgerPath(base));
+  const ledger = (o && Array.isArray(o.entries)) ? o : { entries: [] };
+  for (const e of ledger.entries) {
+    if (!Array.isArray(e.requeue)) continue;
+    // mt-c3-perstem: transparently migrate legacy bare-stem-string requeue entries into
+    // per-stem tracking objects — a bare array can only ever be all-or-nothing, but a
+    // fix that unblocks several missions may land for one before another.
+    e.requeue = e.requeue.map((item) => (typeof item === 'string' ? { stem: item, requeued: false } : item));
+  }
+  return ledger;
+}
 function writeFixLedger(base, obj) { writeFileSync(fixLedgerPath(base), JSON.stringify(obj, null, 2)); }
 
 // conductor records a landed fix (called from code or `--record`). cls=failure class,
 // fix=what closed it, requeue=mission stems it unblocks.
 export function recordFix(base, { cls, fix, requeue = [] }, now = Date.now()) {
   const ledger = readFixLedger(base);
-  ledger.entries.push({ class: cls, fix, landed_ts: new Date(now).toISOString(), requeue, requeued: false });
+  const requeueEntries = requeue.map((s) => (typeof s === 'string' ? { stem: s, requeued: false } : s));
+  ledger.entries.push({ class: cls, fix, landed_ts: new Date(now).toISOString(), requeue: requeueEntries, requeued: false });
   writeFixLedger(base, ledger);
   return ledger;
 }
@@ -254,7 +270,7 @@ export function parkedRevivalDue(autorun, fixEntries = [], { maxAgeDays = 7, now
       // relevant engine capability — it must not re-open every judged park (two targeted
       // entries re-opened all 13 stamps within 90 minutes of judging). CLASS-level entries
       // (empty requeue) still re-open parks: that is the mechanism working as designed.
-      .filter((e) => !(Array.isArray(e.requeue) && e.requeue.length && !e.requeue.some((s) => stem === s || stem === String(s).replace(/\.mission\.txt$/i, '').replace(/^missions\//, ''))))
+      .filter((e) => !(Array.isArray(e.requeue) && e.requeue.length && !e.requeue.some((item) => { const s = requeueStemOf(item); return stem === s || stem === String(s).replace(/\.mission\.txt$/i, '').replace(/^missions\//, ''); })))
       .filter((e) => anchor == null || (Number.isFinite(Date.parse(e.landed_ts)) && Date.parse(e.landed_ts) > anchor))
       .map((e) => e.class);
     const ageDays = anchor == null ? null : Math.floor((now - anchor) / 86400e3);
@@ -743,7 +759,9 @@ export function sweep(base = HERE, now = Date.now(), routeFile = path.join(proce
   const failedStems = new Set(autorun.failed.map(stemOf));
   for (const e of ledger.entries) {
     if (e.requeued) continue;
-    for (const s of (e.requeue || [])) {
+    for (const item of (e.requeue || [])) {
+      if (typeof item === 'object' && item.requeued) continue;   // mt-c3-perstem: this stem already requeued in a prior beat
+      const s = requeueStemOf(item);
       if (!failedStems.has(s)) continue;
       // 2026-07-01 real incident: 10 of 19 stems fed to --record/--requeue this session
       // had mission.txt files already deleted (retired long before, for an unrelated
@@ -956,7 +974,16 @@ export function heal(base = HERE, now = Date.now(), { exec = (cmd) => execSync(c
     const ledger = readFixLedger(base);
     for (const e of ledger.entries) {
       if (e.requeued) continue;
-      if ((e.requeue || []).some((s) => reqStems.has(s))) { e.requeued = true; e.requeued_ts = new Date(now).toISOString(); }
+      for (const item of (e.requeue || [])) {
+        if (typeof item === 'object' && reqStems.has(item.stem)) item.requeued = true;
+      }
+      const items = e.requeue || [];
+      // mt-c3-perstem: the entry-level flag flips true only when EVERY stem in it has
+      // been requeued — a partial requeue (one stem done, one stem still FAILED-pending)
+      // must leave the entry, and its still-open stem, live for a future beat.
+      if (items.length && items.every((item) => typeof item === 'object' && item.requeued)) {
+        e.requeued = true; e.requeued_ts = new Date(now).toISOString();
+      }
     }
     writeFixLedger(base, ledger);
   }
@@ -1378,6 +1405,37 @@ function selftest() {
   // once-only: a second sweep sees the entry requeued and emits NO requeue action.
   r = sweep(tmp, now, noRoute, sightOk);
   ck(!r.actions.some((a) => String(a.id).startsWith('REQUEUE-')), 'once-only: a requeued ledger entry never fires again (no auto-loop)');
+
+  // fixture 1c-perstem (mt-c3-perstem): legacy bare-string requeue migrates transparently on
+  // read; a partial requeue (one stem fireable, one not yet FAILED) leaves the entry open and
+  // the still-pending stem live; the entry closes only once EVERY stem has been requeued.
+  writeFixLedger(tmp, { entries: [{ class: 'legacy-class', fix: 'legacy fix', landed_ts: new Date(now).toISOString(), requeue: ['legacy-stem'], requeued: false }] });
+  const migratedLedger = readFixLedger(tmp);
+  ck(migratedLedger.entries[0].requeue[0]?.stem === 'legacy-stem' && migratedLedger.entries[0].requeue[0]?.requeued === false,
+    'mt-c3-perstem: readFixLedger migrates a legacy bare-string requeue entry into {stem, requeued:false}');
+
+  writeFileSync(path.join(tmp, 'missions', 'perstem-a.mission.txt'), 'MISSION-CLASS: test\n');
+  writeFileSync(path.join(tmp, 'missions', 'perstem-b.mission.txt'), 'MISSION-CLASS: test\n');
+  writeFileSync(path.join(tmp, 'missions', 'AUTORUN.md'), '# q\nFAILED missions/perstem-a.mission.txt  <!-- t -->\n');
+  writeFixLedger(tmp, { entries: [] });
+  recordFix(tmp, { cls: 'perstem-class', fix: 'perstem fix', requeue: ['perstem-a', 'perstem-b'] }, now);
+  const healPartial = heal(tmp, now, { exec: () => { throw new Error('no restart expected'); } });
+  ck(healPartial.performed.some((p) => p.action === 'requeue' && p.stem === 'perstem-a'), 'mt-c3-perstem partial: the currently-FAILED stem (perstem-a) is requeued');
+  const ledgerAfterPartial = readFixLedger(tmp);
+  const entryPartial = ledgerAfterPartial.entries.find((e) => e.class === 'perstem-class');
+  ck(entryPartial.requeued === false, 'mt-c3-perstem partial: the ENTRY stays open — perstem-b has not requeued yet');
+  ck(entryPartial.requeue.find((it) => it.stem === 'perstem-a').requeued === true, 'mt-c3-perstem partial: perstem-a is individually marked requeued:true');
+  ck(entryPartial.requeue.find((it) => it.stem === 'perstem-b').requeued === false, 'mt-c3-perstem partial: perstem-b is left live (requeued:false)');
+  const afterPartialAutorun = parseAutorun(readText(path.join(tmp, 'missions', 'AUTORUN.md')));
+  ck(afterPartialAutorun.pending.includes('missions/perstem-a.mission.txt'), 'mt-c3-perstem partial: perstem-a line bared to pending (daemon re-fires)');
+
+  writeFileSync(path.join(tmp, 'missions', 'AUTORUN.md'), '# q\nFAILED missions/perstem-b.mission.txt  <!-- t -->\n');
+  const healFull = heal(tmp, now, { exec: () => { throw new Error('no restart expected'); } });
+  ck(healFull.performed.some((p) => p.action === 'requeue' && p.stem === 'perstem-b'), 'mt-c3-perstem full: perstem-b requeues once it too is FAILED');
+  const ledgerAfterFull = readFixLedger(tmp);
+  const entryFull = ledgerAfterFull.entries.find((e) => e.class === 'perstem-class');
+  ck(entryFull.requeued === true, 'mt-c3-perstem full: the entry closes (requeued:true) only once EVERY stem has been requeued');
+  writeFixLedger(tmp, { entries: [] });
 
   // fixture 1c-missing: REQUEUE-ON-FIX-LANDED must NOT requeue a stem whose mission.txt
   // was deleted (2026-07-01 real incident: 10 of 19 stems fed to --record/--heal this

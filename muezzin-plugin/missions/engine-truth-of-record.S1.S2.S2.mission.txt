@@ -49,6 +49,17 @@ expression). For every command/verify step in this mission: use a plain multi-li
 branch does more than one thing. The ternary form is only safe for a single bare
 Write-Output-style branch on both sides — default to if/else unless certain of that.
 
+POWERSHELL $-VARIABLE CONSTRAINT (2026-07-04, matches a previously-unresolved receipt from
+the get-upgrade mission's 3rd cycle: "witness command arrived $-STRIPPED ([ref]$null ->
+[ref], $errors.Count -> .Count) -> guaranteed ParserError regardless of work quality"). This
+mission's own step 7 hit the same shape: a command assigning intermediate results to
+PowerShell variables (`$d = ...; $c = ...; if (...)`) arrived at execution corrupted. Until
+the underlying transport is root-caused (tracked separately in QUEUE.md), do NOT build a
+validation_command that assigns to and later reads back a `$variable` across multiple
+statements. Prefer: separate steps each with their own single self-contained command, or
+pipe/chain directly (`cmd1; cmd2`) without an intermediate variable, or redirect each
+command's own output to a file and inspect the file rather than a shell variable.
+
 CITATION-GUARD CONSTRAINT (carried forward — the SAME fabricated-citation class hit this
 file family repeatedly across attempts of the parent mission before this split). Escape
 hatches are WITHDRAWN. Do not write ANY illustrative example of a retro filename, stem name,
