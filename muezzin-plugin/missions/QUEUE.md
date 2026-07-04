@@ -1106,3 +1106,37 @@ witnessArtifact + the --check-commit CLI printer. self_witness.mjs --selftest 71
 new fixtures), orchestrate.mjs --selftest ALL PASS. Reload requested at the same clean idle
 window as D1 (board quiet, no lane running, gap-priority-hold has nothing else queued).
 Hunt-list tally: 7 of 25 struck this session (#2, #4, #5, #6, #9, #10, #15).
+
+## Hunt-item #19 LANDED 2026-07-04 19:3xZ, commit 6c1363a
+conduct-cycle's main/master divergence guard only pushed a blocking entry when its git
+rev-list command succeeded AND reported >0 diverged commits -- a git error left div.ok:false
+and the condition simply never fired, fail-OPEN. The pushedGap check 3 lines above it already
+guarded this exact error class (null -> fail-closed BLOCK); mirrored that pattern:
+divergenceCount is null on error (blocking, fail-closed) vs a real integer (blocking only if
+>0). conduct-cycle.mjs --selftest 109/109 PASS (3 new fixtures). Live sweep re-confirmed
+unchanged for the real repo. Reload requested + confirmed live.
+Hunt-list tally: 8 of 25 struck this session (#2, #4, #5, #6, #9, #10, #15, #19).
+
+## GAP #10 gemma4:31b DEMOTED FROM ARCHITECT-C 2026-07-04 19:5xZ, commit 5068d4c
+Operator prompt "don't forget to reference that handbook" sent me back to
+GAP-CLOSURE-PLAYBOOK.md, which surfaced a CONFIRMATION RULE written 2026-07-03 that had never
+been acted on: "crashes persisting at low VRAM pressure = upstream runner bug -> gemma
+demotes, vision falls back fail-closed, architect-C reseats." This session's 5th crash
+(18:08:21Z, logged above) happened on a confirmed-uncontended GPU -- the condition fired days
+ago and sat un-executed until now.
+ACTED: claude-local-hybrid's architect-C reseated gemma4:31b -> granite4.1:30b in
+seat_modes.mjs, using the mode's OWN existing 2026-06-30 real-bug-eval (granite 5/6, second
+only to qwen's 6/6; nemotron-3-super 3/6 "FAILED real bugs" -- not picked) and its
+already-proven live dispatch path (already the auditor seat in the same mode). Did NOT touch
+ollama_vision_verdict.mjs -- verified this beat that every failure path there already returns
+ok:false honestly (no silent pass), matching "vision falls back fail-closed" with zero code
+change needed; also no viable local alternative exists for that seat (qwen disqualified,
+nemotron3:33b false-positived on an identical-pair comparison -- MUEZZIN-SEAT-PLAN-LOCKED.md
+2026-07-01 real data). seat_modes.mjs --selftest 45/45 PASS; seat_dispatch/deconstructor/
+orchestrate/conduct-cycle --selftest all clean. Reload requested.
+STATUS: this is a MITIGATION (gemma no longer sits in the active planning panel where it was
+crashing), not a diagnosis of gemma's actual upstream bug -- that remains unexplained. gemma
+still serves the vision-verdict seat (no alternative), so it can still crash there; watch
+continues. If it demonstrably stops crashing there too, that's new evidence about the actual
+trigger (concurrent panel dispatch vs. isolated single-seat load) worth writing down, not
+assumed now.

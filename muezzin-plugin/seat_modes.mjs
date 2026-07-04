@@ -139,7 +139,21 @@ const TABLE = {
     // in seat_dispatch.mjs pass-throughs any 'claude-*' name verbatim, so this is additive — no
     // seat_dispatch.mjs change needed. Bare 'opus'/'sonnet' aliases elsewhere are UNCHANGED (other
     // modes); only claude-local-hybrid is updated here per the explicit operator directive.
-    architects: ['claude-sonnet-5', 'qwen3.6:27b', 'gemma4:31b'],
+    // ARCHITECT-C RESEATED 2026-07-04 (GAP-CLOSURE-PLAYBOOK #10 confirmation rule, written
+    // 2026-07-03: "crashes persisting at low VRAM pressure = upstream runner bug -> gemma
+    // demotes, vision falls back fail-closed, architect-C reseats"): gemma4:31b crashed a 5th
+    // time this session on a CONFIRMED uncontended GPU (verified via /api/ps + timing, not
+    // assumed) -- the confirmation condition fired. Reseated to granite4.1:30b: the SAME 6-task
+    // real-bug-eval above scored it 5/6 (second only to qwen's 6/6; nemotron-3-super scored
+    // 3/6, "FAILED real bugs" -- not a safe choice), and it is ALREADY the live auditor seat in
+    // this exact mode, so its dispatch path is proven, not a fresh integration. gemma4:31b is
+    // NOT demoted from ollama_vision_verdict.mjs -- that seat has no viable local alternative
+    // (qwen DISQUALIFIED, cannot discriminate visually different pages; nemotron3:33b false-
+    // positived on an identical-pair comparison, unsafe for a gate; MUEZZIN-SEAT-PLAN-LOCKED.md
+    // 2026-07-01) and already fails closed correctly on every error path (verified this beat,
+    // no code change needed) -- exactly what the confirmation rule's "vision falls back
+    // fail-closed" clause asks for, as opposed to a reseat.
+    architects: ['claude-sonnet-5', 'qwen3.6:27b', 'granite4.1:30b'],
     integrator: 'claude-sonnet-5',
     executor: 'claude-sonnet-5',
     validator: 'qwen3.6:27b',
@@ -316,7 +330,7 @@ if (process.argv[1]?.endsWith('seat_modes.mjs') && process.argv.includes('--self
     ckT('isLocalOnlySeat: claude-local-hybrid auditor -> true', isLocalOnlySeat('auditor', 'granite4.1:30b', hybridEnv, noRead));
     ckT('isLocalOnlySeat: claude-local-hybrid witness -> true', isLocalOnlySeat('witness', 'qwen3.6:27b', hybridEnv, noRead));
     ckT('isLocalOnlySeat: claude-local-hybrid architect B (qwen3.6:27b, non-Claude) -> true', isLocalOnlySeat('architect', 'qwen3.6:27b', hybridEnv, noRead));
-    ckT('isLocalOnlySeat: claude-local-hybrid architect C (gemma4:31b, non-Claude) -> true', isLocalOnlySeat('architect', 'gemma4:31b', hybridEnv, noRead));
+    ckT('isLocalOnlySeat: claude-local-hybrid architect C (granite4.1:30b, non-Claude, reseated 2026-07-04 off gemma4:31b) -> true', isLocalOnlySeat('architect', 'granite4.1:30b', hybridEnv, noRead));
     ckT('isLocalOnlySeat: claude-local-hybrid architect A (claude-sonnet-5) -> false (Claude seat, would 404 on nxtbeast)', !isLocalOnlySeat('architect', 'claude-sonnet-5', hybridEnv, noRead));
     ckT('isLocalOnlySeat: claude-local-hybrid integrator -> false', !isLocalOnlySeat('integrator', 'claude-sonnet-5', hybridEnv, noRead));
     ckT('isLocalOnlySeat: claude-local-hybrid executor -> false', !isLocalOnlySeat('executor', 'claude-sonnet-5', hybridEnv, noRead));
