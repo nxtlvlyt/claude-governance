@@ -1278,3 +1278,17 @@ resident model: qwen3.6:27b (17.58GB, the mission's own plan-panel architect sea
 crash -- the guard correctly held rather than firing gemma into a near-full card. This is the
 mechanism working exactly as designed, not just clean headroom by coincidence. Gap #10 still
 not struck: this is one held-and-waited dispatch, not yet a multi-hour crash-free census.
+
+FIRST SUCCESSFUL GEMMA DISPATCH UNDER CONTENTION 2026-07-04T01:01-01:02Z local (dispatch-
+heartbeat.log, direct): the guard held 4 times on its exact designed backoff (~15s/45s/90s
+apart) waiting for qwen3.6:27b's 17.6GB to clear; nothing cleared, so it correctly fail-
+opened per its own design (never hang the mission behind a stuck probe) -- "attempt-start
+provider=ollama-local model=gemma4:31b" at 07:01:46.271Z, immediately followed by
+"attempt-ok provider=ollama-local model=gemma4:31b ms=71573" at 07:02:57.846Z. Gemma
+dispatched into exactly the contention pattern that used to crash it (another big model
+still resident) and completed cleanly -- zero CUDA errors, real output (3910+1986 tokens).
+This is the strongest live evidence yet, not just held-then-cleared but held-then-fired-
+under-contention-and-survived. Still not struck: ~32 min into the post-reload census, one
+dispatch, not the multi-hour bar the gap itself sets. Tracking clock: reload at
+2026-07-04T00:30:36 local -- struck when a multi-hour window shows zero gemma crashes with
+the guard active.
