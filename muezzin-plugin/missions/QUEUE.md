@@ -1420,3 +1420,27 @@ action). No reload needed -- sweep() is CLI-invoked fresh each beat, never impor
 running daemon.
 Hunt-list tally: 18 of 25 struck this session (#1, #2, #3, #4, #5, #6, #9, #10, #12, #13,
 #14(partial), #15, #16(partial), #17, #19, #20, #21(partial), #24).
+
+## Hunt-item #23 LANDED 2026-07-04 22:5xZ, commit 752c994
+conductor-core.md's fifth law (paid 2026-07-02, two wrong causal narratives caught the same
+day -- "failing because cloud models" and "minimax lab gone, restore cloud seats") ends with
+its own escalation clause: "if a future instance still ships an ungated causal claim, the
+escalation is a report-linter that blocks 'root cause' sentences lacking a receipt or
+HYPOTHESIS tag." Hunt-item #23's premise: that escalation FIRED (an ungated claim was made and
+operator-caught) and the linter was never built.
+findUngatedCausalClaims(text) is now a real, pure, tested function: flags causal-claim
+language (the law's own quoted shapes -- "root cause is/was", "is why", "is dead/gone", "no
+longer exists", "the reason is/why/for") lacking a receipt-like token (commit sha, file/path
+reference, or the literal word HYPOTHESIS) within a nearby window. A heuristic, not full
+natural-language understanding -- same discipline as this session's other pattern-based checks
+(LARGE-DELETION's ratio, the UNPARKS counter, hunt-item #14's hyphenated-token check).
+Deliberately NOT wired into any automatic blocking gate this beat -- deciding WHERE to hook it
+(every QUEUE.md write? every push notification? only --record calls?) and whether it should be
+advisory or genuinely blocking is a separate design call this beat doesn't force. What the
+law's escalation clause literally demanded -- the linter itself, existing and tested -- is
+what was missing, and now exists.
+conduct-cycle.mjs --selftest ALL PASS (8 new fixtures, including the law's own quoted template
+shapes both ungated -- flagged -- and gated by a commit sha / HYPOTHESIS tag / file reference
+-- not flagged).
+Hunt-list tally: 19 of 25 struck this session (#1, #2, #3, #4, #5, #6, #9, #10, #12, #13,
+#14(partial), #15, #16(partial), #17, #19, #20, #21(partial), #23, #24).

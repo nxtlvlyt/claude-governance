@@ -1238,6 +1238,40 @@ export function heal(base = HERE, now = Date.now(), { exec = (cmd) => execSync(c
   return { performed, report: r.report, actions: r.actions };
 }
 
+// FIFTH-LAW REPORT-LINTER (hunt-item #23, 2026-07-04). conductor-core.md's fifth law (paid
+// 2026-07-02, two wrong causal narratives caught the same day) says: a conductor causal claim
+// ("X is why Y fails", "Z is gone/dead", "the root cause is...") ships only behind temporal
+// coverage + exhaustive-probe evidence + a receipt or an explicit HYPOTHESIS tag -- and its own
+// escalation clause says plainly: "if a future instance still ships an ungated causal claim,
+// the escalation is a report-linter that blocks 'root cause' sentences lacking a receipt or
+// HYPOTHESIS tag." That escalation fired (an ungated claim was made and operator-caught) and
+// the linter was never built -- until now. PURE, standalone: flags causal-claim language with
+// no receipt-like token (a commit sha, a file/path reference, or the literal word HYPOTHESIS)
+// within a nearby window -- a heuristic, not full natural-language understanding (the same
+// discipline as this session's other pattern-based checks: LARGE-DELETION's ratio, the
+// UNPARKS counter). NOT wired into any automatic blocking gate yet -- deciding WHERE to hook
+// it (every QUEUE.md write? every push?) and whether advisory-vs-blocking is right is a
+// separate call; this beat builds the linter itself, which is what the law's escalation
+// clause literally demanded and what was missing.
+export function findUngatedCausalClaims(text, { windowChars = 400 } = {}) {
+  const s = String(text || '');
+  const claimRe = /\b(?:the )?root cause (?:is|was)\b|\bis why\b|\bis (?:dead|gone)\b|\bno longer exists?\b|\bthe reason (?:is|why|for)\b/gi;
+  const receiptRe = /\b[0-9a-f]{7,40}\b|\bHYPOTHESIS\b|\b[\w-]+\.(?:mjs|md|json|ps1|html|js)\b|missions\/\S+/i;
+  const flagged = [];
+  let m;
+  while ((m = claimRe.exec(s))) {
+    const start = Math.max(0, m.index - windowChars);
+    const end = Math.min(s.length, m.index + m[0].length + windowChars);
+    const window = s.slice(start, end);
+    if (!receiptRe.test(window)) {
+      const lineStart = s.lastIndexOf('\n', m.index) + 1;
+      const lineEnd = (() => { const i = s.indexOf('\n', m.index); return i === -1 ? s.length : i; })();
+      flagged.push({ match: m[0], context: s.slice(lineStart, lineEnd).trim().slice(0, 200) });
+    }
+  }
+  return flagged;
+}
+
 function main() {
   if (process.argv.includes('--record')) {
     const arg = (k) => { const i = process.argv.indexOf(k); return i >= 0 ? process.argv[i + 1] : undefined; };
@@ -1360,6 +1394,23 @@ function selftest() {
   mkdirSync(path.join(tmp, 'missions', '_logs'), { recursive: true });
   const logs = path.join(tmp, 'missions', '_logs');
   const now = Date.now();
+
+  // ---- findUngatedCausalClaims (hunt-item #23, fifth-law report-linter) ----
+  {
+    // shapes quoted directly from conductor-core.md's fifth law ("X is why Y fails",
+    // "Z is gone/dead", "the root cause is...") -- the two real incidents the law names
+    // ("failing because cloud models", "minimax lab gone") were prose ABOUT these shapes,
+    // not literal instances of them; these fixtures test the actual quoted templates.
+    ck(findUngatedCausalClaims('cloud models is why the chain keeps failing').length === 1, 'causal-linter: "X is why Y fails"-shaped ungated prose is flagged (no receipt nearby)');
+    ck(findUngatedCausalClaims('the minimax lab is gone, restore cloud seats').length === 1, 'causal-linter: "Z is gone" ungated is flagged');
+    ck(findUngatedCausalClaims('The root cause is the witness cap truncating at 48000 chars, fixed in commit 854b31a.').length === 0, 'causal-linter: a root-cause claim WITH a commit sha nearby is not flagged (gated)');
+    ck(findUngatedCausalClaims('The root cause is X (HYPOTHESIS, not yet verified).').length === 0, 'causal-linter: an explicit HYPOTHESIS tag gates the claim');
+    ck(findUngatedCausalClaims('The root cause is documented in self_witness.mjs.').length === 0, 'causal-linter: a file-reference receipt gates the claim');
+    ck(findUngatedCausalClaims('This mission landed cleanly with all tests passing.').length === 0, 'causal-linter: ordinary prose with no causal-claim language is never flagged');
+    const flagged = findUngatedCausalClaims('the reason for the crash is unknown right now, still investigating');
+    ck(flagged.length === 1 && flagged[0].context.includes('the reason for the crash'), 'causal-linter: flagged entries carry the surrounding line as context, not just the bare match');
+    ck(findUngatedCausalClaims('').length === 0, 'causal-linter: empty text -> no findings, never throws');
+  }
 
   // fixture 1: dead daemon (stale status, dead pid) + one FAILED mission + claude-tier-without-429
   writeFileSync(path.join(logs, 'daemon-status.json'), JSON.stringify({ pid: 999999999, state: 'running', lanes: ['missions/x.mission.txt'], queued: 0, ts: new Date(now - 10 * 60000).toISOString() }));
