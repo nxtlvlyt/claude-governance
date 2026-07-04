@@ -39,6 +39,16 @@ niyyah: A record system that trusts unverified stamps and drops queued work on p
 requeues cannot be the substrate a smaller conductor inherits. Truth of record first; every
 acceptance below is a selftest, not an opinion.
 
+POWERSHELL TERNARY CONSTRAINT (2026-07-04, third occurrence this mission family — S1.S1's
+step-4 idempotent-commit check and this mission's own baseline/verify commands have both
+generated `(check) ? (branch-A) : (branch-B)` PowerShell syntax that parses fine when each
+branch is a single simple statement but throws a ParserError the moment either branch needs
+more than one command (e.g. `git add x; git commit -m y` as a ternary branch is not a single
+expression). For every command/verify step in this mission: use a plain multi-line
+`if (...) { ... } else { ... }` block instead of the `?:` ternary operator whenever either
+branch does more than one thing. The ternary form is only safe for a single bare
+Write-Output-style branch on both sides — default to if/else unless certain of that.
+
 CITATION-GUARD CONSTRAINT (carried forward — the SAME fabricated-citation class hit this
 file family repeatedly across attempts of the parent mission before this split). Escape
 hatches are WITHDRAWN. Do not write ANY illustrative example of a retro filename, stem name,
