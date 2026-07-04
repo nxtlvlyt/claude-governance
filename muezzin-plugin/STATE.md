@@ -154,18 +154,19 @@ current ledger + full git history, the operator push-notify log — none show it
 - 25 items in QUEUE.md's "THE 25 VERIFIED-OPEN HUNT GAPS" list (ledger item #11; each closes
   individually).
 
-**Struck so far (2026-07-04, this session): 10 of the 25 hunt items** — #2 (local-lane
+**Struck so far (2026-07-04, this session): 11 of the 25 hunt items** — #2 (local-lane
 TIMEOUT/NETWORK heal asymmetry, 5cba9d5), #4 (heartbeat failure-class table, fe46e4a2), #5
 (daemon UNRESOLVED-as-RESOLVED \b inversion, 548635f), #6 (RESOLVED-LANDED stamp validation,
 1b65287+f05d0e3), #9 (self-witness prompt truncation, 831dead), #10 (self-witness receipts
 mislabeling ornith:9b as 'laguna', b13ff7c), #12 (no-verdict re-ask now allows a concern line,
 5d8fc1e), #15 (fix-ledger requeue-once .some() bug, cb249ea), #17 (GAP-PRIORITY-HOLD namespace
 widened beyond mt-*, 72a17f6), #19 (conduct-cycle divergence guard fail-open-on-git-error,
-6c1363a). None of the 4 top-level items (#7-10) are
+6c1363a), #20 (DEPLOY keystroke's --commit-dirty contradiction clarified, 959eb68). None of
+the 4 top-level items (#7-10) are
 struck — #10/gemma is a MITIGATION not a close (architect-C reseated off gemma this session,
 commit 5068d4c, but gemma still serves vision-verdict with no alternative, so it can still
 crash there; see QUEUE.md gap #10 status).
-**19 remain open** (4 top-level + 15 hunt items).
+**18 remain open** (4 top-level + 14 hunt items).
 
 Report against THIS block every beat ("Gap fixes: N/29 struck" — 29 stays the denominator even
 as N climbs; it only shrinks if a top-level item's whole scope closes, quoting which N are new this
@@ -508,9 +509,17 @@ code; users saw the fallback.
   SERVED page + REAL pois.json, renders through served logic, refuses generic-fallback).
 
 **⏳ STANDING OPERATOR KEYSTROKES (decisions made; execution classifier-gated):**
-1. DEPLOY: `wrangler pages deploy . --project-name=muddytires --commit-dirty=true` in
-   the mt worktree — then `node scripts/verify-popups-e2e.mjs` MUST exit 0, then
-   `node conduct-cycle.mjs --record-deploy` stamps the witnessed marker.
+1. DEPLOY: **first confirm `git status` is clean in the mt worktree** (hunt-item #20,
+   2026-07-04: `--commit-dirty` is not a prompt-suppressor -- confirmed via wrangler's own
+   `--help` text, "whether or not the workspace should be considered dirty for this
+   deployment" -- it genuinely permits deploying whatever is currently on disk, uncommitted
+   changes included). Then `wrangler pages deploy . --project-name=muddytires
+   --commit-dirty=true` in the mt worktree — then `node scripts/verify-popups-e2e.mjs` MUST
+   exit 0, then `node conduct-cycle.mjs --record-deploy` stamps the witnessed marker.
+   `--record-deploy` REFUSES to stamp a dirty tree (conduct-cycle.mjs:1179) -- if step 1 was
+   run against a genuinely dirty tree, this step will correctly refuse, and the deploy is
+   done but UN-WITNESSED until the tree is committed and the sequence is re-run. Do not
+   interpret `--commit-dirty=true` as license to skip checking `git status` first.
 2. DAEMON RESTART: `taskkill /PID <daemon pid> /F` (supervisor respawns in ~3s) —
    activates ALL engine floors on the queued missions. Until then every fix above is
    DORMANT in the running daemon (Node caches imports). This is the LAST force-kill:

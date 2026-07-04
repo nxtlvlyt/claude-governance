@@ -1167,3 +1167,15 @@ the most important concern (or none)"). self_witness.mjs --selftest ALL PASS (2 
 the retry prompt text itself requests a concern line; a recovered verdict with a concern keeps
 it in notes). orchestrate.mjs --selftest ALL PASS. Reload requested.
 Hunt-list tally: 10 of 25 struck this session (#2, #4, #5, #6, #9, #10, #12, #15, #17, #19).
+
+## Hunt-item #20 LANDED 2026-07-04 20:2xZ, commit 959eb68
+STATE.md's standing DEPLOY keystroke told you to pass --commit-dirty=true unconditionally,
+while --record-deploy (the same sequence's step 3) refuses to stamp a witnessed marker if the
+tree is dirty -- a real contradiction if the keystroke were followed literally against an
+actually-dirty tree. Checked via `wrangler pages deploy --help` directly rather than guessing:
+the flag is "whether or not the workspace should be considered dirty for this deployment" --
+it genuinely permits deploying uncommitted changes, it's not a prompt-suppressor. Doc-only fix:
+clarified the keystroke to check git status first and named the failure mode if you don't
+(deploy succeeds, --record-deploy correctly refuses, deploy stays un-witnessed). No code
+change, no reload needed.
+Hunt-list tally: 11 of 25 struck this session (#2, #4, #5, #6, #9, #10, #12, #15, #17, #19, #20).
