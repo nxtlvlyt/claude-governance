@@ -1179,3 +1179,20 @@ clarified the keystroke to check git status first and named the failure mode if 
 (deploy succeeds, --record-deploy correctly refuses, deploy stays un-witnessed). No code
 change, no reload needed.
 Hunt-list tally: 11 of 25 struck this session (#2, #4, #5, #6, #9, #10, #12, #15, #17, #19, #20).
+
+## Hunt-item #22 ADDRESSED (not code -- structural/doc) 2026-07-04 20:3xZ
+Item's own text: "GAP-LIST-DRY unlock binds to the numbered ledger, but two receipted engine
+classes named AFTER 17:0x were never enrolled -- a successor sends the 'gaps dry' push with
+both [TRUNCATED IN SOURCE -- the line itself cuts off mid-sentence at "with both", never
+completed]. Could not recover which two specific classes were originally meant -- that
+information is genuinely lost, not guessed at. Checked whether GAP-LIST-DRY is an actual code
+gate before doing anything: grep across every .mjs file found ZERO matches for "GAP-LIST-DRY"
+or "gaps dry" -- it is PURE PROSE, the operator's own casual instruction ("let me know once
+all of the Gap fixes are done"), checked by conductor judgment each beat, never a coded gate.
+So the real fix for "the ledger under/over-counts what's enrolled" isn't code -- it's exactly
+what this session's STATE.md GAP SCOREBOARD block already does (added 2026-07-04, corrected
+from an unverified "30"): ONE current, explicitly-unioned total (4 top-level + 25 hunt = 29)
+with instructions to update it the same beat any item lands, replacing the prior pattern of
+scattered per-item notes a successor would have to manually re-tally. Addressed by that
+existing mechanism, not a new one -- no separate commit for this item.
+Hunt-list tally unchanged at 11 (this item resolves via existing infrastructure, not a new fix).
