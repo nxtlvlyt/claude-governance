@@ -1156,3 +1156,14 @@ currently-pending mission matches the newly-added prefixes (all already terminal
 closes the gap for future requeues without changing anything firing right now.
 muezzin-daemon.mjs --selftest ALL PASS (6 new fixtures). Reload requested.
 Hunt-list tally: 9 of 25 struck this session (#2, #4, #5, #6, #9, #10, #15, #17, #19).
+
+## Hunt-item #12 LANDED 2026-07-04 20:1xZ, commit 5d8fc1e
+checkStructure's no-verdict re-ask prompt said "Reply with ONLY... no other text" -- forbidding
+the model from ever naming a concern on a recovered verdict, so every re-asked REVISE/REJECT
+landed as a bare tag with no reason a receipt reader could act on. GAP #3's earlier diagnosis
+(see above) had already recommended propagating the concern-line request into this retry;
+implemented that, mirroring LAGUNA_SYSTEM's own instruction shape ("then one short line naming
+the most important concern (or none)"). self_witness.mjs --selftest ALL PASS (2 new fixtures:
+the retry prompt text itself requests a concern line; a recovered verdict with a concern keeps
+it in notes). orchestrate.mjs --selftest ALL PASS. Reload requested.
+Hunt-list tally: 10 of 25 struck this session (#2, #4, #5, #6, #9, #10, #12, #15, #17, #19).

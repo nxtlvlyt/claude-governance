@@ -235,7 +235,13 @@ export async function checkStructure(artifactText, contextText, { dispatch = orn
     if (sanitized) parsed.notes = `[sanitized: tool-call wrapper removed] ${parsed.notes}`.trim();
     if (parsed.verdict === null) {
       try {
-        const retryPrompt = `Your previous reply did not include a <verdict> tag. Reply with ONLY one of: <verdict>APPROVE</verdict>, <verdict>REVISE</verdict>, or <verdict>REJECT</verdict> -- no other text.\n\nYour previous reply was:\n${String(content).slice(0, 500)}`;
+        // CONCERN LINE (hunt-item #12, 2026-07-04): this used to say "no other text", which
+        // forbade the model from ever naming a concern on a recovered verdict -- every
+        // re-asked REVISE/REJECT landed as a bare tag, unadjudicable by a receipt reader
+        // (GAP #3's diagnosis recommended propagating the original system prompt's
+        // concern-line request into this retry, not just the bare tag). Mirrors LAGUNA_SYSTEM's
+        // own instruction shape.
+        const retryPrompt = `Your previous reply did not include a <verdict> tag. Reply with one of: <verdict>APPROVE</verdict>, <verdict>REVISE</verdict>, or <verdict>REJECT</verdict> -- then one short line naming the most important concern (or "none"). No other text besides the tag and that one line.\n\nYour previous reply was:\n${String(content).slice(0, 500)}`;
         const retryRaw = await dispatch(system, retryPrompt);
         const { content: retryContent } = sanitizeWitnessContent(retryRaw);
         const retryParsed = parseLagunaVerdict(retryContent);
@@ -634,6 +640,19 @@ if (process.argv[1] && process.argv[1].endsWith('self_witness.mjs') && !process.
     });
     ck(calls2 === 2, 'checkStructure: re-ask that ALSO has no verdict still only dispatches twice total (no infinite loop)');
     ck(csRambleTwice.verdict === null && csRambleTwice.ran === true, 'checkStructure: both attempts no-verdict -> ran:true, verdict:null (honest no-signal, not a false block)');
+  }
+  // ---- concern line survives the re-ask (hunt-item #12, 2026-07-04): the retry prompt used
+  // to say "no other text", forbidding a concern even on a recovered REVISE/REJECT ----
+  {
+    let capturedRetryPrompt = '';
+    const csConcernRecovered = await checkStructure('art', 'ctx', {
+      dispatch: async (sys, prompt) => {
+        if (prompt.startsWith('Your previous reply did not include')) capturedRetryPrompt = prompt;
+        return capturedRetryPrompt ? '<verdict>REJECT</verdict> cites a receipt that does not exist' : 'rambling, no tag';
+      },
+    });
+    ck(/naming the most important concern/.test(capturedRetryPrompt), 're-ask prompt: asks for a concern line, not "no other text" (the bug this hunt-item names)');
+    ck(csConcernRecovered.verdict === 'REJECT' && csConcernRecovered.notes.includes('cites a receipt that does not exist'), 're-ask: a recovered verdict WITH a concern keeps that concern in notes (adjudicable, not a bare tag)');
   }
 
   // ---- summarizePs + wouldOversubscribe (GR10 VRAM logic) ----
