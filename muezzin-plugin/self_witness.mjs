@@ -349,7 +349,13 @@ export async function lagunaStop(modelName, { base = OLLAMA_BASE, timeoutMs = 15
 //   - false : at least one witness RAN and RAISED a concern (a flag — NOT a block)
 //   - null  : no usable signal (both no-signal, GPU-yielded, or errored) — never a block
 // reasons[] names what fired, for the receipt reader.
-export function buildReceipt({ context = {}, laguna, guardian, yielded = false }) {
+// structureModel/guardianModel (2026-07-04, GAP-CLOSURE-PLAYBOOK UNIT D2, hunt-item #10):
+// reason strings + the receipt's model-name fields now record the ACTUAL dispatched model,
+// not the literal word "laguna" -- checkStructure's default dispatch has been ornith9bDispatch
+// since 2026-06-30, so every receipt was mislabeling ornith:9b's verdict as laguna's. Defaults
+// here match witnessArtifact's own defaults (ORNITH_9B_MODEL / granite4.1-guardian:8b) so a
+// caller that omits them still gets an honest label instead of reintroducing the wrong one.
+export function buildReceipt({ context = {}, laguna, guardian, yielded = false, structureModel = ORNITH_9B_MODEL, guardianModel = 'granite4.1-guardian:8b' }) {
   const reasons = [];
   let ok;
   if (yielded) { ok = null; reasons.push('witness-queued: GPU busy (oversubscribe) — yielded, no concurrent load'); }
@@ -358,12 +364,12 @@ export function buildReceipt({ context = {}, laguna, guardian, yielded = false }
     const gRan = guardian?.ran && guardian.grounded != null;
     const lConcern = lRan && laguna.verdict !== 'APPROVE';
     const gConcern = gRan && guardian.grounded === false;
-    if (lConcern) reasons.push(`laguna(structural): ${laguna.verdict} — ${String(laguna.notes || '').slice(0, 160)}`);
-    if (gConcern) reasons.push(`guardian(groundedness): NOT grounded — ${String(guardian.raw || '').slice(0, 160)}`);
-    if (lRan && !lConcern) reasons.push('laguna(structural): APPROVE');
-    if (gRan && !gConcern) reasons.push('guardian(groundedness): grounded');
-    if (!lRan) reasons.push(`laguna(structural): no-signal${laguna?.ran === false ? ' (unavailable)' : ''}`);
-    if (!gRan) reasons.push(`guardian(groundedness): no-signal${guardian?.ran === false ? ' (unavailable)' : ''}`);
+    if (lConcern) reasons.push(`${structureModel}(structural): ${laguna.verdict} — ${String(laguna.notes || '').slice(0, 160)}`);
+    if (gConcern) reasons.push(`${guardianModel}(groundedness): NOT grounded — ${String(guardian.raw || '').slice(0, 160)}`);
+    if (lRan && !lConcern) reasons.push(`${structureModel}(structural): APPROVE`);
+    if (gRan && !gConcern) reasons.push(`${guardianModel}(groundedness): grounded`);
+    if (!lRan) reasons.push(`${structureModel}(structural): no-signal${laguna?.ran === false ? ' (unavailable)' : ''}`);
+    if (!gRan) reasons.push(`${guardianModel}(groundedness): no-signal${guardian?.ran === false ? ' (unavailable)' : ''}`);
     if (lConcern || gConcern) ok = false;
     else if (lRan || gRan) ok = true;       // at least one ran clean, the other no-signal -> pass (non-blocking)
     else ok = null;                          // neither produced a signal -> no signal
@@ -381,8 +387,13 @@ export function buildReceipt({ context = {}, laguna, guardian, yielded = false }
     pass: context.pass || 'before',
     ok,
     blocking: false,                         // HARD RAIL: this gate never blocks (non-blocking first)
-    laguna: laguna ? { verdict: laguna.verdict ?? null, ran: !!laguna.ran } : null,
-    guardian: guardian ? { grounded: guardian.grounded ?? null, ran: !!guardian.ran } : null,
+    // model names on the receipt itself (UNIT D2): the actually-dispatched model, not a
+    // hardcoded seat label -- present even when that witness produced no signal, so a
+    // receipt reader always knows which model was asked, not just which model answered.
+    structureModel,
+    guardianModel,
+    laguna: laguna ? { verdict: laguna.verdict ?? null, ran: !!laguna.ran, model: structureModel } : null,
+    guardian: guardian ? { grounded: guardian.grounded ?? null, ran: !!guardian.ran, model: guardianModel } : null,
     reasons,
   };
 }
@@ -524,7 +535,7 @@ export async function witnessArtifact(text, context = {}, opts = {}) {
   try { ps = await probe(); } catch { ps = null; }   // probe down -> treat as unknown; proceed cautiously below
   const smallLaneBusy = !!ps && ps.models.some((m) => m.size_vram > 0 && m.size_vram < smallLaneBytes && m.name !== structureModel && m.name !== guardianModel);
   if (smallLaneBusy) {
-    const receipt = emit(buildReceipt({ context, yielded: true }));
+    const receipt = emit(buildReceipt({ context, yielded: true, structureModel, guardianModel }));
     return { laguna: null, guardian: null, ok: null, yielded: true, receipt };
   }
 
@@ -556,7 +567,7 @@ export async function witnessArtifact(text, context = {}, opts = {}) {
     guardian = await safe(() => groundFn(ctxText, text), { grounded: null, ran: false });
   }
 
-  const receipt = emit(buildReceipt({ context, laguna, guardian }));
+  const receipt = emit(buildReceipt({ context, laguna, guardian, structureModel, guardianModel }));
   return { laguna, guardian, ok: receipt.ok, yielded: false, receipt };
 }
 
@@ -658,6 +669,16 @@ if (process.argv[1] && process.argv[1].endsWith('self_witness.mjs') && !process.
   ck(rYield.ok === null && rYield.reasons[0].includes('GPU busy'), 'receipt: GPU-yielded -> ok:null + queued reason');
   const rOnePartial = buildReceipt({ context: {}, laguna: { verdict: 'APPROVE', ran: true }, guardian: { grounded: null, ran: false } });
   ck(rOnePartial.ok === true, 'receipt: one clean + one no-signal -> ok:true (non-blocking pass)');
+
+  // ---- honest model labeling (UNIT D2, hunt-item #10): reasons + fields name the ACTUAL
+  // dispatched model, never the hardcoded word "laguna" for what ornith:9b (or ornith:35b)
+  // really ran ----
+  const rDefaultLabel = buildReceipt({ context: {}, laguna: { verdict: 'REVISE', notes: 'gap', ran: true }, guardian: { grounded: true, ran: true } });
+  ck(rDefaultLabel.reasons.some((x) => x.startsWith('ornith:9b(structural): REVISE')), 'receipt: default structureModel label is ornith:9b (the real production default), not laguna');
+  ck(rDefaultLabel.structureModel === 'ornith:9b' && rDefaultLabel.laguna.model === 'ornith:9b', 'receipt: structureModel recorded on both the receipt and the laguna sub-object');
+  const rCustomLabel = buildReceipt({ context: {}, laguna: { verdict: 'APPROVE', ran: true }, guardian: { grounded: true, ran: true }, structureModel: 'ornith:35b', guardianModel: 'granite4.1-guardian:8b' });
+  ck(rCustomLabel.reasons.some((x) => x.startsWith('ornith:35b(structural): APPROVE')), 'receipt: a caller-supplied structureModel (e.g. ornith:35b) is honored in the reason text, never overwritten with a hardcoded name');
+  ck(!rCustomLabel.reasons.some((x) => x.includes('laguna(structural)')), 'receipt: the literal word "laguna" never appears when a different model actually ran');
 
   // ---- witnessArtifact end-to-end with INJECTED fakes: BOTH verdicts captured + receipt ----
   const calls = [];
@@ -872,8 +893,8 @@ if (process.argv.includes('--check-commit')) {
     }
     if (r.yielded) console.log(`still yielded after ${MAX_RETRIES} retries — giving up, no witness for this commit`);
     console.log(`elapsed ${Date.now() - t0}ms — yielded=${r.yielded} ok=${r.ok}`);
-    console.log(`  laguna(structural): ${r.laguna?.verdict ?? '(no signal)'}${r.laguna?.notes ? ' — ' + r.laguna.notes.slice(0, 200) : ''}`);
-    console.log(`  guardian(groundedness): ${r.guardian?.grounded === null ? '(no signal)' : r.guardian?.grounded} ${r.guardian?.raw ? '— ' + String(r.guardian.raw).slice(0, 150) : ''}`);
+    console.log(`  ${r.receipt?.structureModel || modelNameByArg[modelArg]}(structural): ${r.laguna?.verdict ?? '(no signal)'}${r.laguna?.notes ? ' — ' + r.laguna.notes.slice(0, 200) : ''}`);
+    console.log(`  ${r.receipt?.guardianModel || 'granite4.1-guardian:8b'}(groundedness): ${r.guardian?.grounded === null ? '(no signal)' : r.guardian?.grounded} ${r.guardian?.raw ? '— ' + String(r.guardian.raw).slice(0, 150) : ''}`);
     if (r.ok === false) console.log('FLAG — see notes above (non-blocking; this is informational, not a gate)');
     process.exit(0);
   })();

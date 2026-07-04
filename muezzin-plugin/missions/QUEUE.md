@@ -1094,3 +1094,15 @@ window (no lane running). This likely explains some fraction of past laguna/orni
 REJECTs on longer mission specs -- same class as the witness-cap bug that unblocked
 engine-truth-of-record.S1 earlier today -- but that is a hypothesis, not yet receipted; watch
 for a drop in structural REJECT-then-overturned rate on long artifacts, don't assert it.
+
+## UNIT D2 (GAP-CLOSURE-PLAYBOOK) LANDED 2026-07-04 18:5xZ, commit b13ff7c
+Hunt-item #10: self-witness receipts hardcoded the seat label 'laguna' in reason text
+regardless of which model actually ran -- checkStructure has defaulted to ornith9bDispatch
+since 2026-06-30, so every receipt since then mislabeled ornith:9b's own verdict as laguna's.
+buildReceipt now takes structureModel/guardianModel (defaulting to witnessArtifact's own
+defaults) and uses them in the reason strings + new top-level receipt fields (structureModel,
+guardianModel, .model on each sub-object); threaded through both real call sites in
+witnessArtifact + the --check-commit CLI printer. self_witness.mjs --selftest 71/71 PASS (4
+new fixtures), orchestrate.mjs --selftest ALL PASS. Reload requested at the same clean idle
+window as D1 (board quiet, no lane running, gap-priority-hold has nothing else queued).
+Hunt-list tally: 7 of 25 struck this session (#2, #4, #5, #6, #9, #10, #15).
