@@ -472,8 +472,15 @@ export function computeDoneness(base, autorun, {
   if (pushedGap === null) blocking.push({ layer: 'L3', mission: '(repo)', reason: `cannot determine pushed-gap vs ${mainlineRef} — fail-closed` });
   else if (pushedGap > 0) blocking.push({ layer: 'L3', mission: '(repo)', reason: `${pushedGap} commit(s) on HEAD are NOT pushed to ${mainlineRef}` });
   // DIVERGENCE GUARD: two mainline branches out of sync is the exact bug that stranded the 27 commits.
+  // FAIL-CLOSED on git error (hunt-item #19, 2026-07-04): this guard used to fail OPEN -- a git
+  // error left div.ok:false and the `if` simply never fired, so a broken/absent divergence check
+  // silently reported nothing, unlike the pushedGap check 3 lines above which already fails closed
+  // on the same class of error. Mirrors that exact pattern.
   const div = gitFn(targetRepo, 'rev-list --count github/main...github/master');
-  if (div.ok && /^\d+$/.test(div.out.trim()) && parseInt(div.out.trim(), 10) > 0) blocking.push({ layer: 'L3', mission: '(repo)', reason: `github/main and github/master DIVERGED by ${div.out.trim()} commit(s) — reconcile to one canonical mainline` });
+  let divergenceCount = null;
+  if (div.ok && /^\d+$/.test(div.out.trim())) divergenceCount = parseInt(div.out.trim(), 10);
+  if (divergenceCount === null) blocking.push({ layer: 'L3', mission: '(repo)', reason: 'cannot determine github/main vs github/master divergence — fail-closed' });
+  else if (divergenceCount > 0) blocking.push({ layer: 'L3', mission: '(repo)', reason: `github/main and github/master DIVERGED by ${divergenceCount} commit(s) — reconcile to one canonical mainline` });
 
   // ---- L4 DEPLOY-FRESHNESS: landed+pushed is NOT live until deployed (muddytires ships via manual
   // `wrangler pages deploy`, not git auto-deploy). ROOT FIX 2026-07-02: the roadside_oddity popup fix
@@ -554,7 +561,7 @@ export function computeDoneness(base, autorun, {
     if (anyDeterminable && !landed) blocking.push({ layer: 'L3', mission: stem, reason: `DONE but deliverable patch [${shas.map((x) => x.slice(0, 7)).join(',')}] not in the deployable tree` });
   }
 
-  const counts = { pending: pending.length, running: running.length, unresolvedFailed: unresolvedFailed.length, dammOwed: owed.length, openIntegration, pushedGap, deployGap, doneDeliverablesChecked: doneChecked, blocking: blocking.length };
+  const counts = { pending: pending.length, running: running.length, unresolvedFailed: unresolvedFailed.length, dammOwed: owed.length, openIntegration, pushedGap, divergenceCount, deployGap, doneDeliverablesChecked: doneChecked, blocking: blocking.length };
   const frontierClean = pending.length === 0 && running.length === 0 && unresolvedFailed.length === 0 && owed.length === 0 && openIntegration === 0;
   const barMet = frontierClean && blocking.length === 0;
   return { ts: new Date(now).toISOString(), barMet, counts, blocking: blocking.slice(0, 60), frontierClean };
@@ -1732,6 +1739,22 @@ function selftest() {
     const arun3 = { done: ['missions/mt-integrate-strand.mission.txt'], failed: [], pending: [], running: [], notes: {} };
     const dn3 = computeDoneness(tmp, arun3, { gitFn: strandGit });
     ck(dn3.blocking.some((b) => b.mission === 'mt-integrate-strand' && /NOT in the deployable tree/.test(b.reason)), 'presence-AND-landed: all ALLOW-FILES present but patch not in tree -> L3 BLOCK (recall restored)');
+  }
+
+  // (c) divergence guard fails CLOSED on git error (hunt-item #19, 2026-07-04): a git error on
+  // the main/master rev-list used to leave div.ok:false with NO blocking entry at all -- silent
+  // fail-OPEN, the same class the pushedGap check 3 lines above it already guards against.
+  {
+    const divErrGit = (repo, argstr) => {
+      if (/^rev-list --count github\/main\.\.\.github\/master/.test(argstr)) return { ok: false, out: '' };
+      return stubGit(repo, argstr);
+    };
+    const arun4 = { done: [], failed: [], pending: [], running: [], notes: {} };
+    const dn4 = computeDoneness(tmp, arun4, { gitFn: divErrGit });
+    ck(dn4.counts.divergenceCount === null, 'divergence guard: git error -> divergenceCount null (never a false zero)');
+    ck(dn4.blocking.some((b) => /cannot determine github\/main vs github\/master divergence — fail-closed/.test(b.reason)), 'divergence guard: git error -> explicit fail-closed BLOCK, not silent fail-open');
+    const dnOk = computeDoneness(tmp, arun4, { gitFn: stubGit });
+    ck(dnOk.counts.divergenceCount === 0 && !dnOk.blocking.some((b) => /divergence/.test(b.reason)), 'divergence guard: clean git (0 commits diverged) -> no blocking, zero behavior change for the healthy path');
   }
 
   rmSync(tmp, { recursive: true, force: true });
