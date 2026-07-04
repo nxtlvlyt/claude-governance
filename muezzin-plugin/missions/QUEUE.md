@@ -1232,3 +1232,19 @@ muezzin-gate hook PASS), committed 8bb26b7. engine-truth-of-record.S1 requeued t
 for real. LESSON: git worktree operations on this specific repo/git-version combination are
 NOT safe to treat as risk-free isolation -- verify `git worktree list` shows the main repo
 correctly (not "(bare)") immediately after any worktree add, before trusting it.
+
+## NEW GAP 2026-07-04 04:5x — missionLandedState's srcSha extraction is UNSCOPED (self-caught)
+conduct-cycle.mjs's missionLandedState (used by muezzin-daemon.mjs's PRE-SATISFIED guard)
+extracts a "source sha to compare ALLOW-FILES against" via `mtext.match(/\b([a-f0-9]{7,40})\b/)`
+-- the FIRST hex-looking token ANYWHERE in a mission's full text, with NO requirement that it
+appear near a "RESOLVED" keyword or any actual landed-work stamp. A conductor's own honest
+prose citing a commit hash for unrelated context (e.g. "the real fix landed at commit
+8bb26b7") gets misread as an authoritative claim that this mission's ALLOW-FILES already
+match that commit -- producing a FALSE PRE-SATISFIED verdict and a silent skip, twice, on
+engine-truth-of-record.S1 (04:32:11, 04:41:03), discovered only because the mission's OWN
+lineage note happened to name the unrelated fixing commit. RECEIPT: muezzin-daemon.mjs:1066-
+1069 (PRE-SATISFIED guard) + conduct-cycle.mjs:149 (the unscoped regex). REAL FIX OWED: the
+srcSha extraction should require proximity to an explicit "RESOLVED" (or similar stamp)
+keyword, not match any bare hex substring in the whole mission text. Immediate workaround
+applied to this mission: reworded the lineage note to avoid any bare commit-hash-shaped
+token; verified programmatically against the actual regex before requeuing.
