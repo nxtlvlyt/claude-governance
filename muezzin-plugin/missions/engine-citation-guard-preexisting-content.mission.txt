@@ -1,0 +1,73 @@
+MISSION-ID: engine-citation-guard-preexisting-content
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\.claude\muezzin-plugin
+ALLOW-FILES:
+  - orchestrate.mjs
+UNLINKED-OK: engine module edits — no user-facing page
+REQUIRES: none
+STEPS: 6
+
+Maqsad: engine-truth-of-record.S1 has hit an IDENTICAL fabricated-citation halt nine times
+across three different models (qwen3-coder-next, sonnet, opus) and multiple fresh re-plans —
+the exact same list every time. That perfect repetition across independent models is proof
+it is not hallucination: the flagged tokens are a real, pre-existing selftest fixture already
+present in muezzin-daemon.mjs (the retroRepeatBlocked test, a few lines from the code C1 must
+edit), and the executor's diff legitimately touches that neighborhood. filterQuotedMentions
+in citation_guard.mjs already has an exemption for "this token appears inside some staged
+file's content" — but it excludes the step's own target_files from that scan (via the
+`exclude` parameter, to stop a step citing its own brand-new unverified claims as
+self-evidence). That correct guard over-reaches: it also blocks a target file's OWN
+pre-existing, unrelated, already-real content from ever exempting a token, because the whole
+file is skipped regardless of whether the flagged content predates this edit or was
+introduced by it.
+
+Root fix: distinguish "content this edit just wrote" from "content that was already there
+before this edit touched the file." The latter is real and cannot be a fabrication no matter
+what filterQuotedMentions's self-reference guard says.
+
+In orchestrate.mjs, at the citation-guard call site (the block that calls
+filterQuotedMentions and findFabricatedCitations together, guarded by
+`step.action_type === 'edit' && cur`): capture each target file's content via git — the
+committed HEAD revision, read before this uncommitted edit is scored — for every path in
+step.target_files. Pass that captured pre-edit text set as an additional always-allowed
+content source alongside the writeRoot scan filterQuotedMentions already does, so a flagged
+token exempts if EITHER a non-target staged file's content contains it (existing behavior,
+unchanged) OR a target file's OWN pre-edit (HEAD) content contains it (the new case). The
+self-reference guard's real purpose — a step cannot use its own brand-new, uncommitted claim
+as evidence for itself — stays intact, because only the HEAD (pre-edit, already-real)
+revision counts, never the working-tree content the edit just produced.
+
+Implementation guidance (do not treat this as literal code to copy — verify against the
+actual function signatures by reading citation_guard.mjs and this call site yourself before
+editing): a git plumbing read of a path at HEAD inside writeRoot returns empty/throws for a
+file that is new or untracked — treat that as simply "no pre-edit content to check," never a
+crash. Reuse whatever git-invocation helper this file already uses elsewhere for reading
+committed content (do not shell out ad hoc if an existing helper does this).
+
+niyyah: A step should never be penalized for correctly preserving code that was already true
+before it touched the file. The self-reference guard's purpose is narrow — stop a step
+citing its own wet ink as proof — and must not be allowed to also blind the checker to ink
+that was already dry.
+
+CITATION-GUARD-ON-ITSELF CONSTRAINT: this mission edits the citation guard's own call site.
+Do not write any illustrative example of a fabricated-citation string, a retro filename, or
+a mission-stem-plus-timestamp pattern anywhere in your own comments or commit message — not
+in any form, backtick-quoted or not. Reference only function and file names that genuinely
+exist in this repo (orchestrate.mjs, citation_guard.mjs, filterQuotedMentions,
+findFabricatedCitations, collectAllowedBasenames, muezzin-daemon.mjs) — those are real and
+safe to name. Describe the failure class in prose (a selftest fixture string that looks
+like a filename) without ever typing one out as a worked example.
+
+Steps:
+  1. Baseline: record branch + HEAD; read citation_guard.mjs and orchestrate.mjs's citation-guard call site in full before editing anything; print PRESENT/ABSENT for the marker mt-preexisting-content-guard in orchestrate.mjs. Never exit 1 on existence. [command]
+  2. Edit orchestrate.mjs's citation-guard block per the Maqsad: add the pre-edit (git HEAD) content capture for target_files and thread it into the filterQuotedMentions exemption as an additional allowed-content source, distinct from and in addition to the existing writeRoot scan. Tag the change site with the literal comment mt-preexisting-content-guard. Never crash on a target file that has no HEAD revision (new/untracked) — treat as no pre-edit content. [edit] orchestrate.mjs
+  3. Add or extend a selftest (in citation_guard.mjs or orchestrate.mjs, wherever this repo's convention already tests this call site — check both before choosing) proving: a token that exists in a target file's PRE-EDIT content is exempted; a token the edit introduces fresh (not in the pre-edit content) still flags as fabricated when it matches nothing else real. Build any filename-shaped test string via runtime concatenation of variables, never a typed-out literal, per the constraint above. [edit] orchestrate.mjs
+  4. Verify: node --check orchestrate.mjs; Select-String receipt for mt-preexisting-content-guard; run the relevant selftest command and confirm the new fixture is visible and passing alongside the existing suite ALL PASS. [verify]
+  5. git commit orchestrate.mjs by explicit name, naming this mission and the nine-occurrence receipt on engine-truth-of-record.S1 that diagnosed it; idempotent no-op if already committed. [command]
+  6. OUTCOME CHECK: request or observe the next natural run of engine-truth-of-record.S1 (or any code-repo mission touching a file with pre-existing filename-shaped test fixtures) and confirm it no longer citation-halts on content that predates its own edit. If no such run is observable within this mission's own scope, the selftest fixture from step 3 IS the acceptance evidence — state which evidence path was used. [command]
+
+Done means: orchestrate.mjs's citation guard no longer flags a target file's own pre-existing
+content as fabricated, proven by a selftest distinguishing pre-edit-real from freshly-invented;
+node --check clean; committed at HEAD carrying mt-preexisting-content-guard; the self-reference
+protection against citing one's own new unverified claims remains fully intact for genuinely
+fabricated content.
