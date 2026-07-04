@@ -1179,3 +1179,36 @@ Cloud-referencing rationale text immediately once the lane clears (highest prior
 ruling-violating text in a prompt-injected governance file); (2) collapse the false-diversity
 fallback rung across all 8 files to the single honest identity; (3) re-audit every OTHER
 locally-tagged model against its /api/show digest before trusting any remaining tag name.
+
+## CORRECTION 2026-07-04T01:2x — TRUE ROOT CAUSE FOUND: citation_guard FALSE-POSITIVE, not
+## executor hallucination (my last 2 beats of mission-text tightening were the WRONG fix)
+The identical fabricated list ("<stem>-<ISO ts with dashes>.md, st-2026-07-03T00-20-00-000Z.md,
+...") has now recurred 8+ times, VERBATIM, across three different models (qwen3-coder-next,
+sonnet, opus) and multiple FRESH re-plans. That perfect verbatim recurrence across independent
+models was the tell: no prose instruction could ever fix this, because the model is not
+inventing these strings — it is correctly quoting REAL, PRE-EXISTING code.
+RECEIPTS: `st-2026-07-03T00-20-00-000Z.md` is a literal string constant inside an EXISTING
+selftest fixture at muezzin-daemon.mjs:1390-1399 (the retroRepeatBlocked test), sitting right
+next to the tartib/RESOLVED regex logic this mission's C1 must edit — the executor's diff
+legitimately includes/touches this pre-existing block. citation_guard.mjs's
+collectAllowedBasenames (lines 103-123) builds its allowlist by walking REAL FILENAMES ON DISK
+(readdirSync) plus declared deps/targets — it has ZERO awareness of string literals inside
+file CONTENTS, so a template-literal test-fixture string that merely LOOKS like a filename
+trips the guard every time, regardless of model or attempt. Compounding factor (orchestrate.mjs
+line 1182): the repair prompt quotes the fabricated list VERBATIM back into the model's next
+context ("you referenced files that do not exist... : <list>. remove or replace these"),
+which likely reinforces recontamination on repair attempts within a single dispatch too.
+CONSEQUENCE: my mission-text amendments (2 rounds, "compliant forms" then "absolute
+prohibition") were both FUTILE by construction — there was nothing for prose to fix. Do NOT
+attempt a third mission-text patch on engine-truth-of-record.S1's citation trap.
+REAL FIX OWED (citation_guard.mjs, NOT this mission's text): collectAllowedBasenames (or
+findFabricatedCitations's caller in orchestrate.mjs) must ALSO exclude any backtick-quoted
+token that already appears verbatim in the PRE-EDIT content of the file(s) being modified —
+preserving/quoting existing source is not a citation, fabricated or otherwise. This is a
+GENERAL engine bug (affects any mission touching a file with filename-shaped string literals
+in test fixtures), not specific to this mission — likely explains other unexplained
+fabricated-citation halts tonight too (worth a retroactive check once fixed).
+DISPOSITION: engine-truth-of-record.S1 stays live this beat (mid-dispatch, not killed); once
+it next reaches terminal FAILED, do NOT requeue with another text change — author and land
+the citation_guard.mjs fix first (separate mission, since this repo has a live lane right now
+and citation_guard.mjs is outside the current lane's ALLOW-FILES — lane-exclusion applies).
