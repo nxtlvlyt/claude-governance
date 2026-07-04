@@ -1297,3 +1297,40 @@ THIRD clean dispatch 2026-07-04T01:47-01:48Z local (dispatch-heartbeat.log): ide
 pattern -- guard held (4 backoff cycles, resident=17.6GB), fail-opened, then
 attempt-ok ms=69450, zero errors. Three-for-three now, ~78 min into the post-reload census
 (00:30:36 -> 01:48). Still not struck -- continuing to accumulate toward the multi-hour bar.
+
+## NEW GAP 2026-07-04 02:1xZ -- CHAIN-STREAK fired (13 consecutive terminal-FAILED, zero DONE)
+The daemon's own breaker fired live: "CHAIN-STREAK: 13 consecutive terminal-FAILED runs
+across missions (cause-blind counter) -- the chain itself is the anomaly; conductor must
+change strategy, not requeue the next mission" (missions/_logs/fail-streak.json:
+{"count":13,"lastAlertAt":13}). Verified from daemon-events.log directly (not the alert
+text alone): 14 distinct terminal-FAILED/RECURRING-HALT entries from 2026-07-03T16:09Z
+through 2026-07-04T08:03Z, zero DONE in between -- a real ~16h dry spell, not a stale
+counter. One nuance the raw counter can't see: the LAST entry in the streak
+(engine-truth-of-record.S1.S1) was itself a FALSE DEATH I caught and resolved this
+session (the underlying work had genuinely landed) -- so the counter somewhat overstates
+severity, but even discounting that one entry the dry spell is real.
+
+STRUCTURAL PATTERN inside the streak, not just isolated bugs: the "one-writer-per-file"
+plan-validation error hit TWO INDEPENDENT missions this same window --
+mt-mobile-qc-hardening.S1.S1 at 2026-07-03T20:01:36Z ("one-writer: 'scripts/e2e-runner.mjs'
+is written by BOTH step 2 and step 3") and my own engine-truth-of-record.S1 at
+2026-07-04T07:29:44Z ("one-writer: 'muezzin-daemon.mjs' is written by BOTH step 2 and step
+3") -- same exact error class, two different mission authors (a prior conductor session and
+me), both burning a full plan-attempt cycle (which can run 10-90+ min) before the mechanical
+check ever catches it. Per pattern-amortization-signal.md (2+ same-shape fixes -> name a
+structural helper instead of refixing per-mission): the check already exists correctly at
+PLAN time (deconstructor validation) but not at MISSION-AUTHORING time. Proposed fix (not yet
+built -- scoping only): extend mission_lint.mjs's lintMission() to parse each Steps line's
+trailing "[edit] <file>" / "[command] <file>" annotation and flag when the same file appears
+as an edit/command target on 2+ different step lines -- catches this BEFORE a plan attempt
+is ever dispatched, at effectively zero cost (lintMission already runs pre-fire). Not done
+this beat: not currently blocking anything live (engine-truth-of-record.S1.S2 already avoids
+the pattern by construction), and a careful addition needs its own selftest fixtures --
+queued as a real follow-up engine mission, not deferred silently.
+
+Strategy for THIS beat (not "requeue the next mission blindly"): continue shepherding
+engine-truth-of-record.S1.S2 -- it already passed plan validation (the pattern above does
+NOT affect it) and is the closest thing to a real DONE all session; a genuine DONE resets
+this counter to 0 via chainStreak('DONE', ...). That is the actual strategy change the
+breaker is asking for: stop feeding the streak with fresh mission attempts elsewhere, finish
+the one that's already past its hardest gate.
