@@ -620,10 +620,22 @@ function shouldHaltMission(n, maxAttempts, failedStep) {
 // GAP-PRIORITY-HOLD classifier (operator ruling 2026-07-03). PURE + exported: which pending
 // lines does the hold defer? PRODUCT-class = mt-* website missions. Engine/gap/damm/qc-of-
 // engine missions keep firing — holding THOSE would defeat the ruling's purpose.
+// WIDENED 2026-07-04 (hunt-item #17): the mt- test only covers ONE product namespace; a
+// disk inventory of missions/*.mission.txt found other product-class prefixes the same
+// bug applies to (historical b13-* PARKED entries in STATUS-BOARD.md, and live
+// muddytires-*.mission.txt files -- the literal word "muddytires", not the mt- abbreviation,
+// slipped through entirely: muddytires-community-1-social-platform,
+// muddytires-migrate-1-static-map). Widened to the prefixes the hunt-item named PLUS this
+// found gap, conservatively -- prefixes with genuinely ambiguous product-vs-engine mission
+// history (qc-*, sota-*, auth-*, render-*, get-*, portal-*, retro-*, sources-*, agy-*,
+// hyperframes-*, laptop-*) are deliberately NOT included here; misclassifying one of those
+// as product would wrongly hold real engine/tooling work, which defeats the ruling's purpose
+// just as badly as under-holding does. Left for a future pass with more evidence, not guessed.
+const GAP_HOLD_PRODUCT_PREFIXES = ['mt-', 'muddytires-', 'b13-', 'card-', 'cgsports-', 'quirky-'];
 const gapHoldLogged = new Set();
 export function gapHoldSkips(raw) {
   const stem = path.basename(String(raw)).replace(/\.mission\.txt$/i, '');
-  return /^mt-/i.test(stem);            // product namespace; engine-*, damm-*, qc-engine stay live
+  return GAP_HOLD_PRODUCT_PREFIXES.some((p) => stem.toLowerCase().startsWith(p));
 }
 
 // LIVE-CANARY transition (blind-spot #29, built 2026-07-03 under the GAP-FIRST ruling after
@@ -1439,6 +1451,15 @@ if (process.argv.includes('--selftest')) {
   ck(canaryDue(Date.now() - 7 * 3600e3) === true && canaryDue(Date.now() - 3600e3) === false, 'canary: 6h interval respected');
   ck(gapHoldSkips('missions/mt-integrate-anything.S1.mission.txt') === true, 'gap-hold: product (mt-*) fires DEFERRED while flag open');
   ck(gapHoldSkips('missions/engine-fix-something.mission.txt') === false && gapHoldSkips('missions/damm-repay.mission.txt') === false, 'gap-hold: engine/damm missions keep firing (holding them would defeat the ruling)');
+  // WIDENED 2026-07-04 (hunt-item #17): the mt- test alone missed real on-disk product
+  // missions -- muddytires-*.mission.txt (literal word, not the mt- abbreviation) and the
+  // hunt-item's own named examples (b13-*, card-*, cgsports-*, quirky-*).
+  ck(gapHoldSkips('missions/muddytires-community-1-social-platform.mission.txt') === true, 'gap-hold: literal "muddytires-" prefix (not just "mt-") now held -- real on-disk mission that slipped through before this fix');
+  ck(gapHoldSkips('missions/b13-sitemap-prune-cf-limits.mission.txt') === true, 'gap-hold: b13-* held (hunt-item #17 named example)');
+  ck(gapHoldSkips('missions/card-vanlife-muddy.mission.txt') === true, 'gap-hold: card-* held (hunt-item #17 named example)');
+  ck(gapHoldSkips('missions/cgsports-resume-dossier.mission.txt') === true, 'gap-hold: cgsports-* held (hunt-item #17 named example)');
+  ck(gapHoldSkips('missions/quirky-poi-curation.mission.txt') === true, 'gap-hold: quirky-* held (hunt-item #17 named example)');
+  ck(gapHoldSkips('missions/get-upgrade.mission.txt') === false, 'gap-hold: get-* (installer tooling, not muddytires product) deliberately NOT held -- ambiguous prefixes stay live rather than risk blocking real engine/tooling work');
   // ──────────────────────────────────────────────────────────────────────────
   // STORM-ALERT (self-healing audit 2026-07-02): repeating failure signatures push once at
   // 3 hits + once at 50, normalized over numbers/hashes, capped at 5 pushes/hour, and benign

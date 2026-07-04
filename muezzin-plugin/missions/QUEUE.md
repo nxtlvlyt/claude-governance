@@ -1140,3 +1140,19 @@ still serves the vision-verdict seat (no alternative), so it can still crash the
 continues. If it demonstrably stops crashing there too, that's new evidence about the actual
 trigger (concurrent panel dispatch vs. isolated single-seat load) worth writing down, not
 assumed now.
+
+## Hunt-item #17 LANDED 2026-07-04 20:0xZ, commit 72a17f6
+gapHoldSkips only tested /^mt-/ against the product-mission namespace. A disk inventory of
+missions/*.mission.txt found real product missions using OTHER prefixes that slipped through
+entirely -- most notably the literal word "muddytires-" (not the mt- abbreviation):
+muddytires-community-1-social-platform, muddytires-migrate-1-static-map,
+muddytires-resilience-1/2. Widened to an explicit allowlist: mt-, muddytires-, b13-, card-,
+cgsports-, quirky- (the last four are the hunt-item's own named examples). Deliberately did
+NOT add qc-*, sota-*, auth-*, render-*, get-*, portal-*, retro-*, sources-*, agy-*,
+hyperframes-*, laptop-* -- their mission history mixes real product work with engine/tooling
+work, and guessing wrong would wrongly hold legitimate non-product work, defeating the
+ruling's purpose as badly as under-holding does. Checked the live queue first: no
+currently-pending mission matches the newly-added prefixes (all already terminal), so this
+closes the gap for future requeues without changing anything firing right now.
+muezzin-daemon.mjs --selftest ALL PASS (6 new fixtures). Reload requested.
+Hunt-list tally: 9 of 25 struck this session (#2, #4, #5, #6, #9, #10, #15, #17, #19).
