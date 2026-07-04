@@ -699,7 +699,7 @@ export function retroRepeatBlocked(stem, retroDir, missionMtimeMs,
   return { blocked: true, count: fails.length, newest: new Date(newestMs).toISOString() };
 }
 
-export function queuedDepsHold(missionText, missionPath, autorunText, resultOkFn) {
+export function queuedDepsHold(missionText, missionPath, autorunText, resultOkFn, gitFn = (repo, argstr) => { try { return { ok: true, out: execSync(`git -C "${repo}" ${argstr}`, { stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 64 * 1024 * 1024 }).toString() }; } catch { return { ok: false, out: '' }; } }) {
   const txt = String(missionText || '');
   // SELF-RESOLVED CHECK (2026-07-02, d1-migrations resurrection loop): a conductor-RESOLVED
   // mission must never refire — but graceful reloads interrupt in-flight attempts, and the
@@ -710,7 +710,19 @@ export function queuedDepsHold(missionText, missionPath, autorunText, resultOkFn
   // exact inversion bug conduct-cycle.mjs's closed() was \b-fixed for on 2026-07-02 —
   // this daemon's twin regex was left out of that fix).
   if (new RegExp(`^#.*\\bRESOLVED\\b.*${selfEsc}`, 'm').test(autorunText)) {
-    return { hold: true, resolvedSelf: true, dep: missionPath, why: 'mission itself is conductor-RESOLVED in AUTORUN — retired from firing (work landed)' };
+    // mt-c2a-queueddeps (GAP-HUNT-2026-07-03: "RESOLVED-LANDED stamp is a pure-trust input
+    // ... zero validation"): a stamp claiming this mission landed is verified against the
+    // repo via missionLandedState BEFORE it retires the mission. A GENUINE verdict (no
+    // ALLOW-FILE present at HEAD) disputes the stamp — the mission stays live, never
+    // retired. A null verdict (mission text isn't code-repo class / lacks REPO-ROOT or
+    // ALLOW-FILES — undeterminable) fails OPEN, honoring the stamp exactly as before.
+    let landed = null;
+    try { landed = missionLandedState(txt, gitFn); } catch { landed = null; }
+    if (landed && landed.verdict === 'GENUINE') {
+      evt(`STAMP-DISPUTED: ${missionPath} carries a RESOLVED stamp but missionLandedState verdict is GENUINE (no ALLOW-FILES present at HEAD) — refusing to retire, mission stays live`);
+    } else {
+      return { hold: true, resolvedSelf: true, dep: missionPath, why: 'mission itself is conductor-RESOLVED in AUTORUN — retired from firing (work landed)' };
+    }
   }
   const deps = new Set();
   // (a) explicit mission-file list
@@ -1739,6 +1751,27 @@ if (process.argv.includes('--selftest')) {
     const resolvedDepNote = '# ' + 'RESOLVED' + ' — landed: ' + depPath;
     ck(queuedDepsHold(reqText, childPath, unresolvedDepNote, () => false).hold === true, 'mt-c1-boundary(dep): an UNRESOLVED-noted dependency comment must NOT satisfy the dependency check — stays held');
     ck(queuedDepsHold(reqText, childPath, resolvedDepNote, () => false).hold === false, 'mt-c1-boundary(dep): an explicit RESOLVED-noted dependency comment satisfies the dependency check');
+  }
+
+  // ---- mt-c2a-queueddeps: RESOLVED stamp verification via missionLandedState ----
+  {
+    const stem2 = ['q', 'stampcheck', 'stem'].join('-');
+    const selfPath2 = 'missions/' + stem2 + '.mission.txt';
+    const resolvedNote2 = '# ' + 'RESOLVED' + ' — landed: ' + selfPath2;
+    const disputedMissionText = [
+      'MISSION-ID: x',
+      'MISSION-CLASS: code-repo',
+      'REPO-ROOT: ' + ['C:', 'fake', 'repo'].join('/'),
+      '  - ' + ['some', 'file.mjs'].join('/'),
+    ].join('\n');
+    const absentGitFn = () => ({ ok: true, out: '' });
+    const disputed = queuedDepsHold(disputedMissionText, selfPath2, resolvedNote2, () => false, absentGitFn);
+    ck(disputed.hold === false, 'mt-c2a-queueddeps: a RESOLVED stamp disputed by missionLandedState (GENUINE — nothing landed at HEAD) does NOT retire the mission, stays live');
+
+    const plainMissionText = ['MISSION-ID: y', 'Maqsad: ' + ['plain', 'research', 'mission'].join(' ')].join('\n');
+    const neverCalledGitFn = () => { throw new Error('gitFn must not be invoked when missionLandedState is undeterminable'); };
+    const honored = queuedDepsHold(plainMissionText, selfPath2, resolvedNote2, () => false, neverCalledGitFn);
+    ck(honored.hold === true && honored.resolvedSelf === true, 'mt-c2a-queueddeps: a null/undeterminable verdict fails OPEN, stamp honored unchanged (mission retired as before)');
   }
 
   rmSync(tmp, { recursive: true, force: true });
