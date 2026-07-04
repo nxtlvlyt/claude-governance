@@ -1237,3 +1237,37 @@ sweep() only runs when the conductor invokes conduct-cycle.mjs fresh each beat, 
 process itself doesn't import this function.
 Hunt-list tally: 13 of 25 struck this session (#1, #2, #3, #4, #5, #6, #9, #10, #12, #15,
 #17, #19, #20).
+
+## Hunt-item #11 INVESTIGATED, NOT LANDED 2026-07-04 21:1xZ
+witness_select.mjs is real, self-tested, correctly-built (selectWitnessByDivergence: scores
+candidate witness models by measured divergence from a producer's verdict over a corpus,
+honest about sparse data via fellback:true). Confirmed genuinely unwired: grep across every
+.mjs file finds zero callers outside its own selftest. UNIT D4's prescribed fix ("wire to LOG
+for 48h; then seat by receipts") is NOT a quick fix -- it requires a real design decision
+before touching code: what constitutes "producer_verdict" for the STRUCTURAL witness
+(self_witness.mjs's checkStructure has no natural second opinion to diverge FROM today -- it
+dispatches exactly one model), and whether logging real divergence data means shadow-
+dispatching a SECOND candidate model on every witness call just to build the corpus, which is
+a real GPU/cost commitment, not free instrumentation. Chose not to force a half-understood
+implementation (per CLAUDE.md D4, do it right the first time) -- this needs a scoped design
+pass, not a same-beat fix. Not chased further this beat; moved to hunt-item #13 instead, which
+was well-understood.
+
+## Hunt-item #13 LANDED 2026-07-04 21:2xZ, commit 2ca0526
+QUEUE-DUP guard (landed 2026-07-03) correctly skips a bare line whose path already carries a
+status elsewhere -- built to catch an accidentally re-added duplicate. But a genuine RE-SPLIT
+(split, fail, split AGAIN reusing the same .S1/.S2 numbering) hits the identical shape: the
+fresh child's path matches an OLD status line from the prior split attempt, silently unfireable
+forever, no way to tell "fresh re-split" from "stale duplicate."
+insertQueueLineAfter (orchestrate.mjs) now tags every inserted line with a SPLIT-CHILD marker
+comment (missionPath() already strips HTML comments, so this is purely a signal); readQueue()'s
+guard exempts ONLY marker-tagged lines from the status-elsewhere check -- same-batch
+seen.has() dedup still applies unconditionally (two split-child lines for the identical path in
+one read still collapse to one pending), and an untagged duplicate is still caught exactly as
+before. Exported readQueue() with an injectable path (was hardcoded, untestable in isolation)
+to write real fixtures. muezzin-daemon.mjs --selftest ALL PASS (3 new fixtures: exemption
+fires, untagged anti-pattern still skipped, same-batch dedup still applies). orchestrate.mjs
+--selftest ALL PASS (existing split-position fixtures updated for the marker + 1 new
+assertion). Reload requested.
+Hunt-list tally: 14 of 25 struck this session (#1, #2, #3, #4, #5, #6, #9, #10, #12, #13,
+#15, #17, #19, #20).

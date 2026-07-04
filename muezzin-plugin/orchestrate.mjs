@@ -582,14 +582,29 @@ export async function defaultWitness(step, cwd, artifact, sources = '', dispatch
 // (whatever its status prefix: bare/RUNNING/SPLIT), so children inherit the parent's queue
 // position in tartib order. PURE — returns the new text; anchor absent -> tail append
 // (NEVER lose the line).
+// SPLIT-CHILD marker (hunt-item #13, 2026-07-04): the daemon's QUEUE-DUP guard (landed
+// 2026-07-03, muezzin-daemon.mjs readQueue()) skips any bare line whose path ALSO carries a
+// status (DONE/FAILED/SPLIT/etc.) elsewhere in AUTORUN.md -- correct for the anti-pattern it
+// was built for (an accidentally re-added bare line beside an already-terminal status), but
+// wrong for a RE-SPLIT: when a mission is split again (or a child is split further), the
+// newly-inserted child line's path is brand new, but if a PRIOR split/failed attempt at the
+// same stem left a status line for that exact path (a re-split reusing the same child
+// numbering), the guard silently skips the fresh line forever -- silently unfireable. Tagging
+// every split-inserted line with this comment token lets the guard tell "legitimately fresh
+// re-split child" apart from "stale duplicate bare line" (missionPath() already strips HTML
+// comments before extracting the path, so this is purely a signal to the guard, invisible to
+// every other line-parsing consumer).
+export const SPLIT_CHILD_MARKER = '<!-- SPLIT-CHILD -->';
+
 export function insertQueueLineAfter(text, anchorRel, newRel) {
   const lines = String(text).split(/\r?\n/);
   let at = -1;
   for (let i = 0; i < lines.length; i++) {
     if (lines[i].includes(anchorRel) && !/^\s*#/.test(lines[i])) at = i;   // LAST live line wins (history lines above)
   }
-  if (at === -1) return `${String(text).replace(/\n?$/, '\n')}${newRel}\n`;
-  lines.splice(at + 1, 0, newRel);
+  const taggedRel = `${newRel}  ${SPLIT_CHILD_MARKER}`;
+  if (at === -1) return `${String(text).replace(/\n?$/, '\n')}${taggedRel}\n`;
+  lines.splice(at + 1, 0, taggedRel);
   return lines.join('\n');
 }
 
@@ -608,7 +623,7 @@ export function defaultSplitFn(mission, queue, opts = {}, ctx = {}, io = {}) {
     ? (rel) => {
         try {
           const cur = readFileSync(ctx.autorunFile, 'utf8');
-          writeFileSync(ctx.autorunFile, lastAnchor ? insertQueueLineAfter(cur, lastAnchor, rel) : `${cur.replace(/\n?$/, '\n')}${rel}\n`);
+          writeFileSync(ctx.autorunFile, lastAnchor ? insertQueueLineAfter(cur, lastAnchor, rel) : `${cur.replace(/\n?$/, '\n')}${rel}  ${SPLIT_CHILD_MARKER}\n`);
           lastAnchor = rel;
         } catch { /* queue append best-effort; the file+manifest is the durable handoff */ }
       }
@@ -2338,16 +2353,21 @@ if (process.argv[1]?.endsWith('orchestrate.mjs')) {
   }
 
   // POSITION-INHERITANCE (gap #4): split children insert after the parent's queue line
+  // Lines now carry a SPLIT-CHILD marker (hunt-item #13, 2026-07-04) -- assertions find the
+  // inserted line by its PATH SUBSTRING rather than exact-equality, since the marker is
+  // appended text, not a position change.
   {
     const q = '# q\nmissions/top.mission.txt\nRUNNING missions/parent.mission.txt  <!-- t -->\nmissions/later.mission.txt\n';
     const one = insertQueueLineAfter(q, 'missions/parent.mission.txt', 'missions/parent.S1.mission.txt');
-    ck(one.split('\n').indexOf('missions/parent.S1.mission.txt') === one.split('\n').indexOf('RUNNING missions/parent.mission.txt  <!-- t -->') + 1, 'split-position: child inserts DIRECTLY after the parent line (status prefix tolerated)');
+    const findIdx = (lines, needle) => lines.findIndex((l) => l.includes(needle));
+    ck(findIdx(one.split('\n'), 'missions/parent.S1.mission.txt') === findIdx(one.split('\n'), 'RUNNING missions/parent.mission.txt  <!-- t -->') + 1, 'split-position: child inserts DIRECTLY after the parent line (status prefix tolerated)');
+    ck(one.includes(`missions/parent.S1.mission.txt  ${SPLIT_CHILD_MARKER}`), 'split-position: inserted child line carries the SPLIT-CHILD marker (hunt-item #13 QUEUE-DUP exemption)');
     const two = insertQueueLineAfter(one, 'missions/parent.S1.mission.txt', 'missions/parent.S2.mission.txt');
     const L = two.split('\n');
-    ck(L.indexOf('missions/parent.S2.mission.txt') === L.indexOf('missions/parent.S1.mission.txt') + 1 && L.indexOf('missions/later.mission.txt') > L.indexOf('missions/parent.S2.mission.txt'), 'split-position: second child chains after the first; later queue lines stay behind (tartib preserved, position inherited)');
-    ck(insertQueueLineAfter('# q\nmissions/other.mission.txt\n', 'missions/ghost.mission.txt', 'missions/ghost.S1.mission.txt').trim().endsWith('missions/ghost.S1.mission.txt'), 'split-position: absent anchor falls back to tail append (line never lost)');
+    ck(findIdx(L, 'missions/parent.S2.mission.txt') === findIdx(L, 'missions/parent.S1.mission.txt') + 1 && findIdx(L, 'missions/later.mission.txt') > findIdx(L, 'missions/parent.S2.mission.txt'), 'split-position: second child chains after the first; later queue lines stay behind (tartib preserved, position inherited)');
+    ck(insertQueueLineAfter('# q\nmissions/other.mission.txt\n', 'missions/ghost.mission.txt', 'missions/ghost.S1.mission.txt').includes('missions/ghost.S1.mission.txt'), 'split-position: absent anchor falls back to tail append (line never lost)');
     const hist = '# RESOLVED old: missions/parent.mission.txt\nSPLIT missions/parent.mission.txt  <!-- t -->\n';
-    ck(insertQueueLineAfter(hist, 'missions/parent.mission.txt', 'missions/parent.S1.mission.txt').split('\n')[2] === 'missions/parent.S1.mission.txt', 'split-position: comment/history lines skipped — the LAST live line is the anchor');
+    ck(insertQueueLineAfter(hist, 'missions/parent.mission.txt', 'missions/parent.S1.mission.txt').split('\n')[2].includes('missions/parent.S1.mission.txt'), 'split-position: comment/history lines skipped — the LAST live line is the anchor');
   }
 
   fs.rmSync(dir, { recursive: true, force: true });

@@ -445,9 +445,9 @@ function statusOf(line) { const m = String(line).trim().match(STATUS_RE); return
 // so the daemon selftest can lock "after fires on DONE only, never on split/failed".
 export function shouldWitnessAfter(r) { return !!(r && r.ok && !r.split); }
 
-function readQueue() {
-  if (!existsSync(AUTORUN)) return { lines: [], pending: [] };
-  const lines = readFileSync(AUTORUN, 'utf8').split(/\r?\n/);
+export function readQueue(autorunPath = AUTORUN) {
+  if (!existsSync(autorunPath)) return { lines: [], pending: [] };
+  const lines = readFileSync(autorunPath, 'utf8').split(/\r?\n/);
   // QUEUE-DUP GUARD (2026-07-03, operator: "is there nothing stopping the conductor from
   // double-queuing missions?" — receipts: the heal double-requeue DUPLICATE-RETIRED scar +
   // the 06:43 gap-promotion dup, both hand-caught). The same path on two actionable lines
@@ -457,6 +457,15 @@ function readQueue() {
   // whose path carries a STATUS on any other line is likewise never fired (the legitimate
   // requeue pattern re-bares the EXISTING line; an appended second line beside a FAILED
   // mark is exactly the anti-pattern the scar names).
+  // SPLIT-CHILD EXEMPTION (hunt-item #13, 2026-07-04): a RE-SPLIT reusing an earlier child's
+  // numbering (e.g. a mission split, failed, then split AGAIN into new .S1/.S2 children) can
+  // legitimately share a path with an old status line from the PRIOR split attempt -- without
+  // this exemption that fresh child line is silently unfireable forever, indistinguishable
+  // from the true anti-pattern (an accidentally re-added bare duplicate). insertQueueLineAfter
+  // (orchestrate.mjs) tags every line it inserts with the SPLIT-CHILD marker; ONLY that marker
+  // exempts a line from the status-elsewhere check -- the seen.has(raw) same-pending-batch
+  // check still applies, so two split-child lines for the identical path in the SAME queue
+  // read still correctly dedupe.
   const statusPaths = new Set(lines.filter((l) => !l.trim().startsWith('#') && statusOf(l)).map((l) => missionPath(l)).filter(Boolean));
   const seen = new Set();
   const pending = [];
@@ -465,7 +474,8 @@ function readQueue() {
     if (line.trim().startsWith('#') || statusOf(line)) continue;
     const raw = missionPath(line);
     if (!raw) continue;
-    if (seen.has(raw) || statusPaths.has(raw)) {
+    const isSplitChild = line.includes('<!-- SPLIT-CHILD -->');
+    if (seen.has(raw) || (!isSplitChild && statusPaths.has(raw))) {
       try { evt(`QUEUE-DUP skipped: line ${i + 1} duplicates ${raw} (${seen.has(raw) ? 'an earlier pending line' : 'a status line elsewhere'}) — not fired; conductor should DUPLICATE-RETIRE the extra line`); } catch { /* event log is best-effort */ }
       continue;
     }
@@ -1854,6 +1864,41 @@ if (process.argv.includes('--selftest')) {
     ck(s1s1 === 'mt-integrate-geocode-2026-06-23.S1.S1', 'missionSandboxStem: S1.S1 keeps its own full dotted stem (old code collapsed this to match S1)');
     ck(new Set([root, s1, s1s1]).size === 3, 'missionSandboxStem: root/S1/S1.S1 are three DISTINCT directories -- zero collision (previously: 2 distinct out of 3, a real collision)');
     ck(missionSandboxStem('missions/mt-integrate-geocode-2026-06-23.S1.mission.txt') === 'mt-integrate-geocode-2026-06-23.S1', 'missionSandboxStem: basename-strips any leading directory path first');
+  }
+
+  // ---- QUEUE-DUP SPLIT-CHILD exemption (hunt-item #13, 2026-07-04) ----
+  {
+    const testAutorun = path.join(tmp, 'TEST-AUTORUN.md');
+    // A re-split reusing the SAME child numbering as a prior (now-failed) split attempt: the
+    // fresh bare line for foo.S1 shares its path with an OLD FAILED status line elsewhere in
+    // the file. Without the marker, the old QUEUE-DUP guard would silently skip it forever.
+    writeFileSync(testAutorun, [
+      '# q',
+      'FAILED missions/foo.S1.mission.txt  <!-- old attempt -->',
+      'missions/foo.S1.mission.txt  <!-- SPLIT-CHILD -->',
+    ].join('\n') + '\n');
+    const { pending: pendingExempt } = readQueue(testAutorun);
+    ck(pendingExempt.some((p) => p.raw === 'missions/foo.S1.mission.txt'), 'QUEUE-DUP: a SPLIT-CHILD-tagged re-split line fires despite an old status line for the same path (previously silently unfireable forever)');
+
+    // Same shape WITHOUT the marker: this is the genuine anti-pattern the guard was built for
+    // (2026-07-03) and must still be skipped -- the exemption must not swallow the real case.
+    writeFileSync(testAutorun, [
+      '# q',
+      'FAILED missions/bar.mission.txt  <!-- old attempt -->',
+      'missions/bar.mission.txt',
+    ].join('\n') + '\n');
+    const { pending: pendingSkipped } = readQueue(testAutorun);
+    ck(!pendingSkipped.some((p) => p.raw === 'missions/bar.mission.txt'), 'QUEUE-DUP: an UNTAGGED bare line beside an old status line is still correctly skipped (the exemption is marker-scoped, not blanket)');
+
+    // Two SPLIT-CHILD lines for the identical path in the SAME read: seen.has() still applies,
+    // so the marker exempts from "status elsewhere" but never from same-batch deduplication.
+    writeFileSync(testAutorun, [
+      '# q',
+      'missions/baz.S1.mission.txt  <!-- SPLIT-CHILD -->',
+      'missions/baz.S1.mission.txt  <!-- SPLIT-CHILD -->',
+    ].join('\n') + '\n');
+    const { pending: pendingSameBatch } = readQueue(testAutorun);
+    ck(pendingSameBatch.filter((p) => p.raw === 'missions/baz.S1.mission.txt').length === 1, 'QUEUE-DUP: two SPLIT-CHILD lines for the identical path in one read still dedupe to one pending (marker exempts from status-elsewhere only, not same-batch dedup)');
   }
 
   rmSync(tmp, { recursive: true, force: true });
