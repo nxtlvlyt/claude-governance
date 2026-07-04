@@ -1368,3 +1368,28 @@ diagnostics firing; if one fires on a genuinely still-pending mission, that's th
 needed to make the fail-closed design call with confidence instead of guessing.
 Hunt-list tally: 16 of 25 struck this session (#1, #2, #3, #4, #5, #6, #9, #10, #12, #13,
 #14(partial), #15, #17, #19, #20, #24).
+
+## Hunt-item #16 PARTIAL LANDED 2026-07-04 22:2xZ, commit cbd18b8
+mission_split.mjs's appendQueue call is best-effort -- a transient failure silently drops a
+child from AUTORUN.md forever while its mission.txt file sits on disk, real and fireable, just
+never queued. The _split-manifest.json handoff record ALWAYS lists every child mission_split.mjs
+INTENDED to queue (manifest.children, built independent of whether that child's own appendQueue
+succeeded) -- but confirmed via grep that NOTHING in production ever reads it back (only test
+code parses it, to verify writes, not to recover anything). "Write-only" was literal.
+heal() now cross-references every *._split-manifest.json against the live AUTORUN.md: a child
+listed, with its mission.txt file genuinely on disk, but absent from EVERY AUTORUN.md line in
+any status, is stranded -- re-queued as a bare SPLIT-CHILD-tagged line (same marker
+orchestrate.mjs's insertQueueLineAfter uses, so the hunt-item #13 QUEUE-DUP exemption covers it
+too). A manifest entry whose file was never created is correctly left alone. conduct-cycle.mjs
+--selftest ALL PASS (7 new fixtures). Ran --heal live against real production data: clean,
+"nothing mechanical to heal" -- no real stranded children exist right now, confirms the new
+scan doesn't error against real manifest files. Reload requested (heal() is imported by the
+running daemon's own auto-heal cadence, not just invoked fresh via CLI).
+NOT addressed (separate, smaller bugs the item also names, left for a future pass):
+appendQueue's silent catch itself (still swallows the ORIGINAL failure reason -- recovery now
+exists, but WHY it failed the first time is still invisible), and promotionHold's tartib regex
+(only matches the literal "predecessor X DONE" prose form, not the bare-stem form
+queuedDepsHold's own (b2) logic already handles -- a DIFFERENT, more complete gate exists
+elsewhere in the same file that this one doesn't share).
+Hunt-list tally: 17 of 25 struck this session (#1, #2, #3, #4, #5, #6, #9, #10, #12, #13,
+#14(partial), #15, #16(partial), #17, #19, #20, #24).

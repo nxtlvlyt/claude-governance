@@ -1180,6 +1180,45 @@ export function heal(base = HERE, now = Date.now(), { exec = (cmd) => execSync(c
     }
   }
 
+  // STRANDED-SPLIT-CHILD RECOVERY (hunt-item #16, 2026-07-04): mission_split.mjs's appendQueue
+  // call is best-effort ("try { appendQueue(rel) } catch { /* best-effort */ }") -- a transient
+  // failure silently drops a child from AUTORUN.md forever while its mission.txt file sits on
+  // disk, real and fireable, just never queued. The _split-manifest.json handoff record ALWAYS
+  // lists every child mission_split.mjs INTENDED to queue (manifest.children, built from
+  // `files`, independent of whether that child's own appendQueue succeeded) -- but until now
+  // nothing ever read it back to compare "intended" against "actually queued." Cross-referencing
+  // the manifest against the live AUTORUN.md turns "write-only" into a real recovery mechanism:
+  // a child present in the manifest, with its mission.txt file genuinely on disk, but absent
+  // from EVERY AUTORUN.md line (bare/DONE/FAILED/RUNNING/SPLIT/PARKED) is stranded -- re-queue
+  // it as a bare SPLIT-CHILD-tagged line (same marker orchestrate.mjs's insertQueueLineAfter
+  // uses, so the QUEUE-DUP guard's hunt-item #13 exemption applies here too).
+  {
+    const missionsDir = path.join(base, 'missions');
+    let manifestFiles = [];
+    try { manifestFiles = readdirSync(missionsDir).filter((f) => f.endsWith('._split-manifest.json')); } catch { manifestFiles = []; }
+    if (manifestFiles.length) {
+      const apath = path.join(base, 'missions', 'AUTORUN.md');
+      let autorunText = readText(apath);
+      let changed = false;
+      for (const mf of manifestFiles) {
+        let manifest;
+        try { manifest = JSON.parse(readFileSync(path.join(missionsDir, mf), 'utf8')); } catch { continue; }
+        for (const child of (manifest.children || [])) {
+          const rel = child.file;
+          if (!rel || autorunText.includes(rel)) continue;                       // already queued in SOME form -- not stranded
+          if (!existsSync(path.join(base, rel))) continue;                        // no mission.txt on disk either -- nothing to recover
+          autorunText = `${autorunText.replace(/\n?$/, '\n')}${rel}  <!-- SPLIT-CHILD -->\n`;
+          changed = true;
+          performed.push({ action: 'stranded-split-recovery', stem: stemOf(rel), manifest: mf });
+        }
+      }
+      if (changed) {
+        writeFileSync(apath, autorunText);
+        appendFileSync(path.join(logs, 'daemon-events.log'), `SWEEP-HEAL ${new Date(now).toISOString()} STRANDED-SPLIT-RECOVERY stems=${performed.filter((p) => p.action === 'stranded-split-recovery').map((p) => p.stem).join(',')}\n`);
+      }
+    }
+  }
+
   return { performed, report: r.report, actions: r.actions };
 }
 
@@ -1709,6 +1748,38 @@ function selftest() {
   // happen is heal() finding MORE to retire on a second pass (idempotent -- nothing bare left).
   const healedLoop2 = heal(tmp, now, { exec: () => {} });
   ck(!healedLoop2.performed.some((p) => p.action === 'loop-cap-retire'), 'heal(): idempotent -- a second heal() pass retires nothing further (no bare line remains for this stem)');
+
+  // fixture: STRANDED-SPLIT-CHILD RECOVERY (hunt-item #16, 2026-07-04) -- a manifest naming
+  // TWO children, one genuinely stranded (file on disk, no AUTORUN line at all) and one already
+  // properly queued; a THIRD manifest entry whose file was never actually created (nothing to
+  // recover, must not fabricate a queue line for a mission that doesn't exist).
+  {
+    writeFileSync(path.join(tmp, 'missions', 'splitpar.S1.mission.txt'), 'MISSION-ID: x\nMaqsad: stranded child\n');
+    writeFileSync(path.join(tmp, 'missions', 'splitpar.S2.mission.txt'), 'MISSION-ID: x\nMaqsad: already-queued child\n');
+    // deliberately do NOT create splitpar.S3.mission.txt -- it's in the manifest but never landed
+    writeFileSync(path.join(tmp, 'missions', 'splitpar._split-manifest.json'), JSON.stringify({
+      parentId: 'splitpar', ceiling: 8, originalStepCount: 20, groupCount: 3,
+      children: [
+        { id: 'splitpar.S1', file: 'missions/splitpar.S1.mission.txt', steps: 5, requires: null },
+        { id: 'splitpar.S2', file: 'missions/splitpar.S2.mission.txt', steps: 6, requires: 'splitpar.S1' },
+        { id: 'splitpar.S3', file: 'missions/splitpar.S3.mission.txt', steps: 4, requires: 'splitpar.S2' },
+      ],
+      ts: new Date(now).toISOString(),
+    }));
+    writeFileSync(path.join(tmp, 'missions', 'AUTORUN.md'), '# q\nmissions/splitpar.S2.mission.txt  <!-- already queued, untouched -->\n');
+    const healedStranded = heal(tmp, now, { exec: () => {} });
+    ck(healedStranded.performed.some((p) => p.action === 'stranded-split-recovery' && p.stem === 'splitpar.S1'), 'heal(): a manifest child with NO AUTORUN line at all, but a real mission.txt on disk, is recovered');
+    ck(!healedStranded.performed.some((p) => p.action === 'stranded-split-recovery' && p.stem === 'splitpar.S2'), 'heal(): an already-queued manifest child is left alone -- not re-added as a duplicate');
+    ck(!healedStranded.performed.some((p) => p.action === 'stranded-split-recovery' && p.stem === 'splitpar.S3'), 'heal(): a manifest child whose mission.txt was never actually created is NOT recovered -- nothing to fabricate a queue line for');
+    const afterStranded = readText(path.join(tmp, 'missions', 'AUTORUN.md'));
+    ck(/^missions\/splitpar\.S1\.mission\.txt\s+<!-- SPLIT-CHILD -->$/m.test(afterStranded), 'heal(): the recovered line is tagged SPLIT-CHILD -- the QUEUE-DUP guard exemption (hunt-item #13) applies to it too');
+    ck(afterStranded.includes('missions/splitpar.S2.mission.txt  <!-- already queued, untouched -->'), 'heal(): the already-queued line is byte-unchanged, not duplicated or rewritten');
+    const healedStranded2 = heal(tmp, now, { exec: () => {} });
+    ck(!healedStranded2.performed.some((p) => p.action === 'stranded-split-recovery'), 'heal(): idempotent -- a second pass recovers nothing further (the S1 line now satisfies the manifest check)');
+    rmSync(path.join(tmp, 'missions', 'splitpar._split-manifest.json'), { force: true });
+    rmSync(path.join(tmp, 'missions', 'splitpar.S1.mission.txt'), { force: true });
+    rmSync(path.join(tmp, 'missions', 'splitpar.S2.mission.txt'), { force: true });
+  }
 
   // fixture 1j: HEARTBEAT FLAG TABLE (mt-b2-flag-table, step B2) — EMPTY_CONTENT_THINKING and
   // CUDA are byte-equivalent migrations off the old hand-written if-blocks; LOCAL_TIMEOUT and
