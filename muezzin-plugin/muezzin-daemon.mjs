@@ -699,26 +699,7 @@ export function retroRepeatBlocked(stem, retroDir, missionMtimeMs,
   return { blocked: true, count: fails.length, newest: new Date(newestMs).toISOString() };
 }
 
-// STAMP VERIFICATION (2026-07-04): a conductor `# RESOLVED` comment CLAIMS a mission's work
-// landed, but a stamp is an assertion, not a receipt. Before honoring one (retiring a mission
-// from firing, or clearing a dependency), verify with the imported missionLandedState: the
-// named mission's ALLOW-FILES must be present at HEAD (or its source sha's patch in tree).
-// verdict FULL -> stamp genuine, honor it. PARTIAL/GENUINE -> STAMP-DISPUTED: the work is NOT
-// landed; treat the stamp as ABSENT (mission stays live, never retired). null (undeterminable
-// — non-code-repo, no ALLOW-FILES, unreadable) -> fail-open, honor the stamp as before.
-// verifyFn is injected so the queue helpers stay offline-testable (default never disputes).
-function stampDisputed(relPath, verifyFn) {
-  try {
-    const v = verifyFn ? verifyFn(relPath) : null;
-    if (v === 'PARTIAL' || v === 'GENUINE') {
-      try { evt(`STAMP-DISPUTED: RESOLVED stamp for ${relPath} but missionLandedState verdict=${v} — work not landed; stamp treated as ABSENT (mission stays live)`); } catch { /* evt best-effort */ }
-      return true;
-    }
-  } catch { /* verify best-effort — fail-open (honor stamp) */ }
-  return false;
-}
-
-export function queuedDepsHold(missionText, missionPath, autorunText, resultOkFn, stampVerifyFn = () => null) {
+export function queuedDepsHold(missionText, missionPath, autorunText, resultOkFn) {
   const txt = String(missionText || '');
   // SELF-RESOLVED CHECK (2026-07-02, d1-migrations resurrection loop): a conductor-RESOLVED
   // mission must never refire — but graceful reloads interrupt in-flight attempts, and the
@@ -728,7 +709,7 @@ export function queuedDepsHold(missionText, missionPath, autorunText, resultOkFn
   // mt-c1-boundary: \b guards against 'UNRESOLVED' substring-matching 'RESOLVED' (the
   // exact inversion bug conduct-cycle.mjs's closed() was \b-fixed for on 2026-07-02 —
   // this daemon's twin regex was left out of that fix).
-  if (new RegExp(`^#.*\\bRESOLVED\\b.*${selfEsc}`, 'm').test(autorunText) && !stampDisputed(missionPath, stampVerifyFn)) {
+  if (new RegExp(`^#.*\\bRESOLVED\\b.*${selfEsc}`, 'm').test(autorunText)) {
     return { hold: true, resolvedSelf: true, dep: missionPath, why: 'mission itself is conductor-RESOLVED in AUTORUN — retired from firing (work landed)' };
   }
   const deps = new Set();
@@ -758,7 +739,7 @@ export function queuedDepsHold(missionText, missionPath, autorunText, resultOkFn
     const doneRe = new RegExp(`^DONE\\s+${dep.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'm');
     // sibling of mt-c1-boundary: same \b guard for the dependency-satisfier check.
     const resolvedRe = new RegExp(`^#.*\\bRESOLVED\\b.*${dep.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'm');
-    if (resolvedRe.test(autorunText) && !stampDisputed(dep, stampVerifyFn)) continue;   // conductor-landed (stamp verified FULL or undeterminable)
+    if (resolvedRe.test(autorunText)) continue;                                  // conductor-landed
     if (doneRe.test(autorunText) && resultOkFn(dep) === true) continue;          // DONE + PASS receipt
     return { hold: true, dep, why: doneRe.test(autorunText) ? `dependency ${dep} is DONE but its result.json is not ok:true (hollow receipt)` : `dependency ${dep} not DONE/RESOLVED` };
   }
@@ -810,7 +791,7 @@ function doneMissionIds(autorunText, missionsDir, readText) {
 // hold. Ordering: files are considered in the order given (the caller sorts them — by the
 // OPERATOR PRIORITY ORDER when it can, else lexical), and the FIRST ready one wins. Minimal
 // + safe: one promotion per call, so the daemon re-reads truth before the next.
-function pickPromotion(autorunText, missionFiles, missionsDir, readText, ledgerText = '', stampVerifyFn = () => null) {
+function pickPromotion(autorunText, missionFiles, missionsDir, readText, ledgerText = '') {
   const doneIds = doneMissionIds(autorunText, missionsDir, readText);
   // TERMINAL GUARD (spam-loop root fix): a FAILED-x2 / DONE / SPLIT mission — recorded in
   // AUTORUN status lines OR the persistent MISSION-LEDGER.md — is DEAD and must never be
@@ -820,16 +801,7 @@ function pickPromotion(autorunText, missionFiles, missionsDir, readText, ledgerT
   const terminalIds = terminalMissionIds(autorunText, ledgerText);
   for (const f of missionFiles) {
     const rel = `missions/${f}`;
-    if (mentionedInQueue(autorunText, rel)) {
-      // A conductor `# RESOLVED` comment is a STAMP, not a receipt: if it is the ONLY thing
-      // keeping this file off the queue (no real DONE/FAILED/RUNNING/SPLIT/PARKED status line
-      // for it) AND missionLandedState DISPUTES the stamp (work not landed), the mission is not
-      // genuinely triaged-done and stays a live promotion candidate. Otherwise off-limits.
-      const esc = rel.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      const hasStatusLine = new RegExp(`^\\s*(?:DONE|FAILED|RUNNING|SPLIT|PARKED)\\b.*${esc}`, 'm').test(autorunText);
-      const resolvedComment = new RegExp(`^#.*\\bRESOLVED\\b.*${esc}`, 'm').test(autorunText);
-      if (hasStatusLine || !resolvedComment || !stampDisputed(rel, stampVerifyFn)) continue;   // already triaged — OFF LIMITS
-    }
+    if (mentionedInQueue(autorunText, rel)) continue;          // already triaged — OFF LIMITS
     // BUG 2 FIX (2026-06-25): match terminal exclusion by FULL PATH first, with stem as a
     // back-compat fallback. A base mission and its split children (`.S1`, `.S2`, ...) are
     // DIFFERENT paths and EACH needs its own terminal entry to be excluded — so a FAILED
@@ -894,10 +866,7 @@ function autoPromoteFromSubstrate() {
     // terminal ids beyond the AUTORUN status lines.
     const ledgerPath = path.join(LOGDIR, 'MISSION-LEDGER.md');
     const ledgerText = existsSync(ledgerPath) ? readFileSync(ledgerPath, 'utf8') : '';
-    // STAMP VERIFIER (2026-07-04): resolve a candidate's `# RESOLVED` stamp against reality
-    // via missionLandedState + real git, so a falsely-stamped mission is not silently retired.
-    const stampVerify = (rel) => { try { const mt = readFileSync(path.join(HERE, rel.replace(/\//g, path.sep)), 'utf8'); const st = missionLandedState(mt, (repo, argstr) => { try { return { ok: true, out: execSync(`git -C "${repo}" ${argstr}`, { stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 16 * 1024 * 1024 }).toString() }; } catch { return { ok: false, out: '' }; } }); return st ? st.verdict : null; } catch { return null; } };
-    const pick = pickPromotion(autorunText, ordered, missionsDir, (p) => readFileSync(p, 'utf8'), ledgerText, stampVerify);
+    const pick = pickPromotion(autorunText, ordered, missionsDir, (p) => readFileSync(p, 'utf8'), ledgerText);
     if (!pick) return null;
     appendFileSync(AUTORUN, `\n${pick.rel}`);
     evt(`AUTO-PROMOTED from substrate (lane free, no ready pending line): ${pick.rel}`);
@@ -1315,11 +1284,7 @@ async function mainLoop() {
           const mtxt = readFileSync(path.join(HERE, raw.replace(/\//g, path.sep)), 'utf8');
           const artxt = readFileSync(AUTORUN, 'utf8');
           const resOk = (dep) => { try { return JSON.parse(readFileSync(path.join(HERE, 'missions', path.basename(dep).replace(/\.mission\.txt$/, '') + '.mission.result.json'), 'utf8')).ok === true; } catch { return false; } };
-          // STAMP VERIFIER (2026-07-04): a `# RESOLVED` stamp only retires a mission if
-          // missionLandedState confirms the work actually landed at HEAD (FULL); a disputed
-          // stamp (PARTIAL/GENUINE) is treated as absent so the mission stays live.
-          const stampVerify = (rel) => { try { const mt = readFileSync(path.join(HERE, rel.replace(/\//g, path.sep)), 'utf8'); const st = missionLandedState(mt, (repo, argstr) => { try { return { ok: true, out: execSync(`git -C "${repo}" ${argstr}`, { stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 16 * 1024 * 1024 }).toString() }; } catch { return { ok: false, out: '' }; } }); return st ? st.verdict : null; } catch { return null; } };
-          const gate = queuedDepsHold(mtxt, raw, artxt, resOk, stampVerify);
+          const gate = queuedDepsHold(mtxt, raw, artxt, resOk);
           if (gate.hold) {
             const key = `${raw}|${gate.dep}`;
             if (!tartibHoldLogged.has(key)) { tartibHoldLogged.add(key); evt(`TARTIB-HOLD: ${raw} — ${gate.why}; skipping to next pending`); }
@@ -1753,18 +1718,6 @@ if (process.argv.includes('--selftest')) {
     ck(queuedDepsHold('REQUIRES: a.S1 (tartib)\n', 'missions/z.mission.txt', ar, resOk).hold === false, 'tartib-gate b2: bare-stem REQUIRES with dep DONE + ok:true -> FIRES');
     ck(queuedDepsHold('REQUIRES: b.S1 (tartib)\n', 'missions/z.mission.txt', ar, resOk).hold === true, 'tartib-gate b2: bare-stem REQUIRES with dep FAILED -> HELD');
     ck(queuedDepsHold('REQUIRES: search-grounded seats always\n', 'missions/z.mission.txt', arPend, resOk).hold === false, 'tartib-gate b2: prose tokens with no matching queue line never become phantom deps');
-    // ---- STAMP VERIFICATION (2026-07-04): a `# RESOLVED` stamp is verified against
-    // missionLandedState before it retires a mission. FULL -> honor; PARTIAL/GENUINE ->
-    // STAMP-DISPUTED, stamp treated as ABSENT (mission stays live); null -> fail-open, honor.
-    {
-      const resolvedSelf = '# RESOLVED — landed: missions/stamp.mission.txt\n';
-      const okStamp = queuedDepsHold('MISSION-ID: x', 'missions/stamp.mission.txt', resolvedSelf, () => false, () => 'FULL');
-      ck(okStamp.hold === true && okStamp.resolvedSelf === true, 'stamp: a FULL-verified RESOLVED stamp is HONORED — mission retired from firing');
-      const disputed = queuedDepsHold('MISSION-ID: x', 'missions/stamp.mission.txt', resolvedSelf, () => false, () => 'GENUINE');
-      ck(disputed.resolvedSelf !== true && disputed.hold === false, 'stamp: a DISPUTED (GENUINE/PARTIAL) RESOLVED stamp is treated as ABSENT — mission stays live, never retired on the stamp');
-      const nullV = queuedDepsHold('MISSION-ID: x', 'missions/stamp.mission.txt', resolvedSelf, () => false, () => null);
-      ck(nullV.hold === true && nullV.resolvedSelf === true, 'stamp: a null (undeterminable) verdict FAILS OPEN — the RESOLVED stamp is honored as before');
-    }
   }
 
   // ---- mt-c1-boundary regression pair (ported from conduct-cycle.mjs's closed() selftest):

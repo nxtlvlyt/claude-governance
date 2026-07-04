@@ -1,0 +1,67 @@
+MISSION-ID: engine-truth-of-record.S1.S2.S2
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\.claude\muezzin-plugin
+LINEAGE-NOTE 2026-07-04T03:2x: split from engine-truth-of-record.S1.S2 alongside
+engine-truth-of-record.S1.S2.S1 (see that mission's LINEAGE-NOTE for the full reason: C2's
+combined queuedDepsHold+pickPromotion edit truncated on all three escalation tiers). This
+mission assumes S1.S2.S1's queuedDepsHold change (marker mt-c2a-queueddeps) is already at
+HEAD. It carries the pickPromotion half of C2 (a single authoring step on
+muezzin-daemon.mjs) and C3 (a single authoring step on conduct-cycle.mjs) — two DIFFERENT
+files, each with exactly one writer, the same never-violated shape used throughout this
+mission family.
+ALLOW-FILES:
+  - muezzin-daemon.mjs
+  - conduct-cycle.mjs
+UNLINKED-OK: engine module edits — no user-facing page
+REQUIRES: engine-truth-of-record.S1.S2.S1 (tartib — this sub-mission may not start until engine-truth-of-record.S1.S2.S1's receipt exists)
+STEPS: 6
+
+Maqsad: UNIT C of GAP-CLOSURE-PLAYBOOK.md, C2 part B of B, plus C3. Evidence in
+missions/_logs/GAP-HUNT-2026-07-03.json (read before editing).
+(C2 part B) "RESOLVED-LANDED stamp is a pure-trust input, half B (pickPromotion)":
+pickPromotion must gain the SAME missionLandedState-backed verification queuedDepsHold
+already has (imported from ./conduct-cycle.mjs — reuse the import, do NOT reimplement or
+re-import missionLandedState if it is already imported): before promoting a mission whose
+text carries a # RESOLVED-style stamp, verify it the same way; log STAMP-DISPUTED (evt) and
+treat a disputed stamp as absent (never auto-promote on a disputed stamp); a null verdict
+fails open (honor the stamp, unchanged behavior). Add one selftest fixture: a disputed stamp
+does not cause pickPromotion to select/promote that mission.
+(C3) "Fix-ledger requeue-once entries are consumed whole on partial requeue": in
+conduct-cycle.mjs heal()'s requeue performer, the ledger entry is marked requeued when ANY
+one of its stems requeued (.some()) — multi-stem entries permanently lose their un-requeued
+stems. Fix: per-stem requeued tracking — entries' requeue arrays become objects
+{stem, requeued} on write; READ path migrates legacy string entries transparently (a string
+stem = {stem, requeued:false}); the entry-level requeued flag becomes true only when EVERY
+stem is requeued. Selftests: legacy-array migration, partial requeue leaves the second stem
+live, full requeue closes the entry.
+
+niyyah: A record system that trusts unverified stamps and drops queued work on partial
+requeues cannot be the substrate a smaller conductor inherits. Truth of record first; every
+acceptance below is a selftest, not an opinion.
+
+CITATION-GUARD CONSTRAINT (carried forward — the SAME fabricated-citation class hit this
+file family repeatedly across attempts of the parent mission before this split). Escape
+hatches are WITHDRAWN. Do not write ANY illustrative example of a retro filename, stem name,
+or timestamp-derived name — not in a comment, not as a selftest fixture literal, not as a
+worked example — in any form, backtick-quoted or not, template-literal or not. If explaining
+what a name looks like is unavoidable, describe the SHAPE abstractly (a mission stem, a
+hyphen, an ISO-8601 timestamp with colons replaced by hyphens, the literal extension)
+without ever typing one concrete instance end to end. Selftest fixtures needing a retro-like
+string must build it via runtime string concatenation in the test code (parts assembled
+from variables) rather than a single literal typed out whole.
+
+Steps:
+  1. Baseline: record branch + HEAD; print PRESENT/ABSENT for the marker mt-c3-perstem in conduct-cycle.mjs (idempotence anchor; if PRESENT, edit steps are verify-only). Never exit 1 on existence. [command]
+  2. C2 part B edit of muezzin-daemon.mjs ONLY, pickPromotion function alone: reuse the missionLandedState import already present from S1.S2.S1 (do not re-import or reimplement it); tag the call site with the literal comment mt-c2b-pickpromotion; on a disputed verdict, log evt('STAMP-DISPUTED: ...') and exclude that mission from promotion; on a null verdict, fail-open (unchanged behavior). Add one selftest fixture: a disputed stamp is not promoted by pickPromotion. Do not touch queuedDepsHold or conduct-cycle.mjs in this step. [edit] muezzin-daemon.mjs
+  3. C3 edit of conduct-cycle.mjs ONLY: per-stem requeue tracking with transparent legacy migration per the Maqsad contract, tagged mt-c3-perstem at the migration site; three fixtures (migration, partial, full). Do not touch muezzin-daemon.mjs in this step. [edit] conduct-cycle.mjs
+  4. Verify: Select-String receipts for mt-c2b-pickpromotion and mt-c3-perstem; node --check both files. [verify]
+  5. git commit both ALLOW-FILES by explicit name naming this mission + the playbook UNIT C + the C2/C3 hunt items; idempotent no-op if already committed (ALREADY_COMMITTED + exit 0 when clean and HEAD carries both markers). [command]
+  6. OUTCOME CHECK: run node muezzin-daemon.mjs --selftest AND node conduct-cycle.mjs --selftest as a multi-line block; the step receipt MUST show BOTH suites ending ALL PASS, including every new fixture name from this mission AND from engine-truth-of-record.S1.S1 and engine-truth-of-record.S1.S2.S1 (UNRESOLVED does NOT close / disputed stamp keeps mission live / null verdict honors stamp / disputed stamp not promoted / partial requeue leaves second stem live). A missing fixture name or any FAIL line fails this step. [command]
+
+Done means: both files committed at HEAD carrying mt-c1-boundary, mt-c2a-queueddeps,
+mt-c2b-pickpromotion, and mt-c3-perstem; both selftest suites ALL PASS with every new
+fixture from the whole engine-truth-of-record.S1 family visible in the step-6 receipt;
+after the next daemon reload, UNRESOLVED-annotated missions stop being retired, unverified
+RESOLVED stamps are disputed-not-honored in BOTH queuedDepsHold and pickPromotion, and
+partial requeues no longer eat their siblings — the truth-of-record floor every later gap
+fix stands on (GAP-CLOSURE-PLAYBOOK UNIT C), now complete.
