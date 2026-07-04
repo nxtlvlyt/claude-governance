@@ -1061,3 +1061,20 @@ steps when the plan already has one auto-commit-per-file step each (redundant by
 construction), or (b) the auto-commit-per-implement-step mechanism should tag its commit
 message with the mission stem so idempotency greps actually work. Engine item, not chased
 further this beat.
+
+## GAP #10 gemma CUDA -- 18:08:21Z CRASH #5, UNDER THE FIX, ZERO CONTENTION
+Correcting the more optimistic read from two beats ago (one clean dispatch right after the
+44e862c reload) -- do not read that as the gap closing. At 18:07:39Z the admission guard's
+wait budget exhausted on qwen3.6:27b (17.6GB resident), force-evicted it, and per the
+heartbeat log the eviction genuinely cleared (only 2.4s to attempt-start, consistent with a
+fast pollUntilUnloaded return, not a bypass -- verified /api/ps is clean right now, no
+stale residency). gemma dispatched into an UNCONTENDED GPU and still crashed 40s in with the
+identical "CUDA error: an illegal memory access" (dispatch-heartbeat.log:144660-144662). This
+means the crash is NOT solely a contention/stale-load problem -- mechanisms #1-4 (all fixed
+and holding for what they cover) do not explain a crash with no other model resident and no
+stale-load warning logged before this attempt. This is a 5th, distinct, still-uncovered
+mechanism. Not diagnosed this beat (would need Ollama server-side logs / driver-level detail
+beyond dispatch-heartbeat.log's visibility, out of scope for a 15-min beat). Honest status:
+gap #10 is NOT closed, NOT trending closed -- the crash surfaces regardless of whether
+contention is present. Do not report further clean dispatches as progress without also
+checking for crashes in the same window.
