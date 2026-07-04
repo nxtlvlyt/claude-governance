@@ -1334,3 +1334,39 @@ NOT affect it) and is the closest thing to a real DONE all session; a genuine DO
 this counter to 0 via chainStreak('DONE', ...). That is the actual strategy change the
 breaker is asking for: stop feeding the streak with fresh mission attempts elsewhere, finish
 the one that's already past its hardest gate.
+
+## NEW GAP 2026-07-04 04:4xZ -- muezzin-daemon.mjs truncates on edit even at single-function scope; edit-mode may not be engaging
+Splitting the mission smaller has NOT fixed the truncation, three times running: S1's
+combined C1+C2 truncated; S1.S2's combined C2 (queuedDepsHold+pickPromotion) truncated;
+NOW engine-truth-of-record.S1.S2.S1's queuedDepsHold-ALONE edit (~45 lines of target
+function, the smallest possible scope) has ALSO truncated on both default-local
+("cuts off at the RESOLVED re[gex]") and sonnet ("ends at unclosed regex template
+literal") -- receipts in missions/engine-truth-of-record.S1.S2/mission-events.jsonl. Now
+on tier 2 (opus), in flight.
+
+Investigated the mechanism (Read: executor.mjs lines 420-470): there IS a SEARCH/REPLACE
+edit-mode primitive built specifically to avoid whole-file emission for large files
+("the cure for the whole-file-emission wall (code-repo 0/11)") -- it engages for
+`step.action_type === 'edit'` UNLESS the step description matches a `fullReauthorIntent`
+regex (author/render/rewrite/regenerate/recreate/rebuild/fully-evaluated/from
+scratch/entire file/in ONE pass) AND the file is under EDIT_FULL_FILE_MAX_BYTES (180000).
+muezzin-daemon.mjs is 137945 bytes -- UNDER the threshold, so it is NOT windowed and
+(if fullReauthorIntent somehow matched) would be whole-file-safe. My step descriptions
+contain none of the fullReauthorIntent trigger words, so edit-mode SHOULD be engaging --
+but the witness findings ("truncated mid-function", "unclosed regex template literal")
+read exactly like whole-file-style truncation, not a SEARCH/REPLACE parse failure. Not yet
+determined: whether the auto-generated PLAN step (architect panel output, not my literal
+mission text) sets action_type:'edit' correctly, or whether its own generated description
+accidentally matches fullReauthorIntent, or whether SEARCH/REPLACE mode itself still
+truncates on large REPLACE blocks. Genuinely unresolved -- named here rather than guessed
+at further this beat, since confirming it needs reading the actual generated plan object
+(not stored anywhere disk-persistent right now; only a truncated title fragment is logged)
+or instrumenting the dispatch path directly.
+
+Why this matters beyond this one mission: if edit-mode is silently not engaging (or itself
+truncating) for a file this size, EVERY future mission touching muezzin-daemon.mjs (or any
+file in the 100-180KB range) inherits the same wall. This is the deepest-leverage finding
+of the whole truth-of-record saga -- worth a dedicated investigation mission once this one
+either lands via opus or exhausts. Not fixed this beat: opus's current attempt is still
+live and gets the chance first; guessing at a fix without reading the real plan object
+would be exactly the kind of unverified action Directive 11 warns against.
