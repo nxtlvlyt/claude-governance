@@ -1555,3 +1555,24 @@ selftests (mid-fix before the 2nd stamp stays silenced, late-fix after it still 
 selftests pass; live sweep confirms REVISIT-PARKED: 13 -> 0 post-fix. This was NOT one of the 25
 hunt items or a top-level item -- logged here as additional, outside the 29-count, same pattern as
 the STUCK-TASK kill-scope bonus fix (see "#3 COMPLETED IN FULL" entry above).
+
+## engine-model-identity-audit RESOLVED 2026-07-05 00:5xZ (conductor-direct, adjacent to #9 not closing it)
+Chain failed 3x on step 3's fabricated-citation trap: the mission's own anti-fabrication
+constraint text (added after a prior ~1h burn) quotes the forbidden placeholder strings
+verbatim as illustration, and the executor (north-mini-code-toolcall, a smaller local model)
+parroted them back into its own new code, re-triggering the exact guard the constraint existed
+to prevent -- a self-defeating mission-text pattern, not an engine bug. Step 2 (model_rijal.mjs
+qwen3-coder-next correction) had already landed clean, verified via direct grep this beat. Step
+3 performed conductor-direct: auditModelIdentities(models) in conduct-cycle.mjs groups Ollama
+/api/tags entries by digest; a shared-digest group is BENIGN only if every name shares the same
+pre-colon prefix (the ordinary :latest-alias shape), else it's a FRAUD CANDIDATE. Wired into
+sweep() via fetchOllamaTags() (new, mirrors checkSearxngSight's sync-curl/3-host-fallback/8s-
+timeout shape exactly); prints one MODEL-IDENTITY FLAG line per fraud group; skips silently on
+fetch failure. 7 new selftests (pure-function classification x4, sweep-wiring x2, unreachable-
+skip x1); 37/37 total selftests pass. Live sweep against nxtbeast: caught the EXACT group the
+operator caught by ear four times -- qwen3-coder-next/kimi-k2.7-code/north-mini-code-toolcall,
+digest 429d372cb9f6. Commit a2ae905. AUTORUN.md line annotated RESOLVED.
+NOTE: this does NOT close top-level gap item #9 (QUEUE.md's own text: "ollama rm kimi tag
+(clear lane), per-era seat-record split, eval-v3 cells") -- that item's 3 sub-tasks are
+untouched. This was a separate, real mission completion that happens to sit adjacent to #9's
+subject matter (model identity), corrected in STATE.md after almost conflating the two.

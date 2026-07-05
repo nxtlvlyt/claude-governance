@@ -224,6 +224,24 @@ live-confirmed REVISIT-PARKED clears 13->0 post-fix.
 Item #7's OTHER two sub-components (13 parked revisits — now DONE via the above; 17-mission
 amend-on-surface pile) — the amend-on-surface pile is NOT yet touched this beat.
 
+**2026-07-05 beat — engine-model-identity-audit mission RESOLVED (adjacent to item #9, does
+NOT close it — checked QUEUE.md's own wording before claiming otherwise).** Chain attempt
+failed 3x on a fabricated-citation trap (its own anti-fabrication constraint text quotes the
+forbidden placeholder strings verbatim; the executor parroted them back into its own step-3
+work, re-triggering the guard it was told to avoid — ~4-5h burned across sonnet+opus
+escalation). Step 2 (model_rijal.mjs's qwen3-coder-next entry, false Ollama-Cloud claim
+corrected) had already landed clean. Performed step 3 conductor-direct: `auditModelIdentities()`
+groups Ollama tags by digest, flags any multi-name group whose names don't share a pre-colon
+prefix (the honest :latest-alias shape) as a fraud candidate; wired into the sweep via
+`fetchOllamaTags()` (mirrors checkSearxngSight's sync-curl/host-fallback shape); 7 new
+selftests; commit a2ae905. Live sweep against nxtbeast confirmed it catches the EXACT group
+the operator caught by ear: qwen3-coder-next/kimi-k2.7-code/north-mini-code-toolcall, digest
+429d372cb9f6. Discipline alone had failed 4 times; this makes the fraud unmissable mechanically.
+**Item #9 itself is STILL OPEN** — its actual text (QUEUE.md line 855) is "ollama rm kimi tag
+(clear lane), per-era seat-record split, eval-v3 cells" — none of which this mission covered.
+This fix is a real, standing detector that PREVENTS future recurrences of the identity-
+misattribution class, but it is a separate deliverable, not item #9's three named sub-tasks.
+
 Report against THIS block every beat ("Gap fixes: N/29 struck" — 29 stays the denominator even
 as N climbs; it only shrinks if a top-level item's whole scope closes, quoting which N are new this
 beat) — do not restate "30" from memory, and do not let this block itself go stale: update

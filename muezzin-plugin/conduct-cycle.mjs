@@ -286,6 +286,30 @@ export function parkedRevivalDue(autorun, fixEntries = [], { maxAgeDays = 7, now
   return due;
 }
 
+// mt-model-audit-fn: groups a set of Ollama tag entries ({name, digest}) by digest; a
+// shared-digest group is BENIGN only if every name shares the same substring before its
+// first colon (the ordinary :latest-alias shape) — any other multi-name group is a FRAUD
+// CANDIDATE: distinct-looking names secretly serving the same weights, the exact class
+// that misattributed a model's lab/size/history four times in one operator-caught night
+// before this detector existed. Pure — no network, no fs; the sweep supplies live data.
+export function auditModelIdentities(models) {
+  const byDigest = {};
+  for (const m of models || []) {
+    if (!m || !m.digest || !m.name) continue;
+    (byDigest[m.digest] ||= []).push(m.name);
+  }
+  const fraudGroups = [];
+  const benignGroups = [];
+  for (const [digest, names] of Object.entries(byDigest)) {
+    if (names.length < 2) continue;
+    const prefixes = new Set(names.map((n) => n.split(':')[0]));
+    const group = { digest, names };
+    if (prefixes.size === 1) benignGroups.push(group);
+    else fraudGroups.push(group);
+  }
+  return { fraudGroups, benignGroups };
+}
+
 // SearXNG sight-check: a control query that cannot honestly return zero results.
 // Sync + bounded (the sweep is a CLI; 8s ceiling). Injectable for selftests.
 import { execSync as _execSyncSight } from 'child_process';
@@ -314,6 +338,38 @@ export function checkSearxngSight({ probe } = {}) {
       }
     }
     return { ok: false, reason: lastError ? `probe failed: ${String(lastError?.message || lastError).slice(0, 80)}` : 'zero results' };
+  } catch (e) {
+    return { ok: false, reason: `probe failed: ${String(e?.message || e).slice(0, 80)}` };
+  }
+}
+
+// mt-model-audit-fn reachability: fetch the live Ollama tag list from nxtbeast, same
+// sync-curl/host-fallback/bounded-timeout shape as checkSearxngSight above (reused, not
+// reinvented). On any fetch failure, callers skip the audit silently — never crash the sweep.
+export function fetchOllamaTags({ probe } = {}) {
+  try {
+    const urls = [];
+    if (process.env.OLLAMA_HOST) urls.push(process.env.OLLAMA_HOST.replace(/\/+$/, ''));
+    urls.push('http://nxtbeast:11434');
+    urls.push('http://100.103.44.13:11434');
+    urls.push('http://localhost:11434');
+
+    let lastError = null;
+    for (const base of urls) {
+      try {
+        const body = probe ? probe() : _execSyncSight(
+          `curl -s -m 8 "${base}/api/tags"`,
+          { timeout: 10000, stdio: ['ignore', 'pipe', 'pipe'] }).toString();
+        if (body && body.trim()) {
+          const j = JSON.parse(body);
+          const models = Array.isArray(j?.models) ? j.models.map((m) => ({ name: m.name, digest: m.digest })) : null;
+          if (models) return { ok: true, models };
+        }
+      } catch (e) {
+        lastError = e;
+      }
+    }
+    return { ok: false, reason: lastError ? `probe failed: ${String(lastError?.message || lastError).slice(0, 80)}` : 'empty/unparseable response' };
   } catch (e) {
     return { ok: false, reason: `probe failed: ${String(e?.message || e).slice(0, 80)}` };
   }
@@ -573,7 +629,7 @@ export function computeDoneness(base, autorun, {
   return { ts: new Date(now).toISOString(), barMet, counts, blocking: blocking.slice(0, 60), frontierClean };
 }
 
-export function sweep(base = HERE, now = Date.now(), routeFile = path.join(process.env.USERPROFILE || 'C:/Users/marka', '.claude', 'state', 'muezzin-route.json'), { sightFn = checkSearxngSight, cgAgeFn = () => checkCgFreshness(now), worktreeReposFn = () => WORKTREE_REPOS, gitFn = null } = {}) {
+export function sweep(base = HERE, now = Date.now(), routeFile = path.join(process.env.USERPROFILE || 'C:/Users/marka', '.claude', 'state', 'muezzin-route.json'), { sightFn = checkSearxngSight, cgAgeFn = () => checkCgFreshness(now), worktreeReposFn = () => WORKTREE_REPOS, gitFn = null, modelTagsFn = fetchOllamaTags } = {}) {
   const logs = path.join(base, 'missions', '_logs');
   const status = readJson(path.join(logs, 'daemon-status.json'));
   const pidfile = parseInt(readText(path.join(logs, 'daemon.pid')).trim(), 10);
@@ -938,6 +994,20 @@ export function sweep(base = HERE, now = Date.now(), routeFile = path.join(proce
       command: 'docker restart searxng',
       verify: 'rerun: node conduct-cycle.mjs (this check) — or curl "http://localhost:8080/search?q=github&format=json" returns results',
     });
+  }
+
+  // mt-model-audit-fn wiring: a shared-digest, textually-unrelated model group is an
+  // identity-fraud candidate — verify against model_rijal.mjs before trusting any name in
+  // it; per STATE.md's promoted rule, do not assert a model's lab, size, or history from a
+  // tag name without this receipt. Skip silently on fetch failure — never crash the sweep.
+  const modelTags = modelTagsFn();
+  if (modelTags.ok) {
+    const { fraudGroups } = auditModelIdentities(modelTags.models);
+    for (const g of fraudGroups) {
+      report.push(`MODEL-IDENTITY FLAG: digest ${g.digest.slice(0, 12)} is served under ${g.names.length} textually-unrelated names (${g.names.join(', ')}) — verify against model_rijal.mjs before trusting any name in this group; do not assert lab/size/history from a tag name without this receipt.`);
+    }
+  } else {
+    report.push(`model-identity audit SKIP: nxtbeast unreachable (${modelTags.reason})`);
   }
 
   // WAIVER HARDENING (reviewer 2026-06-11: "waivers are where graveyards go to
@@ -1433,7 +1503,7 @@ function selftest() {
     if (/log -p/.test(argstr) || /patch-id/.test(argstr)) return { ok: true, out: '' };
     return { ok: true, out: '' };
   };
-  const sightOk = { sightFn: () => ({ ok: true, results: 10 }), cgAgeFn: () => ({ ok: true, minutes: 5 }), worktreeReposFn: () => [], gitFn: stubGit };
+  const sightOk = { sightFn: () => ({ ok: true, results: 10 }), cgAgeFn: () => ({ ok: true, minutes: 5 }), worktreeReposFn: () => [], gitFn: stubGit, modelTagsFn: () => ({ ok: false, reason: 'selftest fixture — no network' }) };
   let r = sweep(tmp, now, noRoute, sightOk);
   ck(r.daemonAlive === false, 'dead daemon detected (stale status + dead pid)');
   ck(r.actions.some((a) => a.id === 'RESTART-DAEMON' && a.command.includes('muezzin-daemon.mjs')), 'restart action with exact command emitted');
@@ -1695,17 +1765,42 @@ function selftest() {
 
   // fixture 1f: SEARXNG SIGHT-CHECK — a blind backend is a receipted, mechanical action.
   {
-    const blind = sweep(tmp, now, noRoute, { sightFn: () => ({ ok: false, reason: 'zero results on control query' }) });
+    const blind = sweep(tmp, now, noRoute, { sightFn: () => ({ ok: false, reason: 'zero results on control query' }), modelTagsFn: sightOk.modelTagsFn });
     ck(blind.actions.some((a) => a.id === 'RESTART-SEARXNG' && a.class === 'mechanical'), 'blind searxng -> RESTART-SEARXNG mechanical action (the wedge can never again pass unwitnessed)');
     ck(blind.report.some((l) => /SEARXNG BLIND/.test(l)), 'blind searxng surfaces on the report');
   }
 
   // fixture 1g: CG-INCREMENT GATE — stale v3 repo demands an increment; fresh stays silent.
   {
-    const stale = sweep(tmp, now, noRoute, { sightFn: () => ({ ok: true, results: 9 }), cgAgeFn: () => ({ ok: true, minutes: 120 }) });
+    const stale = sweep(tmp, now, noRoute, { sightFn: () => ({ ok: true, results: 9 }), cgAgeFn: () => ({ ok: true, minutes: 120 }), modelTagsFn: sightOk.modelTagsFn });
     ck(stale.actions.some((a) => a.id === 'CG-INCREMENT-DUE'), 'stale CG repo -> CG-INCREMENT-DUE on the beat (idle=CG is now a condition, not willpower)');
-    const fresh = sweep(tmp, now, noRoute, { sightFn: () => ({ ok: true, results: 9 }), cgAgeFn: () => ({ ok: true, minutes: 10 }) });
+    const fresh = sweep(tmp, now, noRoute, { sightFn: () => ({ ok: true, results: 9 }), cgAgeFn: () => ({ ok: true, minutes: 10 }), modelTagsFn: sightOk.modelTagsFn });
     ck(!fresh.actions.some((a) => a.id === 'CG-INCREMENT-DUE'), 'fresh CG repo -> no nag (the gate has a dead-band, not a drumbeat)');
+  }
+
+  // fixture 1g2: mt-model-audit-fn — auditModelIdentities() unit contract + sweep wiring.
+  // Synthetic 5-model array: one fraud group (3 textually-unrelated names, same digest) +
+  // one benign :latest-alias group (2 names sharing the same pre-colon prefix, same digest).
+  {
+    const synthetic = [
+      { name: 'qwen3-coder-next', digest: 'abc111' },
+      { name: 'kimi-k2.7-code', digest: 'abc111' },
+      { name: 'north-mini-code-toolcall', digest: 'abc111' },
+      { name: 'llama4:scout', digest: 'def222' },
+      { name: 'llama4:latest', digest: 'def222' },
+    ];
+    const auditResult = auditModelIdentities(synthetic);
+    ck(auditResult.fraudGroups.length === 1 && auditResult.fraudGroups[0].digest === 'abc111', 'exactly one fraud group detected, keyed on the shared digest');
+    ck(auditResult.fraudGroups[0].names.length === 3, 'fraud group carries all 3 textually-unrelated aliases');
+    ck(auditResult.benignGroups.length === 1 && auditResult.benignGroups[0].digest === 'def222', 'the :latest-alias group is classified benign, not flagged as fraud');
+    ck(!auditModelIdentities([{ name: 'solo:latest', digest: 'ghi333' }]).fraudGroups.length, 'a single-name digest group is neither fraud nor benign (nothing to compare)');
+
+    const flagged = sweep(tmp, now, noRoute, { ...sightOk, modelTagsFn: () => ({ ok: true, models: synthetic }) });
+    ck(flagged.report.some((l) => /MODEL-IDENTITY FLAG/.test(l) && l.includes('qwen3-coder-next') && l.includes('north-mini-code-toolcall')), 'sweep surfaces the fraud group as a MODEL-IDENTITY FLAG line naming all its aliases');
+    ck(!flagged.report.some((l) => /MODEL-IDENTITY FLAG/.test(l) && l.includes('llama4:scout')), 'the benign :latest group never appears in a FLAG line');
+
+    const skipped = sweep(tmp, now, noRoute, { ...sightOk, modelTagsFn: () => ({ ok: false, reason: 'nxtbeast unreachable (test)' }) });
+    ck(skipped.report.some((l) => /model-identity audit SKIP/.test(l)), 'unreachable nxtbeast skips the audit with a named reason, never crashes the sweep');
   }
 
   // fixture 1h: STUCK-TASK detection + heal() kills and requeues.
