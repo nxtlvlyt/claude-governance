@@ -242,6 +242,27 @@ the operator caught by ear: qwen3-coder-next/kimi-k2.7-code/north-mini-code-tool
 This fix is a real, standing detector that PREVENTS future recurrences of the identity-
 misattribution class, but it is a separate deliverable, not item #9's three named sub-tasks.
 
+**2026-07-05 beat — item #7's MECHANICAL false-death detector (FALSE-DEATH-CANDIDATES, a
+DIFFERENT source from the earlier Agent/Workflow survey) had its own noise bug, found+fixed.**
+`missionLandedState()`'s ALLOW-FILES extraction regex matched ANY "  - token" line ANYWHERE in
+a mission's text, not just inside the real ALLOW-FILES: block — every mission's own "Done
+means:"/"Context:" prose bullets use the identical "  - " style, so their first words ("The",
+"`git", "No", "This", "A", "Because") were being read as phantom allow-files entries, diluting
+EVERY verdict computation across the whole 25-candidate list. This function is shared by
+falseDeathScan (post-hoc report) AND the daemon's PRE-SATISFIED pre-fire guard — the same noise
+was corrupting live fire-time doneness checks, not just this report. Fixed: bounded extraction
+to the contiguous bullet run right after the literal ALLOW-FILES: header (commit 232df4f, 2 new
+regression tests, 39/39 selftests pass). Live effect: the report is noise-free, and 5 missions
+previously diluted to PARTIAL now correctly resolve FULL — each independently re-verified this
+beat via direct `git diff --quiet` against the real mt-integration-2026-06-22 repo (not trusted
+from the fixed detector alone): qc-concern-pledge-html-free-forever-commitment-2026-06-25,
+qc-fix-reviews-submission-render-reviews-js-2026-06-24, mt-integrate-qc-pipeline-sota-doc,
+mt-integrate-qc-pipeline-sota-docs (same file/sha as its singular sibling), mt-integrate-rate-
+limit-arch-docs-2026-06-23 (its panel REJECT was a process gap — no step grepped for the
+required rejection language — closed by grepping the landed file directly and confirming the
+language IS present). All 5 stamped RESOLVED-LANDED. FALSE-DEATH-CANDIDATES: 25 -> 20 remaining
+(this batch, not yet exhausted — 20 PARTIAL candidates still need individual judgment).
+
 Report against THIS block every beat ("Gap fixes: N/29 struck" — 29 stays the denominator even
 as N climbs; it only shrinks if a top-level item's whole scope closes, quoting which N are new this
 beat) — do not restate "30" from memory, and do not let this block itself go stale: update

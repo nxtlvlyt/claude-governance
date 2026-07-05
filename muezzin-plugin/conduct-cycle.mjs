@@ -160,7 +160,16 @@ export function missionLandedState(mtext, gitFn) {
   if (!mtext || !/MISSION-CLASS:\s*code-repo/i.test(mtext)) return null;
   const repo = (mtext.match(/REPO-ROOT:\s*(.+)/) || [])[1]?.trim();
   if (!repo) return null;
-  const allow = [...mtext.matchAll(/^\s{2}-\s+(\S+)/gm)].map((m) => m[1]).filter((p2) => p2 !== '.');
+  // BOUNDED-BLOCK FIX (2026-07-05, live catch): the old regex matched ANY "  - token" line
+  // ANYWHERE in the mission text, so a "Done means:" or "Context:" section's own prose
+  // bullets ("  - The 'Signed' section's...", "  - `git status --short`...") got read as
+  // ALLOW-FILES entries — polluting every downstream verdict with garbage "absent" pseudo-
+  // files (live receipt: qc-concern-pledge-html... reported "The=absent `git=absent" as if
+  // they were real paths). Anchor to the contiguous bullet run immediately after the literal
+  // ALLOW-FILES: header; anything past the first non-bullet line (blank or prose) is out of
+  // scope, exactly like a real YAML/markdown list.
+  const allowBlock = (mtext.match(/^ALLOW-FILES:[ \t]*\r?\n((?:[ \t]{2}-[ \t]+\S+.*\r?\n?)*)/mi) || [])[1] || '';
+  const allow = [...allowBlock.matchAll(/^\s{2}-\s+(\S+)/gm)].map((m) => m[1]).filter((p2) => p2 !== '.');
   if (!allow.length) return null;
   const srcSha = (mtext.match(/\b([a-f0-9]{7,40})\b/) || [])[1];
   const files = {};
@@ -1626,6 +1635,18 @@ function selftest() {
       const fdAu2 = parseAutorun('FAILED missions/fd-nosha.mission.txt  <!-- t -->\n');
       const fd2 = falseDeathScan(fdAu2, tmp, { gitFn: fdGitStub, readTextFn: () => 'MISSION-CLASS: code-repo\nREPO-ROOT: C:/r\nALLOW-FILES:\n  - js/a.js\nMaqsad: no sha named here' });
       ck(fd2.find((c) => c.path.includes('fd-nosha'))?.verdict === 'PARTIAL', 'false-death: NO source sha -> presence-only evidence caps at PARTIAL, never FULL (first-live-pass hole, pinned)');
+
+      // BOUNDED-BLOCK regression (2026-07-05 live catch): a "Done means:" section's own
+      // "  - " prose bullets, sitting well past a blank line after the real ALLOW-FILES
+      // block, must NEVER be read as extra allow-files entries.
+      const fdAu3 = parseAutorun('FAILED missions/fd-prose.mission.txt  <!-- t -->\n');
+      const proseText = 'MISSION-CLASS: code-repo\nREPO-ROOT: C:/r\nALLOW-FILES:\n  - pledge.html\n\n' +
+        'Maqsad: abc1234 relocate a div\n\nDone means:\n  - The section heading stays put.\n' +
+        '  - `git status --short` shows only pledge.html changed.\n  - No other file moves.\n';
+      const fd3 = falseDeathScan(fdAu3, tmp, { gitFn: fdGitStub, readTextFn: () => proseText });
+      const stFd3 = missionLandedState(proseText, fdGitStub);
+      ck(Object.keys(stFd3.files).length === 1 && !!stFd3.files['pledge.html'], 'ALLOW-FILES extraction stops at the first non-bullet line -- "Done means" prose never pollutes the file list');
+      ck(!('The' in stFd3.files) && !('`git' in stFd3.files) && !('No' in stFd3.files), 'prose bullet fragments (The/`git/No) are never treated as pseudo-files');
     }
     const auSplit = parseAutorun('SPLIT missions/parent.mission.txt  <!-- ts -->\nmissions/live.mission.txt\n');
     ck(auSplit.split.length === 1 && auSplit.pending.length === 1, 'parser: SPLIT is first-class; live line still pending');

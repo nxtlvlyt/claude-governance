@@ -1576,3 +1576,29 @@ NOTE: this does NOT close top-level gap item #9 (QUEUE.md's own text: "ollama rm
 (clear lane), per-era seat-record split, eval-v3 cells") -- that item's 3 sub-tasks are
 untouched. This was a separate, real mission completion that happens to sit adjacent to #9's
 subject matter (model identity), corrected in STATE.md after almost conflating the two.
+
+## missionLandedState ALLOW-FILES noise bug found+fixed 2026-07-05 01:2xZ (item #7, mechanical detector)
+FALSE-DEATH-CANDIDATES' 25-item PARTIAL list was full of nonsense entries ("The=absent",
+"`git=absent", "No=absent", "This=absent", "A=absent", "Because=absent", "Every=absent") --
+traced to missionLandedState()'s ALLOW-FILES regex matching ANY "  - token" line ANYWHERE in a
+mission's text, not just the real ALLOW-FILES: block. Every mission's own "Done means:"/
+"Context:" section uses the identical "  - " bullet style, so those sections' first words were
+read as extra allow-files entries -- diluting present/identical counts across the WHOLE list,
+and (more importantly) corrupting the SAME function's use in the daemon's PRE-SATISFIED pre-fire
+guard, not just this report. Fixed (commit 232df4f): bounded extraction to the contiguous bullet
+run immediately after the literal ALLOW-FILES: header. 2 new regression tests using the live-
+caught shape (qc-concern-pledge-html's own Done-means text); 39/39 selftests pass.
+Live effect, independently re-verified against the real repo (not trusted from the fixed
+detector alone -- git diff --quiet run directly for all 5): 5 candidates that were diluted to
+PARTIAL now correctly resolve FULL and are stamped RESOLVED-LANDED in AUTORUN.md:
+- qc-concern-pledge-html-free-forever-commitment-2026-06-25 (pledge.html vs 49b337b)
+- qc-fix-reviews-submission-render-reviews-js-2026-06-24 (js/reviews.js vs 6efab86)
+- mt-integrate-qc-pipeline-sota-doc + mt-integrate-qc-pipeline-sota-docs (same file/sha,
+  docs/QC-PIPELINE-SOTA-2026-06-23.md vs 375e40b -- duplicate missions for one deliverable)
+- mt-integrate-rate-limit-arch-docs-2026-06-23 (docs/RATE-LIMIT-ARCHITECTURE-2026-06-23.md vs
+  8055904; its verdict-panel REJECT was a process gap -- no step ever grepped for the required
+  rejection language -- closed by grepping the landed file directly and confirming the language
+  IS present: "NO KV-based rate limiting", "Cloudflare's zone-level WAF Rate-Limit Rules", "the
+  two anti-patterns this codebase rejects" all found)
+FALSE-DEATH-CANDIDATES: 25 -> 20 remaining. Not exhausted this beat -- 20 PARTIAL candidates
+still need individual judgment (real content differs in most of them, not just noise).
