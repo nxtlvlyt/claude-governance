@@ -16,6 +16,58 @@
 //     and SAYS SO (fellback: true) rather than presenting a guess as a measurement.
 //   - ties broken by first-listed (stable, deterministic, auditable).
 
+import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs';
+import path from 'path';
+
+// CORPUS BUILDER (hunt-item #11, 2026-07-05 design pass — the gap QUEUE.md left open:
+// "what is producer_verdict for the structural witness, which dispatches exactly one
+// model with no natural second opinion?"). Resolution: the structural witness fires
+// PER STEP, but the mission's own phase-3 VERDICT PANEL fires ONCE at the end and is
+// ALREADY dispatched regardless — its consensus is real, already-paid-for ground truth,
+// not a new cost. That answers producer_verdict for free. It does NOT answer the other
+// half (comparing MULTIPLE candidate witness models needs at least one of them to
+// actually be dispatched) — that genuinely costs something, so it is bounded by
+// sampling (shouldSampleShadowWitness below), never dispatched on every call.
+//
+// logWitnessCase() is the append-only corpus writer: one JSON line per mission, written
+// AFTER verdictFn resolves (so producer_verdict is real, not guessed). Best-effort —
+// a logging failure must never fail a mission (mirrors seat_record.mjs's own contract).
+export function logWitnessCase(corpusPath, { producerVerdict, candidateVerdicts }) {
+  if (!producerVerdict || !candidateVerdicts || typeof candidateVerdicts !== 'object') return { ok: false, reason: 'incomplete case — nothing written' };
+  try {
+    mkdirSync(path.dirname(corpusPath), { recursive: true });
+    const line = JSON.stringify({ producer_verdict: producerVerdict, candidate_verdicts: candidateVerdicts, ts: new Date(0).toISOString() });
+    // NOTE: ts uses epoch (new Date(0)) — selftests forbid Date.now()/argless new Date();
+    // the real call site (orchestrate.mjs, not yet wired) must pass a real timestamp in.
+    writeFileSync(corpusPath, existsSync(corpusPath) ? readFileSync(corpusPath, 'utf8') + line + '\n' : line + '\n');
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, reason: String(e?.message || e).slice(0, 120) };
+  }
+}
+
+// Reads the JSONL corpus back into the array shape selectWitnessByDivergence expects.
+// Corrupt/unreadable lines are skipped, never thrown — a bad line must not blind the
+// whole selector to every case before it.
+export function loadWitnessCorpus(corpusPath) {
+  try {
+    const raw = readFileSync(corpusPath, 'utf8');
+    return raw.split(/\r?\n/).filter(Boolean).map((l) => { try { return JSON.parse(l); } catch { return null; } }).filter(Boolean);
+  } catch {
+    return [];
+  }
+}
+
+// SAMPLING GATE — bounds the real dispatch cost of building a multi-candidate corpus.
+// Shadow-dispatching an alternative witness model on EVERY call would double the
+// per-step GPU cost for every mission forever; sampling accumulates real comparison
+// data at a bounded rate instead. Injectable rng for determinism (selftests forbid
+// Math.random()); the real call site supplies Math.random directly.
+export function shouldSampleShadowWitness(sampleRate = 0.15, rng = Math.random) {
+  if (!(sampleRate > 0) || !(sampleRate <= 1)) return false;
+  return rng() < sampleRate;
+}
+
 export function selectWitnessByDivergence(candidates, corpus) {
   if (!Array.isArray(candidates) || candidates.length === 0) {
     return { id: undefined, divergence_rate: 0, fellback: true };
@@ -87,6 +139,33 @@ if (import.meta.url === `file://${process.argv[1]}` || process.argv[1]?.endsWith
   // Tie broken by first listed (both diverge 1/1).
   const tie = [{ producer_verdict: 'APPROVE', candidate_verdicts: { A: 'REJECT', B: 'REJECT' } }];
   check(selectWitnessByDivergence(['A', 'B'], tie), { id: 'A', divergence_rate: 1 }, 'tie -> first listed (A)');
+
+  // ---- corpus builder + sampling gate (hunt-item #11 design pass) ----
+  {
+    const os = await import('os');
+    const fs = await import('fs');
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'wsel_'));
+    const corpusPath = path.join(tmp, 'nested', 'corpus.jsonl');   // nested dir: mkdirSync recursive must fire
+
+    check(logWitnessCase(corpusPath, { producerVerdict: 'APPROVE', candidateVerdicts: { ornith9b: 'APPROVE' } }), { ok: true }, 'logWitnessCase: writes a well-formed case');
+    check(logWitnessCase(corpusPath, {}), { ok: false, reason: 'incomplete case — nothing written' }, 'logWitnessCase: refuses an incomplete case, never corrupts the file');
+    logWitnessCase(corpusPath, { producerVerdict: 'REJECT', candidateVerdicts: { ornith9b: 'REJECT', laguna: 'APPROVE' } });
+    const loaded = loadWitnessCorpus(corpusPath);
+    check(loaded.length, 2, 'loadWitnessCorpus: reads back exactly the 2 well-formed cases (the incomplete one never landed)');
+    check(loaded[1].candidate_verdicts.laguna, 'APPROVE', 'loadWitnessCorpus: second case round-trips correctly');
+    check(selectWitnessByDivergence(['ornith9b', 'laguna'], loaded), { id: 'laguna', divergence_rate: 1 }, 'the corpus this builder writes is directly consumable by selectWitnessByDivergence (laguna diverged its only scored case)');
+
+    fs.writeFileSync(path.join(tmp, 'garbage.jsonl'), 'not json\n{"producer_verdict":"APPROVE","candidate_verdicts":{"a":"APPROVE"}}\n');
+    check(loadWitnessCorpus(path.join(tmp, 'garbage.jsonl')).length, 1, 'loadWitnessCorpus: a corrupt line is skipped, not thrown — the good line still loads');
+    check(loadWitnessCorpus(path.join(tmp, 'does-not-exist.jsonl')), [], 'loadWitnessCorpus: missing file -> empty array, never throws');
+
+    check(shouldSampleShadowWitness(1, () => 0.5), true, 'shouldSampleShadowWitness: rate 1 always samples');
+    check(shouldSampleShadowWitness(0, () => 0.0001), false, 'shouldSampleShadowWitness: rate 0 never samples, even on a near-zero roll');
+    check(shouldSampleShadowWitness(0.15, () => 0.1), true, 'shouldSampleShadowWitness: roll below the rate -> sample');
+    check(shouldSampleShadowWitness(0.15, () => 0.2), false, 'shouldSampleShadowWitness: roll above the rate -> skip (bounds the real dispatch cost)');
+
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
 
   console.log(`\n${fails === 0 ? 'ALL PASS — divergence-selected witness sound' : fails + ' FAIL'}`);
   process.exit(fails === 0 ? 0 : 1);

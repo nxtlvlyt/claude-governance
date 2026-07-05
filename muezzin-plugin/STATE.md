@@ -179,10 +179,15 @@ and tested, not yet wired into any blocking gate), #25 (laguna's leaked <antThin
 reasoning-tag preamble stripped from recorded notes, 22fc08d; verdict extraction untouched,
 receipted against the exact live daemon-events.log leak shape).
 Item #22 addressed via this scoreboard block itself (not a separate fix -- see QUEUE.md).
-Item #11 investigated but NOT landed (witness_select.mjs is real/tested/unwired, but wiring
-it needs a real design decision -- what "producer verdict" means for a structural witness,
-and whether it requires shadow-dispatching a second model at real cost -- not a quick fix;
-see QUEUE.md for the finding).
+Item #11 PARTIAL 2026-07-05 (commit 42a8875) -- the design decision QUEUE.md flagged as
+missing is now resolved: producer_verdict = the mission's own later phase-3 verdict-panel
+consensus (already dispatched regardless, zero extra cost); candidate-comparison cost is
+bounded via shouldSampleShadowWitness() rather than dispatched every call. logWitnessCase/
+loadWitnessCorpus built + tested (11 new selftests, 16/16 total pass), producing a corpus
+directly consumable by the existing selectWitnessByDivergence(). NOT YET WIRED into
+orchestrate.mjs's live step/verdict flow -- that needs a real dispatch test to validate
+safely, and Ollama had a model resident when this was built this beat. Mechanism is real
+and ready; pipeline integration is the concrete next step, not an open design question.
 Item #18 STRUCK 2026-07-05 (commit b65c9db) — the materially-bigger fix flagged above is now
 landed: assertNoUndeclaredShrinkage() is wired into the [command]-type step path (orchestrate.mjs),
 refusing a `git add`+`git commit` BEFORE it runs if the file it's about to commit is already

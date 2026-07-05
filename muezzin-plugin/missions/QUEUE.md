@@ -1694,3 +1694,22 @@ any form (no script, no task-definitions, no results file) -- only its prose res
 into this file. Per the sixth law, not hand-rolling a replacement bench myself. Genuinely
 blocked on missing substrate, not on operator authorization -- flagging honestly rather than
 either fabricating a bench or silently dropping the sub-task.
+
+## Hunt-item #11 PARTIAL 2026-07-05 (commit 42a8875) — design gap resolved, wiring next
+The design question this item was blocked on ("what is producer_verdict for the structural
+witness, which dispatches exactly one model with no natural second opinion?") is now answered:
+the mission's own phase-3 verdict-panel consensus (already dispatched regardless of this
+feature) IS the producer_verdict, at zero extra cost. The remaining half of the gap (comparing
+MULTIPLE candidate witness models needs at least one actually dispatched, which does cost
+something) is bounded via a sampling gate (shouldSampleShadowWitness(rate, rng)) rather than
+shadow-dispatching on every call -- accumulating real comparison data over time at a bounded
+rate instead of doubling every mission's per-step GPU cost forever.
+Built + tested: logWitnessCase()/loadWitnessCorpus() (append-only JSONL corpus writer/reader)
++ shouldSampleShadowWitness(). 11 new selftests; 16/16 total pass. The corpus this writes is
+directly consumable by the existing selectWitnessByDivergence() (verified in the selftest).
+NOT wired into orchestrate.mjs's live step/verdict flow yet -- deliberately: Ollama had
+granite4.1-guardian:8b resident when this was built (checked via /api/ps per GR10), so it
+wasn't safe to validate a live dispatch-path change this beat. The mechanism is real, tested,
+and ready to wire in; what remains is pipeline integration (call logWitnessCase after verdictFn
+resolves in orchestrate.mjs, call shouldSampleShadowWitness before an optional second witness
+dispatch), not a further design decision.
