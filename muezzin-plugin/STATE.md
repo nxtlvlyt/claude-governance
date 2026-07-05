@@ -225,7 +225,16 @@ baseline (the executor's own first emission, pre-repair) lets assertNoUndeclared
 catch a repair pass that guts a brand-new, never-committed file, which previously had NO
 floor at all since there was no git HEAD version to compare against). Top-level item #9
 FULLY STRUCK 2026-07-05. **4 remain open** (3 top-level: #7 board-truth amend-on-surface
-pile, #8 repo-process undeployed-stranded pieces, #10 gemma CUDA mitigation-not-full-close;
+pile, #8 repo-process undeployed-stranded pieces, #10 gemma CUDA mitigation-not-full-close
+— real progress this beat, NOT a close: found + fixed that ollama_vision_verdict.mjs (gemma's
+ONLY remaining duty after architect-C's reseat) never received ARM 1's num_gpu:56 offload at
+all — it dispatches via a separate direct-fetch path that bypassed seat_dispatch's overlay
+entirely, and was ALSO invisible to the CUDA census (never wrote to dispatch-heartbeat.log).
+Both fixed + live-verified (commits 5826653, 2fbe8dc): switched to Ollama's native /api/chat
+endpoint (the only one that honors `options`), confirmed size_vram now genuinely below size
+after a real dispatch, and wired matching heartbeat logging. ARM 1 now covers BOTH of
+gemma's pathways for the first time; the standing 24h-clean-census bar still applies before
+declaring the gap closed, and it now has to hold across a pathway it never used to measure;
 + 1 hunt item: #7 LANE-EXCLUSION — hook BUILT+TESTED 9/9 at
 ~/.claude/hooks/lane-exclusion-gate.mjs; registration in settings.json classifier-blocked —
 ONE approved edit from live, the LAST hunt item standing).

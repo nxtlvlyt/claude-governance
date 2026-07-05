@@ -1866,3 +1866,50 @@ Item #22 named two receipted-but-unenrolled engine classes:
 Both sub-classes now real, on HEAD, tested. Hunt-item #22 fully struck — 24/25 hunt items
 done, only #7 LANE-EXCLUSION (registration-blocked, needs the operator's settings.json
 approval) remains.
+
+## GAP #10 gemma CUDA — ARM 1 PARITY FIX 2026-07-05, commit 5826653 (real, verified progress, not a close)
+Investigated whether ARM 1 (num_gpu:56) actually protects gemma's ONLY remaining duty after
+architect-C's reseat: vision-verdict, dispatched by ollama_vision_verdict.mjs. Found it does
+NOT — that module fetches Ollama's OpenAI-compat endpoint (/v1/chat/completions) directly,
+entirely bypassing seat_dispatch.mjs's dispatchSeat/applyModelOptions pipeline where ARM 1
+lives. Verified live (GR10-checked, /api/ps bracketing two real calls): the compat endpoint
+silently ignores an added `options` field — gemma stayed fully VRAM-resident (size_vram ===
+size, 19.86GB) either way. This means the confirmed 5th-crash-mechanism conclusion (18:08:21Z
+2026-07-04) is unaffected (that crash happened via the seat_dispatch pathway WITH num_gpu:56
+active), but the vision-verdict pathway's OWN crash risk had never actually been tested
+under ARM 1 at all — it's been running in the exact off-the-VRAM-edge configuration ARM 1
+exists to avoid, on every mission's visual QC step, this whole time.
+FIX: switched ollama_vision_verdict.mjs to Ollama's native /api/chat endpoint (the compat
+shim doesn't pass options through; native does). Images move to the native `images:
+[base64]` array; response parsing moves to `message.content` directly. Public return
+contract unchanged; visual_witness.mjs's own selftest (contract-only, mocked) still passes
+untouched. Verified live end-to-end against a real qc-baseline screenshot: verdict pipeline
+correct AND size_vram now measurably below size (18.14GB resident of a 21.10GB load) — the
+offload is actually active on this path for the first time since ARM 1 was built.
+STATUS: this is a real, verified fix for a genuine gap (previously gemma's only remaining
+duty had ZERO of its own mitigation), but it does NOT by itself close gap #10 — it only
+extends ARM 1's coverage to the path that never had it. Whether this measurably reduces
+vision-verdict crashes needs the same 24h clean-census standard ARM 1 itself was held to;
+watch dispatch-heartbeat.log for gemma CUDA errors specifically from vision-verdict calls
+going forward (they're distinguishable: architect dispatches go through seat_dispatch's
+attempt-start/dispatch-FAILED lines; vision calls don't log there at all today — a
+follow-on item worth naming is adding heartbeat logging to ollama_vision_verdict.mjs itself,
+since right now a vision-verdict crash is only visible via the mission's own visualWitness
+receipt, never in the census this gap's own metric depends on).
+
+## GAP #10 gemma CUDA — census-visibility gap closed 2026-07-05, commit 2fbe8dc
+Follow-on to the ARM 1 parity fix above: ollama_vision_verdict.mjs never wrote to
+dispatch-heartbeat.log at all, so a vision-verdict crash was invisible to the CUDA census
+conduct-cycle.mjs's own sweep depends on — the metric gap #10's mitigation is judged against
+literally could not see this pathway. Added hb() logging mirroring seat_dispatch.mjs's exact
+convention (attempt-start / attempt-fail with the raw HTTP error body / attempt-ok), isolated
+under MUEZZIN_HB_FILE for the module's own --selftest (verified live: production log line
+count unchanged, 144697 before and after, across two real dispatches this beat — one direct,
+one via the muezzin-gate's own pre-commit self-test run). Going forward, a vision-verdict
+CUDA crash counts toward the same census as an architect one, closing the blind spot named
+in the prior entry.
+Combined status for gap #10 this beat: ARM 1's mitigation now genuinely covers BOTH of
+gemma's dispatch pathways (previously only one), and the census can now see crashes on
+both. This is real, verified progress — not a close. The standing 24h-clean-census bar
+still applies before declaring victory, and it now has to hold across a pathway it never
+used to measure at all.
