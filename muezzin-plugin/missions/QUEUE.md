@@ -1674,3 +1674,23 @@ once: normalize to forward-slash for the git object-lookup only, leave the files
 (path.join("docs","nested.md")) -- a forward-slash test string would have masked the bug.
 git_steps.mjs: 6/6 shrinkage selftests pass. orchestrate.mjs: 165/165 selftests pass.
 Gap fixes: 20/29 -> 21/29 struck.
+
+## Item #9: 2 of 3 sub-tasks done 2026-07-05 (kimi tag rm + per-era seat-record split)
+Per-era seat-record split: seat-record.json's "kimi-k2.7-code" entry blends 654 cloud-era
+dispatches (real Moonshot Kimi, 2026-06-15->06-30T23:38Z) + 168 local-era dispatches (the
+North blob, 2026-06-29->now) under one dishonest alias, per dispatch-heartbeat.log's provider
+field. The file stores aggregate counters only (no per-event timestamps) so an exact
+retroactive split is not reconstructible from available data -- added a `_era_note`
+annotation stating this plainly rather than inventing a proportional-estimate split I couldn't
+actually justify. Deliberately did NOT seed north-mini-code-toolcall (the honest name,
+already ESCALATION_LADDER's first rung) with any borrowed credit -- confirmed via
+proxyEligible() that it correctly starts untested/ineligible and will earn its own record
+going forward, matching the badal rule's own philosophy exactly. Legacy key's own eligibility
+math confirmed unaffected (ratio 0.229). seat_record.mjs selftest ALL PASS.
+Eval-v3 cells: searched exhaustively (grep across all .mjs/.md/.json, filename search for
+fairness/eval-v3/seat-eval patterns) -- the original bench that produced "laguna-xs-2.1
+tool-less 5/6" before the 2026-07-02 503-storm stopped it mid-run does not survive on disk in
+any form (no script, no task-definitions, no results file) -- only its prose result made it
+into this file. Per the sixth law, not hand-rolling a replacement bench myself. Genuinely
+blocked on missing substrate, not on operator authorization -- flagging honestly rather than
+either fabricating a bench or silently dropping the sub-task.

@@ -248,10 +248,30 @@ prefix (the honest :latest-alias shape) as a fraud candidate; wired into the swe
 selftests; commit a2ae905. Live sweep against nxtbeast confirmed it catches the EXACT group
 the operator caught by ear: qwen3-coder-next/kimi-k2.7-code/north-mini-code-toolcall, digest
 429d372cb9f6. Discipline alone had failed 4 times; this makes the fraud unmissable mechanically.
-**Item #9 itself is STILL OPEN** — its actual text (QUEUE.md line 855) is "ollama rm kimi tag
-(clear lane), per-era seat-record split, eval-v3 cells" — none of which this mission covered.
-This fix is a real, standing detector that PREVENTS future recurrences of the identity-
-misattribution class, but it is a separate deliverable, not item #9's three named sub-tasks.
+**Item #9 — 2 of 3 sub-tasks now done (2026-07-05):**
+1. `ollama rm kimi-k2.7-code:latest` (clear lane) — DONE this session, verified safe by a
+   dedicated Agent investigation (no live/pending/checkpointed reference to the literal tag
+   anywhere; underlying blob intact under its honest name).
+2. Per-era seat-record split — DONE. seat-record.json's "kimi-k2.7-code" entry (101/24/2
+   pass/miss/fabrication) blends two different models under one dishonest alias: 654 cloud-
+   era dispatches (real Moonshot Kimi) + 168 local-era dispatches (the North blob). No per-
+   event timestamps exist in this file, so an exact retroactive split isn't reconstructible —
+   added a clear `_era_note` annotation instead of fabricating a specific number, and
+   deliberately left `north-mini-code-toolcall` (the honest go-forward name, already the
+   ESCALATION_LADDER's first rung) with NO borrowed/estimated credit — it earns its own record
+   from here, per the badal rule's own stated philosophy ("the proxy must have completed its
+   own Hajj first"). Verified: proxyEligible() for the new name correctly returns
+   ineligible/untested; the legacy key's own eligibility math is unaffected (ratio 0.229,
+   unchanged). seat_record.mjs selftest still ALL PASS.
+3. Eval-v3 cells — GENUINELY BLOCKED, not by authorization: searched exhaustively for the
+   original fairness-eval bench (the one that produced "laguna-xs-2.1 tool-less 5/6" before
+   being stopped mid-run 2026-07-02 by a 503-storm) — no task-definition file, script, or
+   results artifact survives anywhere on disk; only its prose result made it into QUEUE.md.
+   Per the sixth law ("never a hand-rolled bench again"), NOT reconstructing this from
+   scratch myself — that would recreate exactly the anti-pattern the law exists to prevent.
+   This needs either the original bench script recovered from somewhere, or an operator
+   decision to re-author it fresh.
+**Item #9: 2/3 struck, 1/3 genuinely blocked on missing substrate (not operator authorization).**
 
 **2026-07-05 beat — item #7's MECHANICAL false-death detector (FALSE-DEATH-CANDIDATES, a
 DIFFERENT source from the earlier Agent/Workflow survey) had its own noise bug, found+fixed.**
