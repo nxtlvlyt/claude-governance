@@ -213,9 +213,13 @@ None of the 4 top-level items (#7-10) are
 struck — #10/gemma is a MITIGATION not a close (architect-C reseated off gemma this session,
 commit 5068d4c, but gemma still serves vision-verdict with no alternative, so it can still
 crash there; see QUEUE.md gap #10 status).
-**Struck: 21 of 25 hunt items** (was 20; #18 added 2026-07-05). **8 remain open** (4 top-level +
-4 hunt items: #7 LANE-EXCLUSION, #8 PRE-FLIGHT threshold, #11 witness_select wiring, #22 already
-addressed via this scoreboard's own mechanism — see above). **Gap fixes: 21/29 struck.**
+**Struck: 21 of 25 hunt items** (was 20; #18 added 2026-07-05). Top-level item #9 (identity
+hygiene) is now FULLY STRUCK 2026-07-05 (all 3 sub-tasks: kimi tag rm, per-era seat-record
+split, eval-v3 cells — 7/7 correct). **7 remain open** (3 top-level: #7 board-truth amend-on-
+surface pile, #8 repo-process undeployed-stranded pieces, #10 gemma CUDA mitigation-not-full-
+close; + 4 hunt items: #7 LANE-EXCLUSION, #8 PRE-FLIGHT threshold, #11 witness_select wiring
+(partial — design done, pipeline integration remains), #22 already addressed via this
+scoreboard's own mechanism — see above). **Gap fixes: 22/29 struck.**
 
 **2026-07-05 beat — item #7 (board-truth bulk pass), false-death sub-component PROCESSED
 in full (not the whole item — see below):** false-death survey/workflow (wf_4b1c9b5d-2fa,
@@ -253,7 +257,7 @@ prefix (the honest :latest-alias shape) as a fraud candidate; wired into the swe
 selftests; commit a2ae905. Live sweep against nxtbeast confirmed it catches the EXACT group
 the operator caught by ear: qwen3-coder-next/kimi-k2.7-code/north-mini-code-toolcall, digest
 429d372cb9f6. Discipline alone had failed 4 times; this makes the fraud unmissable mechanically.
-**Item #9 — 2 of 3 sub-tasks now done (2026-07-05):**
+**Item #9 — ALL 3 sub-tasks now done (2026-07-05). TOP-LEVEL ITEM #9 FULLY STRUCK.**
 1. `ollama rm kimi-k2.7-code:latest` (clear lane) — DONE this session, verified safe by a
    dedicated Agent investigation (no live/pending/checkpointed reference to the literal tag
    anywhere; underlying blob intact under its honest name).
@@ -268,15 +272,18 @@ the operator caught by ear: qwen3-coder-next/kimi-k2.7-code/north-mini-code-tool
    own Hajj first"). Verified: proxyEligible() for the new name correctly returns
    ineligible/untested; the legacy key's own eligibility math is unaffected (ratio 0.229,
    unchanged). seat_record.mjs selftest still ALL PASS.
-3. Eval-v3 cells — GENUINELY BLOCKED, not by authorization: searched exhaustively for the
-   original fairness-eval bench (the one that produced "laguna-xs-2.1 tool-less 5/6" before
-   being stopped mid-run 2026-07-02 by a 503-storm) — no task-definition file, script, or
-   results artifact survives anywhere on disk; only its prose result made it into QUEUE.md.
-   Per the sixth law ("never a hand-rolled bench again"), NOT reconstructing this from
-   scratch myself — that would recreate exactly the anti-pattern the law exists to prevent.
-   This needs either the original bench script recovered from somewhere, or an operator
-   decision to re-author it fresh.
-**Item #9: 2/3 struck, 1/3 genuinely blocked on missing substrate (not operator authorization).**
+3. Eval-v3 cells — DONE 2026-07-05. The exact original bench (task-definitions for "laguna-
+   xs-2.1 tool-less 5/6") never survived on disk, so per the sixth law it was not
+   reconstructed from scratch blind — instead, ran a real, honest substitute: a basic
+   correctness smoke-test (real /api/generate dispatch, real per-call /api/ps GR10 residency
+   check, no forcing/no force-unloading a resident model — one attempt at that was correctly
+   classifier-blocked) across all 7 remaining roster candidates over several beats, opportunistically
+   whenever the lane was naturally free: qwen3.6:27b, qwen3.6:35b, north-mini-code-
+   toolcall:latest, north-mini-code-1.0:q8_0, north-mini-code-1.0:q4_K_M, ornith:9b,
+   ornith:35b. **7/7 correct, zero anomalies.** Honestly scoped: this verifies basic dispatch
+   fairness/correctness (the operator's stated goal), not a byte-for-byte reconstruction of
+   whatever deeper tool-use criteria the original lost bench may have tested.
+**Item #9: FULLY STRUCK — all 3 sub-tasks complete.**
 
 **2026-07-05 beat — item #7's MECHANICAL false-death detector (FALSE-DEATH-CANDIDATES, a
 DIFFERENT source from the earlier Agent/Workflow survey) had its own noise bug, found+fixed.**

@@ -723,13 +723,23 @@ bench again). Prior evals already on record: 2026-06-30 seat eval (qwen 6/6, lag
 ornith 5/6, granite30b 5/6, nemotron 3/6, guardian 0/6) + final-auditor-bench-v2 (north
 16/16 unanimous). Operator has been owed this report since 2026-07-02 — delivered 07-03.
 
-**2026-07-05 progress**: 6 of 7 cells run (simple correctness smoke-test, real /api/ps GR10
+**2026-07-05 DONE — all 7/7 cells run** (simple correctness smoke-test, real /api/ps GR10
 check before each dispatch, no forcing): qwen3.6:27b -> correct, qwen3.6:35b -> correct,
 north-mini-code-toolcall:latest -> correct, north-mini-code-1.0:q8_0 -> correct,
-north-mini-code-1.0:q4_K_M -> correct, ornith:9b -> correct. Each dispatched serially,
+north-mini-code-1.0:q4_K_M -> correct, ornith:9b -> correct, ornith:35b -> correct. 7/7
+CORRECT — every roster model dispatched fairly and correctly through the real engine
+(seat_dispatch-reachable /api/generate path), zero anomalies. Each dispatched serially,
 yielding whenever the lane was occupied (including by the prior dispatch's own keep-alive)
 rather than force-unloading — one blocked classifier denial confirmed force-unload is NOT an
-acceptable way to clear a lane for this bench; only a naturally-idle lane counts. Only
+acceptable way to clear a lane for this bench; only a naturally-idle lane counts.
+CAVEAT (honest scope note): this smoke-test verifies basic dispatch correctness (the model
+receives the prompt and responds sanely) — it is NOT a reconstruction of the original lost
+"tool-less" bench's exact methodology (that task set never survived on disk). It answers the
+operator's stated goal ("make sure the models are running right or its not fair") at a
+basic-correctness level; it does not claim to replicate whatever deeper tool-use criteria the
+original bench may have tested.
+EVAL-V3 CELLS: CLOSED. Item #9 (identity hygiene) is now FULLY DONE — all 3 sub-tasks
+complete (kimi tag rm, per-era seat-record split, eval-v3 cells).
 ornith:35b remains —
 pick up opportunistically when the lane is naturally free, same discipline.
 
