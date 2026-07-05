@@ -44,7 +44,14 @@ const CANARY_STATE = path.join(LOGDIR, 'live-canary.json');            // LIVE-C
 const CANARY_SCRIPT = 'C:/Users/marka/code/mt-integration-2026-06-22/scripts/verify-popups-e2e.mjs';
 let canaryRunning = false;                                             // one canary at a time; never blocks the drain loop
 const STATUS = path.join(LOGDIR, 'daemon-status.json');
-const EVENTS = path.join(LOGDIR, 'daemon-events.log');
+// SELFTEST ISOLATION (2026-07-05, live catch): selftest fixtures exercise evt()-calling paths
+// (STAMP-DISPUTED, QUEUE-DUP, queuedDepsHold diagnostics) and were appending fixture noise to
+// the REAL daemon-events.log — fake stems like disputed.mission.txt polluting the receipts
+// stream on every suite run. Under --selftest, EVENTS points at a scratch file instead: tests
+// that legitimately assert on event emission (hunt-#14 visibility pair) keep a real file to
+// read, and the live receipts stay honest. Redirect, not no-op, for exactly that reason.
+const IS_SELFTEST = process.argv.includes('--selftest');
+const EVENTS = IS_SELFTEST ? path.join(os.tmpdir(), `muezzin-selftest-events-${process.pid}.log`) : path.join(LOGDIR, 'daemon-events.log');
 const POLL_MS = 60_000;
 const MAX_ATTEMPTS = 2; // one retry, then FAILED — repeated failure needs judgment, not loops
                         // (shouldHaltMission, defined below, can also halt BEFORE this budget is

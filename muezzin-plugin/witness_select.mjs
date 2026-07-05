@@ -32,13 +32,13 @@ import path from 'path';
 // logWitnessCase() is the append-only corpus writer: one JSON line per mission, written
 // AFTER verdictFn resolves (so producer_verdict is real, not guessed). Best-effort —
 // a logging failure must never fail a mission (mirrors seat_record.mjs's own contract).
-export function logWitnessCase(corpusPath, { producerVerdict, candidateVerdicts }) {
+export function logWitnessCase(corpusPath, { producerVerdict, candidateVerdicts, ts = null }) {
   if (!producerVerdict || !candidateVerdicts || typeof candidateVerdicts !== 'object') return { ok: false, reason: 'incomplete case — nothing written' };
   try {
     mkdirSync(path.dirname(corpusPath), { recursive: true });
-    const line = JSON.stringify({ producer_verdict: producerVerdict, candidate_verdicts: candidateVerdicts, ts: new Date(0).toISOString() });
-    // NOTE: ts uses epoch (new Date(0)) — selftests forbid Date.now()/argless new Date();
-    // the real call site (orchestrate.mjs, not yet wired) must pass a real timestamp in.
+    const line = JSON.stringify({ producer_verdict: producerVerdict, candidate_verdicts: candidateVerdicts, ts: ts || new Date(0).toISOString() });
+    // ts default is epoch (new Date(0)) — this module's selftests stay deterministic; the
+    // real call site (orchestrate.mjs, wired 2026-07-05) passes the actual timestamp in.
     writeFileSync(corpusPath, existsSync(corpusPath) ? readFileSync(corpusPath, 'utf8') + line + '\n' : line + '\n');
     return { ok: true };
   } catch (e) {
@@ -148,6 +148,9 @@ if (import.meta.url === `file://${process.argv[1]}` || process.argv[1]?.endsWith
     const corpusPath = path.join(tmp, 'nested', 'corpus.jsonl');   // nested dir: mkdirSync recursive must fire
 
     check(logWitnessCase(corpusPath, { producerVerdict: 'APPROVE', candidateVerdicts: { ornith9b: 'APPROVE' } }), { ok: true }, 'logWitnessCase: writes a well-formed case');
+    check(JSON.parse(fs.readFileSync(corpusPath, 'utf8').trim().split('\n')[0]).ts, new Date(0).toISOString(), 'logWitnessCase: no ts passed -> deterministic epoch default');
+    logWitnessCase(path.join(tmp, 'ts.jsonl'), { producerVerdict: 'APPROVE', candidateVerdicts: { a: 'APPROVE' }, ts: '2026-07-05T00:00:00.000Z' });
+    check(JSON.parse(fs.readFileSync(path.join(tmp, 'ts.jsonl'), 'utf8').trim()).ts, '2026-07-05T00:00:00.000Z', 'logWitnessCase: a caller-passed ts lands verbatim (the orchestrate call-site contract)');
     check(logWitnessCase(corpusPath, {}), { ok: false, reason: 'incomplete case — nothing written' }, 'logWitnessCase: refuses an incomplete case, never corrupts the file');
     logWitnessCase(corpusPath, { producerVerdict: 'REJECT', candidateVerdicts: { ornith9b: 'REJECT', laguna: 'APPROVE' } });
     const loaded = loadWitnessCorpus(corpusPath);

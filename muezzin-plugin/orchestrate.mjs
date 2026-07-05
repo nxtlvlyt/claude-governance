@@ -22,6 +22,7 @@ import { findFabricatedAbsenceClaims, recordSeatOutcome } from './seat_record.mj
 import { searxngPreflight } from './searxng_preflight.mjs';
 import { mergeVerdicts } from './verdict_merge.mjs';
 import { pickSeat, isLocalOnlySeat } from './seat_modes.mjs';
+import { logWitnessCase, shouldSampleShadowWitness } from './witness_select.mjs';
 import { runtimeVerify } from './runtime_verify.mjs';
 import { capturePreviews, buildPreviewPathFn } from './visual_capture.mjs';
 import { witnessVisualDiff } from './visual_witness.mjs';
@@ -523,12 +524,14 @@ export async function applyVisualWitness(mission, cwd, merged, opts = {}) {
 // the execReceipt floor, never a replacement. FLAGGED → the step's heal path. A witness
 // DISPATCH error never blocks a step (the deterministic floor still gates) — only an
 // explicit FLAGGED verdict does.
-export async function defaultWitness(step, cwd, artifact, sources = '', dispatch = dispatchSeat) {
+export async function defaultWitness(step, cwd, artifact, sources = '', dispatch = dispatchSeat, modelOverride = null) {
   // SEATING MODE (seating-modes build, 2026-06-15): the active mode picks the per-step witness
   // seat. balance/anthropic-heavy keep nemotron-3-super (Opus-first via CLAUDE_SEAT_MAP — a
   // STRONG witness, "keep witness strong"); local-heavy uses a LOCAL witness (no Opus pull). No
   // mode / unknown -> today's nemotron-3-super (safe default). The witness LOGIC is unchanged.
-  const witnessModel = pickSeat('witness', 'nemotron-3-super');
+  // modelOverride (hunt-item #11, 2026-07-05): the shadow-witness sampler dispatches an
+  // explicit alternate candidate; everything else about the seat/framing is identical.
+  const witnessModel = modelOverride || pickSeat('witness', 'nemotron-3-super');
   // LOCAL-ONLY (claude-local-hybrid, 2026-06-30): see seat_modes.mjs's isLocalOnlySeat.
   // max_tokens 4096 -> 12288 (2026-07-03 receipts: qwen3.6:27b IGNORES think:false on the
   // /v1 endpoint — 16K chars of unsuppressible reasoning starved the 4096 budget to
@@ -561,7 +564,11 @@ export async function defaultWitness(step, cwd, artifact, sources = '', dispatch
     `Witness review: report ONLY logical leaps, hidden assumptions, or claims the code does not actually support. ` +
     `Reply with a verdict line "APPROVE" (clean) or "REJECT" (flagged) then findings. Do not rewrite the code.`;
   const r = await dispatch(seat, framing, { wantVerdict: true });
-  return r;  // { verdict, findings, ... } — REJECT/BLOCK = flagged
+  // MODEL ATTRIBUTION (hunt-item #11 wiring, 2026-07-05): the divergence corpus keys
+  // candidate verdicts by the model that actually rendered them (honest-name ruling — the
+  // same class as hunt-#10's 'laguna' mislabel). Attach the dispatched seat's model so the
+  // corpus writer downstream never has to re-derive or guess it.
+  return r && typeof r === 'object' ? { ...r, model: r.model || witnessModel } : r;  // { verdict, findings, model, ... } — REJECT/BLOCK = flagged
 }
 
 // ---- MISSION-LEVEL SIZE CEILING + AUTO-SPLIT (Hajj architecture, MISSION_ARCHITECTURE.md
@@ -654,6 +661,11 @@ export async function orchestrate(mission, cwd, {
   // fails with a receipt. A DEFECT never retries. 0 disables (every failure is terminal — the prior
   // behavior, so existing tests that assume one-shot halts are byte-unchanged). Env MUEZZIN_STEP_RETRIES.
   stepRetries = Number(process.env.MUEZZIN_STEP_RETRIES ?? 0),
+  // WITNESS-DIVERGENCE CORPUS (hunt-item #11 / UNIT D4, wired 2026-07-05): where the
+  // per-mission producer-vs-witness verdict line lands. Injectable for tests; null disables.
+  // shadowWitnessFn injects the sampled alternate-candidate dispatch (tests); default null ->
+  // the real defaultWitness with a model override, gated on MUEZZIN_SHADOW_WITNESS_MODEL.
+  witnessCorpusPath = path.join(path.dirname(cwd), '_logs', 'witness-corpus.jsonl'), shadowWitnessFn = null,
 } = {}) {
   // ---- MISSION CLASS (Foundation 0.4): parse ONCE. code-repo writes REAL files into a
   // declared REPO-ROOT (an EXISTING git repo), so writes/witness/commit/rollback all target
@@ -673,6 +685,9 @@ export async function orchestrate(mission, cwd, {
   const litCmd = isCommandClassMission(mission) ? buildLiteralCommandQueue(mission) : null;
   const useLiteralCmd = !!(litCmd && litCmd.ok && repoRoot);
   const writeRoot = (codeRepo || useLiteralCmd) ? repoRoot : cwd;   // where the real code + witness/commit live
+  // WITNESS-DIVERGENCE CORPUS state (hunt-item #11): the primary witness's aggregated
+  // mission-level opinion, the sampled shadow candidate's, and the once-per-mission roll flag.
+  let witnessAgg = null, shadowAgg = null, shadowTried = false;
 
   // MISSION EVENTS SURFACE — declared HERE (before the sandbox/preflight block) so the
   // sandbox-recovery hook (abortInProgressGitOp) and any earlier phase can emit safely.
@@ -1291,6 +1306,33 @@ export async function orchestrate(mission, cwd, {
           .map((d) => readMaybe(writeRoot, d)).filter(Boolean).join('\n\n').slice(0, 8000);
         const w = await witnessFn(step, writeRoot, cur, witnessSources);
         const flagged = w && (w.verdict === 'REJECT' || w.verdict === 'BLOCK') && !w._failed;
+        // WITNESS-DIVERGENCE CORPUS AGGREGATION (hunt-item #11 wiring, 2026-07-05): record
+        // the witness's FIRST opinion per mission — any flagged step marks the witness's
+        // mission-level opinion REJECT; otherwise APPROVE once at least one witness verdict
+        // exists. A _failed dispatch is absence, never agreement (witness_select's honesty
+        // constraint). Consumed after the phase-3 panel lands (see the verdict block below).
+        if (w && w.verdict && !w._failed) {
+          if (!witnessAgg) witnessAgg = { model: w.model || 'witness-unattributed', verdict: flagged ? 'REJECT' : 'APPROVE' };
+          else if (flagged) witnessAgg.verdict = 'REJECT';
+        }
+        // SHADOW-WITNESS SAMPLING (hunt-item #11 / UNIT D4, cost-bounded by design): only
+        // when the operator names an alternate candidate via MUEZZIN_SHADOW_WITNESS_MODEL
+        // (unset by default -> this NEVER dispatches), and only on the sampled fraction of
+        // missions (rate via MUEZZIN_SHADOW_WITNESS_RATE, default 0.15), dispatch the
+        // alternate model ONCE on this mission's first witnessed step and record its verdict
+        // beside the primary's — accumulating the multi-candidate comparison data
+        // selectWitnessByDivergence needs, without doubling every mission's witness cost.
+        const shadowModel = process.env.MUEZZIN_SHADOW_WITNESS_MODEL || null;
+        if (shadowModel && !shadowTried && witnessAgg && witnessAgg.model !== shadowModel) {
+          shadowTried = true;   // one sampling roll per mission, never per step
+          if (shouldSampleShadowWitness(Number(process.env.MUEZZIN_SHADOW_WITNESS_RATE) || 0.15)) {
+            try {
+              const sw = await (shadowWitnessFn || defaultWitness)(step, writeRoot, cur, witnessSources, undefined, shadowModel);
+              if (sw && sw.verdict && !sw._failed) shadowAgg = { model: sw.model || shadowModel, verdict: (sw.verdict === 'REJECT' || sw.verdict === 'BLOCK') ? 'REJECT' : 'APPROVE' };
+              emit({ phase: 'step', event: 'shadow-witness', step: step.step_index, model: shadowModel, verdict: shadowAgg?.verdict || 'failed' });
+            } catch (e) { emit({ phase: 'step', event: 'shadow-witness', step: step.step_index, model: shadowModel, verdict: 'threw', error: String(e?.message || e).slice(0, 100) }); }
+          }
+        }
         if (flagged) {
           emit({ phase: 'step', event: 'witness-flag', step: step.step_index, findings: (w.findings || []).map(f => String(f.description || f).slice(0, 100)) });
           let cleared = false;
@@ -1492,6 +1534,17 @@ export async function orchestrate(mission, cwd, {
   // computed in mergeVerdicts but dropped here, so the conductor could not tell calibration from
   // a structural false-block without reading the engine source).
   emit({ phase: 'verdict', event: 'done', consensus: verdict?.consensus, dispositions: verdict?.dispositions?.map((d) => d.reason ? `${d.seat}:${d.verdict} — ${String(d.reason).slice(0, 200)}` : `${d.seat}:${d.verdict}`) });
+  // WITNESS-DIVERGENCE CORPUS write (hunt-item #11 / GAP-CLOSURE-PLAYBOOK UNIT D4 "wire the
+  // built-but-unused divergence selector to LOG for 48h; then seat by receipts", 2026-07-05):
+  // the panel's consensus is the already-paid-for producer_verdict; the per-step witness's
+  // aggregated opinion (+ the sampled shadow candidate's, when one ran) are the candidates.
+  // Best-effort by contract — a corpus write failure must never fail a mission. Seating
+  // stays UNCHANGED until the 48h corpus review (selectWitnessByDivergence reads this file).
+  if (witnessCorpusPath && witnessAgg && verdict?.consensus) {
+    try {
+      logWitnessCase(witnessCorpusPath, { producerVerdict: verdict.consensus, candidateVerdicts: { [witnessAgg.model]: witnessAgg.verdict, ...(shadowAgg ? { [shadowAgg.model]: shadowAgg.verdict } : {}) }, ts: new Date().toISOString() });
+    } catch { /* corpus is advisory */ }
+  }
   // VISUAL WITNESS receipt (advisory, non-blocking — see defaultVerdictPhase): logged to
   // mission-events.jsonl regardless of whether the mission reaches DONE, since a mid-run
   // FAILED mission's visual receipt is still worth having.
@@ -1633,6 +1686,52 @@ if (process.argv[1]?.endsWith('orchestrate.mjs')) {
   // witness DISPATCH error must NOT block a good step (deterministic floor already held).
   const werr = await orchestrate('mission text', dir, { deconstructFn: async () => ({ ok: true, queue: { mission_id: 'ME', steps: [{ step_index: 1, description: 'w', action_type: 'edit', target_files: ['we.mjs'], context_dependencies: [], validation_command: 'node -c we.mjs' }] } }), implementFn: mockImpl, maxRepairs: 0, verdictFn: approveVerdict, witnessFn: async () => { throw new Error('witness model down'); } });
   ck(werr.ok === true && werr.phase === 'done', 'witness dispatch ERROR is ignored (floor holds) — good step still commits');
+
+  // ---- WITNESS-DIVERGENCE CORPUS wiring (hunt-item #11 / UNIT D4, 2026-07-05): after the
+  // phase-3 panel lands, one JSONL line records producer (panel consensus) vs candidate
+  // (per-step witness aggregated opinion) — the data selectWitnessByDivergence consumes.
+  {
+    const corpus1 = path.join(dir, 'wc-agree.jsonl');
+    const namedWitness = async () => ({ verdict: 'APPROVE', findings: [], model: 'mock-witness-9b' });
+    const wcQueue = (id) => ({ mission_id: id, steps: [{ step_index: 1, description: 'w', action_type: 'edit', target_files: [`${id}.mjs`], context_dependencies: [], validation_command: `node -c ${id}.mjs` }] });
+    const wcHappy = await orchestrate('m', dir, { deconstructFn: async () => ({ ok: true, queue: wcQueue('wca') }), implementFn: mockImpl, maxRepairs: 0, verdictFn: approveVerdict, witnessFn: namedWitness, witnessCorpusPath: corpus1 });
+    const wcLine = JSON.parse(fs.readFileSync(corpus1, 'utf8').trim());
+    ck(wcHappy.ok === true && wcLine.producer_verdict === 'APPROVE' && wcLine.candidate_verdicts['mock-witness-9b'] === 'APPROVE', 'witness-corpus: agreeing case logged under the witness\'s HONEST model name after the panel lands');
+    ck(typeof wcLine.ts === 'string' && wcLine.ts !== new Date(0).toISOString(), 'witness-corpus: the orchestrate call site passes a REAL timestamp, not the module\'s epoch default');
+    // DIVERGENCE case: witness flags, repair clears it, panel approves -> corpus records the
+    // witness\'s original REJECT against the producer\'s APPROVE (the informative disagreement).
+    const corpus2 = path.join(dir, 'wc-diverge.jsonl');
+    let wcFlagCalls = 0;
+    const flagThenClear = async () => (++wcFlagCalls === 1 ? { verdict: 'REJECT', findings: [{ id: 'W1', description: 'claim' }], model: 'mock-witness-9b' } : { verdict: 'APPROVE', findings: [], model: 'mock-witness-9b' });
+    const wcDiv = await orchestrate('m', dir, { deconstructFn: async () => ({ ok: true, queue: wcQueue('wcd') }), implementFn: mockImpl, repairFn: async () => { }, maxRepairs: 1, verdictFn: approveVerdict, witnessFn: flagThenClear, witnessCorpusPath: corpus2 });
+    const wcDivLine = JSON.parse(fs.readFileSync(corpus2, 'utf8').trim());
+    ck(wcDiv.ok === true && wcDivLine.producer_verdict === 'APPROVE' && wcDivLine.candidate_verdicts['mock-witness-9b'] === 'REJECT', 'witness-corpus: a flagged-then-repaired step records the witness\'s ORIGINAL dissent vs the panel\'s APPROVE (the divergence signal the selector needs)');
+    // FAILED mission (witness REJECT unrepaired -> halt before phase 3): no corpus line —
+    // no producer verdict exists, and absence is not agreement.
+    const corpus3 = path.join(dir, 'wc-none.jsonl');
+    await orchestrate('m', dir, { deconstructFn: async () => ({ ok: true, queue: wcQueue('wcn') }), implementFn: mockImpl, maxRepairs: 0, verdictFn: approveVerdict, witnessFn: flagWitness, witnessCorpusPath: corpus3 });
+    ck(!fs.existsSync(corpus3), 'witness-corpus: a mission halted before the panel writes NO corpus line (no producer verdict — absence, never fabricated agreement)');
+    // SHADOW-WITNESS sampling: env names an alternate + rate 1 -> the injected shadow
+    // dispatch runs once and its verdict lands beside the primary\'s under its own name.
+    const corpus4 = path.join(dir, 'wc-shadow.jsonl');
+    process.env.MUEZZIN_SHADOW_WITNESS_MODEL = 'shadow-cand-1'; process.env.MUEZZIN_SHADOW_WITNESS_RATE = '1';
+    let shadowCalls = 0;
+    const shadowFn = async (step, cwd2, art, src, dispatch, model) => { shadowCalls++; return { verdict: 'REJECT', findings: [], model }; };
+    const wcSh = await orchestrate('m', dir, { deconstructFn: async () => ({ ok: true, queue: wcQueue('wcs') }), implementFn: mockImpl, maxRepairs: 0, verdictFn: approveVerdict, witnessFn: namedWitness, witnessCorpusPath: corpus4, shadowWitnessFn: shadowFn });
+    delete process.env.MUEZZIN_SHADOW_WITNESS_MODEL; delete process.env.MUEZZIN_SHADOW_WITNESS_RATE;
+    const wcShLine = JSON.parse(fs.readFileSync(corpus4, 'utf8').trim());
+    ck(wcSh.ok === true && shadowCalls === 1 && wcShLine.candidate_verdicts['shadow-cand-1'] === 'REJECT' && wcShLine.candidate_verdicts['mock-witness-9b'] === 'APPROVE', 'witness-corpus: sampled shadow candidate dispatched ONCE, its dissent recorded beside the primary under its own name');
+    ck(shouldSampleShadowWitness(0, () => 0.001) === false, 'witness-corpus: rate 0 (or unset env model) means the shadow path NEVER dispatches — cost-bounded by default');
+  }
+  // defaultWitness attaches the ACTUAL dispatched model + honors modelOverride (unit).
+  {
+    let seenSeat = null;
+    const capDispatch = async (seat) => { seenSeat = seat; return { verdict: 'APPROVE', findings: [] }; };
+    const dw = await defaultWitness({ description: 'w', target_files: ['x.md'] }, dir, 'art', '', capDispatch);
+    ck(typeof dw.model === 'string' && dw.model === seenSeat.model, 'defaultWitness: return carries the ACTUAL dispatched seat model (honest attribution for the corpus)');
+    const dwo = await defaultWitness({ description: 'w', target_files: ['x.md'] }, dir, 'art', '', capDispatch, 'override-model-x');
+    ck(dwo.model === 'override-model-x' && seenSeat.model === 'override-model-x', 'defaultWitness: modelOverride reaches the seat AND the attributed return (the shadow-dispatch contract)');
+  }
 
   // ---- CLASS 2 EMISSION-EMPTY HEAL (additive): a failed/empty executor emission
   // (impl.ok===false) no longer falls silently through to a witness halt. (a) with no

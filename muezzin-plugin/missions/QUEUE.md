@@ -1828,3 +1828,20 @@ Bash|PowerShell matcher block) — operator can approve it live or run it outsid
 **Live-receipt watch (acceptance bar):** next daemon fire of any previously-FAILED stem
 should emit RETRO-REPEAT-BLOCKED naming needsPreflight unless a covering receipt exists —
 one live receipt within 24h completes #8's acceptance.
+
+## Hunt-item #11 STRUCK 2026-07-05 (commit 4eb6fb5, live on daemon PID 26232) — witness divergence corpus wired
+The pipeline-integration half (design landed 42a8875 earlier today): defaultWitness now
+returns its ACTUAL dispatched model + accepts a modelOverride; orchestrate() aggregates the
+per-step witness's mission-level opinion (any flagged step = REJECT; _failed = absence,
+never agreement) and after the phase-3 panel lands appends one line to
+missions/_logs/witness-corpus.jsonl (producer = panel consensus, already paid for — zero
+extra dispatch). Shadow-candidate sampling wired cost-bounded: dispatches ONLY when
+MUEZZIN_SHADOW_WITNESS_MODEL is set (unset by default = never) at
+MUEZZIN_SHADOW_WITNESS_RATE (0.15), once per mission. Seating UNCHANGED per UNIT D4's own
+sequencing ("LOG for 48h; then seat by receipts") — the 48h corpus review is the follow-on,
+condition: review witness-corpus.jsonl once it holds ~a week of missions, seat via
+selectWitnessByDivergence receipts. 8 new selftests; orchestrate + witness_select suites
+ALL PASS; graceful reload receipted (GRACEFUL-RELOAD 06:38:00Z, PID 36312 -> 26232).
+ALSO same-beat: selftest fixture noise no longer pollutes the real daemon-events.log
+(EVENTS redirected to a scratch file under --selftest, commit eb73905 — redirect not no-op,
+so the hunt-#14 visibility tests keep a real file to assert against).
