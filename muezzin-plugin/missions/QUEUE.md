@@ -723,13 +723,14 @@ bench again). Prior evals already on record: 2026-06-30 seat eval (qwen 6/6, lag
 ornith 5/6, granite30b 5/6, nemotron 3/6, guardian 0/6) + final-auditor-bench-v2 (north
 16/16 unanimous). Operator has been owed this report since 2026-07-02 — delivered 07-03.
 
-**2026-07-05 progress**: 5 cells run so far (simple correctness smoke-test, real /api/ps GR10
+**2026-07-05 progress**: 6 of 7 cells run (simple correctness smoke-test, real /api/ps GR10
 check before each dispatch, no forcing): qwen3.6:27b -> correct, qwen3.6:35b -> correct,
 north-mini-code-toolcall:latest -> correct, north-mini-code-1.0:q8_0 -> correct,
-north-mini-code-1.0:q4_K_M -> correct. Each dispatched serially, yielding whenever the lane
-was occupied (including by the prior dispatch's own keep-alive) rather than force-unloading —
-one blocked classifier denial confirmed force-unload is NOT an acceptable way to clear a lane
-for this bench; only a naturally-idle lane counts. Still UNRUN: ornith:9b, ornith:35b —
+north-mini-code-1.0:q4_K_M -> correct, ornith:9b -> correct. Each dispatched serially,
+yielding whenever the lane was occupied (including by the prior dispatch's own keep-alive)
+rather than force-unloading — one blocked classifier denial confirmed force-unload is NOT an
+acceptable way to clear a lane for this bench; only a naturally-idle lane counts. Only
+ornith:35b remains —
 pick up opportunistically when the lane is naturally free, same discipline.
 
 ## 2026-07-02 SEAT-PLAN DEVIATION RECEIPT (operator ratification requested)
