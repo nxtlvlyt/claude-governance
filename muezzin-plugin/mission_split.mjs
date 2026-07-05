@@ -143,6 +143,7 @@ export function emitSubMissions(plan, ctx = {}, io = {}) {
   const parentBase = path.basename(parentMissionFile || `${parentId}.mission.txt`).replace(/\.mission\.txt$/i, '');
   const files = [];
   const queued = [];
+  const appendQueueErrors = [];   // hunt-item #16 follow-on: the ORIGINAL failure reason, not just its absence
 
   for (const group of plan.groups) {
     const childId = `${parentId}.S${group.index}`;
@@ -197,9 +198,15 @@ export function emitSubMissions(plan, ctx = {}, io = {}) {
       predecessorId,
     });
 
-    // Append to AUTORUN queue in tartib order.
+    // Append to AUTORUN queue in tartib order. Best-effort BY DESIGN (conduct-cycle.mjs's
+    // stranded-split-child recovery, hunt-item #16, already re-queues from the manifest
+    // regardless of whether this succeeded) -- but the ORIGINAL failure reason used to be
+    // thrown away entirely, leaving no way to tell "disk full" from "AUTORUN.md locked" from
+    // any other cause when the recovery path fires. Record it; never let recording the
+    // reason turn a best-effort append into a hard failure.
     if (appendQueue) {
-      try { appendQueue(rel); queued.push(rel); } catch { /* queue append best-effort */ }
+      try { appendQueue(rel); queued.push(rel); }
+      catch (e) { appendQueueErrors.push({ rel, error: String(e?.message || e).slice(0, 200) }); }
     }
   }
 
@@ -217,7 +224,7 @@ export function emitSubMissions(plan, ctx = {}, io = {}) {
   };
   writeFile(manifestPath, JSON.stringify(manifest, null, 2));
 
-  return { ok: true, files, manifestPath, queued };
+  return { ok: true, files, manifestPath, queued, ...(appendQueueErrors.length ? { appendQueueErrors } : {}) };
 }
 
 // --------------------------------------------------------------------------- self-test
@@ -335,9 +342,39 @@ if (process.argv[1]?.endsWith('mission_split.mjs')) {
     ck(autorunBody.indexOf('emit-1.S1.mission.txt') < autorunBody.indexOf('emit-1.S2.mission.txt')
       && autorunBody.indexOf('emit-1.S2.mission.txt') < autorunBody.indexOf('emit-1.S3.mission.txt'),
       'emitSubMissions: children appended to AUTORUN in tartib order');
+    ck(out.appendQueueErrors === undefined, 'emitSubMissions: no appendQueueErrors field when every append succeeds (byte-unchanged happy path)');
 
     // Cleanup
     fsEmit.rmSync(tmp, { recursive: true, force: true });
+  }
+
+  // ---- appendQueue failure visibility (hunt-item #16 follow-on, 2026-07-05): the ORIGINAL
+  // failure reason must be recorded, not just silently absorbed -- and a failure on ONE
+  // child must not stop the others from being written/queued (best-effort stays best-effort).
+  {
+    const os3 = await import('os');
+    const fsErr = await import('fs');
+    const tmp3 = fsErr.mkdtempSync(path.join(os3.tmpdir(), 'msplit_aqe_'));
+    const missionsDir3 = path.join(tmp3, 'missions');
+    fsErr.mkdirSync(missionsDir3, { recursive: true });
+
+    const plan3 = splitOversizedPlan('MISSION-ID: M-E2\nMISSION-CLASS: research\nMaqsad: a complete index.', mkQueue('M-E2', 7), { sizeCeiling: 3 });
+    plan3._parentMission = 'MISSION-ID: M-E2\nMISSION-CLASS: research\nMaqsad: a complete index.';
+
+    const out3 = emitSubMissions(plan3, { missionsDir: missionsDir3, parentMissionFile: 'emit-2.mission.txt', parentId: plan3.parentId }, {
+      writeFile: (p, c) => { fsErr.mkdirSync(path.dirname(p), { recursive: true }); fsErr.writeFileSync(p, c); },
+      // fail only the SECOND child's queue-append, to prove the failure is per-child, not fatal to the batch.
+      appendQueue: (rel) => { if (rel.endsWith('.S2.mission.txt')) throw new Error('AUTORUN.md locked (EBUSY)'); },
+    });
+
+    ck(out3.ok === true, 'appendQueueErrors: a mid-batch append failure does not fail the whole emission');
+    ck(out3.files.length === 3, 'appendQueueErrors: all 3 children still written to disk despite one queue-append failure');
+    ck(out3.queued.length === 2, 'appendQueueErrors: the 2 SUCCEEDING appends still land in queued[]');
+    ck(Array.isArray(out3.appendQueueErrors) && out3.appendQueueErrors.length === 1, 'appendQueueErrors: exactly the 1 failure is recorded');
+    ck(out3.appendQueueErrors[0].rel.endsWith('.S2.mission.txt'), 'appendQueueErrors: recorded entry names WHICH child failed');
+    ck(/AUTORUN\.md locked \(EBUSY\)/.test(out3.appendQueueErrors[0].error), 'appendQueueErrors: the ORIGINAL error message is preserved, not just its absence');
+
+    fsErr.rmSync(tmp3, { recursive: true, force: true });
   }
 
   // ---- buildDoneMeans + VISUAL-QC forwarding (additive) -----------------------------

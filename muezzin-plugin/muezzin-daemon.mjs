@@ -856,7 +856,7 @@ export function queuedDepsHold(missionText, missionPath, autorunText, resultOkFn
   return { hold: false };
 }
 
-function promotionHold(missionText, doneIds) {
+function promotionHold(missionText, doneIds, autorunText = '') {
   const txt = String(missionText || '');
   if (/^\s*#?\s*(HELD|BLOCKED|GATED)\b/im.test(txt)) return { hold: true, why: 'mission text marks HELD/BLOCKED/GATED' };
   // tartib predecessor dependency (the autosplit child form) — the one mechanical dep.
@@ -865,6 +865,32 @@ function promotionHold(missionText, doneIds) {
     const predId = m[1];
     if (!doneIds.has(predId)) return { hold: true, why: `tartib predecessor ${predId} not yet DONE` };
     return { hold: false };
+  }
+  // BARE-STEM TARTIB FORM (2026-07-05, hunt-#16 follow-on): queuedDepsHold's own (b2) logic
+  // (2026-07-03) already recognizes "REQUIRES: <hyphenated-stem> (tartib — ...)" with no
+  // literal "predecessor"/"DONE" keywords — this function never got that same widening, so
+  // a bare-stem tartib REQUIRES fell all the way through to the generic prose-precondition
+  // branch below and was held FOREVER as "conductor-curated", even once its predecessor was
+  // genuinely DONE. Mirrors queuedDepsHold's own two-part heuristic exactly: take the
+  // REQUIRES line's head (before any parenthetical), find mission-shaped hyphenated tokens,
+  // but a token is only a REAL dependency if it resolves to a line ACTUALLY QUEUED in
+  // AUTORUN (autorunText.includes(cand)) — the same discrimination that lets prose like
+  // "search-grounded seats always" self-exclude (it never matches any real queue line)
+  // without a phantom "not DONE" hold. Only checked against doneIds (this function's
+  // simpler DONE-set, not full resultOkFn receipt-truth — promotionHold decides whether to
+  // auto-QUEUE a never-triaged file, a different question than queuedDepsHold's "may an
+  // already-queued mission FIRE").
+  const reqLine = (txt.match(/^REQUIRES:\s*(.+)$/im) || [])[1] || '';
+  const reqHead = reqLine.split('(')[0];
+  const realDeps = [...reqHead.matchAll(/[\w][\w.-]{3,}/g)]
+    .map((t) => t[0]).filter((t) => t.includes('-'))
+    .map((t) => ({ tok: t, cand: `missions/${t.replace(/^missions\//, '').replace(/\.mission\.txt$/i, '')}.mission.txt` }))
+    .filter(({ cand }) => autorunText.includes(cand));
+  if (realDeps.length) {
+    const stemOf = (cand) => cand.replace(/^missions\//, '').replace(/\.mission\.txt$/i, '');
+    const unmet = realDeps.filter(({ cand }) => !doneIds.has(stemOf(cand)));
+    if (unmet.length === 0) return { hold: false };   // every bare-stem tartib token already DONE
+    return { hold: true, why: `bare-stem tartib predecessor(s) not yet DONE: ${unmet.map((u) => u.tok).join(', ')}` };
   }
   // a non-tartib prose REQUIRES on a NEVER-QUEUED file: hold (conductor curates these).
   // (search/code-repo/credential/FRESH preconditions can't be auto-cleared here.)
@@ -927,7 +953,7 @@ function pickPromotion(autorunText, missionFiles, missionsDir, readText, ledgerT
     // readdirSync but harden the join here too so any caller passing an absolute path is
     // honored, not corrupted.
     try { txt = readText(path.isAbsolute(f) ? f : path.join(missionsDir, f)); } catch { continue; }
-    const gate = promotionHold(txt, doneIds);
+    const gate = promotionHold(txt, doneIds, autorunText);
     if (gate.hold) continue;                                    // held/blocked/unsatisfied-deps — SKIP
     // mt-c2b-pickpromotion: verify any landed-state claim in this candidate's own text
     // against the repo (reuses missionLandedState, already imported for queuedDepsHold)
@@ -1711,6 +1737,19 @@ if (process.argv.includes('--selftest')) {
     ck(promotionHold('REQUIRES: predecessor M-X.S1 DONE (tartib)', new Set()).hold === true, 'HALF B: a tartib child with an UNSATISFIED predecessor is held');
     ck(promotionHold('REQUIRES: predecessor M-X.S1 DONE (tartib)', new Set(['M-X.S1'])).hold === false, 'HALF B: the same child is RELEASED once its predecessor is DONE');
     ck(promotionHold('REQUIRES: search', new Set()).hold === true, 'HALF B: a non-tartib prose REQUIRES (search) on a never-queued file is held (conductor-curated)');
+
+    // BARE-STEM TARTIB (2026-07-05, hunt-#16 follow-on): promotionHold gains queuedDepsHold's
+    // own (b2) widening — a REQUIRES line with a hyphenated stem and no literal
+    // "predecessor"/"DONE" keywords, exactly the shape mission_split.mjs's own child-authoring
+    // (buildSubMissionText via a different phrasing) and hand-authored tartib missions use.
+    const bareStemAutorun = '# q\nmissions/mt-mobile-qc-hardening.S1.mission.txt\n';
+    ck(promotionHold('REQUIRES: mt-mobile-qc-hardening.S1 (tartib — same-file serialization)', new Set(), bareStemAutorun).hold === true, 'bare-stem tartib: unsatisfied predecessor is held (previously fell through to permanent conductor-curated hold — same OUTCOME here, different/correct REASON)');
+    ck(promotionHold('REQUIRES: mt-mobile-qc-hardening.S1 (tartib — same-file serialization)', new Set(['mt-mobile-qc-hardening.S1']), bareStemAutorun).hold === false, 'bare-stem tartib: RELEASED once the predecessor is DONE (previously stayed held FOREVER — the bug this fixes)');
+    // prose that happens to be hyphenated but names NO real queued mission must still
+    // self-exclude (the same discrimination queuedDepsHold's own b2 fixture locks) — proves
+    // the fix does not manufacture phantom holds on ordinary prose.
+    ck(promotionHold('REQUIRES: search-grounded seats always', new Set(), bareStemAutorun).hold === true, 'bare-stem tartib: hyphenated PROSE with no matching queue line falls through to the ordinary prose-precondition hold (not a phantom bare-stem match)');
+    ck(promotionHold('REQUIRES: search-grounded seats always', new Set(), bareStemAutorun).why, 'carries a non-tartib prose REQUIRES precondition (conductor-curated)', 'bare-stem tartib: the prose case is held for the ORIGINAL reason, proving it never entered the bare-stem branch at all');
 
     // pickPromotion end-to-end on a fake on-disk set: picks the one ready unqueued mission,
     // skipping queued + held + blocked + unsatisfied-dep. Lock the SKIP behavior with teeth.

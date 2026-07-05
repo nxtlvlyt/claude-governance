@@ -632,7 +632,16 @@ export function defaultSplitFn(mission, queue, opts = {}, ctx = {}, io = {}) {
           const cur = readFileSync(ctx.autorunFile, 'utf8');
           writeFileSync(ctx.autorunFile, lastAnchor ? insertQueueLineAfter(cur, lastAnchor, rel) : `${cur.replace(/\n?$/, '\n')}${rel}  ${SPLIT_CHILD_MARKER}\n`);
           lastAnchor = rel;
-        } catch { /* queue append best-effort; the file+manifest is the durable handoff */ }
+        } catch (e) {
+          // hunt-item #16 follow-on (2026-07-05): this catch used to swallow the error
+          // BEFORE it ever reached emitSubMissions's own try/catch in mission_split.mjs —
+          // so that function's appendQueueErrors recording (added the same beat) had
+          // nothing to record in the real production path; the file+manifest stays the
+          // durable handoff (conduct-cycle.mjs's stranded-split-child recovery still fires
+          // regardless), but re-throwing here — instead of absorbing it silently — is what
+          // actually lets the caller learn WHY, not just THAT, the append failed.
+          throw new Error(`appendQueue failed for ${rel}: ${e?.message || e}`);
+        }
       }
     : null);
   const out = emitSubMissions(plan, { missionsDir, parentMissionFile: ctx.parentMissionFile, parentId: plan.parentId }, { writeFile, appendQueue });
@@ -920,12 +929,22 @@ export async function orchestrate(mission, cwd, {
       // are emitted as mission files + a manifest (and queued in tartib when an autorun file
       // is known). The conductor/daemon picks them up; the parent's own run ends here as SPLIT.
       const sub = (split.emission?.files || []).map((f) => ({ id: f.id, file: f.rel, requires: f.predecessorId, steps: f.steps }));
+      // hunt-item #16 follow-on (2026-07-05): appendQueueErrors carries the ORIGINAL reason
+      // a child failed to queue (previously silently swallowed at two layers — see
+      // mission_split.mjs's emitSubMissions and this function's own appendQueue closure
+      // above). The manifest+file handoff still recovers the child regardless (conduct-
+      // cycle.mjs's stranded-split-child recovery), so this is visibility only, never a
+      // reason to fail the split.
+      if (split.emission?.appendQueueErrors?.length) {
+        emit({ phase: 'split', event: 'append-queue-failed', errors: split.emission.appendQueueErrors });
+      }
       emit({ phase: 'split', event: 'split', step_count: queue.steps.length, ceiling: split.ceiling,
         sub_missions: sub.map((s) => `${s.id} (${s.steps} steps${s.requires ? `, requires ${s.requires}` : ''})`),
         manifest: split.emission?.manifestPath || null, queued: split.emission?.queued || [] });
       return { ok: true, phase: 'split', split: true, parent: split.parentId, ceiling: split.ceiling,
         originalStepCount: queue.steps.length, subMissions: sub,
-        manifest: split.emission?.manifestPath || null, queued: split.emission?.queued || [], steps: [] };
+        manifest: split.emission?.manifestPath || null, queued: split.emission?.queued || [],
+        ...(split.emission?.appendQueueErrors?.length ? { appendQueueErrors: split.emission.appendQueueErrors } : {}), steps: [] };
     }
     // split:false -> fall through to the UNCHANGED execution path below (byte-identical).
   }
@@ -2587,6 +2606,30 @@ if (process.argv[1]?.endsWith('orchestrate.mjs')) {
     ck(insertQueueLineAfter('# q\nmissions/other.mission.txt\n', 'missions/ghost.mission.txt', 'missions/ghost.S1.mission.txt').includes('missions/ghost.S1.mission.txt'), 'split-position: absent anchor falls back to tail append (line never lost)');
     const hist = '# RESOLVED old: missions/parent.mission.txt\nSPLIT missions/parent.mission.txt  <!-- t -->\n';
     ck(insertQueueLineAfter(hist, 'missions/parent.mission.txt', 'missions/parent.S1.mission.txt').split('\n')[2].includes('missions/parent.S1.mission.txt'), 'split-position: comment/history lines skipped — the LAST live line is the anchor');
+  }
+
+  // ---- defaultSplitFn's REAL appendQueue closure re-throws instead of swallowing (hunt-
+  // item #16 follow-on, 2026-07-05): this closure used to catch-and-drop its own error
+  // BEFORE it ever reached emitSubMissions's try/catch, so appendQueueErrors (added the
+  // same beat) had nothing to record in the actual production default path — only when a
+  // caller injected their OWN io.appendQueue did an error ever propagate. Force a real
+  // write failure (autorunFile pointing at a directory, not a file) and confirm it surfaces
+  // as appendQueueErrors on the split result, not silently.
+  {
+    const dir2 = fs.mkdtempSync(path.join(os.tmpdir(), 'orc_aqe_'));
+    const missionsDir4 = path.join(dir2, 'missions');
+    fs.mkdirSync(missionsDir4, { recursive: true });
+    const badAutorunFile = missionsDir4;   // a directory, not a file — writeFileSync must throw
+    const bigQueue = { mission_id: 'M-AQE', steps: Array.from({ length: 7 }, (_, i) => ({
+      step_index: i + 1, description: `step ${i + 1}`, action_type: 'edit',
+      target_files: [`f${i + 1}.mjs`], context_dependencies: [], validation_command: `node -c f${i + 1}.mjs`,
+    })) };
+    const missionText = 'MISSION-ID: M-AQE\nMISSION-CLASS: research\nMaqsad: a complete index.';
+    const splitResult = defaultSplitFn(missionText, bigQueue, { sizeCeiling: 3 }, { missionsDir: missionsDir4, parentMissionFile: 'aqe.mission.txt', autorunFile: badAutorunFile });
+    ck(splitResult.split === true && splitResult.emission?.ok === true, 'appendQueue re-throw: the split itself still succeeds (files+manifest are the durable handoff)');
+    ck(Array.isArray(splitResult.emission?.appendQueueErrors) && splitResult.emission.appendQueueErrors.length > 0, 'appendQueue re-throw: the real production appendQueue closure surfaces its failure instead of silently absorbing it');
+    ck(/appendQueue failed for/.test(splitResult.emission.appendQueueErrors[0].error), 'appendQueue re-throw: the recorded error names WHICH append failed, not just that something did');
+    fs.rmSync(dir2, { recursive: true, force: true });
   }
 
   fs.rmSync(dir, { recursive: true, force: true });
