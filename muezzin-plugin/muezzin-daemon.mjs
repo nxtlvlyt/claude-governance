@@ -708,55 +708,71 @@ export function chainStreak(outcome, statePath, { alertAt = 4, every = 3, readFi
 }
 
 export function retroRepeatBlocked(stem, retroDir, missionMtimeMs,
-  { now = Date.now(), minFails = 3, windowMs = 24 * 3600e3, preflightAfter = 5, preflightMtimeMs = null, readdir = readdirSync, readHead = (p) => readFileSync(p, 'utf8').slice(0, 200), readPreflight = (p) => readFileSync(p, 'utf8') } = {}) {
+  { now = Date.now(), minFails = 3, windowMs = 24 * 3600e3, preflightAfter = 1, preflightMtimeMs = null, readdir = readdirSync, readHead = (p) => readFileSync(p, 'utf8').slice(0, 200), readPreflight = (p) => readFileSync(p, 'utf8') } = {}) {
   let files = [];
   try { files = readdir(retroDir); } catch { return { blocked: false, count: 0 }; }
-  const fails = [];
-  let newestHead = '';
+  // ANY-REQUEUE COVERAGE (hunt-item #8, 2026-07-05): the operator rule being mechanized
+  // (STATE.md PRE-FLIGHT RULE, correction 2026-07-03 ~12:55) reads "before ANY requeue, the
+  // conductor DRY-RUNS the step class that killed the previous attempt" — no fail-count
+  // qualifier, no time qualifier. The prior shape (preflightAfter=5, all counting inside the
+  // 24h window) left the three holes the hunt named: fails 1-2 had no gate at all, fails 3-4
+  // passed on a bare mtime bump, and failures spread past 24h never accumulated. Now: ALL
+  // FAILED retros for the stem are scanned (failsAll, unwindowed) and the preflight-receipt
+  // requirement keys on the NEWEST failure regardless of age, from the FIRST failure
+  // (preflightAfter=1). The 24h window still scopes the separate repeat-block/amendment
+  // requirement (minFails) — that guard is about rapid-fire futility, where recency matters.
+  const failsAll = [];         // every FAILED retro for this stem, any age
+  const failsWindowed = [];    // subset inside windowMs (feeds the minFails amendment guard)
+  let newestHead = '', newestAllMs = -Infinity;
   for (const f of files) {
     if (!f.startsWith(`${stem}-2`) || !f.endsWith('.md')) continue;   // '-2' pins the timestamp year; excludes .S-children
     const tsRaw = f.slice(stem.length + 1, -3);                        // 2026-07-01T00-00-00-000Z
     const ms = Date.parse(tsRaw.replace(/T(\d{2})-(\d{2})-(\d{2})-(\d{3})Z$/, 'T$1:$2:$3.$4Z'));
-    if (!Number.isFinite(ms) || now - ms > windowMs) continue;
+    if (!Number.isFinite(ms)) continue;
     let head = '';
     try { head = readHead(path.join(retroDir, f)); } catch { continue; /* unreadable retro = no evidence */ }
     if (!/FAILED/i.test(head)) continue;
-    fails.push(ms);
-    if (ms >= Math.max(...fails)) newestHead = head;   // track the NEWEST failure's own header text
+    failsAll.push(ms);
+    if (now - ms <= windowMs) failsWindowed.push(ms);
+    if (ms >= newestAllMs) { newestAllMs = ms; newestHead = head; }   // NEWEST failure's own header, window-independent
   }
-  if (fails.length < minFails) return { blocked: false, count: fails.length };
-  const newestMs = Math.max(...fails);
-  const amended = Number.isFinite(missionMtimeMs) && missionMtimeMs > newestMs;
+  if (failsAll.length === 0) return { blocked: false, count: 0 };
+  const amended = Number.isFinite(missionMtimeMs) && missionMtimeMs > newestAllMs;
   // KILLING-CLASS EXTRACTION (hunt-item #24, 2026-07-04): the retro header already carries a
   // structured class signal -- writeRetro's own `FAILED(${result?.phase})` tag (e.g.
   // "FAILED(plan)", "FAILED(verify)"). Extract it from the NEWEST failure's header so the
   // preflight-content check below has something concrete to grep for.
   const killingClass = (newestHead.match(/FAILED\(([^)]+)\)/) || [])[1] || null;
-  // PREFLIGHT-RECEIPT ESCALATION (operator demand 2026-07-03 ~13:1x after an 8-FAILED-run
-  // burn: "a change in the conductor to be better, not hopes and dreams"): past
-  // preflightAfter failures, an amendment (mtime bump) alone NO LONGER opens the gate —
-  // the conductor must have DRY-RUN the killing step class and written the receipt to
-  // missions/_logs/preflight/<stem>.md (its mtime must be newer than the newest retro).
-  // Mechanizes the PRE-FLIGHT RULE: no dry-run evidence, no refire, regardless of how the
-  // mission text was touched.
+  // PREFLIGHT-RECEIPT REQUIREMENT (operator demand 2026-07-03 ~13:1x after an 8-FAILED-run
+  // burn: "a change in the conductor to be better, not hopes and dreams"; widened to ANY
+  // requeue 2026-07-05 per the rule's own text): once a mission has failed at all, refiring
+  // requires the conductor to have DRY-RUN the killing step class and written the receipt to
+  // missions/_logs/preflight/<stem>.md (mtime newer than the newest retro). No dry-run
+  // evidence, no refire — regardless of how the mission text was touched.
   // CONTENT-AWARENESS (hunt-item #24, GAP-CLOSURE-PLAYBOOK UNIT E5, 2026-07-04): mtime alone
   // used to be sufficient -- a HOLLOW touch (empty file, or a real receipt from a DIFFERENT
   // earlier failure class) opened the gate just as well as a genuine fresh dry-run, because
   // nothing bound the receipt's CONTENT to the class that actually killed the mission most
-  // recently. Now requires the preflight file to literally name the current killing class
+  // recently. Requires the preflight file to literally name the current killing class
   // (a "COVERS: <class>" addendum line, grepped) -- a stale preflight written for a PRIOR,
   // different failure class no longer silently satisfies a NEW one.
-  if (fails.length >= preflightAfter) {
-    const preflightFresh = Number.isFinite(preflightMtimeMs) && preflightMtimeMs > newestMs;
+  if (failsAll.length >= preflightAfter) {
+    const preflightFresh = Number.isFinite(preflightMtimeMs) && preflightMtimeMs > newestAllMs;
     let preflightCoversClass = !killingClass;   // no extractable class -> can't content-check, fall back to mtime-only (fail-open on the check, not on the gate)
     if (preflightFresh && killingClass) {
       try { preflightCoversClass = new RegExp(`COVERS:.*${killingClass.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'i').test(readPreflight(path.join(LOGDIR, 'preflight', `${stem}.md`))); } catch { preflightCoversClass = false; }
     }
-    if (amended && preflightFresh && preflightCoversClass) return { blocked: false, count: fails.length, amended: true, preflighted: true };
-    return { blocked: true, count: fails.length, newest: new Date(newestMs).toISOString(), needsPreflight: true, killingClass: killingClass || undefined };
+    // The amendment requirement stays scoped to rapid-repeat futility (minFails inside the
+    // window): a single old failure needs a dry-run receipt but not necessarily a text change;
+    // 3+ recent failures need BOTH (unchanged text over a fresh receipt is still relitigating).
+    const amendmentOk = failsWindowed.length >= minFails ? amended : true;
+    if (preflightFresh && preflightCoversClass && amendmentOk) return { blocked: false, count: failsWindowed.length, totalFails: failsAll.length, ...(amended ? { amended: true } : {}), preflighted: true };
+    return { blocked: true, count: failsWindowed.length, totalFails: failsAll.length, newest: new Date(newestAllMs).toISOString(), needsPreflight: !(preflightFresh && preflightCoversClass) || undefined, needsAmendment: !amendmentOk || undefined, killingClass: killingClass || undefined };
   }
-  if (amended) return { blocked: false, count: fails.length, amended: true };
-  return { blocked: true, count: fails.length, newest: new Date(newestMs).toISOString() };
+  // Callers may raise preflightAfter above 1; below it the pre-2026-07-05 windowed behavior holds.
+  if (failsWindowed.length < minFails) return { blocked: false, count: failsWindowed.length };
+  if (amended) return { blocked: false, count: failsWindowed.length, amended: true };
+  return { blocked: true, count: failsWindowed.length, newest: new Date(newestAllMs).toISOString() };
 }
 
 export function queuedDepsHold(missionText, missionPath, autorunText, resultOkFn, gitFn = (repo, argstr) => { try { return { ok: true, out: execSync(`git -C "${repo}" ${argstr}`, { stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 64 * 1024 * 1024 }).toString() }; } catch { return { ok: false, out: '' }; } }) {
@@ -1102,10 +1118,10 @@ async function mainLoop() {
       try { pfMtime = statSync(path.join(LOGDIR, 'preflight', `${rrbStem}.md`)).mtimeMs; } catch { /* no preflight receipt yet */ }
       const rrb = retroRepeatBlocked(rrbStem, path.join(LOGDIR, 'retro'), statSync(missionFile).mtimeMs, { preflightMtimeMs: pfMtime });
       if (rrb.blocked) {
-        const pfNote = rrb.needsPreflight ? ` PREFLIGHT-RECEIPT REQUIRED at >=5 fails: write the dry-run evidence to missions/_logs/preflight/${rrbStem}.md, mtime newer than the newest retro, AND a line reading "COVERS: FAILED(${rrb.killingClass || '<the killing class from the newest retro>'})" — CONTENT-AWARE as of 2026-07-04 (hunt-item #24): an mtime bump alone, or a receipt covering a DIFFERENT/older class, no longer opens this gate.` : '';
-        evt(`RETRO-REPEAT-BLOCKED: ${raw} — ${rrb.count} FAILED retros in 24h, newest ${rrb.newest}${rrb.needsPreflight ? ', preflight receipt MISSING/stale' : ', mission text UNCHANGED since'} — refusing to relitigate; amend the mission or park it (conductor judgment).${pfNote}`);
+        const pfNote = rrb.needsPreflight ? ` PREFLIGHT-RECEIPT REQUIRED before ANY refire of a previously-FAILED mission (operator PRE-FLIGHT RULE 2026-07-03, mechanized in full 2026-07-05): write the dry-run evidence to missions/_logs/preflight/${rrbStem}.md, mtime newer than the newest retro, AND a line reading "COVERS: FAILED(${rrb.killingClass || '<the killing class from the newest retro>'})" — an mtime bump alone, or a receipt covering a DIFFERENT/older class, does not open this gate.` : '';
+        evt(`RETRO-REPEAT-BLOCKED: ${raw} — ${rrb.totalFails ?? rrb.count} FAILED retro(s) total (${rrb.count} in 24h), newest ${rrb.newest}${rrb.needsPreflight ? ', preflight receipt MISSING/stale' : ''}${rrb.needsAmendment ? ', mission text UNCHANGED since the newest failure' : ''} — refusing to relitigate; dry-run + amend, or park it (conductor judgment).${pfNote}`);
         setMark(raw, 'FAILED');
-        notify(`⛔ RETRO-REPEAT gate: ${rrbStem} refused — ${rrb.count} failures in 24h${rrb.needsPreflight ? '; DRY-RUN RECEIPT required before refire' : ' with an unchanged mission text'}. Zero cycles burned.\n${nextUpLine()}\n${scoreLine()}`);
+        notify(`⛔ RETRO-REPEAT gate: ${rrbStem} refused — ${rrb.totalFails ?? rrb.count} prior failure(s)${rrb.needsPreflight ? '; DRY-RUN RECEIPT required before refire' : ''}${rrb.needsAmendment ? '; mission text unchanged' : ''}. Zero cycles burned.\n${nextUpLine()}\n${scoreLine()}`);
         return;
       }
     } catch { /* gate is best-effort — a broken retro dir must never stop legitimate fires */ }
@@ -1496,10 +1512,22 @@ if (process.argv.includes('--selftest')) {
     });
     const three = [`st-${ts(0)}.md`, `st-2026-07-03T00-20-00-000Z.md`, `st-2026-07-03T00-40-00-000Z.md`];
     const oldMtime = Date.parse('2026-07-02T00:00:00Z'), newMtime = Date.parse('2026-07-03T00:50:00Z');
+    // Freshness anchor for preflight receipts in these fixtures: newer than the newest retro (00:40).
+    const pfFresh = Date.parse('2026-07-03T00:55:00Z');
+    const pfCovers = { preflightMtimeMs: pfFresh, readPreflight: () => 'COVERS: FAILED(plan) -- dry-ran the killing class' };
     ck(retroRepeatBlocked('st', '/r', oldMtime, mk(three)).blocked === true, 'retro-gate: 3 FAILED in 24h + unchanged mission -> BLOCKED (924-storm class)');
-    ck(retroRepeatBlocked('st', '/r', newMtime, mk(three)).blocked === false && retroRepeatBlocked('st', '/r', newMtime, mk(three)).amended === true, 'retro-gate: AMENDED mission (mtime newer than newest retro) -> passes (the poi-tags/trip-cost path)');
-    ck(retroRepeatBlocked('st', '/r', oldMtime, mk(three.slice(0, 2))).blocked === false, 'retro-gate: only 2 failures -> passes');
-    ck(retroRepeatBlocked('st', '/r', oldMtime, mk([`st-2026-07-01T00-00-00-000Z.md`, `st-2026-07-01T01-00-00-000Z.md`, `st-2026-07-01T02-00-00-000Z.md`])).blocked === false, 'retro-gate: 3 failures but OUTSIDE 24h window -> passes');
+    // ANY-REQUEUE WIDENING (hunt-item #8, 2026-07-05, operator PRE-FLIGHT RULE "before ANY
+    // requeue"): the amended-mtime-alone and low-fail-count paths that used to pass now
+    // require a dry-run receipt covering the newest killing class. Old expectations below are
+    // UPDATED against the rule's own text, each with its passing twin.
+    ck(retroRepeatBlocked('st', '/r', newMtime, mk(three)).blocked === true, 'retro-gate: AMENDED mission but NO preflight receipt -> now BLOCKED (rule says ANY requeue needs a dry-run)');
+    const amendedPlusPf = retroRepeatBlocked('st', '/r', newMtime, { ...mk(three), ...pfCovers });
+    ck(amendedPlusPf.blocked === false && amendedPlusPf.preflighted === true && amendedPlusPf.amended === true, 'retro-gate: AMENDED + fresh class-covering preflight -> passes (the legitimate-refire path, now with its receipt)');
+    ck(retroRepeatBlocked('st', '/r', oldMtime, mk(three.slice(0, 2))).blocked === true, 'retro-gate: 2 failures, no receipt -> now BLOCKED (fails 1-2 hole closed)');
+    ck(retroRepeatBlocked('st', '/r', oldMtime, { ...mk(three.slice(0, 2)), ...pfCovers }).blocked === false, 'retro-gate: 2 failures + class-covering receipt -> passes WITHOUT amendment (amendment only owed at >=3-in-window)');
+    ck(retroRepeatBlocked('st', '/r', oldMtime, mk([`st-2026-07-01T00-00-00-000Z.md`, `st-2026-07-01T01-00-00-000Z.md`, `st-2026-07-01T02-00-00-000Z.md`])).blocked === true, 'retro-gate: failures OUTSIDE 24h window -> still require a receipt (cross-day hole closed; the rule has no time qualifier)');
+    const crossDayPf = retroRepeatBlocked('st', '/r', oldMtime, { ...mk([`st-2026-07-01T00-00-00-000Z.md`, `st-2026-07-01T01-00-00-000Z.md`, `st-2026-07-01T02-00-00-000Z.md`]), preflightMtimeMs: Date.parse('2026-07-01T03:00:00Z'), readPreflight: () => 'COVERS: FAILED(plan)' });
+    ck(crossDayPf.blocked === false, 'retro-gate: old failures + receipt newer than the newest one -> passes with no amendment owed (0 in window < minFails)');
     ck(retroRepeatBlocked('st', '/r', oldMtime, mk(three, '# RETRO st — DONE (5m)')).blocked === false, 'retro-gate: DONE retros never count as failures');
     ck(retroRepeatBlocked('st', '/r', oldMtime, mk([`st.S1-${ts(0)}.md`, `st.S1-2026-07-03T00-20-00-000Z.md`, `st.S1-2026-07-03T00-40-00-000Z.md`])).blocked === false, 'retro-gate: CHILD-stem retros do not gate the parent');
     ck(retroRepeatBlocked('st', '/nonexistent', oldMtime, { readdir: () => { throw new Error('ENOENT'); }, now: NOW }).blocked === false, 'retro-gate: unreadable retro dir -> never blocks a fire (best-effort)');
@@ -1708,9 +1736,16 @@ if (process.argv.includes('--selftest')) {
     // mt-c2b-pickpromotion: a candidate whose own text carries a landed-state claim disputed
     // by missionLandedState (verdict GENUINE — nothing matches at HEAD) must NOT be promoted.
     const stampDiskDisputed = {
+      // FIXTURE REPAIR 2026-07-05: the original fixture had the bullet line but NO literal
+      // 'ALLOW-FILES:' header — it depended on missionLandedState's old loose parse (any
+      // '  - token' line anywhere), which the bounded-block fix (232df4f, live-caught prose-
+      // bullet pollution) correctly removed. A header-less text now parses to null (fail-
+      // open) instead of GENUINE, silently gutting both assertions below. Well-formed text
+      // restores the test's actual intent under the corrected parser.
       'missions/disputed.mission.txt': [
         'MISSION-ID: DSP', 'MISSION-CLASS: code-repo', 'REQUIRES: none',
         'REPO-ROOT: ' + ['C:', 'fake', 'repo'].join('/'),
+        'ALLOW-FILES:',
         '  - ' + ['some', 'file.mjs'].join('/'),
       ].join('\n'),
       'missions/ready.mission.txt': 'MISSION-ID: R\nREQUIRES: none\nMaqsad: the ready one',
@@ -1926,10 +1961,14 @@ if (process.argv.includes('--selftest')) {
     const stem2 = ['q', 'stampcheck', 'stem'].join('-');
     const selfPath2 = 'missions/' + stem2 + '.mission.txt';
     const resolvedNote2 = '# ' + 'RESOLVED' + ' — landed: ' + selfPath2;
+    // FIXTURE REPAIR 2026-07-05 (same shape as the mt-c2b twin below): the fixture lacked
+    // the literal 'ALLOW-FILES:' header and relied on missionLandedState's old loose parse,
+    // removed by the bounded-block fix (232df4f). Header added; test intent unchanged.
     const disputedMissionText = [
       'MISSION-ID: x',
       'MISSION-CLASS: code-repo',
       'REPO-ROOT: ' + ['C:', 'fake', 'repo'].join('/'),
+      'ALLOW-FILES:',
       '  - ' + ['some', 'file.mjs'].join('/'),
     ].join('\n');
     const absentGitFn = () => ({ ok: true, out: '' });

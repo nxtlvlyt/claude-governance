@@ -1790,3 +1790,41 @@ actions; not repeating that mistake on a bigger one). Both branches are clean si
 feature commits with no apparent conflicts against current HEAD (not test-merged to confirm,
 since a test-merge is itself a write). Item #8 stays open until these 2 merges land + are
 verified deployed.
+
+## Hunt-item #8 STRUCK 2026-07-05 (commit 9e3147c, live on daemon PID 36312) + hunt-item #7 BUILT, one blocked step from live
+**#8 (PRE-FLIGHT threshold):** The operator's question "doesn't our governance answer this?"
+was the correct challenge — the rule's own text (STATE.md PRE-FLIGHT RULE, 2026-07-03 ~12:55)
+says "before ANY requeue" with no fail-count or time qualifier, so the threshold was never
+operator-bound; the code was underselling an already-given answer. retroRepeatBlocked now:
+(a) requires a fresh, class-covering preflight receipt from the FIRST failure
+(preflightAfter 5 -> 1) — closes the fails-1-2 no-gate hole and the fails-3-4
+mtime-bump-alone hole; (b) keys the requirement on the NEWEST FAILED retro regardless of age
+(failsAll unwindowed) — closes the cross-24h blindness; (c) keeps the text-amendment
+requirement scoped to >=3-in-window (rapid-repeat futility, where recency matters). Block
+messages now name exactly which requirement is unmet (needsPreflight / needsAmendment) +
+totalFails alongside the windowed count. 7 new/updated both-polarity fixtures; full daemon
+suite ALL PASS; conduct-cycle suite ALL PASS. Reloaded via the designed RELOAD-REQUEST flag
+(graceful, between missions — receipted GRACEFUL-RELOAD 06:15:51Z, PID 4168 -> 36312).
+STATE.md's succession-scorecard claim ("no dry-run receipt, no refire — enforced on ANY
+conductor, any model") is now TRUE instead of oversold.
+ALSO FIXED same-beat (pre-existing, found because the muezzin-gate would have blocked the
+commit): mt-c2a-queueddeps + mt-c2b-pickpromotion selftests were failing on HEAD — their
+fixtures lacked the literal ALLOW-FILES: header and depended on missionLandedState's old
+loose parse, removed by the bounded-block fix 232df4f. Fixture repaired (header added), test
+intent unchanged, both green. NOTE: these two went red the moment 232df4f landed and nothing
+noticed for a day — the muezzin-gate only selftests STAGED files, so a conduct-cycle.mjs
+commit never runs the daemon suite. Cross-module fixture coupling is invisible to the gate;
+candidate future item: gate runs BOTH suites when either module is staged.
+
+**#7 (LANE-EXCLUSION):** ~/.claude/hooks/lane-exclusion-gate.mjs is BUILT and TESTED (9/9
+selftests: blocks Edit/Write/Bash/PowerShell targeting a RUNNING lane's REPO-ROOT, allows
+plan-phase per the receipted exception, fail-closed on undeterminable phase for a known-
+running lane, boundary-aware path matching, fail-open when no lanes run). Registration in
+~/.claude/settings.json was classifier-blocked twice ([Self-Modification] — startup-config
+edit needs out-of-auto-mode review). The hook is INERT until registered. Remaining step is
+ONE settings.json edit (add the hook to the Edit|Write|NotebookEdit matcher block and the
+Bash|PowerShell matcher block) — operator can approve it live or run it outside auto mode.
+
+**Live-receipt watch (acceptance bar):** next daemon fire of any previously-FAILED stem
+should emit RETRO-REPEAT-BLOCKED naming needsPreflight unless a covering receipt exists —
+one live receipt within 24h completes #8's acceptance.
