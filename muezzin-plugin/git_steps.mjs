@@ -495,8 +495,19 @@ export function assertNoUndeclaredShrinkage(cwd, files = [], intentText = '', { 
   if (intent) return { ok: true, violations: [], declared: true };
   const violations = [];
   for (const f of files) {
+    // WINDOWS PATH-SEPARATOR FIX (2026-07-05, live-caught): `git show <rev>:<path>` is a git
+    // OBJECT-DATABASE lookup, which only ever understands forward-slash path components —
+    // unlike a plain working-tree argument (`git add docs\x.md`), which Windows git.exe
+    // resolves fine via the filesystem layer. A caller that builds `f` via path.relative()
+    // (orchestrate.mjs's gitFiles()) yields a BACKSLASH path on Windows for any nested file;
+    // `git show HEAD:docs\x.md` then silently fails ("path does not exist"), the catch below
+    // swallows it as "untracked/new file: no baseline", and this floor no-ops for every nested
+    // ALLOW-FILES/target_files path — precisely the shape (docs/DISASTER-RECOVERY.md,
+    // docs/BIG.md) this floor exists to protect. Normalize ONLY for the object-lookup; the
+    // filesystem read below (path.join) is untouched and already handles either separator.
+    const gitPath = String(f).replace(/\\/g, '/');
     let oldTxt = null;
-    try { oldTxt = execSync(`git show HEAD:${quote(f)}`, gitOpts(cwd)).toString(); } catch { continue; }  // untracked/new file: no baseline, no floor
+    try { oldTxt = execSync(`git show HEAD:${quote(gitPath)}`, gitOpts(cwd)).toString(); } catch { continue; }  // untracked/new file: no baseline, no floor
     const oldLines = oldTxt.split(/\r?\n/).length;
     if (oldLines < minLines) continue;                                   // tiny files churn legitimately
     let newLines = 0;
@@ -964,6 +975,23 @@ function selfTest() {
       fs.writeFileSync(path.join(tmp, "new.md"), "x\n");
       r = assertNoUndeclaredShrinkage(tmp, ["new.md"], "create the file");
       assert(r.ok, "shrinkage: untracked/new file => exempt (no HEAD baseline)");
+      // (f) WINDOWS PATH-SEPARATOR REGRESSION (2026-07-05 live catch): a caller that builds
+      // its file list via path.relative() (orchestrate.mjs's gitFiles()) yields an OS-NATIVE
+      // separator on Windows for any nested path — `path.join("docs", "nested.md")` on
+      // Windows IS "docs\\nested.md". `git show HEAD:docs\\nested.md` (object-database
+      // syntax) silently fails to resolve on Windows git, so the un-normalized code treated
+      // EVERY nested-path gut as an untracked/new file and never flagged it — precisely the
+      // class this floor exists to catch (7b41014/649edc7 were both under docs/). Reproduce
+      // with the exact backslash shape, not a forward-slash string that would mask the bug.
+      fs.mkdirSync(path.join(tmp, "docs"), { recursive: true });
+      const nested = path.join("docs", "nested.md");   // OS-native separator, matching gitFiles()'s real output
+      fs.writeFileSync(path.join(tmp, nested), Array.from({ length: 40 }, (_, i) => `line ${i + 1}`).join("\n") + "\n");
+      execSync(`git add ${quote(nested)}`, { cwd: tmp, stdio: "pipe" });
+      execSync('git commit --no-verify -m "seed nested doc"', { cwd: tmp, stdio: "pipe" });
+      fs.writeFileSync(path.join(tmp, nested), "line 1\n");
+      r = assertNoUndeclaredShrinkage(tmp, [nested], "Integrate the nested doc into the repo");
+      assert(!r.ok && r.violations.length === 1, `shrinkage: NESTED path with OS-native separator still detects the gut (${JSON.stringify(r)})`);
+      execSync(`git checkout -- ${quote(nested)}`, { cwd: tmp, stdio: "pipe" });
       // restore doc for any later fixtures
       execSync(`git checkout -- ${doc}`, { cwd: tmp, stdio: "pipe" });
     }

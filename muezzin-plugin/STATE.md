@@ -183,14 +183,23 @@ Item #11 investigated but NOT landed (witness_select.mjs is real/tested/unwired,
 it needs a real design decision -- what "producer verdict" means for a structural witness,
 and whether it requires shadow-dispatching a second model at real cost -- not a quick fix;
 see QUEUE.md for the finding).
-Item #18 investigated but NOT landed -- and its OWN framing was wrong: checked the actual
-44da372 commit (313->1 lines, 99.7% deletion) against integrity_guard.mjs's existing
-ratio-based LARGE-DELETION rule and confirmed the rule WOULD have caught it easily; the item's
-premise ("ratio floors structurally cannot catch this class") does not hold. Real root cause
-(traced via the mission's own mission-events.jsonl): the gutting commit was made by a
-[command]-type step's raw git-add+git-commit, and content-diff checks only ever run on
-[edit]-type steps -- a materially bigger fix (extending diff protection to command-step
-commits) than the item as originally framed. See QUEUE.md for the full trace.
+Item #18 STRUCK 2026-07-05 (commit b65c9db) — the materially-bigger fix flagged above is now
+landed: assertNoUndeclaredShrinkage() is wired into the [command]-type step path (orchestrate.mjs),
+refusing a `git add`+`git commit` BEFORE it runs if the file it's about to commit is already
+undeclared-shrunk relative to HEAD — closing the exact gap that let 44da372 land. 2 new e2e
+selftests (positive: the 44da372 shape refused; negative: a legitimate growth-only commit still
+lands clean).
+BONUS, MUCH BIGGER FIND while building this (live-caught, not theoretical): the ORIGINAL
+[edit]-path DOC-SHRINKAGE FLOOR (2026-07-02, built specifically to catch 7b41014/649edc7) has
+been SILENTLY INERT on Windows this entire time for any nested-path file. `git show HEAD:<path>`
+is a git object-database lookup requiring forward slashes; orchestrate.mjs's gitFiles() builds
+its list via path.relative(), which yields BACKSLASH paths on Windows for any file with a
+subdirectory (docs/X.md, js/Y.js — nearly all of them) — the lookup silently failed, and the
+catch treated every nested-path gut as an "untracked/new file, no baseline, no floor" false-
+negative. Fixed at the shared function (git_steps.mjs's assertNoUndeclaredShrinkage), which
+repairs BOTH callers at once. 1 new regression test using the exact OS-native-separator shape
+(a forward-slash test string would have masked the bug). All existing shrinkage selftests used
+flat filenames only, which is exactly why this sat undetected since 2026-07-02.
 ADDITIONAL (outside the 29-count, deliberately not folded in -- see QUEUE.md "#3 COMPLETED
 IN FULL" entry): the STUCK-TASK kill-scope bug named in UNIT E4's own text (never one of the
 25 numbered hunt items) is also fixed, commit cb0a944 -- a stuck-lane kill now names any OTHER
@@ -199,7 +208,9 @@ None of the 4 top-level items (#7-10) are
 struck — #10/gemma is a MITIGATION not a close (architect-C reseated off gemma this session,
 commit 5068d4c, but gemma still serves vision-verdict with no alternative, so it can still
 crash there; see QUEUE.md gap #10 status).
-**9 remain open** (4 top-level + 5 hunt items).
+**Struck: 21 of 25 hunt items** (was 20; #18 added 2026-07-05). **8 remain open** (4 top-level +
+4 hunt items: #7 LANE-EXCLUSION, #8 PRE-FLIGHT threshold, #11 witness_select wiring, #22 already
+addressed via this scoreboard's own mechanism — see above). **Gap fixes: 21/29 struck.**
 
 **2026-07-05 beat — item #7 (board-truth bulk pass), false-death sub-component PROCESSED
 in full (not the whole item — see below):** false-death survey/workflow (wf_4b1c9b5d-2fa,

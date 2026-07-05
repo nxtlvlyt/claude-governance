@@ -1914,12 +1914,17 @@ if (process.argv[1]?.endsWith('orchestrate.mjs')) {
       execSync('git add -A', { cwd: repo, stdio: 'pipe' });
       execSync('git commit -q --no-verify -m "add BIG.md"', { cwd: repo, stdio: 'pipe' });
       const before = head(repo);
-      // simulate the damage already done on disk (30 lines -> 1), BEFORE the commit step runs.
-      fs.writeFileSync(path.join(repo, 'docs/BIG.md'), 'gutted\n');
+      // GOTCHA (found live): a pre-modification made BEFORE orchestrate() runs is wiped by
+      // resetAllowFiles(), which restores dirty ALLOW-FILES to HEAD as the mission's own clean-
+      // baseline guarantee. The gutting must happen INSIDE a mission step, same as the real
+      // 44da372 shape (an earlier step corrupts the file; a later step blindly commits it).
       const mission = `MISSION-CLASS: code-repo\nREPO-ROOT: ${repo}\nALLOW-FILES:\n  - docs/BIG.md\nMaqsad: x. Done means: y.`;
-      const q = { mission_id: 'CR4', steps: [{ step_index: 1, description: 'commit the change', action_type: 'command', target_files: ['docs/BIG.md'], context_dependencies: [], validation_command: 'git add docs/BIG.md; git commit -q -m gut --no-verify' }] };
+      const q = { mission_id: 'CR4', steps: [
+        { step_index: 1, description: 'gut the file (simulates a botched prior step)', action_type: 'command', target_files: ['docs/BIG.md'], context_dependencies: [], validation_command: "Set-Content -Path docs/BIG.md -Value gutted" },
+        { step_index: 2, description: 'commit the change', action_type: 'command', target_files: ['docs/BIG.md'], context_dependencies: [], validation_command: 'git add docs/BIG.md; git commit -q -m gut --no-verify' },
+      ] };
       const res = await orchestrate(mission, sbx, { deconstructFn: async () => ({ ok: true, queue: q }), implementFn: async () => { throw new Error('EXECUTOR DISPATCHED FOR COMMAND STEP'); }, maxRepairs: 0, verdictFn: approveVerdict, witnessFn: okWitness });
-      ck(res.ok === false && res.steps[0]?.reason === 'undeclared-shrinkage', 'code-repo e2e (4) COMMAND-STEP SHRINKAGE: a [command] step committing an already-gutted file is REFUSED (undeclared-shrinkage), not silently committed');
+      ck(res.ok === false && res.steps.at(-1)?.reason === 'undeclared-shrinkage', 'code-repo e2e (4) COMMAND-STEP SHRINKAGE: a [command] step committing an already-gutted file is REFUSED (undeclared-shrinkage), not silently committed');
       ck(head(repo) === before, 'code-repo e2e (4): HEAD UNCHANGED — the gutting commit never landed (refused BEFORE execReceipt ran the git commit)');
       const stillGutted = fs.readFileSync(path.join(repo, 'docs/BIG.md'), 'utf8').trim() === 'gutted';
       ck(stillGutted, 'code-repo e2e (4): the gutted content is left uncommitted on disk for a human/mission-author to see, not silently reverted or hidden');
@@ -1935,9 +1940,11 @@ if (process.argv[1]?.endsWith('orchestrate.mjs')) {
       execSync('git add -A', { cwd: repo, stdio: 'pipe' });
       execSync('git commit -q --no-verify -m "add BIG2.md"', { cwd: repo, stdio: 'pipe' });
       const before = head(repo);
-      fs.appendFileSync(path.join(repo, 'docs/BIG2.md'), 'one more line\n');   // grows, not shrinks
       const mission = `MISSION-CLASS: code-repo\nREPO-ROOT: ${repo}\nALLOW-FILES:\n  - docs/BIG2.md\nMaqsad: x. Done means: y.`;
-      const q = { mission_id: 'CR5', steps: [{ step_index: 1, description: 'commit the change', action_type: 'command', target_files: ['docs/BIG2.md'], context_dependencies: [], validation_command: 'git add docs/BIG2.md; git commit -q -m grow --no-verify' }] };
+      const q = { mission_id: 'CR5', steps: [
+        { step_index: 1, description: 'grow the file (legitimate change)', action_type: 'command', target_files: ['docs/BIG2.md'], context_dependencies: [], validation_command: "Add-Content -Path docs/BIG2.md -Value 'one more line'" },
+        { step_index: 2, description: 'commit the change', action_type: 'command', target_files: ['docs/BIG2.md'], context_dependencies: [], validation_command: 'git add docs/BIG2.md; git commit -q -m grow --no-verify' },
+      ] };
       const res = await orchestrate(mission, sbx, { deconstructFn: async () => ({ ok: true, queue: q }), implementFn: async () => { throw new Error('EXECUTOR DISPATCHED FOR COMMAND STEP'); }, maxRepairs: 0, verdictFn: approveVerdict, witnessFn: okWitness });
       ck(res.ok === true, 'code-repo e2e (5) NEGATIVE CONTROL: a legitimate growth-only change still commits cleanly (the floor never false-blocks a normal command-step commit)');
       ck(head(repo) !== before, 'code-repo e2e (5): HEAD advanced — the real commit landed');

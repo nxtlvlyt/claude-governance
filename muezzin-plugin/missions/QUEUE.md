@@ -1647,3 +1647,30 @@ lintMission's 2026-07-03 RULE 11/12 additions and used unrealistic step descript
 FALSE-DEATH-CANDIDATES: 20 -> 14. Item #7's false-death sub-thread is now substantively
 drained -- remaining candidates are real, named, understood gaps (mostly WIRING_INCOMPLETE
 map.html batches + genuine unauthored features), not board-truth debt.
+
+## Hunt-item #18 STRUCK 2026-07-05 + a bigger latent bug found doing it (commit b65c9db)
+Built the fix hunt-item #18 actually called for (extending content-diff protection from
+[edit]-type steps to [command]-type steps' raw git-add+git-commit) -- the exact gap that let
+44da372 gut a doc 313->1 lines and land clean. assertNoUndeclaredShrinkage() now runs inside
+orchestrate.mjs's [command]-path git-commit detection block, refusing BEFORE execReceipt runs
+the commit. 2 new e2e selftests: positive (reproduces the 44da372 shape via a 2-step mission --
+step 1 guts the file, step 2 tries to commit it, refused with reason undeclared-shrinkage, HEAD
+never advances) and negative control (a legitimate growth-only change still commits cleanly, no
+false-block).
+WHILE BUILDING THIS, found a much bigger, previously-undetected bug: the ORIGINAL [edit]-path
+DOC-SHRINKAGE FLOOR (2026-07-02, built specifically to catch 7b41014/649edc7) has been silently
+INERT on Windows for any NESTED-path file since the day it landed. Root cause: `git show
+HEAD:<path>` is a git object-database lookup requiring forward-slash path components (unlike a
+plain working-tree argument like `git add docs\x.md`, which Windows git.exe resolves fine via
+the filesystem layer). orchestrate.mjs's gitFiles() builds its file list via path.relative(),
+which yields a BACKSLASH path on Windows for any file with a subdirectory (docs/X.md, js/Y.js --
+nearly every real ALLOW-FILES entry). The lookup silently failed; the catch block treated it as
+"untracked/new file, no baseline" and exempted it -- a false-negative for the EXACT class this
+floor was built to catch. All 5 pre-existing shrinkage selftests used flat filenames only
+(doc.md, small.md, new.md), which is exactly why this sat undetected for 3 days. Fixed at the
+shared function (git_steps.mjs), repairing BOTH callers (edit-path and the new command-path) at
+once: normalize to forward-slash for the git object-lookup only, leave the filesystem read
+(path.join) untouched. New regression test uses the exact OS-native-separator shape
+(path.join("docs","nested.md")) -- a forward-slash test string would have masked the bug.
+git_steps.mjs: 6/6 shrinkage selftests pass. orchestrate.mjs: 165/165 selftests pass.
+Gap fixes: 20/29 -> 21/29 struck.
