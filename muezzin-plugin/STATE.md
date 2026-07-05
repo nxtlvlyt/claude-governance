@@ -262,6 +262,50 @@ limit-arch-docs-2026-06-23 (its panel REJECT was a process gap — no step grepp
 required rejection language — closed by grepping the landed file directly and confirming the
 language IS present). All 5 stamped RESOLVED-LANDED. FALSE-DEATH-CANDIDATES: 25 -> 20 remaining
 (this batch, not yet exhausted — 20 PARTIAL candidates still need individual judgment).
+**Workflow wf_29529e2f-553 (20 agents) completed and was fully processed this beat:**
+4 CONFIRMED_ALREADY_RESOLVED (stamped RESOLVED-LANDED, each independently spot-checked via
+personal Read of result.json before stamping): qc-concern-retail-parking-overlay-...-2026-06-25
+(landed via commit 23fdf52 on its own TARGET-BRANCH), qc-fix-profile-editor-profile-js-2026-06-24
+(landed via 18a510e on TARGET-BRANCH — detector was comparing vs main/HEAD, wrong scope for a
+mission whose Done-means targets its own branch), engine-hajj-template-headless-and-visual-qc
+(completed by conductor hand-follow-through in a prior session, commits 60bbd84/25314cd — ALSO
+surfaced+fixed 2 stale mission_split.mjs selftest fixtures unrelated to this mission's own work,
+commit d766d1f), mt-integrate-sitemap-prune-2026-06-23 (byte-identical to its real source 375e40b;
+detector's cited ed6e33c0 was a stale reference point 20+ commits behind current HEAD).
+5 WIRING_INCOMPLETE (real, specific, NAMED gaps — diagnosed, not performed, since the fix
+would be actual muddytires/CGSports feature work, out of this session's gap-fill scope):
+website-predeploy-security-gate (deploy.cmd is a scan-only stub, no real upload command),
+qc-concern-pwa-install-banner-... (already had a matching stamp from an earlier beat, confirmed
+not re-stamped), mt-integrate-bookmark-widget.S2 (files landed, but the required visual-witness
+screenshot receipt was never produced), mt-integrate-b13-aria-live + mt-integrate-onboarding-
+tour-2026-06-23 (SAME pattern: JS/CSS landed as orphaned bystander files via an unrelated
+commit aa7aaa6, but the activating map.html `<script>`/`<link>` tags were never added).
+11 STILL_GENUINELY_FAILED — each independently re-verified and given a real DIAGNOSED stamp
+naming the exact concrete gap (not just left bare): qc-concern-poi-affiliate-cards, qc-concern-
+saved-html-saved-spots-manager (interesting case: the fix was authored TWICE and both times
+landed on the WRONG branch — a branch-provisioning defect), qc-concern-fire-ban-layer, qc-
+concern-poi-photo-carousel, qc-concern-poi-provenance-modal, qc-fix-add-spot-worker-submission,
+qc-fix-oracle-quick-actions, qc-fix-share-spot, mt-integrate-osm-conflict-detect, mt-enrich-
+scenic-osm.S1 (PARTIAL-GENUINE: the builder script landed real/correct, but the actual data file
+was never generated — local-seat HTTP_503 killed every attempt at the run+commit step).
+FALSE-DEATH-CANDIDATES: 20 -> 14 remaining (some of the diagnosed-but-still-open items will
+correctly keep resurfacing until actually fixed — that's the detector working as designed, not
+noise). Board-truth debt for item #7's false-death sub-thread is now substantively drained;
+remaining candidates are real, named, understood gaps, not board-truth debt.
+
+**2026-07-05 beat — BANKED-DELIVERABLES (item #7-adjacent) CLEARED + stitch-design-mastery-c
+DIAGNOSED.** The 1 banked candidate (stitch-design-mastery-c's legacy-part-1/2.md) turned out
+to be byte-identical copies of content ALREADY surfaced at OPERATOR-REVIEW-QUEUE.md's B4 row —
+step 1 of the mission literally copied stitch-design-mastery-b's part-1-census.md/part-2-
+design-md.md verbatim (confirmed via diff). Stamped SALVAGE-JUDGED: worthless-because-already-
+surfaced (no new row warranted). Same stamp also DIAGNOSED the mission's own FAILED status:
+step 2 died on a genuine claude-CLI workspace-trust-dialog blocker (host-level, one-time fix,
+not mission-performable) — not a content defect. FLAGGED, not relitigated: -b's own annotation
+records operator word 2026-06-12 "NO -c requeue... without his explicit say-so", yet this -c
+mission was fired anyway in a prior (pre-this-session) beat; no work product resulted (pure
+file-copy + failure), so no instruction was substantively violated in outcome, but the fire
+itself sits oddly against that word — surfaced honestly rather than silently ignored or
+re-litigated after the fact.
 
 Report against THIS block every beat ("Gap fixes: N/29 struck" — 29 stays the denominator even
 as N climbs; it only shrinks if a top-level item's whole scope closes, quoting which N are new this

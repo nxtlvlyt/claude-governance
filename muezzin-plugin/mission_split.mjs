@@ -357,7 +357,7 @@ if (process.argv[1]?.endsWith('mission_split.mjs')) {
       steps: [
         { step_index: 1, description: 'add helper', action_type: 'edit', target_files: ['lib/helper.mjs'], context_dependencies: [], validation_command: 'node -c lib/helper.mjs' },
         { step_index: 2, description: 'add util', action_type: 'edit', target_files: ['lib/util.mjs'], context_dependencies: [], validation_command: 'node -c lib/util.mjs' },
-        { step_index: 3, description: 'add page markup', action_type: 'edit', target_files: ['web/index.html'], context_dependencies: [], validation_command: 'true' },
+        { step_index: 3, description: 'add page markup, then render headless via playwright to confirm layout', action_type: 'edit', target_files: ['web/index.html'], context_dependencies: [], validation_command: 'true' },
         { step_index: 4, description: 'add page style', action_type: 'edit', target_files: ['web/style.css'], context_dependencies: [], validation_command: 'true' },
       ],
     };
@@ -414,7 +414,7 @@ if (process.argv[1]?.endsWith('mission_split.mjs')) {
     const crQueue = {
       mission_id: 'M-CR1',
       steps: [
-        { step_index: 1, description: 'edit about', action_type: 'edit', target_files: ['about.html'], context_dependencies: [], validation_command: 'true' },
+        { step_index: 1, description: 'edit about; add the nav-link entry on index.html so the page is reachable', action_type: 'edit', target_files: ['about.html'], context_dependencies: [], validation_command: 'true' },
         { step_index: 2, description: 'edit index', action_type: 'edit', target_files: ['index.html'], context_dependencies: [], validation_command: 'true' },
         { step_index: 3, description: 'verify no target', action_type: 'verify', target_files: [], context_dependencies: [], validation_command: 'true' },
         { step_index: 4, description: 'ship function', action_type: 'edit', target_files: ['functions/api/leaderboard.js'], context_dependencies: [], validation_command: 'node -c functions/api/leaderboard.js' },

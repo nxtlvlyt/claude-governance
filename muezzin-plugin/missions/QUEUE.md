@@ -1602,3 +1602,48 @@ PARTIAL now correctly resolve FULL and are stamped RESOLVED-LANDED in AUTORUN.md
   two anti-patterns this codebase rejects" all found)
 FALSE-DEATH-CANDIDATES: 25 -> 20 remaining. Not exhausted this beat -- 20 PARTIAL candidates
 still need individual judgment (real content differs in most of them, not just noise).
+
+## BANKED-DELIVERABLES cleared + stitch-design-mastery-c DIAGNOSED 2026-07-05 01:3xZ
+The 1 banked candidate (stitch-design-mastery-c: legacy-part-1.md 10KB, legacy-part-2.md 11KB)
+verified via direct diff to be byte-identical copies of content already surfaced at
+OPERATOR-REVIEW-QUEUE.md B4 (stitch-design-mastery-b/part-2-design-md.md + its part-1-census
+sibling) -- confirmed by reading the mission's own result.json: step 1 literally ran
+Copy-Item from stitch-design-mastery-b's sandbox into this one. SALVAGE-JUDGED: worthless-
+because-already-surfaced, no new BANKED-SALVAGE row added (would be a duplicate).
+Same stamp DIAGNOSED the FAILED status itself: step 2 died on "workspace has not been
+trusted... Run Claude Code interactively... or set hasTrustDialogAccepted: true" -- a genuine
+host-level claude-CLI trust blocker, not a mission-text or content defect. Cannot be fixed by
+any mission edit; needs a one-time interactive trust-dialog acceptance on the daemon host.
+GOVERNANCE NOTE (surfaced, not acted on): stitch-design-mastery-b's own AUTORUN annotation
+records "OPERATOR WORD 2026-06-12: NO -c requeue at any time without his explicit say-so" --
+yet stitch-design-mastery-c was fired in a prior session (2026-07-03T22:26Z, before this
+session began). No work product resulted (the mission never got past a file-copy + a trust-
+dialog failure), so nothing was substantively built against the hold, but the fire itself is
+a discrepancy worth naming rather than quietly stepping past. Not undone/reverted -- already
+committed history, and undoing it would itself be a new action needing its own justification.
+
+## False-death PARTIAL batch fully processed 2026-07-05 02:2xZ (Workflow wf_29529e2f-553, 20 agents)
+All 20 remaining PARTIAL candidates from the mechanical FALSE-DEATH-CANDIDATES detector judged:
+- 4 CONFIRMED_ALREADY_RESOLVED, stamped RESOLVED-LANDED (qc-concern-retail-parking-overlay,
+  qc-fix-profile-editor-profile-js, engine-hajj-template-headless-and-visual-qc, mt-integrate-
+  sitemap-prune-2026-06-23) -- each independently spot-checked via personal Read before stamping.
+- 5 WIRING_INCOMPLETE, diagnosed with the exact named gap but NOT fixed (fixing = muddytires/
+  CGSports feature work, out of this session's gap-fill scope): website-predeploy-security-gate
+  (deploy.cmd scan-only stub), qc-concern-pwa-install-banner (already stamped an earlier beat),
+  mt-integrate-bookmark-widget.S2 (missing visual-witness receipt), mt-integrate-b13-aria-live +
+  mt-integrate-onboarding-tour-2026-06-23 (both: JS/CSS landed as orphaned bystanders via commit
+  aa7aaa6, map.html activation tags never added -- SAME root pattern, worth a batched hand-merge
+  per STATE.md's existing TRIGGER TABLE item #14).
+- 11 STILL_GENUINELY_FAILED, each given a real DIAGNOSED stamp naming the concrete gap instead
+  of staying bare: qc-concern-poi-affiliate-cards, qc-concern-saved-html-saved-spots-manager
+  (fix authored twice, both landed on the WRONG branch -- worktree/branch-provisioning defect),
+  qc-concern-fire-ban-layer, qc-concern-poi-photo-carousel, qc-concern-poi-provenance-modal,
+  qc-fix-add-spot-worker-submission, qc-fix-oracle-quick-actions, qc-fix-share-spot, mt-
+  integrate-osm-conflict-detect, mt-enrich-scenic-osm.S1 (builder script genuinely landed,
+  data-generation run itself never completed -- local-seat HTTP_503 killed every attempt).
+Bonus: found+fixed 2 stale mission_split.mjs selftest fixtures (commit d766d1f) while
+independently re-verifying engine-hajj-template-headless-and-visual-qc -- fixtures predated
+lintMission's 2026-07-03 RULE 11/12 additions and used unrealistic step descriptions.
+FALSE-DEATH-CANDIDATES: 20 -> 14. Item #7's false-death sub-thread is now substantively
+drained -- remaining candidates are real, named, understood gaps (mostly WIRING_INCOMPLETE
+map.html batches + genuine unauthored features), not board-truth debt.
