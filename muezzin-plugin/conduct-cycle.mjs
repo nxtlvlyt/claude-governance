@@ -260,7 +260,13 @@ export function parkedRevivalDue(autorun, fixEntries = [], { maxAgeDays = 7, now
     // structured timestamp capture — the loose class [T\d:.Z]* greedily ate the delimiter
     // colon after "…Z:" making Date.parse NaN and silently voiding every judgment stamp
     // (caught live 2026-07-02, first stamping pass)
-    const judged = Date.parse((it.note.match(/REVISIT-JUDGED[: ]+(\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2}(?::\d{2})?(?:\.\d+)?Z?)?)/i) || [])[1] || '');
+    // LATEST-MATCH FIX (2026-07-05): a re-judged item appends a SECOND REVISIT-JUDGED
+    // stamp after the first; .match() without /g returns only the first hit, so the
+    // anchor never advanced past the original judgment date and every re-stamp was
+    // invisible to isDue — the mechanism could never be silenced by re-judging (found
+    // live: 13/13 re-stamped items stayed "due" with an unchanged anchor). Take the last.
+    const revisitStamps = [...it.note.matchAll(/REVISIT-JUDGED[: ]+(\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2}(?::\d{2})?(?:\.\d+)?Z?)?)/gi)];
+    const judged = revisitStamps.length ? Date.parse(revisitStamps[revisitStamps.length - 1][1]) : NaN;
     const parked = Date.parse((it.note.match(/\d{4}-\d{2}-\d{2}(?:T[\d:.]+Z?)?/) || [])[0] || '');
     const anchor = Number.isFinite(judged) ? judged : (Number.isFinite(parked) ? parked : null);
     const stem = path.basename(it.path).replace(/\.mission\.txt$/i, '');
@@ -1497,6 +1503,17 @@ function selftest() {
     // the exact shape whose trailing colon broke Date.parse on the first live stamping pass.
     const auColon = parseAutorun('PARKED missions/pk-colon.mission.txt  <!-- 2026-06-25 parked. REVISIT-JUDGED 2026-07-02T23:10:00Z: RETIRE-SUPERSEDED (audit) -->\n');
     ck(!parkedRevivalDue(auColon, fixes, { maxAgeDays: 7, now: nowMs }).length, 'revival: full-ISO stamp with trailing verdict colon parses (the live-caught regex bug stays dead)');
+    // LATEST-MATCH regression (2026-07-05 live catch): a note with TWO REVISIT-JUDGED
+    // stamps (re-judged once already) must anchor on the LATEST one, not the first —
+    // otherwise a re-judgment can never silence its own re-open trigger.
+    const auReJudged = parseAutorun(
+      'PARKED missions/pk-rejudged.mission.txt  <!-- 2026-06-25 parked. REVISIT-JUDGED 2026-07-02T23:10:00Z: STILL-BLOCKED REVISIT-JUDGED 2026-07-05T00:31:00Z: STILL-BLOCKED (unchanged) -->\n');
+    const fixesBetween = [{ class: 'mid-fix', landed_ts: '2026-07-03T00:00:00Z', requeue: [] }];
+    ck(!parkedRevivalDue(auReJudged, fixesBetween, { maxAgeDays: 7, now: nowMs }).some((d) => d.path === 'missions/pk-rejudged.mission.txt'),
+      'revival: SECOND REVISIT-JUDGED stamp is the anchor — a fix landed BEFORE it does not re-open it (the bug: only the FIRST stamp was ever read)');
+    const fixesAfter = [{ class: 'late-fix', landed_ts: '2026-07-05T12:00:00Z', requeue: [] }];
+    ck(parkedRevivalDue(auReJudged, fixesAfter, { maxAgeDays: 7, now: Date.parse('2026-07-06T00:00:00Z') }).some((d) => d.path === 'missions/pk-rejudged.mission.txt'),
+      'revival: a fix landed AFTER the SECOND stamp still correctly re-opens it');
     ck(!due.some((d) => d.path === 'missions/pk-superseded.mission.txt'), 'revival: SUPERSEDED park is judged-closed, never resurfaces');
     const due2 = parkedRevivalDue(au, [...fixes, { class: 'newer-fix', landed_ts: '2026-07-02T12:00:00Z' }], { maxAgeDays: 7, now: nowMs });
     ck(due2.some((d) => d.path === 'missions/pk-judged.mission.txt' && d.fixesSince.includes('newer-fix')), 'revival: a fix landing AFTER the judgment re-opens the judged park');

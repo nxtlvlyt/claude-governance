@@ -201,6 +201,29 @@ commit 5068d4c, but gemma still serves vision-verdict with no alternative, so it
 crash there; see QUEUE.md gap #10 status).
 **9 remain open** (4 top-level + 5 hunt items).
 
+**2026-07-05 beat — item #7 (board-truth bulk pass), false-death sub-component PROCESSED
+in full (not the whole item — see below):** false-death survey/workflow (wf_4b1c9b5d-2fa,
+41 agents, all read-only git/file verification) covered the remaining 41 candidates (the
+1st, mt-integrate-mobile-pull-refresh-2026-06-23, was stamped a prior beat) — 6
+CONFIRMED_ALREADY_RESOLVED (5 newly stamped this beat: agy-import, m28-1-ioverlander-study,
+mt-integrate-photo-cdn, mt-integrate-d1-backup-worktree-audit.S1, qc-concern-pwa-install-
+banner-pwa-install-js-2026-06-25; 1 already stamped: engine-citation-guard-preexisting-
+content), 27 ALREADY_ANNOTATED_NO_ACTION, 8 STILL_GENUINELY_FAILED (already carry real
+diagnoses — no new action owed). Every stamp gated through autorun-verdict-gate.mjs (I
+personally Read each mission's own result.json/retro before stamping — not delegated to
+the agent verdicts alone).
+Same beat: REVISIT-PARKED (13 items) re-judged against this session's 2 new class-level
+fixes (local-round-timeout-false-kill, no-cloud-structural-purge) — all 13 verdicts held
+UNCHANGED (neither fix's mechanism touches any of these 13 blockers; render-pipeline-sota-
+check flagged as a plausible-but-unproven candidate for the timeout fix, recommend a live
+re-test not a blind requeue). Re-judging surfaced a REAL ENGINE BUG (fixed, commit 54f0c98):
+parkedRevivalDue()'s regex captured only the FIRST REVISIT-JUDGED stamp in a note, so a
+re-judgment could never silence its own re-open trigger — every future beat would have
+re-flagged all 13 forever. Fixed to take the latest stamp; 2 new selftests; 30/30 pass;
+live-confirmed REVISIT-PARKED clears 13->0 post-fix.
+Item #7's OTHER two sub-components (13 parked revisits — now DONE via the above; 17-mission
+amend-on-surface pile) — the amend-on-surface pile is NOT yet touched this beat.
+
 Report against THIS block every beat ("Gap fixes: N/29 struck" — 29 stays the denominator even
 as N climbs; it only shrinks if a top-level item's whole scope closes, quoting which N are new this
 beat) — do not restate "30" from memory, and do not let this block itself go stale: update

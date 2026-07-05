@@ -1518,3 +1518,40 @@ preflight-content receipt on the VERY FIRST retry of every mission -- a real wor
 change (ceremony on every retry, not just chronic failures) that needs operator confirmation
 of intent, not a same-beat guess at what "ANY" was actually meant to mean in the mechanical
 gate versus the aspirational STATE.md prose. Flagging the gap between the two, not resolving it.
+
+## Item #7 (board-truth bulk pass) false-death sub-component PROCESSED IN FULL 2026-07-05 00:3xZ
+False-death survey (Agent, read-only) + batch-verify Workflow (wf_4b1c9b5d-2fa, 41 agents, all
+read-only git/file receipts) covered every remaining candidate from the original 44-item survey.
+Outcome: 6 CONFIRMED_ALREADY_RESOLVED (agy-import, m28-1-ioverlander-study, mt-integrate-photo-cdn,
+mt-integrate-d1-backup-worktree-audit.S1, qc-concern-pwa-install-banner-pwa-install-js-2026-06-25 --
+all 5 newly stamped RESOLVED-LANDED this beat, each gated through autorun-verdict-gate.mjs with a
+personal Read of the mission's own result.json/retro first; engine-citation-guard-preexisting-
+content was already stamped a prior beat), 27 ALREADY_ANNOTATED_NO_ACTION, 8 STILL_GENUINELY_FAILED
+(render-pipeline-sota-check, stitch-design-mastery-b, hyperframes-render-proof, stitch-design-
+mastery, mt-12-map-attribution-render, engine-hajj-template-headless-and-visual-qc, mt-integrate-
+b13-aria-live.S1, qc-concern-saved-html-saved-spots-manager-2026-06-25 -- all already carry real
+diagnoses/holds on the ledger, no new action owed), 0 UNCLEAR. The false-death sub-component of
+item #7 is DONE. Item #7's other two sub-components (13 parked revisits -- see next entry, now
+also DONE; 17-mission amend-on-surface pile -- NOT touched this beat) remain.
+
+## Item #7 (board-truth bulk pass) parked-revisit sub-component DONE 2026-07-05 00:3xZ + real engine bug found+fixed
+REVISIT-PARKED fired for 13 items (7 PARKED b13-family lines + 6 FAILED-parked: studio-tools-card,
+m01-1-layna-dossier-assembly, get-upgrade, hyperframes-render-proof-b, render-pipeline-sota-check,
+stitch-design-mastery-b), re-opened solely by 2 new class-level fixes landed 2026-07-03
+(local-round-timeout-false-kill, no-cloud-structural-purge). Read each item's own result.json,
+cross-checked both fix classes' actual content against each item's specific named blocker: NONE
+of the 13 intersect either fix (E: drive access, NAS offline, TOOL_LOOP_CAP, operator-held-word,
+and already-retired items are all untouched by a 180s->300s per-round timeout bump or a cloud-
+provider removal). All 13 re-stamped REVISIT-JUDGED 2026-07-05T00:31:00Z with the SAME verdict as
+2026-07-02, one exception flagged honestly: render-pipeline-sota-check's "truncated mid-sentence"
+signature is a PLAUSIBLE but UNPROVEN match for the timeout fix (no receipt links the two) --
+recommended a live re-test, not a blind requeue, rather than guessing either way.
+REAL BUG FOUND DOING THIS (fixed, commit 54f0c98): parkedRevivalDue()'s note.match() (no /g) only
+ever captured the FIRST REVISIT-JUDGED timestamp in a note -- once an item carries two stamps (an
+original + a re-judgment), the anchor stayed pinned to the FIRST one, so a re-judgment could NEVER
+silence its own re-open trigger. Live-caught: all 13 freshly-re-stamped items stayed "due" with an
+unchanged anchor immediately after stamping. Fixed via matchAll(), take the last capture; 2 new
+selftests (mid-fix before the 2nd stamp stays silenced, late-fix after it still re-opens); 30/30
+selftests pass; live sweep confirms REVISIT-PARKED: 13 -> 0 post-fix. This was NOT one of the 25
+hunt items or a top-level item -- logged here as additional, outside the 29-count, same pattern as
+the STUCK-TASK kill-scope bonus fix (see "#3 COMPLETED IN FULL" entry above).
