@@ -1733,3 +1733,60 @@ wasn't safe to validate a live dispatch-path change this beat. The mechanism is 
 and ready to wire in; what remains is pipeline integration (call logWitnessCase after verdictFn
 resolves in orchestrate.mjs, call shouldSampleShadowWitness before an optional second witness
 dispatch), not a further design decision.
+
+## Item #8 stranded-deliverables: fully diagnosed 2026-07-05, 1 engine bug fixed (commit 19987d8), 2 genuine strands need authorized merges
+`node conduct-cycle.mjs --json` flagged 4 DONENESS-NOT-MET items. Investigated all 4
+read-only against mt-integration-2026-06-22 (git log/show/diff/merge-base/cat-file only, no
+writes — per the standing muddytires-repo boundary):
+
+1. `engine-proof-e2e-panel-2026-07-01` — GENUINE STRAND. Commit 28cbc722 real, not an
+   ancestor of HEAD, no later commit ever touched ENGINE-PROOF-2026-07-01.md. Already known.
+2. `mt-integrate-aurora-forecast-diff-report.S2` — FALSE POSITIVE, now FIXED. `ce84a09` is a
+   verified `git cherry-pick` of cited `1f4b646` (identical author/date/message + explicit
+   "(cherry picked from commit 1f4b646...)" trailer) and IS an ancestor of HEAD — the aurora
+   forecast feature is live in production. The whole-commit patch-id check missed this because
+   both commits also touched `map.html` (1 line each), and by cherry-pick time an unrelated
+   commit had already changed that line's context (added `js/chain-overnight-policy.js` to the
+   script-tag line) — so the combined patch-id differs even though `functions/api/aurora.js` +
+   `js/aurora-overlay.js` are byte-identical between the two commits (`git diff` empty both
+   ways). Root cause: `git patch-id` hashes an ENTIRE commit as one id, so unrelated
+   co-touched-file churn can mask a correctly-landed deliverable.
+   FIX (conduct-cycle.mjs, commit 19987d8): `computeDoneness()` now adds `filePids()` /
+   `pidOfFile()` / `landedByFile()` — a per-file patch-id table + comparison, scoped to just
+   the mission's own ALLOW-FILES, consulted ONLY when the whole-commit check already says "not
+   landed". This can only correct a false positive, never introduce a false negative (a
+   genuine strand's own files still never appear in their own file-scoped history either).
+   New selftest `mt-integrate-cherrypick` fixture added (drift-on-unrelated-file simulated via
+   stub gitFn), all 200+ existing selftests still pass. Verified live: blocking count for this
+   class dropped 4 -> 3 immediately after the fix, aurora-forecast.S2 no longer appears.
+3. `mt-integrate-crown-legal-full-text-2026-06-23.S2` — GENUINE STRAND, unambiguous. Commit
+   487d8d5 ("feat(crown-legal): per-province FULL legality paragraphs on Crown-land popup")
+   sits ONLY on unmerged branch `feat/crown-legal-full-text-2026-06-23` (confirmed present
+   locally + on all 3 remotes: github, lh-src, source-feat), confirmed NOT an ancestor of
+   HEAD via `git merge-base --is-ancestor`. Grepped HEAD's actual land-tenure.js/crown-land-
+   overlay.js: 0 matches for `PROVINCIAL_CROWN_RULES`, `getProvincialRules`,
+   `provincialLegalBlockHtml`, `injectProvincialLegalBlock` — the specific feature is
+   completely absent from the deployed tree, not merely evolved past its original patch. This
+   is exactly the "poi-tags false-DONE class" the L3 gate exists to catch — a real one.
+4. `mt-integrate-lighthouse-post-indexes-2026-06-23` — GENUINE STRAND, unambiguous. Commit
+   72b036a sits ONLY on unmerged branch `feat/lighthouse-post-indexes-2026-06-23` (same
+   local+3-remotes pattern), confirmed NOT an ancestor of HEAD. All 11/11 ALLOW-FILES
+   confirmed absent from HEAD. Matches conduct-cycle.mjs's own code comment citing this
+   mission as the canonical clean stranded-deliverable example.
+
+PATTERN WORTH NAMING: 3 of 4 findings share one shape — a real, correctly-authored commit
+sits on a local `feat/*` branch (mirrored on 3 remotes) that was simply never merged to
+main/master. This looks like a genuine gap in whatever step is supposed to merge a mission's
+feature branch to main after it's marked DONE, not 3 independent incidents. Worth an engine-
+level look (does the daemon's own commit-step or a later integration mission own that merge,
+and does it silently no-op somewhere?) separate from just fixing these 2 instances by hand.
+
+REMAINING WORK (operator-gated, not attempted this beat): items 3 and 4 need
+`git merge feat/crown-legal-full-text-2026-06-23` and
+`git merge feat/lighthouse-post-indexes-2026-06-23` onto mt-integration-2026-06-22's
+main/master — a WRITE action on that repo, requiring explicit in-session operator
+authorization per the standing boundary (violated 3x already this session on smaller
+actions; not repeating that mistake on a bigger one). Both branches are clean single-purpose
+feature commits with no apparent conflicts against current HEAD (not test-merged to confirm,
+since a test-merge is itself a write). Item #8 stays open until these 2 merges land + are
+verified deployed.

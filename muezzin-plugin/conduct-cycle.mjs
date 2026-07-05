@@ -576,6 +576,26 @@ export function computeDoneness(base, autorun, {
   const tbl = gitFn(targetRepo, `log -p -${patchScan} | git patch-id`);
   const headPids = new Set((tbl.ok ? tbl.out : '').split(/\r?\n/).map((l) => l.trim().split(/\s+/)[0]).filter(Boolean));
   const pidOf = (sha) => { const r = gitFn(targetRepo, `show ${sha} | git patch-id`); return r.ok ? (r.out.trim().split(/\s+/)[0] || null) : null; };
+  // PER-FILE FALLBACK (2026-07-05, item #8 stranded-deliverables audit — aurora-forecast.S2
+  // false positive): `git patch-id` hashes the WHOLE commit as one id, so a cherry-pick that
+  // correctly lands a mission's own ALLOW-FILES byte-for-byte can still miss the whole-commit
+  // table if some OTHER file the same original commit touched (e.g. a shared map.html) had
+  // already drifted by cherry-pick time — an unrelated later edit changes that file's context
+  // lines, so the combined diff (and its patch-id) differs even though the deliverable files
+  // are identical and genuinely on HEAD. Scoping patch-id to just the mission's own file(s)
+  // sidesteps that noise. Only consulted when the whole-commit check already says "not
+  // landed" — a genuine strand's own files still never appear in their own file-scoped
+  // history either, so this cannot manufacture a false negative, only correct a false positive.
+  const filePidCache = new Map();
+  const filePids = (file) => {
+    if (filePidCache.has(file)) return filePidCache.get(file);
+    const r = gitFn(targetRepo, `log -p -${patchScan} -- "${file}" | git patch-id`);
+    const set = new Set((r.ok ? r.out : '').split(/\r?\n/).map((l) => l.trim().split(/\s+/)[0]).filter(Boolean));
+    filePidCache.set(file, set);
+    return set;
+  };
+  const pidOfFile = (sha, file) => { const r = gitFn(targetRepo, `show ${sha} -- "${file}" | git patch-id`); return r.ok ? (r.out.trim().split(/\s+/)[0] || null) : null; };
+  const landedByFile = (shas, files) => shas.some((s) => files.some((f) => { const pid = pidOfFile(s, f); return pid && filePids(f).has(pid); }));
 
   let doneChecked = 0;
   for (const d of done) {
@@ -618,6 +638,7 @@ export function computeDoneness(base, autorun, {
       if (presShas.length) {
         let anyDet = false, isLanded = false;
         for (const s of presShas) { const pid = pidOf(s); if (pid) { anyDet = true; if (headPids.has(pid)) { isLanded = true; break; } } }
+        if (anyDet && !isLanded && landedByFile(presShas, allowFiles)) isLanded = true;
         if (anyDet && !isLanded) { blocking.push({ layer: 'L3', mission: stem, reason: `DONE, ALLOW-FILES present, but deliverable patch [${presShas.map((x) => x.slice(0, 7)).join(',')}] NOT in the deployable tree — files pre-existed; the change is stranded` }); }
       }
       continue;
@@ -2088,6 +2109,23 @@ function selftest() {
     const arun3 = { done: ['missions/mt-integrate-strand.mission.txt'], failed: [], pending: [], running: [], notes: {} };
     const dn3 = computeDoneness(tmp, arun3, { gitFn: strandGit });
     ck(dn3.blocking.some((b) => b.mission === 'mt-integrate-strand' && /NOT in the deployable tree/.test(b.reason)), 'presence-AND-landed: all ALLOW-FILES present but patch not in tree -> L3 BLOCK (recall restored)');
+  }
+  // (b2) per-file patch-id fallback (2026-07-05, item #8 aurora-forecast.S2 false positive):
+  // a cherry-picked deliverable whose WHOLE-commit patch-id misses the table (because some
+  // OTHER file the same commit touched drifted before the cherry-pick landed) must NOT block
+  // when the mission's OWN ALLOW-FILES match under a file-scoped patch-id comparison.
+  {
+    writeFileSync(path.join(tmp, 'missions', 'mt-integrate-cherrypick.mission.txt'),
+      `MISSION-CLASS: code-repo\nREPO-ROOT: ${tmp.replace(/\\/g, '/')}\nALLOW-FILES:\n  - missions/AUTORUN.md\n\ncherry-pick def5678 from the feature branch.\n`);
+    const cherryGit = (repo, argstr) => {
+      const fileScoped = / -- "/.test(argstr);
+      if (/show .*def5678/.test(argstr)) return { ok: true, out: fileScoped ? 'goodpid def5678\n' : 'driftpid def5678\n' };
+      if (/log -p/.test(argstr)) return { ok: true, out: fileScoped ? 'goodpid othersha\n' : 'unrelatedpid othersha\n' };
+      return stubGit(repo, argstr);
+    };
+    const arun3b = { done: ['missions/mt-integrate-cherrypick.mission.txt'], failed: [], pending: [], running: [], notes: {} };
+    const dn3b = computeDoneness(tmp, arun3b, { gitFn: cherryGit });
+    ck(!dn3b.blocking.some((b) => b.mission === 'mt-integrate-cherrypick'), 'per-file fallback: whole-commit patch-id misses (co-touched-file drift) but file-scoped patch-id matches -> NOT flagged stranded');
   }
 
   // (c) divergence guard fails CLOSED on git error (hunt-item #19, 2026-07-04): a git error on

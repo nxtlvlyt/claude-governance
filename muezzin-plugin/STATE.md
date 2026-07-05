@@ -219,7 +219,77 @@ split, eval-v3 cells — 7/7 correct). **7 remain open** (3 top-level: #7 board-
 surface pile, #8 repo-process undeployed-stranded pieces, #10 gemma CUDA mitigation-not-full-
 close; + 4 hunt items: #7 LANE-EXCLUSION, #8 PRE-FLIGHT threshold, #11 witness_select wiring
 (partial — design done, pipeline integration remains), #22 already addressed via this
-scoreboard's own mechanism — see above). **Gap fixes: 22/29 struck.**
+scoreboard's own mechanism — see above). **Gap fixes: 22/29 struck.** Item #8 is now fully
+DIAGNOSED (not closed): of its 4 flagged stranded-deliverables, 1 was a detector false
+positive (now fixed, commit 19987d8 — see dated entry below) and 2 are genuine strands
+narrowed to an exact, ready-to-execute fix (merge 2 named `feat/*` branches to main),
+blocked only on operator authorization for a mt-integration-repo write — not on further
+investigation.
+
+**2026-07-05 — item #7's "17-mission amend-on-surface pile" (RULE 9 hand-rolled-localhost-
+preview fix) is OPERATOR-GATED, not merely untouched.** Attempted a real fix on
+qc-fix-share-spot-share-spot-js-2026-06-24.mission.txt (the clearest of the 31 sibling
+texts): RULE 9's own prescribed cure is "replace the step with the engine-native verb:
+wrangler pages deploy . --project-name=muddytires --branch=preview... render from that
+URL." Writing that step INTO a mission file arms a future autonomous real Cloudflare Pages
+deploy the next time that mission fires — the classifier correctly blocked it as muddytires-
+repo/deploy-class work, the same standing boundary as explicit deploy itself. Reverted the
+one header line already touched; file confirmed back to its exact original state (clean git
+diff). Cross-referenced all 31 sibling texts against AUTORUN.md: 10 are FAILED (re-fireable,
+at genuine risk of re-hitting this lint refusal), ~15 are SPLIT (parent dead, risk moved to
+children — not yet checked), 3 are BARE/never-queued (dormant), 1 is DONE (dead). This item
+is NOT a same-beat conductor-direct fix like the rest of #7 — it needs either an operator
+decision to authorize preview-branch deploy steps specifically (narrower than production
+deploy, but still a real live action against the muddytires Cloudflare project), or a
+different engine-level fix that doesn't require every affected mission's own text to embed a
+deploy command (e.g., a shared/reusable preview-deploy helper the conductor could authorize
+once rather than 10-17 individual mission edits each arming their own deploy).
+
+**2026-07-05 — item #8's "stranded deliverables" sub-piece: fully diagnosed (read-only,
+mt-integration-2026-06-22), 1 engine bug fixed, 2 genuine strands need operator-authorized
+merges.** `node conduct-cycle.mjs --json` flagged 4 DONENESS-NOT-MET items. Investigated all
+4 via git log/show/diff/merge-base/cat-file only (no writes to that repo, per the standing
+boundary):
+- `engine-proof-e2e-panel-2026-07-01` — GENUINE STRAND. Commit 28cbc722 real, but not an
+  ancestor of HEAD and no later commit ever touched ENGINE-PROOF-2026-07-01.md — a dead-end
+  branch, already known.
+- `mt-integrate-aurora-forecast-diff-report.S2` — FALSE POSITIVE, now FIXED. `ce84a09` is a
+  verified `git cherry-pick` of the cited `1f4b646` (identical author/date/message, explicit
+  "(cherry picked from commit 1f4b646...)" trailer) and IS an ancestor of HEAD — the feature
+  is live. The detector's whole-commit patch-id missed it because `1f4b646`/`ce84a09` also
+  both touched `map.html` (1 line), and by cherry-pick time an unrelated commit had already
+  changed that line's surrounding context (`js/chain-overnight-policy.js` added to the
+  script-tag line) — so the COMBINED patch-id differs even though `functions/api/aurora.js`
+  + `js/aurora-overlay.js` are byte-identical between the two commits. Fixed in
+  conduct-cycle.mjs commit 19987d8: `computeDoneness()` now falls back to a per-file
+  patch-id comparison (scoped to the mission's own ALLOW-FILES) when the whole-commit check
+  says "not landed" — corrects this false-positive class without weakening the true-positive
+  path (new selftest added; a genuine strand's own files still never match their own
+  file-scoped history either). Verified live post-fix: blocking count for this class dropped
+  4 -> 3, aurora-forecast.S2 no longer appears.
+- `mt-integrate-crown-legal-full-text-2026-06-23.S2` — GENUINE STRAND, unambiguous. Commit
+  487d8d5 ("feat(crown-legal): per-province FULL legality paragraphs on Crown-land popup")
+  sits ONLY on unmerged branch `feat/crown-legal-full-text-2026-06-23` (local + 3 remotes),
+  confirmed NOT an ancestor of HEAD. Grepped HEAD's actual `functions/api/land-tenure.js` +
+  `js/crown-land-overlay.js`: 0 matches for `PROVINCIAL_CROWN_RULES` / `getProvincialRules` /
+  `provincialLegalBlockHtml` / `injectProvincialLegalBlock` — the specific feature this
+  mission's own Maqsad describes is completely absent from production, not merely evolved
+  past. This is exactly the "poi-tags false-DONE class" the L3 gate was built to catch.
+- `mt-integrate-lighthouse-post-indexes-2026-06-23` — GENUINE STRAND, unambiguous. Commit
+  72b036a sits ONLY on unmerged branch `feat/lighthouse-post-indexes-2026-06-23` (local + 3
+  remotes), confirmed NOT an ancestor of HEAD. All 11/11 ALLOW-FILES confirmed absent from
+  HEAD — matches conduct-cycle.mjs's own code comment citing this mission as the canonical
+  clean example.
+
+PATTERN: 3 of 4 findings share one shape — a real, correctly-authored commit sits on a local
+`feat/*` branch (present on 3 remotes too) that was simply never merged to main. This reads
+as a genuine gap in whatever step is supposed to merge a mission's feature branch after DONE,
+not 3 unrelated incidents. The actual fix (merging `feat/crown-legal-full-text-2026-06-23`
+and `feat/lighthouse-post-indexes-2026-06-23` into main/master) is a WRITE action on the
+mt-integration-2026-06-22 repo and needs explicit in-session operator authorization before
+any attempt — not performed this beat. Item #8 stays open (2 genuine strands remain), but is
+now fully diagnosed with exact branch/commit targets ready for an authorized merge, and the
+detector itself is measurably more accurate.
 
 **2026-07-05 beat — item #7 (board-truth bulk pass), false-death sub-component PROCESSED
 in full (not the whole item — see below):** false-death survey/workflow (wf_4b1c9b5d-2fa,
