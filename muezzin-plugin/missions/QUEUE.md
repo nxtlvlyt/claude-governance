@@ -1845,3 +1845,24 @@ ALL PASS; graceful reload receipted (GRACEFUL-RELOAD 06:38:00Z, PID 36312 -> 262
 ALSO same-beat: selftest fixture noise no longer pollutes the real daemon-events.log
 (EVENTS redirected to a scratch file under --selftest, commit eb73905 — redirect not no-op,
 so the hunt-#14 visibility tests keep a real file to assert against).
+
+## Hunt-item #22 STRUCK 2026-07-05 (commit 1a069e4, live on daemon PID 51560) — both named classes now real fixes
+Item #22 named two receipted-but-unenrolled engine classes:
+(b) marker-inventory/44da372 parity — ALREADY closed via hunt-#18's commit b65c9db
+    (assertNoUndeclaredShrinkage wired into the [command]-step git-commit path, not just
+    [edit]-type steps), confirmed still on HEAD this beat.
+(a) REWRITE-WITHOUT-READING byte-guard for UNTRACKED files — CLOSED this beat, commit
+    1a069e4. The floor only ever compared against a git HEAD version; a genuinely untracked
+    file (no HEAD baseline at all — e.g. a brand-new file a mission is authoring) got NO
+    shrinkage protection whatsoever. Fix: assertNoUndeclaredShrinkage (git_steps.mjs) takes
+    an optional `baselines` map, consulted ONLY when no HEAD version exists (additive, never
+    weakens the HEAD-based path). orchestrate.mjs captures the executor's FIRST emission for
+    a step's target (before any citation/witness repair loop runs) and passes it as the
+    fallback baseline. Verified e2e (real implementStep + witness-REJECT + repair round-
+    trip): a repair pass that guts a brand-new 32-line file to 1 line is now REFUSED
+    (violation source: "baseline"); a repair that genuinely fixes/grows the file still
+    commits cleanly (negative control). 4 new unit fixtures + 2 new e2e fixtures; all 4
+    module selftest suites (git_steps, orchestrate, conduct-cycle, muezzin-daemon) ALL PASS.
+Both sub-classes now real, on HEAD, tested. Hunt-item #22 fully struck — 24/25 hunt items
+done, only #7 LANE-EXCLUSION (registration-blocked, needs the operator's settings.json
+approval) remains.

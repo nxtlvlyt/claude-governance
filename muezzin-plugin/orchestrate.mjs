@@ -1175,6 +1175,13 @@ export async function orchestrate(mission, cwd, {
     const recEmission = (outcome) => { if (emissionSeat) try { recordSeatOutcome(seatRecPath, emissionSeat, 'emission', outcome); } catch { } };
     if (impl?.escalated) emit({ phase: 'step', event: 'badal-escalation', step: step.step_index, model: emissionSeat });
     let cur = readTarget(target);   // let, NOT const: refreshed after a citation repair (const here crashed studio 15:02 + context-compression 01:12 with 'Assignment to constant variable')
+    // UNTRACKED-FILE SHRINKAGE BASELINE (hunt-item #22a, 2026-07-05): the executor's FIRST
+    // emission this step, captured before any citation/witness repair loop can touch it. When
+    // the target has no git HEAD version at all (a genuinely new/untracked file), THIS is the
+    // "PRE-EDIT worktree bytes" the shrinkage floor needs — a repair pass that silently guts
+    // most of the just-authored content (rather than fixing the flagged issue) is otherwise
+    // invisible: no HEAD baseline exists, so the floor previously had nothing to compare against.
+    const firstEmission = cur;
 
     // EMISSION-EMPTY HEAL (CLASS 2): a failed/empty executor emission (impl.ok===false —
     // no usable fenced content, SPLIT-NEEDED, EMISSION-TRUNCATED, intent-header, or a
@@ -1409,7 +1416,12 @@ export async function orchestrate(mission, cwd, {
       // 649edc7: EMAIL-REDACTION 305->179 — gutted, committed, DONE'd) must FAIL the step, not
       // become substrate. Plan-time guards can't see emission size; only the commit layer can.
       {
-        const shrink = assertNoUndeclaredShrinkage(writeRoot, gitFiles(step.target_files), step.description);
+        // UNTRACKED-FILE BASELINE (hunt-item #22a, 2026-07-05): hand the floor this step's own
+        // FIRST emission (captured before any repair loop ran) as the fallback baseline for
+        // whichever target has no git HEAD version — closing the gap where a repair pass
+        // guts a just-authored untracked file with nothing to detect it against.
+        const shrinkBaselines = { [gitFiles([target])[0]]: firstEmission };
+        const shrink = assertNoUndeclaredShrinkage(writeRoot, gitFiles(step.target_files), step.description, { baselines: shrinkBaselines });
         if (!shrink.ok) {
           recEmission('miss');
           rollbackStep(writeRoot, gitFiles(step.target_files));
@@ -2047,6 +2059,51 @@ if (process.argv[1]?.endsWith('orchestrate.mjs')) {
       const res = await orchestrate(mission, sbx, { deconstructFn: async () => ({ ok: true, queue: q }), implementFn: async () => { throw new Error('EXECUTOR DISPATCHED FOR COMMAND STEP'); }, maxRepairs: 0, verdictFn: approveVerdict, witnessFn: okWitness });
       ck(res.ok === true, 'code-repo e2e (5) NEGATIVE CONTROL: a legitimate growth-only change still commits cleanly (the floor never false-blocks a normal command-step commit)');
       ck(head(repo) !== before, 'code-repo e2e (5): HEAD advanced — the real commit landed');
+      fs.rmSync(repo, { recursive: true, force: true }); fs.rmSync(sbx, { recursive: true, force: true });
+    }
+
+    // (6) DOC-SHRINKAGE FLOOR, UNTRACKED-FILE CLASS (hunt-item #22a, 2026-07-05) — a genuinely
+    // NEW file (no git HEAD version at all) that a witness-repair pass guts instead of fixing.
+    // Before this fix, "no HEAD baseline" meant NO floor at all for this shape; now the
+    // executor's own first emission (captured pre-repair) is the fallback baseline.
+    {
+      const repo = mkRepo(); const sbx = sandboxFor(); const before = head(repo);
+      const mission = `MISSION-CLASS: code-repo\nREPO-ROOT: ${repo}\nALLOW-FILES:\n  - notes/new.mjs\nMaqsad: x. Done means: y.`;
+      const q = { mission_id: 'CR6', steps: [{ step_index: 1, description: 'author notes', action_type: 'edit', target_files: ['notes/new.mjs'], context_dependencies: [], validation_command: 'node -c notes/new.mjs' }] };
+      const bigLines = Array.from({ length: 30 }, (_, i) => `// note line ${i}`).join('\n');
+      const bigContent = '```js\n' + bigLines + '\nexport const v = 1;\nARTIFACT-COMPLETE\n```';
+      // first emission: 32 real lines. witness REJECTs once (arbitrary flag) to trigger a
+      // repair; the "repair" instead GUTS the file to 1 line — the failure class this closes.
+      const impl6 = async (step, cwd6, opts) => implementStep(step, cwd6, { ...opts, dispatch: async () => ({ content: bigContent }), model: 'test' });
+      let witnessCalls = 0;
+      const rejectOnce = async () => { witnessCalls++; return witnessCalls === 1 ? { verdict: 'REJECT', findings: [{ id: 'W1', description: 'unsupported claim' }] } : { verdict: 'APPROVE', findings: [] }; };
+      const res = await orchestrate(mission, sbx, {
+        deconstructFn: async () => ({ ok: true, queue: q }), implementFn: impl6, maxRepairs: 1, verdictFn: approveVerdict, witnessFn: rejectOnce,
+        repairFn: async (step) => { fs.writeFileSync(path.join(repo, step.target_files[0]), 'export const v = 1;\n'); },
+      });
+      ck(res.ok === false && res.steps.at(-1)?.reason === 'undeclared-shrinkage', 'code-repo e2e (6) UNTRACKED-FILE SHRINKAGE: a repair pass that guts a brand-new (no-HEAD) file is REFUSED, not silently committed');
+      ck(res.steps.at(-1)?.violations?.[0]?.source === 'baseline', 'code-repo e2e (6): the violation is attributed to the pre-edit-worktree BASELINE fallback (no HEAD version exists for this file)');
+      ck(head(repo) === before, 'code-repo e2e (6): HEAD UNCHANGED — the gutted untracked file never landed');
+      fs.rmSync(repo, { recursive: true, force: true }); fs.rmSync(sbx, { recursive: true, force: true });
+    }
+
+    // (7) UNTRACKED-FILE CLASS, NEGATIVE CONTROL — a repair that genuinely fixes (not guts)
+    // the same new file still commits (the floor never false-blocks a real fix).
+    {
+      const repo = mkRepo(); const sbx = sandboxFor(); const before = head(repo);
+      const mission = `MISSION-CLASS: code-repo\nREPO-ROOT: ${repo}\nALLOW-FILES:\n  - notes/new2.mjs\nMaqsad: x. Done means: y.`;
+      const q = { mission_id: 'CR7', steps: [{ step_index: 1, description: 'author notes', action_type: 'edit', target_files: ['notes/new2.mjs'], context_dependencies: [], validation_command: 'node -c notes/new2.mjs' }] };
+      const bigLines = Array.from({ length: 30 }, (_, i) => `// note line ${i}`).join('\n');
+      const bigContent = '```js\n' + bigLines + '\nexport const v = 1;\nARTIFACT-COMPLETE\n```';
+      const impl7 = async (step, cwd7, opts) => implementStep(step, cwd7, { ...opts, dispatch: async () => ({ content: bigContent }), model: 'test' });
+      let w7 = 0;
+      const rejectOnce7 = async () => { w7++; return w7 === 1 ? { verdict: 'REJECT', findings: [{ id: 'W1', description: 'x' }] } : { verdict: 'APPROVE', findings: [] }; };
+      const res = await orchestrate(mission, sbx, {
+        deconstructFn: async () => ({ ok: true, queue: q }), implementFn: impl7, maxRepairs: 1, verdictFn: approveVerdict, witnessFn: rejectOnce7,
+        repairFn: async (step) => { fs.writeFileSync(path.join(repo, step.target_files[0]), bigLines + '\nexport const v = 1;\n// fixed, one more line\n'); },
+      });
+      ck(res.ok === true, 'code-repo e2e (7) NEGATIVE CONTROL: a repair that genuinely FIXES the new file (grows it) still commits — the floor never false-blocks a real fix');
+      ck(head(repo) !== before, 'code-repo e2e (7): HEAD advanced — the fixed file landed');
       fs.rmSync(repo, { recursive: true, force: true }); fs.rmSync(sbx, { recursive: true, force: true });
     }
   }

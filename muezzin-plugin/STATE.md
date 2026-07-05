@@ -213,18 +213,23 @@ None of the 4 top-level items (#7-10) are
 struck — #10/gemma is a MITIGATION not a close (architect-C reseated off gemma this session,
 commit 5068d4c, but gemma still serves vision-verdict with no alternative, so it can still
 crash there; see QUEUE.md gap #10 status).
-**Struck: 23 of 25 hunt items** (hunt-#8 PRE-FLIGHT struck 2026-07-05 commit 9e3147c — the
+**Struck: 24 of 25 hunt items** (hunt-#8 PRE-FLIGHT struck 2026-07-05 commit 9e3147c — the
 rule's own text answered the threshold: "before ANY requeue", no qualifier; live via
 graceful reload. Hunt-#11 witness-divergence corpus FULLY struck 2026-07-05 commit 4eb6fb5 —
 wired into orchestrate's live pipeline, LOG-phase per UNIT D4, shadow sampling env-gated
-cost-zero by default, live on daemon PID 26232; 48h corpus review is the follow-on
-condition, not part of the item). Top-level item #9 FULLY STRUCK 2026-07-05. **5 remain
-open** (3 top-level: #7 board-truth amend-on-surface pile, #8 repo-process
-undeployed-stranded pieces, #10 gemma CUDA mitigation-not-full-close; + 2 hunt items: #7
-LANE-EXCLUSION (hook BUILT+TESTED 9/9 at ~/.claude/hooks/lane-exclusion-gate.mjs;
-registration in settings.json classifier-blocked — ONE approved edit from live), #22
-already addressed via this scoreboard's own mechanism — see above).
-**Gap fixes: 24/29 struck.** Item #8 is fully DIAGNOSED (not closed): of its 4 flagged
+cost-zero by default; 48h corpus review is the follow-on condition, not part of the item.
+Hunt-#22 FULLY STRUCK 2026-07-05 — its two named-but-unenrolled classes are both now real,
+tested fixes: (b) marker-inventory/44da372 parity was already closed via commit b65c9db
+(hunt-#18); (a) the untracked-file byte-guard closed this beat, commit 1a069e4 — a fallback
+baseline (the executor's own first emission, pre-repair) lets assertNoUndeclaredShrinkage
+catch a repair pass that guts a brand-new, never-committed file, which previously had NO
+floor at all since there was no git HEAD version to compare against). Top-level item #9
+FULLY STRUCK 2026-07-05. **4 remain open** (3 top-level: #7 board-truth amend-on-surface
+pile, #8 repo-process undeployed-stranded pieces, #10 gemma CUDA mitigation-not-full-close;
++ 1 hunt item: #7 LANE-EXCLUSION — hook BUILT+TESTED 9/9 at
+~/.claude/hooks/lane-exclusion-gate.mjs; registration in settings.json classifier-blocked —
+ONE approved edit from live, the LAST hunt item standing).
+**Gap fixes: 25/29 struck.** Item #8 is fully DIAGNOSED (not closed): of its 4 flagged
 stranded-deliverables, 1 was a detector false positive (fixed, commit 19987d8) and 2 are
 genuine strands narrowed to an exact fix (merge feat/crown-legal-full-text-2026-06-23 +
 feat/lighthouse-post-indexes-2026-06-23 to main) — the merge itself was classifier-blocked

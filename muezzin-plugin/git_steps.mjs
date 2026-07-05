@@ -490,7 +490,7 @@ export function sourceCommitAlreadyIntegrated(repoRoot, sourceSha, { scan = 80 }
  * step description declares NO deletion/condense intent. Returns { ok, violations } — the caller
  * fails the step (rollback), it never throws (a floor must not crash the engine).
  */
-export function assertNoUndeclaredShrinkage(cwd, files = [], intentText = '', { ratio = 0.5, minLines = 20 } = {}) {
+export function assertNoUndeclaredShrinkage(cwd, files = [], intentText = '', { ratio = 0.5, minLines = 20, baselines = null } = {}) {
   const intent = /\b(delet|remov|prun|truncat|condens|replac|rewrit|trim|shorten|slim|strip|gut|prune|consolidat)/i.test(String(intentText || ''));
   if (intent) return { ok: true, violations: [], declared: true };
   const violations = [];
@@ -506,13 +506,25 @@ export function assertNoUndeclaredShrinkage(cwd, files = [], intentText = '', { 
     // docs/BIG.md) this floor exists to protect. Normalize ONLY for the object-lookup; the
     // filesystem read below (path.join) is untouched and already handles either separator.
     const gitPath = String(f).replace(/\\/g, '/');
-    let oldTxt = null;
-    try { oldTxt = execSync(`git show HEAD:${quote(gitPath)}`, gitOpts(cwd)).toString(); } catch { continue; }  // untracked/new file: no baseline, no floor
-    const oldLines = oldTxt.split(/\r?\n/).length;
+    let oldTxt = null, source = 'head';
+    try { oldTxt = execSync(`git show HEAD:${quote(gitPath)}`, gitOpts(cwd)).toString(); } catch {
+      // UNTRACKED-FILE FLOOR (hunt-item #22a, GAP-HUNT-2026-07-03.json, 2026-07-05): a file
+      // with no HEAD baseline used to get NO shrinkage floor at all -- a re-emission that
+      // silently replaces most of an in-progress UNTRACKED file (a multi-step mission's own
+      // scratch/staging file, never yet committed) passed clean, because "no HEAD version"
+      // was read as "nothing to compare against" rather than "compare against the PRE-EDIT
+      // worktree bytes instead". When the caller supplies those bytes (captured by orchestrate
+      // just before the executor step ran, from writtenThisRun's own re-read), use them as the
+      // baseline. Still no floor for a file's genuinely FIRST-ever content (no baseline exists
+      // at all) -- that case remains correctly un-checkable, not silently un-checked.
+      if (baselines && Object.prototype.hasOwnProperty.call(baselines, f)) { oldTxt = baselines[f]; source = 'baseline'; }
+      else continue;
+    }
+    const oldLines = String(oldTxt).split(/\r?\n/).length;
     if (oldLines < minLines) continue;                                   // tiny files churn legitimately
     let newLines = 0;
     try { newLines = fs.readFileSync(path.join(cwd, f), 'utf8').split(/\r?\n/).length; } catch { newLines = 0; }  // deleted on disk = total shrink
-    if (newLines < oldLines * ratio) violations.push({ file: f, oldLines, newLines });
+    if (newLines < oldLines * ratio) violations.push({ file: f, oldLines, newLines, source });
   }
   return { ok: violations.length === 0, violations, declared: false };
 }
@@ -975,6 +987,20 @@ function selfTest() {
       fs.writeFileSync(path.join(tmp, "new.md"), "x\n");
       r = assertNoUndeclaredShrinkage(tmp, ["new.md"], "create the file");
       assert(r.ok, "shrinkage: untracked/new file => exempt (no HEAD baseline)");
+      // (g) UNTRACKED-FILE BASELINE (hunt-item #22a, 2026-07-05): an in-progress untracked
+      // scratch file (never committed) gets a floor when the caller supplies its PRE-EDIT
+      // worktree bytes as a baseline -- the class the hunt named ("no guard compares the
+      // emission against the PRE-EDIT worktree bytes when the file is untracked").
+      const scratch = "scratch.md";
+      const scratchBefore = Array.from({ length: 40 }, (_, i) => `line ${i + 1}`).join("\n") + "\n";
+      fs.writeFileSync(path.join(tmp, scratch), "line 1\nline 2\n");   // gutted to 2 lines, never committed
+      r = assertNoUndeclaredShrinkage(tmp, [scratch], "update the scratch file", { baselines: { [scratch]: scratchBefore } });
+      assert(!r.ok && r.violations[0]?.source === 'baseline', `shrinkage: untracked file WITH a supplied pre-edit baseline still catches the gut (${JSON.stringify(r)})`);
+      // (h) same untracked file, no baseline supplied => still exempt (no regression on the
+      // genuinely-first-content case -- this is an ADDITIVE check, not a replacement)
+      r = assertNoUndeclaredShrinkage(tmp, [scratch], "update the scratch file");
+      assert(r.ok, "shrinkage: untracked file with NO baseline supplied => still exempt (byte-unchanged default behavior)");
+      fs.rmSync(path.join(tmp, scratch), { force: true });
       // (f) WINDOWS PATH-SEPARATOR REGRESSION (2026-07-05 live catch): a caller that builds
       // its file list via path.relative() (orchestrate.mjs's gitFiles()) yields an OS-NATIVE
       // separator on Windows for any nested path — `path.join("docs", "nested.md")` on
