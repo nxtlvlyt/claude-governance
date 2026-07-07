@@ -1,16 +1,16 @@
 {
   "state": "working",
-  "detail": "4 items queued (m1-1 v6 byte-copy, scenic-osm requeue, 6 false-death checks, 1 park revisit); share-spot catalog gate just resolved; push fires today on clean board",
+  "detail": "27/29 gaps struck; found hold-prefix bypass (qc-concern-*) mid-sweep, fixed + re-enrolled; daemon reloading at lane boundary; continuing drain on #7 tail + engine-proof strand",
   "tempo": "idle",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 594221,
+  "tokens": 607344,
   "output": null,
   "children": null,
-  "linkScanOffset": 3140775,
+  "linkScanOffset": 3312664,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -37,6 +37,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-07T16:41:40.761Z",
+  "updatedAt": "2026-07-07T16:57:35.205Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }

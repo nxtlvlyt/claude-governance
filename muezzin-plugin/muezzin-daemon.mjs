@@ -665,7 +665,10 @@ function shouldHaltMission(n, maxAttempts, failedStep) {
 // hyperframes-*, laptop-*) are deliberately NOT included here; misclassifying one of those
 // as product would wrongly hold real engine/tooling work, which defeats the ruling's purpose
 // just as badly as under-holding does. Left for a future pass with more evidence, not guessed.
-const GAP_HOLD_PRODUCT_PREFIXES = ['mt-', 'muddytires-', 'b13-', 'card-', 'cgsports-', 'quirky-'];
+// qc-concern-/qc-fix-/m1- added 2026-07-07: live receipt — qc-concern-poi-affiliate-cards
+// (muddytires product QC) fired at 16:44Z with GAP-PRIORITY-HOLD set; hunt-#17's widening
+// (72a17f6) enrolled the historical namespaces but missed the qc-* product-QC family.
+const GAP_HOLD_PRODUCT_PREFIXES = ['mt-', 'muddytires-', 'b13-', 'card-', 'cgsports-', 'quirky-', 'qc-concern-', 'qc-fix-', 'm1-'];
 const gapHoldLogged = new Set();
 export function gapHoldSkips(raw) {
   const stem = path.basename(String(raw)).replace(/\.mission\.txt$/i, '');
@@ -1643,6 +1646,12 @@ if (process.argv.includes('--selftest')) {
   ck(gapHoldSkips('missions/cgsports-resume-dossier.mission.txt') === true, 'gap-hold: cgsports-* held (hunt-item #17 named example)');
   ck(gapHoldSkips('missions/quirky-poi-curation.mission.txt') === true, 'gap-hold: quirky-* held (hunt-item #17 named example)');
   ck(gapHoldSkips('missions/get-upgrade.mission.txt') === false, 'gap-hold: get-* (installer tooling, not muddytires product) deliberately NOT held -- ambiguous prefixes stay live rather than risk blocking real engine/tooling work');
+  // WIDENED AGAIN 2026-07-07: live receipt — qc-concern-poi-affiliate-cards (muddytires
+  // product QC) fired at 16:44Z WITH the hold set; the qc-* product-QC family was never
+  // enrolled by hunt-#17's fix. m1- (oracle-ingest product missions) enrolled same pass.
+  ck(gapHoldSkips('missions/qc-concern-poi-affiliate-cards-poi-affiliate-cards-js-2026-06-25.mission.txt') === true, 'gap-hold: qc-concern-* held (2026-07-07 live bypass receipt)');
+  ck(gapHoldSkips('missions/qc-fix-share-spot-share-spot-js-2026-06-24.mission.txt') === true, 'gap-hold: qc-fix-* held (same family)');
+  ck(gapHoldSkips('missions/m1-1-oracle-ingest-ontario-crownland-v6.mission.txt') === true, 'gap-hold: m1-* held (oracle-ingest is muddytires product)');
   // ──────────────────────────────────────────────────────────────────────────
   // STORM-ALERT (self-healing audit 2026-07-02): repeating failure signatures push once at
   // 3 hits + once at 50, normalized over numbers/hashes, capped at 5 pushes/hour, and benign
