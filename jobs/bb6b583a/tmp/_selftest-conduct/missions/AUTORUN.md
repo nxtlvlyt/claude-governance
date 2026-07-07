@@ -1,2 +1,2 @@
 # q
-RUNNING missions/stuck.mission.txt  <!-- t -->
+RUNNING missions/live.mission.txt  <!-- t -->

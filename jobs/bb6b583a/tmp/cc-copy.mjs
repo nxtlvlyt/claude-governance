@@ -160,7 +160,16 @@ export function missionLandedState(mtext, gitFn) {
   if (!mtext || !/MISSION-CLASS:\s*code-repo/i.test(mtext)) return null;
   const repo = (mtext.match(/REPO-ROOT:\s*(.+)/) || [])[1]?.trim();
   if (!repo) return null;
-  const allow = [...mtext.matchAll(/^\s{2}-\s+(\S+)/gm)].map((m) => m[1]).filter((p2) => p2 !== '.');
+  // BOUNDED-BLOCK FIX (2026-07-05, live catch): the old regex matched ANY "  - token" line
+  // ANYWHERE in the mission text, so a "Done means:" or "Context:" section's own prose
+  // bullets ("  - The 'Signed' section's...", "  - `git status --short`...") got read as
+  // ALLOW-FILES entries — polluting every downstream verdict with garbage "absent" pseudo-
+  // files (live receipt: qc-concern-pledge-html... reported "The=absent `git=absent" as if
+  // they were real paths). Anchor to the contiguous bullet run immediately after the literal
+  // ALLOW-FILES: header; anything past the first non-bullet line (blank or prose) is out of
+  // scope, exactly like a real YAML/markdown list.
+  const allowBlock = (mtext.match(/^ALLOW-FILES:[ \t]*\r?\n((?:[ \t]{2}-[ \t]+\S+.*\r?\n?)*)/mi) || [])[1] || '';
+  const allow = [...allowBlock.matchAll(/^\s{2}-\s+(\S+)/gm)].map((m) => m[1]).filter((p2) => p2 !== '.');
   if (!allow.length) return null;
   const srcSha = (mtext.match(/\b([a-f0-9]{7,40})\b/) || [])[1];
   const files = {};
@@ -260,7 +269,13 @@ export function parkedRevivalDue(autorun, fixEntries = [], { maxAgeDays = 7, now
     // structured timestamp capture — the loose class [T\d:.Z]* greedily ate the delimiter
     // colon after "…Z:" making Date.parse NaN and silently voiding every judgment stamp
     // (caught live 2026-07-02, first stamping pass)
-    const judged = Date.parse((it.note.match(/REVISIT-JUDGED[: ]+(\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2}(?::\d{2})?(?:\.\d+)?Z?)?)/i) || [])[1] || '');
+    // LATEST-MATCH FIX (2026-07-05): a re-judged item appends a SECOND REVISIT-JUDGED
+    // stamp after the first; .match() without /g returns only the first hit, so the
+    // anchor never advanced past the original judgment date and every re-stamp was
+    // invisible to isDue — the mechanism could never be silenced by re-judging (found
+    // live: 13/13 re-stamped items stayed "due" with an unchanged anchor). Take the last.
+    const revisitStamps = [...it.note.matchAll(/REVISIT-JUDGED[: ]+(\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2}(?::\d{2})?(?:\.\d+)?Z?)?)/gi)];
+    const judged = revisitStamps.length ? Date.parse(revisitStamps[revisitStamps.length - 1][1]) : NaN;
     const parked = Date.parse((it.note.match(/\d{4}-\d{2}-\d{2}(?:T[\d:.]+Z?)?/) || [])[0] || '');
     const anchor = Number.isFinite(judged) ? judged : (Number.isFinite(parked) ? parked : null);
     const stem = path.basename(it.path).replace(/\.mission\.txt$/i, '');
@@ -278,6 +293,30 @@ export function parkedRevivalDue(autorun, fixEntries = [], { maxAgeDays = 7, now
     if (isDue) due.push({ path: it.path, kind: it.kind, ageDays, fixesSince: [...new Set(fixesSince)] });
   }
   return due;
+}
+
+// mt-model-audit-fn: groups a set of Ollama tag entries ({name, digest}) by digest; a
+// shared-digest group is BENIGN only if every name shares the same substring before its
+// first colon (the ordinary :latest-alias shape) — any other multi-name group is a FRAUD
+// CANDIDATE: distinct-looking names secretly serving the same weights, the exact class
+// that misattributed a model's lab/size/history four times in one operator-caught night
+// before this detector existed. Pure — no network, no fs; the sweep supplies live data.
+export function auditModelIdentities(models) {
+  const byDigest = {};
+  for (const m of models || []) {
+    if (!m || !m.digest || !m.name) continue;
+    (byDigest[m.digest] ||= []).push(m.name);
+  }
+  const fraudGroups = [];
+  const benignGroups = [];
+  for (const [digest, names] of Object.entries(byDigest)) {
+    if (names.length < 2) continue;
+    const prefixes = new Set(names.map((n) => n.split(':')[0]));
+    const group = { digest, names };
+    if (prefixes.size === 1) benignGroups.push(group);
+    else fraudGroups.push(group);
+  }
+  return { fraudGroups, benignGroups };
 }
 
 // SearXNG sight-check: a control query that cannot honestly return zero results.
@@ -308,6 +347,38 @@ export function checkSearxngSight({ probe } = {}) {
       }
     }
     return { ok: false, reason: lastError ? `probe failed: ${String(lastError?.message || lastError).slice(0, 80)}` : 'zero results' };
+  } catch (e) {
+    return { ok: false, reason: `probe failed: ${String(e?.message || e).slice(0, 80)}` };
+  }
+}
+
+// mt-model-audit-fn reachability: fetch the live Ollama tag list from nxtbeast, same
+// sync-curl/host-fallback/bounded-timeout shape as checkSearxngSight above (reused, not
+// reinvented). On any fetch failure, callers skip the audit silently — never crash the sweep.
+export function fetchOllamaTags({ probe } = {}) {
+  try {
+    const urls = [];
+    if (process.env.OLLAMA_HOST) urls.push(process.env.OLLAMA_HOST.replace(/\/+$/, ''));
+    urls.push('http://nxtbeast:11434');
+    urls.push('http://100.103.44.13:11434');
+    urls.push('http://localhost:11434');
+
+    let lastError = null;
+    for (const base of urls) {
+      try {
+        const body = probe ? probe() : _execSyncSight(
+          `curl -s -m 8 "${base}/api/tags"`,
+          { timeout: 10000, stdio: ['ignore', 'pipe', 'pipe'] }).toString();
+        if (body && body.trim()) {
+          const j = JSON.parse(body);
+          const models = Array.isArray(j?.models) ? j.models.map((m) => ({ name: m.name, digest: m.digest })) : null;
+          if (models) return { ok: true, models };
+        }
+      } catch (e) {
+        lastError = e;
+      }
+    }
+    return { ok: false, reason: lastError ? `probe failed: ${String(lastError?.message || lastError).slice(0, 80)}` : 'empty/unparseable response' };
   } catch (e) {
     return { ok: false, reason: `probe failed: ${String(e?.message || e).slice(0, 80)}` };
   }
@@ -472,8 +543,15 @@ export function computeDoneness(base, autorun, {
   if (pushedGap === null) blocking.push({ layer: 'L3', mission: '(repo)', reason: `cannot determine pushed-gap vs ${mainlineRef} — fail-closed` });
   else if (pushedGap > 0) blocking.push({ layer: 'L3', mission: '(repo)', reason: `${pushedGap} commit(s) on HEAD are NOT pushed to ${mainlineRef}` });
   // DIVERGENCE GUARD: two mainline branches out of sync is the exact bug that stranded the 27 commits.
+  // FAIL-CLOSED on git error (hunt-item #19, 2026-07-04): this guard used to fail OPEN -- a git
+  // error left div.ok:false and the `if` simply never fired, so a broken/absent divergence check
+  // silently reported nothing, unlike the pushedGap check 3 lines above which already fails closed
+  // on the same class of error. Mirrors that exact pattern.
   const div = gitFn(targetRepo, 'rev-list --count github/main...github/master');
-  if (div.ok && /^\d+$/.test(div.out.trim()) && parseInt(div.out.trim(), 10) > 0) blocking.push({ layer: 'L3', mission: '(repo)', reason: `github/main and github/master DIVERGED by ${div.out.trim()} commit(s) — reconcile to one canonical mainline` });
+  let divergenceCount = null;
+  if (div.ok && /^\d+$/.test(div.out.trim())) divergenceCount = parseInt(div.out.trim(), 10);
+  if (divergenceCount === null) blocking.push({ layer: 'L3', mission: '(repo)', reason: 'cannot determine github/main vs github/master divergence — fail-closed' });
+  else if (divergenceCount > 0) blocking.push({ layer: 'L3', mission: '(repo)', reason: `github/main and github/master DIVERGED by ${divergenceCount} commit(s) — reconcile to one canonical mainline` });
 
   // ---- L4 DEPLOY-FRESHNESS: landed+pushed is NOT live until deployed (muddytires ships via manual
   // `wrangler pages deploy`, not git auto-deploy). ROOT FIX 2026-07-02: the roadside_oddity popup fix
@@ -498,6 +576,26 @@ export function computeDoneness(base, autorun, {
   const tbl = gitFn(targetRepo, `log -p -${patchScan} | git patch-id`);
   const headPids = new Set((tbl.ok ? tbl.out : '').split(/\r?\n/).map((l) => l.trim().split(/\s+/)[0]).filter(Boolean));
   const pidOf = (sha) => { const r = gitFn(targetRepo, `show ${sha} | git patch-id`); return r.ok ? (r.out.trim().split(/\s+/)[0] || null) : null; };
+  // PER-FILE FALLBACK (2026-07-05, item #8 stranded-deliverables audit — aurora-forecast.S2
+  // false positive): `git patch-id` hashes the WHOLE commit as one id, so a cherry-pick that
+  // correctly lands a mission's own ALLOW-FILES byte-for-byte can still miss the whole-commit
+  // table if some OTHER file the same original commit touched (e.g. a shared map.html) had
+  // already drifted by cherry-pick time — an unrelated later edit changes that file's context
+  // lines, so the combined diff (and its patch-id) differs even though the deliverable files
+  // are identical and genuinely on HEAD. Scoping patch-id to just the mission's own file(s)
+  // sidesteps that noise. Only consulted when the whole-commit check already says "not
+  // landed" — a genuine strand's own files still never appear in their own file-scoped
+  // history either, so this cannot manufacture a false negative, only correct a false positive.
+  const filePidCache = new Map();
+  const filePids = (file) => {
+    if (filePidCache.has(file)) return filePidCache.get(file);
+    const r = gitFn(targetRepo, `log -p -${patchScan} -- "${file}" | git patch-id`);
+    const set = new Set((r.ok ? r.out : '').split(/\r?\n/).map((l) => l.trim().split(/\s+/)[0]).filter(Boolean));
+    filePidCache.set(file, set);
+    return set;
+  };
+  const pidOfFile = (sha, file) => { const r = gitFn(targetRepo, `show ${sha} -- "${file}" | git patch-id`); return r.ok ? (r.out.trim().split(/\s+/)[0] || null) : null; };
+  const landedByFile = (shas, files) => shas.some((s) => files.some((f) => { const pid = pidOfFile(s, f); return pid && filePids(f).has(pid); }));
 
   let doneChecked = 0;
   for (const d of done) {
@@ -540,6 +638,7 @@ export function computeDoneness(base, autorun, {
       if (presShas.length) {
         let anyDet = false, isLanded = false;
         for (const s of presShas) { const pid = pidOf(s); if (pid) { anyDet = true; if (headPids.has(pid)) { isLanded = true; break; } } }
+        if (anyDet && !isLanded && landedByFile(presShas, allowFiles)) isLanded = true;
         if (anyDet && !isLanded) { blocking.push({ layer: 'L3', mission: stem, reason: `DONE, ALLOW-FILES present, but deliverable patch [${presShas.map((x) => x.slice(0, 7)).join(',')}] NOT in the deployable tree — files pre-existed; the change is stranded` }); }
       }
       continue;
@@ -554,13 +653,13 @@ export function computeDoneness(base, autorun, {
     if (anyDeterminable && !landed) blocking.push({ layer: 'L3', mission: stem, reason: `DONE but deliverable patch [${shas.map((x) => x.slice(0, 7)).join(',')}] not in the deployable tree` });
   }
 
-  const counts = { pending: pending.length, running: running.length, unresolvedFailed: unresolvedFailed.length, dammOwed: owed.length, openIntegration, pushedGap, deployGap, doneDeliverablesChecked: doneChecked, blocking: blocking.length };
+  const counts = { pending: pending.length, running: running.length, unresolvedFailed: unresolvedFailed.length, dammOwed: owed.length, openIntegration, pushedGap, divergenceCount, deployGap, doneDeliverablesChecked: doneChecked, blocking: blocking.length };
   const frontierClean = pending.length === 0 && running.length === 0 && unresolvedFailed.length === 0 && owed.length === 0 && openIntegration === 0;
   const barMet = frontierClean && blocking.length === 0;
   return { ts: new Date(now).toISOString(), barMet, counts, blocking: blocking.slice(0, 60), frontierClean };
 }
 
-export function sweep(base = HERE, now = Date.now(), routeFile = path.join(process.env.USERPROFILE || 'C:/Users/marka', '.claude', 'state', 'muezzin-route.json'), { sightFn = checkSearxngSight, cgAgeFn = () => checkCgFreshness(now), worktreeReposFn = () => WORKTREE_REPOS, gitFn = null } = {}) {
+export function sweep(base = HERE, now = Date.now(), routeFile = path.join(process.env.USERPROFILE || 'C:/Users/marka', '.claude', 'state', 'muezzin-route.json'), { sightFn = checkSearxngSight, cgAgeFn = () => checkCgFreshness(now), worktreeReposFn = () => WORKTREE_REPOS, gitFn = null, modelTagsFn = fetchOllamaTags } = {}) {
   const logs = path.join(base, 'missions', '_logs');
   const status = readJson(path.join(logs, 'daemon-status.json'));
   const pidfile = parseInt(readText(path.join(logs, 'daemon.pid')).trim(), 10);
@@ -573,16 +672,50 @@ export function sweep(base = HERE, now = Date.now(), routeFile = path.join(proce
   const actions = [];
 
   report.push(`CONDUCT-CYCLE ${new Date(now).toISOString()}`);
+  // QUEUE.md VISIBILITY (hunt-item #21, 2026-07-04): the sweep literally never read QUEUE.md
+  // at all (grep confirmed zero references) despite STATE.md telling every conductor "the
+  // script reads everything you need" -- deferred prose conditions written there (UNPARKS
+  // triggers the operator and past conductors wrote down) were invisible to any conductor who
+  // trusted the sweep over reading QUEUE.md by hand. Report-only, NOT a required action: an
+  // UNPARKS condition being present does not mean it's currently MET (that needs the actual
+  // check named in its own text, e.g. a real Test-Path on a drive letter) -- making every one
+  // of these a blocking action regardless of whether its trigger fired would manufacture noise
+  // every beat, the opposite of this session's own discipline. This closes the literal
+  // complaint (the sweep is no longer BLIND to their existence) without overclaiming judgment
+  // it cannot perform.
+  try {
+    const queueText = readText(path.join(base, 'missions', 'QUEUE.md'));
+    const unparksCount = (queueText.match(/\bUNPARKS\b/g) || []).length;
+    if (unparksCount > 0) report.push(`QUEUE.md: ${unparksCount} UNPARKS condition(s) on record — review missions/QUEUE.md for whether any have actually fired (not auto-checked here; conductor judgment)`);
+  } catch { /* QUEUE.md read is best-effort visibility, never breaks the sweep */ }
   report.push(daemonAlive
     ? `daemon: UP (PID ${pidfile}, status ${mins(statusAge)}m fresh) — lanes ${status.lanes.length}, queued ${status.queued}`
     : `daemon: DEAD or HUNG (pidfile=${pidfile || 'none'}, pid-alive=${Number.isInteger(pidfile) ? pidAlive(pidfile) : false}, status age ${mins(statusAge)}m)`);
   if (!daemonAlive) {
-    actions.push({
-      id: 'RESTART-DAEMON', class: 'mechanical', approved_by_faith: true,
-      why: `status heartbeat ${mins(statusAge)}m old (limit 5m) or PID dead — singleton makes restart safe; RUNNING lanes revert and refire`,
-      command: RESTART_CMD,
-      verify: `daemon-status.json ts becomes fresh + 'daemon UP' line in ${path.join(logs, 'daemon-events.log')}`,
-    });
+    // SUPERVISOR-HALTED (hunt-item #3, 2026-07-04): daemon-supervisor.ps1 writes
+    // supervisor-halted.txt and stops restarting after 5+ deaths in 10 minutes -- a silent
+    // terminal state until now: no push, and this sweep never checked for it, so a dead
+    // daemon from a halted supervisor looked identical to an ordinary single stale-heartbeat
+    // death. Blindly restarting after a halt repeats whatever crash-looped it in the first
+    // place; the right first move is diagnosing daemon-stderr.log, not restarting again.
+    const haltMarker = path.join(logs, 'supervisor-halted.txt');
+    const haltText = existsSync(haltMarker) ? readText(haltMarker).trim() : '';
+    if (haltText) {
+      report.push(`SUPERVISOR-HALTED: ${haltText}`);
+      actions.push({
+        id: 'SUPERVISOR-HALTED', class: 'judgment', approved_by_faith: true,
+        why: `daemon-supervisor.ps1 gave up after repeated crash-looping and wrote ${haltMarker} -- read_first: missions/_logs/daemon-stderr.log (the death evidence, appended not truncated) before restarting; a blind restart repeats the same crash-loop the supervisor already tried 5+ times`,
+        command: RESTART_CMD,
+        verify: `daemon-status.json ts becomes fresh + 'daemon UP' line in ${path.join(logs, 'daemon-events.log')} + supervisor-halted.txt removed (the supervisor script clears it on next start)`,
+      });
+    } else {
+      actions.push({
+        id: 'RESTART-DAEMON', class: 'mechanical', approved_by_faith: true,
+        why: `status heartbeat ${mins(statusAge)}m old (limit 5m) or PID dead — singleton makes restart safe; RUNNING lanes revert and refire`,
+        command: RESTART_CMD,
+        verify: `daemon-status.json ts becomes fresh + 'daemon UP' line in ${path.join(logs, 'daemon-events.log')}`,
+      });
+    }
   }
 
   // lanes + stall detection: a lane is stalled when the GLOBAL dispatch heartbeat has
@@ -619,11 +752,23 @@ export function sweep(base = HERE, now = Date.now(), routeFile = path.join(proce
     report.push(`STUCK-CANDIDATE suppressed: ${stuckLanes.length} lane(s) past ${mins(T.TASK_STUCK_MS)}m but heartbeat is ${hbInFlight ? 'IN-FLIGHT' : `${mins(hb.lastAgeMs)}m fresh`} — a long seat call/exec is work, not a hang (no kill)`);
   } else if (stuckLanes.length) {
     for (const sl of stuckLanes) report.push(`STUCK-TASK: ${sl.path} stuck for ${mins(sl.ageMs)}m (limit ${mins(T.TASK_STUCK_MS)}m)`);
+    // KILL-SCOPE HONESTY (hunt-item #3's second half, GAP-CLOSURE-PLAYBOOK UNIT E4, 2026-07-04):
+    // missions run IN-PROCESS (no per-mission subprocess to target), so this taskkill ALWAYS
+    // hits the daemon's own whole PID -- with MAX_LANES=2 (the default), a stuck lane's kill
+    // collaterally destroys any OTHER lane's genuinely healthy in-flight work too, silently,
+    // with no warning that this is happening. Name the collateral lanes explicitly so a
+    // conductor reading the action knows the real blast radius before approving it, rather
+    // than assuming "STUCK-TASK" only touches the one stuck lane it names.
+    const stuckPaths = new Set(stuckLanes.map((x) => x.path));
+    const collateralLanes = (Array.isArray(status?.lanes) ? status.lanes : [])
+      .map((l) => (typeof l === 'string' ? l : l?.path)).filter(Boolean)
+      .filter((p) => !stuckPaths.has(p));
     actions.push({
       id: 'STUCK-TASK', class: 'mechanical', approved_by_faith: true,
-      why: `${stuckLanes.length} lane(s) RUNNING over ${mins(T.TASK_STUCK_MS)}m with a dead-quiet heartbeat (${mins(hb.lastAgeMs)}m, no in-flight attempt) — hung, not working; kill and requeue`,
+      why: `${stuckLanes.length} lane(s) RUNNING over ${mins(T.TASK_STUCK_MS)}m with a dead-quiet heartbeat (${mins(hb.lastAgeMs)}m, no in-flight attempt) — hung, not working; kill and requeue. KILL SCOPE: missions run in-process, so this taskkill hits the WHOLE daemon PID${collateralLanes.length ? ` — ${collateralLanes.length} OTHER lane(s) currently running (${collateralLanes.join(', ')}) will ALSO be killed and requeued, even though they are not stuck` : ' — no other lanes are currently running, so this kill is scoped to just the stuck lane in practice'}`,
       command: `taskkill /PID ${status?.pid ?? pidfile} /F /T`,
       stuck_paths: stuckLanes.map((x) => x.path),
+      collateral_paths: collateralLanes,
       rule: 'heal() will kill the process tree and bare the RUNNING lines so the daemon re-fires them; logged to daemon-events.log',
     });
   }
@@ -881,6 +1026,20 @@ export function sweep(base = HERE, now = Date.now(), routeFile = path.join(proce
     });
   }
 
+  // mt-model-audit-fn wiring: a shared-digest, textually-unrelated model group is an
+  // identity-fraud candidate — verify against model_rijal.mjs before trusting any name in
+  // it; per STATE.md's promoted rule, do not assert a model's lab, size, or history from a
+  // tag name without this receipt. Skip silently on fetch failure — never crash the sweep.
+  const modelTags = modelTagsFn();
+  if (modelTags.ok) {
+    const { fraudGroups } = auditModelIdentities(modelTags.models);
+    for (const g of fraudGroups) {
+      report.push(`MODEL-IDENTITY FLAG: digest ${g.digest.slice(0, 12)} is served under ${g.names.length} textually-unrelated names (${g.names.join(', ')}) — verify against model_rijal.mjs before trusting any name in this group; do not assert lab/size/history from a tag name without this receipt.`);
+    }
+  } else {
+    report.push(`model-identity audit SKIP: nxtbeast unreachable (${modelTags.reason})`);
+  }
+
   // WAIVER HARDENING (reviewer 2026-06-11: "waivers are where graveyards go to
   // reincarnate — if waiving is cheaper than repaying, the queue drains through the
   // side door"). A waiver counts ONLY when witnessed like the downgrade rule: it must
@@ -1088,6 +1247,7 @@ export function heal(base = HERE, now = Date.now(), { exec = (cmd) => execSync(c
     // dead-looking pid with a claimed lane is exactly the ambiguous case (zombie vs.
     // genuinely stuck) where killing blind risks a live mission.
     const lanesRunning = status && Array.isArray(status.lanes) && status.lanes.length > 0;
+    console.error(`[DIAG restart-guard] logs=${logs} statusRaw=${JSON.stringify(readText(path.join(logs, "daemon-status.json")))} lanesRunning=${lanesRunning}`);
     if (lanesRunning) performed.push({ action: 'restart-skipped', why: 'lanes running — refusing to kill a live mission' });
     else { exec(restart.command); performed.push({ action: 'restart-daemon' }); }
   }
@@ -1143,7 +1303,80 @@ export function heal(base = HERE, now = Date.now(), { exec = (cmd) => execSync(c
     }
   }
 
+  // STRANDED-SPLIT-CHILD RECOVERY (hunt-item #16, 2026-07-04): mission_split.mjs's appendQueue
+  // call is best-effort ("try { appendQueue(rel) } catch { /* best-effort */ }") -- a transient
+  // failure silently drops a child from AUTORUN.md forever while its mission.txt file sits on
+  // disk, real and fireable, just never queued. The _split-manifest.json handoff record ALWAYS
+  // lists every child mission_split.mjs INTENDED to queue (manifest.children, built from
+  // `files`, independent of whether that child's own appendQueue succeeded) -- but until now
+  // nothing ever read it back to compare "intended" against "actually queued." Cross-referencing
+  // the manifest against the live AUTORUN.md turns "write-only" into a real recovery mechanism:
+  // a child present in the manifest, with its mission.txt file genuinely on disk, but absent
+  // from EVERY AUTORUN.md line (bare/DONE/FAILED/RUNNING/SPLIT/PARKED) is stranded -- re-queue
+  // it as a bare SPLIT-CHILD-tagged line (same marker orchestrate.mjs's insertQueueLineAfter
+  // uses, so the QUEUE-DUP guard's hunt-item #13 exemption applies here too).
+  {
+    const missionsDir = path.join(base, 'missions');
+    let manifestFiles = [];
+    try { manifestFiles = readdirSync(missionsDir).filter((f) => f.endsWith('._split-manifest.json')); } catch { manifestFiles = []; }
+    if (manifestFiles.length) {
+      const apath = path.join(base, 'missions', 'AUTORUN.md');
+      let autorunText = readText(apath);
+      let changed = false;
+      for (const mf of manifestFiles) {
+        let manifest;
+        try { manifest = JSON.parse(readFileSync(path.join(missionsDir, mf), 'utf8')); } catch { continue; }
+        for (const child of (manifest.children || [])) {
+          const rel = child.file;
+          if (!rel || autorunText.includes(rel)) continue;                       // already queued in SOME form -- not stranded
+          if (!existsSync(path.join(base, rel))) continue;                        // no mission.txt on disk either -- nothing to recover
+          autorunText = `${autorunText.replace(/\n?$/, '\n')}${rel}  <!-- SPLIT-CHILD -->\n`;
+          changed = true;
+          performed.push({ action: 'stranded-split-recovery', stem: stemOf(rel), manifest: mf });
+        }
+      }
+      if (changed) {
+        writeFileSync(apath, autorunText);
+        appendFileSync(path.join(logs, 'daemon-events.log'), `SWEEP-HEAL ${new Date(now).toISOString()} STRANDED-SPLIT-RECOVERY stems=${performed.filter((p) => p.action === 'stranded-split-recovery').map((p) => p.stem).join(',')}\n`);
+      }
+    }
+  }
+
   return { performed, report: r.report, actions: r.actions };
+}
+
+// FIFTH-LAW REPORT-LINTER (hunt-item #23, 2026-07-04). conductor-core.md's fifth law (paid
+// 2026-07-02, two wrong causal narratives caught the same day) says: a conductor causal claim
+// ("X is why Y fails", "Z is gone/dead", "the root cause is...") ships only behind temporal
+// coverage + exhaustive-probe evidence + a receipt or an explicit HYPOTHESIS tag -- and its own
+// escalation clause says plainly: "if a future instance still ships an ungated causal claim,
+// the escalation is a report-linter that blocks 'root cause' sentences lacking a receipt or
+// HYPOTHESIS tag." That escalation fired (an ungated claim was made and operator-caught) and
+// the linter was never built -- until now. PURE, standalone: flags causal-claim language with
+// no receipt-like token (a commit sha, a file/path reference, or the literal word HYPOTHESIS)
+// within a nearby window -- a heuristic, not full natural-language understanding (the same
+// discipline as this session's other pattern-based checks: LARGE-DELETION's ratio, the
+// UNPARKS counter). NOT wired into any automatic blocking gate yet -- deciding WHERE to hook
+// it (every QUEUE.md write? every push?) and whether advisory-vs-blocking is right is a
+// separate call; this beat builds the linter itself, which is what the law's escalation
+// clause literally demanded and what was missing.
+export function findUngatedCausalClaims(text, { windowChars = 400 } = {}) {
+  const s = String(text || '');
+  const claimRe = /\b(?:the )?root cause (?:is|was)\b|\bis why\b|\bis (?:dead|gone)\b|\bno longer exists?\b|\bthe reason (?:is|why|for)\b/gi;
+  const receiptRe = /\b[0-9a-f]{7,40}\b|\bHYPOTHESIS\b|\b[\w-]+\.(?:mjs|md|json|ps1|html|js)\b|missions\/\S+/i;
+  const flagged = [];
+  let m;
+  while ((m = claimRe.exec(s))) {
+    const start = Math.max(0, m.index - windowChars);
+    const end = Math.min(s.length, m.index + m[0].length + windowChars);
+    const window = s.slice(start, end);
+    if (!receiptRe.test(window)) {
+      const lineStart = s.lastIndexOf('\n', m.index) + 1;
+      const lineEnd = (() => { const i = s.indexOf('\n', m.index); return i === -1 ? s.length : i; })();
+      flagged.push({ match: m[0], context: s.slice(lineStart, lineEnd).trim().slice(0, 200) });
+    }
+  }
+  return flagged;
 }
 
 function main() {
@@ -1269,6 +1502,23 @@ function selftest() {
   const logs = path.join(tmp, 'missions', '_logs');
   const now = Date.now();
 
+  // ---- findUngatedCausalClaims (hunt-item #23, fifth-law report-linter) ----
+  {
+    // shapes quoted directly from conductor-core.md's fifth law ("X is why Y fails",
+    // "Z is gone/dead", "the root cause is...") -- the two real incidents the law names
+    // ("failing because cloud models", "minimax lab gone") were prose ABOUT these shapes,
+    // not literal instances of them; these fixtures test the actual quoted templates.
+    ck(findUngatedCausalClaims('cloud models is why the chain keeps failing').length === 1, 'causal-linter: "X is why Y fails"-shaped ungated prose is flagged (no receipt nearby)');
+    ck(findUngatedCausalClaims('the minimax lab is gone, restore cloud seats').length === 1, 'causal-linter: "Z is gone" ungated is flagged');
+    ck(findUngatedCausalClaims('The root cause is the witness cap truncating at 48000 chars, fixed in commit 854b31a.').length === 0, 'causal-linter: a root-cause claim WITH a commit sha nearby is not flagged (gated)');
+    ck(findUngatedCausalClaims('The root cause is X (HYPOTHESIS, not yet verified).').length === 0, 'causal-linter: an explicit HYPOTHESIS tag gates the claim');
+    ck(findUngatedCausalClaims('The root cause is documented in self_witness.mjs.').length === 0, 'causal-linter: a file-reference receipt gates the claim');
+    ck(findUngatedCausalClaims('This mission landed cleanly with all tests passing.').length === 0, 'causal-linter: ordinary prose with no causal-claim language is never flagged');
+    const flagged = findUngatedCausalClaims('the reason for the crash is unknown right now, still investigating');
+    ck(flagged.length === 1 && flagged[0].context.includes('the reason for the crash'), 'causal-linter: flagged entries carry the surrounding line as context, not just the bare match');
+    ck(findUngatedCausalClaims('').length === 0, 'causal-linter: empty text -> no findings, never throws');
+  }
+
   // fixture 1: dead daemon (stale status, dead pid) + one FAILED mission + claude-tier-without-429
   writeFileSync(path.join(logs, 'daemon-status.json'), JSON.stringify({ pid: 999999999, state: 'running', lanes: ['missions/x.mission.txt'], queued: 0, ts: new Date(now - 10 * 60000).toISOString() }));
   writeFileSync(path.join(logs, 'daemon.pid'), '999999999');
@@ -1284,13 +1534,28 @@ function selftest() {
     if (/log -p/.test(argstr) || /patch-id/.test(argstr)) return { ok: true, out: '' };
     return { ok: true, out: '' };
   };
-  const sightOk = { sightFn: () => ({ ok: true, results: 10 }), cgAgeFn: () => ({ ok: true, minutes: 5 }), worktreeReposFn: () => [], gitFn: stubGit };
+  const sightOk = { sightFn: () => ({ ok: true, results: 10 }), cgAgeFn: () => ({ ok: true, minutes: 5 }), worktreeReposFn: () => [], gitFn: stubGit, modelTagsFn: () => ({ ok: false, reason: 'selftest fixture — no network' }) };
   let r = sweep(tmp, now, noRoute, sightOk);
   ck(r.daemonAlive === false, 'dead daemon detected (stale status + dead pid)');
   ck(r.actions.some((a) => a.id === 'RESTART-DAEMON' && a.command.includes('muezzin-daemon.mjs')), 'restart action with exact command emitted');
   ck(r.actions.some((a) => a.id === 'DIAGNOSE-broken' && a.class === 'judgment'), 'FAILED mission gets diagnose action, not a refire');
   ck(r.report.some((l) => l.includes('claude-tier') && l.includes('NO rate-limit')), 'claude-without-rate-limit flag raised (wording de-clouded 2026-07-03)');
   ck(r.autorun.pending.length === 1, 'pending parse correct');
+
+  // fixture: SUPERVISOR-HALTED (hunt-item #3, 2026-07-04) -- daemon-supervisor.ps1's
+  // silent halt marker must be surfaced distinctly from an ordinary dead-daemon restart,
+  // with a read_first pointing at the crash evidence instead of a blind restart.
+  {
+    const haltMarker = path.join(logs, 'supervisor-halted.txt');
+    writeFileSync(haltMarker, 'Halted 2026-07-04T20:50:00 -- daemon died 6 times in 10 minutes. Diagnose before restarting manually.');
+    const rHalted = sweep(tmp, now, noRoute, sightOk);
+    ck(rHalted.report.some((l) => l.startsWith('SUPERVISOR-HALTED:') && l.includes('died 6 times')), 'SUPERVISOR-HALTED: halt marker text surfaced verbatim in the report, not silently skipped');
+    ck(rHalted.actions.some((a) => a.id === 'SUPERVISOR-HALTED' && a.class === 'judgment' && /daemon-stderr\.log/.test(a.why)), 'SUPERVISOR-HALTED: action points at daemon-stderr.log as read_first, not a blind restart');
+    ck(!rHalted.actions.some((a) => a.id === 'RESTART-DAEMON'), 'SUPERVISOR-HALTED: the generic RESTART-DAEMON action is replaced, not duplicated alongside it');
+    rmSync(haltMarker, { force: true });
+    const rClean = sweep(tmp, now, noRoute, sightOk);
+    ck(rClean.actions.some((a) => a.id === 'RESTART-DAEMON'), 'SUPERVISOR-HALTED: with the marker gone, an ordinary dead-daemon death goes back to the plain RESTART-DAEMON action (zero behavior change for the common case)');
+  }
 
   // fixture 1a: DIAGNOSE-<stem> read_first must use the REAL on-disk names (2026-07-01
   // fix — was `<stem>.result.json`/fixed `.retro.md`, neither of which ever exists on
@@ -1339,6 +1604,17 @@ function selftest() {
     // the exact shape whose trailing colon broke Date.parse on the first live stamping pass.
     const auColon = parseAutorun('PARKED missions/pk-colon.mission.txt  <!-- 2026-06-25 parked. REVISIT-JUDGED 2026-07-02T23:10:00Z: RETIRE-SUPERSEDED (audit) -->\n');
     ck(!parkedRevivalDue(auColon, fixes, { maxAgeDays: 7, now: nowMs }).length, 'revival: full-ISO stamp with trailing verdict colon parses (the live-caught regex bug stays dead)');
+    // LATEST-MATCH regression (2026-07-05 live catch): a note with TWO REVISIT-JUDGED
+    // stamps (re-judged once already) must anchor on the LATEST one, not the first —
+    // otherwise a re-judgment can never silence its own re-open trigger.
+    const auReJudged = parseAutorun(
+      'PARKED missions/pk-rejudged.mission.txt  <!-- 2026-06-25 parked. REVISIT-JUDGED 2026-07-02T23:10:00Z: STILL-BLOCKED REVISIT-JUDGED 2026-07-05T00:31:00Z: STILL-BLOCKED (unchanged) -->\n');
+    const fixesBetween = [{ class: 'mid-fix', landed_ts: '2026-07-03T00:00:00Z', requeue: [] }];
+    ck(!parkedRevivalDue(auReJudged, fixesBetween, { maxAgeDays: 7, now: nowMs }).some((d) => d.path === 'missions/pk-rejudged.mission.txt'),
+      'revival: SECOND REVISIT-JUDGED stamp is the anchor — a fix landed BEFORE it does not re-open it (the bug: only the FIRST stamp was ever read)');
+    const fixesAfter = [{ class: 'late-fix', landed_ts: '2026-07-05T12:00:00Z', requeue: [] }];
+    ck(parkedRevivalDue(auReJudged, fixesAfter, { maxAgeDays: 7, now: Date.parse('2026-07-06T00:00:00Z') }).some((d) => d.path === 'missions/pk-rejudged.mission.txt'),
+      'revival: a fix landed AFTER the SECOND stamp still correctly re-opens it');
     ck(!due.some((d) => d.path === 'missions/pk-superseded.mission.txt'), 'revival: SUPERSEDED park is judged-closed, never resurfaces');
     const due2 = parkedRevivalDue(au, [...fixes, { class: 'newer-fix', landed_ts: '2026-07-02T12:00:00Z' }], { maxAgeDays: 7, now: nowMs });
     ck(due2.some((d) => d.path === 'missions/pk-judged.mission.txt' && d.fixesSince.includes('newer-fix')), 'revival: a fix landing AFTER the judgment re-opens the judged park');
@@ -1381,6 +1657,18 @@ function selftest() {
       const fdAu2 = parseAutorun('FAILED missions/fd-nosha.mission.txt  <!-- t -->\n');
       const fd2 = falseDeathScan(fdAu2, tmp, { gitFn: fdGitStub, readTextFn: () => 'MISSION-CLASS: code-repo\nREPO-ROOT: C:/r\nALLOW-FILES:\n  - js/a.js\nMaqsad: no sha named here' });
       ck(fd2.find((c) => c.path.includes('fd-nosha'))?.verdict === 'PARTIAL', 'false-death: NO source sha -> presence-only evidence caps at PARTIAL, never FULL (first-live-pass hole, pinned)');
+
+      // BOUNDED-BLOCK regression (2026-07-05 live catch): a "Done means:" section's own
+      // "  - " prose bullets, sitting well past a blank line after the real ALLOW-FILES
+      // block, must NEVER be read as extra allow-files entries.
+      const fdAu3 = parseAutorun('FAILED missions/fd-prose.mission.txt  <!-- t -->\n');
+      const proseText = 'MISSION-CLASS: code-repo\nREPO-ROOT: C:/r\nALLOW-FILES:\n  - pledge.html\n\n' +
+        'Maqsad: abc1234 relocate a div\n\nDone means:\n  - The section heading stays put.\n' +
+        '  - `git status --short` shows only pledge.html changed.\n  - No other file moves.\n';
+      const fd3 = falseDeathScan(fdAu3, tmp, { gitFn: fdGitStub, readTextFn: () => proseText });
+      const stFd3 = missionLandedState(proseText, fdGitStub);
+      ck(Object.keys(stFd3.files).length === 1 && !!stFd3.files['pledge.html'], 'ALLOW-FILES extraction stops at the first non-bullet line -- "Done means" prose never pollutes the file list');
+      ck(!('The' in stFd3.files) && !('`git' in stFd3.files) && !('No' in stFd3.files), 'prose bullet fragments (The/`git/No) are never treated as pseudo-files');
     }
     const auSplit = parseAutorun('SPLIT missions/parent.mission.txt  <!-- ts -->\nmissions/live.mission.txt\n');
     ck(auSplit.split.length === 1 && auSplit.pending.length === 1, 'parser: SPLIT is first-class; live line still pending');
@@ -1520,17 +1808,42 @@ function selftest() {
 
   // fixture 1f: SEARXNG SIGHT-CHECK — a blind backend is a receipted, mechanical action.
   {
-    const blind = sweep(tmp, now, noRoute, { sightFn: () => ({ ok: false, reason: 'zero results on control query' }) });
+    const blind = sweep(tmp, now, noRoute, { sightFn: () => ({ ok: false, reason: 'zero results on control query' }), modelTagsFn: sightOk.modelTagsFn });
     ck(blind.actions.some((a) => a.id === 'RESTART-SEARXNG' && a.class === 'mechanical'), 'blind searxng -> RESTART-SEARXNG mechanical action (the wedge can never again pass unwitnessed)');
     ck(blind.report.some((l) => /SEARXNG BLIND/.test(l)), 'blind searxng surfaces on the report');
   }
 
   // fixture 1g: CG-INCREMENT GATE — stale v3 repo demands an increment; fresh stays silent.
   {
-    const stale = sweep(tmp, now, noRoute, { sightFn: () => ({ ok: true, results: 9 }), cgAgeFn: () => ({ ok: true, minutes: 120 }) });
+    const stale = sweep(tmp, now, noRoute, { sightFn: () => ({ ok: true, results: 9 }), cgAgeFn: () => ({ ok: true, minutes: 120 }), modelTagsFn: sightOk.modelTagsFn });
     ck(stale.actions.some((a) => a.id === 'CG-INCREMENT-DUE'), 'stale CG repo -> CG-INCREMENT-DUE on the beat (idle=CG is now a condition, not willpower)');
-    const fresh = sweep(tmp, now, noRoute, { sightFn: () => ({ ok: true, results: 9 }), cgAgeFn: () => ({ ok: true, minutes: 10 }) });
+    const fresh = sweep(tmp, now, noRoute, { sightFn: () => ({ ok: true, results: 9 }), cgAgeFn: () => ({ ok: true, minutes: 10 }), modelTagsFn: sightOk.modelTagsFn });
     ck(!fresh.actions.some((a) => a.id === 'CG-INCREMENT-DUE'), 'fresh CG repo -> no nag (the gate has a dead-band, not a drumbeat)');
+  }
+
+  // fixture 1g2: mt-model-audit-fn — auditModelIdentities() unit contract + sweep wiring.
+  // Synthetic 5-model array: one fraud group (3 textually-unrelated names, same digest) +
+  // one benign :latest-alias group (2 names sharing the same pre-colon prefix, same digest).
+  {
+    const synthetic = [
+      { name: 'qwen3-coder-next', digest: 'abc111' },
+      { name: 'kimi-k2.7-code', digest: 'abc111' },
+      { name: 'north-mini-code-toolcall', digest: 'abc111' },
+      { name: 'llama4:scout', digest: 'def222' },
+      { name: 'llama4:latest', digest: 'def222' },
+    ];
+    const auditResult = auditModelIdentities(synthetic);
+    ck(auditResult.fraudGroups.length === 1 && auditResult.fraudGroups[0].digest === 'abc111', 'exactly one fraud group detected, keyed on the shared digest');
+    ck(auditResult.fraudGroups[0].names.length === 3, 'fraud group carries all 3 textually-unrelated aliases');
+    ck(auditResult.benignGroups.length === 1 && auditResult.benignGroups[0].digest === 'def222', 'the :latest-alias group is classified benign, not flagged as fraud');
+    ck(!auditModelIdentities([{ name: 'solo:latest', digest: 'ghi333' }]).fraudGroups.length, 'a single-name digest group is neither fraud nor benign (nothing to compare)');
+
+    const flagged = sweep(tmp, now, noRoute, { ...sightOk, modelTagsFn: () => ({ ok: true, models: synthetic }) });
+    ck(flagged.report.some((l) => /MODEL-IDENTITY FLAG/.test(l) && l.includes('qwen3-coder-next') && l.includes('north-mini-code-toolcall')), 'sweep surfaces the fraud group as a MODEL-IDENTITY FLAG line naming all its aliases');
+    ck(!flagged.report.some((l) => /MODEL-IDENTITY FLAG/.test(l) && l.includes('llama4:scout')), 'the benign :latest group never appears in a FLAG line');
+
+    const skipped = sweep(tmp, now, noRoute, { ...sightOk, modelTagsFn: () => ({ ok: false, reason: 'nxtbeast unreachable (test)' }) });
+    ck(skipped.report.some((l) => /model-identity audit SKIP/.test(l)), 'unreachable nxtbeast skips the audit with a named reason, never crashes the sweep');
   }
 
   // fixture 1h: STUCK-TASK detection + heal() kills and requeues.
@@ -1561,6 +1874,28 @@ function selftest() {
   ck(afterStuck.pending.includes('missions/stuck.mission.txt'), 'heal(): RUNNING line bared to pending');
   const events = readText(path.join(logs, 'daemon-events.log'));
   ck(events.includes('SWEEP-HEAL') && events.includes('STUCK-TASK') && events.includes('stuck.mission.txt'), 'heal(): SWEEP-HEAL event logged to daemon-events.log');
+
+  // fixture: STUCK-TASK kill-scope honesty (hunt-item #3's second half, GAP-CLOSURE-PLAYBOOK
+  // UNIT E4, 2026-07-04) -- with a SECOND, genuinely healthy lane also running (MAX_LANES=2
+  // default), the taskkill on the whole daemon PID collaterally kills it too. The action must
+  // name that lane explicitly, not silently expand its own blast radius.
+  {
+    writeFileSync(path.join(logs, 'daemon-status.json'), JSON.stringify({
+      pid: 77777, state: 'running',
+      lanes: [
+        { path: 'missions/stuck.mission.txt', start_ts: new Date(now - 16 * 60000).toISOString() },
+        { path: 'missions/healthy-other.mission.txt', start_ts: new Date(now - 2 * 60000).toISOString() },
+      ],
+      queued: 0, ts: new Date(now).toISOString(),
+    }));
+    writeFileSync(path.join(tmp, 'missions', 'AUTORUN.md'), '# q\nRUNNING missions/stuck.mission.txt  <!-- t -->\nRUNNING missions/healthy-other.mission.txt  <!-- t -->\n');
+    writeFileSync(path.join(logs, 'dispatch-heartbeat.log'), `${new Date(now - 20 * 60000).toISOString()} attempt-ok provider=ollama-cloud model=kimi-k2.6 heal=0 ms=1 chars=10\n`);
+    const rCollateral = sweep(tmp, now, noRoute, sightOk);
+    const stuckAction2 = rCollateral.actions.find((a) => a.id === 'STUCK-TASK');
+    ck(!!stuckAction2 && stuckAction2.collateral_paths.includes('missions/healthy-other.mission.txt'), 'STUCK-TASK: the genuinely healthy second lane is named in collateral_paths, not silently dropped');
+    ck(/healthy-other\.mission\.txt.*ALSO be killed/.test(stuckAction2.why), 'STUCK-TASK: the why text explicitly warns the healthy lane will ALSO be killed (real blast radius, not assumed single-lane scope)');
+    ck(!stuckAction2.stuck_paths.includes('missions/healthy-other.mission.txt'), 'STUCK-TASK: the healthy lane is in collateral_paths, never misclassified as stuck_paths');
+  }
 
   // fixture 1i: detectStuckLanes and detectLoopCaps direct checks + LOOP-CAP sweep.
   const dl = detectStuckLanes({ pid: 1, lanes: [{ path: 'missions/a.mission.txt', start_ts: new Date(now - 16 * 60000).toISOString() }, { path: 'missions/b.mission.txt', start_ts: new Date(now - 2 * 60000).toISOString() }, 'missions/c.mission.txt'] }, now);
@@ -1636,6 +1971,38 @@ function selftest() {
   const healedLoop2 = heal(tmp, now, { exec: () => {} });
   ck(!healedLoop2.performed.some((p) => p.action === 'loop-cap-retire'), 'heal(): idempotent -- a second heal() pass retires nothing further (no bare line remains for this stem)');
 
+  // fixture: STRANDED-SPLIT-CHILD RECOVERY (hunt-item #16, 2026-07-04) -- a manifest naming
+  // TWO children, one genuinely stranded (file on disk, no AUTORUN line at all) and one already
+  // properly queued; a THIRD manifest entry whose file was never actually created (nothing to
+  // recover, must not fabricate a queue line for a mission that doesn't exist).
+  {
+    writeFileSync(path.join(tmp, 'missions', 'splitpar.S1.mission.txt'), 'MISSION-ID: x\nMaqsad: stranded child\n');
+    writeFileSync(path.join(tmp, 'missions', 'splitpar.S2.mission.txt'), 'MISSION-ID: x\nMaqsad: already-queued child\n');
+    // deliberately do NOT create splitpar.S3.mission.txt -- it's in the manifest but never landed
+    writeFileSync(path.join(tmp, 'missions', 'splitpar._split-manifest.json'), JSON.stringify({
+      parentId: 'splitpar', ceiling: 8, originalStepCount: 20, groupCount: 3,
+      children: [
+        { id: 'splitpar.S1', file: 'missions/splitpar.S1.mission.txt', steps: 5, requires: null },
+        { id: 'splitpar.S2', file: 'missions/splitpar.S2.mission.txt', steps: 6, requires: 'splitpar.S1' },
+        { id: 'splitpar.S3', file: 'missions/splitpar.S3.mission.txt', steps: 4, requires: 'splitpar.S2' },
+      ],
+      ts: new Date(now).toISOString(),
+    }));
+    writeFileSync(path.join(tmp, 'missions', 'AUTORUN.md'), '# q\nmissions/splitpar.S2.mission.txt  <!-- already queued, untouched -->\n');
+    const healedStranded = heal(tmp, now, { exec: () => {} });
+    ck(healedStranded.performed.some((p) => p.action === 'stranded-split-recovery' && p.stem === 'splitpar.S1'), 'heal(): a manifest child with NO AUTORUN line at all, but a real mission.txt on disk, is recovered');
+    ck(!healedStranded.performed.some((p) => p.action === 'stranded-split-recovery' && p.stem === 'splitpar.S2'), 'heal(): an already-queued manifest child is left alone -- not re-added as a duplicate');
+    ck(!healedStranded.performed.some((p) => p.action === 'stranded-split-recovery' && p.stem === 'splitpar.S3'), 'heal(): a manifest child whose mission.txt was never actually created is NOT recovered -- nothing to fabricate a queue line for');
+    const afterStranded = readText(path.join(tmp, 'missions', 'AUTORUN.md'));
+    ck(/^missions\/splitpar\.S1\.mission\.txt\s+<!-- SPLIT-CHILD -->$/m.test(afterStranded), 'heal(): the recovered line is tagged SPLIT-CHILD -- the QUEUE-DUP guard exemption (hunt-item #13) applies to it too');
+    ck(afterStranded.includes('missions/splitpar.S2.mission.txt  <!-- already queued, untouched -->'), 'heal(): the already-queued line is byte-unchanged, not duplicated or rewritten');
+    const healedStranded2 = heal(tmp, now, { exec: () => {} });
+    ck(!healedStranded2.performed.some((p) => p.action === 'stranded-split-recovery'), 'heal(): idempotent -- a second pass recovers nothing further (the S1 line now satisfies the manifest check)');
+    rmSync(path.join(tmp, 'missions', 'splitpar._split-manifest.json'), { force: true });
+    rmSync(path.join(tmp, 'missions', 'splitpar.S1.mission.txt'), { force: true });
+    rmSync(path.join(tmp, 'missions', 'splitpar.S2.mission.txt'), { force: true });
+  }
+
   // fixture 1j: HEARTBEAT FLAG TABLE (mt-b2-flag-table, step B2) — EMPTY_CONTENT_THINKING and
   // CUDA are byte-equivalent migrations off the old hand-written if-blocks; LOCAL_TIMEOUT and
   // LOCAL_NETWORK are new local-lane rows riding the same iteration.
@@ -1710,6 +2077,17 @@ function selftest() {
   ck(rBar.actions.length > 0 && rBar.report.some((l) => l.includes('BEAT-COMPLETE BAR') && l.includes("daemon's work, not yours")), 'non-empty actions -> BEAT-COMPLETE BAR counter-license printed (complete ending must be EARNED)');
   writeFileSync(path.join(tmp, 'missions', 'AUTORUN.md'), '# q\nDONE missions/good.mission.txt  <!-- t -->\n');   // restore healthy fixture for downstream checks
 
+  // QUEUE.md VISIBILITY (hunt-item #21, 2026-07-04): the sweep used to never read QUEUE.md at
+  // all -- now it counts UNPARKS conditions and reports them (never as a blocking action).
+  {
+    ck(!r.report.some((l) => l.startsWith('QUEUE.md:')), 'QUEUE.md-visibility: no QUEUE.md file present (the ordinary fixture case) -> no report line, never an error');
+    writeFileSync(path.join(tmp, 'missions', 'QUEUE.md'), '- some parked item. UNPARKS when the drive returns.\n- another one. UNPARKS on key rotation.\n');
+    const rQueue = sweep(tmp, now, noRoute, sightOk);
+    ck(rQueue.report.some((l) => l === 'QUEUE.md: 2 UNPARKS condition(s) on record — review missions/QUEUE.md for whether any have actually fired (not auto-checked here; conductor judgment)'), 'QUEUE.md-visibility: 2 UNPARKS conditions in QUEUE.md are counted and surfaced in the report');
+    ck(!rQueue.actions.some((a) => /UNPARKS|QUEUE\.md/i.test(JSON.stringify(a))), 'QUEUE.md-visibility: report-only, never a blocking action -- a present-but-unfired UNPARKS condition must not manufacture required-action noise every beat');
+    rmSync(path.join(tmp, 'missions', 'QUEUE.md'), { force: true });
+  }
+
   // AUDIT REGRESSION TESTS 2026-07-02 (each encodes a live-confirmed audit finding):
   // (a) closed(): "UNRESOLVED" must NOT read as resolved (the missing-\b inversion).
   {
@@ -1732,6 +2110,39 @@ function selftest() {
     const arun3 = { done: ['missions/mt-integrate-strand.mission.txt'], failed: [], pending: [], running: [], notes: {} };
     const dn3 = computeDoneness(tmp, arun3, { gitFn: strandGit });
     ck(dn3.blocking.some((b) => b.mission === 'mt-integrate-strand' && /NOT in the deployable tree/.test(b.reason)), 'presence-AND-landed: all ALLOW-FILES present but patch not in tree -> L3 BLOCK (recall restored)');
+  }
+  // (b2) per-file patch-id fallback (2026-07-05, item #8 aurora-forecast.S2 false positive):
+  // a cherry-picked deliverable whose WHOLE-commit patch-id misses the table (because some
+  // OTHER file the same commit touched drifted before the cherry-pick landed) must NOT block
+  // when the mission's OWN ALLOW-FILES match under a file-scoped patch-id comparison.
+  {
+    writeFileSync(path.join(tmp, 'missions', 'mt-integrate-cherrypick.mission.txt'),
+      `MISSION-CLASS: code-repo\nREPO-ROOT: ${tmp.replace(/\\/g, '/')}\nALLOW-FILES:\n  - missions/AUTORUN.md\n\ncherry-pick def5678 from the feature branch.\n`);
+    const cherryGit = (repo, argstr) => {
+      const fileScoped = / -- "/.test(argstr);
+      if (/show .*def5678/.test(argstr)) return { ok: true, out: fileScoped ? 'goodpid def5678\n' : 'driftpid def5678\n' };
+      if (/log -p/.test(argstr)) return { ok: true, out: fileScoped ? 'goodpid othersha\n' : 'unrelatedpid othersha\n' };
+      return stubGit(repo, argstr);
+    };
+    const arun3b = { done: ['missions/mt-integrate-cherrypick.mission.txt'], failed: [], pending: [], running: [], notes: {} };
+    const dn3b = computeDoneness(tmp, arun3b, { gitFn: cherryGit });
+    ck(!dn3b.blocking.some((b) => b.mission === 'mt-integrate-cherrypick'), 'per-file fallback: whole-commit patch-id misses (co-touched-file drift) but file-scoped patch-id matches -> NOT flagged stranded');
+  }
+
+  // (c) divergence guard fails CLOSED on git error (hunt-item #19, 2026-07-04): a git error on
+  // the main/master rev-list used to leave div.ok:false with NO blocking entry at all -- silent
+  // fail-OPEN, the same class the pushedGap check 3 lines above it already guards against.
+  {
+    const divErrGit = (repo, argstr) => {
+      if (/^rev-list --count github\/main\.\.\.github\/master/.test(argstr)) return { ok: false, out: '' };
+      return stubGit(repo, argstr);
+    };
+    const arun4 = { done: [], failed: [], pending: [], running: [], notes: {} };
+    const dn4 = computeDoneness(tmp, arun4, { gitFn: divErrGit });
+    ck(dn4.counts.divergenceCount === null, 'divergence guard: git error -> divergenceCount null (never a false zero)');
+    ck(dn4.blocking.some((b) => /cannot determine github\/main vs github\/master divergence — fail-closed/.test(b.reason)), 'divergence guard: git error -> explicit fail-closed BLOCK, not silent fail-open');
+    const dnOk = computeDoneness(tmp, arun4, { gitFn: stubGit });
+    ck(dnOk.counts.divergenceCount === 0 && !dnOk.blocking.some((b) => /divergence/.test(b.reason)), 'divergence guard: clean git (0 commits diverged) -> no blocking, zero behavior change for the healthy path');
   }
 
   rmSync(tmp, { recursive: true, force: true });

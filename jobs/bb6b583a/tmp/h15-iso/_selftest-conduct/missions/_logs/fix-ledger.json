@@ -3,7 +3,7 @@
     {
       "class": "perstem-class",
       "fix": "perstem fix",
-      "landed_ts": "2026-07-07T17:21:47.668Z",
+      "landed_ts": "2026-07-07T17:21:58.820Z",
       "requeue": [
         {
           "stem": "perstem-a",
