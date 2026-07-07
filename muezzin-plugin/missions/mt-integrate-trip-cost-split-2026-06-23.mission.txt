@@ -122,15 +122,7 @@ Steps:
      referencing "mt-feat-trip-cost-split-2026-06-23" and "5adf50a"). Confirm
      `git status --short` afterward shows no uncommitted changes to any of
      the six ALLOW-FILES paths. [command] commit-and-verify-clean
-  6. Serve the target repo's static files locally (e.g. `wrangler pages dev .`
-     or an equivalent static server) and use a headless browser (puppeteer)
-     to render trip-cost.html from PREVIEW-BASE-URL, capturing a
-     screenshot/DOM check that js/trip-cost-split.js loaded without a script
-     error and that mountCostSplit actually mounted the trip-code
-     entry/generate/switch UI onto the page. If nothing answers at
-     PREVIEW-BASE-URL, surface that explicitly as a named
-     NO_PREVIEW_BASE_URL-style receipt rather than skipping the check.
-     [command] visual-witness-render
+  6. (amended 2026-07-07 per RULE 9: prior step hand-rolled a localhost:8788 server — nothing serves that port) In ONE command: confirm clean tree for this mission's ALLOW-FILES (git commit first if this mission's edits are not yet committed — never deploy a dirty tree), then wrangler pages deploy . --project-name=muddytires --branch=preview, capture the emitted *.pages.dev URL into a PowerShell variable, write scratch-qc.mjs (playwright render of trip-cost.html from that URL, exit non-zero if js/trip-cost-split.js fails to load without a script error or mountCostSplit did not mount the trip-code entry/generate/switch UI onto the page), node scratch-qc.mjs, Remove-Item scratch-qc.mjs. [command] visual-witness-render
 
 Done means:
   - css/trip-cost-split.css, d1/migrate-trip-cost-split-2026-06-23.sql,

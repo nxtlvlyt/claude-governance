@@ -170,14 +170,7 @@ Steps:
      still present, intact, and not visually overlapping or clipped as a result of the
      reorder. This is the "no clutter, no regression elsewhere on this page" check named
      in the original GATE. [command] full-page-regression-screenshot
-  8. Best-effort only, non-blocking: probe PREVIEW-BASE-URL (start or confirm a local
-     `wrangler pages dev` at that host:port first). If it answers, request
-     /operators.html, confirm HTTP 200, and capture the same headless-browser render this
-     mission's VISUAL-QC-REQUIRED header calls for. If nothing answers at
-     PREVIEW-BASE-URL, name that explicitly as NO_PREVIEW_BASE_URL in the result — do not
-     silently skip it and do not let it block Done means, since Steps 2/6/7 already
-     provide the required render evidence directly against the file. [command]
-     preview-server-probe-and-render
+  8. (amended 2026-07-07 per RULE 9: prior step hand-rolled a localhost:8788 server — nothing serves that port) In ONE command: confirm clean tree for this mission's ALLOW-FILES (git commit first if this mission's edits are not yet committed — never deploy a dirty tree), then wrangler pages deploy . --project-name=muddytires --branch=preview, capture the emitted *.pages.dev URL into a PowerShell variable, write scratch-qc.mjs (playwright render of /operators.html from that URL, exit non-zero if the page does not return HTTP 200 or throws a fatal script error), node scratch-qc.mjs, Remove-Item scratch-qc.mjs. Steps 2/6/7 already provide the required render evidence directly against the file; this deploy-render is the VISUAL-QC-REQUIRED capture. [command] preview-deploy-and-render
   9. Confirm `git status --porcelain` / `git diff --name-only` in the target repo shows
      operators.html as the only file this mission changed (pre-existing unrelated
      staged/untracked items noted in Context are not this mission's to touch or clean

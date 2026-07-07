@@ -1,0 +1,130 @@
+{
+ "mt-integrate-aurora-forecast-diff-report.S1.mission.txt": {
+  "ok": true,
+  "rules": []
+ },
+ "mt-integrate-aurora-forecast-diff-report.S2.mission.txt": {
+  "ok": true,
+  "rules": []
+ },
+ "mt-integrate-aurora-forecast-diff-report.mission.txt": {
+  "ok": true,
+  "rules": []
+ },
+ "mt-integrate-b13-aria-live.mission.txt": {
+  "ok": true,
+  "rules": []
+ },
+ "mt-integrate-bookmark-widget.mission.txt": {
+  "ok": false,
+  "rules": [
+   "orphan-page-no-reachability"
+  ]
+ },
+ "mt-integrate-contributor-leaderboard.mission.txt": {
+  "ok": true,
+  "rules": []
+ },
+ "mt-integrate-dynamic-favicon-fire-ban.mission.txt": {
+  "ok": true,
+  "rules": []
+ },
+ "mt-integrate-near-me-discovery.mission.txt": {
+  "ok": true,
+  "rules": []
+ },
+ "mt-integrate-onboarding-tour-2026-06-23.mission.txt": {
+  "ok": true,
+  "rules": []
+ },
+ "mt-integrate-osm-conflict-detect.mission.txt": {
+  "ok": true,
+  "rules": []
+ },
+ "mt-integrate-park-reservation-deep-link.mission.txt": {
+  "ok": true,
+  "rules": []
+ },
+ "mt-integrate-partner-embed-iframe-verification.mission.txt": {
+  "ok": true,
+  "rules": []
+ },
+ "mt-integrate-partner-widget.mission.txt": {
+  "ok": true,
+  "rules": []
+ },
+ "mt-integrate-photo-upload-ux.mission.txt": {
+  "ok": true,
+  "rules": []
+ },
+ "mt-integrate-plan-day-gpx-export-2026-06-23.mission.txt": {
+  "ok": true,
+  "rules": []
+ },
+ "mt-integrate-poi-hover-preview-cards.mission.txt": {
+  "ok": true,
+  "rules": []
+ },
+ "mt-integrate-poi-print-sheet-worktree-audit.mission.txt": {
+  "ok": true,
+  "rules": []
+ },
+ "mt-integrate-poi-services-nearby.S2.mission.txt": {
+  "ok": true,
+  "rules": []
+ },
+ "mt-integrate-poi-services-nearby.mission.txt": {
+  "ok": true,
+  "rules": []
+ },
+ "mt-integrate-poi-tags-2026-06-23.mission.txt": {
+  "ok": true,
+  "rules": []
+ },
+ "mt-integrate-region-heatmap-2026-06-23.mission.txt": {
+  "ok": true,
+  "rules": []
+ },
+ "mt-integrate-spot-share-card.mission.txt": {
+  "ok": true,
+  "rules": []
+ },
+ "mt-integrate-testimonials.mission.txt": {
+  "ok": true,
+  "rules": []
+ },
+ "mt-integrate-trip-cost-split-2026-06-23.mission.txt": {
+  "ok": true,
+  "rules": []
+ },
+ "mt-integrate-weather-aware-planning-2026-06-23.mission.txt": {
+  "ok": true,
+  "rules": []
+ },
+ "mt-integrate-wikipedia-link-2026-06-23.mission.txt": {
+  "ok": true,
+  "rules": []
+ },
+ "mt-integrate-wildlife-advisory.mission.txt": {
+  "ok": true,
+  "rules": []
+ },
+ "qc-concern-operators-html-business-claim-page-2026-06-25.mission.txt": {
+  "ok": false,
+  "rules": [
+   "orphan-page-no-reachability"
+  ]
+ },
+ "qc-fix-add-spot-worker-submission-add-spot-worker-js-2026-06-24.mission.txt": {
+  "ok": true,
+  "rules": []
+ },
+ "qc-fix-filter-stack-modal-filter-stack-js-2026-06-24.mission.txt": {
+  "ok": true,
+  "rules": []
+ },
+ "qc-fix-share-spot-share-spot-js-2026-06-24.mission.txt": {
+  "ok": true,
+  "rules": []
+ }
+}

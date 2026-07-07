@@ -122,13 +122,7 @@ Steps:
      confirm `git status --short` in the target repo shows no uncommitted changes to any
      ALLOW-FILES entry and `git log --oneline -5` shows the landed commit at or near HEAD.
      [command] commit-and-verify-clean
-  6. Start (or confirm already running) a local preview server for the target repo at the
-     PREVIEW-BASE-URL host:port (e.g. `wrangler pages dev`), then render /map.html in a
-     headless browser (headless Chrome / Playwright / puppeteer) and capture that the page
-     loads without a fatal script error and that the new
-     `<script src="js/region-heatmap-layer.js" defer>` tag is present in the served DOM.
-     This is the render-witness step RULE 7 of mission_lint.mjs requires because
-     VISUAL-QC-REQUIRED is set above. [command] headless-render-witness
+  6. (amended 2026-07-07 per RULE 9: prior step hand-rolled a localhost:8788 server — nothing serves that port) In ONE command: confirm clean tree for this mission's ALLOW-FILES (git commit first if this mission's edits are not yet committed — never deploy a dirty tree), then wrangler pages deploy . --project-name=muddytires --branch=preview, capture the emitted *.pages.dev URL into a PowerShell variable, write scratch-qc.mjs (playwright render of /map.html from that URL, exit non-zero if the page throws a fatal script error or the new `<script src="js/region-heatmap-layer.js" defer>` tag is absent from the served DOM), node scratch-qc.mjs, Remove-Item scratch-qc.mjs. [command] headless-render-witness
 
 Done means:
   - `git log` in C:\Users\marka\code\mt-integration-2026-06-22 shows a commit at or near

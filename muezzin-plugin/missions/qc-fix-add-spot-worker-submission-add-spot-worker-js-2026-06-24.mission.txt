@@ -172,13 +172,7 @@ Steps:
      js/add-spot-worker.js and docs/FEATURE-CATALOG-2026-06-23.md — never trust a
      "committed" event alone, the way the 2026-06-30 attempt's false telemetry did.
      [command] commit-and-verify-clean
-  9. Start (or confirm already running) a local preview server for the target repo at
-     PREVIEW-BASE-URL (e.g. `wrangler pages dev`), then run `node scripts/e2e-runner.mjs
-     --preview-url http://localhost:8788 --features add-spot-worker-submission` — this
-     drives a headless Chromium browser via Playwright, the render-witness step RULE 7 of
-     mission_lint.mjs requires because VISUAL-QC-REQUIRED is set above — and record the
-     resulting verdict for the "add-spot-worker-submission" slug from the JSON report.
-     [command] e2e-runner-witness
+  9. (amended 2026-07-07 per RULE 9: prior step hand-rolled a localhost:8788 server — nothing serves that port) In ONE command: confirm clean tree for this mission's ALLOW-FILES (git commit first if this mission's edits are not yet committed — never deploy a dirty tree), then wrangler pages deploy . --project-name=muddytires --branch=preview, capture the emitted *.pages.dev URL into a PowerShell variable, then run `node scripts/e2e-runner.mjs --preview-url <that captured URL> --features add-spot-worker-submission` — this drives a headless Chromium browser via Playwright, the render-witness step RULE 7 of mission_lint.mjs requires because VISUAL-QC-REQUIRED is set above — and record the resulting verdict for the "add-spot-worker-submission" slug from the JSON report. [command] e2e-runner-witness
 
 Done means:
   - docs/FEATURE-CATALOG-2026-06-23.md exists on the checked-out branch and contains a

@@ -121,18 +121,8 @@ Steps:
      from the repo root must print `{"has":true}` — confirms the catalog section header is
      byte-exact enough for scripts/e2e-runner.mjs's `text.split(/^### Feature: /m)` parser to
      pick it up. [command] confirm-catalog-parseable
-  7. Start a local server for the checked-out worktree: `npx wrangler pages dev . --port
-     8788` (background). Confirm it is up before proceeding (retry a plain HTTP GET to
-     http://localhost:8788/map.html for up to 30s). [command] start-local-server
-  8. Baseline walk (BEFORE any behavior change is possible to observe — run this on the
-     branch state as of step 2, i.e. it will naturally include the step-3/5 edits since they
-     already happened; the comparison in step 10 is against the LIVE production baseline
-     captured separately in docs/e2e-report-2026-07-01.json, not a second local run):
-     `node scripts/e2e-runner.mjs --preview-url http://localhost:8788 --out
-     docs/e2e-report-filter-stack-fix-2026-06-24.json`. This runs all four catalog features
-     (the pre-existing three plus the new "Filter stack" entry from step 5). Exit code and
-     summary.counts are informational at this point; do not treat a non-zero exit as failure
-     by itself — read the JSON. [command] run-e2e-walk
+  7. (amended 2026-07-07 per RULE 9: prior step hand-rolled a localhost:8788 server — nothing serves that port) In ONE command: confirm clean tree for this mission's ALLOW-FILES (git commit first if this mission's edits are not yet committed — never deploy a dirty tree), then wrangler pages deploy . --project-name=muddytires --branch=preview, capture the emitted *.pages.dev URL into a PowerShell variable, then in that same command run the walk: `node scripts/e2e-runner.mjs --preview-url <that captured URL> --out docs/e2e-report-filter-stack-fix-2026-06-24.json`. This runs all four catalog features (the pre-existing three plus the new "Filter stack" entry from step 5). [command] preview-deploy-and-e2e-walk
+  8. (amended 2026-07-07 per RULE 9: the localhost:8788 walk this step previously ran now happens inside step 7's single deploy-and-walk command) Baseline-walk semantics unchanged: the step-7 run covers the branch state as of step 2 (it naturally includes the step-3/5 edits since they already happened; the comparison in step 10 is against the LIVE production baseline captured separately in docs/e2e-report-2026-07-01.json, not a second local run). Confirm docs/e2e-report-filter-stack-fix-2026-06-24.json exists and covers all four catalog features. Exit code and summary.counts are informational at this point; do not treat a non-zero exit as failure by itself — read the JSON. [command] run-e2e-walk
   9. Read docs/e2e-report-filter-stack-fix-2026-06-24.json. The "Filter stack" result's
      `agyVerdict` must be `clean` or `concern` (never `block` or `error`), and its
      `stepLog`/`agyResponse` must not contain "STEP_FAILED" for the `click #mtFilterStackBtn`

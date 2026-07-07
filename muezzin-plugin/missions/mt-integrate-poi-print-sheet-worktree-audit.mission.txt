@@ -118,12 +118,7 @@ Steps:
      `git status --short` is empty with respect to this mission's ALLOW-FILES (clean, no
      unmerged paths) and `git log --oneline -5` shows the landed commit at or near HEAD.
      [command] commit-and-verify-clean
-  7. Because map.html changed and VISUAL-QC-REQUIRED is set, run the visual-witness pipeline:
-     serve REPO-ROOT's static files locally, load map.html from PREVIEW-BASE-URL in a headless
-     browser (puppeteer), capture a render, and record a visual verdict on the integrated
-     result in this mission's result object. If PREVIEW-BASE-URL is unreachable, record that
-     as a named NO_PREVIEW_BASE_URL receipt rather than skipping the check silently.
-     [command] visual-witness-render
+  7. (amended 2026-07-07 per RULE 9: prior step hand-rolled a localhost:8788 server — nothing serves that port) In ONE command: confirm clean tree for this mission's ALLOW-FILES (git commit first if this mission's edits are not yet committed — never deploy a dirty tree), then wrangler pages deploy . --project-name=muddytires --branch=preview, capture the emitted *.pages.dev URL into a PowerShell variable, write scratch-qc.mjs (playwright render of map.html from that URL, exit non-zero if the page throws a fatal script error or the js/poi-print-sheet.js script tag is absent from the served markup), node scratch-qc.mjs, Remove-Item scratch-qc.mjs. [command] visual-witness-render
 
 Done means:
   - `git log` in C:\Users\marka\code\mt-integration-2026-06-22 shows a commit containing the

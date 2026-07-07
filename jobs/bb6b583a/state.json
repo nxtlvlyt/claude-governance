@@ -1,6 +1,6 @@
 {
-  "state": "blocked",
-  "detail": "waiting on you; the gap-dry outcome push follows when #7 finishes draining.",
+  "state": "working",
+  "detail": "gap confirmed: #7 board-truth drain is final open item of 29; fanning out 2-phase workflow (survey agents + adversarial refuter) on 19 FAILED-x2 missions; rule-9 agent also in flight; will stamp verdicts + re-run sweep",
   "tempo": "active",
   "inFlight": {
     "tasks": 1,
@@ -15,12 +15,20 @@
       "kind": "agent",
       "label": "Amend RULE-9 mission texts",
       "startedAt": 1783437201354
+    },
+    {
+      "id": "wvv1r9bpi",
+      "kind": "workflow",
+      "label": "gap7-board-truth-drain",
+      "startedAt": 1783438030902,
+      "doneAt": 1783438031273,
+      "failed": true
     }
   ],
-  "tokens": 88011,
+  "tokens": 128993,
   "output": null,
   "children": null,
-  "linkScanOffset": 1366784,
+  "linkScanOffset": 1443884,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -28,7 +36,9 @@
     "--permission-mode",
     "acceptEdits",
     "--model",
-    "claude-fable-5[1m]"
+    "claude-fable-5[1m]",
+    "--effort",
+    "xhigh"
   ],
   "intent": "but we had 30 gaps mission we were fixing first before we did anything else and a big project to que when they were done",
   "name": "daemon-restart-mission-triage",
@@ -45,6 +55,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-07T15:18:42.201Z",
+  "updatedAt": "2026-07-07T15:27:31.278Z",
   "firstTerminalAt": null
 }

@@ -126,13 +126,7 @@ Steps:
      changes to functions/api/poi-osm-conflict.js, js/osm-conflict-detect.js,
      or map.html, and `git log --oneline -5` shows the landed commit at or
      near HEAD. [command] commit-and-verify-clean
-  5. Start (or confirm already running) a local static/preview server for the
-     target repo bound at PREVIEW-BASE-URL, then capture a headless-browser
-     (puppeteer) render of <PREVIEW-BASE-URL>/map.html, confirming the page
-     loads, the `<script src="js/osm-conflict-detect.js" defer>` tag is
-     present and fetched with a 2xx status, and no console errors are thrown
-     during page load. Record the render receipt (screenshot plus console
-     log) as this mission's visual-QC evidence. [command] visual-qc-render
+  5. (amended 2026-07-07 per RULE 9: prior step hand-rolled a localhost:8788 server — nothing serves that port) In ONE command: confirm clean tree for this mission's ALLOW-FILES (git commit first if this mission's edits are not yet committed — never deploy a dirty tree), then wrangler pages deploy . --project-name=muddytires --branch=preview, capture the emitted *.pages.dev URL into a PowerShell variable, write scratch-qc.mjs (playwright render of /map.html from that URL, exit non-zero if the page fails to load, the `<script src="js/osm-conflict-detect.js" defer>` tag is absent or not fetched with a 2xx status, or console errors are thrown during page load), node scratch-qc.mjs, Remove-Item scratch-qc.mjs. [command] visual-qc-render
 
 Done means:
   - functions/api/poi-osm-conflict.js exists in the target repo at HEAD

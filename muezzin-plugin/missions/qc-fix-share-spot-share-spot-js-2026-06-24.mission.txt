@@ -204,14 +204,7 @@ Steps:
      repo separately hit a false "committed" telemetry event carrying a stale sha —
      always re-derive from `git show`, never from an event log alone).
      [command] commit-and-verify-clean
-  9. Start (or confirm already running) a local preview server for the target repo at
-     PREVIEW-BASE-URL (e.g. `wrangler pages dev .`), then run `node
-     scripts/e2e-runner.mjs --preview-url http://localhost:8788 --features
-     share-spot`, and record the resulting verdict for the "share-spot" slug from the
-     JSON report. Per the Context note above, a "block"/"error" verdict whose
-     agyResponse or stepLog shows no popup ever opened is an expected, named harness
-     gap — report it as such rather than treating it as proof of a code defect.
-     [command] e2e-runner-witness
+  9. (amended 2026-07-07 per RULE 9: prior step hand-rolled a localhost:8788 server — nothing serves that port) In ONE command: confirm clean tree for this mission's ALLOW-FILES (git commit first if this mission's edits are not yet committed — never deploy a dirty tree), then wrangler pages deploy . --project-name=muddytires --branch=preview, capture the emitted *.pages.dev URL into a PowerShell variable, then run `node scripts/e2e-runner.mjs --preview-url <that captured URL> --features share-spot`, and record the resulting verdict for the "share-spot" slug from the JSON report. Per the Context note above, a "block"/"error" verdict whose agyResponse or stepLog shows no popup ever opened is an expected, named harness gap — report it as such rather than treating it as proof of a code defect. [command] e2e-runner-witness
 
 Done means:
   - map.html contains `<script src="js/share-spot.js" defer></script>` and no longer

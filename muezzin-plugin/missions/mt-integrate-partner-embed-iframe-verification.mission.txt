@@ -139,15 +139,7 @@ Steps:
      untracked files noted in Context are not this mission's to clean up), and
      `git log --oneline -5` shows the landed commit at or near HEAD. [command]
      commit-and-verify-clean
-  6. Because this diff introduces embed/map.html and VISUAL-QC-REQUIRED is set, run the
-     visual-witness pipeline: serve the target repo's static files locally (e.g.
-     `wrangler pages dev`), load /embed/map.html from PREVIEW-BASE-URL in a headless
-     browser (headless Chrome / Playwright / puppeteer), capture a render, and record
-     whether the page loads without a fatal script error and whether
-     `document.getElementById('mt-embed-map')` is present in the rendered DOM — the
-     Leaflet map container the inline script is supposed to create. If PREVIEW-BASE-URL is
-     unreachable, record that as a named NO_PREVIEW_BASE_URL receipt rather than skipping
-     the check silently. [command] headless-render-witness
+  6. (amended 2026-07-07 per RULE 9: prior step hand-rolled a localhost:8788 server — nothing serves that port) In ONE command: confirm clean tree for this mission's ALLOW-FILES (git commit first if this mission's edits are not yet committed — never deploy a dirty tree), then wrangler pages deploy . --project-name=muddytires --branch=preview, capture the emitted *.pages.dev URL into a PowerShell variable, write scratch-qc.mjs (playwright render of /embed/map.html from that URL, exit non-zero if the page throws a fatal script error or `document.getElementById('mt-embed-map')` — the Leaflet map container the inline script is supposed to create — is absent from the rendered DOM), node scratch-qc.mjs, Remove-Item scratch-qc.mjs. [command] headless-render-witness
 
 Done means:
   - `git log` in C:\Users\marka\code\mt-integration-2026-06-22 shows a commit at or near
