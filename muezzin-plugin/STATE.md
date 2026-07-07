@@ -238,6 +238,13 @@ declaring the gap closed, and it now has to hold across a pathway it never used 
 + 1 hunt item: #7 LANE-EXCLUSION — hook BUILT+TESTED 9/9 at
 ~/.claude/hooks/lane-exclusion-gate.mjs; registration in settings.json classifier-blocked —
 ONE approved edit from live, the LAST hunt item standing).
+**FINAL 2026-07-07 ~20:4xZ — PUSH SENT, OPERATOR WORD RECEIVED ("why wouldn't I push"),
+EXECUTED: main+master pushed (7dd6df5), production deployed, deploy marker WITNESSED
+(live /map == HEAD, e2e PASS), doneness blocking 0. Remaining next-beat: 1 false-death
+candidate, CUDA-CRASH-CLASS window annotation (gemma demotion IS the response), intake
+waves N1/N3/N4/N5/N6/N10/N12. unresolvedFAILED=7 are held requeues awaiting hold-lift,
+not gap work. Big-project discussion OPEN; execution waits on intake drain per ruling.**
+
 **UPDATE 2026-07-07 EVENING — 29/29 STRUCK + E2E AUDIT COMPLETE (operator condition met).**
 Full accounting in QUEUE.md "E2E AUDIT COMPLETE" entry: 28 refute-upheld E2E-PASS, hunt-17
 FAIL overturned (reload receipt), top-4/hunt-3/hunt-22/hunt-23 completed personally, top-6
