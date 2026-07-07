@@ -1990,3 +1990,24 @@ amend-on-surface pile which is genuinely operator-gated per the tested 07-05 den
 #8 (main/master reconcile decision + undeployed-commit deploys — both operator-word-shaped).
 The gap-dry push (#7-#11 all struck -> big-project discussion) is 2 items out, and both
 remainders are operator-word-shaped rather than engineering-shaped.
+
+## 2026-07-07 OPERATOR WORD (same session, later beat): preview-deploys + reconcile/deploy APPROVED
+Operator, verbatim: "why wouldn't I approve it? the governance, framework, substrate, or
+handbook doesn't answer this?" — ruling both that the two surfaced items proceed AND that
+the governance already assigned them (deploy sequencing is a conductor roadmap gate; only
+identity-bound items are the operator's). Recorded as the standing word the 07-05
+classifier denials were waiting on. Actions taken same beat:
+- **Item #8: FULLY STRUCK.** master fast-forwarded to main (was 70 behind / 0 unique — no
+  true divergence left; pushed github 304fbaa..94e8e71 master). Undeployed commits SHIPPED
+  preview-first per wrangler.toml's own rule: preview b4026bc6.muddytires.pages.dev
+  verified (landing 200, map 308->200, crown-overlay.js 200 with 2 feature-marker hits,
+  pois.json 200), then production promote b5d39cc2; LIVE muddytires.ca verified serving
+  crown-land-overlay.js with getProvincialRules/PROVINCIAL markers + map 200 + pois 200.
+  The crown-legal feature (absent from production since 2026-06-23) is user-visible now.
+- **Item #7 amend pile: batch delegated** (general-purpose agent, RULE 9 amended-cure
+  shape from mission_lint.mjs's own passing fixture, single commit, lint-verified per
+  file). #7's remaining conductor drain (false-death candidates + FAILED-x2 diagnoses)
+  continues in beats — the LAST substantive gap work standing.
+- Also this beat (perform-fix-gate enforcement): inline-eval-mangle mechanical rule landed
+  in validateMicroQueue (bdec992, 4 selftests, suite ALL PASS), fix-ledger recorded,
+  qc-concern-pwa-install-banner requeued, daemon respawned onto the new code (PID 33924).

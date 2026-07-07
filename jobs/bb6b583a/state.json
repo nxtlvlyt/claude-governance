@@ -1,19 +1,26 @@
 {
-  "state": "blocked",
-  "detail": "27/29 gaps fixed; inline-eval engine landed; 2 remain: #7 needs preview-deploy authorization, #8 needs branch reconcile + prod deploy decision",
-  "tempo": "blocked",
+  "state": "working",
+  "detail": "#8 deployed (muddytires.ca live-verified); #7 amend batch in flight via agent; 28/29 struck; draining board-truth items",
+  "tempo": "active",
   "inFlight": {
-    "tasks": 0,
-    "queued": 0,
-    "kinds": []
+    "tasks": 1,
+    "queued": 1,
+    "kinds": [
+      "local_agent"
+    ]
   },
-  "tokens": 52781,
-  "needs": "say \"preview deploys approved\" and/or \"reconcile and deploy\"",
-  "output": {
-    "result": "27/29 gaps closed; awaiting go-ahead on preview deploys and/or prod reconcile+deploy"
-  },
+  "fan": [
+    {
+      "id": "afb71dd595bdf8caf",
+      "kind": "agent",
+      "label": "Amend RULE-9 mission texts",
+      "startedAt": 1783437201354
+    }
+  ],
+  "tokens": 66218,
+  "output": null,
   "children": null,
-  "linkScanOffset": 1171977,
+  "linkScanOffset": 1307236,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -38,6 +45,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-07T15:03:55.349Z",
+  "updatedAt": "2026-07-07T15:14:30.606Z",
   "firstTerminalAt": null
 }
