@@ -2085,6 +2085,15 @@ N7. NEW THIS ENTRY (observed 2026-07-07, previously unenrolled — the exact hun
 N8. gemma4:12b vision-seat 24h clean-census watch (condition, auto-resolves or escalates).
 N9. Fire-ban D1 seed-data (carried from the fire-ban mission's Context; the layer is live
     but renders only what the D1 table holds).
+N10. RETRO-REPEAT-BLOCKED refusal marks CLOBBER the line's prior annotation (live receipt
+    2026-07-07T16:32: 4 freshly-stamped FAILED lines reduced to bare timestamps by the
+    gate's refusal rewrite — conductor had to restore all 4 stamps by hand). Fix: the
+    refusal writer should APPEND its mark to the existing comment, never replace it.
+N11. Hold-bypass window receipt (2026-07-07 16:32-16:44): between a fix-ledger requeue
+    and the daemon reload that loads a corrected classifier, the OLD in-memory classifier
+    governs fires — requeue records + QUEUED appends should be treated as reload-gated
+    when the classifier itself changed this session (sequencing note for the playbook's
+    engine-edit rule, not new code).
 #7-TAIL (not new gaps — the last work items of the 29): m1-1 v6 authoring, scenic-osm.S1
 scoped re-fire, 6 remaining false-death verifications, 1 parked revisit, share-spot
 catalog gate 2.

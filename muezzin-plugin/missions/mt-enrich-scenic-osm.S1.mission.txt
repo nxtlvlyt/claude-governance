@@ -23,7 +23,11 @@ honest path has something true to say. Overlay-file approach (not D1 writes) bec
 carry no D1 credentials and a static JSON is diffable, reviewable, and reversible.
 
 Steps:
-  1. Write scripts/build-scenic-enrichment.mjs: reads a bbox argument, fetches scenic-node
+  1. (amended 2026-07-07 per board-truth FIX: the builder ALREADY LANDED at HEAD via 277677a,
+     node --check clean — do NOT re-author it. This step is now a presence check only: verify
+     scripts/build-scenic-enrichment.mjs exists at REPO-ROOT and node --check passes; if
+     absent, STOP and report — the baseline assumption broke.) Original spec for reference
+     only: Write scripts/build-scenic-enrichment.mjs: reads a bbox argument, fetches scenic-node
      osm_ids from https://muddytires.ca/pois.json?zoom=9&bbox=<bbox>&types=scenic, queries
      Overpass (https://overpass-api.de/api/interpreter) with one bulk "node(id:...)" query
      for their tags, derives {scenic_type, name?, wikidata?} per node (mapping above,
