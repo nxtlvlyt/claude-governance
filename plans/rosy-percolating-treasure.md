@@ -160,6 +160,15 @@ SEAT MAP (operator picks bolded; auditions finalize):
    quota-exhausted fallback row in the EXISTING Claude-side waterfall (pending seat-plan
    sign-off note in MUEZZIN-SEAT-PLAN-LOCKED.md).
 
+## Step-1 recon results (2026-07-07, live receipts)
+- `agy -p` WORKS at v1.0.16: `agy --model "gemini-3.5-flash" --print "Reply with exactly:
+  AGY-OK"` returned `AGY-OK`. The 2026-06-24 empty-stdout blocker is CURED. Sign-in held.
+- `agy plugin list`: "No imported plugins." (clean slate).
+- `agy plugin import claude`: NOT RUN — auto-mode classifier denied it as crossing the
+  operator's "agy must not touch the Claude plugin" boundary (import direction is
+  Claude→agy, arguably safe, but the experiment is optional; the script-rails path (b)
+  is the plan of record). Revisit only if the operator explicitly wants the experiment.
+
 ## Verification
 - Step 1 receipts: agy -p returns stdout; plugin validate output recorded.
 - Step 2: agy-muezzin selftest suites ALL PASS (they port with the engine).
