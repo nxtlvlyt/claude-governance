@@ -29,7 +29,20 @@ export function splitOversizedPlan(mission, queue, opts = {}) {
   const parentId = queue?.mission_id
     || (String(mission || '').match(/MISSION-ID:\s*(\S+)/i) || [])[1]
     || null;
-  const parentClass = (String(mission || '').match(/MISSION-CLASS:\s*(\S+)/i) || [])[1] || null;
+  // VALIDATED PARSE (2026-07-05, sibling-divergence sweep): this used to be a raw, unvalidated
+  // `MISSION-CLASS:\s*(\S+)` capture — buildCodeRepoDeclaration (below, same file) already
+  // imports and uses the REAL parseMissionClass for the identical question, but this earlier
+  // capture never did. A malformed/non-canonical MISSION-CLASS value on the parent (or one
+  // parseMissionClass would normalize differently) could make a child's DECLARED class
+  // disagree with what orchestrate.mjs actually ENFORCES when that child fires — the same
+  // "two functions meant to agree, silently diverged" shape as the doneMissionIds/
+  // terminalMissionIds and queuedDepsHold/promotionHold fixes earlier this session.
+  // parseMissionClass always returns one of 'code-repo'|'research'|'code' (never null), so
+  // this also retires the old `|| 'code-repo'` fallback below to dead code -- correctly: a
+  // parent with NO MISSION-CLASS header should inherit parseMissionClass's OWN default
+  // ('research', matching what the real engine gives that same header-less parent), not a
+  // second, uncoordinated 'code-repo' guess.
+  const parentClass = parseMissionClass(mission).class;
 
   if (!parentId) {
     return { fail: true, reason: 'unsplittable: no MISSION-ID in queue or mission text — cannot mint child mission IDs' };
@@ -165,7 +178,7 @@ export function emitSubMissions(plan, ctx = {}, io = {}) {
 
     const childText = [
       `MISSION-ID: ${childId}`,
-      `MISSION-CLASS: ${plan.parentClass || 'code-repo'}`,
+      `MISSION-CLASS: ${plan.parentClass}`,
       `PARENT: ${parentId}`,
       `TARTIB-INDEX: ${group.index} of ${plan.groupCount}`,
       ...(codeRepo ? [`REPO-ROOT: ${codeRepo.repoRoot}`, `ALLOW-FILES:`, ...codeRepo.allowFiles.map((f) => `  - ${f}`)] : []),
@@ -375,6 +388,24 @@ if (process.argv[1]?.endsWith('mission_split.mjs')) {
     ck(/AUTORUN\.md locked \(EBUSY\)/.test(out3.appendQueueErrors[0].error), 'appendQueueErrors: the ORIGINAL error message is preserved, not just its absence');
 
     fsErr.rmSync(tmp3, { recursive: true, force: true });
+  }
+
+  // ---- VALIDATED MISSION-CLASS parse (2026-07-05, sibling-divergence sweep): splitOversizedPlan
+  // used to capture MISSION-CLASS with a raw, unvalidated regex instead of the same
+  // parseMissionClass buildCodeRepoDeclaration already uses -- a malformed/non-canonical value
+  // could disagree with what the real engine enforces when the child fires.
+  {
+    // (a) a non-canonical value normalizes through parseMissionClass's own default, not a
+    // garbage passthrough -- 'sandbox' isn't code-repo/research/code, so it becomes 'research'.
+    const rBad = splitOversizedPlan('MISSION-ID: M-BADCLASS\nMISSION-CLASS: sandbox\nMaqsad: x.', mkQueue('M-BADCLASS', 7), { sizeCeiling: 3 });
+    ck(rBad.parentClass === 'research', `MISSION-CLASS validation: a non-canonical value ('sandbox') normalizes to parseMissionClass's own default ('research'), not a garbage passthrough (got '${rBad.parentClass}')`);
+    // (b) NO MISSION-CLASS header at all -> parseMissionClass's real default ('research'),
+    // not the old uncoordinated '|| code-repo' guess this fix retired.
+    const rNone = splitOversizedPlan('MISSION-ID: M-NOCLASS\nMaqsad: x.', mkQueue('M-NOCLASS', 7), { sizeCeiling: 3 });
+    ck(rNone.parentClass === 'research', `MISSION-CLASS validation: a header-less parent gets parseMissionClass's real default ('research'), matching what the engine itself would enforce for the same parent (got '${rNone.parentClass}')`);
+    // (c) negative control: a genuine code-repo parent still produces code-repo children.
+    const rGood = splitOversizedPlan('MISSION-ID: M-GOODCLASS\nMISSION-CLASS: code-repo\nMaqsad: x.', mkQueue('M-GOODCLASS', 7), { sizeCeiling: 3 });
+    ck(rGood.parentClass === 'code-repo', 'MISSION-CLASS validation: a genuine code-repo parent is unaffected (negative control)');
   }
 
   // ---- buildDoneMeans + VISUAL-QC forwarding (additive) -----------------------------

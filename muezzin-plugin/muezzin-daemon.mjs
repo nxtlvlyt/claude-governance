@@ -903,7 +903,7 @@ function promotionHold(missionText, doneIds, autorunText = '') {
 // Collect the set of mission-IDs already DONE in AUTORUN, so a tartib child can see its
 // predecessor cleared. A DONE line's mission file basename AND its MISSION-ID both count
 // as satisfiers (the tartib REQUIRES cites the MISSION-ID; the DONE line carries the path).
-function doneMissionIds(autorunText, missionsDir, readText) {
+function doneMissionIds(autorunText, missionsDir, readText, ledgerText = '') {
   const ids = new Set();
   for (const line of String(autorunText).split(/\r?\n/)) {
     if (!/^DONE\b/.test(line.trim())) continue;
@@ -918,6 +918,19 @@ function doneMissionIds(autorunText, missionsDir, readText) {
       if (id) ids.add(id.trim());
     } catch { /* file gone (e.g. a split parent) — basename satisfier still stands */ }
   }
+  // LEDGER FALLBACK (2026-07-05, sibling-divergence sweep): terminalMissionIds (its own
+  // "is this mission settled" question, feeding the terminal-guard) was hardened to ALSO
+  // check MISSION-LEDGER.md, because an AUTORUN-only lookup breaks on daemon restart / a
+  // reverted RUNNING line / path-token drift losing a DONE status that genuinely landed.
+  // This function answers the sibling question -- "is this tartib PREDECESSOR done" (feeds
+  // pickPromotion's dependency-satisfaction check) -- and never received the same widening:
+  // a genuinely-completed predecessor whose AUTORUN line got lost would permanently block
+  // its successor from ever auto-promoting, even though MISSION-LEDGER.md already shows it
+  // DONE. Mirrors the ledger row format terminalMissionIds parses (`| ts | name | verdict |`).
+  for (const line of String(ledgerText || '').split(/\r?\n/)) {
+    const cells = line.split('|').map((c) => c.trim());
+    if (cells.length >= 4 && /^DONE\b/.test(cells[3] || '') && cells[2]) ids.add(cells[2]);
+  }
   return ids;
 }
 
@@ -928,7 +941,7 @@ function doneMissionIds(autorunText, missionsDir, readText) {
 // OPERATOR PRIORITY ORDER when it can, else lexical), and the FIRST ready one wins. Minimal
 // + safe: one promotion per call, so the daemon re-reads truth before the next.
 function pickPromotion(autorunText, missionFiles, missionsDir, readText, ledgerText = '', gitFn = (repo, argstr) => { try { return { ok: true, out: execSync(`git -C "${repo}" ${argstr}`, { stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 64 * 1024 * 1024 }).toString() }; } catch { return { ok: false, out: '' }; } }) {
-  const doneIds = doneMissionIds(autorunText, missionsDir, readText);
+  const doneIds = doneMissionIds(autorunText, missionsDir, readText, ledgerText);
   // TERMINAL GUARD (spam-loop root fix): a FAILED-x2 / DONE / SPLIT mission — recorded in
   // AUTORUN status lines OR the persistent MISSION-LEDGER.md — is DEAD and must never be
   // resurrected, even if a path token in AUTORUN drifted or the daemon restarted (which
@@ -1750,6 +1763,16 @@ if (process.argv.includes('--selftest')) {
     // the fix does not manufacture phantom holds on ordinary prose.
     ck(promotionHold('REQUIRES: search-grounded seats always', new Set(), bareStemAutorun).hold === true, 'bare-stem tartib: hyphenated PROSE with no matching queue line falls through to the ordinary prose-precondition hold (not a phantom bare-stem match)');
     ck(promotionHold('REQUIRES: search-grounded seats always', new Set(), bareStemAutorun).why, 'carries a non-tartib prose REQUIRES precondition (conductor-curated)', 'bare-stem tartib: the prose case is held for the ORIGINAL reason, proving it never entered the bare-stem branch at all');
+
+    // DONEMISSIONIDS LEDGER FALLBACK (2026-07-05, sibling-divergence sweep): terminalMissionIds
+    // already checks MISSION-LEDGER.md as well as AUTORUN (hardened against a lost/reverted
+    // AUTORUN line after a restart); doneMissionIds -- the sibling question "is the predecessor
+    // done" -- never got the same widening. A DONE ledger row for a stem with NO matching
+    // AUTORUN line must still satisfy a tartib dependency on that stem.
+    const ledgerOnlyDone = '| 2026-07-04T00:00:00Z | mt-x.S1 | DONE(3m) | 0 heals |\n';
+    ck(doneMissionIds('# empty autorun, no DONE line at all\n', 'C:/fake/missions', () => { throw new Error('no file'); }, ledgerOnlyDone).has('mt-x.S1'), 'doneMissionIds: a stem present ONLY as a DONE row in MISSION-LEDGER.md (no AUTORUN line) still counts as done');
+    ck(!doneMissionIds('# empty autorun\n', 'C:/fake/missions', () => { throw new Error('no file'); }, '| 2026-07-04T00:00:00Z | mt-y.S1 | FAILED(plan) | 2 heals |\n').has('mt-y.S1'), 'doneMissionIds: a FAILED ledger row does NOT count as done (only DONE rows satisfy the dependency)');
+    ck(doneMissionIds('# empty autorun\n', 'C:/fake/missions', () => { throw new Error('no file'); }).size === 0, 'doneMissionIds: no ledgerText argument at all -> byte-unchanged empty result (back-compat default)');
 
     // pickPromotion end-to-end on a fake on-disk set: picks the one ready unqueued mission,
     // skipping queued + held + blocked + unsatisfied-dep. Lock the SKIP behavior with teeth.
