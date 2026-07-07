@@ -1,6 +1,0 @@
-NEEDS-WORK
-
-- **CLOSED:** correlated-failure (blind-eval audit), circular-trust (assertion-closure + heterogeneity), verdict/compress operationalization, rate-limit realism, size-ceiling rule
-- **REMAINING:** durable-resume still *declared* as test-action but unvalidated; adversarial-self-test deferred to v2 is evasion not closure; cross-mission memory deferral leaves state-bleed unaddressed
-- **NEW-BROKEN:** "Cloud throttle: parallel-safe re GPU, but rate-limited" contradicts itself — GPU-parallelism vs rate-limit serializes unpredictably; prev-hash chain adds integrity but no source for genesis hash; 50-findings cap is arbitrary and attacker-controllable (spam→forced truncation→APPROVE bias); "producer≠verifier different model families" assumes family-diversity guarantees independence — false (shared training data, correlated errors across families)
-- **RESIDUAL SYSTEMIC:** mechanical enforcer role claims "no judgment" but merge engine encodes severity hierarchy (who set 50-cap, BLOCK>REVISE>APPROVE?); operator-gated phase assignments in §8 mean the critical path is still deferred under a "pending witness" status that may never arrive

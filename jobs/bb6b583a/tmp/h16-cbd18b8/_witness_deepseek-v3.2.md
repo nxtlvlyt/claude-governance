@@ -1,8 +1,0 @@
-NEEDS-WORK
-
-- **Missing current SOTA patterns:** No explicit **LLM-as-a-judge** or **reflection/self-critique loops** within phases for intermediate validation; lacks a **memory/skill library** for cumulative learning across missions; omits **explicit human-in-the-loop** escalation paths for BLOCK verdicts.
-- **Internally coherent but over-optimistic:** Assumes Claude Workflows' deterministic replay cleanly maps to "durable execution," but plugin constraints may limit true state persistence and crash recovery across sessions.
-- **Biggest risk: Over-reliance on untested "adaptive heal" logic.** The heuristic retry logic (e.g., "ctx-overflow→drop num_ctx") is complex, likely brittle, and not derived from cited sources; it risks misdiagnosing failures and causing infinite loops or data loss.
-- **Certification process is meta, not functional.** Requiring a witness panel for plan approval is governance-aligned but doesn't validate the *technical implementation* of core mechanisms like verdict-gating or context engineering.
-- **Verdict-gating is critical but underspecified.** How a REJECT/BLOCK actually stops the workflow and triggers a bounded revision loop is not detailed; this is the core novel claim requiring rigorous design.
-- **Packaging as a Claude Code plugin is pragmatic** but introduces a hard dependency on Claude's runtime and may limit portability and deeper integration with external orchestration frameworks (e.g., LangGraph).

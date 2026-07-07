@@ -1,6 +1,0 @@
-MISSION CORPUS-S1-CARD-REGULATIVITY
-MISSION-CLASS: research
-Niyyah: Regulativity is the proven reference implementation of the factory's entire build recipe — its patterns are the recipe's living receipts.
-Maqsad: ONE deliverable — pattern-card-regulativity.md in this sandbox: (1) WORKER PATTERNS — the Cloudflare Worker routes worth templating (feed pre-generation/KV cache, domain-restricted article fetch, SSE chat proxy), each with file evidence; (2) FAITH-FILE PATTERNS — how the Oracle/Directive faiths encode voice (structure worth copying into the factory's per-client faith method); (3) SINGLE-FILE SITE PATTERNS — design-system variables, section architecture, the card-click→RAG flow; (4) ANTI-PATTERNS — anything dated or superseded. Every claim cites a file path or doc section. Done = card exists, markdown-valid, every section evidence-cited.
-Context: sources READ-ONLY — C:\warroom\BRAND-TO-SITE-FAST.md (the recipe), C:\warroom\index.html (site template), C:\warroom\regulativity-worker\src\index.js + wrangler.toml (worker template). Live: regulativity.pages.dev. Absolute paths only in context_dependencies; the card is the only write target, cwd-relative.
-Amanah: entrusted; discharge with ihsan.

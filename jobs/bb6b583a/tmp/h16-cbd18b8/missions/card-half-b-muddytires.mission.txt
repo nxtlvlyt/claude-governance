@@ -1,8 +1,0 @@
-MISSION CARD-HALF-B-MUDDYTIRES
-MISSION-ID: 4b
-MISSION-CLASS: research
-REQUIRES: none — input PRE-STAGED (muddytires.html, 23,628 bytes, the real live homepage fetched 2026-06-10).
-Niyyah: Half B of the conductor's hand-split (see card-half-a-vanlife). One subject, one card, one emission.
-Maqsad: ONE artifact — card-half-b-muddytires.md at the sandbox root (plan ONLY reads of the staged file + ONE emit step). Subject: the LIVE muddytires.ca homepage AS CAPTURED in the staged muddytires.html. Sections: (1) page structure — actual sections/landmarks found in the HTML, quoted, (2) visual language — class names, inline styles, palette AS PRESENT in the file, each quoted, (3) voice — headline/CTA/copy quotes verbatim, (4) what it does well, each point tied to quoted evidence, (5) what the factory would improve, grounded in the evidence, (6) honest gaps — what one homepage capture CANNOT show (other pages, behavior, backend) named plainly. EVIDENCE RULE: every claim quotes the staged HTML; nothing asserted from memory of the live site. Done = card exists, markdown-valid, all claims quoted.
-Context: muddytires.html staged read-only. The card is the only write target, cwd-relative.
-Amanah: entrusted; discharge with ihsan.
