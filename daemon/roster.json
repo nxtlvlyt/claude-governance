@@ -1,7 +1,7 @@
 {
   "proto": 1,
-  "supervisorPid": 9756,
-  "updatedAt": 1783436489341,
+  "supervisorPid": 35704,
+  "updatedAt": 1783436560582,
   "workers": {
     "f757fc34": {
       "pid": 28128,
@@ -60,14 +60,13 @@
       "ptyAuth": "636497fbf84e88aaec4cce6264f505dd"
     },
     "bb6b583a": {
-      "pid": 32312,
-      "procStart": "639190098999289460",
+      "pid": 20216,
       "sessionId": "bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf",
       "rendezvousSock": "\\\\.\\pipe\\cc-daemon-69c76e4ae1bf5e5b-rv-bb6b583a",
       "ptySock": "\\\\.\\pipe\\cc-daemon-69c76e4ae1bf5e5b-pty-bb6b583a",
-      "cliVersion": "2.1.201",
+      "cliVersion": "2.1.202",
       "startedAt": 1783434699887,
-      "attempt": 1,
+      "attempt": 2,
       "cwd": "C:\\Users\\marka",
       "dispatch": {
         "proto": 1,
