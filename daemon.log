@@ -42,3 +42,5 @@
 [2026-07-07T15:02:30.864Z] [bg] bg: control socket bound at \\.\pipe\cc-daemon-*-control
 [2026-07-07T15:02:31.968Z] [bg] bg adopt: adopted=2 respawned=0 dead=0
 [2026-07-07T15:32:33.476Z] [bg] bg settled f757fc34 (done)
+[2026-07-07T21:21:34.168Z] [supervisor] binary at C:\Users\marka\AppData\Roaming\npm\node_modules\@anthropic-ai\claude-code\bin\claude.exe changed (mtime changed) — self-restarting for upgrade
+[2026-07-07T21:21:34.177Z] [supervisor] shutting down (cause=upgrade, uptime=22744s, leases=2, live_workers=1)
