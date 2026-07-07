@@ -2088,3 +2088,18 @@ N9. Fire-ban D1 seed-data (carried from the fire-ban mission's Context; the laye
 #7-TAIL (not new gaps — the last work items of the 29): m1-1 v6 authoring, scenic-osm.S1
 scoped re-fire, 6 remaining false-death verifications, 1 parked revisit, share-spot
 catalog gate 2.
+
+## 2026-07-07 OPERATOR CONDITION — E2E COMPLETION AUDIT GATES THE DRY PUSH
+Operator word (verbatim): "when all 29 are done you need to auditing them all for e2e
+completion." AMENDED PUSH CONDITION (supersedes the bare 29/29 trigger): the gap-dry
+push fires only after (a) all 29 ledger items are struck AND (b) an end-to-end
+completion audit passes on EVERY one of the 29 — each item verified by exercising the
+BEHAVIOR the gap named (live receipt or receipted selftest-of-the-exact-class), not by
+the presence of a strike stamp or commit sha. Founding receipt for why: hunt-#17
+(gap-hold widening) was struck 2026-07-04 and STILL let qc-concern-poi-affiliate-cards
+fire through the hold 2026-07-07T16:44Z — a struck mark is a claim, the audit is the
+deed-check. Audit mechanism: per-item verify agents + adversarial refute (the proven
+board-truth-drain shape), each item's check derived from its OWN close receipt (e.g.
+hold classes: classifier fixture fires; hooks: synthetic trigger blocks; lint rules:
+the receipted kill-shape rejects; census items: the metric window holds). Failures
+reopen the item — the push waits.

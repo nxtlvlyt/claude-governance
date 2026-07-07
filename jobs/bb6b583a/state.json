@@ -1,16 +1,16 @@
 {
   "state": "working",
-  "detail": "engine-proof extracted from muddytires; running lane producing; m1-1 v6 + scenic requeue + stamp re-check + re-deploy remaining (~50 min)",
+  "detail": "amended push condition: 29 struck + e2e audit passes on all 29 before push; recorded in commit 870b861; audit ~1h parallel agents, push target tonight (confidence 0.7)",
   "tempo": "idle",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 610842,
+  "tokens": 613174,
   "output": null,
   "children": null,
-  "linkScanOffset": 3355336,
+  "linkScanOffset": 3388460,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -37,6 +37,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-07T17:04:03.593Z",
+  "updatedAt": "2026-07-07T17:07:07.502Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
