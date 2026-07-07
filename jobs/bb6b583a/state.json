@@ -1,16 +1,16 @@
 {
   "state": "working",
-  "detail": "seat map built with your picks (Gemini 3.5 Flash conductor/integrator, Ollama coder); needs live Ollama Cloud census before final roster lock",
+  "detail": "pulling live Ollama Cloud catalog; verifying against plan file",
   "tempo": "idle",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 1872315,
+  "tokens": 1875883,
   "output": null,
   "children": null,
-  "linkScanOffset": 4984210,
+  "linkScanOffset": 5036944,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -37,6 +37,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-07T20:46:30.079Z",
+  "updatedAt": "2026-07-07T20:48:31.132Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }

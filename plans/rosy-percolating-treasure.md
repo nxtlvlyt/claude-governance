@@ -99,22 +99,29 @@ includes ~/.claude. Old ~/.agents/AGENTS.md pointed at the Claude plugin's files
 for last time's cross-editing; must be purged/rewritten.
 
 ## Seat map draft (operator picks + conductor recommendations)
-Rosters: agy-native = Gemini 3.5 Flash (L/M/H), Gemini 3.1 Pro (L/H), Claude Sonnet/Opus
-4.6 Thinking (Vertex), GPT-OSS 120B. Ollama Cloud = census REQUIRED before seating
-(model-identity-needs-receipts; last census weeks old — known-era seats: qwen3-coder-next,
-kimi-k2.x-code, deepseek-v4-pro, minimax-m3, glm-5.1, nemotron-ultra).
-- Conductor: **Gemini 3.5 Flash (High)** — operator pick; beat-harness rails carry discipline.
-- Integrator: **Gemini 3.5 Flash** — operator pick.
-- Phase-2 executor: **Ollama Cloud coding model** — operator pick; recommend
-  qwen3-coder-next (held this seat in the cloud era) or kimi-k2.x-code, decided by census+bench.
-- Architects (3, blind, cross-lab): Gemini 3.1 Pro (High) + 2 Ollama Cloud heavies.
-- Validator/Auditor: cross-lab from producer seats (GPT-OSS 120B + Gemini 3.1 Pro or
-  cloud heavy; producer≠verifier preserved).
-- Witness pair + structural review: STAY nxtbeast-local (laguna/ornith/guardian) — cheap,
-  proven, no reason to move.
-- Vision QC: Gemini 3.5 Flash (multimodal, agy-native); fallback mistral-small3.2@nxtbeast.
-- Seating discipline: live Ollama Cloud census first, then per-seat auditions (same bar as
-  the local roster got), rijal logs from day one.
+Rosters, LIVE-CENSUSED 2026-07-07:
+- agy-native (`agy models`, probed this session): Gemini 3.5 Flash (Low/Med/High),
+  Gemini 3.1 Pro (Low/High), Claude Sonnet 4.6 + Opus 4.6 Thinking (Vertex), GPT-OSS 120B.
+- Ollama Cloud (ollama.com/search?c=cloud, fetched 2026-07-07): glm-5.2 (long-horizon
+  flagship), kimi-k2.7-code (coding agentic), gemma4 12/26/31b (multimodal), qwen3.5
+  0.8b-122b (multimodal utility), glm-5.1 (agentic engineering), minimax-m2.7 (coding
+  agentic), nemotron-3-super 120b (MoE multi-agent), glm-5 744b/40b-active, minimax-m2.5,
+  minimax-m3 (coding, 1M ctx), kimi-k2.6 (multimodal agentic), deepseek-v4-flash
+  (284b/13b-active), deepseek-v4-pro (frontier MoE), kimi-k2.5 (multimodal+vision),
+  nemotron-3-ultra, gpt-oss 20/120b, qwen3-coder 30/480b (long-context coding), glm-4.7,
+  gemini-3-flash-preview, minimax-m2.1. NOTE: qwen3-coder-next tag is GONE (renamed) —
+  the stale-tag risk the census rule exists for.
+SEAT MAP (operator picks bolded; auditions finalize):
+- Conductor: **Gemini 3.5 Flash (High)** (operator pick; beat-harness rails carry discipline)
+- Integrator: **Gemini 3.5 Flash** (operator pick)
+- Phase-2 executor: **kimi-k2.7-code** OR **qwen3-coder 480b** (operator wants an Ollama
+  Cloud coding model; audition head-to-head)
+- Architects x3 (blind, cross-lab): Gemini 3.1 Pro (High) + glm-5.2 + deepseek-v4-pro
+- Validator/Auditor: GPT-OSS 120B + minimax-m3 (1M ctx suits big-artifact judging);
+  producer≠verifier preserved
+- Witness pair: laguna/ornith/guardian on nxtbeast (unchanged)
+- Vision QC: Gemini 3.5 Flash (agy-native) or kimi-k2.5; fallback mistral-small3.2@nxtbeast
+- Discipline: per-seat auditions before lock (same bar as local roster), rijal logs day one.
 
 ## Known blockers to burn down (receipts)
 - `agy --print` empty-stdout bug (2026-06-24 receipt) — RETEST at v1.0.16 before trusting;
