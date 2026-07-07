@@ -117,6 +117,26 @@ function readDep(cwd, rel) {
   catch (e) { return `<<unreadable: ${e.message}>>`; }
 }
 
+// FULL-READ variant for the dep-windowing path (top-6 e2e-audit catch, 2026-07-07):
+// readDep's 30KB head-slice (c7728ad, predates gap #6's fix) silently starved
+// windowDepsForPrompt — raw could never exceed the 60KB per-dep cap, so the
+// anchor-window/marker branch was UNREACHABLE in production and every big dep became a
+// silent 30KB head with no omission marker (a737b64's selftests passed only because they
+// injected a mock readFn). Windowing IS the cap on this path; pre-capping defeats it.
+// Same directory/unreadable semantics as readDep, no byte cap.
+function readDepFull(cwd, rel) {
+  try {
+    const p = path.isAbsolute(rel) ? rel : path.join(cwd, rel);
+    if (statSync(p).isDirectory()) {
+      const entries = readdirSync(p, { withFileTypes: true })
+        .map((d) => (d.isDirectory() ? `${d.name}/` : d.name)).slice(0, 200);
+      return `<<directory listing of ${rel}>>\n${entries.join('\n')}`;
+    }
+    return readFileSync(p, 'utf8');
+  }
+  catch (e) { return `<<unreadable: ${e.message}>>`; }
+}
+
 // Build the framing: the dependencies as labeled context, then the explicit instruction to output ONLY
 // the FULL contents of the single target file in one code block (no prose, no diff, no partial edit).
 function buildFraming(step, cwd) {
@@ -286,7 +306,7 @@ export function windowLargeFileForEdit(current, step, maxBytes = EDIT_FULL_FILE_
 // anchors). A running TOTAL budget bounds many-medium-deps; every cut carries a marker.
 const DEP_MAX_BYTES = 60000;
 const DEPS_TOTAL_MAX_BYTES = 150000;
-export function windowDepsForPrompt(step, cwd, { perDep = DEP_MAX_BYTES, total = DEPS_TOTAL_MAX_BYTES, readFn = readDep } = {}) {
+export function windowDepsForPrompt(step, cwd, { perDep = DEP_MAX_BYTES, total = DEPS_TOTAL_MAX_BYTES, readFn = readDepFull } = {}) {
   let budget = total;
   const blocks = [];
   for (const rel of (step.context_dependencies || [])) {
@@ -708,6 +728,20 @@ if (process.argv[1]?.endsWith('executor.mjs')) {
     ck(small.includes('tiny dep content') && !/windowed|truncated|omitted/.test(small), 'dep-window: small dep passes verbatim, no markers');
     const multi = windowDepsForPrompt({ ...dwStep, context_dependencies: ['a.js', 'b.js', 'c.js'] }, dir, { readFn: () => 'y'.repeat(80000), perDep: 60000, total: 100000 });
     ck(/dep omitted|dep truncated|dep windowed/.test(multi) && multi.length < 200000, 'dep-window: TOTAL budget bounds many medium deps (later deps trimmed with markers)');
+
+    // DEFAULT-PATH regression (top-6 e2e-audit kill-shape, 2026-07-07): NO readFn injection —
+    // a REAL on-disk dep bigger than readDep's old 30KB head-slice, with the anchor placed
+    // BEYOND 30KB. Pre-fix, readDep pre-truncated the dep so windowing never engaged: the
+    // deep anchor vanished and no marker appeared (silent head-truncation). The fix routes
+    // the default through readDepFull (uncapped) so windowing is the ONLY cap.
+    const deepDep = Array.from({ length: 22000 }, (_, i) => (i === 20000 ? 'const deepAnchorQrs = 7;' : `// pad line ${i} ................................`)).join('\n');
+    writeFileSync(path.join(dir, 'deep.js'), deepDep);
+    ck(deepDep.indexOf('deepAnchorQrs') > 30000, `dep-window default-path fixture sanity: anchor sits beyond the old 30KB pre-cap (at ${deepDep.indexOf('deepAnchorQrs')})`);
+    const deepStep = { step_index: 1, description: 'wire deepAnchorQrs into the panel', action_type: 'edit', target_files: ['x.mjs'], context_dependencies: ['deep.js'], validation_command: 'node -c x.mjs' };
+    const deepOut = windowDepsForPrompt(deepStep, dir);
+    ck(deepOut.includes('deepAnchorQrs'), 'dep-window DEFAULT path: anchor BEYOND 30KB survives (pre-fix: silently head-sliced away by readDep)');
+    ck(/dep windowed|dep truncated/.test(deepOut), 'dep-window DEFAULT path: the cut carries an explicit marker (pre-fix: no marker, silent truncation)');
+    ck(deepOut.length < 70000, `dep-window DEFAULT path: output still bounded (${deepOut.length} bytes)`);
     ck(ef.includes('OVERLAPPING:') && ef.includes('NON-UNIQUE:') && ef.includes('TOO MUCH CONTEXT:'), 'edit-framing: names the three common mistakes (overlapping / non-unique / too-much-context)');
     ck(ef.includes('export const max = 3;'), 'edit-framing: embeds the CURRENT file contents to edit against');
   }

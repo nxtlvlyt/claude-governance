@@ -72,7 +72,14 @@ function parseAutorun(text) {
     const note = (s.match(/<!--([\s\S]*?)-->/) || [])[1]?.trim() || '';
     const p = s.replace(STATUS_RE, '').replace(/<!--.*?-->/g, '').trim();
     if (!p) continue;
-    if (note) out.notes[p] = note;
+    // NOTE PRECEDENCE (2026-07-07, intake N13 — found live: a bare QUEUED requeue line's
+    // comment CLOBBERED the FAILED line's judgment note for the same path, so the sweep
+    // re-demanded DIAGNOSE on 5 already-stamped missions every beat). Status-carrying
+    // lines (FAILED/DONE/...) own the note; a bare pending line's comment only fills a
+    // gap, never overwrites a status line's judgment. Later status lines still replace
+    // earlier ones (fresh FAILED supersedes stale annotations — unchanged behavior).
+    if (note && (m || !(p in out.notes))) out.notes[p] = note;
+    else if (note && !m) out.notes[`${p}#pending`] = note;   // preserved, addressable, non-clobbering
     if (!m) out.pending.push(p);
     else out[m[1].toLowerCase()].push(p);
   }
@@ -1603,6 +1610,19 @@ function selftest() {
     // the exact shape whose trailing colon broke Date.parse on the first live stamping pass.
     const auColon = parseAutorun('PARKED missions/pk-colon.mission.txt  <!-- 2026-06-25 parked. REVISIT-JUDGED 2026-07-02T23:10:00Z: RETIRE-SUPERSEDED (audit) -->\n');
     ck(!parkedRevivalDue(auColon, fixes, { maxAgeDays: 7, now: nowMs }).length, 'revival: full-ISO stamp with trailing verdict colon parses (the live-caught regex bug stays dead)');
+    // NOTE-CLOBBER regression (intake N13, live catch 2026-07-07): a FAILED line's judgment
+    // note followed LATER in the file by a bare QUEUED requeue line for the SAME path — the
+    // pending line's comment must NOT overwrite the FAILED judgment (the sweep re-demanded
+    // DIAGNOSE on 5 stamped missions every beat because of exactly this).
+    const auClobber = parseAutorun(
+      'FAILED missions/nc-x.mission.txt  <!-- DIAGNOSED. FIX: requeue via fix-ledger recorded (class y) -->\n' +
+      'missions/nc-x.mission.txt  <!-- QUEUED 2026-07-07 fix-ledger requeue-once; holds under GAP-PRIORITY-HOLD -->\n');
+    ck(/FIX:/.test(auClobber.notes['missions/nc-x.mission.txt']), 'note-clobber: FAILED judgment note SURVIVES a later bare QUEUED line for the same path');
+    ck(/QUEUED 2026-07-07/.test(auClobber.notes['missions/nc-x.mission.txt#pending'] || ''), 'note-clobber: the pending line note is preserved under its own #pending key');
+    const auOrder = parseAutorun(
+      'missions/nc-y.mission.txt  <!-- QUEUED first -->\n' +
+      'FAILED missions/nc-y.mission.txt  <!-- FAILED later: the fresh judgment -->\n');
+    ck(/fresh judgment/.test(auOrder.notes['missions/nc-y.mission.txt']), 'note-clobber: a LATER status line still takes the note over an earlier bare line');
     // LATEST-MATCH regression (2026-07-05 live catch): a note with TWO REVISIT-JUDGED
     // stamps (re-judged once already) must anchor on the LATEST one, not the first —
     // otherwise a re-judgment can never silence its own re-open trigger.

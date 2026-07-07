@@ -50,7 +50,12 @@ function hb(line) {
 // place num_gpu/num_ctx actually take effect for this model. Response shape differs
 // (message.content, not choices[0].message.content) — parsing updated accordingly.
 const LOCAL_URL = 'http://nxtbeast:11434/api/chat';
-const LOCAL_MODEL = 'gemma4:12b-it-q8_0'; // demoted from gemma4:31b 2026-07-07 — see header receipt
+// GEMMA FAMILY DEMOTED ENTIRELY 2026-07-07 (second demotion same day): the 12b replacement
+// CUDA-crashed x3 within 11 min on this same duty (heartbeat 19:44/19:48/19:55Z HTTP_500,
+// fully resident with headroom) — the crash class follows the gemma family/driver, not the
+// 31b's VRAM edge. mistral-small3.2:24b benched 2/2 on qc-baseline landing+map (correct
+// site/heading/UI reads incl. button colors, sound verdicts, 5-28s, 15GB resident).
+const LOCAL_MODEL = 'mistral-small3.2:24b';
 
 // Convert a PNG path to a bare base64 string — the native /api/chat endpoint takes raw
 // base64 in the message's `images` array, NOT a data: URL (that was the compat-endpoint shape).

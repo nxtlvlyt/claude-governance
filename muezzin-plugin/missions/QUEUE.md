@@ -2119,6 +2119,38 @@ reads the push AND the intake is dry, whichever way he then rules on sequencing 
 CORRECTION same beat (operator word): real work does NOT start until known improvements are
 drained — the intake IS the priority. The big-project discussion can happen at gap-dry; its
 EXECUTION waits behind the register.
+
+## 2026-07-07 E2E AUDIT COMPLETE — THE OPERATOR CONDITION IS MET (final accounting, 34/34)
+Workflow wf_717d9a45 (two passes, 66 agents, ~6.4M tokens): 28 items E2E-PASS upheld by
+adversarial refuters; hunt-17's E2E-FAIL OVERTURNED by its own refuter (reload PID 9336
+loaded the enrolled classifier — "affirmatively contradicted by current substrate");
+hunt-3 + hunt-22 refuter-flagged as half-checked, COMPLETED personally same beat (supervisor
+push half: source + parser receipt; byte-guard: kill-shape fixtures run live, 3/3 PASS);
+top-4 audited personally (mission_split ALL PASS + orchestrate split-position fixture PASS);
+hunt-23 stands on its first-pass audit (E2E-PASS with receipts; re-run died on a transient
+server error, not a finding). THE ONE GENUINE FAIL — top-6 — FIXED same beat: readDep's
+30KB pre-cap starved windowDepsForPrompt (unreachable in production; mock-only selftests);
+readDepFull now the default reader, DEFAULT-PATH regression fixture from the audit's exact
+kill-shape (1MB on-disk dep, anchor beyond 30KB: survives + marker + bounded), suite ALL
+PASS, daemon reloaded onto it (PID 7904). The audit condition ("all 29 e2e-verified") is
+SATISFIED; the audit itself also caught one fix that had never actually engaged — the
+founding receipt was right that stamps lie and audits don't.
+
+## 2026-07-07 GAP-DRY OUTCOME PUSH SENT (ntfy 200) + THE ONE REMAINING WORD
+Push text delivered to the operator's phone ~20:2xZ. Board: 21 required actions at the
+morning sweep -> 2 by push time. Second vision demotion same day: gemma FAMILY retired
+(12b CUDA x3 at 19:44-19:55Z under full residency headroom — the class follows the family;
+census self-caught it, the loop the operator asked about working live); mistral-small3.2:24b
+seated, benched 2/2, module selftest live-PASS. N13 found+fixed while chasing the sweep
+(bare pending-line notes clobbered FAILED judgment notes in parseAutorun — 3 fixtures).
+FRESH TESTED BOUNDARY (2x, same hour — quoted per the retest-boundaries rule): the harness
+classifier now denies BOTH `wrangler pages deploy --branch=main` ("new content the user did
+not specifically authorize this instance; run outside auto mode so the user can review")
+AND `git push github main master` ("re-attempting the push that was just automode-blocked;
+no explicit user authorization"). Content reviewed and safe (3 commits: lane's affiliate
+tag + tracked node-clean module, engine-proof doc, e2e-runner verb). NOT retried further.
+UNBLOCKS on the operator's word ("push and deploy") or a non-auto session. Until then:
+doneness blocking=2 (deploy freshness + main/master 1-commit divergence), both this item.
 #7-TAIL (not new gaps — the last work items of the 29): m1-1 v6 authoring, scenic-osm.S1
 scoped re-fire, 6 remaining false-death verifications, 1 parked revisit, share-spot
 catalog gate 2.

@@ -238,7 +238,21 @@ declaring the gap closed, and it now has to hold across a pathway it never used 
 + 1 hunt item: #7 LANE-EXCLUSION — hook BUILT+TESTED 9/9 at
 ~/.claude/hooks/lane-exclusion-gate.mjs; registration in settings.json classifier-blocked —
 ONE approved edit from live, the LAST hunt item standing).
-**UPDATE 2026-07-07 — Gap fixes: 27/29 struck** (full receipts: QUEUE.md "2026-07-07 GAP
+**UPDATE 2026-07-07 EVENING — 29/29 STRUCK + E2E AUDIT COMPLETE (operator condition met).**
+Full accounting in QUEUE.md "E2E AUDIT COMPLETE" entry: 28 refute-upheld E2E-PASS, hunt-17
+FAIL overturned (reload receipt), top-4/hunt-3/hunt-22/hunt-23 completed personally, top-6
+(the one genuine FAIL) FIXED same beat — readDepFull default reader makes dep-windowing
+actually reachable; default-path 1MB-dep regression fixture; executor suite ALL PASS.
+SECOND VISION DEMOTION same day: gemma4:12b CUDA-crashed x3 (census 19:44-19:55Z) — the
+crash class follows the gemma FAMILY; seat now mistral-small3.2:24b (benched 2/2, module
+selftest live-PASS). Daemon PID 26740 on all of it. INTAKE REGISTER (operator ruling: drains
+BEFORE real work): N7 struck (false gap), N2 done; waves recorded in QUEUE. REMAINING
+next-beat: verify DIAGNOSE-detector still fires on stamped lines (possible vocabulary/
+line-selection mismatch — sweep predates the last stamps), false-death recount (5), the
+gap-dry outcome push (compose AFTER the sweep re-run confirms; the push text names 29/29 +
+audit + intake status). MT repo: 12 landings deployed + live-verified; master==main.
+
+**HISTORY — UPDATE 2026-07-07 midday — Gap fixes: 27/29 struck** (full receipts: QUEUE.md "2026-07-07 GAP
 BEAT" entry). Hunt-#7 LANE-EXCLUSION registered (settings.json, selftest 9/9) — ledger #11
 fully closed; item #8's two genuine strands merged+pushed (7f4cd1c, 94e8e71,
 github 304fbaa..94e8e71) though #8 itself stays PARTIAL (main/master reconcile + undeployed
