@@ -1,13 +1,12 @@
 {
   "state": "working",
-  "detail": "commit split: 44 on process/engine, 12 on muddytires; process work is reusable; waiting on your push after audit",
+  "detail": "audit finishing on androidtv site; domain rescheduled (paid to 2028), push coming next",
   "tempo": "active",
   "inFlight": {
-    "tasks": 3,
+    "tasks": 1,
     "queued": 0,
     "kinds": [
-      "local_workflow",
-      "local_bash"
+      "local_workflow"
     ]
   },
   "fan": [
@@ -314,7 +313,8 @@
       "kind": "workflow",
       "label": "refute:hunt-4 heartbeat failure-class table",
       "group": "Refute",
-      "startedAt": 1783451908100
+      "startedAt": 1783451908100,
+      "doneAt": 1783452680058
     },
     {
       "id": "a13b263d56ebe526a",
@@ -384,7 +384,8 @@
       "kind": "workflow",
       "label": "refute:hunt-13 re-split children SPLIT-CHILD marker",
       "group": "Refute",
-      "startedAt": 1783452136824
+      "startedAt": 1783452136824,
+      "doneAt": 1783452647196
     },
     {
       "id": "af7b493a91699691d",
@@ -421,7 +422,8 @@
       "kind": "workflow",
       "label": "refute:hunt-18 assertNoUndeclaredShrinkage wired into command-step path (+ Windows backslash git-show fix)",
       "group": "Refute",
-      "startedAt": 1783452250373
+      "startedAt": 1783452250373,
+      "doneAt": 1783452691386
     },
     {
       "id": "adf40732462d9df57",
@@ -529,36 +531,28 @@
       "startedAt": 1783452553955
     },
     {
-      "id": "bk9icaji2",
-      "kind": "shell",
-      "label": "mkdir -p /c/Users/marka/.claude/jobs/bb6b583a/tmp/refute-h15 && cp /c/Users/marka/.claude/muezzin-plugin/conduct-cycle.mjs /c/Users/marka/.claude/muezzin-plugin/git_steps.mjs /c/Users/marka/.claude/j…",
-      "startedAt": 1783452284646
-    },
-    {
-      "id": "b0kskgnkq",
-      "kind": "shell",
-      "label": "cd /c/Users/marka/.claude/jobs/bb6b583a/tmp/h16-cbd18b8 && node conduct-cycle.mjs --selftest > selftest-out.txt 2>&1; echo \"EXIT=$?\"",
-      "startedAt": 1783452563527
-    },
-    {
-      "id": "bao3cnp0z",
-      "kind": "shell",
-      "label": "cd /c/Users/marka/.claude/jobs/bb6b583a/tmp/refute-h15 && node conduct-cycle.mjs --selftest > st.log 2>&1; echo \"EXIT=$?\"; grep -c \"^PASS\" st.log; grep -c \"^FAIL\" st.log; grep -E \"mt-c3-perstem|once-…",
-      "startedAt": 1783452604937
-    },
-    {
       "id": "b1ry0qla5",
       "kind": "shell",
       "label": "node orchestrate.mjs --selftest 2>&1 | tail -60",
       "startedAt": 1783452619468
+    },
+    {
+      "id": "bi5y28iyd",
+      "kind": "shell",
+      "label": "cd \"C:/Users/marka/.claude/muezzin-plugin\" && node conduct-cycle.mjs --selftest 2>&1 | grep -E \"QUEUE.md-visibility|ALL PASS|FAIL\" | head -20; echo \"exit=$?\"",
+      "startedAt": 1783452684878
+    },
+    {
+      "id": "bo8mq04f9",
+      "kind": "shell",
+      "label": "cd /c/Users/marka/.claude/jobs/bb6b583a/tmp/refute-h15 && node conduct-cycle.mjs --selftest > solo.log 2>&1; echo \"EXIT=$?\"; grep -c \"^PASS\" solo.log; grep -c \"^FAIL\" solo.log; tail -1 solo.log; grep…",
+      "startedAt": 1783452703894
     }
   ],
-  "tokens": 1698568,
-  "output": {
-    "result": "44 commits process/engine, 12 muddytires — process fixes applicable to all projects"
-  },
+  "tokens": 1735995,
+  "output": null,
   "children": null,
-  "linkScanOffset": 3892637,
+  "linkScanOffset": 3915202,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -585,6 +579,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-07T19:30:32.888Z",
+  "updatedAt": "2026-07-07T19:31:45.307Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }

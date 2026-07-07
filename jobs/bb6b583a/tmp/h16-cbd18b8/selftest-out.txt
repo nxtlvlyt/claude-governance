@@ -57,3 +57,68 @@ PASS  missing chain-target file is REPORT-only, never a broken queue line
 PASS  heal(): never restarts while a lane runs (a live mission is never killed)
 PASS  unrepaid damm -> REQUIRED ACTION every beat (no graveyard)
 PASS  unwitnessed waiver is STILL OWED (side-door closed); witnessed waiver clears
+PASS  blind searxng -> RESTART-SEARXNG mechanical action (the wedge can never again pass unwitnessed)
+PASS  blind searxng surfaces on the report
+PASS  stale CG repo -> CG-INCREMENT-DUE on the beat (idle=CG is now a condition, not willpower)
+PASS  fresh CG repo -> no nag (the gate has a dead-band, not a drumbeat)
+PASS  old lane + FRESH heartbeat -> STUCK-TASK suppressed (long seat call is work, not a hang)
+PASS  suppression is reported, never silent
+PASS  old lane + IN-FLIGHT attempt-start -> STUCK-TASK suppressed (seat still working)
+PASS  stuck lane -> STUCK-TASK mechanical action with taskkill command
+PASS  stuck lane surfaces on report
+PASS  heal(): stuck task bared and marked for requeue
+PASS  heal(): taskkill issued for stuck lane
+PASS  heal(): RUNNING line bared to pending
+PASS  heal(): SWEEP-HEAL event logged to daemon-events.log
+PASS  STUCK-TASK: the genuinely healthy second lane is named in collateral_paths, not silently dropped
+PASS  STUCK-TASK: the why text explicitly warns the healthy lane will ALSO be killed (real blast radius, not assumed single-lane scope)
+PASS  STUCK-TASK: the healthy lane is in collateral_paths, never misclassified as stuck_paths
+PASS  detectStuckLanes flags only lanes over TASK_STUCK_MS
+PASS  detectLoopCaps caps a stem appearing LOOP_CAP_REPEATS times
+PASS  detectLoopCaps ignores stems below cap
+PASS  detectWorktreeCorruption: clean tree -> not corrupted
+PASS  detectWorktreeCorruption: UU map.html -> corrupted, unmerged+untracked classified
+PASS  detectWorktreeCorruption: staged-orphan (A ) classified as staged (the photo-upload-ux gap)
+PASS  detectWorktreeCorruption: staged-only orphan -> corrupted via staged (not unmerged)
+PASS  sweep: corrupted worktree -> WORKTREE-HEAL mechanical action
+PASS  WORKTREE-HEAL: command restores the unmerged file from HEAD
+PASS  WORKTREE-HEAL: untracked orphan is report-only, never in a command
+PASS  WORKTREE-HEAL: staged orphan gets an UNSTAGE (git reset --) command
+PASS  WORKTREE-HEAL: staged orphan is UNSTAGED only, never checkout/rm (non-destructive)
+PASS  WORKTREE-HEAL: repo with a RUNNING lane -> NO heal action (live mission staged work protected)
+PASS  WORKTREE-HEAL: live-lane suppression is reported, never silent
+PASS  heal(): WORKTREE-HEAL runs the checkout-HEAD recovery via exec
+PASS  heal(): worktree-heal recorded in performed with repo
+PASS  sweep emits LOOP-CAP mechanical action for looping stem
+PASS  heal(): LOOP-CAP retires the bare re-fire-risk line
+PASS  heal(): the retired line is commented out with a named LOOP-CAP-RETIRED annotation
+PASS  heal(): DONE/FAILED/RUNNING history lines for the same stem are left untouched (not a re-fire risk)
+PASS  heal(): an unrelated bare mission is never touched by LOOP-CAP retirement
+PASS  heal(): idempotent -- a second heal() pass retires nothing further (no bare line remains for this stem)
+PASS  heal(): a manifest child with NO AUTORUN line at all, but a real mission.txt on disk, is recovered
+PASS  heal(): an already-queued manifest child is left alone -- not re-added as a duplicate
+PASS  heal(): a manifest child whose mission.txt was never actually created is NOT recovered -- nothing to fabricate a queue line for
+PASS  heal(): the recovered line is tagged SPLIT-CHILD -- the QUEUE-DUP guard exemption (hunt-item #13) applies to it too
+PASS  heal(): the already-queued line is byte-unchanged, not duplicated or rewritten
+PASS  heal(): idempotent -- a second pass recovers nothing further (the S1 line now satisfies the manifest check)
+PASS  mt-b2-flag-table: EMPTY_CONTENT_THINKING row is byte-identical to the old hand-written flag line
+PASS  mt-b2-flag-table: CUDA row is byte-identical to the old hand-written flag line
+PASS  mt-b2-flag-table: CUDA row still emits its CUDA-CRASH-CLASS action
+PASS  mt-b2-flag-table: new local-TIMEOUT row fires its flag line at threshold
+PASS  mt-b2-flag-table: new local-NETWORK row fires its flag line at threshold
+PASS  mt-b2-flag-table: local-TIMEOUT below threshold stays silent
+PASS  mt-b2-flag-table: local-NETWORK below threshold stays silent
+PASS  healthy daemon detected
+PASS  healthy state -> zero required actions
+PASS  complete-ending line present
+PASS  healthy zero-action state does NOT print the beat-complete bar
+PASS  healthy fixture reaches barMet (frontier clean + deployed-current)
+PASS  non-empty actions -> BEAT-COMPLETE BAR counter-license printed (complete ending must be EARNED)
+PASS  closed(): a note saying UNRESOLVED does NOT close the FAILED (leading-\b fix)
+PASS  closed(): an explicit RESOLVED note still closes
+PASS  presence-AND-landed: all ALLOW-FILES present but patch not in tree -> L3 BLOCK (recall restored)
+PASS  divergence guard: git error -> divergenceCount null (never a false zero)
+PASS  divergence guard: git error -> explicit fail-closed BLOCK, not silent fail-open
+PASS  divergence guard: clean git (0 commits diverged) -> no blocking, zero behavior change for the healthy path
+
+ALL PASS

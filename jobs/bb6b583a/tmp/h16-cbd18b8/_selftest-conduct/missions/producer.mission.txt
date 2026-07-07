@@ -1,3 +1,0 @@
-Maqsad: data.
-ON-DONE: missions/follow-on.mission.txt
-Done means: data exists.

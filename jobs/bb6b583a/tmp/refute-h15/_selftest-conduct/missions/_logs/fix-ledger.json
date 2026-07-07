@@ -1,12 +1,12 @@
 {
   "entries": [
     {
-      "class": "test-class",
-      "fix": "test fix",
-      "landed_ts": "2026-07-07T19:30:05.305Z",
+      "class": "fabricated-citation",
+      "fix": "citation_guard gate",
+      "landed_ts": "2026-07-07T19:31:41.057Z",
       "requeue": [
         {
-          "stem": "ghost",
+          "stem": "healed",
           "requeued": false
         }
       ],
