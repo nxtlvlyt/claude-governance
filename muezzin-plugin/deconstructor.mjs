@@ -285,6 +285,25 @@ export function validateMicroQueue(queue, opts = {}) {
       }
     });
   }
+  // INLINE-EVAL MANGLE (plan-level half of the prose INLINE-EVAL RULE above; 3-mission kill
+  // class 2026-07-01/02: pwa-install-banner, operators-html-business-claim, oracle-ingest-v4 —
+  // each died on a giant inline `node -e "<script>"` whose nested quotes/HTML self-mangled
+  // through PowerShell ("[eval]:1 ... <script src=\\" + raw newline). The prose rule shipped
+  // 2026-07-02 but nothing REJECTED a violating plan — prose-only fixes are the gap class.
+  // Heuristic matches the receipted shapes, not all possible evasion: a node -e/--eval whose
+  // payload is long (>120 chars), mixes both quote types, or carries HTML. Trivial short
+  // one-liners stay legal per the prose rule's own "beyond a trivial one-liner" boundary.
+  (queue.steps || []).forEach((s) => {
+    if (s?.action_type !== 'command' && s?.action_type !== 'verify') return;
+    const cmd = String(s?.validation_command || '');
+    const m = cmd.match(/\bnode(?:\.exe)?\s+(?:-e|--eval)\s+([\s\S]*)/i);
+    if (!m) return;
+    const payload = m[1];
+    const mixedQuotes = payload.includes('"') && payload.includes("'");
+    const hasHtml = /<[a-z!/]/i.test(payload);
+    if (payload.length > 120 || mixedQuotes || hasHtml)
+      errors.push(`inline-eval-mangle: step ${s.step_index} runs a non-trivial inline node -e — nested quotes/HTML through PowerShell self-mangle deterministically (receipts: pwa-install-banner "[eval]:1" 2026-07-01, 3-mission class). Write the script to a cwd-relative scratch file instead, then run and delete it in the SAME command: Set-Content scratch-witness.mjs -Value @'...'@; node scratch-witness.mjs; Remove-Item scratch-witness.mjs`);
+  });
   return { ok: errors.length === 0, errors };
 }
 
@@ -800,6 +819,15 @@ Context: Node + TypeScript project; DB schema in prisma/schema.prisma; tests run
   ck(validateMicroQueue(srStep('Set-Content scripts/e2e-runner.mjs -Value $x'), srOpts).ok, 'scratch-residue: writing a declared ALLOW-FILE is a deliverable, not residue');
   ck(validateMicroQueue(srStep('echo hi > scratch-x.txt'), { codeRepo: true, allowFiles: [] }).ok, 'scratch-residue: missions with no parseable ALLOW-FILES skip the rule (fail-open)');
   ck(JSON.stringify(parseAllowFiles('MISSION-CLASS: code-repo\nALLOW-FILES:\n  - scripts\\e2e-runner.mjs\n  - Docs/CAT.md\nSTEPS: 2\n')) === JSON.stringify(['scripts/e2e-runner.mjs', 'docs/cat.md']), 'parseAllowFiles extracts + normalizes (lowercase, forward slashes)');
+
+  // INLINE-EVAL MANGLE (plan-level half of the prose INLINE-EVAL RULE; 3-mission kill class,
+  // pwa-install-banner receipt 2026-07-01 "[eval]:1 ... <script src=\\")
+  const ieStep = (cmd) => ({ mission_id: 'M-X', steps: [{ step_index: 1, description: 'witness', action_type: 'verify', target_files: [], context_dependencies: [], validation_command: cmd }] });
+  const ieBad = validateMicroQueue(ieStep(`node -e "const p=require('playwright'); (async()=>{const b=await p.chromium.launch(); const pg=await b.newPage(); await pg.setContent('<script src=\\"js/pwa-install.js\\"></script>'); const el=await pg.$('#pwa-banner'); if(!el){console.error('MISSING');process.exit(1)} await b.close()})()"`));
+  ck(!ieBad.ok && ieBad.errors.some((e) => /inline-eval-mangle/.test(e)), 'inline-eval: the pwa-install playwright one-liner shape (long + mixed quotes + HTML) is REJECTED at plan time');
+  ck(!validateMicroQueue(ieStep(`node -e 'require("fs").writeFileSync("x.html","<div>hi</div>")'`)).ok, 'inline-eval: short payload with HTML is still REJECTED (HTML is the mangle vector)');
+  ck(validateMicroQueue(ieStep(`node -e 'console.log(1+1)'`)).ok, 'inline-eval: trivial short one-liner PASSES (the prose rule permits it)');
+  ck(validateMicroQueue(ieStep('Set-Content scratch-witness.mjs -Value $body; node scratch-witness.mjs; Remove-Item scratch-witness.mjs')).ok, 'inline-eval: the prescribed scratch-file shape PASSES (no node -e at all)');
 
   ck(!validateMicroQueue({ mission_id: 'M-X', steps: [
     { step_index: 1, description: 'edit', action_type: 'edit', target_files: ['C:\\Users\\x\\hooks\\a.mjs'], context_dependencies: [], validation_command: 'node -c a.mjs' },

@@ -1,17 +1,16 @@
 {
-  "state": "blocked",
-  "detail": "gap program: #7 needs preview-deploy authorization, #8 needs main/master reconcile + deploy decision",
-  "tempo": "blocked",
+  "state": "working",
+  "detail": "pwa-install fix applied (inline-eval rule enforcement + selftests); daemon respawned PID 33924; requeuing mission; 27/29 gaps closed",
+  "tempo": "idle",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 43210,
-  "needs": "authorize #7 preview-branch deploys and confirm #8 main/master reconcile + deploy undeployed commits",
+  "tokens": 51310,
   "output": null,
   "children": null,
-  "linkScanOffset": 1041642,
+  "linkScanOffset": 1160742,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -35,6 +34,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-07T14:56:37.983Z",
+  "updatedAt": "2026-07-07T15:02:07.345Z",
   "firstTerminalAt": null
 }
