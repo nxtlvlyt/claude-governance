@@ -45,9 +45,56 @@ SEPARATE jurisdiction — the 2026-07-02 ruling continues to govern the Claude-s
 only, and the agy system's own rulebook permits Gemini + Ollama Cloud. Flagged per the
 fifth-law precedence rider; operator can correct this reading at any point in planning.
 
-## Open items (to be filled by the operator's next questions)
-- Purpose/workload of the new system (what missions it runs)
-- Where it lives (repo/dir), name
-- Which rails port verbatim vs get rewritten for agy's shape
-- Conductor seat for the new system (Gemini? which?); witness/verdict seats
-- How the two systems relate (shared board? shared QUEUE? fully disjoint?)
+## Purpose (operator, this session)
+1. **Quota fallback**: agy conducts/executes when Claude usage is exhausted (live receipt:
+   today's e2e audit lost 30 agents mid-flight to the session limit).
+2. **Parallel capacity**: agy runs less-important projects alongside Claude CLI to
+   maximize combined usage (Claude weekly budget + agy 4-hour rolling window are
+   independent pools).
+3. The gap program mattered precisely because the engine is the exportable asset.
+
+## Fresh probe receipts (this session, read-only)
+- `agy --help`: `-p/--print` (non-interactive, 5m timeout flag), `--model`, `--continue`/
+  `--conversation`, `--sandbox`, `--dangerously-skip-permissions`, `--add-dir`,
+  **`plugin` subcommand: list/import/install/validate — `import [source]` says
+  "Import plugins from gemini or claude"** (a direct Claude-plugin import path, untested).
+- `agy models`: Gemini 3.5 Flash (Low/Med/High), Gemini 3.1 Pro (Low/High), Claude
+  Sonnet 4.6 + Opus 4.6 (Thinking), GPT-OSS 120B — Vertex side; Ollama Cloud reaches the
+  agy-era engine via HTTP dispatch, not the model list.
+- **`~/.agents/` already carries a governance scaffold from the prior attempt**:
+  AGENTS.md (standing rules incl. a full model-selection policy dated 2026-06-26 —
+  Ollama Cloud primary, nxtbeast fallback, Claude OFF — i.e. the separate-jurisdiction
+  rulebook already exists in embryo), rules/muezzin-conductor.md, ALL 12 faith files
+  (architect/executor/validator/auditor/witness/conductor/...), skills/.
+
+## The export answer (three layers)
+1. **Easiest, zero export — agy as a provider ROW in the existing engine**: agy_dispatch.mjs
+   is already written + live-tested (2026-06-23, exit 0, Vertex trace) and explicitly
+   staged "ready to wire when the seat-plan lock is updated." Wiring it into
+   seat_dispatch's waterfall as the Claude-quota-exhausted fallback needs the operator's
+   seat-plan sign-off (MUEZZIN-SEAT-PLAN-LOCKED.md pending-revision note) — days, not weeks.
+2. **The engine forks nearly free — the sibling system**: daemon/orchestrate/deconstructor/
+   mission_lint/conduct-cycle/witnesses/fix-ledger/self-healing are plain Node dispatching
+   models via HTTP + subprocess; nothing depends on the Claude Code harness. Fork
+   muezzin-plugin → its own repo, seat roster = Gemini tiers + Ollama Cloud + nxtbeast,
+   rulebook = ~/.agents/rules (own jurisdiction). Every gap fix from the 29 + intake
+   carries over free because they're all engine-layer.
+3. **The conductor-session rails are the real port work** (the part that failed before):
+   our hooks are Claude-Code harness features (PreToolUse/Stop via settings.json). Options:
+   (a) test `agy plugin import claude` + `agy plugin validate` on our plugin — unknown how
+   much of hooks/commands/skills survives (one cheap experiment);
+   (b) the succession-designed inversion (intake N5, already operator-mandated as the
+   local-conductor bar): conduct-beat harness where the RAILS LIVE IN THE SCRIPT —
+   conduct-cycle --json computes actions, the model (Gemini/qwen/whoever) relays,
+   the script executes only allowlisted verbs, everything rijal-logged. Harness-agnostic
+   by construction; the qwen 5/5 audition receipt says the relay pattern works.
+   (b) is the robust path; (a) is worth one test.
+
+## Known blockers to burn down (receipts)
+- `agy --print` empty-stdout bug (2026-06-24 receipt) — RETEST at v1.0.16 before trusting;
+  may be cured by updates/sign-in.
+- CLI sign-in session (desktop authenticated; CLI hung without setup — memory receipt).
+- agy proxy-trust drift (junior-conductor eval): "deed = the diff hunk or live round-trip"
+  must be a mechanical gate in the beat harness, not advice.
+- ~/.agents/AGENTS.md model policy is dated 2026-06-26 — needs a refresh pass against
+  current reality before the sibling fires anything.
