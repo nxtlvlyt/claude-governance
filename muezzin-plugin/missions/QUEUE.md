@@ -2077,11 +2077,11 @@ N4. Conductor-direct exception CONDITIONS into conductor-core/faith (size cap +
 N5. conduct-beat-local.mjs — the local-conductor beat harness, allowlisted verbs only.
     (succession 5b; spec in the audition entry)
 N6. Survey+refute drain as .mjs over seat_dispatch (Claude-harness-free). (pairs with N5)
-N7. NEW THIS ENTRY (observed 2026-07-07, previously unenrolled — the exact hunt-#22 miss
-    class): conduct-cycle --json emits required actions with EMPTY mission/readFirst
-    fields (id only) while the text output carries full read-first file lists — the JSON
-    path drops the fields delegation depends on; receipt: this session's --json call
-    returned 21 acts all with mission:"" files:[]. Small conduct-cycle fix + selftest.
+N7. ~~conduct-cycle --json empty fields~~ STRUCK 2026-07-07 as FALSE GAP (self-error,
+    refuted before fixing): --json actions DO carry read_first (verified live: action keys
+    id,class,approved_by_faith,why,read_first,rule; read_first count 4). The conductor's
+    own extractor script read nonexistent keys (readFirst/files/mission). No tool defect;
+    the register holds itself to the same verify-before-fix standard as the 29.
 N8. gemma4:12b vision-seat 24h clean-census watch (condition, auto-resolves or escalates).
 N9. Fire-ban D1 seed-data (carried from the fire-ban mission's Context; the layer is live
     but renders only what the D1 table holds).
@@ -2098,6 +2098,27 @@ N12. Bare witness-flag notes on the STEP-WITNESS path (live receipt 2026-07-07T1
     affiliate-cards attempt 2: witness REJECT x2 with EMPTY note fields in mission-events —
     unadjudicable by construction). hunt-12's concern-line fix covered the no-verdict
     RE-ASK path only; the step-witness flag writer needs the same one-line-reason contract.
+
+## OPERATOR RULING 2026-07-07 (his words: "if we have improvements we know about those are
+## priority right") — THE INTAKE REGISTER IS THE SUCCESSOR GAP LIST, DRAINED BEFORE REAL WORK
+Known improvements outrank new product work, same mechanics as the 29: the N1-N12 register
+above drains BEFORE the big project starts. Drain order (smalls first, chain-first per
+playbook, conductor-direct only for bootstrap-class):
+  WAVE 1 (small, this session): N7 (conduct-cycle --json fields — conductor-direct, it is
+  the conductor's own tool, UNIT-A bootstrap class), N10 (refusal-mark append-not-replace),
+  N12 (step-witness one-line-reason contract), N1 (RULE-9 project-name from REPO-ROOT
+  wrangler.toml), N2 (workflow repo-hint arg).
+  WAVE 2: N3 (blocked-on-operator lint, wire advisory-first), N4 (conductor-exception
+  conditions into conductor-core/faith — governance ceremony).
+  WAVE 3 (builds): N5 (conduct-beat-local.mjs), N6 (survey+refute .mjs port).
+  AUTO/HELD: N8 (gemma-12b census — time resolves), N9 (fire-ban D1 seed — product-class,
+  holds), N11 (recorded, folds into playbook text at next touch).
+The gap-dry push still fires on the 29+audit (that book stays closed); the push names the
+intake drain as in-progress rather than waiting for it — real work starts when the operator
+reads the push AND the intake is dry, whichever way he then rules on sequencing overlap.
+CORRECTION same beat (operator word): real work does NOT start until known improvements are
+drained — the intake IS the priority. The big-project discussion can happen at gap-dry; its
+EXECUTION waits behind the register.
 #7-TAIL (not new gaps — the last work items of the 29): m1-1 v6 authoring, scenic-osm.S1
 scoped re-fire, 6 remaining false-death verifications, 1 parked revisit, share-spot
 catalog gate 2.

@@ -1,0 +1,183 @@
+PASS  CONFLICT-GATE: content with a `<<<<<<< ` git conflict opener -> detected
+PASS  CONFLICT-GATE: clean HTML -> not flagged
+PASS  CONFLICT-GATE: markdown `=======` underline (no `<<<<<<< ` opener) -> NOT a false positive
+PASS  CONFLICT-GATE: empty/null -> false (never throws)
+PASS  command/verify step (engineExec, no sha) yields ONE witnessed receipt
+PASS  edit step (commit sha) still yields its receipt unchanged
+PASS  a FAILED command step (ok:false) yields NO receipt — deeds-not-claims intact
+PASS  artifactFilesFor: explicit step targets win unchanged
+PASS  artifactFilesFor: command-only fallback = sandbox .md files, newest first, _-prefixed excluded (the card-merge BLOCK class)
+PASS  happy path: PLAN -> implement+witness each step -> verdict APPROVE -> done
+PASS  both steps witnessed + committed (have shas)
+PASS  step 1 implemented + committed
+PASS  verdict consensus carried in the result
+PASS  command step ENGINE-executed (no seat dispatch), mission completes
+PASS  command step actually produced its file
+PASS  failing command step halts with engine-exec reason (no fake artifact)
+PASS  command-class: VERBATIM queue runs, architect PANEL BYPASSED (throwing deconstructFn never hit)
+PASS  command-class: the verbatim fenced command actually RAN from REPO-ROOT
+PASS  command-class FAIL-OPEN: no fenced block -> the normal panel (deconstructFn) IS used
+PASS  verdict REVISE -> mission FAILS at phase verdict with findings surfaced
+PASS  per-step witness REJECT (no repairs) HALTS the step before commit
+PASS  witness dispatch ERROR is ignored (floor holds) — good step still commits
+PASS  witness-corpus: agreeing case logged under the witness's HONEST model name after the panel lands
+PASS  witness-corpus: the orchestrate call site passes a REAL timestamp, not the module's epoch default
+PASS  witness-corpus: a flagged-then-repaired step records the witness's ORIGINAL dissent vs the panel's APPROVE (the divergence signal the selector needs)
+PASS  witness-corpus: a mission halted before the panel writes NO corpus line (no producer verdict — absence, never fabricated agreement)
+PASS  witness-corpus: sampled shadow candidate dispatched ONCE, its dissent recorded beside the primary under its own name
+PASS  witness-corpus: rate 0 (or unset env model) means the shadow path NEVER dispatches — cost-bounded by default
+PASS  defaultWitness: return carries the ACTUAL dispatched seat model (honest attribution for the corpus)
+PASS  defaultWitness: modelOverride reaches the seat AND the attributed return (the shadow-dispatch contract)
+PASS  CLASS 2: an empty executor emission (impl.ok=false) HALTS with reason emission-empty (no silent fall-through)
+PASS  CLASS 2: the emission-empty halt carries the executor diagnostic (NO usable file content)
+PASS  CLASS 2: nothing was written for the empty emission
+PASS  CLASS 2: emission-empty heal — a repair that AUTHORS the file lets the step advance to done
+PASS  CLASS 2: the healed file holds the repair seat's authored content
+PASS  CLASS 1: a citation resolvable in the STAGED SOURCES is treated as VERIFIED (witness APPROVEs, step advances)
+PASS  CLASS 1: the witness was handed the staged source text (context_dependencies content)
+PASS  CLASS 1: an unrepaired witness REJECT still HALTS the step
+PASS  CLASS 1: the witness-halt step carries witnessRepaired=1 (the REAL witness-repair count, not the receipt-heal repaired:0)
+PASS  CLASS 1: defaultWitness framing CONTAINS the staged source text + resolve-citation header when sources are passed
+PASS  CLASS 1: the framing tells the witness a resolvable citation is VERIFIED (not flagged blind)
+PASS  CLASS 1: a source-less witness call has NO staged block (prior framing unchanged — additive)
+PASS  a THROWING verdict phase fails SAFE (absence is not APPROVE)
+PASS  integrity-guard HALTS a step that touches a test file (anti-gaming, #36 wired)
+PASS  citation-guard HALTS an edit citing a file the seat never had (anti-fabrication)
+PASS  a fabricated-citation halt is never committed (no sha enters history = no false green)
+PASS  citation-guard does NOT flag a citation to a declared/produced source (no false positive)
+PASS  stale-sandbox archive: a failed attempt's draft no longer blocks the retry (4a WEAKENED-VERIFICATION trap)
+PASS  stale leftovers are ARCHIVED to _prior-attempt (operator-readable), never deleted
+PASS  coherence: BLOCK + all-wajib findings = incoherent (re-ask the seat)
+PASS  coherence: BLOCK + arkan = coherent invalidation (stands)
+PASS  coherence: unclassified findings make no coherence claim (stands)
+PASS  coherence: REVISE + wajib agrees with itself (graduation handles it)
+PASS  coherence: failed/merge-level contracts never re-asked
+PASS  engineReceiptsFromSteps: one exec receipt per witnessed+committed step only
+PASS  panel APPROVE on engine-witnessed deeds -> APPROVE (zero-findings-BLOCK bug dead)
+PASS  zero witnessed steps -> APPROVE still BLOCKs (deeds floor intact)
+PASS  APPROVE_WITH_DAMM -> mission DONE with damm carried in the result
+PASS  damm queue banked the wajib gap as an unrepaid compensating task
+PASS  tier routing: single-artifact mission = UMRAH (one witness seat)
+PASS  tier routing: multi-step multi-target = HAJJ (full panel)
+PASS  tier routing: TIER: HAJJ marker forces the full panel
+PASS  rerun fixture: first run commits with a sha
+PASS  IDENTICAL re-run passes (cross-run prev no longer poisons the integrity guard)
+PASS  no-op commit still returns the HEAD sha (verdict receipts stay fed — the fb-backlog starvation)
+PASS  a fresh rewrite that drops prior-run lines passes (4a committed-stale variant dead)
+PASS  a failed PLAN short-circuits before any implement
+PASS  search pre-gate HALTS a search mission on a BLIND backend (#25 wired)
+PASS  a blind-backend halt writes NOTHING — it refuses before PLAN
+PASS  search pre-gate PASSES a search mission on a usable (degraded-OK) backend
+PASS  preflight is SKIPPED when needsSearch is false (backward-compatible, code-only missions pay nothing)
+PASS  a THROWING preflight fails SAFE (BLOCK at preflight), not unhandled
+PASS  a forged {verdict:OK,results:0} is BLOCKED (zero results = blind, regardless of verdict)
+PASS  code-repo e2e (1) HAPPY: plan->write->commit->verdict APPROVE->done
+PASS  code-repo e2e (1): the REAL file is written INTO the repo
+PASS  code-repo e2e (1): HEAD advanced (the step committed into the real repo)
+PASS  code-repo e2e (1): commit holds ONLY the allowlisted file (never ".")
+PASS  code-repo e2e (2) REFUSAL: a non-allowlisted target fails the mission
+PASS  code-repo e2e (2): the refused target was NEVER written (zero writes)
+PASS  code-repo e2e (2): HEAD UNCHANGED (containment refusal commits nothing)
+PASS  code-repo e2e (3) ROLLBACK: a failing witness halts at phase verify
+PASS  code-repo e2e (3): HEAD UNCHANGED after rollback (no broken commit lands in the real repo)
+PASS  code-repo e2e (3): no TRACKED file was modified/committed (repo HEAD tree intact)
+PASS  code-repo e2e (4) COMMAND-STEP SHRINKAGE: a [command] step committing an already-gutted file is REFUSED (undeclared-shrinkage), not silently committed
+PASS  code-repo e2e (4): HEAD UNCHANGED — the gutting commit never landed (refused BEFORE execReceipt ran the git commit)
+PASS  code-repo e2e (4): the gutted content is left uncommitted on disk for a human/mission-author to see, not silently reverted or hidden
+PASS  code-repo e2e (5) NEGATIVE CONTROL: a legitimate growth-only change still commits cleanly (the floor never false-blocks a normal command-step commit)
+PASS  code-repo e2e (5): HEAD advanced — the real commit landed
+PASS  code-repo e2e (6) UNTRACKED-FILE SHRINKAGE: a repair pass that guts a brand-new (no-HEAD) file is REFUSED, not silently committed
+PASS  code-repo e2e (6): the violation is attributed to the pre-edit-worktree BASELINE fallback (no HEAD version exists for this file)
+PASS  code-repo e2e (6): HEAD UNCHANGED — the gutted untracked file never landed
+PASS  code-repo e2e (7) NEGATIVE CONTROL: a repair that genuinely FIXES the new file (grows it) still commits — the floor never false-blocks a real fix
+PASS  code-repo e2e (7): HEAD advanced — the fixed file landed
+PASS  REPLAN: an EMPTY emission (the KB failure) classifies TRANSIENT (retry the step)
+PASS  REPLAN: a network/timeout emission classifies TRANSIENT
+PASS  REPLAN: SPLIT-NEEDED is a DEFECT (oversized step — re-plan, never blind same-step retry)
+PASS  REPLAN: EMISSION-TRUNCATED is a DEFECT (oversized step)
+PASS  REPLAN: a witness REJECT on content is a DEFECT (fail-the-step, never retry)
+PASS  REPLAN: an integrity-block is a DEFECT
+PASS  REPLAN: a fabricated-citation is a DEFECT
+PASS  REPLAN: a step-3 TRANSIENT retries the STEP and the mission reaches DONE (no full re-plan, no restart from step 1)
+PASS  REPLAN: steps 1-2 each ran EXACTLY ONCE — completed steps were NOT re-run when step 3 hit a transient (the KB churn is dead)
+PASS  REPLAN: ONLY step 3 re-ran (1 empty + 1 success = 2 dispatches) — the failure was contained to the failing step
+PASS  REPLAN: all three steps end committed (the resumed mission converges)
+PASS  REPLAN: a persistently-empty step FAILS at THAT step (never an infinite loop)
+PASS  REPLAN: the failed step carries a named receipt (reason + transient class)
+PASS  REPLAN: BOUNDED — stepRetries:2 means exactly 3 attempts (1 + 2 retries), then fail-with-receipt
+PASS  REPLAN: step 3 dispatched exactly 3 times (bound honored, no runaway)
+PASS  REPLAN: completed steps 1-2 SURVIVE the later-step failure (committed, present in the result)
+PASS  REPLAN: a witness REJECT (DEFECT) fails at step 3
+PASS  REPLAN: the DEFECT fails-the-step-with-receipt (reason witness-flag, class defect)
+PASS  REPLAN: a DEFECT does NOT consume same-step retries (1 attempt, no blind re-dispatch)
+PASS  REPLAN: step 3 dispatched exactly once on a defect (a real fault is not retried as if flaky)
+PASS  REPLAN: a defect at step 3 still PRESERVES completed steps 1-2 (no full re-plan)
+PASS  RECURRING-ERROR: 1st occurrence -> not flagged (a single failure is just a failure)
+PASS  RECURRING-ERROR: 2nd occurrence -> not flagged (2 is still within normal retry/replan variance)
+PASS  RECURRING-ERROR: 3rd occurrence of the IDENTICAL error -> flagged recurringError:true with priorOccurrences:2
+PASS  RECURRING-ERROR: a distinct event is emitted to mission-events.jsonl, not just the return value
+PASS  RECURRING-ERROR: an empty-OUTPUT engine-exec failure now carries exec-diag diagnostic text (M-ENGINE-EXEC-DIAG), not empty
+PASS  RECURRING-ERROR: 1st and 2nd identical-diagnostic occurrences -> not flagged
+PASS  RECURRING-ERROR: 3rd occurrence of the same diagnostic -> flagged (priorOccurrences 2)
+PASS  RECURRING-ERROR empty-text: a DIFFERENT reason (witness) with empty text is NOT merged with 2 prior engine-exec empty-text failures — reason discriminates correctly
+PASS  STEP-SCOPING: confirms all 3 UNRELATED steps share the IDENTICAL constant witness-flag literal — the exact precondition that produced the cross-step false positive before this fix
+PASS  STEP-SCOPING: steps 1 and 2 are each a genuine 1st occurrence of THEIR OWN step -> not flagged
+PASS  STEP-SCOPING: step 3 is ALSO a genuine 1st occurrence of ITS OWN step, even though it is the 3RD occurrence of the shared literal MISSION-WIDE -> NOT flagged (would have false-flagged as recurringError:true, priorOccurrences:2 before step-scoping)
+PASS  REPLAN/checkpoint: run 1 commits 1-2, fails at 3
+PASS  REPLAN/checkpoint: _checkpoint.json persists the completed steps after run 1
+PASS  REPLAN/checkpoint: the checkpoint records exactly the 2 committed steps (with shas)
+PASS  REPLAN/checkpoint: run 2 (daemon clean-pass) reaches DONE
+PASS  REPLAN/checkpoint: steps 1-2 were NOT re-implemented on the retry (resumed from the checkpoint — the discarded-work bug is dead)
+PASS  REPLAN/checkpoint: ONLY step 3 re-ran on the clean-pass retry
+PASS  REPLAN/checkpoint: the result carries the 2 resumed steps + the 1 freshly-run step
+PASS  CORRUPTED CHECKPOINT: run 3 (with a tampered step-1 sha) still reaches DONE
+PASS  CORRUPTED CHECKPOINT: step 1 (wrong sha, touches only "seed") is RE-RUN for real, not silently resumed
+PASS  CORRUPTED CHECKPOINT: step 2 (valid sha, the control) STILL resumes correctly — the fix is per-entry, not a blanket distrust
+PASS  CORRUPTED CHECKPOINT: step 2 is marked resumed:true in the result (legitimate resume unaffected)
+PASS  CORRUPTED CHECKPOINT: step 1 is NOT marked resumed and produced a FRESH sha (the tampered sha never reached the result)
+PASS  SPLIT (1): a 7-step queue over ceiling 3 returns phase:split (parent NOT executed)
+PASS  SPLIT (1): 7 steps / ceiling 3 -> 3 sub-missions [3,3,1]
+PASS  SPLIT (1): sub-missions carry tartib REQUIRES (S2 requires S1, S3 requires S2)
+PASS  SPLIT (1): a .mission.txt file is emitted for each sub-mission
+PASS  SPLIT (1): a _split-manifest.json handoff record is written
+PASS  SPLIT (1): children appended to AUTORUN in tartib order (S1 before S2 before S3)
+PASS  SPLIT (1): each child carries its own Maqsad + the parent objective + inherited class
+PASS  SPLIT (2): an UNDER-ceiling mission runs to done UNCHANGED (no split — the critical fallback)
+PASS  SPLIT (2): the under-ceiling mission executed all its steps normally
+PASS  SPLIT (2): an under-ceiling mission emits NO sub-mission files or manifest (no false split)
+PASS  SPLIT (3): an UNSPLITTABLE over-ceiling mission FAILS with a named receipt (never runs the monolith)
+PASS  SEATING MODE absent: witness = today-default nemotron-3-super (Opus-first via map — safe default)
+PASS  SEATING MODE anthropic-heavy: witness is LOCAL laguna (NO-CLOUD ruling 2026-07-02 — nemotron-3-ultra was a cloud seat)
+PASS  SEATING MODE local-heavy: witness is LOCAL (laguna-xs-2.1:q8_0, operator 2026-06-26 — was qwen3.6:27b)
+PASS  SEATING MODE absent: verdict panel = today-default deepseek-v4-pro + minimax-m3 (safe default)
+PASS  SEATING MODE anthropic-heavy: verdict panel stays OPEN-weight LOCAL qwen+granite (NO-CLOUD ruling 2026-07-02: local models check the Claude work — diversity preserved, cloud banned)
+PASS  LOCAL-ONLY WIRING: claude-local-hybrid witness seat carries localOnly:true
+PASS  LOCAL-ONLY WIRING: anthropic-heavy witness seat carries localOnly:false (different mode)
+PASS  LOCAL-ONLY WIRING: claude-local-hybrid validator+auditor resolve localOnly:true (the same call orchestrate.mjs makes at seat construction)
+PASS  LOCAL-ONLY WIRING: claude-local-hybrid architect A (claude-sonnet-5) resolves localOnly:false (never 404s on nxtbeast)
+PASS  LOCAL-ONLY WIRING: claude-local-hybrid architect B (qwen3.6:27b) resolves localOnly:true (operator-widened scope)
+PASS  LOCAL-ONLY WIRING: no mode -> validator localOnly:false
+PASS  buildIntegratorBriefing: success path returns the dispatched content verbatim
+PASS  buildIntegratorBriefing: a throwing dispatch fails open to "" (never propagates)
+PASS  buildIntegratorBriefing: empty dispatch content fails open to ""
+PASS  buildIntegratorBriefing: disableIntegrator:true skips the dispatch entirely
+PASS  buildIntegratorBriefing: UMRAH-tier (<=2 steps, no TIER:HAJJ) skips the dispatch — too small to be worth it
+PASS  buildIntegratorBriefing: no artifacts + no exec receipts -> skip, nothing to synthesize
+PASS  VISUAL WITNESS: a block verdict from the mocked vision path is captured in merged.visualWitness
+PASS  VISUAL WITNESS: a block verdict NEVER mutates merged.consensus — advisory only, not a voting seat
+PASS  VISUAL WITNESS: no header AND auto-provision fails -> NO_PREVIEW_BASE_URL (fail-closed preserved)
+PASS  VISUAL WITNESS: the missing-header case also never touches consensus
+PASS  VISUAL WITNESS: AUTO-PROVISION supplies the preview URL and the witness runs against it (visual missions chain-self-sufficient)
+PASS  VISUAL WITNESS: a mission with no VISUAL-QC-REQUIRED header never sets visualWitness at all — zero behavior change for every ordinary mission
+PASS  REACHABILITY: orphan browser asset flagged; wired asset + non-browser paths (functions/, docs/) exempt
+PASS  REACHABILITY: no browser assets -> no findings (zero behavior change for ordinary missions)
+PASS  split-position: child inserts DIRECTLY after the parent line (status prefix tolerated)
+PASS  split-position: inserted child line carries the SPLIT-CHILD marker (hunt-item #13 QUEUE-DUP exemption)
+PASS  split-position: second child chains after the first; later queue lines stay behind (tartib preserved, position inherited)
+PASS  split-position: absent anchor falls back to tail append (line never lost)
+PASS  split-position: comment/history lines skipped — the LAST live line is the anchor
+PASS  appendQueue re-throw: the split itself still succeeds (files+manifest are the durable handoff)
+PASS  appendQueue re-throw: the real production appendQueue closure surfaces its failure instead of silently absorbing it
+PASS  appendQueue re-throw: the recorded error names WHICH append failed, not just that something did
+
+ALL PASS — orchestration: plan -> implement -> integrity-guard -> witness -> commit/rollback (end to end) + code-repo

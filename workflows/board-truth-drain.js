@@ -11,8 +11,11 @@ const ARGS = typeof args === 'string' ? JSON.parse(args) : (args || {})
 const STEMS = Array.isArray(ARGS) ? ARGS : (ARGS.stems || [])
 if (!STEMS.length) throw new Error('no stems provided')
 
-const BASE = 'C:/Users/marka/.claude/muezzin-plugin'
-const MT_REPO = 'C:/Users/marka/code/mt-integration-2026-06-22'
+const BASE = ARGS.base || 'C:/Users/marka/.claude/muezzin-plugin'
+// Repo HINT only (intake N1/N2 genericization 2026-07-07): agents read each mission's own
+// REPO-ROOT line as truth; this default just seats the prompt's example. Pass args.repo
+// for non-muddytires projects: { stems: [...], repo: 'C:/path/to/project-repo' }.
+const MT_REPO = ARGS.repo || 'C:/Users/marka/code/mt-integration-2026-06-22'
 
 const SURVEY_SCHEMA = {
   type: 'object',
