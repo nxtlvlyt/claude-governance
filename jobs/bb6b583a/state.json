@@ -1,16 +1,16 @@
 {
   "state": "working",
-  "detail": "enrolled 9 new gaps into NEW-INTAKE REGISTER (commit 679f45c); consolidating 29/29 closure + successor queue before dry push",
+  "detail": "4 items queued (m1-1 v6 byte-copy, scenic-osm requeue, 6 false-death checks, 1 park revisit); share-spot catalog gate just resolved; push fires today on clean board",
   "tempo": "idle",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 587379,
+  "tokens": 594221,
   "output": null,
   "children": null,
-  "linkScanOffset": 3035505,
+  "linkScanOffset": 3140775,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -37,6 +37,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-07T16:31:45.105Z",
+  "updatedAt": "2026-07-07T16:41:40.761Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
