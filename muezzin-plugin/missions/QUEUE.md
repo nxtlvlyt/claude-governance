@@ -2011,3 +2011,26 @@ classifier denials were waiting on. Actions taken same beat:
 - Also this beat (perform-fix-gate enforcement): inline-eval-mangle mechanical rule landed
   in validateMicroQueue (bdec992, 4 selftests, suite ALL PASS), fix-ledger recorded,
   qc-concern-pwa-install-banner requeued, daemon respawned onto the new code (PID 33924).
+
+## 2026-07-07 GENERICITY AUDIT (operator question: "great for all work, not just muddy tires?")
+Self-audit of this session's fixes, engine-generic vs MT-specific — receipts, not reassurance:
+ENGINE-GENERIC (serves every project): all 25 hunt fixes (sandbox identity, heal symmetry,
+stamp validation, fix-ledger, split-children, verdict re-ask, shrinkage floors, causal-claim
+linter, witness-divergence corpus, lane-exclusion hook), gemma vision-seat demotion,
+inline-eval plan rejection, board-truth-drain workflow pattern, daemon singleton/reload
+discipline. The WORK ITEMS drained were MT missions only because MT is what the queue held.
+TWO REAL MT-HARDCODINGS FOUND IN ENGINE CODE (drift-shaped, queued for genericization):
+(a) mission_lint.mjs RULE 9 cure text prescribes `--project-name=muddytires` literally —
+    the detector is generic but the prescribed fix is wrong for any non-MT project; derive
+    project name from the mission's REPO-ROOT wrangler.toml instead.
+(b) ~/.claude/workflows/board-truth-drain.js carries MT_REPO as the default repo hint —
+    agents do read each mission's own REPO-ROOT, but the hint text biases toward MT; make
+    the repo hint an args field.
+ALSO QUEUED (named this session, now formal): blocked-on-operator report lint — extend
+findUngatedCausalClaims (built+tested, unwired) with a pattern requiring any
+"blocked/waiting on the operator" sentence to carry a SAME-SESSION denial receipt;
+wire advisory-first per the fm11 precedent. This is the mechanical form of the
+retest-boundaries lesson (operator caught the false "waiting on you" framing 2026-07-07).
+STILL QUEUED, GENERIC, HIGHEST-LEVERAGE (pre-existing entries above): session-start payload
+diet (cold-start handoff hole), operator-context + ai-book + retro-corpus mining into
+dispatch-time injections, conductor rijal per-turn attribution.

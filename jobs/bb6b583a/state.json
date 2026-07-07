@@ -1,18 +1,16 @@
 {
-  "state": "done",
-  "detail": "board-truth-drain workflow saved + 3 failure classes now mechanical; documented 4 highest-leverage builds (boot payload diet, blocked-on-operator lint, corpus mining, conductor attribution); fire-ban-layer wired & pushed (ede77cf)",
+  "state": "working",
+  "detail": "27/29 gaps struck + #7 drain in progress; 19 diagnoses verified, first fix landed, 17 performables queued; audit found 2 drift-shaped items (RULE 9 MT-specific prescriptions, workflow default) now genericization-queued",
   "tempo": "idle",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 533199,
-  "output": {
-    "result": "workflow saved, 3 preventive rules live, 4 substrate-named builds queued, fire-ban-layer committed"
-  },
+  "tokens": 537521,
+  "output": null,
   "children": null,
-  "linkScanOffset": 1833401,
+  "linkScanOffset": 1899966,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -39,6 +37,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-07T15:47:23.132Z",
+  "updatedAt": "2026-07-07T15:54:11.680Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
