@@ -2034,3 +2034,31 @@ retest-boundaries lesson (operator caught the false "waiting on you" framing 202
 STILL QUEUED, GENERIC, HIGHEST-LEVERAGE (pre-existing entries above): session-start payload
 diet (cold-start handoff hole), operator-context + ai-book + retro-corpus mining into
 dispatch-time injections, conductor rijal per-turn attribution.
+
+## 2026-07-07 LOCAL-CONDUCTOR AUDITION RECEIPT (succession bar 5b — operator: "a local model
+## like qwen 3.6 27b could be the conductor... I feel like you're forgetting?")
+LIVE AUDITION RUN, not recollection: qwen3.6:27b (native /api/chat, temp 0.2, 16K ctx,
+GR10-compliant big-lane dispatch beside resident guardian-8b) was handed the condensed
+conductor laws + TODAY'S REAL decision state (27/29, 19 banked verdicts, hold set, daemon
+idle) and asked for its beat plan. GRADED 5/5 against the known-correct plan:
+(a) sequence correct — personally read diagnostics -> stamp -> mission-construct the 18
+    genuine failures -> judge receipts -> write state; caught the SUPERSEDED close too;
+(b) stamp-half-never stated exactly ("delegation ends at survey collection", Law 4);
+(c) both prohibitions right with right law citations (no product fires under hold; no
+    hand-implement/blind-requeue);
+(d) one outcome-only push at 29/29 opening the big project, "nothing needed from you."
+Timing: 70.5s/beat answer — viable for 15-min beats. RIJAL NOTE: the relay HALF of the
+seat is demonstrably qwen-holdable TODAY. What the audition also exposed (the honest
+remainder, queued):
+(1) EXCEPTION-WEIGHING still lives in the seat: qwen (correctly, by the letter) forbids
+    hand-implementing — but the playbook's conductor-direct exceptions (one-line fixes at
+    lane boundaries, hooks, bootstrap-class) require judgment the laws don't yet encode.
+    Fix direction: write the exceptions as CONDITIONS (size cap + lane-boundary + receipt
+    required) into conductor-core/faith so a relay seat can apply them mechanically.
+(2) LOCAL BEAT HARNESS not built: the audition ran hand-rolled; the succession rig is a
+    script — conduct-beat-local.mjs: conduct-cycle --json -> laws+board to qwen ->
+    parse chosen verb against a mechanical allowlist (record/requeue/restart/hold/report)
+    -> execute allowlisted verbs only -> rijal-log every turn. Spec'd here; engine item.
+(3) WORKFLOW PORTABILITY: board-truth-drain (saved today) is Claude-harness-only; the
+    survey+refute pattern needs an .mjs port over seat_dispatch so a local conductor can
+    fire the same drain without Claude. Engine item, pairs with (2).
