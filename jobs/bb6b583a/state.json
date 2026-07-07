@@ -1,9 +1,9 @@
 {
   "state": "working",
-  "detail": "live site healthy (200, 6 features shipped); daemon correct; no damage; e2e audit running final pass (28/30 clean); gap program 27/29; ready to push",
+  "detail": "commit split: 44 on process/engine, 12 on muddytires; process work is reusable; waiting on your push after audit",
   "tempo": "active",
   "inFlight": {
-    "tasks": 2,
+    "tasks": 3,
     "queued": 0,
     "kinds": [
       "local_workflow",
@@ -391,7 +391,8 @@
       "kind": "workflow",
       "label": "refute:hunt-14 queuedDepsHold silently-dropped REQUIRES citations surfaced",
       "group": "Refute",
-      "startedAt": 1783452140287
+      "startedAt": 1783452140287,
+      "doneAt": 1783452490572
     },
     {
       "id": "a642fea5e8ae6cb59",
@@ -412,7 +413,8 @@
       "kind": "workflow",
       "label": "refute:hunt-17 GAP-PRIORITY-HOLD namespace widening (72a17f6 + 2026-07-07 qc-/m1- enrollment 3acb8e1)",
       "group": "Refute",
-      "startedAt": 1783452211623
+      "startedAt": 1783452211623,
+      "doneAt": 1783452548567
     },
     {
       "id": "af6db13bde73a7431",
@@ -442,35 +444,40 @@
       "kind": "workflow",
       "label": "refute:hunt-24 preflight-receipt gate content-aware not mtime-only",
       "group": "Refute",
-      "startedAt": 1783452288660
+      "startedAt": 1783452288660,
+      "doneAt": 1783452507292
     },
     {
       "id": "a59549e0515fd13c7",
       "kind": "workflow",
       "label": "refute:hunt-25 laguna leaked reasoning-tag preamble stripped",
       "group": "Refute",
-      "startedAt": 1783452307077
+      "startedAt": 1783452307077,
+      "doneAt": 1783452512889
     },
     {
       "id": "a67501fff0fb11bda",
       "kind": "workflow",
       "label": "refute:top-6 windowed-edit >250KB dep-path caps",
       "group": "Refute",
-      "startedAt": 1783452348816
+      "startedAt": 1783452348816,
+      "doneAt": 1783452571293
     },
     {
       "id": "aef65a8c97471db65",
       "kind": "workflow",
       "label": "refute:hunt-20 DEPLOY keystroke --commit-dirty contradiction clarified",
       "group": "Refute",
-      "startedAt": 1783452351177
+      "startedAt": 1783452351177,
+      "doneAt": 1783452620407
     },
     {
       "id": "ab66df89494d168b6",
       "kind": "workflow",
       "label": "refute:top-3 witness groundedness diagnosis (non-blocking flag, 3 false-flag mechanics recorded)",
       "group": "Refute",
-      "startedAt": 1783452357246
+      "startedAt": 1783452357246,
+      "doneAt": 1783452585059
     },
     {
       "id": "a56fc0ad3a599a62f",
@@ -494,32 +501,32 @@
       "startedAt": 1783452449012
     },
     {
-      "id": "w148xmcjk:63",
+      "id": "a98a58977212f672d",
       "kind": "workflow",
       "label": "refute:hunt-22 unenrolled-classes enrollment (marker-inventory b65c9db + untracked-file byte-guard 1a069e4)",
       "group": "Refute",
-      "startedAt": 1783452173527
+      "startedAt": 1783452497579
     },
     {
-      "id": "w148xmcjk:64",
+      "id": "abc45f6003a4c98da",
       "kind": "workflow",
       "label": "refute:top-5 claude-exe-480s-hang HANG-RETRY",
       "group": "Refute",
-      "startedAt": 1783452304076
+      "startedAt": 1783452514194
     },
     {
-      "id": "w148xmcjk:65",
+      "id": "a96a3d71d7a0021f9",
       "kind": "workflow",
       "label": "refute:hunt-21 sweep reports open UNPARKS condition counts",
       "group": "Refute",
-      "startedAt": 1783452337773
+      "startedAt": 1783452518609
     },
     {
-      "id": "w148xmcjk:66",
+      "id": "a097210ce27d59446",
       "kind": "workflow",
       "label": "refute:hunt-19 conduct-cycle divergence guard fail-closed on git error",
       "group": "Refute",
-      "startedAt": 1783452437903
+      "startedAt": 1783452553955
     },
     {
       "id": "bk9icaji2",
@@ -528,60 +535,30 @@
       "startedAt": 1783452284646
     },
     {
-      "id": "b72r4t762",
+      "id": "b0kskgnkq",
       "kind": "shell",
-      "label": "cd \"C:/Users/marka/.claude/muezzin-plugin\" && node conduct-cycle.mjs --selftest > \"C:/Users/marka/.claude/jobs/bb6b583a/tmp/selftest-current.txt\" 2>&1; echo \"exit=$?\"; grep -c \"^PASS\" \"C:/Users/marka…",
-      "startedAt": 1783452360914
+      "label": "cd /c/Users/marka/.claude/jobs/bb6b583a/tmp/h16-cbd18b8 && node conduct-cycle.mjs --selftest > selftest-out.txt 2>&1; echo \"EXIT=$?\"",
+      "startedAt": 1783452563527
     },
     {
-      "id": "bj96slxbz",
+      "id": "bao3cnp0z",
       "kind": "shell",
-      "label": "mkdir -p /c/Users/marka/.claude/jobs/bb6b583a/tmp && node orchestrate.mjs > /c/Users/marka/.claude/jobs/bb6b583a/tmp/orch-selftest.log 2>&1; echo \"EXIT=$?\" >> /c/Users/marka/.claude/jobs/bb6b583a/tmp…",
-      "startedAt": 1783452366215
+      "label": "cd /c/Users/marka/.claude/jobs/bb6b583a/tmp/refute-h15 && node conduct-cycle.mjs --selftest > st.log 2>&1; echo \"EXIT=$?\"; grep -c \"^PASS\" st.log; grep -c \"^FAIL\" st.log; grep -E \"mt-c3-perstem|once-…",
+      "startedAt": 1783452604937
     },
     {
-      "id": "bmada03mx",
+      "id": "b1ry0qla5",
       "kind": "shell",
-      "label": "node orchestrate.mjs --selftest 2>&1 | grep -Ei \"e2e \\(4\\)|e2e \\(5\\)|ALL PASS|^FAIL|FAIL \" | head -20",
-      "startedAt": 1783452385754
-    },
-    {
-      "id": "bt5y4re2o",
-      "kind": "shell",
-      "label": "cd \"C:/Users/marka/.claude/muezzin-plugin\" && node orchestrate.mjs --selftest 2>&1 | tail -3",
-      "startedAt": 1783452407954
-    },
-    {
-      "id": "bxebc0acj",
-      "kind": "shell",
-      "label": "rm -rf /c/Users/marka/.claude/jobs/bb6b583a/tmp/h16-cbd18b8 && mkdir -p /c/Users/marka/.claude/jobs/bb6b583a/tmp/h16-cbd18b8 && git -C /c/Users/marka/.claude/muezzin-plugin archive cbd18b8 | tar -x -…",
-      "startedAt": 1783452429133
-    },
-    {
-      "id": "bjzk5fxbg",
-      "kind": "shell",
-      "label": "cd \"C:/Users/marka/code/mt-integration-2026-06-22\" && git log --format='%h %p %s' -1 7f4cd1c && git log --format='%h %p %s' -1 94e8e71 && git log --format='%h %p %s' -1 22e093c",
-      "startedAt": 1783452459089
-    },
-    {
-      "id": "bsap2e2vk",
-      "kind": "shell",
-      "label": "git log --oneline -1 && git show --stat 7b021601242ba001d975b084edb47b486bbbf0da | head -30",
-      "startedAt": 1783452459115
-    },
-    {
-      "id": "bkckona1q",
-      "kind": "shell",
-      "label": "mkdir -p /c/Users/marka/.claude/jobs/bb6b583a/tmp/refute20 && cd /c/Users/marka/.claude/jobs/bb6b583a/tmp/refute20 && mkdir -p dirtyrepo && cd dirtyrepo && git init -q . && git -C . config user.email…",
-      "startedAt": 1783452459121
+      "label": "node orchestrate.mjs --selftest 2>&1 | tail -60",
+      "startedAt": 1783452619468
     }
   ],
-  "tokens": 1610525,
+  "tokens": 1698568,
   "output": {
-    "result": "site healthy, daemon correct, audit final pass, ready to push"
+    "result": "44 commits process/engine, 12 muddytires — process fixes applicable to all projects"
   },
   "children": null,
-  "linkScanOffset": 3849318,
+  "linkScanOffset": 3892637,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -593,8 +570,6 @@
     "--permission-mode",
     "auto"
   ],
-  "bgIsolation": "none",
-  "providerEnv": {},
   "intent": "but we had 30 gaps mission we were fixing first before we did anything else and a big project to que when they were done",
   "name": "daemon-restart-mission-triage",
   "nameSource": "auto",
@@ -603,11 +578,13 @@
   "daemonShort": "bb6b583a",
   "cliVersion": "2.1.202",
   "cwd": "C:\\Users\\marka",
-  "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-07T19:27:39.420Z",
-  "firstTerminalAt": "2026-07-07T15:47:23.132Z",
   "bridgeSessionId": "cse_015z5n4qQqp9BZ8kKSCkvtzT",
   "bridgeOutboundOnly": false,
   "bridgeSessionSeq": 85,
-  "backend": "daemon"
+  "bgIsolation": "none",
+  "providerEnv": {},
+  "backend": "daemon",
+  "createdAt": "2026-07-07T14:31:31.695Z",
+  "updatedAt": "2026-07-07T19:30:32.888Z",
+  "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }

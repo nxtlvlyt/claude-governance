@@ -4,8 +4,12 @@
 //   muezzin-daemon.mjs readQueue (the real daemon queue reader with the QUEUE-DUP guard)
 // against the gap's receipted kill state: SPLIT parent + two FAILED .S1/.S2 children from a
 // prior split attempt, then a genuine RE-SPLIT re-inserting the same .S1/.S2 numbering.
-// Run with: node replay-hunt13-verify.mjs --selftest   (the --selftest argv token makes the
-// daemon module route evt() to a tmpdir log instead of the live daemon-events.log)
+// Run with: node replay-hunt13-verify.mjs   -- NO --selftest flag: muezzin-daemon.mjs:1514
+// runs its own selftest at import when that flag is in argv and process.exit()s before this
+// script's checks run. Without the flag EVENTS = the LIVE daemon-events.log, so this replay
+// deliberately contains NO case that reaches the QUEUE-DUP skip path (the only evt() writer
+// in readQueue): the untagged-duplicate control is covered by the daemon's own isolated
+// selftest fixtures (bar.mission.txt, run separately with --selftest). Zero live-log writes.
 import { insertQueueLineAfter, SPLIT_CHILD_MARKER } from 'file:///C:/Users/marka/.claude/muezzin-plugin/orchestrate.mjs';
 import { readQueue } from 'file:///C:/Users/marka/.claude/muezzin-plugin/muezzin-daemon.mjs';
 import { writeFileSync, mkdtempSync, rmSync } from 'fs';
@@ -44,10 +48,9 @@ ck(paths.filter((p) => p === 'missions/mt-parent.S1.mission.txt').length === 1, 
 ck(paths.filter((p) => p === 'missions/mt-parent.S2.mission.txt').length === 1, 'readQueue: exactly one pending entry for S2');
 ck(paths.includes('missions/unrelated.mission.txt'), 'readQueue: unrelated pending line unaffected');
 
-// Control: same kill state WITHOUT the re-split marker must still be skipped (guard intact).
-writeFileSync(autorun, before + 'missions/mt-parent.S1.mission.txt\n');
-const { pending: ctrl } = readQueue(autorun);
-ck(!ctrl.map((p) => p.raw).includes('missions/mt-parent.S1.mission.txt'), 'control: an UNTAGGED bare S1 beside the old FAILED line is still skipped (exemption is marker-scoped)');
+// (Untagged-duplicate control intentionally omitted here: it would fire the QUEUE-DUP evt()
+// into the live daemon-events.log. It is proven by muezzin-daemon.mjs --selftest, which
+// isolates events to tmpdir -- rerun independently in this audit, PASS.)
 
 rmSync(tmp, { recursive: true, force: true });
 console.log(fails === 0 ? 'REPLAY ALL PASS' : `${fails} FAIL`);
