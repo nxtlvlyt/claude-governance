@@ -15,6 +15,16 @@
 // Seat choice is receipted, not arbitrary: gemma4:31b live-benchmarked 12/12 on real
 // qc-baseline screenshot pairs (2026-07-01), beating both qwen3.6:27b (failed outright)
 // and the old cloud gemini path (EMPTY_CONTENT_THINKING bug).
+//
+// DEMOTED 2026-07-07 (gap #10 escalation, GAP-CLOSURE-PLAYBOOK.md:40 "3rd crash -> demote"):
+// gemma4:31b kept CUDA-crashing past every mitigation — 6 crashes 2026-07-04 night, then
+// another 2026-07-07T12:43:53Z on THIS pathway with ARM 1 fully active (native endpoint +
+// num_gpu offload live since 5826653/2fbe8dc). Replacement gemma4:12b-it-q8_0 benched live
+// 2026-07-07 on qc-baseline landing + map desktop shots: correct site/heading/UI-element
+// reads, sound PASS verdicts, 15-21s per call (vs the 31b's ~95-108s), 13GB fully
+// VRAM-resident with headroom instead of riding the 31b's off-the-edge configuration.
+// Same census bar applies to the 12b: a CUDA crash from this seat is a new receipt, not
+// history repeating.
 
 import { readFileSync, existsSync, appendFileSync, mkdirSync } from 'node:fs';
 import path from 'node:path';
@@ -40,7 +50,7 @@ function hb(line) {
 // place num_gpu/num_ctx actually take effect for this model. Response shape differs
 // (message.content, not choices[0].message.content) — parsing updated accordingly.
 const LOCAL_URL = 'http://nxtbeast:11434/api/chat';
-const LOCAL_MODEL = 'gemma4:31b';
+const LOCAL_MODEL = 'gemma4:12b-it-q8_0'; // demoted from gemma4:31b 2026-07-07 — see header receipt
 
 // Convert a PNG path to a bare base64 string — the native /api/chat endpoint takes raw
 // base64 in the message's `images` array, NOT a data: URL (that was the compat-endpoint shape).

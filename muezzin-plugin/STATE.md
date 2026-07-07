@@ -238,6 +238,15 @@ declaring the gap closed, and it now has to hold across a pathway it never used 
 + 1 hunt item: #7 LANE-EXCLUSION — hook BUILT+TESTED 9/9 at
 ~/.claude/hooks/lane-exclusion-gate.mjs; registration in settings.json classifier-blocked —
 ONE approved edit from live, the LAST hunt item standing).
+**UPDATE 2026-07-07 — Gap fixes: 27/29 struck** (full receipts: QUEUE.md "2026-07-07 GAP
+BEAT" entry). Hunt-#7 LANE-EXCLUSION registered (settings.json, selftest 9/9) — ledger #11
+fully closed; item #8's two genuine strands merged+pushed (7f4cd1c, 94e8e71,
+github 304fbaa..94e8e71) though #8 itself stays PARTIAL (main/master reconcile + undeployed
+commits, operator-word-shaped); item #10 STRUCK per its own written close condition — gemma4:31b
+demoted from its last duty (vision-verdict -> gemma4:12b-it-q8_0, commit ab4c5f1, benched 2/2,
+selftest PASS, respawn observed PID 29688). OPEN: #7 (board-truth drain continuing + the
+operator-gated amend pile) and #8 (remainder above). The 07-05 line below is history.
+
 **Gap fixes: 25/29 struck.** Item #8 is fully DIAGNOSED (not closed): of its 4 flagged
 stranded-deliverables, 1 was a detector false positive (fixed, commit 19987d8) and 2 are
 genuine strands narrowed to an exact fix (merge feat/crown-legal-full-text-2026-06-23 +

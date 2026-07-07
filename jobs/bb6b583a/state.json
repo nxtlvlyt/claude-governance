@@ -1,17 +1,17 @@
 {
   "state": "blocked",
-  "detail": "gap #10 gemma demotion blocked on vision-bench verdict: need user word to bench `gemma4:12b-it-q8_0` or name alternative candidate",
+  "detail": "gap program: #7 needs preview-deploy authorization, #8 needs main/master reconcile + deploy decision",
   "tempo": "blocked",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 28284,
-  "needs": "approve benching gemma4:12b-it-q8_0 for vision seat, or name your preferred candidate model tag",
+  "tokens": 43210,
+  "needs": "authorize #7 preview-branch deploys and confirm #8 main/master reconcile + deploy undeployed commits",
   "output": null,
   "children": null,
-  "linkScanOffset": 806473,
+  "linkScanOffset": 1041642,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -35,6 +35,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-07T14:45:53.578Z",
+  "updatedAt": "2026-07-07T14:56:37.983Z",
   "firstTerminalAt": null
 }
