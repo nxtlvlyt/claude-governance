@@ -2085,7 +2085,8 @@ N7. ~~conduct-cycle --json empty fields~~ STRUCK 2026-07-07 as FALSE GAP (self-e
 N8. gemma4:12b vision-seat 24h clean-census watch (condition, auto-resolves or escalates).
 N9. Fire-ban D1 seed-data (carried from the fire-ban mission's Context; the layer is live
     but renders only what the D1 table holds).
-N10. RETRO-REPEAT-BLOCKED refusal marks CLOBBER the line's prior annotation (live receipt
+N10. ~~STRUCK 2026-07-07 (buildMarkLine pure builder, 3 fixtures, suite ALL PASS, daemon
+    reloaded PID 8876)~~ RETRO-REPEAT-BLOCKED refusal marks CLOBBER the line's prior annotation (live receipt
     2026-07-07T16:32: 4 freshly-stamped FAILED lines reduced to bare timestamps by the
     gate's refusal rewrite — conductor had to restore all 4 stamps by hand). Fix: the
     refusal writer should APPEND its mark to the existing comment, never replace it.

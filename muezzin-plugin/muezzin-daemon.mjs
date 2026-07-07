@@ -505,11 +505,22 @@ function reclaimStaleRunning() {
 
 // Set a mission's line to a canonical state, matched by mission PATH. status '' = revert
 // to bare (pending). One status, never stacked; comment is replaced, not appended.
+// NOTE-PRESERVING MARK (intake N10, 2026-07-07): the old line-rewrite dropped the
+// existing <!-- --> comment — a RETRO-REPEAT-BLOCKED refusal reduced 4 freshly-stamped
+// judgment notes to bare timestamps in one beat (receipt: QUEUE.md N10, conductor had to
+// hand-restore all 4). A status mark now APPENDS its timestamp to the surviving note.
+// Pure builder, selftested both polarities.
+export function buildMarkLine(oldLine, raw, status, iso) {
+  const existing = (String(oldLine).match(/<!--([\s\S]*?)-->/) || [])[1]?.trim() || '';
+  if (!status) return existing ? `${raw}  <!-- ${existing} -->` : raw;
+  const note = existing ? `${existing} | ${status}-marked ${iso}` : iso;
+  return `${status} ${raw}  <!-- ${note} -->`;
+}
 function setMark(raw, status) {
   const lines = readFileSync(AUTORUN, 'utf8').split(/\r?\n/);
   const idx = lines.findIndex((l) => !l.trim().startsWith('#') && missionPath(l) === raw);
   if (idx < 0) return false;
-  lines[idx] = status ? `${status} ${raw}  <!-- ${new Date().toISOString()} -->` : raw;
+  lines[idx] = buildMarkLine(lines[idx], raw, status, new Date().toISOString());
   writeFileSync(AUTORUN, lines.join('\n'));
   return true;
 }
@@ -1652,6 +1663,14 @@ if (process.argv.includes('--selftest')) {
   ck(gapHoldSkips('missions/qc-concern-poi-affiliate-cards-poi-affiliate-cards-js-2026-06-25.mission.txt') === true, 'gap-hold: qc-concern-* held (2026-07-07 live bypass receipt)');
   ck(gapHoldSkips('missions/qc-fix-share-spot-share-spot-js-2026-06-24.mission.txt') === true, 'gap-hold: qc-fix-* held (same family)');
   ck(gapHoldSkips('missions/m1-1-oracle-ingest-ontario-crownland-v6.mission.txt') === true, 'gap-hold: m1-* held (oracle-ingest is muddytires product)');
+  // NOTE-PRESERVING MARK (intake N10): a refusal/status mark must never clobber the
+  // line's judgment note (live receipt 2026-07-07: 4 stamps reduced to bare timestamps).
+  ck(buildMarkLine('FAILED missions/x.mission.txt  <!-- DIAGNOSED. FIX: requeue via fix-ledger -->', 'missions/x.mission.txt', 'FAILED', '2026-07-07T20:00:00Z')
+    === 'FAILED missions/x.mission.txt  <!-- DIAGNOSED. FIX: requeue via fix-ledger | FAILED-marked 2026-07-07T20:00:00Z -->', 'mark-preserve: existing judgment note SURVIVES a fresh status mark (timestamp appended)');
+  ck(buildMarkLine('missions/x.mission.txt', 'missions/x.mission.txt', 'FAILED', '2026-07-07T20:00:00Z')
+    === 'FAILED missions/x.mission.txt  <!-- 2026-07-07T20:00:00Z -->', 'mark-preserve: bare line gets the plain timestamp mark (behavior unchanged)');
+  ck(buildMarkLine('FAILED missions/x.mission.txt  <!-- keep me -->', 'missions/x.mission.txt', null, 'unused')
+    === 'missions/x.mission.txt  <!-- keep me -->', 'mark-preserve: un-marking to pending keeps the note');
   // ──────────────────────────────────────────────────────────────────────────
   // STORM-ALERT (self-healing audit 2026-07-02): repeating failure signatures push once at
   // 3 hits + once at 50, normalized over numbers/hashes, capped at 5 pushes/hour, and benign

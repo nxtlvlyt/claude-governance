@@ -1,18 +1,16 @@
 {
-  "state": "done",
-  "detail": "research complete: 33 agents analyzed, 4 findings documented (model ID labels, prompt trap, quota window, agy governance)",
+  "state": "working",
+  "detail": "draining refusals: N10 done, 4 struck, 8 remaining",
   "tempo": "idle",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 2223294,
-  "output": {
-    "result": "agy-implementation-research.md — 4 key findings: model IDs are display labels, old adapter prompt trap, 5-hour quota window, hooks+MCP governance"
-  },
+  "tokens": 2228272,
+  "output": null,
   "children": null,
-  "linkScanOffset": 5300265,
+  "linkScanOffset": 5380083,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -39,6 +37,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-07T21:50:15.532Z",
+  "updatedAt": "2026-07-07T21:56:05.133Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
