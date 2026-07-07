@@ -603,6 +603,20 @@ export async function defaultWitness(step, cwd, artifact, sources = '', dispatch
 // every other line-parsing consumer).
 export const SPLIT_CHILD_MARKER = '<!-- SPLIT-CHILD -->';
 
+// WITNESS-FLAG ONE-LINE-REASON CONTRACT (intake N12, 2026-07-07): a witness REJECT with
+// ZERO findings produced bare, unadjudicable flag events (live receipt: affiliate-cards
+// attempt 2, witness-flag x2 with empty notes at 17:16/17:34Z — the conductor could not
+// judge WHAT was rejected). hunt-12 fixed this for the no-verdict re-ask path only; this
+// is the same contract on the step-witness path. Pure builder, selftested both polarities.
+export function witnessFlagEvent(stepIndex, w) {
+  const findings = (w?.findings || []).map((f) => String(f?.description || f).slice(0, 100));
+  const ev = { phase: 'step', event: 'witness-flag', step: stepIndex, findings };
+  if (!findings.length) {
+    ev.note = `EMPTY-FINDINGS ${w?.verdict || 'REJECT'} (model ${w?.model || '?'}): witness rejected with zero findings — one-line-reason contract violated; unadjudicable, prefer a re-ask over trusting this flag`;
+  }
+  return ev;
+}
+
 export function insertQueueLineAfter(text, anchorRel, newRel) {
   const lines = String(text).split(/\r?\n/);
   let at = -1;
@@ -1360,7 +1374,7 @@ export async function orchestrate(mission, cwd, {
           }
         }
         if (flagged) {
-          emit({ phase: 'step', event: 'witness-flag', step: step.step_index, findings: (w.findings || []).map(f => String(f.description || f).slice(0, 100)) });
+          emit(witnessFlagEvent(step.step_index, w));
           let cleared = false;
           let witnessRepaired = 0;   // CLASS 1 step 6: the REAL witness-repair attempt count (distinct from the receipt-heal `repaired`)
           // re-staged sources also go INTO the repair so a flagged claim can be RE-SOURCED
@@ -2600,6 +2614,11 @@ if (process.argv[1]?.endsWith('orchestrate.mjs')) {
     const findIdx = (lines, needle) => lines.findIndex((l) => l.includes(needle));
     ck(findIdx(one.split('\n'), 'missions/parent.S1.mission.txt') === findIdx(one.split('\n'), 'RUNNING missions/parent.mission.txt  <!-- t -->') + 1, 'split-position: child inserts DIRECTLY after the parent line (status prefix tolerated)');
     ck(one.includes(`missions/parent.S1.mission.txt  ${SPLIT_CHILD_MARKER}`), 'split-position: inserted child line carries the SPLIT-CHILD marker (hunt-item #13 QUEUE-DUP exemption)');
+    // WITNESS-FLAG ONE-LINE-REASON (intake N12): empty-findings REJECT must self-identify.
+    const wfBare = witnessFlagEvent(5, { verdict: 'REJECT', model: 'laguna-x', findings: [] });
+    ck(/EMPTY-FINDINGS REJECT/.test(wfBare.note || '') && /laguna-x/.test(wfBare.note), 'witness-flag: zero-findings REJECT carries a self-identifying note (the affiliate-cards bare-flag class)');
+    const wfReal = witnessFlagEvent(3, { verdict: 'REJECT', findings: [{ description: 'claim X unsupported' }] });
+    ck(wfReal.findings[0] === 'claim X unsupported' && wfReal.note === undefined, 'witness-flag: real findings pass through unchanged, no note added');
     const two = insertQueueLineAfter(one, 'missions/parent.S1.mission.txt', 'missions/parent.S2.mission.txt');
     const L = two.split('\n');
     ck(findIdx(L, 'missions/parent.S2.mission.txt') === findIdx(L, 'missions/parent.S1.mission.txt') + 1 && findIdx(L, 'missions/later.mission.txt') > findIdx(L, 'missions/parent.S2.mission.txt'), 'split-position: second child chains after the first; later queue lines stay behind (tartib preserved, position inherited)');
