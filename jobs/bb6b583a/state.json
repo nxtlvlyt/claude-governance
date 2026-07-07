@@ -1,16 +1,16 @@
 {
   "state": "working",
-  "detail": "27/29 gaps struck; found hold-prefix bypass (qc-concern-*) mid-sweep, fixed + re-enrolled; daemon reloading at lane boundary; continuing drain on #7 tail + engine-proof strand",
+  "detail": "engine-proof extracted from muddytires; running lane producing; m1-1 v6 + scenic requeue + stamp re-check + re-deploy remaining (~50 min)",
   "tempo": "idle",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 607344,
+  "tokens": 610842,
   "output": null,
   "children": null,
-  "linkScanOffset": 3312664,
+  "linkScanOffset": 3355336,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -37,6 +37,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-07T16:57:35.205Z",
+  "updatedAt": "2026-07-07T17:04:03.593Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
