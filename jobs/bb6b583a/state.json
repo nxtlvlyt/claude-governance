@@ -1,13 +1,12 @@
 {
   "state": "working",
-  "detail": "34 e2e audit agents in flight (harness-tracked); lane-boundary watcher armed; reload + queue-appends gated on lane end",
+  "detail": "daemon reloaded (PID 9336); e2e audit running (28 pass, 2 fail); diagnosing witness REJECT on affiliate-cards step 5",
   "tempo": "active",
   "inFlight": {
-    "tasks": 2,
+    "tasks": 1,
     "queued": 0,
     "kinds": [
-      "local_workflow",
-      "local_bash"
+      "local_workflow"
     ]
   },
   "fan": [
@@ -15,457 +14,443 @@
       "id": "ab9ac0a7722f97139",
       "kind": "workflow",
       "label": "audit:hunt-1 dotted-stem sandbox collision",
-      "startedAt": 1783444129621,
-      "doneAt": 1783444405590,
-      "group": "Audit"
+      "group": "Audit",
+      "startedAt": 1783451690851,
+      "doneAt": 1783451690851
     },
     {
       "id": "a3d9e21341a994751",
       "kind": "workflow",
       "label": "audit:hunt-2 local-lane TIMEOUT/NETWORK heal asymmetry",
-      "startedAt": 1783444129856,
-      "doneAt": 1783444413223,
-      "group": "Audit"
+      "group": "Audit",
+      "startedAt": 1783451690853,
+      "doneAt": 1783451690853
     },
     {
       "id": "ada1b98ff5f87c4e4",
       "kind": "workflow",
       "label": "audit:hunt-3 supervisor halt surfacing (marker + out-of-process push)",
-      "startedAt": 1783444130014,
-      "doneAt": 1783444737865,
-      "group": "Audit"
+      "group": "Audit",
+      "startedAt": 1783451690855,
+      "doneAt": 1783451690855
     },
     {
       "id": "ae0eb42087d81ee6d",
       "kind": "workflow",
       "label": "audit:hunt-4 heartbeat failure-class table",
-      "startedAt": 1783444132237,
-      "doneAt": 1783444869715,
-      "group": "Audit"
+      "group": "Audit",
+      "startedAt": 1783451690856,
+      "doneAt": 1783451690856
     },
     {
       "id": "a0195486f90d32967",
       "kind": "workflow",
       "label": "audit:hunt-5 daemon UNRESOLVED-as-RESOLVED regex inversion",
-      "startedAt": 1783444129520,
-      "doneAt": 1783444415721,
-      "group": "Audit"
+      "group": "Audit",
+      "startedAt": 1783451690857,
+      "doneAt": 1783451690857
     },
     {
       "id": "ada4e794b560a00a3",
       "kind": "workflow",
       "label": "audit:hunt-6 RESOLVED-LANDED stamp validation",
-      "startedAt": 1783444130714,
-      "doneAt": 1783444529909,
-      "group": "Audit"
+      "group": "Audit",
+      "startedAt": 1783451690857,
+      "doneAt": 1783451690857
     },
     {
       "id": "ac9d0a4d3aa9ee788",
       "kind": "workflow",
       "label": "audit:hunt-7 LANE-EXCLUSION hook (built + registered in settings.json)",
-      "startedAt": 1783444130486,
-      "doneAt": 1783444403946,
-      "group": "Audit"
+      "group": "Audit",
+      "startedAt": 1783451690858,
+      "doneAt": 1783451690858
     },
     {
       "id": "afa155fc4ba654d82",
       "kind": "workflow",
       "label": "audit:hunt-8 PRE-FLIGHT gate content-awareness",
-      "startedAt": 1783444129409,
-      "doneAt": 1783444405566,
-      "group": "Audit"
+      "group": "Audit",
+      "startedAt": 1783451690859,
+      "doneAt": 1783451690859
     },
     {
       "id": "a805dfc0808bd20d7",
       "kind": "workflow",
       "label": "audit:hunt-9 self-witness prompt truncation",
-      "startedAt": 1783444129352,
-      "doneAt": 1783444331191,
-      "group": "Audit"
+      "group": "Audit",
+      "startedAt": 1783451690860,
+      "doneAt": 1783451690860
     },
     {
       "id": "a1adca839c8738fbe",
       "kind": "workflow",
       "label": "audit:hunt-10 self-witness receipts mislabeling ornith as laguna",
-      "startedAt": 1783444129689,
-      "doneAt": 1783444452328,
-      "group": "Audit"
+      "group": "Audit",
+      "startedAt": 1783451690861,
+      "doneAt": 1783451690861
     },
     {
       "id": "a7662faa550fd2d4d",
       "kind": "workflow",
       "label": "audit:hunt-11 witness-divergence corpus wired into pipeline",
-      "startedAt": 1783444129883,
-      "doneAt": 1783444770948,
-      "group": "Audit"
+      "group": "Audit",
+      "startedAt": 1783451690862,
+      "doneAt": 1783451690862
     },
     {
       "id": "a48030660fe61bad2",
       "kind": "workflow",
       "label": "audit:hunt-12 no-verdict re-ask allows concern line",
-      "startedAt": 1783444129829,
-      "doneAt": 1783444272848,
-      "group": "Audit"
+      "group": "Audit",
+      "startedAt": 1783451690863,
+      "doneAt": 1783451690863
     },
     {
       "id": "af60ed53869efaa93",
       "kind": "workflow",
       "label": "audit:hunt-13 re-split children SPLIT-CHILD marker",
-      "startedAt": 1783444129646,
-      "doneAt": 1783444809497,
-      "group": "Audit"
+      "group": "Audit",
+      "startedAt": 1783451690864,
+      "doneAt": 1783451690864
     },
     {
       "id": "ac4bddd3a24e9514f",
       "kind": "workflow",
       "label": "audit:hunt-14 queuedDepsHold silently-dropped REQUIRES citations surfaced",
-      "startedAt": 1783444129386,
-      "doneAt": 1783444497634,
-      "group": "Audit"
+      "group": "Audit",
+      "startedAt": 1783451690865,
+      "doneAt": 1783451690865
     },
     {
       "id": "a2727bacb1e5e5456",
       "kind": "workflow",
       "label": "audit:hunt-15 fix-ledger requeue-once .some() bug",
-      "startedAt": 1783444130687,
-      "group": "Audit"
+      "group": "Audit",
+      "startedAt": 1783451690866,
+      "doneAt": 1783451690866
     },
     {
       "id": "a3c49949c48fd4ebb",
       "kind": "workflow",
       "label": "audit:hunt-16 stranded split children recovered via manifest",
-      "startedAt": 1783444129665,
-      "doneAt": 1783444757999,
-      "group": "Audit"
+      "group": "Audit",
+      "startedAt": 1783451690867,
+      "doneAt": 1783451690867
     },
     {
       "id": "a065c67cc81488ab3",
       "kind": "workflow",
       "label": "audit:hunt-17 GAP-PRIORITY-HOLD namespace widening (72a17f6 + 2026-07-07 qc-/m1- enrollment 3acb8e1)",
-      "startedAt": 1783444279267,
-      "doneAt": 1783444642891,
-      "group": "Audit"
+      "group": "Audit",
+      "startedAt": 1783451690867,
+      "doneAt": 1783451690867
     },
     {
       "id": "a1eca559ec911254d",
       "kind": "workflow",
       "label": "audit:hunt-18 assertNoUndeclaredShrinkage wired into command-step path (+ Windows backslash git-show fix)",
-      "startedAt": 1783444337495,
-      "group": "Audit"
+      "group": "Audit",
+      "startedAt": 1783451690868,
+      "doneAt": 1783451690868
     },
     {
-      "id": "aa31c53176ee2b650",
+      "id": "a4406332fc9f47166",
       "kind": "workflow",
       "label": "audit:hunt-19 conduct-cycle divergence guard fail-closed on git error",
-      "startedAt": 1783444412741,
-      "group": "Audit"
+      "group": "Audit",
+      "startedAt": 1783451695706
     },
     {
-      "id": "a06596d595250180c",
+      "id": "ab2918880aa239b42",
       "kind": "workflow",
       "label": "audit:hunt-20 DEPLOY keystroke --commit-dirty contradiction clarified",
-      "startedAt": 1783444414652,
-      "doneAt": 1783444719344,
-      "group": "Audit"
+      "group": "Audit",
+      "startedAt": 1783451702606
     },
     {
-      "id": "aec485f1ee9c4d145",
+      "id": "af6e405fcca67d4da",
       "kind": "workflow",
       "label": "audit:hunt-21 sweep reports open UNPARKS condition counts",
-      "startedAt": 1783444415784,
-      "doneAt": 1783444808396,
-      "group": "Audit"
+      "group": "Audit",
+      "startedAt": 1783451695845
     },
     {
-      "id": "a19240e10012a80a3",
+      "id": "a44787c64f5d3c212",
       "kind": "workflow",
       "label": "audit:hunt-22 unenrolled-classes enrollment (marker-inventory b65c9db + untracked-file byte-guard 1a069e4)",
-      "startedAt": 1783444417853,
-      "group": "Audit"
+      "group": "Audit",
+      "startedAt": 1783451698436
     },
     {
-      "id": "ae4a206b41db75cdc",
+      "id": "a020d976126b892a3",
       "kind": "workflow",
       "label": "audit:hunt-23 fifth-law report-linter findUngatedCausalClaims",
-      "startedAt": 1783444421861,
-      "group": "Audit"
+      "group": "Audit",
+      "startedAt": 1783451697417,
+      "doneAt": 1783451747964,
+      "failed": true
     },
     {
-      "id": "ad52e08bb8d18a650",
+      "id": "a26a462bad9c9274b",
       "kind": "workflow",
       "label": "audit:hunt-24 preflight-receipt gate content-aware not mtime-only",
-      "startedAt": 1783444460033,
-      "doneAt": 1783444639383,
-      "group": "Audit"
+      "group": "Audit",
+      "startedAt": 1783451697017,
+      "doneAt": 1783451941230
     },
     {
-      "id": "a2f0af13362267b42",
+      "id": "a7f506b41ccacc413",
       "kind": "workflow",
       "label": "audit:hunt-25 laguna leaked reasoning-tag preamble stripped",
-      "startedAt": 1783444503021,
-      "doneAt": 1783444703190,
-      "group": "Audit"
+      "group": "Audit",
+      "startedAt": 1783451697487,
+      "doneAt": 1783451948423
     },
     {
-      "id": "a588ffa70fdf672b4",
+      "id": "a493088d01bf0e06b",
       "kind": "workflow",
       "label": "audit:top-1 tartib bare-stem REQUIRES gating",
-      "startedAt": 1783444537410,
-      "group": "Audit"
+      "group": "Audit",
+      "startedAt": 1783451696746
     },
     {
-      "id": "a11ba79e1cdb61525",
+      "id": "a71040c6fdba64289",
       "kind": "workflow",
       "label": "audit:top-2 plan-level scratch lint (SCRATCH-RESIDUE)",
-      "startedAt": 1783444644137,
-      "doneAt": 1783444781031,
-      "group": "Audit"
+      "group": "Audit",
+      "startedAt": 1783451697427,
+      "doneAt": 1783451863728
     },
     {
-      "id": "a097a58044483a3ea",
+      "id": "a22c38beeaa6dad72",
       "kind": "workflow",
       "label": "audit:top-3 witness groundedness diagnosis (non-blocking flag, 3 false-flag mechanics recorded)",
-      "startedAt": 1783444649438,
-      "doneAt": 1783444923543,
-      "group": "Audit"
+      "group": "Audit",
+      "startedAt": 1783451696647
     },
     {
-      "id": "a9cddaa27c0099fac",
+      "id": "a75e99faf55cf0684",
       "kind": "workflow",
       "label": "audit:top-4 mission_split position-inheritance (insertQueueLineAfter)",
-      "startedAt": 1783444712810,
-      "group": "Audit"
+      "group": "Audit",
+      "startedAt": 1783451697471,
+      "doneAt": 1783451749680,
+      "failed": true
     },
     {
-      "id": "a4a9090e630c64de2",
+      "id": "a30262fd63cce0800",
       "kind": "workflow",
       "label": "audit:top-5 claude-exe-480s-hang HANG-RETRY",
-      "startedAt": 1783444726422,
-      "group": "Audit"
+      "group": "Audit",
+      "startedAt": 1783451697295
     },
     {
-      "id": "aef923b63c65a8505",
+      "id": "a379b66c11911c327",
       "kind": "workflow",
       "label": "audit:top-6 windowed-edit >250KB dep-path caps",
-      "startedAt": 1783444745260,
-      "group": "Audit"
+      "group": "Audit",
+      "startedAt": 1783451696755
     },
     {
-      "id": "ab2e3fb64a8b5b2d7",
+      "id": "ac0453ffc3e1affb5",
       "kind": "workflow",
       "label": "audit:top-8 repo-process (strands merged, master reconciled, deploys live, engine-proof landed)",
-      "startedAt": 1783444763701,
-      "group": "Audit"
+      "group": "Audit",
+      "startedAt": 1783451697856
     },
     {
-      "id": "adb7964bacc0c9cef",
+      "id": "a723612a850ac9f73",
       "kind": "workflow",
       "label": "audit:top-9 identity hygiene (kimi tag rm, per-era seat records, eval-v3 cells)",
-      "startedAt": 1783444776627,
-      "group": "Audit"
+      "group": "Audit",
+      "startedAt": 1783451697157
     },
     {
-      "id": "a533edf53827aca1b",
+      "id": "a26186991e193db58",
       "kind": "workflow",
       "label": "audit:top-10 gemma4:31b CUDA demotion (vision-verdict -> 12b, ab4c5f1)",
-      "startedAt": 1783444790105,
-      "group": "Audit"
+      "group": "Audit",
+      "startedAt": 1783451696926,
+      "doneAt": 1783451900645
     },
     {
-      "id": "a8c10c8940b862e2e",
-      "kind": "workflow",
-      "label": "refute:hunt-12 no-verdict re-ask allows concern line",
-      "startedAt": 1783444815240,
-      "group": "Refute"
-    },
-    {
-      "id": "a8df3d716a135cd9b",
-      "kind": "workflow",
-      "label": "refute:hunt-9 self-witness prompt truncation",
-      "startedAt": 1783444817870,
-      "group": "Refute"
-    },
-    {
-      "id": "aace26deab62ad0b6",
-      "kind": "workflow",
-      "label": "refute:hunt-7 LANE-EXCLUSION hook (built + registered in settings.json)",
-      "startedAt": 1783444874700,
-      "group": "Refute"
-    },
-    {
-      "id": "a709503abf368da9e",
+      "id": "a0b8a8baaf636327b",
       "kind": "workflow",
       "label": "refute:hunt-1 dotted-stem sandbox collision",
-      "startedAt": 1783444928809,
-      "group": "Refute"
+      "group": "Refute",
+      "startedAt": 1783451751885
     },
     {
-      "id": "w60qq12y6:39",
-      "kind": "workflow",
-      "label": "refute:hunt-8 PRE-FLIGHT gate content-awareness",
-      "startedAt": 1783444408057,
-      "group": "Refute"
-    },
-    {
-      "id": "w60qq12y6:40",
+      "id": "a34b580bcf64b241f",
       "kind": "workflow",
       "label": "refute:hunt-2 local-lane TIMEOUT/NETWORK heal asymmetry",
-      "startedAt": 1783444415090,
-      "group": "Refute"
+      "group": "Refute",
+      "startedAt": 1783451758212
     },
     {
-      "id": "w60qq12y6:41",
-      "kind": "workflow",
-      "label": "refute:hunt-5 daemon UNRESOLVED-as-RESOLVED regex inversion",
-      "startedAt": 1783444418056,
-      "group": "Refute"
-    },
-    {
-      "id": "w60qq12y6:42",
-      "kind": "workflow",
-      "label": "refute:hunt-10 self-witness receipts mislabeling ornith as laguna",
-      "startedAt": 1783444457080,
-      "group": "Refute"
-    },
-    {
-      "id": "w60qq12y6:43",
-      "kind": "workflow",
-      "label": "refute:hunt-14 queuedDepsHold silently-dropped REQUIRES citations surfaced",
-      "startedAt": 1783444499493,
-      "group": "Refute"
-    },
-    {
-      "id": "w60qq12y6:44",
-      "kind": "workflow",
-      "label": "refute:hunt-6 RESOLVED-LANDED stamp validation",
-      "startedAt": 1783444531986,
-      "group": "Refute"
-    },
-    {
-      "id": "w60qq12y6:45",
-      "kind": "workflow",
-      "label": "refute:hunt-24 preflight-receipt gate content-aware not mtime-only",
-      "startedAt": 1783444641493,
-      "group": "Refute"
-    },
-    {
-      "id": "w60qq12y6:46",
-      "kind": "workflow",
-      "label": "refute:hunt-17 GAP-PRIORITY-HOLD namespace widening (72a17f6 + 2026-07-07 qc-/m1- enrollment 3acb8e1)",
-      "startedAt": 1783444646208,
-      "group": "Refute"
-    },
-    {
-      "id": "w60qq12y6:47",
-      "kind": "workflow",
-      "label": "refute:hunt-25 laguna leaked reasoning-tag preamble stripped",
-      "startedAt": 1783444705025,
-      "group": "Refute"
-    },
-    {
-      "id": "w60qq12y6:48",
-      "kind": "workflow",
-      "label": "refute:hunt-20 DEPLOY keystroke --commit-dirty contradiction clarified",
-      "startedAt": 1783444722855,
-      "group": "Refute"
-    },
-    {
-      "id": "w60qq12y6:49",
+      "id": "a26a24c70a88b2c9d",
       "kind": "workflow",
       "label": "refute:hunt-3 supervisor halt surfacing (marker + out-of-process push)",
-      "startedAt": 1783444739950,
-      "group": "Refute"
+      "group": "Refute",
+      "startedAt": 1783451873005
     },
     {
-      "id": "w60qq12y6:50",
-      "kind": "workflow",
-      "label": "refute:hunt-16 stranded split children recovered via manifest",
-      "startedAt": 1783444759635,
-      "group": "Refute"
-    },
-    {
-      "id": "w60qq12y6:51",
-      "kind": "workflow",
-      "label": "refute:hunt-11 witness-divergence corpus wired into pipeline",
-      "startedAt": 1783444773274,
-      "group": "Refute"
-    },
-    {
-      "id": "w60qq12y6:52",
-      "kind": "workflow",
-      "label": "refute:top-2 plan-level scratch lint (SCRATCH-RESIDUE)",
-      "startedAt": 1783444782783,
-      "group": "Refute"
-    },
-    {
-      "id": "w60qq12y6:53",
-      "kind": "workflow",
-      "label": "refute:hunt-21 sweep reports open UNPARKS condition counts",
-      "startedAt": 1783444810758,
-      "group": "Refute"
-    },
-    {
-      "id": "w60qq12y6:54",
-      "kind": "workflow",
-      "label": "refute:hunt-13 re-split children SPLIT-CHILD marker",
-      "startedAt": 1783444812132,
-      "group": "Refute"
-    },
-    {
-      "id": "w60qq12y6:55",
+      "id": "a09573b1875b16b65",
       "kind": "workflow",
       "label": "refute:hunt-4 heartbeat failure-class table",
-      "startedAt": 1783444871561,
-      "group": "Refute"
+      "group": "Refute",
+      "startedAt": 1783451908100
     },
     {
-      "id": "w60qq12y6:56",
+      "id": "a13b263d56ebe526a",
       "kind": "workflow",
-      "label": "refute:top-3 witness groundedness diagnosis (non-blocking flag, 3 false-flag mechanics recorded)",
-      "startedAt": 1783444925451,
-      "group": "Refute"
+      "label": "refute:hunt-5 daemon UNRESOLVED-as-RESOLVED regex inversion",
+      "group": "Refute",
+      "startedAt": 1783451948800
     },
     {
-      "id": "bnnjrjb5c",
-      "kind": "shell",
-      "label": "node \"$CLAUDE_JOB_DIR/tmp/lane-watch.mjs\"",
-      "startedAt": 1783444686045
+      "id": "w148xmcjk:40",
+      "kind": "workflow",
+      "label": "refute:hunt-6 RESOLVED-LANDED stamp validation",
+      "group": "Refute",
+      "startedAt": 1783451691702
     },
     {
-      "id": "bjhtxln7y",
-      "kind": "shell",
-      "label": "node orchestrate.mjs --selftest 2>&1 | tail -5; echo \"EXIT:$?\"",
-      "startedAt": 1783444792469
+      "id": "w148xmcjk:41",
+      "kind": "workflow",
+      "label": "refute:hunt-7 LANE-EXCLUSION hook (built + registered in settings.json)",
+      "group": "Refute",
+      "startedAt": 1783451691703
     },
     {
-      "id": "bmkatmtfm",
-      "kind": "shell",
-      "label": "cd /c/Users/marka/.claude/muezzin-plugin && node orchestrate.mjs 2>&1 | grep -Ei \"split-position|ALL PASS|FAIL\" | head -20",
-      "startedAt": 1783444801987
+      "id": "w148xmcjk:42",
+      "kind": "workflow",
+      "label": "refute:hunt-8 PRE-FLIGHT gate content-awareness",
+      "group": "Refute",
+      "startedAt": 1783451691704
     },
     {
-      "id": "bmvbkuifl",
-      "kind": "shell",
-      "label": "cd /c/Users/marka/.claude/jobs/bb6b583a/tmp && node cc-copy.mjs --selftest 2>&1 | grep -E \"DIAG|RESTART FIRED|FAILURES|ALL PASS|^Error\" | head -20",
-      "startedAt": 1783444904154
+      "id": "w148xmcjk:43",
+      "kind": "workflow",
+      "label": "refute:hunt-9 self-witness prompt truncation",
+      "group": "Refute",
+      "startedAt": 1783451691705
     },
     {
-      "id": "bnib1rvmj",
-      "kind": "shell",
-      "label": "cd /c/Users/marka && node /c/Users/marka/.claude/muezzin-plugin/conduct-cycle.mjs --selftest > /c/Users/marka/.claude/jobs/bb6b583a/tmp/selftest-othercwd.txt 2>&1; echo \"exit=$?\"; grep -n \"^FAIL\\|FAI…",
-      "startedAt": 1783444905227
+      "id": "w148xmcjk:44",
+      "kind": "workflow",
+      "label": "refute:hunt-10 self-witness receipts mislabeling ornith as laguna",
+      "group": "Refute",
+      "startedAt": 1783451691705
     },
     {
-      "id": "b6o70itg2",
+      "id": "w148xmcjk:45",
+      "kind": "workflow",
+      "label": "refute:hunt-11 witness-divergence corpus wired into pipeline",
+      "group": "Refute",
+      "startedAt": 1783451691706
+    },
+    {
+      "id": "w148xmcjk:46",
+      "kind": "workflow",
+      "label": "refute:hunt-12 no-verdict re-ask allows concern line",
+      "group": "Refute",
+      "startedAt": 1783451691707
+    },
+    {
+      "id": "w148xmcjk:47",
+      "kind": "workflow",
+      "label": "refute:hunt-13 re-split children SPLIT-CHILD marker",
+      "group": "Refute",
+      "startedAt": 1783451691707
+    },
+    {
+      "id": "w148xmcjk:48",
+      "kind": "workflow",
+      "label": "refute:hunt-14 queuedDepsHold silently-dropped REQUIRES citations surfaced",
+      "group": "Refute",
+      "startedAt": 1783451691708
+    },
+    {
+      "id": "w148xmcjk:49",
+      "kind": "workflow",
+      "label": "refute:hunt-15 fix-ledger requeue-once .some() bug",
+      "group": "Refute",
+      "startedAt": 1783451691708
+    },
+    {
+      "id": "w148xmcjk:50",
+      "kind": "workflow",
+      "label": "refute:hunt-16 stranded split children recovered via manifest",
+      "group": "Refute",
+      "startedAt": 1783451691709
+    },
+    {
+      "id": "w148xmcjk:51",
+      "kind": "workflow",
+      "label": "refute:hunt-17 GAP-PRIORITY-HOLD namespace widening (72a17f6 + 2026-07-07 qc-/m1- enrollment 3acb8e1)",
+      "group": "Refute",
+      "startedAt": 1783451691710
+    },
+    {
+      "id": "w148xmcjk:52",
+      "kind": "workflow",
+      "label": "refute:hunt-18 assertNoUndeclaredShrinkage wired into command-step path (+ Windows backslash git-show fix)",
+      "group": "Refute",
+      "startedAt": 1783451691711
+    },
+    {
+      "id": "w148xmcjk:53",
+      "kind": "workflow",
+      "label": "refute:top-2 plan-level scratch lint (SCRATCH-RESIDUE)",
+      "group": "Refute",
+      "startedAt": 1783451866093
+    },
+    {
+      "id": "w148xmcjk:54",
+      "kind": "workflow",
+      "label": "refute:top-10 gemma4:31b CUDA demotion (vision-verdict -> 12b, ab4c5f1)",
+      "group": "Refute",
+      "startedAt": 1783451902948
+    },
+    {
+      "id": "w148xmcjk:55",
+      "kind": "workflow",
+      "label": "refute:hunt-24 preflight-receipt gate content-aware not mtime-only",
+      "group": "Refute",
+      "startedAt": 1783451944897
+    },
+    {
+      "id": "w148xmcjk:56",
+      "kind": "workflow",
+      "label": "refute:hunt-25 laguna leaked reasoning-tag preamble stripped",
+      "group": "Refute",
+      "startedAt": 1783451950281
+    },
+    {
+      "id": "bmcf5stny",
       "kind": "shell",
-      "label": "mkdir -p C:/Users/marka/.claude/jobs/bb6b583a/tmp/h15-iso && cp C:/Users/marka/.claude/muezzin-plugin/conduct-cycle.mjs C:/Users/marka/.claude/jobs/bb6b583a/tmp/h15-iso/conduct-cycle.mjs && cp C:/Use…",
-      "startedAt": 1783444916752
+      "label": "cd C:/Users/marka/.claude/muezzin-plugin && node conduct-cycle.mjs --selftest 2>&1 | grep -iE \"QUEUE.md-visibility|ALL PASS|FAIL\" | head -15",
+      "startedAt": 1783451876197
+    },
+    {
+      "id": "bcp7m9vgo",
+      "kind": "shell",
+      "label": "node orchestrate.mjs --selftest 2>&1 | grep -E \"e2e \\(4\\)|e2e \\(5\\)|e2e \\(6\\)|e2e \\(7\\)|ALL PASS|FAIL\" | head -30",
+      "startedAt": 1783451905271
+    },
+    {
+      "id": "bmc5c4kg1",
+      "kind": "shell",
+      "label": "node /c/Users/marka/.claude/jobs/bb6b583a/tmp/live-check.mjs",
+      "startedAt": 1783451950182
     }
   ],
-  "tokens": 1033472,
+  "tokens": 1317349,
   "output": null,
   "children": null,
-  "linkScanOffset": 3650024,
+  "linkScanOffset": 3826371,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -492,6 +477,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-07T17:22:23.736Z",
+  "updatedAt": "2026-07-07T19:19:11.117Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }

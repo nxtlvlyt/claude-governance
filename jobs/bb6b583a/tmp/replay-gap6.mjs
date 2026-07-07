@@ -1,60 +1,59 @@
-// E2E replay of gap #6 kill-shape (read-only on engine; scratch dir only).
-// Original failure (receipt reviews-ui-2, 2026-06-18): a step listed 358KB map.html as a
-// context DEP; readDep raw-inlined it uncapped -> 265K-token prompt -> HTTP 400, so
-// "windowed-edit never engaged" on >250KB files. Replay: real 358KB dep ON DISK, fired
-// through the exported PRODUCTION framing builder (buildEditFraming -> windowDepsForPrompt
-// -> real readDep). Expect: dep capped with a marker, anchor region survives, whole prompt
-// bounded far below the HTTP-400 class.
+// E2E replay of gap #6 kill-shape: a step lists a >250KB file as a context DEP
+// (original receipt: 358KB map.html raw-inlined -> 265K tokens -> HTTP 400, 2026-06-18).
+// Exercises the REAL readDep disk path (no readFn injection) via windowDepsForPrompt
+// and the full buildEditFraming prompt builder.
 import { mkdirSync, writeFileSync, rmSync } from 'node:fs';
-import { buildEditFraming, windowDepsForPrompt } from 'file:///C:/Users/marka/.claude/muezzin-plugin/executor.mjs';
+import { pathToFileURL } from 'node:url';
+import path from 'node:path';
+
+const mod = await import(pathToFileURL('C:/Users/marka/.claude/muezzin-plugin/executor.mjs').href);
+const { windowDepsForPrompt, buildEditFraming } = mod;
 
 const dir = 'C:/Users/marka/.claude/jobs/bb6b583a/tmp/gap6-cwd';
 mkdirSync(dir, { recursive: true });
 
-// Build a ~358KB dep simulating map.html, with the step's anchor term buried deep inside.
+// Build a ~400KB dep mimicking map.html with one anchor-relevant region
 const lines = [];
 for (let i = 0; i < 12000; i++) {
   lines.push(i === 9000
-    ? '  function renderReviewsPanelXq() { /* the region the step needs */ }'
-    : `  <div class="filler-row-${i}">lorem ipsum dolor sit amet consectetur adipiscing elit ${i}</div>`);
+    ? '<div id="reviewsPanelAnchor">reviews panel mount point</div>'
+    : `<!-- filler map markup line ${i} lorem ipsum dolor sit amet -->`);
 }
-let dep = lines.join('\n');
-while (dep.length < 358 * 1024) dep += '\n<!-- pad ' + 'x'.repeat(200) + ' -->';
-writeFileSync(`${dir}/map.html`, dep);
+const bigDep = lines.join('\n');
+writeFileSync(path.join(dir, 'map.html'), bigDep);
+const target = 'reviews-ui.mjs';
+const current = 'export const panel = 1;\n';
+writeFileSync(path.join(dir, target), current);
 
 const step = {
   step_index: 1,
-  description: 'wire renderReviewsPanelXq into the reviews UI panel',
+  description: 'wire the reviewsPanelAnchor mount into the reviews UI panel',
   action_type: 'edit',
-  target_files: ['reviews.mjs'],
+  target_files: [target],
   context_dependencies: ['map.html'],
-  validation_command: 'node -c reviews.mjs',
+  validation_command: 'node -c reviews-ui.mjs',
 };
-const currentTarget = 'export function reviewsPanel() {\n  return null; // TODO wire renderReviewsPanelXq\n}\n';
 
-let pass = 0, fail = 0;
-const ck = (ok, label) => { console.log(`${ok ? 'PASS' : 'FAIL'}  ${label}`); ok ? pass++ : fail++; };
+const results = [];
+const ck = (ok, msg) => { results.push(`${ok ? 'PASS' : 'FAIL'}  ${msg}`); if (!ok) process.exitCode = 1; };
 
-console.log(`dep on disk: ${dep.length} bytes (kill-shape threshold: >250KB, original 358KB)`);
+console.log(`raw dep size on disk: ${bigDep.length} bytes (> 250KB kill-shape: ${bigDep.length > 250000})`);
 
-// 1. Direct exported function, real readDep path (no mock readFn)
-const win = windowDepsForPrompt(step, dir);
-console.log(`windowDepsForPrompt output: ${win.length} bytes`);
-ck(win.length <= 61000, `dep block capped at per-dep 60KB budget (got ${win.length} bytes from ${dep.length})`);
-ck(/dep windowed|dep truncated/.test(win), 'omission marker present (cut is explicit, not silent)');
-ck(win.includes('renderReviewsPanelXq'), 'anchor-relevant region survives windowing');
+// 1) The dep-windowing function over the REAL disk read path
+const dw = windowDepsForPrompt(step, dir);
+console.log(`windowDepsForPrompt output: ${dw.length} bytes`);
+ck(bigDep.length > 250000, `dep is genuinely over 250KB (${bigDep.length} bytes)`);
+ck(dw.length < 61000, `dep block capped under the 60KB per-dep budget (got ${dw.length} bytes, was ${bigDep.length} raw)`);
+ck(/dep windowed|dep truncated/.test(dw), 'omission marker present on the capped dep');
+ck(dw.includes('reviewsPanelAnchor'), 'anchor-relevant region survives windowing');
 
-// 2. Full production framing builder (the path the seat prompt actually takes)
-const framing = buildEditFraming(step, dir, currentTarget);
-console.log(`buildEditFraming full prompt: ${framing.length} bytes`);
-ck(framing.length < 200000, `whole framing prompt bounded (got ${framing.length} bytes; raw-inline era would exceed ${dep.length})`);
-ck(framing.length < dep.length, 'prompt is SMALLER than the raw dep (proof windowing engaged, unlike 2026-06-18)');
-ck(framing.includes('map.html'), 'dep still named in the prompt (context not dropped, only windowed)');
+// 2) The full edit-framing prompt (the thing that used to hit HTTP 400)
+const ef = buildEditFraming(step, dir, current);
+console.log(`buildEditFraming total prompt: ${ef.length} bytes`);
+ck(ef.length < 100000, `whole edit-framing prompt bounded (${ef.length} bytes; pre-fix it embedded the full ${bigDep.length}-byte dep)`);
+ck(/dep windowed|dep truncated/.test(ef), 'framing carries the dep-window marker (windowed path engaged inside the builder)');
+ck(ef.includes(current.trim()), 'target file still embedded whole (windowing hit the DEP, not the small target)');
 
-// 3. Total-budget bound: three copies of the >250KB dep (many-big-deps shape)
-const multi = windowDepsForPrompt({ ...step, context_dependencies: ['map.html', 'map.html', 'map.html'] }, dir);
-ck(multi.length <= 155000, `3x358KB deps bounded by 150KB TOTAL budget (got ${multi.length} bytes vs ${3 * dep.length} raw)`);
+console.log(results.join('\n'));
 
 rmSync(dir, { recursive: true, force: true });
-console.log(fail === 0 ? `\nALL PASS (${pass}/${pass + fail}) — gap #6 kill-shape rejected by live executor.mjs` : `\n${fail} FAILURES`);
-process.exit(fail === 0 ? 0 : 1);

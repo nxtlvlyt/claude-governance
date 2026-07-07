@@ -23,7 +23,7 @@ import { readFileSync, writeFileSync, existsSync, mkdirSync, rmSync, appendFileS
 import { execSync } from 'child_process';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { extractSourceShas } from './git_steps.mjs';   // DONENESS L3: parse deliverable source shas from mission prose
+import { extractSourceShas } from 'file:///C:/Users/marka/.claude/muezzin-plugin/git_steps.mjs';   // DONENESS L3: parse deliverable source shas from mission prose
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 
@@ -507,7 +507,7 @@ export function detectWorktreeCorruption(repoRoot, gitFn) {
 // PURE: reads + git (a read) only; NEVER writes (the doneness.json write lives in main()/heal()).
 // FAIL-CLOSED: any completion fact not determinable from receipts => a blocking entry (never assume done).
 // gitFn(repo, argstr) -> {ok, out}: injected so the selftest runs offline.
-const MT_REPO_DEFAULT = 'C:/Users/marka/code/mt-integration-2026-06-22';
+const MT_REPO_DEFAULT = 'C:/Users/marka/.claude/jobs/bb6b583a/tmp/dirty-repo';
 export function computeDoneness(base, autorun, {
   targetRepo = MT_REPO_DEFAULT, mainlineRef = null, now = Date.now(), owed = [], patchScan = 300,
   gitFn = (repo, argstr) => { try { return { ok: true, out: execSync(`git -C "${repo}" ${argstr}`, { stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 64 * 1024 * 1024 }).toString() }; } catch { return { ok: false, out: '' }; } },

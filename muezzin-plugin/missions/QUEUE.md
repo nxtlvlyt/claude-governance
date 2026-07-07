@@ -2094,6 +2094,10 @@ N11. Hold-bypass window receipt (2026-07-07 16:32-16:44): between a fix-ledger r
     governs fires — requeue records + QUEUED appends should be treated as reload-gated
     when the classifier itself changed this session (sequencing note for the playbook's
     engine-edit rule, not new code).
+N12. Bare witness-flag notes on the STEP-WITNESS path (live receipt 2026-07-07T17:16/17:34,
+    affiliate-cards attempt 2: witness REJECT x2 with EMPTY note fields in mission-events —
+    unadjudicable by construction). hunt-12's concern-line fix covered the no-verdict
+    RE-ASK path only; the step-witness flag writer needs the same one-line-reason contract.
 #7-TAIL (not new gaps — the last work items of the 29): m1-1 v6 authoring, scenic-osm.S1
 scoped re-fire, 6 remaining false-death verifications, 1 parked revisit, share-spot
 catalog gate 2.

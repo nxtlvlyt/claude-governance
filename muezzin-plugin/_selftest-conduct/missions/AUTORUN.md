@@ -1,2 +1,2 @@
 # q
-FAILED missions/perstem-b.mission.txt  <!-- t -->
+RUNNING missions/stuck.mission.txt  <!-- t -->
