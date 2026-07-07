@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "audit final tally: 64/66 agents complete; 28 verified end-to-end, 1 real fail (top-6 context truncation) with omission-marker fix in progress; register draining per priority ruling",
+  "detail": "29 known gaps audit-verified; draining to zero before real work; self-healing proven in live retro-gate test",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -17,10 +17,10 @@
       "startedAt": 1783453629852
     }
   ],
-  "tokens": 1813678,
+  "tokens": 1814368,
   "output": null,
   "children": null,
-  "linkScanOffset": 4118982,
+  "linkScanOffset": 4132359,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -47,6 +47,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-07T19:50:33.619Z",
+  "updatedAt": "2026-07-07T19:51:13.596Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
