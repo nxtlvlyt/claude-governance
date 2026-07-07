@@ -125,7 +125,10 @@ Context (verified against live substrate this session, 2026-07-01, absolute path
   <ol class="space-y-6"> three-step list.
 
 Steps:
-  1. In the target repo, record the current branch and HEAD, and confirm operators.html
+  1. (amended 2026-07-07: prior attempt died on ENOENT writing into a nonexistent
+     e2e-shots/ dir) FIRST create the evidence dir explicitly: New-Item -ItemType
+     Directory -Force e2e-shots. Then, in the target repo, record the current branch
+     and HEAD, and confirm operators.html
      is still in its pre-fix state: using Select-String/grep with line numbers, confirm
      the line containing "Why claim" (the mono label div) has a LOWER line number than
      the line containing `<section id="tiers"`, and the line containing

@@ -1,18 +1,16 @@
 {
-  "state": "done",
-  "detail": "qwen3.6:27b auditioned live on conductor seat (5/5, 70s/beat); relay half model-agnostic today; 3 gaps queued (encode exceptions, build conduct-beat-local.mjs, port survey workflow)",
+  "state": "working",
+  "detail": "7 features deployed to production, 27→15 unresolved failures; final sweep pending m1-1 v6 mission author + 6 false-death verify",
   "tempo": "idle",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 546467,
-  "output": {
-    "result": "qwen3.6:27b passed conductor audition on real board state; local-model readiness receipted at QUEUE 396a814"
-  },
+  "tokens": 583917,
+  "output": null,
   "children": null,
-  "linkScanOffset": 1977256,
+  "linkScanOffset": 2997433,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -39,6 +37,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-07T15:59:00.758Z",
+  "updatedAt": "2026-07-07T16:30:12.002Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
