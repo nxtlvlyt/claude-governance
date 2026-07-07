@@ -1,34 +1,153 @@
 {
   "state": "working",
-  "detail": "gap confirmed: #7 board-truth drain is final open item of 29; fanning out 2-phase workflow (survey agents + adversarial refuter) on 19 FAILED-x2 missions; rule-9 agent also in flight; will stamp verdicts + re-run sweep",
+  "detail": "31 rule-9 texts amended & lint-verified (1 commit); board-truth survey relaunched with 19 agents reading receipts + repo state",
   "tempo": "active",
   "inFlight": {
     "tasks": 1,
-    "queued": 1,
+    "queued": 0,
     "kinds": [
-      "local_agent"
+      "local_workflow"
     ]
   },
   "fan": [
     {
-      "id": "afb71dd595bdf8caf",
-      "kind": "agent",
-      "label": "Amend RULE-9 mission texts",
-      "startedAt": 1783437201354
+      "id": "ab8aabd5faea66a84",
+      "kind": "workflow",
+      "label": "survey:muddytires-community-1-social-platform",
+      "startedAt": 1783438265240,
+      "group": "Survey"
     },
     {
-      "id": "wvv1r9bpi",
+      "id": "ae81cf93c1a07986d",
       "kind": "workflow",
-      "label": "gap7-board-truth-drain",
-      "startedAt": 1783438030902,
-      "doneAt": 1783438031273,
-      "failed": true
+      "label": "survey:qc-concern-poi-affiliate-cards-poi-affiliate-cards-js-2026-06-25",
+      "startedAt": 1783438265254,
+      "group": "Survey"
+    },
+    {
+      "id": "a9166a8681dcb3393",
+      "kind": "workflow",
+      "label": "survey:qc-concern-saved-html-saved-spots-manager-2026-06-25",
+      "startedAt": 1783438265257,
+      "group": "Survey"
+    },
+    {
+      "id": "af933151094b45db3",
+      "kind": "workflow",
+      "label": "survey:qc-concern-fire-ban-layer-fire-ban-layer-js-2026-06-25",
+      "startedAt": 1783438265259,
+      "group": "Survey"
+    },
+    {
+      "id": "a4f04054e8e9ea24b",
+      "kind": "workflow",
+      "label": "survey:qc-concern-operators-html-business-claim-page-2026-06-25",
+      "startedAt": 1783438265262,
+      "group": "Survey"
+    },
+    {
+      "id": "ae0524a03e3c6c1ba",
+      "kind": "workflow",
+      "label": "survey:qc-concern-poi-photo-carousel-poi-photos-js-2026-06-25",
+      "startedAt": 1783438265265,
+      "group": "Survey"
+    },
+    {
+      "id": "a08d3638dadb68f94",
+      "kind": "workflow",
+      "label": "survey:qc-concern-poi-provenance-modal-poi-provenance-js-2026-06-25",
+      "startedAt": 1783438265266,
+      "group": "Survey"
+    },
+    {
+      "id": "a5b318c37375a9b68",
+      "kind": "workflow",
+      "label": "survey:qc-fix-add-spot-worker-submission-add-spot-worker-js-2026-06-24",
+      "startedAt": 1783438265269,
+      "group": "Survey"
+    },
+    {
+      "id": "a026e764563a9c3b6",
+      "kind": "workflow",
+      "label": "survey:qc-fix-oracle-quick-actions-oracle-quick-actions-js-2026-06-24",
+      "startedAt": 1783438265270,
+      "group": "Survey"
+    },
+    {
+      "id": "ac31b7df25def708e",
+      "kind": "workflow",
+      "label": "survey:qc-fix-share-spot-share-spot-js-2026-06-24",
+      "startedAt": 1783438265272,
+      "group": "Survey"
+    },
+    {
+      "id": "a0e0de7b12f3dbd6c",
+      "kind": "workflow",
+      "label": "survey:m1-1-oracle-ingest-ontario-crownland-v5",
+      "startedAt": 1783438265273,
+      "group": "Survey"
+    },
+    {
+      "id": "a65ffbc89119da7e5",
+      "kind": "workflow",
+      "label": "survey:mt-integrate-b13-aria-live",
+      "startedAt": 1783438265276,
+      "group": "Survey"
+    },
+    {
+      "id": "a9db5946c91beb8c1",
+      "kind": "workflow",
+      "label": "survey:mt-integrate-onboarding-tour-2026-06-23",
+      "startedAt": 1783438265278,
+      "group": "Survey"
+    },
+    {
+      "id": "af29baa69cd0fc38f",
+      "kind": "workflow",
+      "label": "survey:mt-integrate-osm-conflict-detect",
+      "startedAt": 1783438265280,
+      "group": "Survey"
+    },
+    {
+      "id": "abb220e345f98f238",
+      "kind": "workflow",
+      "label": "survey:mt-integrate-b13-aria-live.S1",
+      "startedAt": 1783438265282,
+      "group": "Survey"
+    },
+    {
+      "id": "a1274985ee7ea3d7b",
+      "kind": "workflow",
+      "label": "survey:mt-enrich-scenic-osm.S1",
+      "startedAt": 1783438265284,
+      "group": "Survey"
+    },
+    {
+      "id": "w773bov6i:17",
+      "kind": "workflow",
+      "label": "survey:mt-money-competitor-landscape.S1",
+      "startedAt": 1783438265114,
+      "group": "Survey"
+    },
+    {
+      "id": "w773bov6i:18",
+      "kind": "workflow",
+      "label": "survey:mt-money-affiliate-programs.S1",
+      "startedAt": 1783438265114,
+      "group": "Survey"
+    },
+    {
+      "id": "w773bov6i:19",
+      "kind": "workflow",
+      "label": "survey:qc-concern-share-link-control-share-control-js-2026-06-25.S1",
+      "startedAt": 1783438265114,
+      "group": "Survey"
     }
   ],
-  "tokens": 128993,
+  "tokens": 142275,
   "output": null,
   "children": null,
-  "linkScanOffset": 1443884,
+  "linkScanOffset": 1548272,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -55,6 +174,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-07T15:27:31.278Z",
+  "updatedAt": "2026-07-07T15:31:23.595Z",
   "firstTerminalAt": null
 }
