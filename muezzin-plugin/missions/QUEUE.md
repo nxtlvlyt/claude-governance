@@ -2062,3 +2062,29 @@ remainder, queued):
 (3) WORKFLOW PORTABILITY: board-truth-drain (saved today) is Claude-harness-only; the
     survey+refute pattern needs an .mjs port over seat_dispatch so a local conductor can
     fire the same drain without Claude. Engine item, pairs with (2).
+
+## 2026-07-07 NEW-INTAKE REGISTER (hunt-#22 discipline: enroll new finds BEFORE the dry
+## push; the 29 stays a CLOSED SET — these are the successor list, prioritized after dry)
+Found while draining the 29 this session, all receipted above, consolidated here so the
+gap-dry push can name the intake count instead of a successor rediscovering them:
+N1. RULE 9 cure-text hardcodes --project-name=muddytires (mission_lint.mjs) — genericize
+    from the mission's REPO-ROOT wrangler.toml. (genericity audit)
+N2. board-truth-drain workflow's MT_REPO default hint — make it an args field. (same)
+N3. blocked-on-operator report lint — extend findUngatedCausalClaims, wire advisory-first.
+    (retest-boundaries lesson, operator-caught)
+N4. Conductor-direct exception CONDITIONS into conductor-core/faith (size cap +
+    lane-boundary + receipt) so a relay seat applies them mechanically. (qwen audition)
+N5. conduct-beat-local.mjs — the local-conductor beat harness, allowlisted verbs only.
+    (succession 5b; spec in the audition entry)
+N6. Survey+refute drain as .mjs over seat_dispatch (Claude-harness-free). (pairs with N5)
+N7. NEW THIS ENTRY (observed 2026-07-07, previously unenrolled — the exact hunt-#22 miss
+    class): conduct-cycle --json emits required actions with EMPTY mission/readFirst
+    fields (id only) while the text output carries full read-first file lists — the JSON
+    path drops the fields delegation depends on; receipt: this session's --json call
+    returned 21 acts all with mission:"" files:[]. Small conduct-cycle fix + selftest.
+N8. gemma4:12b vision-seat 24h clean-census watch (condition, auto-resolves or escalates).
+N9. Fire-ban D1 seed-data (carried from the fire-ban mission's Context; the layer is live
+    but renders only what the D1 table holds).
+#7-TAIL (not new gaps — the last work items of the 29): m1-1 v6 authoring, scenic-osm.S1
+scoped re-fire, 6 remaining false-death verifications, 1 parked revisit, share-spot
+catalog gate 2.
