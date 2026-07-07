@@ -1,0 +1,8 @@
+{
+  "model": "laguna-xs-2.1:q8_0",
+  "stream": false,
+  "messages": [{
+    "role": "user",
+    "content": "Classify each item as OPERATOR-BOUND (needs the human's values/identity/authorization) or SUBSTRATE-RESOLVABLE (the AI conductor can decide and act from documented rules). Rules context: operator ruling says only identity-bound items (logins, credentials, product-taste) are ever on the operator; sequencing/conditions are gates the conductor checks and acts on itself. Gap-class fixes are standing top priority. Git merges are reversible. Item 1: register an already-built, already-tested safety hook by editing the AI's own settings.json. Item 2: merge two pre-verified zero-conflict feature branches to main in the product repo; both are diagnosed gap-list items; a previous session held off because a harness permission classifier wanted the literal word 'merge' from the human. Item 3: choose between (a) editing 17 mission files to each embed a preview-deploy command, or (b) building one shared preview-deploy helper authorized once; an existing canon rule says N same-shape fixes should become one structural helper. Answer with one line per item: OPERATOR-BOUND or SUBSTRATE-RESOLVABLE plus a one-clause reason."
+  }]
+}

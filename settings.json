@@ -133,6 +133,11 @@
             "type": "command",
             "command": "node \"C:\\Users\\marka\\.claude\\hooks\\autorun-verdict-gate.mjs\"",
             "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "node \"C:\\Users\\marka\\.claude\\hooks\\lane-exclusion-gate.mjs\"",
+            "timeout": 10
           }
         ]
       },
@@ -152,6 +157,11 @@
           {
             "type": "command",
             "command": "node \"C:\\Users\\marka\\.claude\\hooks\\ollama-dispatch-gpops-gate.mjs\"",
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "node \"C:\\Users\\marka\\.claude\\hooks\\lane-exclusion-gate.mjs\"",
             "timeout": 10
           }
         ]

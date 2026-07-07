@@ -1,27 +1,25 @@
 {
   "state": "blocked",
-  "detail": "25/29 gaps struck; 3 awaiting your word (hook registration, 2 merges, preview-deploy choice) + gemma CUDA fail re-diagnosed",
+  "detail": "gap #10 gemma demotion blocked on vision-bench verdict: need user word to bench `gemma4:12b-it-q8_0` or name alternative candidate",
   "tempo": "blocked",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 10185,
-  "needs": "approve: (1) lane-exclusion hook registration, (2) merge feat/crown-legal-full-text-2026-06-23 + feat/lighthouse-post-indexes-2026-06-23, (3) authorize preview-branch deploys or build shared helper?",
-  "output": {
-    "result": "25/29 gaps complete; daemon restarted (PID 34252)"
-  },
+  "tokens": 28284,
+  "needs": "approve benching gemma4:12b-it-q8_0 for vision seat, or name your preferred candidate model tag",
+  "output": null,
   "children": null,
-  "linkScanOffset": 515095,
+  "linkScanOffset": 806473,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
     "--reply-on-resume",
-    "--permission-mode",
-    "default",
     "--model",
-    "claude-fable-5[1m]"
+    "claude-fable-5[1m]",
+    "--permission-mode",
+    "acceptEdits"
   ],
   "intent": "but we had 30 gaps mission we were fixing first before we did anything else and a big project to que when they were done",
   "name": "daemon-restart-mission-triage",
@@ -37,6 +35,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-07T14:37:11.262Z",
+  "updatedAt": "2026-07-07T14:45:53.578Z",
   "firstTerminalAt": null
 }
