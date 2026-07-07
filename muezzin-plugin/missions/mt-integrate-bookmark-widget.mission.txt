@@ -50,11 +50,7 @@ Context (unbiased facts — absolute paths, no prescribed solution beyond what's
   chrome-extension://<id>/popup.html, not through muddytires.ca's own page routing. For the
   visual-witness pipeline to render it, PREVIEW-BASE-URL above must point at whatever local
   server is actually serving the target repo's static files, and the file would be reached
-  at <PREVIEW-BASE-URL>/extensions/bookmark-widget/popup.html. http://localhost:8788 is a
-  PLACEHOLDER for a local `wrangler pages dev` run — the operator must confirm the port a
-  real local preview server actually binds to on the machine firing this mission before
-  relying on the captured render; if nothing answers at PREVIEW-BASE-URL, correct the
-  header or start the server before this mission's Phase 3 fires for real.
+  at <PREVIEW-BASE-URL>/extensions/bookmark-widget/popup.html. (amended 2026-07-07 per RULE 9: prior wording hand-rolled a localhost:8788 server — nothing serves that port) In ONE command: confirm clean tree for this mission's ALLOW-FILES (git commit first if this mission's edits are not yet committed — never deploy a dirty tree), then wrangler pages deploy . --project-name=muddytires --branch=preview, capture the emitted *.pages.dev URL into a PowerShell variable, write scratch-qc.mjs (playwright render of extensions/bookmark-widget/popup.html from that URL, exit non-zero if the popup's required markup is absent), node scratch-qc.mjs, Remove-Item scratch-qc.mjs.
 
 Steps:
   1. In the target repo, record the current branch and HEAD, and confirm none of the four

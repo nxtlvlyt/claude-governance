@@ -106,13 +106,7 @@ Steps:
      changes to functions/api/aurora.js, js/aurora-overlay.js, or map.html, and
      `git -C C:\Users\marka\code\mt-integration-2026-06-22 log --oneline -5` shows the landed
      commit. [command] commit-and-verify-clean
-  6. Start (or confirm already running) a local preview server for the target repo bound to
-     the PREVIEW-BASE-URL host:port (for example `wrangler pages dev .`), then render the map
-     page in a headless browser (headless Chrome / Playwright / puppeteer) and capture that the
-     page loads without a fatal script error and that an aurora forecast chip and/or "Aurora
-     viewing zone" overlay control is present in the rendered DOM. This is the render-witness
-     step RULE 7 of mission_lint.mjs requires because VISUAL-QC-REQUIRED is set above.
-     [command] headless-render-witness
+  6. (amended 2026-07-07 per RULE 9: prior step hand-rolled a localhost:8788 server — nothing serves that port) In ONE command: confirm clean tree for this mission's ALLOW-FILES (git commit first if this mission's edits are not yet committed — never deploy a dirty tree), then wrangler pages deploy . --project-name=muddytires --branch=preview, capture the emitted *.pages.dev URL into a PowerShell variable, write scratch-qc.mjs (playwright render of map.html from that URL, exit non-zero if the aurora forecast chip and/or "Aurora viewing zone" overlay control is absent from the rendered DOM), node scratch-qc.mjs, Remove-Item scratch-qc.mjs. [command] headless-render-witness
 
 Done means:
   - `git log --oneline` in C:\Users\marka\code\mt-integration-2026-06-22 shows a commit whose
