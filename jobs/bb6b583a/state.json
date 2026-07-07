@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "31 rule-9 texts amended & lint-verified (1 commit); board-truth survey relaunched with 19 agents reading receipts + repo state",
+  "detail": "explained stamping architecture: survey agents propose (read-only), refuters dispute (read-only), conductor stamps (gated by receipt audit); user records timestamp in QUEUE",
   "tempo": "active",
   "inFlight": {
     "tasks": 1,
@@ -14,151 +14,171 @@
       "id": "ab8aabd5faea66a84",
       "kind": "workflow",
       "label": "survey:muddytires-community-1-social-platform",
-      "startedAt": 1783438265240,
-      "group": "Survey"
+      "group": "Survey",
+      "startedAt": 1783438265240
     },
     {
       "id": "ae81cf93c1a07986d",
       "kind": "workflow",
       "label": "survey:qc-concern-poi-affiliate-cards-poi-affiliate-cards-js-2026-06-25",
-      "startedAt": 1783438265254,
-      "group": "Survey"
+      "group": "Survey",
+      "startedAt": 1783438265254
     },
     {
       "id": "a9166a8681dcb3393",
       "kind": "workflow",
       "label": "survey:qc-concern-saved-html-saved-spots-manager-2026-06-25",
-      "startedAt": 1783438265257,
-      "group": "Survey"
+      "group": "Survey",
+      "startedAt": 1783438265257
     },
     {
       "id": "af933151094b45db3",
       "kind": "workflow",
       "label": "survey:qc-concern-fire-ban-layer-fire-ban-layer-js-2026-06-25",
-      "startedAt": 1783438265259,
-      "group": "Survey"
+      "group": "Survey",
+      "startedAt": 1783438265259
     },
     {
       "id": "a4f04054e8e9ea24b",
       "kind": "workflow",
       "label": "survey:qc-concern-operators-html-business-claim-page-2026-06-25",
-      "startedAt": 1783438265262,
-      "group": "Survey"
+      "group": "Survey",
+      "startedAt": 1783438265262
     },
     {
       "id": "ae0524a03e3c6c1ba",
       "kind": "workflow",
       "label": "survey:qc-concern-poi-photo-carousel-poi-photos-js-2026-06-25",
-      "startedAt": 1783438265265,
-      "group": "Survey"
+      "group": "Survey",
+      "startedAt": 1783438265265
     },
     {
       "id": "a08d3638dadb68f94",
       "kind": "workflow",
       "label": "survey:qc-concern-poi-provenance-modal-poi-provenance-js-2026-06-25",
-      "startedAt": 1783438265266,
-      "group": "Survey"
+      "group": "Survey",
+      "startedAt": 1783438265266
     },
     {
       "id": "a5b318c37375a9b68",
       "kind": "workflow",
       "label": "survey:qc-fix-add-spot-worker-submission-add-spot-worker-js-2026-06-24",
-      "startedAt": 1783438265269,
-      "group": "Survey"
+      "group": "Survey",
+      "startedAt": 1783438265269
     },
     {
       "id": "a026e764563a9c3b6",
       "kind": "workflow",
       "label": "survey:qc-fix-oracle-quick-actions-oracle-quick-actions-js-2026-06-24",
-      "startedAt": 1783438265270,
-      "group": "Survey"
+      "group": "Survey",
+      "startedAt": 1783438265270
     },
     {
       "id": "ac31b7df25def708e",
       "kind": "workflow",
       "label": "survey:qc-fix-share-spot-share-spot-js-2026-06-24",
-      "startedAt": 1783438265272,
-      "group": "Survey"
+      "group": "Survey",
+      "startedAt": 1783438265272
     },
     {
       "id": "a0e0de7b12f3dbd6c",
       "kind": "workflow",
       "label": "survey:m1-1-oracle-ingest-ontario-crownland-v5",
-      "startedAt": 1783438265273,
-      "group": "Survey"
+      "group": "Survey",
+      "startedAt": 1783438265273
     },
     {
       "id": "a65ffbc89119da7e5",
       "kind": "workflow",
       "label": "survey:mt-integrate-b13-aria-live",
-      "startedAt": 1783438265276,
-      "group": "Survey"
+      "group": "Survey",
+      "startedAt": 1783438265276
     },
     {
       "id": "a9db5946c91beb8c1",
       "kind": "workflow",
       "label": "survey:mt-integrate-onboarding-tour-2026-06-23",
-      "startedAt": 1783438265278,
-      "group": "Survey"
+      "group": "Survey",
+      "startedAt": 1783438265278
     },
     {
       "id": "af29baa69cd0fc38f",
       "kind": "workflow",
       "label": "survey:mt-integrate-osm-conflict-detect",
+      "group": "Survey",
       "startedAt": 1783438265280,
-      "group": "Survey"
+      "doneAt": 1783438453376
     },
     {
       "id": "abb220e345f98f238",
       "kind": "workflow",
       "label": "survey:mt-integrate-b13-aria-live.S1",
-      "startedAt": 1783438265282,
-      "group": "Survey"
+      "group": "Survey",
+      "startedAt": 1783438265282
     },
     {
       "id": "a1274985ee7ea3d7b",
       "kind": "workflow",
       "label": "survey:mt-enrich-scenic-osm.S1",
+      "group": "Survey",
       "startedAt": 1783438265284,
-      "group": "Survey"
+      "doneAt": 1783438418622
     },
     {
-      "id": "w773bov6i:17",
+      "id": "aa7524e3e0412ca9c",
       "kind": "workflow",
       "label": "survey:mt-money-competitor-landscape.S1",
-      "startedAt": 1783438265114,
-      "group": "Survey"
+      "group": "Survey",
+      "startedAt": 1783438421351
     },
     {
-      "id": "w773bov6i:18",
+      "id": "aa917eafbb8196620",
       "kind": "workflow",
       "label": "survey:mt-money-affiliate-programs.S1",
-      "startedAt": 1783438265114,
-      "group": "Survey"
+      "group": "Survey",
+      "startedAt": 1783438456157
     },
     {
       "id": "w773bov6i:19",
       "kind": "workflow",
       "label": "survey:qc-concern-share-link-control-share-control-js-2026-06-25.S1",
-      "startedAt": 1783438265114,
-      "group": "Survey"
+      "group": "Survey",
+      "startedAt": 1783438265114
+    },
+    {
+      "id": "w773bov6i:20",
+      "kind": "workflow",
+      "label": "refute:mt-enrich-scenic-osm.S1",
+      "group": "Refute",
+      "startedAt": 1783438418638
+    },
+    {
+      "id": "w773bov6i:21",
+      "kind": "workflow",
+      "label": "refute:mt-integrate-osm-conflict-detect",
+      "group": "Refute",
+      "startedAt": 1783438453419
     }
   ],
-  "tokens": 142275,
-  "output": null,
+  "tokens": 217697,
+  "output": {
+    "result": "survey→refute→conductor stamp flow; judgment stays with accountable seat"
+  },
   "children": null,
-  "linkScanOffset": 1548272,
+  "linkScanOffset": 1564469,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
     "--reply-on-resume",
-    "--permission-mode",
-    "acceptEdits",
     "--model",
     "claude-fable-5[1m]",
     "--effort",
-    "xhigh"
+    "xhigh",
+    "--permission-mode",
+    "auto"
   ],
+  "bgIsolation": "none",
+  "providerEnv": {},
   "intent": "but we had 30 gaps mission we were fixing first before we did anything else and a big project to que when they were done",
   "name": "daemon-restart-mission-triage",
   "nameSource": "auto",
@@ -167,13 +187,11 @@
   "daemonShort": "bb6b583a",
   "cliVersion": "2.1.202",
   "cwd": "C:\\Users\\marka",
+  "createdAt": "2026-07-07T14:31:31.695Z",
+  "updatedAt": "2026-07-07T15:34:16.471Z",
+  "firstTerminalAt": null,
   "bridgeSessionId": "cse_015z5n4qQqp9BZ8kKSCkvtzT",
   "bridgeOutboundOnly": false,
   "bridgeSessionSeq": 85,
-  "bgIsolation": "none",
-  "providerEnv": {},
-  "backend": "daemon",
-  "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-07T15:31:23.595Z",
-  "firstTerminalAt": null
+  "backend": "daemon"
 }
