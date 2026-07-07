@@ -1,0 +1,120 @@
+{
+  "proto": 1,
+  "supervisorPid": 25152,
+  "updatedAt": 1783434707342,
+  "workers": {
+    "f757fc34": {
+      "pid": 28128,
+      "procStart": "639190098998091010",
+      "sessionId": "f757fc34-f7de-4d09-b4cf-60bb20551f0d",
+      "rendezvousSock": "\\\\.\\pipe\\cc-daemon-69c76e4ae1bf5e5b-rv-f757fc34",
+      "ptySock": "\\\\.\\pipe\\cc-daemon-69c76e4ae1bf5e5b-pty-f757fc34",
+      "cliVersion": "2.1.201",
+      "startedAt": 1783434699766,
+      "attempt": 1,
+      "cwd": "C:\\Users\\marka\\.claude\\muezzin-plugin",
+      "dispatch": {
+        "proto": 1,
+        "short": "f757fc34",
+        "nonce": "bd276e85",
+        "sessionId": "f757fc34-f7de-4d09-b4cf-60bb20551f0d",
+        "createdAt": 1783434692977,
+        "source": "spare",
+        "cwd": "C:\\Users\\marka\\.claude\\muezzin-plugin",
+        "launch": {
+          "mode": "prompt",
+          "args": [
+            "--session-id",
+            "f757fc34-f7de-4d09-b4cf-60bb20551f0d",
+            "--agent",
+            "claude",
+            "--permission-mode",
+            "default"
+          ]
+        },
+        "env": {},
+        "isolation": "none",
+        "respawnFlags": [
+          "--agent",
+          "claude",
+          "--permission-mode",
+          "default"
+        ],
+        "agent": "claude",
+        "seed": {
+          "intent": ""
+        },
+        "cols": 120,
+        "rows": 30
+      },
+      "decModes": [
+        1004,
+        1000,
+        1002,
+        1003,
+        1006,
+        2004,
+        2031
+      ],
+      "rvAuth": "bd7b3ae252bda0943a84a6736aeebd27",
+      "ptyAuth": "636497fbf84e88aaec4cce6264f505dd"
+    },
+    "bb6b583a": {
+      "pid": 32312,
+      "procStart": "639190098999289460",
+      "sessionId": "bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf",
+      "rendezvousSock": "\\\\.\\pipe\\cc-daemon-69c76e4ae1bf5e5b-rv-bb6b583a",
+      "ptySock": "\\\\.\\pipe\\cc-daemon-69c76e4ae1bf5e5b-pty-bb6b583a",
+      "cliVersion": "2.1.201",
+      "startedAt": 1783434699887,
+      "attempt": 1,
+      "cwd": "C:\\Users\\marka",
+      "dispatch": {
+        "proto": 1,
+        "short": "bb6b583a",
+        "nonce": "8916fa57",
+        "sessionId": "bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf",
+        "createdAt": 1783434693472,
+        "source": "fleet",
+        "cwd": "C:\\Users\\marka",
+        "launch": {
+          "mode": "prompt",
+          "args": [
+            "--session-id",
+            "bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf",
+            "--reply-on-resume",
+            "--permission-mode",
+            "default",
+            "--",
+            "but we had 30 gaps mission we were fixing first before we did anything else and a big project to que when they were done"
+          ]
+        },
+        "env": {
+          "CLAUDE_BG_ISOLATION": "none"
+        },
+        "isolation": "none",
+        "respawnFlags": [
+          "--reply-on-resume",
+          "--permission-mode",
+          "default"
+        ],
+        "seed": {
+          "intent": "but we had 30 gaps mission we were fixing first before we did anything else and a big project to que when they were done"
+        },
+        "cols": 120,
+        "rows": 30
+      },
+      "decModes": [
+        1004,
+        1000,
+        1002,
+        1003,
+        1006,
+        2004,
+        2031
+      ],
+      "rvAuth": "b4e7aba2af0137be2ec9f14e9b98f28b",
+      "ptyAuth": "251fcc9bfa0851aaf6f0a3a61c38d924"
+    }
+  }
+}

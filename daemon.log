@@ -1,0 +1,7 @@
+[2026-07-07T14:31:38.292Z] [supervisor] ─── daemon start ─── version=2.1.201 pid=25152 origin=transient
+[2026-07-07T14:31:39.009Z] [supervisor] auth: scheduling proactive refresh in 27376s
+[2026-07-07T14:31:39.011Z] [supervisor] auth: scheduling proactive refresh in 27376s
+[2026-07-07T14:31:39.392Z] [supervisor] workers=0
+[2026-07-07T14:31:39.505Z] [bg] bg: control socket bound at \\.\pipe\cc-daemon-*-control
+[2026-07-07T14:31:39.768Z] [bg] bg spawned f757fc34 (spare)
+[2026-07-07T14:31:39.887Z] [bg] bg spawned bb6b583a (fleet)
