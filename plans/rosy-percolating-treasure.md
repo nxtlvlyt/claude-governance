@@ -90,6 +90,32 @@ fifth-law precedence rider; operator can correct this reading at any point in pl
    by construction; the qwen 5/5 audition receipt says the relay pattern works.
    (b) is the robust path; (a) is worth one test.
 
+## Architecture ruling (operator, this session)
+Separate engines, shared substrate: agy-muezzin fork (own repo/rules/queue) + shared work
+repos in git for continuity ("see where Claude left off" = read the same STATE/QUEUE/board
+files). BATON LOCK file per queue — single conductor at a time, both daemons refuse to
+fire without it (single-writer lesson from parallel-Hermes). agy workspace scoping never
+includes ~/.claude. Old ~/.agents/AGENTS.md pointed at the Claude plugin's files — receipt
+for last time's cross-editing; must be purged/rewritten.
+
+## Seat map draft (operator picks + conductor recommendations)
+Rosters: agy-native = Gemini 3.5 Flash (L/M/H), Gemini 3.1 Pro (L/H), Claude Sonnet/Opus
+4.6 Thinking (Vertex), GPT-OSS 120B. Ollama Cloud = census REQUIRED before seating
+(model-identity-needs-receipts; last census weeks old — known-era seats: qwen3-coder-next,
+kimi-k2.x-code, deepseek-v4-pro, minimax-m3, glm-5.1, nemotron-ultra).
+- Conductor: **Gemini 3.5 Flash (High)** — operator pick; beat-harness rails carry discipline.
+- Integrator: **Gemini 3.5 Flash** — operator pick.
+- Phase-2 executor: **Ollama Cloud coding model** — operator pick; recommend
+  qwen3-coder-next (held this seat in the cloud era) or kimi-k2.x-code, decided by census+bench.
+- Architects (3, blind, cross-lab): Gemini 3.1 Pro (High) + 2 Ollama Cloud heavies.
+- Validator/Auditor: cross-lab from producer seats (GPT-OSS 120B + Gemini 3.1 Pro or
+  cloud heavy; producer≠verifier preserved).
+- Witness pair + structural review: STAY nxtbeast-local (laguna/ornith/guardian) — cheap,
+  proven, no reason to move.
+- Vision QC: Gemini 3.5 Flash (multimodal, agy-native); fallback mistral-small3.2@nxtbeast.
+- Seating discipline: live Ollama Cloud census first, then per-seat auditions (same bar as
+  the local roster got), rijal logs from day one.
+
 ## Known blockers to burn down (receipts)
 - `agy --print` empty-stdout bug (2026-06-24 receipt) — RETEST at v1.0.16 before trusting;
   may be cured by updates/sign-in.
