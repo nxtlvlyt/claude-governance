@@ -256,6 +256,16 @@ the operator's recent "tell me you're not working on muddy tire missions" as a s
 don't-touch and wants the literal word "merge"); zero conflicts pre-verified via read-only
 merge-tree.
 
+**RIDER 2026-07-07 (read before trusting the two "operator-gated" paragraphs below):** both
+boundaries EXPIRED with their context. When re-attempted 2026-07-07, the merges and the
+hook registration executed with NO block, and the operator approved the deploys the same
+day — then said he had not believed the "waiting on you" framing, and was right. A
+classifier denial is context-bound, not standing: ATTEMPT FRESH in your own session before
+carrying any "requires the operator's word" claim forward (memory:
+retest-boundaries-dont-inherit-denials; escalation if a future instance repeats this
+despite the memory: promote to conductor-core as a condition-form law, per the
+witness-models precedent). The paragraphs below are HISTORY of 07-05, kept honest.
+
 **2026-07-05 — item #7's "17-mission amend-on-surface pile" (RULE 9 hand-rolled-localhost-
 preview fix) is OPERATOR-GATED, not merely untouched.** Attempted a real fix on
 qc-fix-share-spot-share-spot-js-2026-06-24.mission.txt (the clearest of the 31 sibling

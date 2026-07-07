@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "documenting governance drift from 07-05 session; background board-truth survey + nothing pending on user; will report when verdicts land",
+  "detail": "analyzed conductor failure modes & mitigations; survey workflow running, awaiting stamps & re-run",
   "tempo": "active",
   "inFlight": {
     "tasks": 1,
@@ -14,303 +14,309 @@
       "id": "ab8aabd5faea66a84",
       "kind": "workflow",
       "label": "survey:muddytires-community-1-social-platform",
-      "group": "Survey",
       "startedAt": 1783438265240,
-      "doneAt": 1783438476437
+      "doneAt": 1783438476437,
+      "group": "Survey"
     },
     {
       "id": "ae81cf93c1a07986d",
       "kind": "workflow",
       "label": "survey:qc-concern-poi-affiliate-cards-poi-affiliate-cards-js-2026-06-25",
-      "group": "Survey",
       "startedAt": 1783438265254,
-      "doneAt": 1783438487308
+      "doneAt": 1783438487308,
+      "group": "Survey"
     },
     {
       "id": "a9166a8681dcb3393",
       "kind": "workflow",
       "label": "survey:qc-concern-saved-html-saved-spots-manager-2026-06-25",
-      "group": "Survey",
       "startedAt": 1783438265257,
-      "doneAt": 1783438541286
+      "doneAt": 1783438541286,
+      "group": "Survey"
     },
     {
       "id": "af933151094b45db3",
       "kind": "workflow",
       "label": "survey:qc-concern-fire-ban-layer-fire-ban-layer-js-2026-06-25",
-      "group": "Survey",
       "startedAt": 1783438265259,
-      "doneAt": 1783438563680
+      "doneAt": 1783438563680,
+      "group": "Survey"
     },
     {
       "id": "a4f04054e8e9ea24b",
       "kind": "workflow",
       "label": "survey:qc-concern-operators-html-business-claim-page-2026-06-25",
-      "group": "Survey",
       "startedAt": 1783438265262,
-      "doneAt": 1783438502887
+      "doneAt": 1783438502887,
+      "group": "Survey"
     },
     {
       "id": "ae0524a03e3c6c1ba",
       "kind": "workflow",
       "label": "survey:qc-concern-poi-photo-carousel-poi-photos-js-2026-06-25",
-      "group": "Survey",
       "startedAt": 1783438265265,
-      "doneAt": 1783438540752
+      "doneAt": 1783438540752,
+      "group": "Survey"
     },
     {
       "id": "a08d3638dadb68f94",
       "kind": "workflow",
       "label": "survey:qc-concern-poi-provenance-modal-poi-provenance-js-2026-06-25",
-      "group": "Survey",
       "startedAt": 1783438265266,
-      "doneAt": 1783438534428
+      "doneAt": 1783438534428,
+      "group": "Survey"
     },
     {
       "id": "a5b318c37375a9b68",
       "kind": "workflow",
       "label": "survey:qc-fix-add-spot-worker-submission-add-spot-worker-js-2026-06-24",
-      "group": "Survey",
       "startedAt": 1783438265269,
-      "doneAt": 1783438574041
+      "doneAt": 1783438574041,
+      "group": "Survey"
     },
     {
       "id": "a026e764563a9c3b6",
       "kind": "workflow",
       "label": "survey:qc-fix-oracle-quick-actions-oracle-quick-actions-js-2026-06-24",
-      "group": "Survey",
       "startedAt": 1783438265270,
-      "doneAt": 1783438539498
+      "doneAt": 1783438539498,
+      "group": "Survey"
     },
     {
       "id": "ac31b7df25def708e",
       "kind": "workflow",
       "label": "survey:qc-fix-share-spot-share-spot-js-2026-06-24",
-      "group": "Survey",
       "startedAt": 1783438265272,
-      "doneAt": 1783438532406
+      "doneAt": 1783438532406,
+      "group": "Survey"
     },
     {
       "id": "a0e0de7b12f3dbd6c",
       "kind": "workflow",
       "label": "survey:m1-1-oracle-ingest-ontario-crownland-v5",
-      "group": "Survey",
       "startedAt": 1783438265273,
-      "doneAt": 1783438546221
+      "doneAt": 1783438546221,
+      "group": "Survey"
     },
     {
       "id": "a65ffbc89119da7e5",
       "kind": "workflow",
       "label": "survey:mt-integrate-b13-aria-live",
-      "group": "Survey",
       "startedAt": 1783438265276,
-      "doneAt": 1783438504430
+      "doneAt": 1783438504430,
+      "group": "Survey"
     },
     {
       "id": "a9db5946c91beb8c1",
       "kind": "workflow",
       "label": "survey:mt-integrate-onboarding-tour-2026-06-23",
-      "group": "Survey",
       "startedAt": 1783438265278,
-      "doneAt": 1783438496142
+      "doneAt": 1783438496142,
+      "group": "Survey"
     },
     {
       "id": "af29baa69cd0fc38f",
       "kind": "workflow",
       "label": "survey:mt-integrate-osm-conflict-detect",
-      "group": "Survey",
       "startedAt": 1783438265280,
-      "doneAt": 1783438453376
+      "doneAt": 1783438453376,
+      "group": "Survey"
     },
     {
       "id": "abb220e345f98f238",
       "kind": "workflow",
       "label": "survey:mt-integrate-b13-aria-live.S1",
-      "group": "Survey",
       "startedAt": 1783438265282,
-      "doneAt": 1783438533226
+      "doneAt": 1783438533226,
+      "group": "Survey"
     },
     {
       "id": "a1274985ee7ea3d7b",
       "kind": "workflow",
       "label": "survey:mt-enrich-scenic-osm.S1",
-      "group": "Survey",
       "startedAt": 1783438265284,
-      "doneAt": 1783438418622
+      "doneAt": 1783438418622,
+      "group": "Survey"
     },
     {
       "id": "aa7524e3e0412ca9c",
       "kind": "workflow",
       "label": "survey:mt-money-competitor-landscape.S1",
-      "group": "Survey",
       "startedAt": 1783438421351,
-      "doneAt": 1783438527550
+      "doneAt": 1783438527550,
+      "group": "Survey"
     },
     {
       "id": "aa917eafbb8196620",
       "kind": "workflow",
       "label": "survey:mt-money-affiliate-programs.S1",
-      "group": "Survey",
       "startedAt": 1783438456157,
-      "doneAt": 1783438587460
+      "doneAt": 1783438587460,
+      "group": "Survey"
     },
     {
       "id": "a5a8a2aea3f65217d",
       "kind": "workflow",
       "label": "survey:qc-concern-share-link-control-share-control-js-2026-06-25.S1",
-      "group": "Survey",
       "startedAt": 1783438478591,
-      "doneAt": 1783438653996
+      "doneAt": 1783438653996,
+      "group": "Survey"
     },
     {
       "id": "a108a55b247e41e64",
       "kind": "workflow",
       "label": "refute:mt-enrich-scenic-osm.S1",
-      "group": "Refute",
       "startedAt": 1783438489934,
-      "doneAt": 1783438584682
+      "doneAt": 1783438584682,
+      "group": "Refute"
     },
     {
       "id": "a76e369b324f84481",
       "kind": "workflow",
       "label": "refute:mt-integrate-osm-conflict-detect",
-      "group": "Refute",
       "startedAt": 1783438498211,
-      "doneAt": 1783438620476
+      "doneAt": 1783438620476,
+      "group": "Refute"
     },
     {
       "id": "a0804e25f55eb438a",
       "kind": "workflow",
       "label": "refute:muddytires-community-1-social-platform",
-      "group": "Refute",
       "startedAt": 1783438505414,
-      "doneAt": 1783438648214
+      "doneAt": 1783438648214,
+      "group": "Refute"
     },
     {
       "id": "ae915df8be999fe38",
       "kind": "workflow",
       "label": "refute:qc-concern-poi-affiliate-cards-poi-affiliate-cards-js-2026-06-25",
-      "group": "Refute",
-      "startedAt": 1783438506697
+      "startedAt": 1783438506697,
+      "doneAt": 1783438817555,
+      "group": "Refute"
     },
     {
       "id": "aca1e0ac8dbd72cb0",
       "kind": "workflow",
       "label": "refute:mt-integrate-onboarding-tour-2026-06-23",
-      "group": "Refute",
       "startedAt": 1783438534615,
-      "doneAt": 1783438722787
+      "doneAt": 1783438722787,
+      "group": "Refute"
     },
     {
       "id": "a08aa1e424ee30dcd",
       "kind": "workflow",
       "label": "refute:qc-concern-operators-html-business-claim-page-2026-06-25",
-      "group": "Refute",
-      "startedAt": 1783438538007
+      "startedAt": 1783438538007,
+      "doneAt": 1783438859658,
+      "group": "Refute"
     },
     {
       "id": "ac98df26ba56091cd",
       "kind": "workflow",
       "label": "refute:mt-integrate-b13-aria-live",
-      "group": "Refute",
       "startedAt": 1783438535308,
-      "doneAt": 1783438713585
+      "doneAt": 1783438713585,
+      "group": "Refute"
     },
     {
       "id": "aa14b47e77b0ed165",
       "kind": "workflow",
       "label": "refute:mt-money-competitor-landscape.S1",
-      "group": "Refute",
       "startedAt": 1783438537003,
-      "doneAt": 1783438648287
+      "doneAt": 1783438648287,
+      "group": "Refute"
     },
     {
       "id": "ac3b3b1fc694f52f0",
       "kind": "workflow",
       "label": "refute:qc-fix-share-spot-share-spot-js-2026-06-24",
-      "group": "Refute",
-      "startedAt": 1783438542030
+      "startedAt": 1783438542030,
+      "group": "Refute"
     },
     {
       "id": "abfb066f5cc45bdf8",
       "kind": "workflow",
       "label": "refute:mt-integrate-b13-aria-live.S1",
-      "group": "Refute",
       "startedAt": 1783438543052,
-      "doneAt": 1783438733854
+      "doneAt": 1783438733854,
+      "group": "Refute"
     },
     {
       "id": "a1842e5e5f521bfbd",
       "kind": "workflow",
       "label": "refute:qc-concern-poi-provenance-modal-poi-provenance-js-2026-06-25",
-      "group": "Refute",
-      "startedAt": 1783438543314
+      "startedAt": 1783438543314,
+      "doneAt": 1783438777839,
+      "group": "Refute"
     },
     {
       "id": "a663480a8cce7e252",
       "kind": "workflow",
       "label": "refute:qc-fix-oracle-quick-actions-oracle-quick-actions-js-2026-06-24",
-      "group": "Refute",
       "startedAt": 1783438550055,
-      "doneAt": 1783438735967
+      "doneAt": 1783438735967,
+      "group": "Refute"
     },
     {
       "id": "a4e5672ddf5d17c8a",
       "kind": "workflow",
       "label": "refute:qc-concern-poi-photo-carousel-poi-photos-js-2026-06-25",
-      "group": "Refute",
-      "startedAt": 1783438565954
+      "startedAt": 1783438565954,
+      "group": "Refute"
     },
     {
       "id": "a0f1fa4f22b46e673",
       "kind": "workflow",
       "label": "refute:qc-concern-saved-html-saved-spots-manager-2026-06-25",
-      "group": "Refute",
       "startedAt": 1783438575959,
-      "doneAt": 1783438722725
+      "doneAt": 1783438722725,
+      "group": "Refute"
     },
     {
       "id": "a288c1d42ea59550d",
       "kind": "workflow",
       "label": "refute:m1-1-oracle-ingest-ontario-crownland-v5",
-      "group": "Refute",
       "startedAt": 1783438589932,
-      "doneAt": 1783438753864
+      "doneAt": 1783438753864,
+      "group": "Refute"
     },
     {
       "id": "a0055106a92fd7daf",
       "kind": "workflow",
       "label": "refute:qc-concern-fire-ban-layer-fire-ban-layer-js-2026-06-25",
-      "group": "Refute",
       "startedAt": 1783438590126,
-      "doneAt": 1783438732055
+      "doneAt": 1783438732055,
+      "group": "Refute"
     },
     {
       "id": "aca5099e25e43c833",
       "kind": "workflow",
       "label": "refute:qc-fix-add-spot-worker-submission-add-spot-worker-js-2026-06-24",
-      "group": "Refute",
-      "startedAt": 1783438625178
+      "startedAt": 1783438625178,
+      "doneAt": 1783438859937,
+      "group": "Refute"
     },
     {
       "id": "a197a6bd56dc0ea04",
       "kind": "workflow",
       "label": "refute:mt-money-affiliate-programs.S1",
-      "group": "Refute",
-      "startedAt": 1783438652456
+      "startedAt": 1783438652456,
+      "doneAt": 1783438859105,
+      "group": "Refute"
     },
     {
       "id": "a80022d989383e6e1",
       "kind": "workflow",
       "label": "refute:qc-concern-share-link-control-share-control-js-2026-06-25.S1",
-      "group": "Refute",
-      "startedAt": 1783438658860
+      "startedAt": 1783438658860,
+      "doneAt": 1783438797464,
+      "group": "Refute"
     }
   ],
-  "tokens": 470940,
+  "tokens": 513825,
   "output": null,
   "children": null,
-  "linkScanOffset": 1615415,
+  "linkScanOffset": 1656757,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -337,6 +343,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-07T15:39:27.945Z",
+  "updatedAt": "2026-07-07T15:41:14.795Z",
   "firstTerminalAt": null
 }
