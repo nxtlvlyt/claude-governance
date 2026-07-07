@@ -131,3 +131,40 @@ SEAT MAP (operator picks bolded; auditions finalize):
   must be a mechanical gate in the beat harness, not advice.
 - ~/.agents/AGENTS.md model policy is dated 2026-06-26 — needs a refresh pass against
   current reality before the sibling fires anything.
+
+## Implementation steps (ordered)
+0. **Sequencing note**: per operator ruling, the intake register (N1-N12) drains first;
+   this build is the big project that follows. N5 (conduct-beat harness) is a shared
+   dependency — build it once, both systems use it.
+1. **agy CLI live** (afternoon): sign-in session; retest `agy -p` (the 2026-06-24
+   empty-stdout receipt); `agy plugin import claude` + `agy plugin validate` experiment —
+   record exactly what survives (skills/commands/hooks).
+2. **Fork**: muezzin-plugin → new repo `agy-muezzin` (own dir, e.g. C:\Users\marka\agy-muezzin).
+   Keep engine .mjs verbatim; delete Claude-tier wiring; wire agy_dispatch.mjs (already
+   written + live-tested 2026-06-23) as the CLI provider row; Ollama Cloud + nxtbeast as
+   HTTP provider rows. Seat roster per the seat map above (muezzin-route.json equivalent).
+3. **Jurisdiction**: rewrite ~/.agents/AGENTS.md + rules/ — purge every ~/.claude path
+   (the cross-editing receipt), point at agy-muezzin only, own rulebook (Ollama Cloud
+   PERMITTED here; the 2026-07-02 no-cloud ruling stays Claude-side only). Port faiths
+   (already in ~/.agents/faiths/) with a capability-true pass.
+4. **Rails**: beat harness (N5 generalized) = conduct-cycle --json → model relays →
+   allowlisted verbs only → rijal log. Deed-is-the-diff gate mechanical. Whatever survived
+   the plugin-import experiment supplements; the script rails are the floor.
+5. **Baton lock**: CONDUCTOR-BATON file per shared queue; both daemons refuse to fire
+   lanes without holding it. Claude-side daemon gets the same check (small engine patch).
+6. **Prove it**: sota-smoketest-class mission end-to-end on the agy stack (deliverable
+   trivial, routing is the point — heartbeat receipts must show gemini/ollama-cloud
+   providers only); then the executor head-to-head audition (kimi-k2.7-code vs
+   qwen3-coder-480b); then a supervised conductor beat (same 5/5 bar qwen passed).
+7. **Fallback wiring** (separate, small, immediate value): agy_dispatch as
+   quota-exhausted fallback row in the EXISTING Claude-side waterfall (pending seat-plan
+   sign-off note in MUEZZIN-SEAT-PLAN-LOCKED.md).
+
+## Verification
+- Step 1 receipts: agy -p returns stdout; plugin validate output recorded.
+- Step 2: agy-muezzin selftest suites ALL PASS (they port with the engine).
+- Step 5: baton selftest — second daemon refuses to fire while baton held.
+- Step 6: smoke mission DONE with heartbeat lines quoted (zero claude-* providers);
+  audition + conductor-beat graded against the recorded rubrics.
+- Continuity check: fresh agy conductor session cold-boots from STATE/QUEUE/board of a
+  shared repo and correctly names where Claude left off (the Directive-8 test).
