@@ -1,0 +1,29 @@
+MISSION-ID: mt-integrate-contributor-leaderboard.S1
+MISSION-CLASS: code-repo
+PARENT: mt-integrate-contributor-leaderboard
+TARTIB-INDEX: 1 of 2
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - about.html
+  - ambassadors.html
+  - index.html
+  - functions/api/leaderboard.js
+VISUAL-QC-REQUIRED
+REQUIRES: none (first in tartib order)
+STEPS: 8
+
+PARENT MAQSAD: The commit "3b4b1eb feat(leaderboard): contributor status leaderboard page + nav links" is integrated into the target repo.
+
+Maqsad: sub-mission 1 of 2 — Fetch source commit 3b4b1eb from the source worktree (read-only reference) into the target repo's git object store so it is reachable for cherry-pick, without modifying the source worktree. through Syntax-check the integrated Cloudflare Pages Function file with node --check.
+
+Steps:
+  1. Fetch source commit 3b4b1eb from the source worktree (read-only reference) into the target repo's git object store so it is reachable for cherry-pick, without modifying the source worktree. [command] 
+  2. Confirm the target repo working tree is clean before mutating it, so any later dirtiness is attributable to this mission's own steps. [verify] 
+  3. Cherry-pick commit 3b4b1eb onto the target repo's current HEAD on main; conflicts on the nav/footer HTML files are expected and handled by the following steps. [command] 
+  4. Resolve the cherry-pick conflict in about.html by hand so the resolved content contains BOTH the target's pre-existing nav/footer markup AND the new Leaderboard link, removing all conflict markers. [edit] about.html
+  5. Resolve the cherry-pick conflict in ambassadors.html by hand so the resolved content contains BOTH the target's pre-existing nav/footer markup AND the new Leaderboard link, removing all conflict markers. [edit] ambassadors.html
+  6. Resolve the cherry-pick conflict in index.html by hand so the resolved content contains BOTH the target's pre-existing nav/footer markup AND the new Leaderboard link, removing all conflict markers. [edit] index.html
+  7. Confirm functions/api/leaderboard.js applied without unresolved conflict markers and contains the real D1 query logic (community_spot/community_review), since it is expected to be a clean add rather than needing hand edits. [verify] functions/api/leaderboard.js
+  8. Syntax-check the integrated Cloudflare Pages Function file with node --check. [command] functions/api/leaderboard.js
+
+Done means: about.html, ambassadors.html, index.html, functions/api/leaderboard.js exist/are updated as specified — verify by headless-browser render, not by reading the code

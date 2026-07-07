@@ -1,0 +1,21 @@
+{
+  "parentId": "MT-INTEGRATE-K6-LOAD-BASELINE",
+  "ceiling": 8,
+  "originalStepCount": 9,
+  "groupCount": 2,
+  "children": [
+    {
+      "id": "MT-INTEGRATE-K6-LOAD-BASELINE.S1",
+      "file": "missions/mt-integrate-k6-load-baseline.S1.mission.txt",
+      "steps": 8,
+      "requires": null
+    },
+    {
+      "id": "MT-INTEGRATE-K6-LOAD-BASELINE.S2",
+      "file": "missions/mt-integrate-k6-load-baseline.S2.mission.txt",
+      "steps": 1,
+      "requires": "MT-INTEGRATE-K6-LOAD-BASELINE.S1"
+    }
+  ],
+  "ts": "2026-07-01T20:33:58.897Z"
+}

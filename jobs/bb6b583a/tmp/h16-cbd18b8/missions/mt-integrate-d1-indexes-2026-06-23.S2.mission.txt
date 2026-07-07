@@ -1,0 +1,19 @@
+MISSION-ID: mt-integrate-d1-indexes-2026-06-23.S2
+MISSION-CLASS: code-repo
+PARENT: mt-integrate-d1-indexes-2026-06-23
+TARTIB-INDEX: 2 of 2
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - d1/AUDIT-INDEXES-2026-06-23.md
+  - d1/migrate-indexes-2026-06-23.sql
+REQUIRES: mt-integrate-d1-indexes-2026-06-23.S1 (tartib — this sub-mission may not start until mt-integrate-d1-indexes-2026-06-23.S1's receipt exists)
+STEPS: 1
+
+PARENT MAQSAD: The commit "4050b5b d1: index pois (lat,lng) + (node_type); 17x speedup on
+
+Maqsad: sub-mission 2 of 2 — Confirm the target repo's tracked working tree is clean on main (no modified or staged entries); pre-existing untracked litter is out of scope and left untouched. through Confirm the target repo's tracked working tree is clean on main (no modified or staged entries); pre-existing untracked litter is out of scope and left untouched.
+
+Steps:
+  9. Confirm the target repo's tracked working tree is clean on main (no modified or staged entries); pre-existing untracked litter is out of scope and left untouched. [command] 
+
+Done means:  exist/are updated as specified

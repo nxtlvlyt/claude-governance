@@ -1,0 +1,81 @@
+MISSION engine-hajj-template-headless-and-visual-qc
+MISSION-CLASS: code-repo
+REPO-ROOT: C:/Users/marka/.claude/muezzin-plugin
+TARGET-BRANCH: main
+ALLOW-FILES:
+  - mission_split.mjs
+REQUIRES: none
+
+Niyyah: This session proved "verified" must mean the live page actually renders — WebFetch
+and code-present checks repeatedly lied; only a headless-browser render caught the truth,
+and visual judgment caught a suppressed attribution control. The hajj template must carry
+that lesson so every future web/UI sub-mission is held to a render-verified Done-means.
+
+RE-SCOPED 2026-07-01 (this mission was BLOCKED twice tonight: it destructively replaced
+mission_lint.mjs wholesale, both times passing its own gameable string-grep verify). While
+diagnosing the block, found the mission's ORIGINAL framing understated the real gap —
+verified against live substrate (git history + current file content, not memory) below.
+Rewritten to target the actual confirmed defect and to make the wholesale-replacement
+failure structurally harder to repeat.
+
+Maqsad: mission_split.mjs's emitSubMissions() emits a "Done means:" clause for EVERY
+sub-mission it writes, mechanically derived from that sub-mission's own steps' target
+files — and additionally, for any sub-mission whose target files are web/UI (.html/.js/
+.css/.jsx/.tsx), appends a headless-browser render-verification clause to that Done-means
+and forwards the parent mission's VISUAL-QC-REQUIRED header onto the child if present.
+Done serves a splitter that never emits an unjudgeable sub-mission, and never lets UI work
+mark itself done without rendering it.
+
+Context (VERIFIED against live substrate 2026-07-01, absolute paths, no prescribed
+implementation beyond what's stated):
+- emitSubMissions() (mission_split.mjs, current disk content) builds each child mission's
+  text from: MISSION-ID, MISSION-CLASS, PARENT, TARTIB-INDEX, REQUIRES, STEPS, PARENT MAQSAD
+  (truncated to 200 chars), Maqsad, Steps/stepList. It contains ZERO "done means" text and
+  ZERO VISUAL-QC-REQUIRED forwarding — grepped case-insensitively, confirmed absent.
+- mission_lint.mjs's RULE 4 (no-done-means) refuses ANY mission text lacking a
+  "done means"/"done-means"/"done=" phrase, with NO exemption for sub-missions (PARENT:
+  header is irrelevant to the check). This means EVERY sub-mission emitSubMissions() has
+  ever produced gets MIQAT-refused on its first fire, unconditionally.
+- This is not hypothetical: `git log -- missions/cgsports-sota-v3-frame.S1.mission.txt`
+  shows three separate manual patches were needed for ONE split mission's two children —
+  788eab7 "add Done means clause... to satisfy engine contract", plus f9f7c89 and 535af73
+  fixing further issues in the same hand-patched files. The Done-means text added in
+  788eab7 lists the exact output files the group's steps produce (e.g. "search-clv.html,
+  search-calib.html, and search-models.html exist in the sandbox root") — that is the
+  pattern to mechanize, not a bespoke narrative to write by hand each time.
+- mission_lint.mjs's RULE 7 (visual-qc-without-render-done-means) ALREADY EXISTS, already
+  passes its own 4 tests, and already correctly refuses a VISUAL-QC-REQUIRED mission whose
+  Done-means lacks render-witness language. mission_lint.mjs needs NO changes for this
+  mission — it is not in ALLOW-FILES, on purpose, so this mission cannot touch it.
+- Visual QC infra exists but is unintegrated into the live pipeline: visual_witness.mjs /
+  ollama_vision_verdict.mjs are never called from orchestrate.mjs (separate, already-tracked
+  gap — see STATE.md priority list; NOT this mission's job to wire that in).
+
+Done means: (1) emitSubMissions() appends a "Done means: <deduped target files of this
+group's steps> exist/are updated as specified" clause (or equivalent mechanically-derived
+text satisfying RULE 4's regex) to EVERY child mission it writes — verified by running
+mission_split.mjs's own self-test and confirming a freshly split sample mission's children
+pass `node mission_lint.mjs`'s lintMission() check with ZERO manual editing; (2) for any
+group whose step target_files include an html/js/css/jsx/tsx file, the appended Done-means
+also contains render-witness language (e.g. "verify by headless-browser render, not by
+reading the code") AND, if the parent mission text contains a VISUAL-QC-REQUIRED header,
+that header line is forwarded verbatim into the child's own header block. Verify by
+splitting a synthetic sample mission (a) with a code-only group and (b) with an .html-
+touching group + a parent VISUAL-QC-REQUIRED header, and confirming: both children lint
+clean via mission_lint.mjs, the .html child's Done-means contains render-witness language,
+and the .html child's header carries VISUAL-QC-REQUIRED.
+
+Constraints (receipted, non-negotiable — this exact mission destroyed mission_lint.mjs
+TWICE tonight by wholesale-replacing it instead of appending):
+- ADDITIVE EDITS ONLY to mission_split.mjs. Every step must ADD functions/logic to the
+  existing file; NONE may replace the file wholesale or delete an existing exported
+  function/self-test. If a step's own verify command is a string-grep on stdout (e.g.
+  "ALL PASS"), that is NOT sufficient proof of a clean edit on its own — the step must also
+  confirm the edit did not shrink the file overall and every prior exported function still
+  exists afterward.
+- mission_lint.mjs is NOT in ALLOW-FILES and must not be touched. It needs no changes.
+- integrity_guard.mjs's EXPORT-REGRESSION rule (commits aad8ede, bf03d38) now exists as a
+  backstop that will BLOCK a wholesale-replacement receipt automatically — but this
+  mission's steps must be written to never need that backstop, not to rely on it catching
+  a mistake after the fact.
+- code-repo, muezzin-plugin repo only, the one ALLOW-FILES entry only.

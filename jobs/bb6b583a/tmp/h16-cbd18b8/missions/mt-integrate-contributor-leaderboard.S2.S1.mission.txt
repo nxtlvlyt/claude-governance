@@ -1,0 +1,30 @@
+MISSION-ID: mt-integrate-contributor-leaderboard.S2.S1
+MISSION-CLASS: code-repo
+PARENT: mt-integrate-contributor-leaderboard.S2
+TARTIB-INDEX: 1 of 2
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - functions/api/leaderboard.js
+  - leaderboard.html
+  - about.html
+  - ambassadors.html
+  - index.html
+VISUAL-QC-REQUIRED
+REQUIRES: none (first in tartib order)
+STEPS: 8
+
+PARENT MAQSAD: sub-mission 2 of 2 — Stage all resolved and integrated files (the three conflict-resolved HTML files plus the two new leaderboard files) into the git index. through Headless-render /leaderboard.html from the preview server and witness that it loads without a fatal script error and shows tier-chip content for lurker/submitter/producer/mentor.
+
+Maqsad: sub-mission 1 of 2 — Stage the new Cloudflare Pages function file functions/api/leaderboard.js into the git index through Confirm (or start) the local preview server and verify it actually serves leaderboard.html with HTTP 200 and a non-empty body
+
+Steps:
+  1. Stage the new Cloudflare Pages function file functions/api/leaderboard.js into the git index [command] functions/api/leaderboard.js
+  2. Stage the new leaderboard.html page into the git index [command] leaderboard.html
+  3. Stage the conflict-resolved about.html into the git index [command] about.html
+  4. Stage the conflict-resolved ambassadors.html into the git index [command] ambassadors.html
+  5. Stage the conflict-resolved index.html (nav link update) into the git index [command] index.html
+  6. Finalize the integration commit: continue the in-progress cherry-pick or amend the auto-completed one, with a message naming mt-feat-contributor-leaderboard and 3b4b1eb [command] 
+  7. Confirm the working tree is clean after the integration commit, with no uncommitted changes or leftover cherry-pick state [verify] 
+  8. Confirm (or start) the local preview server and verify it actually serves leaderboard.html with HTTP 200 and a non-empty body [command] 
+
+Done means: functions/api/leaderboard.js, leaderboard.html, about.html, ambassadors.html, index.html exist/are updated as specified — verify by headless-browser render, not by reading the code

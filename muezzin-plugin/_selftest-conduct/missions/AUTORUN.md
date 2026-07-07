@@ -1,2 +1,2 @@
 # q
-RUNNING missions/stuck.mission.txt  <!-- t -->
+missions/splitpar.S2.mission.txt  <!-- already queued, untouched -->

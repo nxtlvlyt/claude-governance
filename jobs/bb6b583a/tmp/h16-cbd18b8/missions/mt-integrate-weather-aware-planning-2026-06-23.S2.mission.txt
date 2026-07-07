@@ -1,0 +1,19 @@
+MISSION-ID: MT-INTEGRATE-WEATHER-AWARE-PLANNING-2026-06-23.S2
+MISSION-CLASS: code-repo
+PARENT: MT-INTEGRATE-WEATHER-AWARE-PLANNING-2026-06-23
+TARTIB-INDEX: 2 of 2
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - js/plan-day-weather.js
+  - map.html
+REQUIRES: MT-INTEGRATE-WEATHER-AWARE-PLANNING-2026-06-23.S1 (tartib — this sub-mission may not start until MT-INTEGRATE-WEATHER-AWARE-PLANNING-2026-06-23.S1's receipt exists)
+STEPS: 1
+
+PARENT MAQSAD: Land commit bbf702d ("feat(weather-aware-planning): inline forecast on
+
+Maqsad: sub-mission 2 of 2 — Render /map.html from the local preview server at PREVIEW-BASE-URL in a headless browser and assert no fatal script error occurred and window.__mtPlanDayWeather.HEAVY_RAIN_POP === 70 in the page's own runtime, satisfying VISUAL-QC-REQUIRED. through Render /map.html from the local preview server at PREVIEW-BASE-URL in a headless browser and assert no fatal script error occurred and window.__mtPlanDayWeather.HEAVY_RAIN_POP === 70 in the page's own runtime, satisfying VISUAL-QC-REQUIRED.
+
+Steps:
+  9. Render /map.html from the local preview server at PREVIEW-BASE-URL in a headless browser and assert no fatal script error occurred and window.__mtPlanDayWeather.HEAVY_RAIN_POP === 70 in the page's own runtime, satisfying VISUAL-QC-REQUIRED. [command] 
+
+Done means:  exist/are updated as specified

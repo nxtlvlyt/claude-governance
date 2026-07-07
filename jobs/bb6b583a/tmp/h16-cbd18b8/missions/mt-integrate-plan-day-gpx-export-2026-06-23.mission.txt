@@ -1,0 +1,209 @@
+MISSION MT-INTEGRATE-PLAN-DAY-GPX-EXPORT-2026-06-23
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - js/plan-day-gpx-export.js
+  - map.html
+  - docs/QC-PIPELINE-SOTA-2026-06-23.md
+REQUIRES: none
+VISUAL-QC-REQUIRED
+PREVIEW-BASE-URL: http://localhost:8788
+
+Niyyah: Feature worktree C:\Users\marka\code\mt-feat-plan-day-gpx-export-2026-06-23
+carries two finished commits under the slug mt-feat-plan-day-gpx-export-2026-06-23.
+880c311 ("feat(plan-day): GPX 1.1 export reciprocal to gpx-import (B10)") adds a
+brand-new js/plan-day-gpx-export.js (545 lines, per its own header comment) that
+injects an "Export GPX" button into the plan-day single-day status bar (#mt-pd-gpx)
+and a "⬇ Export GPX (all days)" button into the multi-day sidebar
+(#mt-pd-gpx-multi), reading window.__mtPlanDay.getState() to build a pure-client
+GPX 1.1 document (metadata + wpt per stop + rte chain + trk segmented per day or
+leg) — reciprocal to feat/gpx-import-2026-06-23's importer, closing the round
+trip. It also splices one script tag into map.html right after the existing
+plan-day.js tag. 375e40b ("docs(qc): SOTA-uplift QC pipeline — 8 mandatory gates +
+escape hatches") adds 24 lines to docs/QC-PIPELINE-SOTA-2026-06-23.md and, verified
+live this session, is ALREADY an ancestor of the target repo's HEAD — a prior
+mission (mt-integrate-qc-pipeline-sota-doc(s)) already landed it, and the file
+already matches byte-for-byte between the source worktree and the target repo.
+This mission's real, un-landed work is 880c311 alone; 375e40b is carried in this
+mission's header only because the operator's feature slug names both commits, and
+this mission must not silently skip verifying that — it must check ancestry itself,
+not assume the operator's commit list is still accurate at fire time. This
+mission's whole job is mechanical: get the un-landed file and script-tag onto the
+target repo's current HEAD without losing anything already there, confirm the
+docs commit's presence rather than re-deriving it blindly, and produce the
+node-level and render-level receipts a verdict panel needs to judge the result.
+Writing this mission file, and the act of cherry-picking itself, is NOT
+verification that the feature's own code is correct. Whether reading
+window.__mtPlanDay.getState() at arbitrary UI states is safe, whether the GPX 1.1
+document the module builds actually validates and round-trips correctly through
+real GPS/nav apps (Locus, OsmAnd, Garmin Explore, Gaia), whether the XSS/XML
+escaping the header comment claims is actually complete, and whether the
+MutationObserver-based button injection ever double-fires or leaks — none of that
+is settled by landing the commit. That determination belongs entirely to this
+mission's own witness-and-verdict-panel run: the node --check receipt, the
+headless-browser render of map.html, and the seat panel's judgment on the actual
+integrated diff. Say plainly: authoring or executing this mission proves nothing
+about the feature code's correctness by itself.
+
+Maqsad: Land commit 880c311 from the source worktree
+C:\Users\marka\code\mt-feat-plan-day-gpx-export-2026-06-23 onto the current HEAD
+of the target repo C:\Users\marka\code\mt-integration-2026-06-22, confirm commit
+375e40b's content is present (landing it only if live ancestry checks at fire time
+say otherwise), with any conflict resolved by keeping BOTH sides — this repo's
+existing unrelated changes AND the feature's changes, never silently dropping
+either — every changed .js/.mjs file passes `node --check`, the result is
+committed with a clear message, and the target repo's working tree is left clean
+with respect to every ALLOW-FILES entry.
+
+Context (verified against live substrate this session, 2026-07-01, absolute
+paths, no prescribed resolution beyond "keep both sides"):
+- Source worktree and target repo are linked git worktrees sharing the SAME
+  object store (confirmed via `git worktree list` from the target repo, which
+  lists C:\Users\marka\code\mt-feat-plan-day-gpx-export-2026-06-23 alongside
+  C:\Users\marka\code\mt-integration-2026-06-22) — both 880c311 and 375e40b
+  already resolve via `git cat-file -t` in the target repo; no fetch or
+  remote-add step is needed to make either object reachable.
+- `git merge-base --is-ancestor 880c311 HEAD` in the target repo returns FALSE
+  (exit 1) this session — 880c311 is not yet landed on the target's current HEAD.
+- `git merge-base --is-ancestor 375e40b HEAD` in the target repo returns TRUE
+  (exit 0) this session — 375e40b is already integrated. `diff` between the
+  source worktree's docs/QC-PIPELINE-SOTA-2026-06-23.md and the target repo's copy
+  is empty (byte-identical, 24 lines both sides). Do not cherry-pick an
+  already-landed commit; an attempted cherry-pick of it would report "The
+  previous cherry-pick is now empty" and must be resolved with --skip, never
+  --allow-empty, if it is ever attempted by mistake.
+- Confirmed diff stat for 880c311 (`git show --stat`, this session): 2 files
+  changed, 546 insertions(+), 1 deletion(-) — js/plan-day-gpx-export.js new (545
+  lines), map.html +1/-1 (one line changed: the new script tag spliced in right
+  after the existing `<script src="js/plan-day.js" defer></script>` tag).
+- map.html on this project stores long stretches of markup as very few, very long
+  lines (minified/inlined blocks), so a "+1/-1" diff can still land amid dozens of
+  unrelated concurrent script-tag insertions from other integrated features. A
+  dry run this session (throwaway branch off the target's then-current HEAD
+  5e19874, deleted afterward, no lasting change) cherry-picked 880c311 with `git
+  cherry-pick --no-commit`: map.html auto-merged with ZERO conflicts (git reported
+  "Auto-merging map.html"), js/plan-day-gpx-export.js applied as a pure add, and
+  `node --check js/plan-day-gpx-export.js` exited 0. The resulting map.html
+  correctly carried both the pre-existing `plan-day.js` tag and the new
+  `plan-day-gpx-export.js` tag adjacent to each other, with every other script tag
+  in the file untouched. The target branch may move again before this mission
+  actually fires (it already moved from a1d6ad9 to 5e19874/main between the
+  sibling qc-pipeline-sota-docs mission's session and this one), so a real
+  conflict is still possible — if one appears, resolve by keeping BOTH the
+  target's existing lines and the feature's added line, never `--ours` /
+  `--theirs` and never a resolution that deletes either side's content.
+- Target repo HEAD this session: 5e19874, on branch main. This mission
+  deliberately carries no TARGET-BRANCH header: land onto whatever branch is
+  actually checked out as HEAD when this mission fires, not a hardcoded branch
+  name.
+- The target repo currently carries pre-existing untracked files unrelated to
+  this feature (api-index-response.json, docs/e2e-report-2026-07-01.json,
+  e2e-shots/, feature-catalog-entry.txt, scripts/e2e-runner.mjs) — these predate
+  this mission and are out of scope. "Clean working tree" in this mission's Done
+  means refers to the ALLOW-FILES entries this mission touches, not a demand to
+  clear unrelated pre-existing debris.
+- js/plan-day-gpx-export.js unconditionally sets `window.__mtPlanDayGpxExport =
+  {...}` (a debug surface exposing build/downloadCurrent) once it loads and
+  initializes, independent of whether the plan-day UI is actively "on" — this is
+  the most reliable render-witness signal available from a bare page load,
+  because the actual #mt-pd-gpx / #mt-pd-gpx-multi buttons are only injected by a
+  MutationObserver once plan-day.js's own bar/panel is showing an active plan,
+  which a bare /map.html load will not produce by itself.
+- map.html is a live page served by the site (not a build artifact), so
+  PREVIEW-BASE-URL: http://localhost:8788 is a PLACEHOLDER for a local `wrangler
+  pages dev` server — the operator must confirm the actual local preview port
+  before relying on the captured render; if nothing answers at PREVIEW-BASE-URL,
+  that failure must surface as a named receipt, not a silently skipped check.
+
+Steps:
+  1. In the target repo, record the current branch and HEAD, confirm
+     js/plan-day-gpx-export.js does not already exist on disk, and run both
+     ancestry checks: `git -C C:\Users\marka\code\mt-integration-2026-06-22
+     merge-base --is-ancestor 880c311 HEAD` and `git -C
+     C:\Users\marka\code\mt-integration-2026-06-22 merge-base --is-ancestor
+     375e40b HEAD`. Record both results explicitly — do not assume this
+     session's snapshot still holds. [command] verify-target-state-and-ancestry
+  2. If step 1 found 880c311 NOT an ancestor, cherry-pick it: `git -C
+     C:\Users\marka\code\mt-integration-2026-06-22 cherry-pick 880c311`. If it
+     reports conflicts, resolve every conflicted file (js/plan-day-gpx-export.js
+     and/or map.html) by keeping BOTH the target's pre-existing content and this
+     feature's added content — never `--ours` / `--theirs` and never a resolution
+     that deletes either side's content. If it comes back empty (already
+     applied), resolve with `--skip`, never `--allow-empty`. If step 1 found
+     880c311 already an ancestor, skip this step entirely and record that
+     explicitly rather than re-picking it. [command] cherry-pick-gpx-export
+  3. If step 1 found 375e40b NOT an ancestor (contradicting this session's
+     verified TRUE result — only act if live substrate at fire time actually
+     says so), cherry-pick it the same way, touching only
+     docs/QC-PIPELINE-SOTA-2026-06-23.md to resolve any conflict. If step 1
+     confirms 375e40b already an ancestor (the expected case), take no action on
+     it beyond confirming docs/QC-PIPELINE-SOTA-2026-06-23.md is present and
+     contains "8 mandatory gates" or "SOTA-uplift QC pipeline".
+     [command] confirm-or-land-docs-commit
+  4. Run `node --check js/plan-day-gpx-export.js` from the target repo root and
+     confirm it exits 0; also run `node --check` on any other .js/.mjs file that
+     conflict resolution in step 2 or 3 modified. [command] node-check-gpx-export
+  5. If step 2 left the cherry-pick uncommitted (conflict resolution required
+     `git add js/plan-day-gpx-export.js map.html` — never `git add -A` or `git
+     add .`, which would sweep in the unrelated pre-existing untracked files
+     already sitting in the target's working tree — followed by `git cherry-pick
+     --continue`), or if a manual merge commit was needed, commit explicitly with
+     a message that references the source commit's own subject line
+     ("feat(plan-day): GPX 1.1 export reciprocal to gpx-import (B10)") and cites
+     880c311. Then confirm `git status --short` in the target repo shows no
+     uncommitted changes to any ALLOW-FILES entry and `git log --oneline -5`
+     shows the landed commit at or near HEAD. [command] commit-and-verify-clean
+  6. Start (or confirm already running) a local preview server for the target
+     repo at the PREVIEW-BASE-URL host:port (e.g. `wrangler pages dev`), then
+     render /map.html in a headless browser (headless Chrome / Playwright /
+     puppeteer) and capture that: (a) the page loads without a fatal script
+     error, and (b) `typeof window.__mtPlanDayGpxExport === 'object'` (or
+     equivalent — `window.__mtPlanDayGpxExport.build` is a function) evaluates
+     true in the rendered page, confirming js/plan-day-gpx-export.js loaded and
+     initialized. This is the render-witness step RULE 7 of mission_lint.mjs
+     requires because VISUAL-QC-REQUIRED is set above. [command]
+     headless-render-witness
+
+Done means:
+  - `git log` in C:\Users\marka\code\mt-integration-2026-06-22 shows a commit at
+    or near HEAD whose message names "plan-day" and "GPX" (or equivalent) and
+    cites 880c311.
+  - js/plan-day-gpx-export.js exists on disk in
+    C:\Users\marka\code\mt-integration-2026-06-22 containing the feature's actual
+    content (a header comment naming it reciprocal to feat/gpx-import-2026-06-23,
+    button injection for #mt-pd-gpx and #mt-pd-gpx-multi, and the
+    window.__mtPlanDayGpxExport debug surface) — confirmed by reading the on-disk
+    file's content, not by trusting the cherry-pick's exit code alone.
+  - map.html contains `<script src="js/plan-day-gpx-export.js" defer></script>`
+    immediately adjacent to the pre-existing `<script src="js/plan-day.js"
+    defer></script>` tag, AND every other pre-existing script tag / attribute
+    this repo's map.html already had before this mission ran (both sides
+    present — an auto-merge or manual keep-both resolution, not a replacement).
+  - docs/QC-PIPELINE-SOTA-2026-06-23.md exists in the target repo and contains
+    "8 mandatory gates" or "SOTA-uplift QC pipeline" — confirmed present either
+    because it was already there (375e40b already an ancestor, the expected
+    case) or because this mission's step 3 landed it; `git merge-base
+    --is-ancestor 375e40b HEAD` reports true after this mission's steps.
+  - `node --check js/plan-day-gpx-export.js` exits 0, and `node --check` exits 0
+    on every other .js/.mjs file this integration touched or conflict-resolved.
+  - `git status --short` in the target repo shows no uncommitted changes to any
+    ALLOW-FILES entry (pre-existing unrelated untracked files noted in Context
+    are not this mission's to clean up).
+  - A headless browser (headless Chrome / Playwright / puppeteer) render of
+    /map.html served from PREVIEW-BASE-URL loads without a fatal script error and
+    shows `window.__mtPlanDayGpxExport` present as an object (with a callable
+    `build` function) in the rendered page — verified by rendering the page, not
+    by reading the source. If PREVIEW-BASE-URL turns out to be the wrong local
+    port, that failure must surface as a named NO_PREVIEW_BASE_URL-style receipt,
+    not a silently skipped check.
+  - Nothing about this mission's own authorship or execution constitutes
+    verification that the feature's code is correct (that reading
+    window.__mtPlanDay.getState() is safe at every UI state, that the generated
+    GPX 1.1 document actually validates and round-trips through real GPS/nav
+    apps, that the XSS/XML escaping is complete, that the MutationObserver
+    injection never double-fires) — that determination belongs entirely to this
+    mission's own witness-and-verdict-panel run, downstream of the receipts
+    above.
+
+Context: Sandbox writes only, target repo working tree only.
+Amanah: entrusted; discharge with ihsan.

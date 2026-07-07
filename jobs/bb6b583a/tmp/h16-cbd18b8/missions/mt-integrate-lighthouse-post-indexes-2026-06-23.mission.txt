@@ -1,0 +1,132 @@
+MISSION mt-integrate-lighthouse-post-indexes-2026-06-23
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - docs/AUDIT-LIGHTHOUSE-POST-INDEXES-2026-06-23.md
+  - docs/lighthouse-post-indexes-2026-06-23/_extract.mjs
+  - docs/lighthouse-post-indexes-2026-06-23/_summary.json
+  - docs/lighthouse-post-indexes-2026-06-23/about.json
+  - docs/lighthouse-post-indexes-2026-06-23/changelog.json
+  - docs/lighthouse-post-indexes-2026-06-23/guides.json
+  - docs/lighthouse-post-indexes-2026-06-23/index.json
+  - docs/lighthouse-post-indexes-2026-06-23/landing.json
+  - docs/lighthouse-post-indexes-2026-06-23/map.json
+  - docs/lighthouse-post-indexes-2026-06-23/partners.json
+  - docs/lighthouse-post-indexes-2026-06-23/pledge.json
+REQUIRES: none
+
+Niyyah: Commit 72b036a (docs(audit): lighthouse post D1-indexes — honest attribution vs
+baseline) is a real, already-committed feature sitting in the source worktree
+C:\Users\marka\code\mt-feat-lighthouse-post-indexes-2026-06-23 that has never reached the
+target repo's current HEAD. This mission's entire job is mechanical integration — land
+that exact commit onto the target repo's current HEAD without silently dropping either
+side of any conflict, and prove the result is syntactically sound and committed. Nothing
+this mission does constitutes a judgment that the audit report's attribution claims are
+correct — e.g. that the score gains it credits to the AVIF image pipeline and Material
+Symbols font subsetting (rather than the D1 indexes) are accurately reasoned, that the
+raw Lighthouse JSON reports actually support the summary's numbers, or that map.html's
+TBT-regression explanation holds up. That determination belongs entirely to this
+mission's own downstream witness + verdict-panel run against the integrated result, not
+to the act of authoring or executing this integration. Authoring or firing this mission
+is not verification of the feature's content.
+
+Maqsad: Cherry-pick (or merge, if a cherry-pick alone cannot land it cleanly) commit
+72b036a from the source worktree onto the current HEAD of the target repo
+C:\Users\marka\code\mt-integration-2026-06-22, keeping BOTH the target's pre-existing
+unrelated changes and the feature's full added content on any conflict — never silently
+drop either side — run node --check on every .js/.mjs file the integrated commit
+touches, commit the result with a clear message, and leave the target repo's working
+tree clean with respect to everything this mission touches.
+
+Context (verified against live substrate this session, absolute paths, no prescribed
+resolution beyond "keep both sides"):
+- Source worktree: C:\Users\marka\code\mt-feat-lighthouse-post-indexes-2026-06-23 —
+  confirmed via `git log --oneline` this session to carry commit 72b036a at the tip,
+  parent ed6e33c ("Merge remote-tracking branch 'github/feat/admin-tasks' into
+  integration/apex-2026-06-22"). Do not rewrite that worktree, only read/cherry-pick
+  FROM it.
+- Confirmed diff stat for 72b036a (`git show --stat` and `git show --name-status`, this
+  session): 11 files changed, 84415 insertions(+), 0 deletions(-), every file an
+  addition ("A") — no existing file is modified or deleted. The 11 files are exactly the
+  ALLOW-FILES list above: one new audit report
+  (docs/AUDIT-LIGHTHOUSE-POST-INDEXES-2026-06-23.md, 240 lines) plus a new
+  docs/lighthouse-post-indexes-2026-06-23/ directory holding one extraction script
+  (_extract.mjs, 168 lines — confirmed this session with `node --check` in the source
+  worktree, exits 0), one summary JSON (_summary.json, 789 lines), and seven raw
+  Lighthouse JSON reports (about.json, changelog.json, guides.json, index.json,
+  landing.json, map.json, partners.json, pledge.json).
+- This diff touches zero HTML files — this mission carries no visual/render QC gate of
+  any kind.
+- The target repo's checked-out HEAD at the time this Context was written (28cbc72,
+  branch feat/qc-concern-sentry-error-capture-sentry-init-js-2026-06-25) carries
+  pre-existing untracked litter unrelated to this feature (e2e-shots/,
+  docs/e2e-report-2026-07-01.json, feature-catalog-entry.txt,
+  scripts/e2e-runner.mjs, api-index-response.json). This mission's "clean working tree"
+  claim is scoped to the files it touches (the ALLOW-FILES entries above and anything a
+  merge conflict forces it to touch) — it does not require deleting, committing, or
+  otherwise disturbing pre-existing untracked litter left by unrelated work, since that
+  litter is out of this mission's scope and not this mission's to clean up.
+- Confirmed via `git show <HEAD>:docs/AUDIT-LIGHTHOUSE-POST-INDEXES-2026-06-23.md` and
+  the equivalent path under docs/lighthouse-post-indexes-2026-06-23/ (both fail — "path
+  does not exist") that none of the 11 files exist on the target repo's current HEAD
+  yet, so this should apply as a clean addition with no path collision. If a collision
+  is nonetheless reported at fire time, resolve it by keeping BOTH sides' content rather
+  than overwriting either.
+- The feature commit's message references d1/AUDIT-INDEXES-2026-06-23.md and
+  feat/d1-indexes-2026-06-23 (sha 4050b5b) as prose cross-references (what the audit is
+  measuring the impact of) — but the diff itself does not add, modify, or depend on any
+  file under d1/. Whether or not that separate D1-indexes integration has landed on the
+  target repo has no bearing on this mission's ability to integrate cleanly; hence
+  REQUIRES: none.
+
+Steps:
+  1. In the source worktree C:\Users\marka\code\mt-feat-lighthouse-post-indexes-2026-06-23,
+     confirm commit 72b036a exists and capture its patch (e.g. `git show 72b036a` or
+     `git format-patch -1 72b036a`) without modifying that worktree. [command]
+     capture-patch
+  2. In the target repo C:\Users\marka\code\mt-integration-2026-06-22, at its current
+     HEAD, apply the captured commit via `git cherry-pick 72b036a` (adding the source
+     worktree as a remote/reachable object source if needed) or an equivalent merge of
+     that single commit. [command] integrate-commit
+  3. If the cherry-pick reports a conflict on any ALLOW-FILES entry or any other path,
+     resolve each conflicted hunk by hand so the resolved content contains BOTH the
+     target's pre-existing content AND this feature's new content — never `--ours` /
+     `--theirs` and never a resolution that deletes either side's lines. [edit]
+     resolve-conflicts
+  4. Confirm which files this integration actually touched or conflict-resolved (`git
+     diff --name-only` against the merge-base) and filter to *.js/*.mjs; run `node
+     --check` on every such file and confirm each exits 0 (expected list is exactly
+     docs/lighthouse-post-indexes-2026-06-23/_extract.mjs for this diff — confirm that
+     explicitly rather than assuming it). [command] node-check-all
+  5. Stage and commit the integrated result on the target repo's current HEAD with a
+     clear message identifying the integrated feature and its origin commit (e.g.
+     referencing "mt-feat-lighthouse-post-indexes-2026-06-23" and "72b036a"). Confirm
+     `git status --porcelain` afterward shows no modified or staged entries for anything
+     this mission touched — any pre-existing untracked litter noted in Context above is
+     left exactly as found, neither committed nor deleted. [command]
+     commit-and-verify-clean
+
+Done means:
+  - `git log` on the target repo's current branch in
+    C:\Users\marka\code\mt-integration-2026-06-22 shows a commit whose message names
+    "mt-feat-lighthouse-post-indexes-2026-06-23" and/or "72b036a".
+  - All 11 files in ALLOW-FILES exist in the target repo's working tree at HEAD; reading
+    docs/AUDIT-LIGHTHOUSE-POST-INDEXES-2026-06-23.md confirms it contains the phrase
+    "AVIF" and the phrase "D1", and reading
+    docs/lighthouse-post-indexes-2026-06-23/_summary.json confirms it parses as valid
+    JSON — verified by reading the file content, not assumed from the diff.
+  - `node --check` exits 0 on docs/lighthouse-post-indexes-2026-06-23/_extract.mjs (the
+    only .js/.mjs file this integration touches); the step-4 receipt names this file
+    explicitly rather than reporting a silent skip.
+  - `git status --porcelain` in the target repo shows no modified or staged entries at
+    the end of the mission for anything this mission's own steps touched — pre-existing
+    untracked litter unrelated to this feature (documented in Context above) is not this
+    mission's to clean up and is left untouched either way.
+  - Nothing in this mission's own receipts is treated as proof that the audit report's
+    attribution claims (AVIF/font-subsetting vs. D1 indexes as the driver of the score
+    gains, or the map.html TBT-regression explanation) are correct — that judgment is
+    deferred entirely to this mission's downstream witness and verdict-panel run against
+    the integrated result.
+
+Context: Sandbox writes only, target repo working tree only.
+Amanah: entrusted; discharge with ihsan.

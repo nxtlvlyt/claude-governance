@@ -1,0 +1,27 @@
+MISSION-ID: MT-INTEGRATE-POI-SERVICES-NEARBY.S1
+MISSION-CLASS: code-repo
+PARENT: MT-INTEGRATE-POI-SERVICES-NEARBY
+TARTIB-INDEX: 1 of 2
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - map.html
+  - js/poi-services-nearby.js
+VISUAL-QC-REQUIRED
+REQUIRES: none (first in tartib order)
+STEPS: 8
+
+PARENT MAQSAD: The commit "58e7560 feat(poi): nearby services chips in POI popup" is
+
+Maqsad: sub-mission 1 of 2 — Confirm the currently checked-out branch/HEAD in the target repo (HEAD is volatile per mission context) and confirm js/poi-services-nearby.js does not already exist on disk before any integration action. through Confirm the working tree shows no uncommitted changes to the two ALLOW-FILES entries specifically (pre-existing unrelated untracked debris elsewhere in the repo is out of scope per mission context).
+
+Steps:
+  1. Confirm the currently checked-out branch/HEAD in the target repo (HEAD is volatile per mission context) and confirm js/poi-services-nearby.js does not already exist on disk before any integration action. [command] 
+  2. Confirm commit 58e756084409afc496c98ffd244e873fca85b430 is reachable as a commit object in this repo (worktrees under C:\Users\marka\code share object storage) without touching the source worktree, before attempting to apply it. [command] 
+  3. Check whether 58e7560 is already an ancestor of HEAD before attempting to cherry-pick, to avoid double-landing or a mistaken --allow-empty. [command] 
+  4. Cherry-pick commit 58e7560 onto whatever branch is actually checked out as HEAD (no hardcoded branch name, per the mission's branch-race note). [command] 
+  5. If the cherry-pick reported a conflict on map.html, resolve it by hand so the file keeps BOTH the pre-existing script tags AND the new <script src="js/poi-services-nearby.js" defer> line inserted between the poi-photos.js and crown-land-overlay.js tags — never --ours/--theirs. If step 4 applied cleanly, no conflict markers exist and the tag is already present, satisfying this step's witness as a no-op. [edit] map.html
+  6. Syntax-check the integrated js/poi-services-nearby.js. [verify] js/poi-services-nearby.js
+  7. If the cherry-pick left the tree mid-conflict (git add + cherry-pick --continue still pending), complete the commit using the pick's own message, which already names the feature and cites 58e7560; if step 4 already auto-committed cleanly, this is a no-op. Confirms a commit naming the feature/SHA exists at or near HEAD. [command] 
+  8. Confirm the working tree shows no uncommitted changes to the two ALLOW-FILES entries specifically (pre-existing unrelated untracked debris elsewhere in the repo is out of scope per mission context). [verify] 
+
+Done means: map.html, js/poi-services-nearby.js exist/are updated as specified — verify by headless-browser render, not by reading the code

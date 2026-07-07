@@ -1,0 +1,104 @@
+MISSION mt-integrate-cron-dispatcher-2026-06-23
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+TARGET-BRANCH: main
+ALLOW-FILES:
+  - docs/CRON-DISPATCHER-PATTERN-2026-06-23.md
+  - scheduler-config.json
+  - workers/cron-dispatcher/index.js
+  - wrangler.cron-dispatcher.toml
+REQUIRES: none
+
+Niyyah: The feature "mt-feat-cron-dispatcher-2026-06-23" (commit 3300e38, currently sitting
+in the source worktree C:\Users\marka\code\mt-feat-cron-dispatcher-2026-06-23) has never been
+integrated into this repo's main branch. This mission's entire job is mechanical integration —
+land the commit onto main's current tip without losing either side's changes, and prove the
+result is syntactically sound. Nothing this mission does constitutes a judgment that the
+cron-dispatcher feature's CODE is correct, safe, or behaves as designed (e.g. that the
+Promise.allSettled fan-out truly isolates a hung child, that the X-Mod-Secret POSTs reach the
+right workers, or that the KV cadence throttle is wired right). That determination belongs to
+this mission's own witness + verdict-panel run, which inspects the integrated result after this
+mission produces it — not to the act of integration itself. Authoring or executing this mission
+is not verification of the feature.
+
+Maqsad: The commit "3300e38 feat(cron-dispatcher): single dispatcher worker amortizing N inline
+cron registrations" is cherry-picked or merged from the source worktree onto the current HEAD of
+main in C:\Users\marka\code\mt-integration-2026-06-22, with any conflicts resolved by keeping
+BOTH sides — this repo's existing unrelated changes AND the cron-dispatcher feature's changes,
+never silently dropping either — every changed .js/.mjs file passes `node --check`, the result
+is committed with a clear message, and the target repo's working tree is left clean (git status
+shows no uncommitted changes to the touched files).
+
+Context (verified against live substrate 2026-07-01, absolute paths, no prescribed resolution
+beyond "keep both sides"):
+- Source worktree: C:\Users\marka\code\mt-feat-cron-dispatcher-2026-06-23, commit 3300e38 —
+  do not rewrite that worktree, only read/cherry-pick FROM it.
+- Confirmed diff stat for 3300e38 (git show --stat, this session): 4 files changed, 584
+  insertions(+), 0 deletions(-) — all four files are NEW additions with no existing
+  counterpart on main: docs/CRON-DISPATCHER-PATTERN-2026-06-23.md (111 lines),
+  scheduler-config.json (39 lines), workers/cron-dispatcher/index.js (381 lines), and
+  wrangler.cron-dispatcher.toml (53 lines).
+- Target repo main HEAD (this session, `git rev-parse main` in
+  C:\Users\marka\code\mt-integration-2026-06-22): 5e19874. Verified this session via
+  `git cat-file -e main:<path>` that none of the four ALLOW-FILES paths exist on main —
+  a clean cherry-pick applies as four pure adds. A dry-run `git cherry-pick -n 3300e38`
+  against main in this session produced exactly those four adds with zero conflicts, then
+  was reset (`git reset --hard main`) before this mission was authored, so main is unchanged.
+  Because the diff is additions-only, a real conflict is unlikely, but if the target repo's
+  main has since grown its own scheduler-config.json, wrangler.cron-dispatcher.toml, or
+  workers/cron-dispatcher/index.js before this mission fires, resolve by keeping BOTH the
+  target's existing entries/behavior AND the cron-dispatcher feature's entries/behavior
+  (e.g. merge scheduler-config.json's child list rather than overwriting it) — never
+  `--ours` / `--theirs` and never a resolution that deletes either side's content.
+- The source worktree and the target repo are worktrees of the SAME underlying git
+  repository (confirmed via `git worktree list` and `git cat-file -t 3300e38` succeeding
+  directly inside the target repo) — commit 3300e38 is already a reachable object in the
+  target repo without any fetch/remote-add step; `git cherry-pick 3300e38` works directly.
+- This diff does not touch any .html file — the visual-QC header used by other integration
+  missions is deliberately omitted from this mission; no render-witness step is required.
+
+Steps:
+  1. In the source worktree C:\Users\marka\code\mt-feat-cron-dispatcher-2026-06-23, confirm
+     commit 3300e38 exists and inspect its patch (e.g. `git show 3300e38` or
+     `git format-patch -1 3300e38`) without modifying that worktree. [command] capture-patch
+  2. In the target repo C:\Users\marka\code\mt-integration-2026-06-22, checkout TARGET-BRANCH
+     main at its current tip, then apply the commit via `git cherry-pick 3300e38` (the commit
+     is already a reachable object in this repo — no remote/fetch step is needed) or an
+     equivalent merge of that single commit. [command] integrate-commit
+  3. If cherry-pick reports conflicts on scheduler-config.json, wrangler.cron-dispatcher.toml,
+     workers/cron-dispatcher/index.js, docs/CRON-DISPATCHER-PATTERN-2026-06-23.md, or any other
+     ALLOW-FILES entry, resolve each conflicted hunk by hand so the resolved content contains
+     BOTH the target's pre-existing content AND the cron-dispatcher feature's content — never
+     `--ours` / `--theirs` and never a resolution that deletes either side's lines. [edit] resolve-conflicts
+  4. Run `node --check workers/cron-dispatcher/index.js` and `node --check` on every other
+     .js/.mjs file this merge touched or any conflict resolution modified, confirming each
+     exits 0. [command] node-check-all
+  5. Stage and commit the integrated result on main in the target repo with a clear message
+     identifying the integrated feature and its origin commit (e.g. referencing
+     "mt-feat-cron-dispatcher-2026-06-23" and "3300e38"). Confirm `git status` afterward shows
+     a clean working tree. [command] commit-and-verify-clean
+
+Done means:
+  - `git log` on main in C:\Users\marka\code\mt-integration-2026-06-22 shows a commit
+    containing the integrated cron-dispatcher feature, with a commit message that names
+    "mt-feat-cron-dispatcher-2026-06-23" and/or "3300e38".
+  - docs/CRON-DISPATCHER-PATTERN-2026-06-23.md, scheduler-config.json,
+    workers/cron-dispatcher/index.js, and wrangler.cron-dispatcher.toml all exist in the
+    target repo at main's HEAD with non-trivial content (workers/cron-dispatcher/index.js
+    contains the Promise.allSettled/ctx.waitUntil fan-out logic reading scheduler-config.json
+    and POSTing X-Mod-Secret to child endpoints; scheduler-config.json declares the
+    muddytires-fire and muddytires-fire-bans children; wrangler.cron-dispatcher.toml declares
+    its own standalone workers.dev deploy target, not muddytires.ca/DNS/Pages).
+  - If any conflict occurred during integration, both sides' content are confirmed present
+    in the resolved files by reading the resolved lines, not assumed.
+  - `node --check` exits 0 on workers/cron-dispatcher/index.js and on every other .js/.mjs
+    file this integration touched or conflict-resolved.
+  - `git status` in the target repo shows a clean working tree (no uncommitted changes) at
+    the end of the mission.
+  - This mission's own authorship and execution only prove the integration is mechanically
+    sound (the commit landed, both sides' content survived, node --check passes, the tree
+    is clean) — they are not a claim that the cron-dispatcher feature's CODE is correct.
+    That judgment belongs to this mission's own witness + verdict-panel run downstream.
+
+Context: Sandbox writes only, target repo working tree only.
+Amanah: entrusted; discharge with ihsan.

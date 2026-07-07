@@ -1,0 +1,18 @@
+MISSION M28-1C-IOVERLANDER-PARTS
+MISSION-CLASS: research
+Niyyah: m28-1b-ioverlander-parts FAILED x2 at the witness on unsourced-claim grounds. The fix requires fetching competitor source files (subscriptions, app store pages) first, then grounding Section 1 cites on those staged files.
+Maqsad: ONE assembled competitor card — competitor-card-ioverlander.md at the sandbox root, built from FIVE part files.
+Steps:
+  1. Fetch competitor source pages (https://ioverlander.com/subscriptions, iOS App Store, Android Play Store) into local html files in the sandbox, copy C:\vanlife\MUDDYTIRES-TASKS.md into MUDDYTIRES-TASKS.md, and produce MUDDYTIRES-TASKS.numbered.md by prefixing each line with Lnn. [command] ioverlander-sources
+  2. Emit part-1-product.md: Section 1 What iOverlander is (platforms, pricing, business model), citing the staged competitor source files. [edit] part-1-product.md
+  3. Emit part-2-strengths.md: Section 2 What it does well, live-web-search grounded with URL cites on every factual claim. [edit] part-2-strengths.md
+  4. Emit part-3-weaknesses.md: Section 3 Where it falls down, every weakness either URL-cited or carrying an explicit marker reading "inference, not in source". [edit] part-3-weaknesses.md
+  5. Emit part-4-overlap.md: Section 4 Overlap map, one row per backlog item F1 through F11, each row citing [MUDDYTIRES-TASKS.numbered.md Lnn]. [edit] part-4-overlap.md
+  6. Emit part-5-wedge.md: Section 5 Gap verdict with exactly three complete-sentence wedge demands labeled Demand 1: Demand 2: Demand 3:, each grounded in the earlier parts. [edit] part-5-wedge.md
+  7. Assemble competitor-card-ioverlander.md by writing a '# Competitor Card — iOverlander' header line and concatenates part-1 through part-5. [command] competitor-card-ioverlander.md
+  8. Final verification with Select-String that competitor-card-ioverlander.md exists and contains all five section headers, F1-through-F11 overlap rows, and Demand 1/2/3 labels. [verify] competitor-card-ioverlander.md
+
+Done means: competitor-card-ioverlander.md exists at the sandbox root and the validation step confirms five section headers, F1-through-F11 overlap rows, and Demand 1/2/3 present; factual claims carry URL or Lnn cites or an explicit inference marker.
+Context: separate verified facts from inference explicitly. Sandbox writes only.
+REQUIRES: search
+Amanah: entrusted; discharge with ihsan.

@@ -1,0 +1,49 @@
+MISSION-ID: mt-e2e-reachability.S1
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - scripts/e2e-runner.mjs
+  - docs/FEATURE-CATALOG-2026-06-23.md
+REQUIRES: mt-mobile-qc-hardening.S1.S2 (tartib — S1.S2 is editing the same runner file; serialize to avoid same-file collision)
+STEPS: 5
+
+Maqsad: Close the REACHABILITY blind spot the operator named 2026-07-03 ("shouldn't this be
+part of QC e2e?") after the trip-cost planner shipped LIVE with panel-signed render receipts
+while the homepage and map carried ZERO inbound links — he could not navigate to it. Every
+existing layer verifies a deliverable IN ISOLATION (witness: the authored file; live-outcome:
+the page renders at its URL; e2e: goes straight to the page it tests; verdict panel: the
+mission's own receipts). No layer asks "can a user GET here from the site?" Deliverable: the
+e2e runner gains a deterministic REACHABILITY SWEEP — for every catalog feature that lives on
+its own page, assert at least one inbound anchor to it exists on its declared entry surface.
+DESIGN:
+(a) docs/FEATURE-CATALOG-2026-06-23.md: add a `reachable_from:` field to each feature entry
+that has its own page URL (e.g. trip-cost -> reachable_from: / (homepage nav)); features that
+live ON an entry surface (map controls) declare reachable_from: self. Features deliberately
+direct-URL-only declare reachable_from: none (documented exception, printed in receipts).
+(b) scripts/e2e-runner.mjs: a reachability sweep that, for each feature with reachable_from
+not self/none, fetches the entry surface HTML (plain HTTP GET, no browser needed) and asserts
+an anchor href to the feature's page exists (href match tolerant of .html vs extensionless
+routes); prints one receipt line per feature — REACHABLE <feature> via <surface> — or
+ORPHAN <feature>: no inbound link on <surface> — and a summary line REACHABILITY: n/m.
+(c) The sweep runs as part of every full e2e run AND standalone via MT_REACHABILITY_ONLY=1
+(fast: HTTP fetches only, no playwright), so the conductor and canary can invoke it in
+seconds. ORPHAN findings are reported findings, not crashes (same acceptance philosophy as
+the overlap detector: the tool detecting a live gap IS the tool working).
+
+niyyah: The operator caught by hand what the robots never looked for. This drains that
+judgment into the deterministic layer per the deterministic-first principle (QUEUE triage
+2026-07-03): "is the page linked?" is a mechanical criterion — a grep against fetched HTML,
+never an LLM opinion. After this lands, an orphan page is caught the night it ships.
+
+Steps:
+  1. Idempotent baseline: record branch + HEAD; if scripts/e2e-runner.mjs already contains MT_REACHABILITY_ONLY output CLEAN_ALREADY and treat edit steps as verify-only presence checks; else CLEAN_BASELINE. Never exit 1 on existence. [command]
+  2. docs/FEATURE-CATALOG-2026-06-23.md: add the reachable_from: field to every feature entry per the Maqsad DESIGN (a) — additive lines only; existing entry text unmodified. REWRITE-WITHOUT-READING PIN (attempt-1 receipt, commit 6957863, CORRECTED by operator word 2026-07-03 ~18:1x: the seat REPLACED the real 4-entry catalog with a from-scratch rewrite it authored WITHOUT reading the existing file — a plausible blend of REAL features (User Profile IS live at /profile; operator receipt) and UNVERIFIED ones ("Booking Engine" with payment processing), in a format the runner parses as 0 features. The defect is the unread rewrite that destroyed the working catalog format, NOT that every entry was fiction): the edit MUST start from the catalog's CURRENT bytes (read it first), every existing entry MUST survive VERBATIM, and the verify in step 4 MUST Select-String at least two literal pre-existing entry names (e.g. 'Vehicle profile picker', 'Fuel-cost chip') to prove preservation. [edit] docs/FEATURE-CATALOG-2026-06-23.md
+  3. scripts/e2e-runner.mjs: add the reachability sweep per DESIGN (b)+(c) — parse reachable_from from the catalog, HTTP-fetch each declared entry surface once (cache per surface), assert inbound anchors, print REACHABLE/ORPHAN receipt lines + the REACHABILITY: n/m summary; wire MT_REACHABILITY_ONLY=1 to skip the browser suites entirely. [edit] scripts/e2e-runner.mjs
+  4. Commit both ALLOW-FILES by explicit name, naming this mission and the operator's 2026-07-03 reachability question; IDEMPOTENT on a CLEAN_ALREADY pass (if clean and HEAD carries MT_REACHABILITY_ONLY, output ALREADY_COMMITTED, exit 0, no git commit). [command]
+  5. OUTCOME CHECK: as a multi-line block: $env:MT_BASE_URL='https://muddytires.ca'; $env:MT_REACHABILITY_ONLY='1'; node scripts/e2e-runner.mjs (HTTP-only, runs in seconds — no LONG-RUN window needed) — judged by COVERAGE receipts: the output MUST show one REACHABLE/ORPHAN line per catalog feature with a reachable_from other than self/none, plus the REACHABILITY: n/m summary. ORPHAN findings are an ACCEPTABLE completion (they are the live gaps the nav-link missions close); only a crash or missing receipt lines fails this step. [command]
+
+Done means: both files committed at HEAD; the step-5 run against the live site prints a
+per-feature REACHABLE/ORPHAN receipt line and the REACHABILITY summary — the question the
+operator had to ask by hand ("how do I navigate to it?") is now asked mechanically on every
+e2e run and every canary pass. Executable verification; inbound-link coverage is the
+deliverable (reachability receipts, RULE 12's detection-layer sibling).

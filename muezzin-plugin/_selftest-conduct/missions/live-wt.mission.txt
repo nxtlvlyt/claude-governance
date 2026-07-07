@@ -1,0 +1,4 @@
+MISSION-ID: live-wt
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\FAKE\repo
+Maqsad: t

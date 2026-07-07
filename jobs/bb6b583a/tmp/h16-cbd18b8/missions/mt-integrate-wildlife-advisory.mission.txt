@@ -1,0 +1,217 @@
+MISSION MT-INTEGRATE-WILDLIFE-ADVISORY
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+TARGET-BRANCH: main
+ALLOW-FILES:
+  - functions/api/wildlife-advisory.js
+  - js/wildlife-advisory-layer.js
+  - map.html
+REQUIRES: none
+VISUAL-QC-REQUIRED
+PREVIEW-BASE-URL: http://localhost:8788
+
+Niyyah: Feature branch mt-feat-wildlife-advisory (slug mt-feat-wildlife-advisory) carries
+three finished commits — a same-origin proxy that fans out across Parks Canada bulletins
+and provincial/territorial wildlife-advisory sources, a Leaflet overlay that renders
+severity-coded red-zone polygons and LINK_ONLY info markers from that proxy, and the
+single-line wiring that loads the overlay script from map.html — sitting in their own
+worktree, never landed on the integration line. This mission's whole job is mechanical:
+get those changes onto the target repo's current HEAD without losing anything already
+there, and produce the node-level and render-level receipts a verdict panel needs to
+judge the result. Writing this mission file, and the act of cherry-picking itself, is NOT
+verification that the feature's own code is correct. Whether the proxy's fan-out actually
+reaches every provincial/territorial source it claims to, whether its advisory_type/
+severity classification (bear/cougar/wolf/moose/other; caution/warning/closure) is
+accurate, whether the LINK_ONLY fallback is the right behavior for provinces without
+structured feeds, whether the 1h edge-cache window is safe for a safety-relevant feed,
+and whether window.__mtWildlifeAdvisory's queryAtPoint/advisoryChipHtml surface is wired
+correctly into POI popups and plan-day — none of that is settled by landing the commits.
+That determination belongs entirely to this mission's own witness-and-verdict-panel run:
+the node --check receipts, the headless-browser render of map.html, and the seat panel's
+judgment on the actual integrated diff. Say plainly: authoring and integrating this
+mission proves nothing about the feature code's correctness by itself.
+
+Maqsad: Land the three commits — 623a4785214503389055e56fd137a2b78753e2ab
+("feat(wildlife-advisory): add /api/wildlife-advisory proxy"),
+d575bcefa7b7f6f09fe1035d30f97f2c9d284e56 ("feat(wildlife-advisory): add
+wildlife-advisory-layer overlay"), and b450f7d7ed86f18b4fdab28a4e90160d96f87606
+("feat(wildlife-advisory): wire wildlife-advisory-layer.js into map.html") — from the
+source worktree C:\Users\marka\code\mt-feat-wildlife-advisory onto the current HEAD of
+the target repo C:\Users\marka\code\mt-integration-2026-06-22 on TARGET-BRANCH main,
+resolving the map.html conflict (see Context) by keeping BOTH the target's existing
+script tags AND the feature's new one, never silently dropping either side, with every
+changed .js file passing `node --check`, the result committed with a clear message, and
+the target repo's working tree left clean.
+
+Context (verified against live substrate this session, absolute paths, no prescribed
+resolution beyond "keep both sides"):
+- Confirmed diff stat across the three commits (git show --stat, this session): 3 files
+  changed, 1222 insertions(+), 1 deletion(-) — functions/api/wildlife-advisory.js (787
+  new lines, a Cloudflare Pages Function proxy with onRequestGet/onRequestOptions exports
+  that fans out across Parks Canada Atom bulletins + provincial/territorial sources,
+  classifies advisory_type and severity, and returns a TAQWA envelope with ok/sources[]/
+  fetched_at), js/wildlife-advisory-layer.js (434 new lines, a toggleable Leaflet overlay
+  that fetches /api/wildlife-advisory on debounced viewport change and publishes
+  window.__mtWildlifeAdvisory.{reload, getState, layer, queryAtPoint,
+  advisoryChipHtml}), and map.html (+1/-1: the existing single script-tag line gains one
+  new `<script src="js/wildlife-advisory-layer.js" defer></script>` tag, inserted
+  immediately after the existing `<script src="js/crown-land-overlay.js" defer></script>`
+  tag on that same line). Confirmed by reading the actual diffs this session (`git show
+  --stat` and `git show b450f7d -- map.html`), not assumed from a summary alone.
+- Target repo TARGET-BRANCH (main) HEAD, confirmed this session (`git log --oneline -1
+  main`): 5e19874 ("Merge branch 'feat/qc-concern-vehicle-profile-picker-2026-06-25'").
+- REPO VOLATILITY OBSERVED THIS SESSION: the target repo's checked-out worktree was found
+  on branch `_dryrun-weather-test-tmp` (not main) partway through this session, with no
+  action taken by this session causing that switch — evidence another concurrent process
+  is actively using this shared worktree, the same shared-repo HEAD/tree-race hazard prior
+  missions in this engine (e.g. mt-integrate-testimonials) have already named. Do not
+  assume main is still the checked-out branch by the time this mission actually fires;
+  re-confirm the checked-out branch live as the first step, and if it is not
+  TARGET-BRANCH (main), check out main explicitly before touching any file.
+- Both worktrees are worktrees of the same underlying repo (confirmed via `git
+  rev-parse --git-dir` in each: both resolve to worktrees under
+  C:\Users\marka\code\muddytires-pages\.git\worktrees\), so they share one object store.
+  `git cat-file -t` on all three SHAs from inside the target worktree returns "commit"
+  (confirmed this session) — no fetch/remote-add step is needed; cherry-pick can
+  reference the SHAs directly.
+- Verified this session that neither functions/api/wildlife-advisory.js nor
+  js/wildlife-advisory-layer.js exists yet anywhere in the target repo's working tree
+  (clean new-file adds expected for both); map.html DOES already exist and is the file
+  receiving the one-line change.
+- A dry-run cherry-pick of all three commits in order (623a478, d575bce, b450f7d;
+  `git cherry-pick --no-commit -n`, fully reverted via `git cherry-pick --abort` before
+  this mission file was written, leaving the target repo exactly as found and confirmed
+  clean via `git status --short` afterward) applied 623a478 and d575bce with ZERO
+  conflicts (staged as `A functions/api/wildlife-advisory.js` / `A
+  js/wildlife-advisory-layer.js`), then hit a CONFLICT in map.html on b450f7d. The
+  conflict is structural, not a content clash: map.html's entire block of `<script
+  src=...>` tags (from the plan-day/poi-photos/crown-land-overlay group through
+  day-rhythm.js) lives on ONE single physical line (confirmed by reading the diff hunk
+  this session), and the target's HEAD has already grown that line with several more
+  script tags (municipal-parking-panel.js, ev-charging-layer.js,
+  free-camping-filter.js, chain-overnight-policy.js, day-rhythm.js) that postdate the
+  feature branch's base and are absent from its version of that line — so git's
+  line-based 3-way merge conflicts even though the actual insertion points do not
+  semantically overlap. Resolve by taking the target's HEAD version of that line as the
+  base (it is the more complete one) and inserting exactly one new tag,
+  `<script src="js/wildlife-advisory-layer.js" defer></script>`, immediately after the
+  existing `<script src="js/crown-land-overlay.js" defer></script>` tag already on that
+  line — matching the feature commit's own stated intent ("Adds the script tag right
+  after crown-land-overlay.js so the layer hooks into the same layer-control + map
+  lifecycle as the other safety overlays"). Every other script tag already on that line
+  in the target's HEAD must survive untouched; the new tag must not replace or delete any
+  of them. If the target has since diverged further from what this session observed
+  (e.g. another script tag now sits between crown-land-overlay.js and
+  municipal-parking-panel.js), still insert the new tag directly after
+  crown-land-overlay.js and keep every other tag — never resolve by picking one side's
+  full line over the other's.
+- Both new files pass `node --check` in the source worktree as of this session (confirmed
+  directly, exit 0 on both) — a syntax-clean baseline before integration; the target's
+  copies must be checked again after landing since conflict resolution touches map.html
+  only, not the two new files, but the check should run on all changed .js files anyway.
+- This diff touches map.html (an HTML file, and the site's live map page), which is why
+  VISUAL-QC-REQUIRED and PREVIEW-BASE-URL are declared above. http://localhost:8788 is a
+  PLACEHOLDER for a local `wrangler pages dev` run — the operator must confirm the port a
+  real local preview server actually binds to on the machine firing this mission before
+  relying on the captured render; if nothing answers at PREVIEW-BASE-URL, that must
+  surface as a named NO_PREVIEW_BASE_URL-style receipt, not a silently skipped check.
+- Out of scope for this mission: actually exercising the proxy's live network fan-out
+  (Parks Canada Atom bulletins, provincial/territorial sources) or confirming its
+  classification accuracy is a runtime-behavior question, not an integration question.
+  This mission lands the code and proves it is syntactically sound and renders; whether
+  its data sourcing and classification are correct at runtime is left entirely to the
+  witness-and-verdict-panel run.
+- Nothing about this mission's authorship constitutes verification that the feature code
+  is correct — that is exactly what this mission's own witness and verdict-panel run,
+  downstream of the integration, will determine.
+
+Steps:
+  1. In the target repo, confirm the actually-checked-out branch and HEAD (`git -C
+     C:\Users\marka\code\mt-integration-2026-06-22 branch --show-current` and `git log
+     --oneline -1`). If the checked-out branch is not TARGET-BRANCH main, check it out
+     explicitly before any further step. Then confirm functions/api/wildlife-advisory.js
+     and js/wildlife-advisory-layer.js do not already exist on disk, and read map.html's
+     current script-tag line to confirm it has no `wildlife-advisory-layer.js` reference
+     yet. [command] confirm-target-branch-clean
+  2. In the source worktree C:\Users\marka\code\mt-feat-wildlife-advisory, confirm all
+     three commits exist without modifying that worktree (`git show 623a478`, `git show
+     d575bce`, `git show b450f7d`). [command] capture-patches
+  3. In the target repo, at its current HEAD on TARGET-BRANCH, cherry-pick the three
+     commits in oldest-first order (`git -C C:\Users\marka\code\mt-integration-2026-06-22
+     cherry-pick 623a4785214503389055e56fd137a2b78753e2ab
+     d575bcefa7b7f6f09fe1035d30f97f2c9d284e56
+     b450f7d7ed86f18b4fdab28a4e90160d96f87606`) or an equivalent sequence of merges.
+     [command] integrate-commits
+  4. When the cherry-pick reports a conflict on map.html (expected on the third commit
+     per the Context section above), resolve it by hand: take the target's current
+     version of the single script-tag line as the base, and insert exactly one tag —
+     `<script src="js/wildlife-advisory-layer.js" defer></script>` — immediately after
+     the existing `<script src="js/crown-land-overlay.js" defer></script>` tag, keeping
+     every other script tag already on that line untouched. If any other ALLOW-FILES
+     entry also conflicts, resolve it the same way: keep BOTH the target's pre-existing
+     content AND the feature's added content, never `--ours` / `--theirs` and never a
+     resolution that deletes either side's content. [edit] resolve-map-html-conflict
+  5. Run `node --check functions/api/wildlife-advisory.js` and `node --check
+     js/wildlife-advisory-layer.js` from the target repo root and confirm both exit 0;
+     also run `node --check` on any other .js/.mjs file the merge touched or
+     conflict-resolved. [command] node-check-all
+  6. Stage the resolved files and continue/complete the cherry-pick (`git add
+     functions/api/wildlife-advisory.js js/wildlife-advisory-layer.js map.html` then `git
+     cherry-pick --continue`, repeating for each remaining commit in the sequence, or an
+     equivalent manual merge commit). Commit with a message that references "wildlife
+     advisory" and/or the SHAs. Then confirm `git status --short` is empty (clean working
+     tree, no unmerged paths) and `git log --oneline -5` shows the landed work at or near
+     HEAD. [command] commit-and-verify-clean
+  7. Because map.html changed and VISUAL-QC-REQUIRED is set, run the visual-witness
+     pipeline: serve the target repo's static files locally, load map.html from
+     PREVIEW-BASE-URL in a headless browser (puppeteer), capture a render, and record a
+     visual verdict on the integrated result in this mission's result object. If
+     PREVIEW-BASE-URL is unreachable, record that as a named NO_PREVIEW_BASE_URL receipt
+     rather than skipping the check silently. [command] visual-witness-render
+
+Done means:
+  - `git log` in C:\Users\marka\code\mt-integration-2026-06-22 on TARGET-BRANCH main
+    shows a commit (or commits) containing the integrated wildlife-advisory feature, with
+    a commit message that names "wildlife advisory" and/or one of the three SHAs
+    (623a478, d575bce, b450f7d).
+  - functions/api/wildlife-advisory.js exists in the target repo at HEAD with non-trivial
+    content (approximately 787 lines, exporting onRequestGet and onRequestOptions,
+    fanning out across Parks Canada bulletins and provincial/territorial wildlife
+    sources, returning a TAQWA envelope with ok/sources[]/fetched_at), confirmed by
+    reading the file, not assumed.
+  - js/wildlife-advisory-layer.js exists in the target repo at HEAD with non-trivial
+    content (approximately 434 lines, publishing window.__mtWildlifeAdvisory with
+    reload/getState/layer/queryAtPoint/advisoryChipHtml), confirmed by reading the file,
+    not assumed.
+  - map.html in the target repo contains exactly one
+    `<script src="js/wildlife-advisory-layer.js" defer></script>` tag, positioned
+    immediately after the `<script src="js/crown-land-overlay.js" defer></script>` tag,
+    with every other script tag that was already on that line before this mission ran
+    (municipal-parking-panel.js, ev-charging-layer.js, free-camping-filter.js,
+    chain-overnight-policy.js, day-rhythm.js, and any others) still present and
+    unmodified — confirmed by reading the file, not by trusting the cherry-pick's exit
+    code alone.
+  - `node --check functions/api/wildlife-advisory.js` and `node --check
+    js/wildlife-advisory-layer.js` both exit 0, and `node --check` exits 0 on every other
+    .js/.mjs file this integration touched or conflict-resolved.
+  - `git status --short` in the target repo shows a clean working tree (no uncommitted
+    changes, no unmerged paths) at the end of the mission.
+  - Because this diff touches map.html and VISUAL-QC-REQUIRED is set above, the
+    visual-witness pipeline must actually run and produce a receipt: a headless-browser
+    (puppeteer) render of map.html served from PREVIEW-BASE-URL is captured and returns a
+    visual verdict in this mission's result object — a rendering check, not a read of the
+    markup. If PREVIEW-BASE-URL turns out to be the wrong local port, that failure must
+    surface as a named NO_PREVIEW_BASE_URL-style receipt, not a silently skipped check.
+  - This mission's authorship and execution prove only that the integration is
+    mechanically sound (declared files present with real content, all three feature
+    commits reachable in target history, syntax checks pass, a render was actually
+    captured) — not that the feature's code is correct, safe, or behaviorally right (e.g.
+    that the proxy's provincial/territorial fan-out actually reaches every source it
+    claims to, that its advisory_type/severity classification is accurate, that the
+    LINK_ONLY fallback and 1h edge-cache window are the right calls for a safety-relevant
+    feed, or that queryAtPoint/advisoryChipHtml are wired correctly into POI popups and
+    plan-day). That judgment belongs to this mission's own witness plus verdict-panel
+    run, downstream of this mission producing the integrated result.
+
+Context: Sandbox writes only, target repo working tree only.
+Amanah: entrusted; discharge with ihsan.

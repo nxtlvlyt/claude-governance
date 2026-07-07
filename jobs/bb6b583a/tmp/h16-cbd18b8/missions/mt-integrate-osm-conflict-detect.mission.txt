@@ -1,0 +1,179 @@
+MISSION MT-INTEGRATE-OSM-CONFLICT-DETECT
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - functions/api/poi-osm-conflict.js
+  - js/osm-conflict-detect.js
+  - map.html
+REQUIRES: none
+VISUAL-QC-REQUIRED
+PREVIEW-BASE-URL: http://localhost:8788
+
+Niyyah: Feature commit 1a9c780 ("feat(osm-conflict-detect): surface possible
+duplicates at spot-create time") sits finished in the source worktree
+C:\Users\marka\code\mt-feat-osm-conflict-detect-2026-06-23, never landed onto
+the integration line. This mission's whole job is mechanical: get the two new
+files and the one map.html insertion onto the target repo's current HEAD
+without losing anything already there, and produce the node-level and
+render-level receipts a verdict panel needs to judge the result. Writing this
+mission file, and the act of cherry-picking itself, is NOT verification that
+the feature's own code is correct. Whether the 100m-radius duplicate probe
+actually finds the right OSM/pois/community_spot candidates, whether the
+Overpass KV-cache degrades safely when Overpass is unreachable, whether the
+modal's "merge into this" hint is handled correctly downstream by the
+contribute worker or moderation queue, and whether the UI is actually usable
+and accessible — none of that is settled by landing the commit. That
+determination belongs entirely to this mission's own witness-and-verdict-panel
+run: the node --check receipts, the headless-browser render of map.html, and
+the seat panel's judgment on the actual integrated diff. Say plainly:
+authoring and integrating this mission proves nothing about the feature
+code's correctness by itself.
+
+Maqsad: Land commit 1a9c78091aa87658a44080c1657698fd135bc6f7 from the source
+worktree C:\Users\marka\code\mt-feat-osm-conflict-detect-2026-06-23 onto the
+current HEAD of the target repo C:\Users\marka\code\mt-integration-2026-06-22,
+producing functions/api/poi-osm-conflict.js, js/osm-conflict-detect.js, and
+the updated map.html script-tag insertion in the target repo, with any
+conflicts resolved by keeping BOTH sides — this repo's existing unrelated
+changes AND the feature's changes, never silently dropping either — a
+passing `node --check` on both changed .js files, a commit with a clear
+message, and a working tree clean of uncommitted changes to those three
+files.
+
+Context (verified against live substrate this session, absolute paths, no
+prescribed resolution beyond "keep both sides"):
+- Source worktree: C:\Users\marka\code\mt-feat-osm-conflict-detect-2026-06-23,
+  commit 1a9c78091aa87658a44080c1657698fd135bc6f7. Confirmed diff stat
+  (`git show --stat`, this session): 3 files changed, 826 insertions(+), 1
+  deletion(-) — functions/api/poi-osm-conflict.js (377 new lines, brand new
+  file: a GET endpoint taking ?lat=&lng=&radius=&node_type= that returns the
+  top-5 nearest candidate features across OSM/Overpass, KV-cached via the
+  existing _lib/overpass-cache helper, plus the pois table and the
+  community_spot table, sorted by haversine distance, capped at 100m,
+  best-effort so any source failure degrades to the others and the endpoint
+  never blocks creation), js/osm-conflict-detect.js (448 new lines, brand new
+  file: monkey-patches window.reviewSpot to wrap the audited add-spot path
+  with the probe plus a focus-managed, Esc-aware modal built with
+  createElement, where "merge into this" attaches a merge_into hint to the
+  original payload), and map.html (1 insertion/1 deletion: inserts
+  `<script src="js/osm-conflict-detect.js" defer></script>` directly after
+  the existing `<script src="js/add-spot-worker.js" defer></script>` tag).
+- Both the source worktree and the target repo are linked git worktrees of
+  the SAME underlying repository (each worktree's `.git` file points at
+  `C:/Users/marka/code/muddytires-pages/.git/worktrees/<name>`, confirmed
+  this session) — they share one object store, so commit 1a9c780 is already
+  resolvable via `git cat-file -t` in the target worktree with NO fetch or
+  remote-add step; `git cherry-pick 1a9c780` can reference the SHA directly.
+- Confirmed this session that neither functions/api/poi-osm-conflict.js nor
+  js/osm-conflict-detect.js exists yet anywhere in the target repo's working
+  tree, and the target's map.html still has the pre-existing
+  `add-spot-worker.js" defer></script><script src="js/reviews.js" defer>`
+  sequence with nothing inserted between them — a clean two-file-add plus
+  one-line insert is the expected outcome. If any of the three has since
+  diverged because of unrelated target-repo work, resolve by keeping BOTH
+  bodies, never picking one side and silently dropping the other.
+- The target repo's checked-out branch and HEAD are actively moving under
+  other in-flight work — during this session alone, HEAD moved from 28cbc72
+  (branch feat/qc-concern-sentry-error-capture-sentry-init-js-2026-06-25) to
+  a1d6ad9 (branch test-lhci-dryrun-2026-07-01) with no action from this
+  mission. No TARGET-BRANCH is declared here; integrate onto whatever
+  branch/HEAD is actually checked out the moment this mission fires, and
+  record it as Step 1.
+- The target repo also currently carries pre-existing untracked files
+  unrelated to this feature (api-index-response.json,
+  docs/e2e-report-2026-07-01.json, e2e-shots/, feature-catalog-entry.txt,
+  scripts/e2e-runner.mjs) left by other in-flight work. These are outside
+  this mission's ALLOW-FILES scope; the "clean working tree" bar below is
+  scoped to the three ALLOW-FILES paths only, not the whole repo.
+- PREVIEW-BASE-URL above (http://localhost:8788) is a PLACEHOLDER for a local
+  `wrangler pages dev` run serving the target repo's static files; map.html
+  would be reached at <PREVIEW-BASE-URL>/map.html. The operator must confirm
+  the port a real local preview server actually binds to on the machine
+  firing this mission before relying on the captured render; if nothing
+  answers at PREVIEW-BASE-URL, correct the header or start the server before
+  this mission's visual-QC step fires for real.
+
+Steps:
+  1. In the target repo, record the current branch and HEAD SHA, and confirm
+     none of the three ALLOW-FILES paths already carry feature content
+     (git -C C:\Users\marka\code\mt-integration-2026-06-22 status --short;
+     test for functions/api/poi-osm-conflict.js and
+     js/osm-conflict-detect.js; grep map.html for the pre-existing
+     add-spot-worker.js script tag to confirm the insertion point is still
+     present). [command] verify-target-state
+  2. Cherry-pick commit 1a9c780 directly onto the target repo's current HEAD
+     — no fetch/remote-add step is needed since both worktrees share one
+     object store:
+       git -C C:\Users\marka\code\mt-integration-2026-06-22 cherry-pick 1a9c780
+     If the cherry-pick (or an equivalent merge of the single commit) reports
+     conflicts on functions/api/poi-osm-conflict.js, js/osm-conflict-detect.js,
+     or map.html, resolve every conflicted file by keeping BOTH the target's
+     pre-existing content AND this feature's added content — never `--ours` /
+     `--theirs`, never a resolution that deletes either side's content. For
+     map.html specifically, keep both the feature's new
+     `<script src="js/osm-conflict-detect.js" defer></script>` tag AND any
+     unrelated script-tag or markup changes the target has made since. Only
+     choosing one side over the other is a defect in this mission's
+     execution, not an acceptable outcome. [command] cherry-pick-osm-conflict-detect
+  3. Run `node --check functions/api/poi-osm-conflict.js` and
+     `node --check js/osm-conflict-detect.js` from the target repo root and
+     confirm both exit 0. [command] node-check-both
+  4. If step 2 left the cherry-pick uncommitted (conflict resolution required
+     `git add` + `git cherry-pick --continue`, or a manual merge commit),
+     commit explicitly with a message referencing the source commit's own
+     subject line ("feat(osm-conflict-detect): surface possible duplicates at
+     spot-create time"). Confirm `git status --short` shows no uncommitted
+     changes to functions/api/poi-osm-conflict.js, js/osm-conflict-detect.js,
+     or map.html, and `git log --oneline -5` shows the landed commit at or
+     near HEAD. [command] commit-and-verify-clean
+  5. Start (or confirm already running) a local static/preview server for the
+     target repo bound at PREVIEW-BASE-URL, then capture a headless-browser
+     (puppeteer) render of <PREVIEW-BASE-URL>/map.html, confirming the page
+     loads, the `<script src="js/osm-conflict-detect.js" defer>` tag is
+     present and fetched with a 2xx status, and no console errors are thrown
+     during page load. Record the render receipt (screenshot plus console
+     log) as this mission's visual-QC evidence. [command] visual-qc-render
+
+Done means:
+  - functions/api/poi-osm-conflict.js exists in the target repo at HEAD
+    containing the GET endpoint (?lat=&lng=&radius=&node_type= handler
+    probing OSM/Overpass plus the pois table and the community_spot table
+    within a capped radius, sorted by haversine distance) — confirmed by
+    reading the file's on-disk content, not by trusting the cherry-pick's
+    exit code alone.
+  - js/osm-conflict-detect.js exists in the target repo at HEAD containing
+    the window.reviewSpot monkey-patch and the duplicate-conflict modal
+    logic — confirmed by reading the file's on-disk content.
+  - map.html in the target repo contains a
+    `<script src="js/osm-conflict-detect.js" defer></script>` tag positioned
+    after the existing add-spot-worker.js script tag, with every
+    pre-existing script tag around it still present (nothing dropped).
+  - `node --check functions/api/poi-osm-conflict.js` and
+    `node --check js/osm-conflict-detect.js` both exit 0.
+  - `git log --oneline -5` in the target repo shows a commit whose message
+    contains "osm-conflict-detect", and `git status --short` shows no
+    uncommitted changes to any of the three ALLOW-FILES paths (unrelated
+    pre-existing untracked files elsewhere in the repo, left by other
+    in-flight work, are out of this mission's scope and may still be
+    present).
+  - Because map.html is touched and VISUAL-QC-REQUIRED is set above, the
+    visual-witness pipeline must actually run and produce a receipt: a
+    headless-browser (puppeteer) render of map.html served from
+    PREVIEW-BASE-URL is captured and returns a visual verdict in this
+    mission's result object — a rendering check, not a read of the markup.
+    If PREVIEW-BASE-URL turns out to be the wrong local port, that failure
+    must surface as a named NO_PREVIEW_BASE_URL-style receipt, not a
+    silently skipped check.
+  - This mission's authorship and execution prove only that the integration
+    is mechanically sound (declared files present with real content, feature
+    commit reachable in target history, syntax checks pass, the page renders
+    without console errors) — not that the feature's own code is correct,
+    safe, or behaviorally right (e.g. that the haversine distance/radius-
+    capping logic actually returns the correct nearby features, that the
+    Overpass KV-cache degrades gracefully on failure, or that the merge_into
+    hint is handled correctly downstream by the contribute worker or
+    moderation queue). That judgment belongs entirely to this mission's own
+    witness-and-verdict-panel run, downstream of this mission producing the
+    integrated result.
+
+Amanah: entrusted; discharge with ihsan.

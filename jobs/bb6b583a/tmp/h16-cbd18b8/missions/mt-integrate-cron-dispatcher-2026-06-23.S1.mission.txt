@@ -1,0 +1,28 @@
+MISSION-ID: mt-integrate-cron-dispatcher-2026-06-23.S1
+MISSION-CLASS: code-repo
+PARENT: mt-integrate-cron-dispatcher-2026-06-23
+TARTIB-INDEX: 1 of 2
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - docs/CRON-DISPATCHER-PATTERN-2026-06-23.md
+  - scheduler-config.json
+  - workers/cron-dispatcher/index.js
+  - wrangler.cron-dispatcher.toml
+REQUIRES: none (first in tartib order)
+STEPS: 8
+
+PARENT MAQSAD: The commit "3300e38 feat(cron-dispatcher): single dispatcher worker amortizing N inline
+
+Maqsad: sub-mission 1 of 2 — Confirm commit 3300e38 is reachable (shared git object store) and its diff stat matches the expected four-file, 584-insertion, zero-deletion addition-only patch, before touching main. through Verify the dispatcher worker contains the Promise.allSettled fan-out logic named in the mission's done-criteria.
+
+Steps:
+  1. Confirm commit 3300e38 is reachable (shared git object store) and its diff stat matches the expected four-file, 584-insertion, zero-deletion addition-only patch, before touching main. [command] 
+  2. Checkout main at its current tip in the target repo so the cherry-pick applies against real HEAD. [command] 
+  3. Cherry-pick 3300e38 onto main. Verified dry-run showed a clean four-file addition with zero conflicts; if a real conflict occurs this command fails loudly (non-zero exit) rather than silently dropping either side's content. [command] workers/cron-dispatcher/index.js
+  4. Verify docs/CRON-DISPATCHER-PATTERN-2026-06-23.md landed at main HEAD with non-trivial content. [verify] docs/CRON-DISPATCHER-PATTERN-2026-06-23.md
+  5. Verify scheduler-config.json landed at main HEAD and declares the muddytires-fire child. [verify] scheduler-config.json
+  6. Verify wrangler.cron-dispatcher.toml landed at main HEAD with non-trivial content. [verify] wrangler.cron-dispatcher.toml
+  7. Syntax-check the integrated dispatcher worker file. [verify] workers/cron-dispatcher/index.js
+  8. Verify the dispatcher worker contains the Promise.allSettled fan-out logic named in the mission's done-criteria. [verify] workers/cron-dispatcher/index.js
+
+Done means: workers/cron-dispatcher/index.js, docs/CRON-DISPATCHER-PATTERN-2026-06-23.md, scheduler-config.json, wrangler.cron-dispatcher.toml exist/are updated as specified — verify by headless-browser render, not by reading the code

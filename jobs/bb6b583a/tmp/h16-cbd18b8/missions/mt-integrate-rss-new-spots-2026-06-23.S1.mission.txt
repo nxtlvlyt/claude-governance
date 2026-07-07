@@ -1,0 +1,26 @@
+MISSION-ID: mt-integrate-rss-new-spots-2026-06-23.S1
+MISSION-CLASS: code-repo
+PARENT: mt-integrate-rss-new-spots-2026-06-23
+TARTIB-INDEX: 1 of 2
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - functions/feed/new-spots.xml.js
+  - functions/feed/new-spots/[province].xml.js
+REQUIRES: none (first in tartib order)
+STEPS: 8
+
+PARENT MAQSAD: The commit "60d13c1 feat(feed): RSS feeds for new community spots" is
+
+Maqsad: sub-mission 1 of 2 — Inspect commit 60d13c1's patch stat before integrating. Commit 60d13c1 is already a reachable object inside the target repo's own object store (confirmed via git cat-file -t in Context, since source and target are worktrees of the same repo), so this reads it directly in the target repo rather than reaching outside the sandbox to the source worktree's absolute path. through Commit ONLY the two staged ALLOW-FILES paths with a message naming the integrated feature and its origin commit, leaving anything else staged from step 2's snapshot untouched.
+
+Steps:
+  1. Inspect commit 60d13c1's patch stat before integrating. Commit 60d13c1 is already a reachable object inside the target repo's own object store (confirmed via git cat-file -t in Context, since source and target are worktrees of the same repo), so this reads it directly in the target repo rather than reaching outside the sandbox to the source worktree's absolute path. [command] 
+  2. Record the target repo's pre-existing staged/modified/untracked state before touching anything, so concurrent unrelated work can later be confirmed untouched. [command] 
+  3. Cherry-pick the feature commit into the index without auto-committing, so whatever else is currently staged is never swept into this feature's commit. [command] 
+  4. If the cherry-pick reported a conflict on functions/feed/new-spots.xml.js, hand-resolve it keeping BOTH this repo's pre-existing content and the feature's content (never --ours/--theirs). If no conflict occurred, this step is a no-op and the check below already passes. [edit] functions/feed/new-spots.xml.js
+  5. If the cherry-pick reported a conflict on functions/feed/new-spots/[province].xml.js, hand-resolve it keeping BOTH sides' content. If no conflict occurred, this step is a no-op and the check below already passes. [edit] functions/feed/new-spots/[province].xml.js
+  6. Stage exactly the two ALLOW-FILES paths by name (never -A/.), so other staged/modified entries from concurrent unrelated work stay exactly as they were. [command] 
+  7. Syntax-check both integrated files before committing. [verify] 
+  8. Commit ONLY the two staged ALLOW-FILES paths with a message naming the integrated feature and its origin commit, leaving anything else staged from step 2's snapshot untouched. [command] 
+
+Done means: functions/feed/new-spots.xml.js, functions/feed/new-spots/[province].xml.js exist/are updated as specified — verify by headless-browser render, not by reading the code

@@ -1,0 +1,21 @@
+MISSION-ID: MT-INTEGRATE-PATH-LEAK-REMEDIATION-2026-06-23.S2
+MISSION-CLASS: code-repo
+PARENT: MT-INTEGRATE-PATH-LEAK-REMEDIATION-2026-06-23
+TARTIB-INDEX: 2 of 2
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - docs/QC-PIPELINE-SOTA-2026-06-23.md
+REQUIRES: MT-INTEGRATE-PATH-LEAK-REMEDIATION-2026-06-23.S1 (tartib — this sub-mission may not start until MT-INTEGRATE-PATH-LEAK-REMEDIATION-2026-06-23.S1's receipt exists)
+STEPS: 4
+
+PARENT MAQSAD: Bring commit 5f19dc00fe16cdbe94a0405c1089ee50259bcaf4 onto the
+
+Maqsad: sub-mission 2 of 2 — Confirm docs/QC-PIPELINE-SOTA-2026-06-23.md is present on main, unduplicated and unmodified by this mission. through Confirm the working tree is clean with respect to every ALLOW-FILES path, scoped to this mission's files only (pre-existing unrelated untracked debris in the target repo is out of scope).
+
+Steps:
+  9. Confirm docs/QC-PIPELINE-SOTA-2026-06-23.md is present on main, unduplicated and unmodified by this mission. [verify] docs/QC-PIPELINE-SOTA-2026-06-23.md
+  10. Confirm both feature commits are now ancestors of main after this mission's steps. [verify] 
+  11. Confirm a commit reachable from main's HEAD carries the archive-move commit message and that it introduces no .html file. [verify] 
+  12. Confirm the working tree is clean with respect to every ALLOW-FILES path, scoped to this mission's files only (pre-existing unrelated untracked debris in the target repo is out of scope). [verify] 
+
+Done means: docs/QC-PIPELINE-SOTA-2026-06-23.md exist/are updated as specified

@@ -1,0 +1,4 @@
+NEEDS-WORK  
+- Closed: (1) verdicts as JSON gates, (4) context-bloat/compress operationalized via sub-state, (6) cross-mission memory via M33 roadmap, (8) tamper-evidence via hash-chain in state-compact, (9) muezzin-does-no-work made deterministic via restraint charter  
+- Still open: (2) correlated-failure detection + escalation (explicitly marked GAP — new), (5) durable-resume unvalidated (no TEST noted, only "validate" in roadmap), (7) adversarial self-test (M33 roadmap, not implemented)  
+- NEW broken: Waterfall now Ollama-only (cloud→local) but drops adaptive heal diagnostic feedback into retry (good); however, "GPU-free → parallel-safe" claim risks violating serial gate if cloud calls aren't truly isolated (needs verification)

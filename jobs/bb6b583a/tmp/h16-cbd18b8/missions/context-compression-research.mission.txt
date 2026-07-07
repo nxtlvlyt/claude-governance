@@ -1,0 +1,31 @@
+MISSION: context-compression-research — should a compression layer sit in the muezzin pipeline, and where
+MISSION-CLASS: research
+TIER: HAJJ
+REQUIRES: search
+
+Maqsad: evaluate context-compression/token-optimization for the muezzin per the
+operator-supplied research brief of 2026-06-11 (embedded below, VERBATIM — it is the
+spec; its §6 verification protocol is binding). Two muezzin-specific additions:
+(A) AUDIT OUR OWN CAPS FIRST: orchestrate.mjs defaultVerdictPhase truncates artifacts
+at ARTIFACT_CAP 10000 / ARTIFACT_TOTAL_CAP 36000 before the panel — an existing,
+in-house lossy layer upstream of verdict. The placement-map answer must cover it.
+(B) Claude-tier seats dispatch via claude CLI print-mode and Ollama Cloud via API —
+Anthropic prompt-caching applies only where we call the API directly; establish what
+caching we ACTUALLY get on each rung before claiming the prefix-audit win.
+
+Niyyah: token waste is receipted (kimi thinking-burn 236K chars one window) but a lossy
+layer that corrupts evidence would forge fabrication strikes against honest seats —
+cheaper context must never cost verification integrity.
+
+Done means: ONE artifact compression-verdict.md containing the brief's §5 deliverables:
+placement map per pipeline stage (incl. our ARTIFACT_CAP), tiered-rule validation
+(sunnah/wajib/arkan mapping), false-strike analysis (tested where possible, marked
+untested where not), prefix-stability + actual-caching audit per provider rung,
+license table from LICENSE files (SPDX quoted), build-vs-adopt costing, and the
+ctx_proof side-interest note. Every quantitative claim marked VENDOR-CLAIMED unless
+reproduced. The single essential criterion (Arafat): a ranked recommendation ending in
+ONE pick (adopt X / build thin / do nothing yet) PLUS the explicit do-not-compress
+boundary — a survey without the pick and the boundary fails the mission.
+
+===== OPERATOR BRIEF (verbatim) =====
+[The full brief text as supplied by the operator 2026-06-11 — sections 0-6: mission, primary tools (Headroom/RTK/LeanCTX/LLMLingua/PCToolkit), provider-native mechanisms, research papers, aggregators, research questions, verification protocol. Stored alongside at missions/context-compression-brief.md]

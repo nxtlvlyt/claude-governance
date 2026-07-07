@@ -1,0 +1,161 @@
+MISSION MT-INTEGRATE-NEAR-ME-DISCOVERY
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - functions/api/spots/near.js
+  - js/near-me.js
+  - map.html
+REQUIRES: none
+VISUAL-QC-REQUIRED
+PREVIEW-BASE-URL: http://localhost:8788
+
+Niyyah: Feature worktree mt-feat-near-me-discovery-2026-06-23 carries one finished
+commit — a GET /api/spots/near Pages Function plus a "Spots near me" client button —
+sitting in its own worktree, never landed on the integration line's current HEAD. This
+mission's whole job is mechanical: get the feature's files onto the target repo's HEAD
+without losing anything already there, and produce the node-level and render-level
+receipts a verdict panel needs to judge the result. Writing this mission file, and the
+act of integrating itself, is NOT verification that the feature's own code is correct.
+Whether the bbox-prefilter-then-haversine sort actually returns the true K-nearest
+POIs, whether the lat/lng validation and node_type whitelist genuinely close off SQL
+injection, whether the button's geolocation-permission flow and localStorage filter
+persistence behave right in a real browser — none of that is settled by landing the
+commit. That determination belongs entirely to this mission's own witness-and-verdict-
+panel run: the node --check receipt, the headless-browser render of map.html, and the
+seat panel's judgment on the actual integrated diff. Say plainly: authoring or executing
+this mission proves nothing about the feature code's correctness by itself.
+
+Maqsad: Land commit ca83ba4 ("feat(near-me): GET /api/spots/near + \"Spots near me\"
+button") from the source worktree C:\Users\marka\code\mt-feat-near-me-discovery-2026-06-23
+onto the current HEAD of the target repo C:\Users\marka\code\mt-integration-2026-06-22,
+with any conflicts resolved by keeping BOTH sides — this repo's existing unrelated
+changes AND the feature's changes, never silently dropping either — every changed
+.js/.mjs file passes `node --check`, the result is committed with a clear message, and
+the target repo's working tree is left clean with respect to every ALLOW-FILES entry.
+
+Context (verified against live substrate this session, 2026-07-01, absolute paths, no
+prescribed resolution beyond "keep both sides"):
+- Source worktree: C:\Users\marka\code\mt-feat-near-me-discovery-2026-06-23 (a worktree
+  of the muddytires-pages repo, sharing object storage with the target). `git log
+  --oneline -3` there shows ca83ba4 on top of ed6e33c.
+- Confirmed diff stat (git show --stat, this session): ca83ba4 touches 3 files,
+  +646/-1, all against the target's own history — functions/api/spots/near.js is a
+  brand-new 227-line file (bbox prefilter + haversine K-nearest sort against the D1
+  pois table, lat/lng validation, a strict node_type whitelist regex before binding,
+  Cache-Control: no-store, honest empty result on DB error rather than 500); js/near-
+  me.js is a brand-new 418-line file (floating button + panel, idempotent window._nearMe
+  guard, permission requested only on click, filter chips persisted to localStorage
+  'mt-near-me-v1', row click flies the map to the marker); map.html changes exactly one
+  line, adding `<script src="js/near-me.js" defer>` to the existing script list.
+- Checked this session: `git cat-file -t ca83ba4fd835560837211ca93c3b8a283f85e01d` in
+  the target repo returns "commit" — the object is already reachable in the target's
+  own store (worktrees share objects), so no `git fetch <source-worktree-path>` /
+  remote-add step is needed; a plain `git cherry-pick ca83ba4` can resolve it directly.
+  `git merge-base --is-ancestor ca83ba4 HEAD` returns false (not yet landed).
+  `git branch -a --contains ca83ba4` shows a local branch feat/near-me-discovery-2026-06-23
+  and remotes/github/feat/near-me-discovery-2026-06-23 already contain it, but neither
+  is the branch actually checked out as the target's current HEAD.
+  Confirmed neither functions/api/spots/ nor js/near-me.js exists yet anywhere in the
+  target repo's working tree (functions/api/ already has an unrelated singular "spot"
+  directory and a "poi" directory — the new plural "spots" directory does not collide
+  with either).
+- A dry run this session (throwaway branch off the target's then-current HEAD a1d6ad9,
+  deleted afterward, no lasting change) cherry-picked ca83ba4 with ZERO conflicts:
+  git reported "Auto-merging map.html" and committed cleanly, 3 files changed,
+  646 insertions(+), 1 deletion(-), matching the source commit's own stat exactly.
+  `node --check js/near-me.js` and `node --check functions/api/spots/near.js` both
+  exited 0 in that dry run. The target branch may move again before this mission
+  actually fires (this session directly observed the target repo's checked-out branch
+  change transiently mid-session, most likely from other missions/dry-runs actively
+  running against this same repo — confirmed by re-checking `git rev-parse
+  --abbrev-ref HEAD` a few minutes later and finding it back on
+  test-lhci-dryrun-2026-07-01), so a conflict is still possible at fire time — if
+  map.html (or any other ALLOW-FILES entry) conflicts, resolve it by keeping BOTH the
+  target's existing script tags AND this feature's added `<script src="js/near-me.js"
+  defer>` line.
+- Target repo HEAD this session: a1d6ad9, on branch test-lhci-dryrun-2026-07-01. Because
+  this session directly observed the checked-out branch move transiently during
+  authoring (see above), this mission deliberately carries no TARGET-BRANCH header:
+  land onto whatever branch is actually checked out as HEAD when this mission fires,
+  not a hardcoded branch name.
+- The target repo currently carries pre-existing untracked files unrelated to this
+  feature (api-index-response.json, docs/e2e-report-2026-07-01.json, e2e-shots/,
+  feature-catalog-entry.txt, scripts/e2e-runner.mjs) — these predate this mission and
+  are out of scope. "Clean working tree" in this mission's Done means refers to the
+  ALLOW-FILES entries this mission touches, not a demand to clear unrelated pre-existing
+  debris.
+- map.html is a live page served by the site (not a browser-extension popup), so
+  PREVIEW-BASE-URL: http://localhost:8788 is a PLACEHOLDER for a local
+  `wrangler pages dev` server — the operator must confirm the actual local preview port
+  before relying on the captured render; if nothing answers at PREVIEW-BASE-URL, that
+  failure must surface as a named receipt, not a silently skipped check.
+
+Steps:
+  1. In the target repo, record the current branch and HEAD, and confirm
+     functions/api/spots/near.js and js/near-me.js do not already exist on disk
+     (git -C C:\Users\marka\code\mt-integration-2026-06-22 status --short; git -C
+     C:\Users\marka\code\mt-integration-2026-06-22 log --oneline -3; git -C
+     C:\Users\marka\code\mt-integration-2026-06-22 branch --show-current). [command]
+     verify-target-state
+  2. Check ancestry BEFORE attempting a cherry-pick: `git -C
+     C:\Users\marka\code\mt-integration-2026-06-22 merge-base --is-ancestor ca83ba4
+     HEAD`. If it reports ca83ba4 is already an ancestor, it is already landed — skip
+     cherry-picking, do not use --allow-empty. Otherwise it needs to be applied.
+     [command] check-ancestry
+  3. If step 2 found ca83ba4 not yet landed, apply it via `git -C
+     C:\Users\marka\code\mt-integration-2026-06-22 cherry-pick ca83ba4`. If the
+     cherry-pick reports conflicts, resolve every conflicted file by keeping BOTH the
+     target's pre-existing lines and the feature's added lines — never `--ours` /
+     `--theirs` and never a resolution that deletes either side's content. If the
+     cherry-pick comes back empty (already-applied after all), resolve with `--skip`,
+     never `--allow-empty`. [command] cherry-pick-commit
+  4. Run `node --check functions/api/spots/near.js` and `node --check js/near-me.js`
+     from the target repo root and confirm both exit 0; also run `node --check` on any
+     other .js/.mjs file that conflict resolution in step 3 modified. [command]
+     node-check-all
+  5. Stage and commit the integrated result with a message that names
+     "mt-feat-near-me-discovery-2026-06-23" and/or "near-me" and cites ca83ba4. Confirm
+     `git status --short` afterward shows no uncommitted changes to any ALLOW-FILES
+     entry and `git log --oneline -5` shows the landed commit at or near HEAD. [command]
+     commit-and-verify-clean
+  6. Start (or confirm already running) a local preview server for the target repo at
+     the PREVIEW-BASE-URL host:port (e.g. `wrangler pages dev`), then render /map.html
+     in a headless browser (headless Chrome / Playwright / puppeteer) and capture that
+     the page loads without a fatal script error and that the "Spots near me" button
+     injected by js/near-me.js is present in the rendered DOM. This is the render-
+     witness step RULE 7 of mission_lint.mjs requires because VISUAL-QC-REQUIRED is set
+     above. [command] headless-render-witness
+
+Done means:
+  - `git log` in C:\Users\marka\code\mt-integration-2026-06-22 shows a commit at or near
+    HEAD whose message names "mt-feat-near-me-discovery-2026-06-23" and/or "near-me" and
+    cites ca83ba4.
+  - functions/api/spots/near.js exists in the target repo with the feature's actual
+    content (a GET handler doing lat/lng validation, radius parsing, a node_type
+    whitelist regex, a bbox prefilter followed by a haversine distance pass, ascending
+    sort, and Cache-Control: no-store) — confirmed by reading the on-disk file, not by
+    trusting the cherry-pick's exit code alone.
+  - js/near-me.js exists in the target repo with the feature's actual content (a
+    floating button + panel guarded by window._nearMe, filter chips persisted to
+    localStorage 'mt-near-me-v1', and a row-click handler that calls map.flyTo) —
+    confirmed by reading the on-disk file.
+  - map.html contains the new `<script src="js/near-me.js" defer>` tag AND every
+    pre-existing script tag this repo's map.html already had before this mission ran
+    (both sides present).
+  - `node --check functions/api/spots/near.js` and `node --check js/near-me.js` both
+    exit 0, and `node --check` exits 0 on every other .js/.mjs file this integration
+    touched or conflict-resolved.
+  - `git status --short` in the target repo shows no uncommitted changes to any
+    ALLOW-FILES entry (pre-existing unrelated untracked files noted in Context are not
+    this mission's to clean up).
+  - A headless browser (headless Chrome / Playwright / puppeteer) render of /map.html
+    served from PREVIEW-BASE-URL loads without a fatal script error and shows the
+    "Spots near me" button present in the DOM — verified by rendering the page, not by
+    reading the source. Nothing about this mission's own authorship or execution
+    constitutes verification that the feature's code is correct (that the K-nearest
+    sort is actually correct, that the geolocation/permission flow behaves right for a
+    real user, that nothing else regressed) — that determination belongs entirely to
+    this mission's own witness-and-verdict-panel run, downstream of the receipts above.
+
+Context: Sandbox writes only, target repo working tree only.
+Amanah: entrusted; discharge with ihsan.

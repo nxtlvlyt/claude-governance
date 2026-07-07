@@ -1,0 +1,29 @@
+MISSION-ID: mt-integrate-aurora-forecast-diff-report.S1
+MISSION-CLASS: code-repo
+PARENT: mt-integrate-aurora-forecast-diff-report
+TARTIB-INDEX: 1 of 2
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - functions/api/aurora.js
+  - js/aurora-overlay.js
+  - map.html
+VISUAL-QC-REQUIRED
+PREVIEW-BASE-URL: http://localhost:8788
+REQUIRES: none (first in tartib order)
+STEPS: 8
+
+PARENT MAQSAD: Commit 1f4b646 is cherry-picked or merged onto the current HEAD of the target repo.
+
+Maqsad: sub-mission 1 of 2 — Record target repo's current branch and HEAD commit, and confirm functions/api/aurora.js does not already exist at HEAD (expected to fail cat-file -e, confirming it will land as a pure new-file add). through Confirm or start a local preview server for the target repo. PREVIEW-BASE-URL:8788 is flagged in the mission as an unconfirmed placeholder, so this checks 8788 first, falls back to checking 8787 (the current wrangler 3.38+ default per live verification), and starts `wrangler pages dev` on 8788 if neither is already bound. Asserts the served map.html responds 200 with a non-empty body.
+
+Steps:
+  1. Record target repo's current branch and HEAD commit, and confirm functions/api/aurora.js does not already exist at HEAD (expected to fail cat-file -e, confirming it will land as a pure new-file add). [verify] functions/api/aurora.js
+  2. Confirm js/aurora-overlay.js does not already exist at target HEAD (expected to fail cat-file -e, confirming it will land as a pure new-file add). [verify] js/aurora-overlay.js
+  3. Land commit 1f4b646 onto the target's current HEAD via cherry-pick -x (source and target share the same git object store per verified session context, so no fetch is needed first). Only if git reports the revision unknown does this fall back to fetching from the source worktree once and retrying. A conflict (most likely in map.html) is an expected, non-fatal outcome that leaves CHERRY_PICK_HEAD set for the next step to resolve; only a genuine failure (neither a clean pick nor a pending conflict) counts as failure here. This is the authoring action that creates functions/api/aurora.js on disk. [command] functions/api/aurora.js
+  4. Syntax-check the landed functions/api/aurora.js with node --check to confirm it parses cleanly. [verify] functions/api/aurora.js
+  5. Syntax-check the landed js/aurora-overlay.js with node --check to confirm it parses cleanly. [verify] js/aurora-overlay.js
+  6. Hand-resolve any conflict markers left in map.html so the merged script-tag block keeps BOTH sides: every pre-existing tag (including js/ev-charging-layer.js) stays present, and the new <script src="js/aurora-overlay.js" defer> tag is inserted immediately after the ev-charging-layer.js tag. If the cherry-pick already auto-merged cleanly, this step confirms the same end-state is already correct and leaves it unchanged. This is the sole authoring step for map.html. [edit] map.html
+  7. If the cherry-pick left a pending conflict, stage the resolved files and complete it (cherry-pick --continue, or a manual commit naming aurora-forecast and 1f4b646 if no cherry-pick is in progress). Then positively assert the working tree is clean for the three ALLOW-FILES AND that the commit log actually names the integrated feature (not just that git log exited 0). [verify] map.html
+  8. Confirm or start a local preview server for the target repo. PREVIEW-BASE-URL:8788 is flagged in the mission as an unconfirmed placeholder, so this checks 8788 first, falls back to checking 8787 (the current wrangler 3.38+ default per live verification), and starts `wrangler pages dev` on 8788 if neither is already bound. Asserts the served map.html responds 200 with a non-empty body. [verify] map.html
+
+Done means: functions/api/aurora.js, js/aurora-overlay.js, map.html exist/are updated as specified — verify by headless-browser render, not by reading the code

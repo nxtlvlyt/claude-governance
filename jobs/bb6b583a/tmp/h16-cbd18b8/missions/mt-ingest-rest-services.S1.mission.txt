@@ -1,0 +1,46 @@
+MISSION-ID: mt-ingest-rest-services.S1
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - data/rest-services.json
+  - scripts/build-rest-services.mjs
+REQUIRES: none
+STEPS: 5
+
+Maqsad: A real user asked the operator whether the map has highway truck/RV/rest stops
+(relayed 2026-07-03). Live receipts: production pois.json carries 3,162 fuel_station +
+823 ev_charging but ZERO rest_area, ZERO sanitary_dump_station, ZERO drinking-water or
+truck-stop POIs — while the schema already supports rest_area/dump_station node_types
+(functions/api/stats.json.js scenic_group, functions/map-fallback.js ranking) AND the
+homepage advertises "Service stops & water — water, dump, shower, laundry & propane
+stops". The site promises what the data cannot show. Build the Canada-wide rest-services
+dataset: scripts/build-rest-services.mjs fetches from the Overpass API in ONE bounded
+query per tag class — highway=rest_area, highway=services (highway service areas),
+amenity=sanitary_dump_station, and truck stops (amenity=fuel with hgv=yes OR
+brand~"Flying J|Petro-Pass|Husky Travel") — clipped to Canada, and emits
+data/rest-services.json as an array of {osm_id, osm_type, node_type, name?, lat, lng,
+brand?, tags_kept} where node_type maps: highway=rest_area -> rest_area;
+amenity=sanitary_dump_station -> dump_station; highway=services -> rest_area (service
+plaza); hgv fuel -> truck_stop. Only keys with real derived values are included — an
+entry with nothing derivable beyond coordinates keeps ONLY {osm_id, osm_type, node_type,
+lat, lng}; no fabricated names or amenities (the popup's honest empty state handles the
+rest, per the 2026-07-02 scenic-honesty precedent).
+
+TAG GROUNDING (live OSM-wiki receipts, 2026-07-03): highway=rest_area canonical (de facto status); amenity=sanitary_dump_station canonical (approved); highway=services = WITH-fuel service plazas (wiki contrast confirmed). Truck stops have NO canonical OSM tag — the hgv-fuel + brand filter below is an explicit HEURISTIC, not canon; the step-4 count floor is the guard against it matching nothing.
+
+niyyah: The homepage claims services the map does not carry — this mission supplies the
+true data so the claim becomes honest (or its counter shows the real number). File-first
+approach (data/ JSON + builder script, not direct D1 writes) mirrors mt-enrich-scenic-osm:
+seats can verify a committed artifact mechanically; the D1 load is S2's deed after this
+dataset is receipted. Idempotent by construction — the builder overwrites its own output;
+re-running is safe. Any cleanliness assertion must scope to the two ALLOW-FILES only
+(git status --porcelain -- <paths>), never the whole tree.
+
+Steps:
+  1. Record live branch and HEAD sha; if data/rest-services.json ALREADY exists at HEAD, output ALREADY_BUILT and treat steps 2-4 as verify-only presence/shape confirmations; otherwise output CLEAN_BASELINE and proceed. Never exit 1 on the deliverables' existence. [command]
+  2. Author scripts/build-rest-services.mjs: Overpass fetch per tag class (bounded timeout, Canada bbox or area filter), tag→node_type mapping exactly as the Maqsad specifies, honest-empty field policy, writes data/rest-services.json sorted by osm_id for stable diffs. [edit] scripts/build-rest-services.mjs
+  3. Run the builder (node scripts/build-rest-services.mjs) and require exit 0 with data/rest-services.json produced. [command]
+  4. Verify the dataset: node -e parse succeeds; total count > 200 (Canada has hundreds of rest areas — a tiny count means the query is wrong, fail loudly); every entry has osm_id + node_type in {rest_area, dump_station, truck_stop} + finite lat/lng inside Canada bounds (lat 41..84, lng -141..-52); NO entry carries a name/brand field with empty-string or placeholder values. Print the per-node_type counts. [verify] data/rest-services.json
+  5. Commit both ALLOW-FILES by explicit name with a message that names this mission and quotes the per-type counts, then confirm the commit is on HEAD with both paths in its tree. [command]
+
+Done means: data/rest-services.json exists at HEAD with >200 entries across node_types rest_area/dump_station/truck_stop (per-type counts printed in the step-4 receipt), every entry carrying real coordinates inside Canada and no fabricated fields, AND scripts/build-rest-services.mjs at HEAD reruns idempotently — executable verification appropriate to a data-ingest deliverable; the D1 load + map layer wiring + live render witness belong to the S2 follow-up mission.

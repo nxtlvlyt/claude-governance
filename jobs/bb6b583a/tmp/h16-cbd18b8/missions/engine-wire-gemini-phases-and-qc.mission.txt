@@ -1,0 +1,18 @@
+MISSION ENGINE-WIRE-GEMINI-PHASES-AND-QC
+MISSION-CLASS: research
+Niyyah: Finish working Gemini into the seating modes/phases and wire the visual QC phase to use the new Ollama Cloud gemini-3-flash-preview vision verdict path.
+Maqsad: Wire gemini-3-flash-preview into seat_modes.mjs and visual_witness.mjs, and verify via self-tests.
+Steps:
+  1. Copy C:\Users\marka\.claude\muezzin-plugin\_prior-attempt\ollama_vision_verdict.mjs to C:\Users\marka\.claude\muezzin-plugin\ollama_vision_verdict.mjs. [command] copy-vision-verdict
+  2. Edit seat_modes.mjs to add a new 'gemini-heavy' seating mode using gemini-3-flash-preview for architects, integrator, validator, auditor, and witness. [edit] seat_modes.mjs
+  3. Edit visual_witness.mjs to import and use ollamaVisionVerdict from ./ollama_vision_verdict.mjs instead of dispatchAgy. [edit] visual_witness.mjs
+  4. Run seat_modes.mjs self-test to verify the new gemini-heavy mode resolves correctly. [command] test-seat-modes
+  5. Run ollama_vision_verdict.mjs and visual_witness.mjs self-tests to verify the vision verdict and visual witness are functional. [command] test-visual-qc
+
+Done means:
+  - ollama_vision_verdict.mjs exists and its self-test passes.
+  - visual_witness.mjs imports ollamaVisionVerdict and its self-test passes.
+  - seat_modes.mjs contains 'gemini-heavy' and its self-test passes.
+
+Context: Sandbox writes only.
+Amanah: entrusted; discharge with ihsan.

@@ -1,0 +1,52 @@
+MISSION-ID: mt-copy-clarity.S1
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - index.html
+  - map.html
+VISUAL-QC-REQUIRED
+REQUIRES: none
+STEPS: 7
+
+Maqsad: Operator-sent growth transcript 2026-07-03 ("clear not clever": run every user-facing
+string through a reading-grade check; below grade 5 minimum, grade 3 if you're awesome — the
+one lever in the video with a receipted conversion claim and a mechanically verifiable test).
+The operator already gave this exact direction for the aurora chip ("information for a 3rd
+grader"); this mission extends it to the two biggest copy surfaces. Live receipts of the
+defect class on muddytires.ca today: "Discovery Vectors" (a layer picker labeled with a
+college phrase), "Critical infra" (ops jargon on a consumer page), "sourced legality" /
+"park containment" (hero copy an average camper has to re-read). Two deliverables:
+(D1) GRADER: a cwd-relative scratch harness that extracts the user-visible copy strings from
+index.html and map.html (headings, section blurbs, CTA labels, layer names, hero + meta
+description — NOT code, NOT aria-ids, NOT the aurora chip strings owned by
+mt-aurora-humanize.S1) and computes a Flesch-Kincaid grade per string, printing every string
+with its grade so the receipt shows coverage.
+(D2) REWRITE: every extracted string grading above 8 is rewritten to plain language targeting
+grade 6 or below WITHOUT weakening the honest-data trust claims (the "every claim traced to
+an official source / verified, likely, unconfirmed shown as exactly that" posture is the
+brand's unique claim — simplify the words, never soften the promise). "Discovery Vectors"
+and "Critical infra" must both be gone. The commit message lists every before -> after
+string pair so the operator can veto any wording from the receipt alone.
+
+niyyah: The map answers "can I camp here?" for tired people on phones at dusk — copy that
+needs a second read is a defect, not a style choice. The grader is the class fix: any future
+copy that drifts academic fails a re-run visibly. English pages only (fr/ is a separate
+surface); scope every assertion to the two ALLOW-FILES.
+
+Steps:
+  1. Idempotent baseline: record branch + HEAD; if index.html no longer contains 'Discovery Vectors' output CLEAN_ALREADY and treat edit steps as verify-only presence checks; else CLEAN_BASELINE. Never exit 1 on existence. [command]
+  2. Write the scratch grader (Set-Content scratch-copy-grade.mjs): extract user-visible strings from index.html + map.html as the Maqsad specifies, compute Flesch-Kincaid grade per string, print each string with its grade, exit 0 with COPY_GRADE_BASELINE after printing. Run it and keep its output as the before-receipt. [command]
+  3. Rewrite the offending strings in index.html per D2 (grade >8 -> plain language <=6, trust claims preserved, 'Discovery Vectors' and 'Critical infra' eliminated). [edit] index.html
+  4. Rewrite the offending strings in map.html per D2 under the same rules (layer names, control labels, section copy — leave the aurora chip strings untouched). [edit] map.html
+  5. Re-run the scratch grader: require every extracted headline/CTA/blurb string to grade <=8 with headline+CTA strings <=6, output COPY_CLARITY_OK, then remove the scratch file. [verify]
+  6. Scoped cleanliness: git status --porcelain -- index.html map.html shows only these two files modified. [verify]
+  7. Commit the two ALLOW-FILES by explicit name with a message naming this mission and listing every before -> after string pair, confirm the commit is on HEAD. [command]
+
+Done means: index.html and map.html committed at HEAD with every user-facing copy string at
+grade <=8 (headlines/CTAs <=6) proven by the scratch grader's COPY_CLARITY_OK run whose
+per-string output is captured in the step receipts, 'Discovery Vectors' and 'Critical infra'
+absent from both files, the honest-data trust claims still present verbatim in meaning, AND
+the engine's headless-browser render of the landing page (visual witness against the
+auto-provisioned preview) shows the rewritten hero copy rendering intact — executable +
+headless-browser render verification appropriate to user-facing copy (live-outcome bar,
+2026-07-03).

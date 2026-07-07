@@ -1,0 +1,19 @@
+MISSION-ID: MT-INTEGRATE-TESTIMONIALS.S2
+MISSION-CLASS: code-repo
+PARENT: MT-INTEGRATE-TESTIMONIALS
+TARTIB-INDEX: 2 of 2
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - build-testimonials.mjs
+  - landing.html
+REQUIRES: MT-INTEGRATE-TESTIMONIALS.S1 (tartib — this sub-mission may not start until MT-INTEGRATE-TESTIMONIALS.S1's receipt exists)
+STEPS: 1
+
+PARENT MAQSAD: The commit "06c58148cf01b13388f08b53b2cd8e8942f7b182 feat(landing): add
+
+Maqsad: sub-mission 2 of 2 — Visual-witness probe: fetch landing.html from PREVIEW-BASE-URL and assert a 200 response whose body actually contains the rendered testimonials content; a non-200 or empty/mismatched body surfaces as a failed witness rather than a silent skip. through Visual-witness probe: fetch landing.html from PREVIEW-BASE-URL and assert a 200 response whose body actually contains the rendered testimonials content; a non-200 or empty/mismatched body surfaces as a failed witness rather than a silent skip.
+
+Steps:
+  9. Visual-witness probe: fetch landing.html from PREVIEW-BASE-URL and assert a 200 response whose body actually contains the rendered testimonials content; a non-200 or empty/mismatched body surfaces as a failed witness rather than a silent skip. [command] 
+
+Done means:  exist/are updated as specified

@@ -1,0 +1,23 @@
+MISSION-CLASS: code-repo
+MISSION-ID: M-ENGINE-3PHASE.3
+REPO-ROOT: C:\Users\marka\.claude\muezzin-plugin
+ALLOW-FILES:
+  - orchestrate.mjs
+REQUIRES: code-repo
+
+Maqsad: Wire PHASE 3 to the operator's locked spec — THREE boundary auditors (not today's 2), the final/consensus auditor reading the other two. Spec: SEAT-PLAN-OPERATOR-ORIGINAL.md (Phase 3): Boundary Auditor 1 = deepseek-v4-pro, Boundary Auditor 2 = glm-5.1, Final/Consensus = nemotron-3-super (reads the other two; consensus APPROVE -> done, any BLOCK -> escalate). Depends on the role-aware Claude fallback from M-ENGINE-3PHASE.1 (glm-5.1+boundary_auditor->haiku; the others already map correctly).
+
+niyyah: build the SOTA chain's Phase-3 AS a code-repo mission (the muezzin improving the muezzin), not hand-built. Guarding against: breaking the artifact framing / coherence-repair / fabricated-absence-striking logic already in defaultVerdictPhase; breaking the UMRAH single-seat cheap path; changing mergeVerdicts (it already gives consensus/escalate for N contracts).
+
+Done means (verifiable):
+- defaultVerdictPhase in orchestrate.mjs, for the HAJJ tier, seats THREE auditors: {role:'boundary_auditor', model:'deepseek-v4-pro'}, {role:'boundary_auditor', model:'glm-5.1'}, {role:'final_auditor', model:'nemotron-3-super'}. The existing serial for-loop is kept (GR10-safe + needed so the final reads the others).
+- The final_auditor's framing embeds the two prior boundary-auditor verdicts/findings ("two boundary auditors ruled: ...; you are the final/consensus auditor"). Detect via seat.role==='final_auditor'.
+- mergeVerdicts is fed all three contracts UNCHANGED (any BLOCK/REJECT -> escalate; consensus APPROVE -> done). The orchestrate gate (consensus !== APPROVE -> fail) is unchanged.
+- The UMRAH single-seat path (small missions) is PRESERVED (small work stays cheap).
+- The artifact framing, coherence-repair, fabricated-absence-striking, contract-slice marker, and artifactFilesFor logic are UNTOUCHED.
+- Tests: 3-auditor consensus APPROVE -> done; any-BLOCK -> escalate+fail; final-auditor framing embeds the two prior verdicts; UMRAH path still single-seat. Full offline suite green (node orchestrate.mjs, node verdict_merge.mjs, + the rest).
+
+Constraints: code-repo, muezzin-plugin only (orchestrate.mjs), NAS untouched, ADDITIVE (only the HAJJ seat list + final-auditor framing change; gates preserved).
+
+Steps:
+1. edit orchestrate.mjs - expand the HAJJ verdict seat list to the 3 boundary auditors + final-auditor-reads-the-two framing; keep UMRAH single-seat + all framing/striking logic; add self-tests. Acceptance: node orchestrate.mjs green incl. 3-auditor consensus + any-BLOCK + UMRAH-preserved assertions; node verdict_merge.mjs green.

@@ -1,0 +1,38 @@
+MISSION-ID: mt-enrich-scenic-osm.S1
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - data/scenic-enrichment.json
+  - scripts/build-scenic-enrichment.mjs
+REQUIRES: none
+STEPS: 5
+ON-DONE: missions/mt-enrich-scenic-osm.S2.mission.txt
+
+Maqsad: The scenic layer renders honest-but-empty popups because the OSM import kept only
+osm_id and dropped the tags (operator receipt 2026-07-02: two 'Scenic Viewpoint' nodes near
+Nisbet Provincial Forest, SK showed no details). The tags still exist upstream in OSM.
+Build the enrichment overlay for the Saskatchewan pilot region: fetch the real OSM tags for
+every scenic node's osm_id via one Overpass API query, and emit data/scenic-enrichment.json
+mapping osm_id -> {scenic_type, name?, wikidata?} derived from those tags (tourism=viewpoint
+-> viewpoint; natural=peak -> peak; historic=* -> its value; waterway=waterfall -> waterfall).
+Only include keys with a real derived value - an entry with nothing derivable is OMITTED
+(no filler; the popup's honest empty state handles absent entries).
+
+niyyah: The popup was fixed to stop fabricating; this mission supplies the real data so the
+honest path has something true to say. Overlay-file approach (not D1 writes) because seats
+carry no D1 credentials and a static JSON is diffable, reviewable, and reversible.
+
+Steps:
+  1. Write scripts/build-scenic-enrichment.mjs: reads a bbox argument, fetches scenic-node
+     osm_ids from https://muddytires.ca/pois.json?zoom=9&bbox=<bbox>&types=scenic, queries
+     Overpass (https://overpass-api.de/api/interpreter) with one bulk "node(id:...)" query
+     for their tags, derives {scenic_type, name?, wikidata?} per node (mapping above,
+     omit-if-empty), and writes data/scenic-enrichment.json sorted by osm_id. [edit]
+  2. Run the builder for the Saskatchewan pilot bbox EXACTLY: node scripts/build-scenic-enrichment.mjs "-107,52.5,-105,53.8" [command]
+  3. Verify data/scenic-enrichment.json exists, parses as JSON, and has at least 1 entry
+     whose scenic_type is a non-empty string. [verify] data/scenic-enrichment.json
+  4. Syntax-check the builder. [verify] scripts/build-scenic-enrichment.mjs
+  5. Commit both ALLOW-FILES with a message naming the pilot bbox and entry count. [command]
+
+Done means: data/scenic-enrichment.json exists with >=1 real derived entry for the SK pilot
+bbox, scripts/build-scenic-enrichment.mjs exists and node --check passes, both committed.

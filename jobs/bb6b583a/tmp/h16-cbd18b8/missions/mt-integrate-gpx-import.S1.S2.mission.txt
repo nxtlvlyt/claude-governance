@@ -1,0 +1,18 @@
+MISSION-ID: mt-integrate-gpx-import.S1.S2
+MISSION-CLASS: code-repo
+PARENT: mt-integrate-gpx-import.S1
+TARTIB-INDEX: 2 of 2
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - scratch-gpx-test.mjs
+REQUIRES: mt-integrate-gpx-import.S1.S1 (tartib — this sub-mission may not start until mt-integrate-gpx-import.S1.S1's receipt exists)
+STEPS: 1
+
+PARENT MAQSAD: sub-mission 1 of 2 — Inspect the source commit cbb07a5 in the read-only source worktree to confirm it exists and review its patch stat, without modifying that worktree. through Confirm the resulting HEAD commit's message names the feature (mt-feat-gpx-import-2026-06-23 and/or cbb07a5), satisfying the traceability requirement in Done means.
+
+Maqsad: sub-mission 2 of 2 — Write a cwd-relative scratch harness that exercises the integrated GPX import logic against an inline sample GPX (1 track / 3 trackpoints / 1 waypoint) and asserts it yields 3 route points and 1 POI candidate, then execute it — the real executable-outcome check for this backend API deliverable (replaces the mismatched prior browser-render criterion, per the 2026-07-02 amendment). through Write a cwd-relative scratch harness that exercises the integrated GPX import logic against an inline sample GPX (1 track / 3 trackpoints / 1 waypoint) and asserts it yields 3 route points and 1 POI candidate, then execute it — the real executable-outcome check for this backend API deliverable (replaces the mismatched prior browser-render criterion, per the 2026-07-02 amendment).
+
+Steps:
+  9. Write a cwd-relative scratch harness that exercises the integrated GPX import logic against an inline sample GPX (1 track / 3 trackpoints / 1 waypoint) and asserts it yields 3 route points and 1 POI candidate, then execute it — the real executable-outcome check for this backend API deliverable (replaces the mismatched prior browser-render criterion, per the 2026-07-02 amendment). [command] scratch-gpx-test.mjs
+
+Done means: scratch-gpx-test.mjs exist/are updated as specified

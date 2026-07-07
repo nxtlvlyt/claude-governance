@@ -1,0 +1,163 @@
+MISSION QC-CONCERN-PWA-INSTALL-BANNER-PWA-INSTALL-JS-2026-06-25
+MISSION-CLASS: code-repo
+MISSION-ID: M-MUDDYTIRES.QC-CONCERN-PWA-INSTALL-BANNER-PWA-INSTALL-JS-2026-06-25
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+TARGET-BRANCH: feat/qc-concern-pwa-install-banner-pwa-install-js-2026-06-25
+ALLOW-FILES:
+  - js/pwa-install.js
+REQUIRES: none
+VISUAL-QC-REQUIRED
+
+Niyyah: address the QC CONCERN named "PWA install banner (pwa-install.js)" from the
+2026-06-25 walk. This is a RECREATED mission file — the original was deleted, and its
+first-ever fire attempt (2026-06-25T21:41:06Z) never reached planning at all: it died in
+the "sandbox" phase because the engine refused to check the shared repo out onto
+TARGET-BRANCH while the worktree was dirty (M js/fire-ban-layer.js, M js/site-search.js),
+left behind by the immediately-preceding queued mission
+(qc-concern-poi-affiliate-cards-poi-affiliate-cards-js-2026-06-25, which went DONE without
+leaving a clean tree). That was a pure engine/worktree-hygiene failure, not a judgment on
+the code fix. This mission's own steps below make sure it does not become the next mission
+in the queue that repeats that exact cascade.
+
+Maqsad: GATE 1 (FAIL in the 2026-06-25 walk): install button `#mt-pwa-install` should be
+mountable in the DOM even when environment limitations (e.g. headless Chromium) mean
+`beforeinstallprompt` never fires — currently the element is only created inside
+`showInstallBanner()` and destroyed inside `hideInstallBanner()`, so it never exists in the
+DOM at all unless that event actually fires. GATE 2 (PASS already, must not regress):
+`#mt-offline-badge` surfaces only when `navigator.onLine === false`. GATE 3 (FAIL/truncated
+in the walk): a pack-ready badge should surface when an offline region pack finishes
+saving — currently `js/pwa-install.js` only shows a transient progress-chip "done" state
+(`mt-done` class, auto-hidden after 2400ms) with no separate persistent badge. Restore
+behavior to what docs/FEATURE-CATALOG-2026-06-23.md's PWA entries describe (js/pwa-install.js
+= "PWA install banner"). No edit to map.html or any script tag is needed or in scope:
+pwa-install.js already self-initializes on its own via a DOMContentLoaded listener at the
+bottom of the file, wired from the existing `<script src="js/pwa-install.js">` tag map.html
+already carries — this mission only ever touches js/pwa-install.js itself.
+
+Context (verified against live substrate this session, not memory):
+- Confirmed live: `js/pwa-install.js` (424 lines) currently contains ZERO occurrences of
+  the strings "mt-pack-ready-badge" and "mt-hidden" (grep -c returned 0 for both), and no
+  function named `ensureInstallBannerContainer` exists. This is the exact gap.
+- A verified-correct fix for this EXACT concern already exists in this repo's own history:
+  commit 3780643 ("qc-concern(pwa-install-banner-pwa-install-js): mount #mt-pwa-install in
+  DOM (hidden until beforeinstallprompt) + surface pack-ready badge when offline pack
+  saved per QC walk 2026-06-25"), from an EARLIER successful run of this same MISSION-ID
+  hours before the sandbox-failure attempt this mission replaces. That commit is reachable
+  from REPO-ROOT's own object store (same physical repo) — `git show 3780643 --
+  js/pwa-install.js` shows the diff without any fetch or remote-add step. It was never
+  merged to main, so main and the currently-checked-out branch still lack it.
+- A dry-run cherry-pick of 3780643 performed this session (`git cherry-pick --no-commit -n
+  3780643`, then fully reverted via `git reset --hard HEAD` before this mission file was
+  written) applied with zero conflicts (exit 0) against this repo's HEAD at the time. This
+  is evidence the fix is still mechanically clean, not a guarantee of the tree this mission
+  actually meets at fire time.
+- REPO VOLATILITY (confirmed live this session, same hazard already on record in
+  mt-integrate-poi-hover-preview-cards.mission.txt): this repo's checked-out branch and
+  HEAD moved between consecutive read-only commands issued by this authoring session, with
+  no action by this session causing either move — the repo is shared with other
+  concurrently-running missions/dry-runs. Never trust a branch/HEAD assumption made before
+  fire time; re-confirm live as step 1.
+- Playwright is physically installed at REPO-ROOT\node_modules\playwright on disk
+  (confirmed `node_modules/.bin/playwright` present) and can be used for a real headless
+  render check without any install step, regardless of what the checked-out branch's own
+  package.json currently declares.
+
+Steps:
+  1. In REPO-ROOT, run `git branch --show-current` and `git log --oneline -1`. If the
+     checked-out branch is not TARGET-BRANCH, check it out explicitly (creating it from the
+     repo's current default branch if TARGET-BRANCH does not yet exist locally) before any
+     further step. Then run `git status --short` and confirm the tree is clean; if it is
+     dirty with any path other than js/pwa-install.js, halt and report the dirty paths by
+     name rather than editing over them. [command] confirm-target-branch-clean
+  2. Run `Select-String -Path js/pwa-install.js -Pattern 'mt-pack-ready-badge'`,
+     `-Pattern 'ensureInstallBannerContainer'`, and `-Pattern 'mt-hidden'` (or the
+     equivalent `grep -c`) and record the match count for each. If all three already have
+     at least one match, the fix is already landed on this checkout — skip step 3 and go
+     straight to step 4. If any is absent, continue to step 3. [command] recon-marker-state
+  3. Edit js/pwa-install.js to add exactly the missing pieces (reference the verified shape
+     at commit 3780643 via `git show 3780643 -- js/pwa-install.js` from REPO-ROOT; do not
+     copy unrelated later drift from that branch, only the pwa-install.js diff itself):
+       a. Add a CSS rule `#mt-pwa-install.mt-hidden{display:none!important}`.
+       b. Add `ensureInstallBannerContainer()`: creates the `#mt-pwa-install` element (same
+          dialog markup, `role="dialog"`, install/dismiss button listeners as today) the
+          first time it is called, appends it to `document.body` with the `mt-hidden` class
+          already applied, and returns the existing element on later calls. Call it once
+          from `init()` so `#mt-pwa-install` exists in the DOM immediately on page load,
+          independent of whether `beforeinstallprompt` ever fires.
+       c. Change `showInstallBanner()` to call `ensureInstallBannerContainer()` and remove
+          the `mt-hidden` class (instead of creating a brand-new element). Change
+          `hideInstallBanner()` to add the `mt-hidden` class back onto the existing element
+          (instead of removing it from the DOM).
+       d. Add a persistent `#mt-pack-ready-badge` element: its own CSS block, an
+          `ensurePackReadyBadge()` constructor (pre-mounted hidden, called once from
+          `init()`), and a `showPackReadyBadge()` function that adds an `mt-on` class to
+          make it visible. Call `showPackReadyBadge()` from inside `updateProgressChip()` at
+          the point where `job.status === 'complete'` (the offline pack finished saving).
+          Keep the existing `setTimeout(hideProgressChip, 2400)` auto-dismiss of the
+          transient progress chip unchanged — the pack-ready badge is a separate, persistent
+          element that does not auto-hide.
+       e. Add `showPackReadyBadge` to the existing `window.__mtPwa` diagnostic-hook object
+          alongside its other exported functions.
+       f. Touch no other function, do not alter `updateOfflineBadge()` or any online/offline
+          logic (GATE 2 already passes and must not regress), and do not edit map.html or
+          any file other than js/pwa-install.js. [edit] apply-known-fix
+  4. Run `node --check js/pwa-install.js` from REPO-ROOT and confirm it exits 0.
+     [command] node-check
+  5. Re-run the same Select-String/grep check as step 2 and confirm all three patterns
+     ("mt-pack-ready-badge", "ensureInstallBannerContainer", "mt-hidden") now match at least
+     once each in js/pwa-install.js. [command] grep-verify-markers
+  6. Using Playwright (`node_modules/playwright`, already installed at REPO-ROOT — no
+     install step needed), launch headless chromium and load a minimal standalone HTML
+     harness whose only script tag loads js/pwa-install.js. Write that harness file to a
+     scratch/tmp location OUTSIDE REPO-ROOT (never into ALLOW-FILES or anywhere the repo
+     would see it as a new tracked/untracked file). In the page, assert via
+     `page.evaluate`: (a) `document.getElementById('mt-pwa-install')` is non-null
+     immediately after load and carries the `mt-hidden` class (present in the DOM even
+     though `beforeinstallprompt` never fires headless — the GATE 1 fix); (b) after calling
+     `window.__mtPwa.showPackReadyBadge()`, `document.getElementById('mt-pack-ready-badge')`
+     is non-null and its classList contains `mt-on` (the GATE 3 fix); (c) with
+     `navigator.onLine` mocked false and `window.__mtPwa.updateOfflineBadge()` called,
+     `#mt-offline-badge` gains the `mt-on` class, and with it mocked true, loses it (GATE 2
+     regression check — this already passed in the 2026-06-25 walk and must keep passing).
+     [command] headless-dom-verify
+  7. Commit the change to js/pwa-install.js with a message naming the QC concern and this
+     MISSION-ID. Run `git status --short` in REPO-ROOT and confirm it is completely empty —
+     no uncommitted changes, no untracked files left behind by this mission. This mission
+     must not leave the shared worktree dirty for whatever mission the engine queues next,
+     which is exactly the failure that killed this mission's own previous attempt.
+     [command] commit-and-verify-clean
+
+Done means:
+  - `Select-String -Path js/pwa-install.js -Pattern 'mt-pack-ready-badge'`,
+    `-Pattern 'ensureInstallBannerContainer'`, and `-Pattern 'mt-hidden'` (or the equivalent
+    `grep -c`) each return at least one match in the final js/pwa-install.js — the exact
+    three markers whose confirmed ZERO count on the live file is what proves today's gap.
+  - `node --check js/pwa-install.js` exits 0.
+  - A headless-browser (Playwright) render of js/pwa-install.js loaded in isolation shows
+    `#mt-pwa-install` present in the DOM immediately after load, independent of
+    `beforeinstallprompt` firing (the GATE 1 FAIL from the 2026-06-25 walk, now fixed), and
+    shows `#mt-pack-ready-badge` gains the `mt-on` class after
+    `window.__mtPwa.showPackReadyBadge()` is invoked (the GATE 3 FAIL/truncated result from
+    that walk, now fixed) — a rendering check via actual browser evaluation, not a read of
+    the source text.
+  - The same headless-browser check confirms `#mt-offline-badge` still toggles correctly
+    with `navigator.onLine` (GATE 2, the one gate that already PASSED in the 2026-06-25
+    walk) — proving no regression.
+  - `git status --short` in REPO-ROOT is completely empty at the end of the mission — only
+    js/pwa-install.js was ever touched, and nothing is left uncommitted or untracked, so
+    this mission cannot repeat the exact cascade that killed its own previous attempt (a
+    DONE sibling mission left js/fire-ban-layer.js and js/site-search.js dirty, and the
+    engine refused this mission's checkout as a direct result — recorded verbatim in this
+    mission's own prior mission.result.json).
+  - No other feature regresses: every edit in this mission is confined to js/pwa-install.js
+    (ALLOW-FILES' only entry), and the headless-browser check in step 6 exercises exactly
+    the three surfaces this concern covers and no others.
+
+Context: Sandbox writes only, confined to REPO-ROOT and ALLOW-FILES. The repo is shared
+with other concurrently-running missions and dry-run sessions — never assume the
+branch/HEAD observed at mission-authoring time is still checked out at fire time; step 1
+re-confirms it live.
+Amanah: this slice is part of the muddytires.ca quality-uplift backlog; discharge with
+ihsan.
+
+MODEL-ROUTING: TIER_CLOUD_CODE — kimi-k2.7-code or deepseek-v4-pro for fix authoring.

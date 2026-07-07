@@ -1,0 +1,4 @@
+2026-07-07T19:20:25.734Z attempt-start provider=ollama-local model=qwen3.6:27b (LOCAL-ONLY seat — non-local lanes skipped)
+2026-07-07T19:20:25.736Z attempt-fail provider=ollama-local ms=1: 500: internal error
+2026-07-07T19:20:25.739Z attempt-start provider=ollama-local model=qwen3.6:27b (LOCAL-ONLY seat — non-local lanes skipped)
+2026-07-07T19:20:25.741Z attempt-fail provider=ollama-local ms=1: timeout 300000ms

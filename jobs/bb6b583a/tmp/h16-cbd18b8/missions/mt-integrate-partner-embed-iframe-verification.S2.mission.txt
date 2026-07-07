@@ -1,0 +1,21 @@
+MISSION-ID: mt-integrate-partner-embed-iframe-verification.S2
+MISSION-CLASS: code-repo
+PARENT: mt-integrate-partner-embed-iframe-verification
+TARTIB-INDEX: 2 of 2
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - embed/map.html
+  - docs/PARTNERS-EMBED-IFRAME.md
+REQUIRES: mt-integrate-partner-embed-iframe-verification.S1 (tartib — this sub-mission may not start until mt-integrate-partner-embed-iframe-verification.S1's receipt exists)
+STEPS: 3
+
+PARENT MAQSAD: The commit "16803c9 feat(partner-embed-iframe): embeddable /embed/map.html for
+
+Maqsad: sub-mission 2 of 2 — Read-only confirmation that docs/PARTNERS-EMBED-IFRAME.md's landed content matches the claimed documentation — the iframe embed snippet and the bbox/node_type params — by reading the file. This step does not modify the file. through Final done-rollup: assert the landed commit at HEAD names 'partner-embed-iframe' and/or cites 16803c9, independently of any earlier step's exit code, using both files as read-only context.
+
+Steps:
+  9. Read-only confirmation that docs/PARTNERS-EMBED-IFRAME.md's landed content matches the claimed documentation — the iframe embed snippet and the bbox/node_type params — by reading the file. This step does not modify the file. [verify] 
+  10. Required visual-QC witness: serve the target repo's static files locally (wrangler pages dev on port 8788, PREVIEW-BASE-URL), request /embed/map.html, and assert it returns HTTP 200 with the #mt-embed-map container present in the response body. If PREVIEW-BASE-URL is unreachable, this emits a named NO_PREVIEW_BASE_URL receipt rather than silently skipping the check. [command] 
+  11. Final done-rollup: assert the landed commit at HEAD names 'partner-embed-iframe' and/or cites 16803c9, independently of any earlier step's exit code, using both files as read-only context. [verify] 
+
+Done means:  exist/are updated as specified

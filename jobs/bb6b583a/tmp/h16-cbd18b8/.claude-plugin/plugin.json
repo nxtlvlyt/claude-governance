@@ -1,0 +1,9 @@
+{
+  "name": "muezzin",
+  "displayName": "Muezzin",
+  "version": "1.0.0",
+  "description": "A mechanical conductor that runs a mission to verified completion: decompose into atomic micro-actions, implement each with an open-weight cloud seat, witness by a real execution receipt (deeds, not claims), commit on pass / roll back and self-heal on fail. SOTA-validated; the receipt is integrity-guarded against gaming.",
+  "author": { "name": "Markus Bass", "email": "markabass@gmail.com" },
+  "license": "MIT",
+  "keywords": ["orchestration", "agents", "verification", "deeds-not-claims", "self-healing", "muezzin"]
+}

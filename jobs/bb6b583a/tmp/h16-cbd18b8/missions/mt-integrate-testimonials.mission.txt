@@ -1,0 +1,166 @@
+MISSION MT-INTEGRATE-TESTIMONIALS
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+TARGET-BRANCH: main
+ALLOW-FILES:
+  - build-testimonials.mjs
+  - landing.html
+REQUIRES: none
+VISUAL-QC-REQUIRED
+PREVIEW-BASE-URL: http://localhost:8788
+
+Niyyah: The feature "testimonials" (commit 06c5814, sitting in its source worktree
+C:\Users\marka\code\mt-feat-testimonials) has never been integrated into this repo's HEAD.
+This mission's entire job is mechanical integration — land the commit onto the current
+tree without losing either side's changes, and prove the result is syntactically sound
+and actually renders. Nothing this mission does constitutes a judgment that the
+testimonials feature's code is correct, safe, or behaviorally sound — not whether
+build-testimonials.mjs's D1 query (status='live', rating=5, length(body)>80) is the right
+filter, not whether the HTML-escaping on every dynamic field is actually XSS-safe, not
+whether the deterministic UTC-day shuffle rotates fairly across the live review set, and
+not whether the fail-open fallback CTA ("Be the first to leave a five-star tip") is the
+right behavior on a wrangler/auth/zero-row failure. That determination belongs entirely
+to this mission's own witness-and-verdict-panel run, downstream of this mission producing
+the integrated result — the node --check receipt, the headless-browser render of
+landing.html, and the seat panel's judgment on the actual integrated diff. Authoring or
+executing this mission is not verification of the feature.
+
+Maqsad: The commit "06c58148cf01b13388f08b53b2cd8e8942f7b182 feat(landing): add
+daily-rotated 5-star testimonials section" is cherry-picked or merged from the source
+worktree onto the current HEAD of C:\Users\marka\code\mt-integration-2026-06-22, with any
+conflicts resolved by keeping BOTH sides — this repo's existing unrelated changes AND the
+testimonials feature's changes, never silently dropping either — every changed .js/.mjs
+file passes `node --check`, the result is committed with a clear message, and the target
+repo's working tree is left clean (git status shows no uncommitted changes to the touched
+files).
+
+Context (verified against live substrate this session, absolute paths, no prescribed
+resolution beyond "keep both sides"):
+- Confirmed diff stat for 06c58148cf01b13388f08b53b2cd8e8942f7b182 (git show --stat, this
+  session): 2 files changed, 334 insertions(+) — build-testimonials.mjs (321 new lines, a
+  brand-new Node build script that runs `npx wrangler d1 execute --remote --json` against
+  the muddytires-pois D1 database, HTML-escapes fields, and writes a daily-rotated
+  5-testimonial block between `<!-- testimonials:start -->`/`<!-- testimonials:end -->`
+  markers, failing open to a fallback CTA on any wrangler/auth/zero-row failure) and
+  landing.html (+13/-0: the marked testimonials section inserted between the existing
+  feature-grid section's closing `</section>` and the newsletter CTA section's opening
+  `<section class="relative bg-basalt ...">` tag). Confirmed by reading the actual diff
+  this session (`git show 06c5814 -- landing.html`), not assumed from the summary alone.
+- Target repo HEAD (this session, `git log --oneline -1`): 5e19874 ("Merge branch
+  'feat/qc-concern-vehicle-profile-picker-2026-06-25'"), on branch main — confirmed this
+  is the branch actually checked out.
+- REPO VOLATILITY OBSERVED THIS SESSION: this session's own read-only and dry-run checks
+  against C:\Users\marka\code\mt-integration-2026-06-22 observed its untracked-file set
+  change between two consecutive `git status --short` calls with no action taken by this
+  session causing the change (several untracked files present, then absent moments later).
+  This is the shared-repo HEAD/tree-race hazard other missions in this engine have already
+  named — do not assume the branch or HEAD recorded above is still what's checked out by
+  the time this mission actually fires; re-confirm both live as the first step, and if a
+  different branch is checked out, check out TARGET-BRANCH (main) explicitly before
+  touching any file.
+- The commit object 06c58148cf01b13388f08b53b2cd8e8942f7b182 is already present in the
+  target repo's own object store (confirmed via `git cat-file -t` returning "commit" this
+  session, since worktrees under C:\Users\marka\code share object storage) — cherry-pick
+  can reference the SHA directly with no fetch/remote-add step needed.
+- Verified this session that build-testimonials.mjs does not exist yet anywhere in the
+  target repo's working tree (a clean new-file add is expected); landing.html DOES already
+  exist and is the file receiving the +13-line marked-section insertion. No
+  `<!-- testimonials:start -->` marker exists yet in the target's landing.html (confirmed
+  by grep this session). If either target has since diverged from what this session
+  observed (e.g. an unrelated change now also touches the same region of landing.html near
+  the feature-grid/newsletter-CTA boundary), resolve by keeping BOTH sets of content —
+  every existing section AND the new testimonials section — rather than overwriting one
+  side.
+- A dry-run cherry-pick of 06c5814 performed this session (`git cherry-pick --no-commit -n`,
+  then fully reverted via `git reset` + `git checkout -- landing.html` + deleting the new
+  file before this mission file was written, leaving the target repo exactly as found)
+  applied with zero conflicts (staged as `A  build-testimonials.mjs` / `M  landing.html`,
+  exit 0) against the HEAD observed at that moment. This is evidence the integration is
+  expected to be mechanically clean, not a guarantee — the volatility risk above means the
+  tree this mission actually meets at fire time may differ.
+- This diff touches landing.html (an HTML file), which is why VISUAL-QC-REQUIRED and
+  PREVIEW-BASE-URL are declared above. http://localhost:8788 is a PLACEHOLDER for a local
+  `wrangler pages dev` run — the operator must confirm the port a real local preview server
+  actually binds to on the machine firing this mission before relying on the captured
+  render; if nothing answers at PREVIEW-BASE-URL, that must surface as a named
+  NO_PREVIEW_BASE_URL-style receipt, not a silently skipped check.
+- Out of scope for this mission: actually invoking build-testimonials.mjs against the live
+  muddytires-pois D1 database (e.g. via `npx wrangler d1 execute --remote --json`) is a
+  runtime-behavior question, not an integration question. This mission lands the code and
+  proves it is syntactically sound and renders; whether its D1 query and rotation logic are
+  correct at runtime is left entirely to the witness-and-verdict-panel run.
+- Nothing about this mission's authorship constitutes verification that the feature code
+  is correct — that is exactly what this mission's own witness and verdict-panel run,
+  downstream of the integration, will determine.
+
+Steps:
+  1. In the target repo, confirm the actually-checked-out branch and HEAD
+     (`git -C C:\Users\marka\code\mt-integration-2026-06-22 branch --show-current` and
+     `git log --oneline -1`). If the checked-out branch is not TARGET-BRANCH main, check it
+     out explicitly before any further step. Then confirm build-testimonials.mjs does not
+     already exist on disk and landing.html has no `<!-- testimonials:start -->` marker.
+     [command] confirm-target-branch-clean
+  2. In the source worktree C:\Users\marka\code\mt-feat-testimonials, confirm commit
+     06c58148cf01b13388f08b53b2cd8e8942f7b182 exists (`git show 06c5814`) without modifying
+     that worktree. [command] capture-patch
+  3. In the target repo, at its current HEAD on TARGET-BRANCH, cherry-pick the commit
+     (`git -C C:\Users\marka\code\mt-integration-2026-06-22 cherry-pick
+     06c58148cf01b13388f08b53b2cd8e8942f7b182`) or an equivalent merge of that single
+     commit. [command] integrate-commit
+  4. If the cherry-pick (or equivalent merge) reports conflicts on build-testimonials.mjs,
+     landing.html, or any other ALLOW-FILES entry, resolve every conflicted hunk by hand so
+     the resolved content contains BOTH the target's pre-existing content AND the
+     testimonials feature's added content — never `--ours` / `--theirs` and never a
+     resolution that deletes either side's content. [edit] resolve-conflicts
+  5. Run `node --check build-testimonials.mjs` from the target repo root and confirm it
+     exits 0; run `node --check` on every other .js/.mjs file the merge touched or
+     conflict-resolved. [command] node-check-all
+  6. If step 3 left the integration uncommitted (conflict resolution required `git add` +
+     `git cherry-pick --continue`, or a manual merge commit), commit explicitly with a
+     message that references the source commit's own subject line ("feat(landing): add
+     daily-rotated 5-star testimonials section") and/or the SHA 06c5814. Then confirm
+     `git status --short` is empty (clean working tree, no unmerged paths) and
+     `git log --oneline -5` shows the landed commit at or near HEAD.
+     [command] commit-and-verify-clean
+  7. Because landing.html changed and VISUAL-QC-REQUIRED is set, run the visual-witness
+     pipeline: serve the target repo's static files locally, load landing.html from
+     PREVIEW-BASE-URL in a headless browser (puppeteer), capture a render, and record a
+     visual verdict on the integrated result in this mission's result object. If
+     PREVIEW-BASE-URL is unreachable, record that as a named NO_PREVIEW_BASE_URL receipt
+     rather than skipping the check silently. [command] visual-witness-render
+
+Done means:
+  - `git log` in C:\Users\marka\code\mt-integration-2026-06-22 shows a commit on
+    TARGET-BRANCH containing the integrated testimonials feature, with a commit message
+    that names "testimonials" and/or "06c5814".
+  - build-testimonials.mjs exists in the target repo at HEAD with non-trivial content
+    (approximately 321 lines implementing the D1 read via `npx wrangler d1 execute --remote
+    --json`, field HTML-escaping, and the daily-rotated marker-splice write into
+    landing.html between `<!-- testimonials:start -->`/`<!-- testimonials:end -->`,
+    confirmed by reading the file, not assumed).
+  - landing.html in the target repo contains exactly one marked testimonials section
+    (`<!-- testimonials:start -->` ... `<!-- testimonials:end -->`) added between the
+    feature-grid section and the newsletter CTA section, with no other line content lost or
+    altered (confirmed by reading the file, not by trusting the cherry-pick's exit code
+    alone).
+  - `node --check build-testimonials.mjs` exits 0, and `node --check` exits 0 on every
+    other .js/.mjs file this integration touched or conflict-resolved.
+  - `git status --short` in the target repo shows a clean working tree (no uncommitted
+    changes, no unmerged paths) at the end of the mission.
+  - Because this diff touches landing.html and VISUAL-QC-REQUIRED is set above, the
+    visual-witness pipeline must actually run and produce a receipt: a headless-browser
+    (puppeteer) render of landing.html served from PREVIEW-BASE-URL is captured and returns
+    a visual verdict in this mission's result object — a rendering check, not a read of the
+    markup. If PREVIEW-BASE-URL turns out to be the wrong local port, that failure must
+    surface as a named NO_PREVIEW_BASE_URL-style receipt, not a silently skipped check.
+  - This mission's authorship and execution prove only that the integration is
+    mechanically sound (declared files present with real content, feature commit reachable
+    in target history, syntax checks pass, a render was actually captured) — not that the
+    feature's code is correct, safe, or behaviorally right (e.g. that the D1 filter
+    criteria are the right ones, that the HTML-escaping is genuinely XSS-safe, or that the
+    fail-open fallback CTA is the right behavior on a wrangler/auth/zero-row failure). That
+    judgment belongs to this mission's own witness plus verdict-panel run, downstream of
+    this mission producing the integrated result.
+
+Context: Sandbox writes only, target repo working tree only.
+Amanah: entrusted; discharge with ihsan.

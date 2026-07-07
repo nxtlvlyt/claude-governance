@@ -1,0 +1,179 @@
+MISSION MT-INTEGRATE-SITEMAP-PRUNE-2026-06-23
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - docs/QC-PIPELINE-SOTA-2026-06-23.md
+REQUIRES: none
+
+Niyyah: The sitemap-prune-2026-06-23 worktree's only commit beyond
+ed6e33c0 is 375e40b0db479ede0e14407e6eb416e85936d305, "docs(qc): SOTA-uplift
+QC pipeline — 8 mandatory gates + escape hatches" — adding a single new
+markdown file that documents 8 mandatory QC gates, two operator-only escape
+hatches, a foreign-frontier validator policy, an adversarial-refuter policy,
+and a fallback rule for when the deliberation panel is unreachable. Despite
+the worktree's name, this commit touches no sitemap file, no HTML, and no
+code of any kind — it is docs-only, and no sitemap-pruning work exists yet
+on this branch. This mission's whole job is mechanical: get that one file,
+byte-complete, onto the target repo's current HEAD without losing anything
+already there on either side of any conflict, run the syntax checks a
+code-repo mission owes, commit the result (or confirm the existing commit
+already carries it), and leave the tree clean for its own scope. Authoring
+this mission, and landing the commit if it is not already landed, is NOT a
+review of whether the QC-pipeline policy itself is sound — whether 8 gates
+are the right number, whether the foreign-frontier-validator roster it names
+is still the operator's current policy, whether the escape-hatch and
+adversarial-refuter language is well specified, or whether it conflicts with
+any other QC doc already in the repo. None of that is settled by writing or
+running these steps. That determination belongs entirely to this mission's
+own witness-and-verdict-panel run once it fires, not to this mission's
+authorship or mechanical execution.
+
+Maqsad: Bring commit 375e40b0db479ede0e14407e6eb416e85936d305 onto the
+current HEAD of the target repo C:\Users\marka\code\mt-integration-2026-06-22,
+with docs/QC-PIPELINE-SOTA-2026-06-23.md present and byte-complete, any
+conflict resolved by keeping BOTH sides — the target's pre-existing unrelated
+changes AND this feature's added content, never silently dropping either —
+every .js/.mjs file this integration touches or that any conflict resolution
+modifies passing `node --check` with exit code 0, the result committed with a
+clear message (or the existing commit confirmed already present if the
+content turns out to already be integrated), and the target repo's working
+tree left clean with respect to this mission's one ALLOW-FILES entry.
+
+Context (verified against live substrate this session, 2026-07-01, absolute
+paths, no prescribed resolution beyond "keep both sides"):
+- Unlike some sibling missions for this same commit, the source worktree
+  named for this feature, C:\Users\marka\code\mt-feat-sitemap-prune-2026-06-23,
+  DOES exist on disk this session, on branch feat/sitemap-prune-2026-06-23,
+  with `git log --oneline -3` showing its tip IS 375e40b0db479ede0e14407e6eb416e85936d305
+  and `git status --short` reporting a clean tree — no sitemap-specific
+  commit has been added on this branch yet. Regardless, the commit object is
+  already present in the target's own local object database (`git cat-file -t
+  375e40b0db479ede0e14407e6eb416e85936d305` inside the target repo resolves to
+  "commit"), so no fetch, remote-add, or patch file is needed either way.
+- `git merge-base --is-ancestor 375e40b0db479ede0e14407e6eb416e85936d305 HEAD`,
+  run in the target repo this session, reports true. The target repo's
+  current HEAD this session is 5e19874307f1548c404bf0a42b90831c00da9539 on
+  branch main. Comparing 375e40b against that HEAD for
+  docs/QC-PIPELINE-SOTA-2026-06-23.md (byte content, ignoring CRLF/LF line-
+  ending differences) shows no differences — the file already matches on
+  this HEAD. An attempted cherry-pick of an already-applied commit reports
+  "The previous cherry-pick is now empty" and must be resolved with --skip,
+  never --allow-empty; an empty commit proves nothing landed.
+- Confirmed diff stat for 375e40b0db479ede0e14407e6eb416e85936d305
+  (`git show --stat`, this session): 1 file changed, 24 insertions(+), 0
+  deletions(-), all new — docs/QC-PIPELINE-SOTA-2026-06-23.md. No .js or .mjs
+  file and no .html file is part of this diff.
+- KNOWN DUPLICATION (name it plainly rather than hide it): two sibling
+  mission files already exist in this same missions directory —
+  mt-integrate-qc-pipeline-sota-doc.mission.txt and
+  mt-integrate-qc-pipeline-sota-docs.mission.txt — authored minutes apart
+  this same session, targeting this exact same commit
+  375e40b0db479ede0e14407e6eb416e85936d305 and this exact same
+  ALLOW-FILES entry, discovered from two OTHER worktree names
+  (qc-pipeline-sota-doc, qc-pipeline-sota-docs). `git worktree list` in the
+  target repo this session additionally shows at least a dozen more
+  mt-feat-* worktrees (aria-live-status, claim-verify-flow,
+  contact-spam-score, mention-notify, mobile-pull-refresh,
+  photo-cdn-image-variants, search-voice-input, trip-diary-backend, and
+  others) all pinned at 375e40b0db479ede0e14407e6eb416e85936d305 with no
+  feature-specific commit of their own — i.e. 375e40b is a shared branch
+  point that many feature worktrees were cut from, not a sitemap-prune-
+  specific (or qc-pipeline-sota-doc-specific) commit. Firing this mission
+  after either sibling has already landed the commit is harmless (step 1's
+  ancestry check will report true and skip the cherry-pick, per this
+  mission's own idempotency design below) but is redundant work; whoever
+  fires missions from this queue may want to fire only one of the three and
+  treat the other two as already-satisfied rather than burning three lanes
+  on one commit.
+- The target repo's HEAD moves between missions (these worktrees are reused
+  repeatedly) — work against whatever HEAD is actually current at fire time
+  and re-run the ancestry check in step 1 rather than trusting this
+  session's snapshot. No TARGET-BRANCH is declared on purpose, matching this
+  mission's sibling mt-integrate-* missions for this same file — land onto
+  whichever branch is actually checked out as HEAD when this fires.
+- The target repo's working tree carries pre-existing untracked files
+  unrelated to this feature (confirmed this session: api-index-response.json,
+  docs/e2e-report-2026-07-01.json, e2e-shots/, feature-catalog-entry.txt,
+  scripts/e2e-runner.mjs). These predate this mission and are out of scope.
+  "Clean working tree" in this mission's Done means refers to this mission's
+  one ALLOW-FILES entry, not a demand to clear unrelated pre-existing debris.
+
+Steps:
+  1. In the target repo C:\Users\marka\code\mt-integration-2026-06-22, record
+     the current branch and HEAD, then run
+     `git merge-base --is-ancestor 375e40b0db479ede0e14407e6eb416e85936d305 HEAD`.
+     If it reports true, the commit's content is already integrated — skip
+     cherry-picking it, and do not treat the skip as a failure. If it reports
+     false, proceed to step 2. [command] check-ancestry-before-cherry-pick
+  2. If step 1 found the commit not yet an ancestor, run
+     `git cherry-pick 375e40b0db479ede0e14407e6eb416e85936d305`. If it comes
+     back empty ("previous cherry-pick is now empty"), resolve with --skip,
+     never --allow-empty. If it reports a real conflict, resolve every
+     conflicted hunk by keeping BOTH sides — the target's pre-existing
+     unrelated content AND this feature's added content, merged together,
+     never deleting one side to make a conflict disappear. Only
+     docs/QC-PIPELINE-SOTA-2026-06-23.md may be touched to complete a
+     resolution. [command] cherry-pick-or-skip-if-empty
+  3. If step 2 resolved a real conflict, stage only
+     docs/QC-PIPELINE-SOTA-2026-06-23.md by name (never `git add -A` or
+     `git add .`, which would sweep in the unrelated pre-existing untracked
+     files already sitting in the target's working tree) and run
+     `git cherry-pick --continue`. [command] continue-cherry-pick-scoped
+  4. Identify every .js and .mjs file this integration actually touched or
+     conflict-resolved (the confirmed diff stat touches none). Run
+     `node --check` on each such file and confirm exit code 0. If the
+     touched-file set is empty, record that explicitly as the check result
+     rather than silently skipping the step. [command] node-check-changed-js-files
+  5. Run `git status --short -- docs/QC-PIPELINE-SOTA-2026-06-23.md` and
+     confirm it prints nothing (fully committed, nothing pending), and run
+     `git log --oneline -20` and confirm a commit reachable from HEAD carries
+     the message "docs(qc): SOTA-uplift QC pipeline" (whether that commit is
+     the one this mission's step 2 just produced, or the pre-existing one
+     step 1 found). [command] confirm-landed-and-clean
+  6. Run `git show --stat` on that same commit and confirm it lists no .html
+     file (this diff never touches HTML, so no visual-QC render-witness gate
+     applies to this mission). [command] confirm-no-html-touched
+
+Done means:
+  - docs/QC-PIPELINE-SOTA-2026-06-23.md exists at
+    C:\Users\marka\code\mt-integration-2026-06-22\docs\QC-PIPELINE-SOTA-2026-06-23.md
+    and its content contains the phrase "8 mandatory gates" (or equivalent
+    recognizable text from the real doc, such as "SOTA-uplift QC pipeline"),
+    confirmed by reading the on-disk file directly, not by trusting a
+    command's exit code alone.
+  - `git merge-base --is-ancestor 375e40b0db479ede0e14407e6eb416e85936d305 HEAD`,
+    run in the target repo after this mission's steps, reports true — the
+    commit is present in the target's history, whether because it was
+    already there or because this mission's cherry-pick landed it.
+  - `git log --oneline -20` on the target repo's current branch shows a
+    commit whose message is or begins with "docs(qc): SOTA-uplift QC
+    pipeline".
+  - Every .js/.mjs file this integration touched or conflict-resolved passes
+    `node --check` with exit code 0, and the receipt states how many files
+    were checked; zero is an acceptable, explicitly stated count for this
+    docs-only diff rather than a silent skip.
+  - `git status --short -- docs/QC-PIPELINE-SOTA-2026-06-23.md` prints
+    nothing (empty output) once this mission's steps are complete. Any OTHER
+    pre-existing untracked or modified file already present in the target
+    repo before this mission started is outside this mission's ALLOW-FILES
+    scope and is not this mission's concern; its continued presence does not
+    fail this Done-means.
+  - No .html file was added, modified, or deleted by this mission's steps
+    (confirmed via `git show --stat` on whichever commit carries the
+    feature) — no visual-QC render-witness gate applies to this mission, and
+    none is declared.
+  - If a real conflict was resolved in step 2/3, the committed result
+    contains BOTH the target's pre-existing unrelated content and the
+    complete docs/QC-PIPELINE-SOTA-2026-06-23.md content — neither side
+    silently dropped.
+  - This Done-means covers integration mechanics only: the file intact and
+    committed, a clean or correctly resolved history, a passing (or
+    inapplicable) syntax check, and a scoped-clean tree. It makes no claim
+    that the QC-pipeline policy documented in the file is itself correct,
+    complete, current, or sufficient, and no claim that any sitemap-pruning
+    work exists or is needed on this branch — that determination belongs
+    entirely to this mission's own witness-and-verdict-panel run downstream,
+    not to this mission's authorship or mechanical execution.
+
+Context: Sandbox writes only, target repo working tree only.
+Amanah: entrusted; discharge with ihsan.

@@ -1,0 +1,31 @@
+MISSION-ID: mt-integrate-lighthouse-fix1-extensionless-verification-docs.S1
+MISSION-CLASS: code-repo
+PARENT: mt-integrate-lighthouse-fix1-extensionless-verification-docs
+TARTIB-INDEX: 1 of 2
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - .git/HEAD
+  - docs/QC-PIPELINE-SOTA-2026-06-23.md
+  - docs/AUDIT-LIGHTHOUSE-FIX1-2026-06-23.md
+  - docs/lighthouse-fix1-2026-06-23/map-extensionless.json
+  - docs/lighthouse-fix1-2026-06-23/map-extensionless-run2.json
+  - docs/lighthouse-fix1-2026-06-23/map-html-with-redirect.json
+  - .git/logs/HEAD
+REQUIRES: none (first in tartib order)
+STEPS: 8
+
+PARENT MAQSAD: Both c184a60 and 375e40b are cherry-picked (or merged, if a cherry-pick alone
+
+Maqsad: sub-mission 1 of 2 — Preflight: confirm both source commits (375e40b, c184a60) resolve as reachable commit objects in the target repo's own .git before any cherry-pick is attempted. through Enumerate every .js/.mjs file touched by the landed HEAD commit and run node --check on each; the confirmed diff is docs/JSON-only so an explicitly-stated zero count is the correct pass, not a silent skip.
+
+Steps:
+  1. Preflight: confirm both source commits (375e40b, c184a60) resolve as reachable commit objects in the target repo's own .git before any cherry-pick is attempted. [command] .git/HEAD
+  2. Land the QC pipeline doc: cherry-pick 375e40b; if it reports already-applied/empty, skip and treat as a completed pass; otherwise resolve any conflict keeping both sides. Witness that QC-PIPELINE-SOTA-2026-06-23.md contains the required phrase. [command] docs/QC-PIPELINE-SOTA-2026-06-23.md
+  3. Land the Lighthouse Fix 1 audit + JSON evidence: cherry-pick c184a60 on the resulting HEAD, resolving any conflict on AUDIT-LIGHTHOUSE-FIX1-2026-06-23.md or the JSON files by keeping both sides. Witness that the audit doc landed and contains 'Fix 1'. [command] docs/AUDIT-LIGHTHOUSE-FIX1-2026-06-23.md
+  4. Verify docs/AUDIT-LIGHTHOUSE-FIX1-2026-06-23.md is at least 100 lines long and still contains 'Fix 1', matching the confirmed 132-line diff. [verify] docs/AUDIT-LIGHTHOUSE-FIX1-2026-06-23.md
+  5. Verify docs/lighthouse-fix1-2026-06-23/map-extensionless.json exists and parses as valid JSON. [verify] docs/lighthouse-fix1-2026-06-23/map-extensionless.json
+  6. Verify docs/lighthouse-fix1-2026-06-23/map-extensionless-run2.json exists and parses as valid JSON. [verify] docs/lighthouse-fix1-2026-06-23/map-extensionless-run2.json
+  7. Verify docs/lighthouse-fix1-2026-06-23/map-html-with-redirect.json exists and parses as valid JSON. [verify] docs/lighthouse-fix1-2026-06-23/map-html-with-redirect.json
+  8. Enumerate every .js/.mjs file touched by the landed HEAD commit and run node --check on each; the confirmed diff is docs/JSON-only so an explicitly-stated zero count is the correct pass, not a silent skip. [command] .git/logs/HEAD
+
+Done means: .git/HEAD, docs/QC-PIPELINE-SOTA-2026-06-23.md, docs/AUDIT-LIGHTHOUSE-FIX1-2026-06-23.md, docs/lighthouse-fix1-2026-06-23/map-extensionless.json, docs/lighthouse-fix1-2026-06-23/map-extensionless-run2.json, docs/lighthouse-fix1-2026-06-23/map-html-with-redirect.json, .git/logs/HEAD exist/are updated as specified

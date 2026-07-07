@@ -1,0 +1,42 @@
+MISSION-ID: mt-mobile-lane-fix.S1
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - map.html
+VISUAL-QC-REQUIRED
+REQUIRES: mt-mobile-qc-hardening.S1.S1 (tartib — the overlap detector lands first and then VERIFIES this fix)
+STEPS: 6
+
+Maqsad: The D1 half of the operator's 2026-07-03 mobile audit ("will the zoom buttons always
+block the words? the magnifying glass always block the zoom buttons?"), SPLIT OUT of
+mt-mobile-qc-hardening.S1.S1 after x2 receipts showed dense in-place edits to the 393KB
+map.html dying in the known windowed-edit engine gap (INBOX HIGH 2026-06-18). Deliverable:
+the top-left control lane (site-search FAB, Leaflet zoom column, control buttons) stacks
+WITHOUT intersection at 375px-wide viewports and above.
+ADDITIVE-ONLY CONSTRAINT (the receipted cure for map.html — reviews/add-spot/confidence-badge
+all landed this way while in-place reworks died): the edit APPENDS one new, self-contained
+<style id="mt-mobile-lane-fix"> block immediately before </head> containing a single
+@media (max-width: 480px) rule-set that repositions the lane elements by their EXISTING
+ids/classes (absolute offsets + a declared z-index order). Nothing already present in
+map.html is modified or deleted — the new block wins by cascade order and specificity. The verify step
+anchors on the literal id string "mt-mobile-lane-fix" so edit and verify cannot disagree
+(the x2's attempt-1 killer was a plan asserting a breakpoint string its own edit never wrote).
+
+niyyah: One appended style block a 4-line diff can review, verified by the overlap detector
+that lands before it (tartib) — the robots check the fix on the phone the operator no longer
+has to be. Scope every assertion to map.html only.
+
+Steps:
+  1. Idempotent baseline: record branch + HEAD; if map.html already contains id="mt-mobile-lane-fix" output BLOCK_PRESENT (NOT verify-only — amended 19:1x: the existing block is live and INSUFFICIENT, receipted by the operator's screenshot pair #mt-search-icon over .mt-locate; step 2 on a BLOCK_PRESENT pass EDITS the existing block's rules in place, keeping the same id, correcting offsets/z-order for the named selectors); else CLEAN_BASELINE (step 2 appends the block fresh). Never exit 1 on existence. [command]
+  2. Read the existing top-left control-lane CSS (the offset-scheme comment near the top of the inline styles) to learn the current ids/classes and offsets, then APPEND the <style id="mt-mobile-lane-fix"> block immediately before </head> (or EDIT the existing block in place on a BLOCK_PRESENT baseline, same id) exactly per the Maqsad's additive-only constraint — one @media (max-width: 480px) rule-set, existing selectors, a declared z-index order, zero modifications to anything already present outside the block. TAP-TARGET FLOOR (operator receipt 2026-07-03 ~19:2x "the My location icon is still really small"): within the media rule, .mt-locate and #mt-search-icon get a minimum 44x44px tap target (min-width/min-height or padding — whichever fits the existing markup) — positioning AND size are both this block's job. [edit] map.html
+  3. Verify map.html contains the literal string mt-mobile-lane-fix AND that the block sits inside <head> (Select-String receipts for both), and confirm via git diff --stat that map.html shows ONLY additions (no deleted lines). [verify]
+  4. Scoped cleanliness (POLARITY RE-PINNED 2026-07-03T14:3x — the 12:5x pin fixed attempt 1's inversion but created attempt 2's killer: on a CLEAN_ALREADY re-run the block is ALREADY COMMITTED, map.html is legitimately clean, and expected-dirty exits 1; receipt: FAILED x2 14:19:48, porcelain empty because commit 09dd598 landed the block in attempt 1): the invariant is that NOTHING ELSE changed — run git status --porcelain and require every reported line (if any) to reference map.html only (any non-map.html line = fail). map.html dirty is CORRECT on a CLEAN_BASELINE pass (its edit awaits step 5); map.html absent from porcelain is EQUALLY CORRECT on a CLEAN_ALREADY pass (the edit is already committed). Neither state of map.html itself is a failure; only foreign files are. [verify]
+  5. git commit map.html by explicit name (git add map.html; git commit -m "<message naming this mission, the parent audit receipt, and the additive-only pattern>"); confirm the block is committed at HEAD. IDEMPOTENT on a CLEAN_ALREADY pass: if git status --porcelain -- map.html is empty AND git show HEAD:map.html contains mt-mobile-lane-fix, output ALREADY_COMMITTED and exit 0 WITHOUT running git commit (a no-change commit exits 1 and is not a failure of this mission). [command]
+  6. OUTCOME CHECK (added 2026-07-03T13:2x — RULE 11 caught this mission as grep-only before first fire; panels correctly reject visual missions with zero execution) (PAIR ACCEPTANCE PINNED 19:1x — operator screenshot receipt: the search magnifier sits ON TOP of the "My location" control on his phone, the EXACT pair the detector preflight flagged: "OVERLAP: #mt-search-icon intersects .mt-locate in mobile viewport"; the current live block does NOT fix this pair, so block-presence alone is a hollow pass): in ONE self-contained command (the proven trip-cost shape): confirm git status --porcelain -- map.html is empty (step 5 committed), run wrangler pages deploy . --project-name=muddytires --branch=preview, capture the emitted https://<subdomain>.muddytires.pages.dev URL into a variable, poll "$url/map" until HTTP 200 (up to 10x5s), write scratch-lanefix-qc.mjs via here-string (playwright, viewport 375x812 isMobile: goto $env:MT_PREVIEW_URL + '/map', wait for the map container, read the boundingBoxes of #mt-search-icon, .mt-locate, #filtbtn and .leaflet-control-zoom, then print evidence lines STYLE_BLOCK=<present|absent>, PAIR_SEARCH_LOCATE=<clear|OVERLAP>, PAIR_FILT_ZOOM=<clear|OVERLAP>, LOCATE_SIZE=<WxH>, SEARCH_SIZE=<WxH>, PAGEERRORS=<count>, then LANEFIX_QC_PASS only when the block is present AND both pairs are clear AND both sizes are >=44x44 AND pageerrors is 0 — if a pair overlaps, the CSS in step 2 must be CORRECTED for those selectors and the mission re-runs its edit, never passes on presence alone), run it with $env:MT_PREVIEW_URL = $url; node scratch-lanefix-qc.mjs, then Remove-Item the scratch. The printed evidence lines ARE the render receipt. [command]
+
+Done means: map.html committed at HEAD carrying the appended mt-mobile-lane-fix style block
+(additions-only diff), AND the engine's headless-browser render of /map (visual witness
+against the auto-provisioned preview) at the mobile viewport shows the top-left control lane
+collision-free — with the sibling detector mission's overlap check (which lands first by
+tartib) as the standing regression guard. Executable + headless-browser render verification
+(live-outcome bar, 2026-07-03).

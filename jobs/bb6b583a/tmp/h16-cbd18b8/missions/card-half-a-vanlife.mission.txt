@@ -1,0 +1,33 @@
+MISSION CARD-HALF-A-VANLIFE
+MISSION-ID: 4a
+MISSION-CLASS: research
+REQUIRES: none — evidence is STAGED BY THE PLAN's own gather steps (see Maqsad).
+Niyyah: the combined vanlife+muddytires card died 6 cycles because TWO analyses exceed
+one emission; this is Half A alone. REVISED 2026-06-11 13:45 after FAILED x2: the prior
+text claimed "C:\vanlife files are readable read-only" and ordered C:\vanlife\ cites —
+but seats are sandbox-jailed BY DESIGN, so the citation gate (correctly) refused every
+cite. The mission contradicted the engine. Fix: the mission stages its own evidence.
+Maqsad: ONE artifact — card-half-a-vanlife.md at the sandbox root.
+PLAN SHAPE (gather then author):
+- First, COMMAND steps copy the evidence set into the sandbox (PowerShell, exact files):
+    Copy-Item 'C:\vanlife\PRODUCT-PLAN.md' .
+    Copy-Item 'C:\vanlife\STAGE-0-PLAN.md' .
+    Copy-Item 'C:\vanlife\CLAUDE-CLI-BRIEF-NOMAD-MAP.md' .
+    Copy-Item 'C:\vanlife\build-dashboard.html' .
+    Copy-Item 'C:\vanlife\corridor-demo.html' .
+    Copy-Item 'C:\vanlife\vanlife-tree.txt' . -ErrorAction SilentlyContinue
+  (vanlife-tree.txt may already be staged from prior runs — either is fine.)
+- Then ONE emit step authors the card, with the staged files as context_dependencies.
+Subject: the VANLIFE build (structure from vanlife-tree.txt; evidence from the staged
+files). Sections: (1) what kind of build it is (cited), (2) design tokens — colors/
+typography/spacing AS FOUND in build-dashboard.html / corridor-demo.html, each value
+cited, (3) copy voice — quoted examples with cites, (4) reusable components worth
+promoting to the factory library, cited, (5) honest gaps — what could NOT be verified
+from the staged set (say so plainly; an honest gap is correct, an invented value fails).
+EVIDENCE RULE: every claim cites a STAGED file by its sandbox name (e.g. PRODUCT-PLAN.md
+— never a C:\ path); claims about absence say "not found in <staged files checked>".
+Done = card-half-a-vanlife.md exists, markdown-valid, all five sections, every claim
+cited to a staged file. The single essential criterion (Arafat): the card's claims are
+traceable to the staged evidence — uncited assertion or a cite to an unstaged file
+fails it.
+Amanah: entrusted; discharge with ihsan.

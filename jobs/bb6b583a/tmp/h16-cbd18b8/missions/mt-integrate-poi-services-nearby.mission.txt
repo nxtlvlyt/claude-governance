@@ -1,0 +1,180 @@
+MISSION MT-INTEGRATE-POI-SERVICES-NEARBY
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - js/poi-services-nearby.js
+  - map.html
+REQUIRES: none
+VISUAL-QC-REQUIRED
+PREVIEW-BASE-URL: http://localhost:8788
+
+Niyyah: The feature "poi-services-nearby" (commit 58e7560, sitting in its source
+worktree) has never been integrated into this repo's HEAD. This mission's entire job is
+mechanical integration — land the commit onto the current tree without losing either
+side's changes, and prove the result is syntactically sound and actually renders. Nothing
+this mission does constitutes a judgment that the services-nearby feature's code is
+correct, safe, or behaviorally sound — not whether the Haversine nearest-service distance
+math is actually correct, not whether the self-exclusion by POI id plus ~1m coordinate
+dedupe genuinely prevents a water_fill popup from reporting "Nearest water fill: 0m", not
+whether the MAX_KM=200 cap is the right honesty threshold for northern routes, and not
+whether the <details>/<summary> disclosure degrades correctly on mobile-sheet.js's
+SAFE_TAGS allowlist. That determination belongs entirely to this mission's own witness-
+and-verdict-panel run, downstream of this mission producing the integrated result — the
+node --check receipt, the headless-browser render of map.html, and the seat panel's
+judgment on the actual integrated diff. Authoring or executing this mission is not
+verification of the feature.
+
+Maqsad: The commit "58e7560 feat(poi): nearby services chips in POI popup" is
+cherry-picked or merged from the source worktree onto the current HEAD of
+C:\Users\marka\code\mt-integration-2026-06-22, with any conflicts resolved by keeping
+BOTH sides — this repo's existing unrelated changes AND the services-nearby feature's
+changes, never silently dropping either — every changed .js/.mjs file passes
+`node --check`, the result is committed with a clear message, and the target repo's
+working tree is left clean (git status shows no uncommitted changes to the touched
+files).
+
+Context (verified against live substrate this session, absolute paths, no prescribed
+resolution beyond "keep both sides"):
+- SOURCE-PATH CORRECTION: the work order that produced this mission named the source
+  worktree "C:\Users\marka\code\poi-services-nearby" — that path does NOT exist on disk
+  (verified this session). The real worktree carrying commit 58e7560 is
+  C:\Users\marka\code\mt-feat-poi-services-nearby-2026-06-23, confirmed this session via
+  `git log --oneline` showing 58e7560 at its tip (parent ed6e33c) and via `git branch -a
+  --contains 58e7560` naming feat/poi-services-nearby-2026-06-23 and its github remote.
+  Use the verified path below, not the unverified one the work order named.
+- Confirmed diff stat for 58e756084409afc496c98ffd244e873fca85b430 (`git show --stat`,
+  this session): 2 files changed, 389 insertions(+), 1 deletion(-) —
+  js/poi-services-nearby.js (388 new lines, a brand-new additive IIFE that wraps
+  window.popup(p) and attaches a map popupopen listener to fill a "Services nearby"
+  disclosure with Haversine-computed distances to the nearest water_fill / dump_station /
+  shower / laundry / propane, fetching /pois.json once and caching it) and map.html (+1/-1:
+  map.html's script chain lives on one long physical line, so a one-tag insertion shows as
+  that line being replaced with itself plus the new tag — a single new
+  `<script src="js/poi-services-nearby.js" defer>` inserted after the existing
+  `<script src="js/poi-photos.js" defer>` tag and before the existing
+  `<script src="js/crown-land-overlay.js" defer>` tag). No other content in either file
+  changes. `git status --short` in the source worktree this session is clean, and
+  `node --check js/poi-services-nearby.js` there exits 0.
+- Confirmed this session in the target repo (`git log --oneline -1` on whatever was
+  checked out): the object 58e756084409afc496c98ffd244e873fca85b430 is already reachable
+  directly (`git cat-file -t 58e7560` returns "commit", since worktrees under
+  C:\Users\marka\code share object storage) — no fetch/remote-add step is needed, a plain
+  `git cherry-pick 58e7560` can resolve it directly. `git merge-base --is-ancestor 58e7560
+  HEAD` returns false — not yet landed. Confirmed js/poi-services-nearby.js does not exist
+  anywhere in the target repo's working tree yet (a clean new-file add is expected); map.html
+  DOES already exist and its current script chain confirmed this session to contain
+  `...poi-photos.js" defer><script src="js/crown-land-overlay.js" defer>...` adjacently, in
+  that order — matching the insertion point the feature commit targets.
+- REPO VOLATILITY OBSERVED THIS SESSION: while verifying the above, this session watched
+  the target repo's checked-out branch and HEAD move under it between consecutive
+  commands with no action by this session causing the move (from
+  test-lhci-dryrun-2026-07-01 at a1d6ad9, to main at 5e19874, and a dry-run commit made
+  on a throwaway branch off that HEAD was followed moments later by an unrelated docs
+  commit landing on main from some other concurrently-running process). This is the
+  shared-repo HEAD-race hazard other integration missions in this engine have already
+  named — do not assume any specific branch/HEAD recorded above is still checked out by
+  the time this mission actually fires; re-confirm live as the first step. Because the
+  branch kept moving mid-session, this mission deliberately carries no TARGET-BRANCH
+  header: land onto whatever branch is actually checked out as HEAD when this mission
+  fires, not a hardcoded branch name.
+- A dry-run cherry-pick of 58e7560 performed this session (on a throwaway branch off the
+  target's then-current HEAD 5e19874, deleted afterward via `git checkout main` +
+  `git branch -D`, leaving main and the working checkout exactly as found) applied with
+  ZERO conflicts: git reported "Auto-merging map.html" and committed cleanly, 2 files
+  changed, 389 insertions(+), 1 deletion(-), create mode 100644 js/poi-services-nearby.js
+  — matching the source commit's own stat exactly. This is evidence the integration is
+  expected to be mechanically clean, not a guarantee — the branch-race risk above means
+  the tree this mission actually meets at fire time may differ; if map.html (or any other
+  ALLOW-FILES entry) conflicts for real, resolve it by keeping BOTH the target's existing
+  script tags AND this feature's added `<script src="js/poi-services-nearby.js" defer>`
+  line.
+- The target repo currently carries pre-existing untracked files unrelated to this
+  feature (api-index-response.json, docs/e2e-report-2026-07-01.json, e2e-shots/,
+  feature-catalog-entry.txt, scripts/e2e-runner.mjs) — these predate this mission and are
+  out of scope. "Clean working tree" in this mission's Done means refers to the
+  ALLOW-FILES entries this mission touches, not a demand to clear unrelated pre-existing
+  debris.
+- map.html is a live page served by the site (not a browser-extension popup), so
+  PREVIEW-BASE-URL: http://localhost:8788 is a PLACEHOLDER for a local
+  `wrangler pages dev` server — the operator must confirm the actual local preview port
+  before relying on the captured render; if nothing answers at PREVIEW-BASE-URL, that
+  failure must surface as a named NO_PREVIEW_BASE_URL-style receipt, not a silently
+  skipped check.
+
+Steps:
+  1. In the target repo, confirm the actually-checked-out branch and HEAD
+     (`git -C C:\Users\marka\code\mt-integration-2026-06-22 branch --show-current` and
+     `git -C C:\Users\marka\code\mt-integration-2026-06-22 log --oneline -3`), and confirm
+     js/poi-services-nearby.js does not already exist on disk. [command]
+     confirm-target-state
+  2. In the source worktree C:\Users\marka\code\mt-feat-poi-services-nearby-2026-06-23,
+     confirm commit 58e756084409afc496c98ffd244e873fca85b430 exists (`git show 58e7560`)
+     without modifying that worktree. [command] capture-patch
+  3. Check ancestry BEFORE attempting a cherry-pick: `git -C
+     C:\Users\marka\code\mt-integration-2026-06-22 merge-base --is-ancestor 58e7560 HEAD`.
+     If it reports 58e7560 is already an ancestor, it is already landed — skip
+     cherry-picking, do not use --allow-empty. Otherwise it needs to be applied.
+     [command] check-ancestry
+  4. If step 3 found 58e7560 not yet landed, apply it via `git -C
+     C:\Users\marka\code\mt-integration-2026-06-22 cherry-pick 58e7560` (or an equivalent
+     merge of that single commit). If the cherry-pick reports conflicts, resolve every
+     conflicted file by hand so the resolved content contains BOTH the target's
+     pre-existing lines AND the feature's added lines — never `--ours` / `--theirs` and
+     never a resolution that deletes either side's content. If the cherry-pick comes back
+     empty (already-applied after all), resolve with `--skip`, never `--allow-empty`.
+     [command] cherry-pick-commit
+  5. Run `node --check js/poi-services-nearby.js` from the target repo root and confirm it
+     exits 0; also run `node --check` on any other .js/.mjs file this integration touched
+     or conflict-resolved. [command] node-check-all
+  6. If step 4 left the integration uncommitted (conflict resolution required `git add` +
+     `git cherry-pick --continue`, or a manual merge commit), commit explicitly with a
+     message that references the source commit's own subject line ("feat(poi): nearby
+     services chips in POI popup") and/or the SHA 58e7560. Confirm `git status --short`
+     afterward shows no uncommitted changes to any ALLOW-FILES entry and
+     `git log --oneline -5` shows the landed commit at or near HEAD. [command]
+     commit-and-verify-clean
+  7. Because map.html changed and VISUAL-QC-REQUIRED is set above, start (or confirm
+     already running) a local preview server for the target repo at the PREVIEW-BASE-URL
+     host:port (e.g. `wrangler pages dev`), then render /map.html in a headless browser
+     (headless Chrome / Playwright / puppeteer) and capture that the page loads without a
+     fatal script error. If PREVIEW-BASE-URL is unreachable, record that as a named
+     NO_PREVIEW_BASE_URL receipt rather than skipping the check silently. This is the
+     render-witness step RULE 7 of mission_lint.mjs requires. [command]
+     headless-render-witness
+
+Done means:
+  - `git log` in C:\Users\marka\code\mt-integration-2026-06-22 shows a commit at or near
+    HEAD whose message names "poi-services-nearby" and/or cites 58e7560.
+  - js/poi-services-nearby.js exists in the target repo at HEAD with non-trivial content
+    (approximately 388 lines implementing the additive IIFE that wraps window.popup(p),
+    listens for map popupopen, fetches and caches /pois.json, and fills a "Services
+    nearby" disclosure with Haversine-computed nearest-distance chips for water_fill,
+    dump_station, shower, laundry, and propane) — confirmed by reading the on-disk file,
+    not by trusting the cherry-pick's exit code alone.
+  - map.html in the target repo contains exactly one
+    `<script src="js/poi-services-nearby.js" defer>` tag inserted after the existing
+    `<script src="js/poi-photos.js" defer>` tag and before the existing
+    `<script src="js/crown-land-overlay.js" defer>` tag, with every other pre-existing
+    script tag this repo's map.html already had before this mission ran still present
+    (both sides present) — confirmed by reading the file, not by trusting the cherry-pick's
+    exit code alone.
+  - `node --check js/poi-services-nearby.js` exits 0, and `node --check` exits 0 on every
+    other .js/.mjs file this integration touched or conflict-resolved.
+  - `git status --short` in the target repo shows no uncommitted changes to any
+    ALLOW-FILES entry (pre-existing unrelated untracked files noted in Context are not
+    this mission's to clean up).
+  - A headless browser (headless Chrome / Playwright / puppeteer) render of /map.html
+    served from PREVIEW-BASE-URL is actually captured and loads without a fatal script
+    error — a rendering check, not a read of the markup. If PREVIEW-BASE-URL turns out to
+    be the wrong local port, that failure must surface as a named NO_PREVIEW_BASE_URL-style
+    receipt, not a silently skipped check.
+  - Nothing about this mission's own authorship or execution constitutes verification
+    that the feature's code is correct (that the Haversine nearest-service math is
+    actually correct, that the self-exclusion/dedupe genuinely prevents a 0m
+    self-report, that the MAX_KM=200 cap is the right honesty threshold, or that the
+    mobile SAFE_TAGS degradation behaves right for a real user) — that determination
+    belongs entirely to this mission's own witness-and-verdict-panel run, downstream of
+    the receipts above.
+
+Context: Sandbox writes only, target repo working tree only.
+Amanah: entrusted; discharge with ihsan.

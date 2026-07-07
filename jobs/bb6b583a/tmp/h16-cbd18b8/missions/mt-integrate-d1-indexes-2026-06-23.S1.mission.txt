@@ -1,0 +1,26 @@
+MISSION-ID: mt-integrate-d1-indexes-2026-06-23.S1
+MISSION-CLASS: code-repo
+PARENT: mt-integrate-d1-indexes-2026-06-23
+TARTIB-INDEX: 1 of 2
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - d1/AUDIT-INDEXES-2026-06-23.md
+  - d1/migrate-indexes-2026-06-23.sql
+REQUIRES: none (first in tartib order)
+STEPS: 8
+
+PARENT MAQSAD: The commit "4050b5b d1: index pois (lat,lng) + (node_type); 17x speedup on
+
+Maqsad: sub-mission 1 of 2 — Confirm commit 4050b5b exists in the source worktree without modifying it (read-only capture of the origin commit). through Amend the integration commit's message so it explicitly names the feature (mt-feat-d1-indexes-2026-06-23) and its origin commit (4050b5b), preserving the diff content.
+
+Steps:
+  1. Confirm commit 4050b5b exists in the source worktree without modifying it (read-only capture of the origin commit). [command] 
+  2. Check out TARGET-BRANCH main in the target repo at its current HEAD. [command] 
+  3. Add the source worktree as a reachable remote if needed, fetch it, and cherry-pick 4050b5b onto main; confirm both new files landed in the working tree (clean or conflicted). [command] 
+  4. If the cherry-pick left conflict markers on d1/AUDIT-INDEXES-2026-06-23.md, hand-resolve so the file contains BOTH the target's pre-existing content (if any) and this feature's full audit content; if no conflict occurred, leave the feature's content intact. Never delete either side's lines. [edit] d1/AUDIT-INDEXES-2026-06-23.md
+  5. If the cherry-pick left conflict markers on d1/migrate-indexes-2026-06-23.sql, hand-resolve so the file contains BOTH sides' content, preserving both CREATE INDEX statements; if no conflict occurred, leave the feature's content intact. Never delete either side's lines. [edit] d1/migrate-indexes-2026-06-23.sql
+  6. Stage the resolved files (if a conflict occurred) and complete the cherry-pick, producing the integration commit; confirm no cherry-pick is left in progress. [command] 
+  7. Enumerate files touched by this integration versus main's prior HEAD (5e19874), filter to .js/.mjs, and run node --check on each; explicitly confirm the expected-empty list rather than skipping the check silently. [verify] 
+  8. Amend the integration commit's message so it explicitly names the feature (mt-feat-d1-indexes-2026-06-23) and its origin commit (4050b5b), preserving the diff content. [command] 
+
+Done means: d1/AUDIT-INDEXES-2026-06-23.md, d1/migrate-indexes-2026-06-23.sql exist/are updated as specified

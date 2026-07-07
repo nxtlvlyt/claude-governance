@@ -1,0 +1,24 @@
+MISSION-CLASS: code-repo
+MISSION-ID: M-ENGINE-3PHASE.2
+REPO-ROOT: C:\Users\marka\.claude\muezzin-plugin
+ALLOW-FILES:
+  - deconstructor.mjs
+  - orchestrate.mjs
+REQUIRES: code-repo
+
+Maqsad: Wire PHASE 1 to the operator's locked spec — THREE EQUAL, BLIND architects plan independently, then an OPUS INTEGRATOR synthesizes the master micro_queue. Today deconstruct() plans with a SINGLE model (kimi-k2.6); this replaces that with the blind panel. Spec: SEAT-PLAN-OPERATOR-ORIGINAL.md (Phase 1) — architects A=kimi-k2.6, B=deepseek-v4-pro, C=minimax-m3 (Ollama-first per route, Claude fallback); integrator = Opus -> nemotron-3-ultra -> qwen3.6 local.
+
+niyyah: build the SOTA chain's Phase-1 AS a code-repo mission (the muezzin improving the muezzin), not hand-built. Source: the 3-phase wiring plan + SEAT-PLAN-OPERATOR-ORIGINAL.md. Guarding against: breaking blindness (no architect sees another's output), breaking the 0.4/research/sandbox paths, or touching the witness/guardian fixes already landed.
+
+Done means (verifiable):
+- deconstructor.mjs exports `deconstructPanel(mission, opts)`: dispatches THREE architect seats (kimi-k2.6, deepseek-v4-pro, minimax-m3, role:'architect') with BYTE-IDENTICAL framing, independently (no seat receives another's output — blindness is structural); each produces a plan narrative (NOT the final queue). Then an integrator seat (role:'integrator', model:'nemotron-3-ultra' so the route's Opus-first window carries it) reads all three plans + the existing QUEUE_INSTRUCTION and emits the micro_queue, run through the EXISTING extractQueue + validateMicroQueue + repair loop UNCHANGED. Thread mission-class opts (research/codeRepo/repoRoot/allowFiles) into the integrator's validateMicroQueue exactly as deconstruct() does today.
+- GR10: architects fan out cloud-parallel is acceptable, but if any falls to LOCAL the local leg must serialize (or author the three serially, matching the verdict-phase precedent) — pick the lower-risk serial-3 unless trivially safe.
+- FAIL-CLOSED search: if <2 of 3 architects are search-grounded, the panel HOLDS the mission (ok:false, named reason).
+- orchestrate.mjs plan call site uses deconstructPanel as the DEFAULT deconstructFn, but deconstructFn stays INJECTABLE (every existing offline test that passes its own deconstructFn must stay green) and deconstruct() stays exported.
+- Tests: blind/identical-framing assertion; integrator synthesizes a valid queue (reuses validateMicroQueue); fail-closed <2 grounded -> HOLD; code-repo + research opts survive the integrator path. Full offline suite green (node deconstructor.mjs, node orchestrate.mjs, + the rest).
+
+Constraints: code-repo, muezzin-plugin only, NAS untouched, ADDITIVE (single-architect deconstruct() preserved as the integrator's per-seat primitive + test default).
+
+Steps:
+1. edit deconstructor.mjs - add deconstructPanel (3 blind architects + Opus integrator; reuse validateMicroQueue + repair loop) + self-tests. Acceptance: node deconstructor.mjs green incl. blindness + fail-closed assertions.
+2. edit orchestrate.mjs - default deconstructFn = deconstructPanel (kept injectable); plan-phase events emit architects + integrator. Acceptance: node orchestrate.mjs green; all injected-deconstructFn tests unchanged.

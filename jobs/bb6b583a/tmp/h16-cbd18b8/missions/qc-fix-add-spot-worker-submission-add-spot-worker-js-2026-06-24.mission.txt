@@ -1,0 +1,219 @@
+MISSION qc-fix-add-spot-worker-submission-add-spot-worker-js-2026-06-24
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - js/add-spot-worker.js
+  - docs/FEATURE-CATALOG-2026-06-23.md
+  - scripts/e2e-runner.mjs
+REQUIRES: none
+VISUAL-QC-REQUIRED
+PREVIEW-BASE-URL: http://localhost:8788
+
+Niyyah: A mission with this same name fired 2026-06-30 and never landed a fix: two
+architect-panel runs failed to produce parseable JSON, and the two plans that DID parse
+both tried to edit js/add-spot-worker.js against guessed SEARCH-anchor text that did not
+match the real file, so the write was correctly refused (fail-closed) — while the engine's
+own telemetry logged a false "committed" event carrying a stale, unrelated sha from a
+different mission. The mission file was deleted afterward with nothing fixed. Reading the
+live substrate fresh this session (not from memory of that log) found the earlier plan's
+premise was itself half wrong, which likely explains the guessed anchors: map.html already
+implements a complete, working ?add=1 deep link (window._addParam plus a getMe()-gated
+handler that clicks the hidden #add button to enter pin-drop add-mode; the actual
+#addsheet/#addsheetbox form only opens once the user taps a location on the map, because
+openAdd(lat,lng,...) needs real coordinates it cannot have on page load). Re-implementing
+"open the sheet on ?add=1" a second time in js/add-spot-worker.js would not fix a gap — it
+would duplicate already-shipped, already-correct behavior, and would be technically wrong
+besides (there are no coordinates to open a form with). This mission's real, narrower gap,
+confirmed by re-running the original QC gates against the live repo this session: (1)
+js/add-spot-worker.js has never been promoted from a bare TODO bullet to a full
+"### Feature:" section in docs/FEATURE-CATALOG-2026-06-23.md, so scripts/e2e-runner.mjs —
+which parses that file on `text.split(/^### Feature: /m)` — has zero sections to grade this
+feature against; the QC gate is mechanically unsatisfiable until that entry exists,
+independent of any code change. (2) js/add-spot-worker.js has no ?add=1/URLSearchParams
+awareness at all today (confirmed: `Select-String -Path js/add-spot-worker.js -Pattern
+'URLSearchParams' -Quiet` -> False; `grep -c URLSearchParams js/add-spot-worker.js` -> 0).
+Adding a narrow, guarded, backup-only entry point there — never a competing
+re-implementation — gives real defensive value if map.html's inline handler is ever
+refactored or fails to fire, consistent with this file's own existing pattern
+(attachBackupInterceptor is explicitly commented "backup; primary flow is
+window.reviewSpot").
+
+Maqsad: (a) docs/FEATURE-CATALOG-2026-06-23.md contains a full "### Feature: Add-spot
+worker submission" section, promoted from the existing TODO bullet "js/add-spot-worker.js
+(community spot submission)" (which is removed from the TODO list, not merely duplicated),
+following this catalog's own documented template (Page / Loaded by / Pre-state required /
+Selectors / Interaction sequence / Expected behavior / Expected visual / Verdict gates) —
+so scripts/e2e-runner.mjs has a real section to walk for this feature. (b)
+js/add-spot-worker.js gains one small, guarded, idempotent module-scope block that reads
+`new URLSearchParams(window.location.search)`, and — only when `.get('add') === '1'` AND
+`window.addMode` is not already true (the exact guard map.html's own startAdd() uses, so
+this can never fight or double-toggle the existing handler) — clicks
+`document.getElementById('add')` as a backup entry into add-mode, wrapped in try/catch so
+it can never throw at load time. map.html is NOT an editable target for this mission:
+js/add-spot-worker.js is already loaded there via `<script src="js/add-spot-worker.js"
+defer>` (confirmed present, this session), so the new code self-mounts from that existing
+tag with no HTML change needed. Both (a) and (b) must land together — this mission is not
+done if either the catalog entry or the code change is missing.
+
+Context (verified against live substrate this session, absolute paths, no prescribed
+resolution beyond what's stated):
+- js/add-spot-worker.js is 365 lines today (read in full this session): a single top-level
+  IIFE containing notice(), normalizeAmenities(), validateCanada(), getMe(),
+  dropCommunityMarker(), submitSpot(), collectSelectedFiles()/uploadOnePhoto()/
+  uploadAllPhotos(), reviewSpot(), and attachBackupInterceptor(), followed by a
+  "Module-scope wiring" comment block in its final ~15 lines that exposes
+  window.reviewSpot and attaches attachBackupInterceptor on DOMContentLoaded — every
+  top-level side effect there is already wrapped in its own try/catch, no top-level throw.
+  The new ?add=1 block must be added inside that same wiring section, in the same guarded
+  style, and must not touch reviewSpot(), submitSpot(), or notice().
+- map.html's mechanism (read directly this session, not assumed): line 200 declares
+  `var addMode=false,btn=document.getElementById('add');` at the top level of the page's
+  main inline <script> (this makes both `addMode` and `btn` real globals — window.addMode,
+  window.btn — reachable from any other non-module script on the page, including a
+  deferred one). Line 201's `btn.onclick` toggles: if addMode is true it turns OFF
+  (addMode=false, resets label); otherwise it turns ON (addMode=true, sets the "Tap the
+  exact spot" label, tries to geolocate-center the map) — a plain toggle with no built-in
+  re-entrancy guard of its own. The deep-link block further down
+  (`if(window._addParam){(function(){function startAdd(){if(!addMode)btn.click();}
+  function promptLogin(){...mtOpenAuth('signup')...} function
+  go(){getMe?getMe().then(u=>u?startAdd():promptLogin()).catch(promptLogin):startAdd();}
+  setTimeout(go,400);})();}`) is what supplies the missing re-entrancy guard: it only
+  calls btn.click() when `!addMode`, exactly so a second call can never toggle it back off.
+  The 400ms setTimeout gives account.js (deferred) a chance to define getMe/mtOpenAuth
+  first. #addsheet only opens once a location exists: `map.on('click',function(e){if
+  (!addMode)return;openAdd(e.latlng.lat.toFixed(5),e.latlng.lng.toFixed(5));});`. The new
+  backup in js/add-spot-worker.js must reuse the identical `if(!window.addMode)` guard
+  before calling `document.getElementById('add').click()` — anything looser risks
+  toggling an already-active add-mode back off.
+- docs/FEATURE-CATALOG-2026-06-23.md does not exist on main, master, or the branch
+  currently checked out in the target repo as of this session (`git show
+  main:docs/FEATURE-CATALOG-2026-06-23.md` and the master equivalent both report the path
+  does not exist there). It DOES exist, byte-identical, in at least 10 historical commits
+  each titled "docs(qc): bring FEATURE-CATALOG-2026-06-23.md onto branch — required by
+  mission brief RECON step" (e.g. commit 05696cd59dd20b23a81c9ba2f9775096f7358e83), one per
+  prior qc-fix-* mission's own feature branch, none of which has landed the file back onto
+  main/master. This mission follows the same pattern: bring the file onto whatever branch
+  is checked out when this mission fires, from 05696cd's content, then edit it.
+- scripts/e2e-runner.mjs is present in the live working tree right now as an UNTRACKED file
+  (confirmed via `git status --short`) but is committed on only one historical commit,
+  e31469f, not on main/master or the currently checked-out branch — a future checkout could
+  remove it. This mission does not modify this file's logic, only confirms/restores its
+  presence, so the "Cannot find module scripts/e2e-runner.mjs" failure the 2026-06-30
+  mission hit cannot repeat.
+- e2e-runner.mjs (read in full this session) drives a headless Chromium browser via
+  Playwright (`await import('playwright'); pw.chromium.launch({headless:true})`),
+  screenshots each feature, and sends the shots to a vision-model verdict step. It defaults
+  --target to https://muddytires.ca (PRODUCTION) but accepts --preview-url to point at a
+  local server instead. It has no pre-state hook for an authenticated session (only a
+  "planning mode" special case) — an anonymous headless run of this feature will resolve
+  getMe() to null and hit map.html's promptLogin() path (mtOpenAuth('signup')), never
+  startAdd(). The catalog entry this mission writes sets its expected-behavior gates to
+  that real anonymous-session outcome, not an authenticated happy path this harness cannot
+  currently drive — grading against a behavior the harness can't produce is exactly the
+  unsatisfiable-gate mistake this mission exists to stop repeating.
+- Other untracked files in the working tree (api-index-response.json,
+  docs/e2e-report-2026-07-01.json, e2e-shots/, feature-catalog-entry.txt) predate this
+  mission and are unrelated debris from other QC sessions — out of scope. "Clean working
+  tree" in this mission's Done means refers only to the ALLOW-FILES entries.
+- This mission deliberately carries no TARGET-BRANCH: the target repo's checked-out branch
+  was observed to change between commands within this same session (concurrent muezzin
+  mission activity checks out different branches/worktrees against this same REPO-ROOT) —
+  land on whatever branch is actually checked out as HEAD when this mission fires, the same
+  convention used by the same-day mission mt-integrate-b13-aria-live.
+
+Steps:
+  1. Read js/add-spot-worker.js in full, and read docs/FEATURE-CATALOG-2026-06-23.md's
+     "Catalog template" section and its existing "### Feature:" entries (via `git show
+     05696cd:docs/FEATURE-CATALOG-2026-06-23.md` if the file is not yet on the checked-out
+     branch) to get real, current anchor text before writing any edit — never guess at
+     SEARCH text; a guessed anchor is exactly what made the 2026-06-30 attempt's writes
+     refuse. [command] read-real-anchors
+  2. If docs/FEATURE-CATALOG-2026-06-23.md does not exist on the currently checked-out
+     branch, bring it onto the branch using the known content from commit 05696cd (`git
+     show 05696cd:docs/FEATURE-CATALOG-2026-06-23.md > docs/FEATURE-CATALOG-2026-06-23.md`),
+     matching the pattern every prior qc-fix-* mission used. [command]
+     bring-catalog-onto-branch
+  3. Edit docs/FEATURE-CATALOG-2026-06-23.md: remove the line "- js/add-spot-worker.js
+     (community spot submission)" from the "## TODO — Priority B+ features to catalog"
+     list, and insert a new "### Feature: Add-spot worker submission" section immediately
+     after the existing "### Feature: Carbon-footprint chip (CURRENTLY MISSING FROM
+     BUILD)" section and before the "---" divider that precedes "## TODO", following the
+     file's own template: Page https://muddytires.ca/map.html?add=1; Loaded by
+     js/add-spot-worker.js (backup) + map.html (primary); Pre-state required: any
+     (anonymous session — the deep link is login-gated, see Context); Selectors: #add,
+     #addsheet, #addsheetbox, #add-spot-notice; Interaction sequence: navigate to the
+     ?add=1 URL, then `wait 1500` for the deep-link handler's 400ms delay plus margin;
+     Expected behavior: an anonymous visit shows a sign-in prompt (mtOpenAuth('signup'))
+     with no pageerror in console; a logged-in visit sets window.addMode=true and enters
+     add-mode, then opens #addsheet/#addsheetbox once the map is tapped; Expected visual:
+     no layout clutter from #add-spot-notice while idle. [edit] catalog-add-feature-section
+  4. Edit js/add-spot-worker.js: inside the existing "Module-scope wiring" block near the
+     bottom of the file, add one small guarded block that: builds `new
+     URLSearchParams(window.location.search)`, checks `.get('add') === '1'`, and — only if
+     that is true AND `window.addMode` is not already true — calls
+     `document.getElementById('add').click()` as a backup entry into add-mode. Wrap the
+     whole block in try/catch exactly like every other top-level side effect in this file,
+     so it can never throw at load time. Do not touch reviewSpot(), submitSpot(), or
+     notice(). [edit] add-urlsearchparams-backup
+  5. Confirm scripts/e2e-runner.mjs exists in the working tree; if `git status --short`
+     shows it missing, restore it via `git show e31469f:scripts/e2e-runner.mjs >
+     scripts/e2e-runner.mjs`. Do not otherwise modify this file's contents. [command]
+     confirm-e2e-runner-present
+  6. Run `node --check js/add-spot-worker.js` and confirm it exits 0. [command]
+     node-check-add-spot-worker
+  7. Run the structural gate that would have caught the 2026-06-30 failure: `(Select-String
+     -Path js/add-spot-worker.js -Pattern 'URLSearchParams' -Quiet) -and (Select-String
+     -Path docs/FEATURE-CATALOG-2026-06-23.md -Pattern '### Feature: Add-spot worker
+     submission' -Quiet)` must return True. [command] structural-gate
+  8. Stage and commit the changed ALLOW-FILES entries in the target repo with a message
+     naming "add-spot-worker" and "FEATURE-CATALOG"; confirm `git status --short`
+     afterward shows no uncommitted changes to any ALLOW-FILES entry, and confirm with
+     `git show --stat <the new sha>` that the commit's own diff actually touches
+     js/add-spot-worker.js and docs/FEATURE-CATALOG-2026-06-23.md — never trust a
+     "committed" event alone, the way the 2026-06-30 attempt's false telemetry did.
+     [command] commit-and-verify-clean
+  9. Start (or confirm already running) a local preview server for the target repo at
+     PREVIEW-BASE-URL (e.g. `wrangler pages dev`), then run `node scripts/e2e-runner.mjs
+     --preview-url http://localhost:8788 --features add-spot-worker-submission` — this
+     drives a headless Chromium browser via Playwright, the render-witness step RULE 7 of
+     mission_lint.mjs requires because VISUAL-QC-REQUIRED is set above — and record the
+     resulting verdict for the "add-spot-worker-submission" slug from the JSON report.
+     [command] e2e-runner-witness
+
+Done means:
+  - docs/FEATURE-CATALOG-2026-06-23.md exists on the checked-out branch and contains a
+    "### Feature: Add-spot worker submission" section (`Select-String -Path
+    docs/FEATURE-CATALOG-2026-06-23.md -Pattern '### Feature: Add-spot worker submission'
+    -Quiet` -> True), and the line "js/add-spot-worker.js (community spot submission)" no
+    longer appears under the "## TODO" heading (confirmed moved, not duplicated).
+  - js/add-spot-worker.js contains a guarded URLSearchParams-based ?add=1 backup handler:
+    `Select-String -Path js/add-spot-worker.js -Pattern 'URLSearchParams' -Quiet` -> True
+    (the exact structural gate the 2026-06-30 attempt's own plan defined and which
+    returned False after that attempt's bogus "committed" event — it must return True this
+    time), and reading the on-disk code (not trusting a commit event alone) confirms the
+    new block checks `window.addMode` before calling `.click()`, so it can never fire when
+    map.html's own deep-link handler already has.
+  - `node --check js/add-spot-worker.js` exits 0.
+  - `git status --short` in the target repo shows no uncommitted changes to any
+    ALLOW-FILES entry (pre-existing unrelated untracked debris noted in Context is not
+    this mission's to clean up).
+  - `git log` in the target repo shows a real commit at or near HEAD whose own `git show
+    --stat <sha>` diff actually touches js/add-spot-worker.js and
+    docs/FEATURE-CATALOG-2026-06-23.md — confirmed by reading that diff, not by the mere
+    presence of a "committed" event in the mission log.
+  - A local headless run of `node scripts/e2e-runner.mjs --preview-url
+    http://localhost:8788 --features add-spot-worker-submission` (Playwright-driven
+    headless browser render) completes with exit code 0 or 1 (never 2 or 3), and the
+    JSON report's entry for slug "add-spot-worker-submission" shows an agyVerdict of
+    "clean" or "concern" — never "block" or "error". If it comes back "error" because
+    Playwright, the local preview server, or the vision-verdict dependency is unavailable
+    in the sandbox this mission runs in, that must be reported as a NAMED infrastructure
+    gap in the receipt, never silently treated as passing and never treated as proof the
+    code itself is wrong.
+  - Nothing about this mission's authorship or execution proves the code is correct beyond
+    what these receipts show: the catalog entry exists, the structural gate passes, the
+    file is syntactically valid, the commit's own diff is real, and one local headless
+    walk produced a real (non-block, non-error) verdict.
+
+Context: Sandbox writes only, target repo working tree only.
+Amanah: entrusted; discharge with ihsan.

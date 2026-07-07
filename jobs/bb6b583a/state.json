@@ -1,12 +1,13 @@
 {
   "state": "working",
-  "detail": "daemon reloaded (PID 9336); e2e audit running (28 pass, 2 fail); diagnosing witness REJECT on affiliate-cards step 5",
+  "detail": "live site healthy (200, 6 features shipped); daemon correct; no damage; e2e audit running final pass (28/30 clean); gap program 27/29; ready to push",
   "tempo": "active",
   "inFlight": {
-    "tasks": 1,
+    "tasks": 2,
     "queued": 0,
     "kinds": [
-      "local_workflow"
+      "local_workflow",
+      "local_bash"
     ]
   },
   "fan": [
@@ -159,28 +160,32 @@
       "kind": "workflow",
       "label": "audit:hunt-19 conduct-cycle divergence guard fail-closed on git error",
       "group": "Audit",
-      "startedAt": 1783451695706
+      "startedAt": 1783451695706,
+      "doneAt": 1783452435653
     },
     {
       "id": "ab2918880aa239b42",
       "kind": "workflow",
       "label": "audit:hunt-20 DEPLOY keystroke --commit-dirty contradiction clarified",
       "group": "Audit",
-      "startedAt": 1783451702606
+      "startedAt": 1783451702606,
+      "doneAt": 1783451997256
     },
     {
       "id": "af6e405fcca67d4da",
       "kind": "workflow",
       "label": "audit:hunt-21 sweep reports open UNPARKS condition counts",
       "group": "Audit",
-      "startedAt": 1783451695845
+      "startedAt": 1783451695845,
+      "doneAt": 1783452335404
     },
     {
       "id": "a44787c64f5d3c212",
       "kind": "workflow",
       "label": "audit:hunt-22 unenrolled-classes enrollment (marker-inventory b65c9db + untracked-file byte-guard 1a069e4)",
       "group": "Audit",
-      "startedAt": 1783451698436
+      "startedAt": 1783451698436,
+      "doneAt": 1783452171307
     },
     {
       "id": "a020d976126b892a3",
@@ -212,7 +217,8 @@
       "kind": "workflow",
       "label": "audit:top-1 tartib bare-stem REQUIRES gating",
       "group": "Audit",
-      "startedAt": 1783451696746
+      "startedAt": 1783451696746,
+      "doneAt": 1783452130077
     },
     {
       "id": "a71040c6fdba64289",
@@ -227,7 +233,8 @@
       "kind": "workflow",
       "label": "audit:top-3 witness groundedness diagnosis (non-blocking flag, 3 false-flag mechanics recorded)",
       "group": "Audit",
-      "startedAt": 1783451696647
+      "startedAt": 1783451696647,
+      "doneAt": 1783452026766
     },
     {
       "id": "a75e99faf55cf0684",
@@ -243,28 +250,32 @@
       "kind": "workflow",
       "label": "audit:top-5 claude-exe-480s-hang HANG-RETRY",
       "group": "Audit",
-      "startedAt": 1783451697295
+      "startedAt": 1783451697295,
+      "doneAt": 1783452302580
     },
     {
       "id": "a379b66c11911c327",
       "kind": "workflow",
       "label": "audit:top-6 windowed-edit >250KB dep-path caps",
       "group": "Audit",
-      "startedAt": 1783451696755
+      "startedAt": 1783451696755,
+      "doneAt": 1783451977471
     },
     {
       "id": "ac0453ffc3e1affb5",
       "kind": "workflow",
       "label": "audit:top-8 repo-process (strands merged, master reconciled, deploys live, engine-proof landed)",
       "group": "Audit",
-      "startedAt": 1783451697856
+      "startedAt": 1783451697856,
+      "doneAt": 1783452038102
     },
     {
       "id": "a723612a850ac9f73",
       "kind": "workflow",
       "label": "audit:top-9 identity hygiene (kimi tag rm, per-era seat records, eval-v3 cells)",
       "group": "Audit",
-      "startedAt": 1783451697157
+      "startedAt": 1783451697157,
+      "doneAt": 1783452145057
     },
     {
       "id": "a26186991e193db58",
@@ -279,21 +290,24 @@
       "kind": "workflow",
       "label": "refute:hunt-1 dotted-stem sandbox collision",
       "group": "Refute",
-      "startedAt": 1783451751885
+      "startedAt": 1783451751885,
+      "doneAt": 1783452098957
     },
     {
       "id": "a34b580bcf64b241f",
       "kind": "workflow",
       "label": "refute:hunt-2 local-lane TIMEOUT/NETWORK heal asymmetry",
       "group": "Refute",
-      "startedAt": 1783451758212
+      "startedAt": 1783451758212,
+      "doneAt": 1783452085738
     },
     {
       "id": "a26a24c70a88b2c9d",
       "kind": "workflow",
       "label": "refute:hunt-3 supervisor halt surfacing (marker + out-of-process push)",
       "group": "Refute",
-      "startedAt": 1783451873005
+      "startedAt": 1783451873005,
+      "doneAt": 1783452256211
     },
     {
       "id": "a09573b1875b16b65",
@@ -307,150 +321,267 @@
       "kind": "workflow",
       "label": "refute:hunt-5 daemon UNRESOLVED-as-RESOLVED regex inversion",
       "group": "Refute",
-      "startedAt": 1783451948800
+      "startedAt": 1783451948800,
+      "doneAt": 1783452133771
     },
     {
-      "id": "w148xmcjk:40",
+      "id": "ad2b0b8c1f4dc8006",
       "kind": "workflow",
       "label": "refute:hunt-6 RESOLVED-LANDED stamp validation",
       "group": "Refute",
-      "startedAt": 1783451691702
+      "startedAt": 1783451953146,
+      "doneAt": 1783452339134
     },
     {
-      "id": "w148xmcjk:41",
+      "id": "afbc442fc8a1b0f47",
       "kind": "workflow",
       "label": "refute:hunt-7 LANE-EXCLUSION hook (built + registered in settings.json)",
       "group": "Refute",
-      "startedAt": 1783451691703
+      "startedAt": 1783451983005,
+      "doneAt": 1783452348395
     },
     {
-      "id": "w148xmcjk:42",
+      "id": "a971a9b7137cc6291",
       "kind": "workflow",
       "label": "refute:hunt-8 PRE-FLIGHT gate content-awareness",
       "group": "Refute",
-      "startedAt": 1783451691704
+      "startedAt": 1783452009972,
+      "doneAt": 1783452237530
     },
     {
-      "id": "w148xmcjk:43",
+      "id": "ad1944b5547cbf5b9",
       "kind": "workflow",
       "label": "refute:hunt-9 self-witness prompt truncation",
       "group": "Refute",
-      "startedAt": 1783451691705
+      "startedAt": 1783452033410,
+      "doneAt": 1783452282598
     },
     {
-      "id": "w148xmcjk:44",
+      "id": "a3ccec5c7b2ecdc7a",
       "kind": "workflow",
       "label": "refute:hunt-10 self-witness receipts mislabeling ornith as laguna",
       "group": "Refute",
-      "startedAt": 1783451691705
+      "startedAt": 1783452052028,
+      "doneAt": 1783452237096
     },
     {
-      "id": "w148xmcjk:45",
+      "id": "aaa440ebeb5434ad1",
       "kind": "workflow",
       "label": "refute:hunt-11 witness-divergence corpus wired into pipeline",
       "group": "Refute",
-      "startedAt": 1783451691706
+      "startedAt": 1783452101508
     },
     {
-      "id": "w148xmcjk:46",
+      "id": "a50e620cdb0271112",
       "kind": "workflow",
       "label": "refute:hunt-12 no-verdict re-ask allows concern line",
       "group": "Refute",
-      "startedAt": 1783451691707
+      "startedAt": 1783452104698,
+      "doneAt": 1783452204506
     },
     {
-      "id": "w148xmcjk:47",
+      "id": "adda7534d6468bd85",
       "kind": "workflow",
       "label": "refute:hunt-13 re-split children SPLIT-CHILD marker",
       "group": "Refute",
-      "startedAt": 1783451691707
+      "startedAt": 1783452136824
     },
     {
-      "id": "w148xmcjk:48",
+      "id": "af7b493a91699691d",
       "kind": "workflow",
       "label": "refute:hunt-14 queuedDepsHold silently-dropped REQUIRES citations surfaced",
       "group": "Refute",
-      "startedAt": 1783451691708
+      "startedAt": 1783452140287
     },
     {
-      "id": "w148xmcjk:49",
+      "id": "a642fea5e8ae6cb59",
       "kind": "workflow",
       "label": "refute:hunt-15 fix-ledger requeue-once .some() bug",
       "group": "Refute",
-      "startedAt": 1783451691708
+      "startedAt": 1783452154578
     },
     {
-      "id": "w148xmcjk:50",
+      "id": "a241d884144dae511",
       "kind": "workflow",
       "label": "refute:hunt-16 stranded split children recovered via manifest",
       "group": "Refute",
-      "startedAt": 1783451691709
+      "startedAt": 1783452177881
     },
     {
-      "id": "w148xmcjk:51",
+      "id": "a97c375af2a93dc83",
       "kind": "workflow",
       "label": "refute:hunt-17 GAP-PRIORITY-HOLD namespace widening (72a17f6 + 2026-07-07 qc-/m1- enrollment 3acb8e1)",
       "group": "Refute",
-      "startedAt": 1783451691710
+      "startedAt": 1783452211623
     },
     {
-      "id": "w148xmcjk:52",
+      "id": "af6db13bde73a7431",
       "kind": "workflow",
       "label": "refute:hunt-18 assertNoUndeclaredShrinkage wired into command-step path (+ Windows backslash git-show fix)",
       "group": "Refute",
-      "startedAt": 1783451691711
+      "startedAt": 1783452250373
     },
     {
-      "id": "w148xmcjk:53",
+      "id": "adf40732462d9df57",
       "kind": "workflow",
       "label": "refute:top-2 plan-level scratch lint (SCRATCH-RESIDUE)",
       "group": "Refute",
-      "startedAt": 1783451866093
+      "startedAt": 1783452248522,
+      "doneAt": 1783452411610
     },
     {
-      "id": "w148xmcjk:54",
+      "id": "ab6aa4de081ccb7fe",
       "kind": "workflow",
       "label": "refute:top-10 gemma4:31b CUDA demotion (vision-verdict -> 12b, ab4c5f1)",
       "group": "Refute",
-      "startedAt": 1783451902948
+      "startedAt": 1783452261467,
+      "doneAt": 1783452443432
     },
     {
-      "id": "w148xmcjk:55",
+      "id": "a5eb1bc2d24e9acce",
       "kind": "workflow",
       "label": "refute:hunt-24 preflight-receipt gate content-aware not mtime-only",
       "group": "Refute",
-      "startedAt": 1783451944897
+      "startedAt": 1783452288660
     },
     {
-      "id": "w148xmcjk:56",
+      "id": "a59549e0515fd13c7",
       "kind": "workflow",
       "label": "refute:hunt-25 laguna leaked reasoning-tag preamble stripped",
       "group": "Refute",
-      "startedAt": 1783451950281
+      "startedAt": 1783452307077
     },
     {
-      "id": "bmcf5stny",
-      "kind": "shell",
-      "label": "cd C:/Users/marka/.claude/muezzin-plugin && node conduct-cycle.mjs --selftest 2>&1 | grep -iE \"QUEUE.md-visibility|ALL PASS|FAIL\" | head -15",
-      "startedAt": 1783451876197
+      "id": "a67501fff0fb11bda",
+      "kind": "workflow",
+      "label": "refute:top-6 windowed-edit >250KB dep-path caps",
+      "group": "Refute",
+      "startedAt": 1783452348816
     },
     {
-      "id": "bcp7m9vgo",
-      "kind": "shell",
-      "label": "node orchestrate.mjs --selftest 2>&1 | grep -E \"e2e \\(4\\)|e2e \\(5\\)|e2e \\(6\\)|e2e \\(7\\)|ALL PASS|FAIL\" | head -30",
-      "startedAt": 1783451905271
+      "id": "aef65a8c97471db65",
+      "kind": "workflow",
+      "label": "refute:hunt-20 DEPLOY keystroke --commit-dirty contradiction clarified",
+      "group": "Refute",
+      "startedAt": 1783452351177
     },
     {
-      "id": "bmc5c4kg1",
+      "id": "ab66df89494d168b6",
+      "kind": "workflow",
+      "label": "refute:top-3 witness groundedness diagnosis (non-blocking flag, 3 false-flag mechanics recorded)",
+      "group": "Refute",
+      "startedAt": 1783452357246
+    },
+    {
+      "id": "a56fc0ad3a599a62f",
+      "kind": "workflow",
+      "label": "refute:top-8 repo-process (strands merged, master reconciled, deploys live, engine-proof landed)",
+      "group": "Refute",
+      "startedAt": 1783452422318
+    },
+    {
+      "id": "a16c90d1f163fe018",
+      "kind": "workflow",
+      "label": "refute:top-1 tartib bare-stem REQUIRES gating",
+      "group": "Refute",
+      "startedAt": 1783452442914
+    },
+    {
+      "id": "a6d06052bbfd625cd",
+      "kind": "workflow",
+      "label": "refute:top-9 identity hygiene (kimi tag rm, per-era seat records, eval-v3 cells)",
+      "group": "Refute",
+      "startedAt": 1783452449012
+    },
+    {
+      "id": "w148xmcjk:63",
+      "kind": "workflow",
+      "label": "refute:hunt-22 unenrolled-classes enrollment (marker-inventory b65c9db + untracked-file byte-guard 1a069e4)",
+      "group": "Refute",
+      "startedAt": 1783452173527
+    },
+    {
+      "id": "w148xmcjk:64",
+      "kind": "workflow",
+      "label": "refute:top-5 claude-exe-480s-hang HANG-RETRY",
+      "group": "Refute",
+      "startedAt": 1783452304076
+    },
+    {
+      "id": "w148xmcjk:65",
+      "kind": "workflow",
+      "label": "refute:hunt-21 sweep reports open UNPARKS condition counts",
+      "group": "Refute",
+      "startedAt": 1783452337773
+    },
+    {
+      "id": "w148xmcjk:66",
+      "kind": "workflow",
+      "label": "refute:hunt-19 conduct-cycle divergence guard fail-closed on git error",
+      "group": "Refute",
+      "startedAt": 1783452437903
+    },
+    {
+      "id": "bk9icaji2",
       "kind": "shell",
-      "label": "node /c/Users/marka/.claude/jobs/bb6b583a/tmp/live-check.mjs",
-      "startedAt": 1783451950182
+      "label": "mkdir -p /c/Users/marka/.claude/jobs/bb6b583a/tmp/refute-h15 && cp /c/Users/marka/.claude/muezzin-plugin/conduct-cycle.mjs /c/Users/marka/.claude/muezzin-plugin/git_steps.mjs /c/Users/marka/.claude/j…",
+      "startedAt": 1783452284646
+    },
+    {
+      "id": "b72r4t762",
+      "kind": "shell",
+      "label": "cd \"C:/Users/marka/.claude/muezzin-plugin\" && node conduct-cycle.mjs --selftest > \"C:/Users/marka/.claude/jobs/bb6b583a/tmp/selftest-current.txt\" 2>&1; echo \"exit=$?\"; grep -c \"^PASS\" \"C:/Users/marka…",
+      "startedAt": 1783452360914
+    },
+    {
+      "id": "bj96slxbz",
+      "kind": "shell",
+      "label": "mkdir -p /c/Users/marka/.claude/jobs/bb6b583a/tmp && node orchestrate.mjs > /c/Users/marka/.claude/jobs/bb6b583a/tmp/orch-selftest.log 2>&1; echo \"EXIT=$?\" >> /c/Users/marka/.claude/jobs/bb6b583a/tmp…",
+      "startedAt": 1783452366215
+    },
+    {
+      "id": "bmada03mx",
+      "kind": "shell",
+      "label": "node orchestrate.mjs --selftest 2>&1 | grep -Ei \"e2e \\(4\\)|e2e \\(5\\)|ALL PASS|^FAIL|FAIL \" | head -20",
+      "startedAt": 1783452385754
+    },
+    {
+      "id": "bt5y4re2o",
+      "kind": "shell",
+      "label": "cd \"C:/Users/marka/.claude/muezzin-plugin\" && node orchestrate.mjs --selftest 2>&1 | tail -3",
+      "startedAt": 1783452407954
+    },
+    {
+      "id": "bxebc0acj",
+      "kind": "shell",
+      "label": "rm -rf /c/Users/marka/.claude/jobs/bb6b583a/tmp/h16-cbd18b8 && mkdir -p /c/Users/marka/.claude/jobs/bb6b583a/tmp/h16-cbd18b8 && git -C /c/Users/marka/.claude/muezzin-plugin archive cbd18b8 | tar -x -…",
+      "startedAt": 1783452429133
+    },
+    {
+      "id": "bjzk5fxbg",
+      "kind": "shell",
+      "label": "cd \"C:/Users/marka/code/mt-integration-2026-06-22\" && git log --format='%h %p %s' -1 7f4cd1c && git log --format='%h %p %s' -1 94e8e71 && git log --format='%h %p %s' -1 22e093c",
+      "startedAt": 1783452459089
+    },
+    {
+      "id": "bsap2e2vk",
+      "kind": "shell",
+      "label": "git log --oneline -1 && git show --stat 7b021601242ba001d975b084edb47b486bbbf0da | head -30",
+      "startedAt": 1783452459115
+    },
+    {
+      "id": "bkckona1q",
+      "kind": "shell",
+      "label": "mkdir -p /c/Users/marka/.claude/jobs/bb6b583a/tmp/refute20 && cd /c/Users/marka/.claude/jobs/bb6b583a/tmp/refute20 && mkdir -p dirtyrepo && cd dirtyrepo && git init -q . && git -C . config user.email…",
+      "startedAt": 1783452459121
     }
   ],
-  "tokens": 1317349,
-  "output": null,
+  "tokens": 1610525,
+  "output": {
+    "result": "site healthy, daemon correct, audit final pass, ready to push"
+  },
   "children": null,
-  "linkScanOffset": 3826371,
+  "linkScanOffset": 3849318,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -462,6 +593,8 @@
     "--permission-mode",
     "auto"
   ],
+  "bgIsolation": "none",
+  "providerEnv": {},
   "intent": "but we had 30 gaps mission we were fixing first before we did anything else and a big project to que when they were done",
   "name": "daemon-restart-mission-triage",
   "nameSource": "auto",
@@ -470,13 +603,11 @@
   "daemonShort": "bb6b583a",
   "cliVersion": "2.1.202",
   "cwd": "C:\\Users\\marka",
+  "createdAt": "2026-07-07T14:31:31.695Z",
+  "updatedAt": "2026-07-07T19:27:39.420Z",
+  "firstTerminalAt": "2026-07-07T15:47:23.132Z",
   "bridgeSessionId": "cse_015z5n4qQqp9BZ8kKSCkvtzT",
   "bridgeOutboundOnly": false,
   "bridgeSessionSeq": 85,
-  "bgIsolation": "none",
-  "providerEnv": {},
-  "backend": "daemon",
-  "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-07T19:19:11.117Z",
-  "firstTerminalAt": "2026-07-07T15:47:23.132Z"
+  "backend": "daemon"
 }

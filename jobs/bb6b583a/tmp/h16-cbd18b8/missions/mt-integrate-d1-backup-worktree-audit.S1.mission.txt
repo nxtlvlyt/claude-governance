@@ -1,0 +1,27 @@
+MISSION-ID: MT-INTEGRATE-D1-BACKUP-WORKTREE-AUDIT.S1
+MISSION-CLASS: code-repo
+PARENT: MT-INTEGRATE-D1-BACKUP-WORKTREE-AUDIT
+TARTIB-INDEX: 1 of 2
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - workers/d1-backup/index.js
+  - wrangler.d1-backup.toml
+  - docs/DISASTER-RECOVERY.md
+REQUIRES: none (first in tartib order)
+STEPS: 8
+
+PARENT MAQSAD: Bring commit 634abd59ce5c7aa42061f1d4a641d5820ecfcab4 ("feat(d1-backup): scheduled D1
+
+Maqsad: sub-mission 1 of 2 — Preflight: confirm none of the three ALLOW-FILES paths already exist at REPO-ROOT (they must be absent per mission context), and record current HEAD sha as the rollback baseline. through Confirm workers/d1-backup/index.js landed with at least its committed line count (416; may be larger only if a both-sides merge in step 3 added content, never smaller).
+
+Steps:
+  1. Preflight: confirm none of the three ALLOW-FILES paths already exist at REPO-ROOT (they must be absent per mission context), and record current HEAD sha as the rollback baseline. [command] 
+  2. Integrate: cherry-pick commit 634abd59ce5c7aa42061f1d4a641d5820ecfcab4 onto current HEAD. The commit object is already reachable via the linked worktree per mission context — no fetch/copy needed. Exit 0 means clean apply (skip steps 3-6); a non-zero exit with conflict markers means steps 3-6 handle resolution. [command] 
+  3. CONDITIONAL — run only if step 2 reported workers/d1-backup/index.js as conflicted. Manually merge both sides' content in the file (keep REPO-ROOT's pre-existing content at this path, if any, AND the feature's added content — never a one-sided resolution), remove all conflict markers, then stage the file. Skip entirely if step 2 was clean. [edit] workers/d1-backup/index.js
+  4. CONDITIONAL — run only if step 2 reported wrangler.d1-backup.toml as conflicted. Manually merge both sides' content, remove all conflict markers, then stage the file. Skip entirely if step 2 was clean. [edit] wrangler.d1-backup.toml
+  5. CONDITIONAL — run only if step 2 reported docs/DISASTER-RECOVERY.md as conflicted. Manually merge both sides' content, remove all conflict markers, then stage the file. Skip entirely if step 2 was clean. [edit] docs/DISASTER-RECOVERY.md
+  6. CONDITIONAL — run only if any of steps 3-5 fired to stage conflict resolutions. Resume the cherry-pick and confirm no in-progress cherry-pick remains. Skip entirely if step 2 completed with no conflict. [command] 
+  7. Syntax-validate the one JS file among the three changed paths. [verify] workers/d1-backup/index.js
+  8. Confirm workers/d1-backup/index.js landed with at least its committed line count (416; may be larger only if a both-sides merge in step 3 added content, never smaller). [verify] workers/d1-backup/index.js
+
+Done means: workers/d1-backup/index.js, wrangler.d1-backup.toml, docs/DISASTER-RECOVERY.md exist/are updated as specified — verify by headless-browser render, not by reading the code

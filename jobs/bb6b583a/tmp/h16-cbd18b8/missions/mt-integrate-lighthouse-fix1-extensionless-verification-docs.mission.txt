@@ -1,0 +1,142 @@
+MISSION mt-integrate-lighthouse-fix1-extensionless-verification-docs
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - docs/AUDIT-LIGHTHOUSE-FIX1-2026-06-23.md
+  - docs/QC-PIPELINE-SOTA-2026-06-23.md
+  - docs/lighthouse-fix1-2026-06-23/map-extensionless.json
+  - docs/lighthouse-fix1-2026-06-23/map-extensionless-run2.json
+  - docs/lighthouse-fix1-2026-06-23/map-html-with-redirect.json
+REQUIRES: none
+
+Niyyah: Two real, already-committed feature commits — c184a60 (docs(lighthouse): verify
+Fix 1 (.html redirect) — measured savings + substrate reality) and 375e40b (docs(qc):
+SOTA-uplift QC pipeline — 8 mandatory gates + escape hatches), slug
+lighthouse-fix1-extensionless-verification-docs, nominal source worktree
+C:\Users\marka\code\lighthouse-fix1-extensionless-verification-docs — need to land on
+the current HEAD of the target repo without silently dropping either side of any
+conflict against work already sitting there. This mission's entire job is mechanical
+integration: get both commits' content onto the target branch, prove the result is
+syntactically sound (node --check on any changed .js/.mjs file — the confirmed diff
+touches none), and leave the tree clean for the files this mission owns. Nothing this
+mission does constitutes a judgment that the Lighthouse Fix 1 verification's
+conclusions (that the existing _redirects 200-rewrite is correct and needs no change,
+that the redirect's measured cost is below the LCP noise floor, that Fix 2/Fix 3 are
+the substantive levers) or the QC pipeline's 8 gates are themselves correct, complete,
+or safe to act on. That determination belongs to this mission's own witness +
+verdict-panel run reviewing the integrated result afterward — not to the act of
+integration itself. Authoring or executing this mission is not verification of the
+feature content.
+
+Maqsad: Both c184a60 and 375e40b are cherry-picked (or merged, if a cherry-pick alone
+cannot land one cleanly) onto the current HEAD of C:\Users\marka\code\mt-integration-2026-06-22,
+with any conflict on any ALLOW-FILES entry resolved by keeping BOTH sides — the target's
+pre-existing unrelated changes AND this feature's changes, never silently dropping
+either — every .js/.mjs file this integration touches or conflict-resolves passes
+`node --check` (an empty touched-file set is a stated pass, not a silent skip, since the
+confirmed diff touches zero such files), the result is committed with a clear message
+(or the prior commit's content is confirmed already present, treated as a completed
+step rather than a failure), and the target repo's working tree is left clean with
+respect to the files this mission owns.
+
+Context (verified against live substrate this session, absolute paths, no prescribed
+resolution beyond "keep both sides"):
+- Confirmed diff stat: c184a60 is 4 files changed, 40678 insertions(+), 0 deletions(-)
+  (docs/AUDIT-LIGHTHOUSE-FIX1-2026-06-23.md, 132 lines, plus three raw Lighthouse JSON
+  dumps under docs/lighthouse-fix1-2026-06-23/); 375e40b is 1 file changed, 24
+  insertions(+), 0 deletions(-) (docs/QC-PIPELINE-SOTA-2026-06-23.md). Combined: 5 files,
+  +40702/-0, matching the brief exactly. Zero .js/.mjs files and zero .html files are
+  touched by either commit, so this mission carries no headless-render/visual-QC gate of
+  any kind.
+- The nominal source worktree C:\Users\marka\code\lighthouse-fix1-extensionless-verification-docs
+  was not present on disk at authoring time. Both commits are nonetheless already
+  reachable git objects inside the target repo's own object database: all of the
+  mt-integration-2026-06-22 checkout's linked worktrees (confirmed via `git worktree
+  list` in the target repo) share one underlying .git, and branch
+  feat/lighthouse-fix1-extensionless-2026-06-23 (worktree
+  C:\Users\marka\code\mt-feat-lighthouse-fix1-extensionless-2026-06-23) already carries
+  c184a60 as its own HEAD with 375e40b as c184a60's direct parent — confirmed via `git
+  log --oneline` in that worktree. Neither commit needs to be fetched from anywhere
+  external; `git cherry-pick <sha>` resolves directly against the target repo's own
+  history. If that fallback worktree is also absent when this mission fires, the
+  commits remain resolvable directly by SHA from the target repo's own `git log`/`git
+  cat-file` — a missing source-worktree directory is not by itself a mission failure.
+- Verified this session by cherry-picking both commits in a disposable clone of the
+  target repo's exact current branch (then discarded, no effect on the real repo): the
+  target repo's current HEAD already carries docs/QC-PIPELINE-SOTA-2026-06-23.md with
+  content byte-identical to 375e40b (`git diff 375e40b -- docs/QC-PIPELINE-SOTA-2026-06-23.md`
+  on current HEAD produces no output) — so `git cherry-pick 375e40b` reports the change
+  is already applied ("nothing to commit, working tree clean" / "The previous
+  cherry-pick is now empty"), which is resolved with `git cherry-pick --skip` and is a
+  completed step, not an error. Cherry-picking c184a60 next applies with ZERO conflicts
+  (docs/AUDIT-LIGHTHOUSE-FIX1-2026-06-23.md and the three JSON files under
+  docs/lighthouse-fix1-2026-06-23/ do not yet exist on current HEAD), producing one new
+  commit and a clean `git status` afterward.
+- The target repo's working tree may carry pre-existing untracked or staged changes from
+  other, unrelated work at the time this mission fires (confirmed present this session:
+  a staged new file and a modified tracked file, plus several untracked files, none of
+  them under docs/ or matching any ALLOW-FILES entry). This mission must not touch,
+  stage, or comment on that unrelated state — its containment and its "clean working
+  tree" success criterion are both scoped strictly to the 5 ALLOW-FILES entries it owns,
+  never to the whole repo.
+
+Steps:
+  1. On the target repo's current HEAD, run `git cherry-pick 375e40b`. If it reports the
+     change is already applied (an empty cherry-pick, no conflict markers), run `git
+     cherry-pick --skip` and record that outcome as a completed, passing step rather than
+     a failure. If it instead reports a real conflict on docs/QC-PIPELINE-SOTA-2026-06-23.md,
+     resolve the hunk keeping BOTH the target's pre-existing content and 375e40b's added
+     content, then complete the cherry-pick. [command] cherry-pick-qc-doc
+  2. Run `git cherry-pick c184a60` on the resulting HEAD. If it reports conflicts on
+     docs/AUDIT-LIGHTHOUSE-FIX1-2026-06-23.md or any file under
+     docs/lighthouse-fix1-2026-06-23/, resolve each hunk keeping BOTH sides — never
+     `--ours`/`--theirs` and never a resolution that deletes either side's content — then
+     complete the cherry-pick. If it instead reports already applied, skip and record
+     that as a pass. [command] cherry-pick-lighthouse-audit
+  3. Confirm all 5 ALLOW-FILES entries exist in the working tree with non-trivial
+     content: docs/AUDIT-LIGHTHOUSE-FIX1-2026-06-23.md contains the phrase "Fix 1" and is
+     at least 100 lines; docs/QC-PIPELINE-SOTA-2026-06-23.md contains "QC Pipeline"; each
+     of the three JSON files under docs/lighthouse-fix1-2026-06-23/ parses as valid JSON
+     (e.g. via `node -e "JSON.parse(require('fs').readFileSync(process.argv[1],'utf8'))"`
+     per file). [command] verify-content
+  4. List every .js and .mjs file either cherry-pick actually touched or conflict-
+     resolved (via `git diff-tree --no-commit-id --name-only -r` on each resulting
+     commit sha, if any). Run `node --check` on each file found; the confirmed diff
+     touches none, so an empty list is the expected, explicitly-stated result — not a
+     silently skipped check. [command] node-check-empty-set
+  5. Confirm `git status --porcelain` shows no staged, unstaged, or untracked leftovers
+     introduced by this mission's own steps (pre-existing unrelated dirt from other work
+     is out of scope and must be left exactly as found, untouched). Confirm `git log`
+     shows both commit messages present in history — the direct cherry-pick commit(s)
+     for whichever commit(s) actually needed one, and, for any commit resolved via
+     "already applied" in Steps 1-2, confirm its content is present even though no new
+     commit carries its exact message. [command] commit-and-verify-clean
+
+Done means:
+  - docs/AUDIT-LIGHTHOUSE-FIX1-2026-06-23.md exists in the target repo's working tree,
+    contains the phrase "Fix 1", and is at least 100 lines long (confirmed diff: 132
+    lines) — verified by reading the file, not by trusting the diff.
+  - docs/QC-PIPELINE-SOTA-2026-06-23.md exists in the target repo's working tree and
+    contains the phrase "QC Pipeline".
+  - All three of docs/lighthouse-fix1-2026-06-23/map-extensionless.json,
+    docs/lighthouse-fix1-2026-06-23/map-extensionless-run2.json, and
+    docs/lighthouse-fix1-2026-06-23/map-html-with-redirect.json exist and each parses as
+    valid JSON.
+  - `git log --oneline` on the target repo's current branch shows c184a60's content
+    landed (either the SHA itself or a cherry-pick commit carrying its message
+    "docs(lighthouse): verify Fix 1 (.html redirect) — measured savings + substrate
+    reality"), confirmed by grep, not assumed.
+  - Every .js/.mjs file touched or conflict-resolved by this integration passes `node
+    --check` with exit code 0; the receipt states the count of files checked, and zero
+    is the correct, explicitly-stated count for this docs/JSON-only diff rather than a
+    silent skip.
+  - `git status --porcelain` on the target repo shows no leftovers introduced by this
+    mission's own steps (staged, unstaged, or untracked) — pre-existing unrelated dirt
+    from other work, if any, is left exactly as found and is not this mission's concern.
+  - None of the above constitutes a judgment that the Lighthouse Fix 1 verification's
+    findings or the QC pipeline's 8 gates are themselves correct, complete, or safe to
+    act on — that determination belongs to this mission's own witness + verdict-panel
+    run downstream, not to this mission's authorship or mechanical execution.
+
+Context: Sandbox writes only, target repo working tree only, scoped to ALLOW-FILES.
+Amanah: entrusted; discharge with ihsan.

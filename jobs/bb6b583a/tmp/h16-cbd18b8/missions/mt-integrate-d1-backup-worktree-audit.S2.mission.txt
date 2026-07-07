@@ -1,0 +1,20 @@
+MISSION-ID: MT-INTEGRATE-D1-BACKUP-WORKTREE-AUDIT.S2
+MISSION-CLASS: code-repo
+PARENT: MT-INTEGRATE-D1-BACKUP-WORKTREE-AUDIT
+TARTIB-INDEX: 2 of 2
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - wrangler.d1-backup.toml
+REQUIRES: MT-INTEGRATE-D1-BACKUP-WORKTREE-AUDIT.S1 (tartib — this sub-mission may not start until MT-INTEGRATE-D1-BACKUP-WORKTREE-AUDIT.S1's receipt exists)
+STEPS: 3
+
+PARENT MAQSAD: Bring commit 634abd59ce5c7aa42061f1d4a641d5820ecfcab4 ("feat(d1-backup): scheduled D1
+
+Maqsad: sub-mission 2 of 2 — Confirm wrangler.d1-backup.toml landed with at least its committed line count (74; may be larger only if a both-sides merge in step 4 added content, never smaller). through Final verify: HEAD's commit message matches the feature's own message and no cherry-pick is left in progress (working tree clean with respect to this mission's scope).
+
+Steps:
+  9. Confirm wrangler.d1-backup.toml landed with at least its committed line count (74; may be larger only if a both-sides merge in step 4 added content, never smaller). [verify] wrangler.d1-backup.toml
+  10. Confirm docs/DISASTER-RECOVERY.md landed with at least its committed line count (375; may be larger only if a both-sides merge in step 5 added content, never smaller). [verify] docs/DISASTER-RECOVERY.md
+  11. Final verify: HEAD's commit message matches the feature's own message and no cherry-pick is left in progress (working tree clean with respect to this mission's scope). [verify] 
+
+Done means: wrangler.d1-backup.toml, docs/DISASTER-RECOVERY.md exist/are updated as specified

@@ -1,0 +1,22 @@
+MISSION-ID: MT-INTEGRATE-POI-TAGS-2026-06-23.S1.S2
+MISSION-CLASS: code-repo
+PARENT: MT-INTEGRATE-POI-TAGS-2026-06-23.S1
+TARTIB-INDEX: 2 of 2
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - d1/migrate-poi-tags-2026-06-23.sql
+  - functions/api/poi-tags.js
+  - functions/api/poi-tags/aggregate.js
+  - functions/api/poi-tags/suggest.js
+  - js/poi-tags.js
+REQUIRES: MT-INTEGRATE-POI-TAGS-2026-06-23.S1.S1 (tartib — this sub-mission may not start until MT-INTEGRATE-POI-TAGS-2026-06-23.S1.S1's receipt exists)
+STEPS: 1
+
+PARENT MAQSAD: sub-mission 1 of 2 — Ensure the target repo is checked out on TARGET-BRANCH main before touching anything (repo tip is volatile per mission Context; re-confirm live rather than trusting a recorded SHA). through Restore js/poi-tags.js (new file, defines window.mtTagsHtml) from commit a2ecb2a into the target repo working tree, staged for commit.
+
+Maqsad: sub-mission 2 of 2 — Final aggregate verification: all five deliverables are staged in the working tree and all four JS files pass node --check, matching the sub-mission's Done means. through Final aggregate verification: all five deliverables are staged in the working tree and all four JS files pass node --check, matching the sub-mission's Done means.
+
+Steps:
+  9. Final aggregate verification: all five deliverables are staged in the working tree and all four JS files pass node --check, matching the sub-mission's Done means. [verify] 
+
+Done means:  exist/are updated as specified

@@ -1,0 +1,29 @@
+MISSION-ID: MT-INTEGRATE-POI-TAGS-2026-06-23.S1.S1
+MISSION-CLASS: code-repo
+PARENT: MT-INTEGRATE-POI-TAGS-2026-06-23.S1
+TARTIB-INDEX: 1 of 2
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - d1/migrate-poi-tags-2026-06-23.sql
+  - functions/api/poi-tags.js
+  - functions/api/poi-tags/aggregate.js
+  - functions/api/poi-tags/suggest.js
+  - js/poi-tags.js
+REQUIRES: none (first in tartib order)
+STEPS: 8
+
+PARENT MAQSAD: sub-mission 1 of 2 — Ensure the target repo is checked out on TARGET-BRANCH main before touching anything (repo tip is volatile per mission Context; re-confirm live rather than trusting a recorded SHA). through Restore js/poi-tags.js (new file, defines window.mtTagsHtml) from commit a2ecb2a into the target repo working tree, staged for commit.
+
+Maqsad: sub-mission 1 of 2 — Re-confirm the target repo is live on branch main (repo tip is volatile; verify directly rather than trusting a recorded SHA). through Restore js/poi-tags.js (new file, defines window.mtTagsHtml) from commit a2ecb2a into the target repo working tree, staged for commit, and syntax-check it.
+
+Steps:
+  1. Re-confirm the target repo is live on branch main (repo tip is volatile; verify directly rather than trusting a recorded SHA). [command] 
+  2. Idempotent baseline check: determine whether commit a2ecb2a is already an ancestor of HEAD and classify accordingly. Never fails on the deliverables' existence either way. [command] 
+  3. Read-only confirmation that commit a2ecb2ab17d2eaed86f5fef2456c219a58aeb592 exists in the shared object store, without modifying the source worktree. [command] 
+  4. Restore d1/migrate-poi-tags-2026-06-23.sql (new file) from commit a2ecb2a into the target repo working tree, staged for commit. [command] d1/migrate-poi-tags-2026-06-23.sql
+  5. Restore functions/api/poi-tags.js (new file, GET/POST handler) from commit a2ecb2a into the target repo working tree, staged for commit, and syntax-check it. [command] functions/api/poi-tags.js
+  6. Restore functions/api/poi-tags/aggregate.js (new file, per-target chip rollup) from commit a2ecb2a into the target repo working tree, staged for commit, and syntax-check it. [command] functions/api/poi-tags/aggregate.js
+  7. Restore functions/api/poi-tags/suggest.js (new file, autocomplete-suggest) from commit a2ecb2a into the target repo working tree, staged for commit, and syntax-check it. [command] functions/api/poi-tags/suggest.js
+  8. Restore js/poi-tags.js (new file, defines window.mtTagsHtml) from commit a2ecb2a into the target repo working tree, staged for commit, and syntax-check it. [command] js/poi-tags.js
+
+Done means: d1/migrate-poi-tags-2026-06-23.sql, functions/api/poi-tags.js, functions/api/poi-tags/aggregate.js, functions/api/poi-tags/suggest.js, js/poi-tags.js exist/are updated as specified — verify by headless-browser render, not by reading the code

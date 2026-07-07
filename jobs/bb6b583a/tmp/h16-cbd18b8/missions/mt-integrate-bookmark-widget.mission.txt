@@ -1,0 +1,103 @@
+MISSION MT-INTEGRATE-BOOKMARK-WIDGET
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - extensions/bookmark-widget/manifest.json
+  - extensions/bookmark-widget/popup.html
+  - extensions/bookmark-widget/popup.js
+  - docs/BROWSER-EXTENSION.md
+REQUIRES: none
+VISUAL-QC-REQUIRED
+PREVIEW-BASE-URL: http://localhost:8788
+
+Niyyah: Feature branch mt-feat-bookmark-widget carries one finished commit — a small
+Chrome MV3 extension that lets the operator save the active tab's URL straight into
+muddytires.ca's url-import pipeline — sitting in its own worktree, never landed on the
+integration line. This mission's whole job is mechanical: get those four files onto the
+target repo's current HEAD without losing anything already there, and produce the
+node-level and render-level receipts a verdict panel needs to judge the result. Writing
+this mission file, and the act of cherry-picking itself, is NOT verification that the
+feature's own code is correct. Whether the coordinate-extraction regexes (geo: URI,
+Google Maps @lat,lng, ?q=, place segments, .gpx hint) actually parse real URLs correctly,
+whether the credentials:'include' POST to /api/contribute/url-import behaves safely, and
+whether the manifest's activeTab/scripting/host_permissions scope is appropriate — none
+of that is settled by landing the commit. That determination belongs entirely to this
+mission's own witness-and-verdict-panel run: the node --check receipt, the headless-
+browser render of popup.html, and the seat panel's judgment on the actual integrated
+diff. Say plainly: authoring and integrating this mission proves nothing about the
+feature code's correctness by itself.
+
+Maqsad: Land commit b8a4b38 ("feat(extensions): bookmark widget MV3 extension for
+url-import") from the source worktree C:\Users\marka\code\mt-feat-bookmark-widget onto
+the current HEAD of the target repo C:\Users\marka\code\mt-integration-2026-06-22,
+producing extensions/bookmark-widget/manifest.json, extensions/bookmark-widget/popup.html,
+extensions/bookmark-widget/popup.js, and docs/BROWSER-EXTENSION.md in the target repo
+with a clean working tree afterward, and a passing node --check on the one .js file this
+commit touches.
+
+Context (unbiased facts — absolute paths, no prescribed solution beyond what's stated):
+- The source worktree's commit b8a4b38 touches exactly 4 files, +478/-0, all new files:
+  docs/BROWSER-EXTENSION.md, extensions/bookmark-widget/manifest.json,
+  extensions/bookmark-widget/popup.html, extensions/bookmark-widget/popup.js. None of the
+  four currently exist in the target repo, so a clean cherry-pick is the expected outcome
+  — but if the target has since grown a same-named file with different content (its own
+  unrelated work), the resolution rule below still applies: keep BOTH bodies, never pick
+  one side and silently drop the other.
+- The two repos are separate git object stores (different .git directories on the same
+  machine). A plain `git cherry-pick <sha>` will fail with "bad object" until the target
+  repo has fetched that commit's objects from the source worktree path first.
+- popup.html is a browser-extension popup page (280px, no inline JS) — normally loaded via
+  chrome-extension://<id>/popup.html, not through muddytires.ca's own page routing. For the
+  visual-witness pipeline to render it, PREVIEW-BASE-URL above must point at whatever local
+  server is actually serving the target repo's static files, and the file would be reached
+  at <PREVIEW-BASE-URL>/extensions/bookmark-widget/popup.html. http://localhost:8788 is a
+  PLACEHOLDER for a local `wrangler pages dev` run — the operator must confirm the port a
+  real local preview server actually binds to on the machine firing this mission before
+  relying on the captured render; if nothing answers at PREVIEW-BASE-URL, correct the
+  header or start the server before this mission's Phase 3 fires for real.
+
+Steps:
+  1. In the target repo, record the current branch and HEAD, and confirm none of the four
+     ALLOW-FILES paths already exist on disk (git -C C:\Users\marka\code\mt-integration-2026-06-22
+     status --short; test for each of the four paths). [command] verify-target-clean
+  2. Fetch commit b8a4b38 into the target repo directly from the source worktree path and
+     cherry-pick it onto the target's current HEAD:
+       git -C C:\Users\marka\code\mt-integration-2026-06-22 fetch C:\Users\marka\code\mt-feat-bookmark-widget b8a4b38
+       git -C C:\Users\marka\code\mt-integration-2026-06-22 cherry-pick b8a4b38
+     If the cherry-pick (or an equivalent merge) reports conflicts, resolve every
+     conflicted file by keeping BOTH the target's pre-existing lines and this feature's
+     added lines — never resolve a conflict by deleting either side's content. Only
+     choosing one side over the other is a defect in this mission's execution, not an
+     acceptable outcome. [command] cherry-pick-bookmark-widget
+  3. Run `node --check extensions/bookmark-widget/popup.js` from the target repo root (the
+     one .js file this commit touches) and confirm it exits 0. [command] node-check-popupjs
+  4. If step 2 left the cherry-pick uncommitted (conflict resolution required `git add` +
+     `git cherry-pick --continue`, or a manual merge commit), commit explicitly with a
+     message that references the source commit's own subject line
+     ("feat(extensions): bookmark widget MV3 extension for url-import"). Then confirm
+     `git status --short` in the target repo is empty (clean working tree, no unmerged
+     paths) and `git log --oneline -5` shows the landed commit at or near HEAD.
+     [command] commit-and-verify-clean
+
+Done means:
+  - extensions/bookmark-widget/manifest.json, extensions/bookmark-widget/popup.html,
+    extensions/bookmark-widget/popup.js, and docs/BROWSER-EXTENSION.md all exist on disk
+    in C:\Users\marka\code\mt-integration-2026-06-22, each containing the feature's actual
+    content (manifest.json declares the MV3 "Muddy Tires — Save This Spot" extension with
+    activeTab/scripting permissions and host_permissions scoped to muddytires.ca; popup.js
+    contains the coordinate-extraction logic and the fetch(...credentials:'include') POST
+    to /api/contribute/url-import) — verified by reading each file's on-disk content, not
+    by trusting the cherry-pick's exit code alone.
+  - `node --check extensions/bookmark-widget/popup.js` exits 0.
+  - `git status --short` in the target repo is empty and `git log --oneline -5` shows a
+    commit whose message contains "bookmark widget" — confirming the target repo's
+    working tree is clean and the feature commit actually landed on HEAD, with no
+    unrelated target-repo content lost in the process.
+  - Because this diff touches popup.html and VISUAL-QC-REQUIRED is set above, the visual-
+    witness pipeline must actually run and produce a receipt: a headless-browser (puppeteer)
+    render of popup.html served from PREVIEW-BASE-URL is captured and returns a visual
+    verdict in this mission's result object — a rendering check, not a read of the markup.
+    If PREVIEW-BASE-URL turns out to be the wrong local port, that failure must surface as
+    a named NO_PREVIEW_BASE_URL-style receipt, not a silently skipped check.
+
+Amanah: entrusted; discharge with ihsan.

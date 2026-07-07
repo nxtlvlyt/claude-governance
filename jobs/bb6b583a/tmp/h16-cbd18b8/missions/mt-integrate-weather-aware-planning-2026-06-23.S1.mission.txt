@@ -1,0 +1,26 @@
+MISSION-ID: MT-INTEGRATE-WEATHER-AWARE-PLANNING-2026-06-23.S1
+MISSION-CLASS: code-repo
+PARENT: MT-INTEGRATE-WEATHER-AWARE-PLANNING-2026-06-23
+TARTIB-INDEX: 1 of 2
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - js/plan-day-weather.js
+VISUAL-QC-REQUIRED
+REQUIRES: none (first in tartib order)
+STEPS: 8
+
+PARENT MAQSAD: Land commit bbf702d ("feat(weather-aware-planning): inline forecast on
+
+Maqsad: sub-mission 1 of 2 — Record the target repo's current branch, HEAD, and recent log, and confirm js/plan-day-weather.js is not already present on disk before integrating. through Confirm the target repo's working tree is clean with respect to both ALLOW-FILES entries after commit, scoped to those files only.
+
+Steps:
+  1. Record the target repo's current branch, HEAD, and recent log, and confirm js/plan-day-weather.js is not already present on disk before integrating. [command] 
+  2. Check ancestry of bbf702d against current HEAD so a redundant or empty cherry-pick is never attempted; fails loudly if the commit is already landed. [command] 
+  3. Land commit bbf702d onto whatever branch is currently checked out via git cherry-pick, introducing js/plan-day-weather.js and updating map.html's script tags in one atomic git operation. [command] js/plan-day-weather.js
+  4. Confirm js/plan-day-weather.js carries the real feature content (not a stub or partial merge artifact) by checking for its HEAVY_RAIN_POP threshold, __mtPlanDayWeather debug surface, and fetchWeather function. [verify] 
+  5. Run node --check on the landed weather module to confirm it is syntactically valid before committing. [command] 
+  6. Confirm map.html contains the new plan-day-weather.js script tag alongside every pre-existing neighboring script tag, proving the cherry-pick kept both sides and dropped nothing. [verify] 
+  7. Stage and commit the integrated result with a message naming mt-feat-weather-aware-planning-2026-06-23 / plan-day-weather and citing bbf702d. [command] 
+  8. Confirm the target repo's working tree is clean with respect to both ALLOW-FILES entries after commit, scoped to those files only. [verify] 
+
+Done means: js/plan-day-weather.js exist/are updated as specified — verify by headless-browser render, not by reading the code

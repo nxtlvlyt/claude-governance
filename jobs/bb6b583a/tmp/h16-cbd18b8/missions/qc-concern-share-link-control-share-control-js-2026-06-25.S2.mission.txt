@@ -1,0 +1,19 @@
+MISSION-ID: M-MUDDYTIRES.QC-CONCERN-SHARE-LINK-CONTROL-SHARE-CONTROL-JS-2026-06-25.S2
+MISSION-CLASS: code-repo
+PARENT: M-MUDDYTIRES.QC-CONCERN-SHARE-LINK-CONTROL-SHARE-CONTROL-JS-2026-06-25
+TARTIB-INDEX: 2 of 2
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - js/share-control.js
+REQUIRES: M-MUDDYTIRES.QC-CONCERN-SHARE-LINK-CONTROL-SHARE-CONTROL-JS-2026-06-25.S1 (tartib — this sub-mission may not start until M-MUDDYTIRES.QC-CONCERN-SHARE-LINK-CONTROL-SHARE-CONTROL-JS-2026-06-25.S1's receipt exists)
+STEPS: 2
+
+PARENT MAQSAD: GATE: Share button appears next to Save button in popup — FAIL: No POI popup is visible in either screenshot, so the button presence cannot be verified. GATE: Hashchange handler scans #spot=<id> and flyTo+openPopup — FAIL: The map remains at a national zoom level in both shots with no popup triggered or marker focused. GATE: Slate-colored chip distinct from forest-green save button — FAIL: The share button and save button are not visible in the provided screenshots. GATE: Flash toast confirms 'Link copied' — FAIL: No flash toast notification appears in the final screenshot. Confirm share-control.js mounts a slate-colored share button next to the forest-green save button inside every POI popup, that copying the link emits a 'Link copied' flash toast, and that the page-load hashchange handler reads #spot=<id>, flies the map to that marker, and opens its popup. Restore behavior to that specified in docs/FEATURE-CATALOG-2026-06-23.md.
+
+Maqsad: sub-mission 2 of 2 — Regression guard for GATE 2: confirm the #spot=<id> hashchange router (parseSpotHash/flyTo/openPopup) was not disturbed. through Regression guard: confirm js/saved-list.js's forest-green save-button color is untouched (out of this mission's concern despite being in ALLOW-FILES scope).
+
+Steps:
+  9. Regression guard for GATE 2: confirm the #spot=<id> hashchange router (parseSpotHash/flyTo/openPopup) was not disturbed. [verify] js/share-control.js
+  10. Regression guard: confirm js/saved-list.js's forest-green save-button color is untouched (out of this mission's concern despite being in ALLOW-FILES scope). [verify] js/saved-list.js
+
+Done means: js/share-control.js, js/saved-list.js exist/are updated as specified — verify by headless-browser render, not by reading the code

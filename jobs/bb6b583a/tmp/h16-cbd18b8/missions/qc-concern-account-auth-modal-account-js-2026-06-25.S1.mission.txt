@@ -1,0 +1,25 @@
+MISSION-ID: M-MUDDYTIRES.QC-CONCERN-ACCOUNT-AUTH-MODAL-ACCOUNT-JS-2026-06-25.S1
+MISSION-CLASS: code-repo
+PARENT: M-MUDDYTIRES.QC-CONCERN-ACCOUNT-AUTH-MODAL-ACCOUNT-JS-2026-06-25
+TARTIB-INDEX: 1 of 2
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - js/account.js
+REQUIRES: none (first in tartib order)
+STEPS: 8
+
+PARENT MAQSAD: On this mission's own TARGET-BRANCH: (a) verify the already-landed auth-modal fix
+
+Maqsad: sub-mission 1 of 2 — Confirm the prior b619a4d fix (the #mt-account fallback-creation block) is already present in js/account.js on HEAD before touching anything — this mission must not re-author it. through Cross-check that all 7 selector ids cited in step 6's new catalog section are actually present in docs/FEATURE-CATALOG-2026-06-23.md — catches drifted or typo'd selectors before commit.
+
+Steps:
+  1. Confirm the prior b619a4d fix (the #mt-account fallback-creation block) is already present in js/account.js on HEAD before touching anything — this mission must not re-author it. [verify] js/account.js
+  2. Confirm the stale TODO line for js/account.js still exists in docs/FEATURE-CATALOG-2026-06-23.md on HEAD — avoids authoring a duplicate catalog entry if a sibling mission already closed this gap. [verify] docs/FEATURE-CATALOG-2026-06-23.md
+  3. Switch the shared worktree onto this mission's own TARGET-BRANCH by exact name, creating it from main only if it does not already exist (never force-reset an existing branch) — closes the sandbox-checkout failure recorded in this mission's own retro. [command] 
+  4. Inside renderAuthModal() in js/account.js, add one id attribute to each of the 7 currently-unlabeled elements — additive only, no class/text/handler change: overlay.id='mt-auth-overlay'; panel.id='mt-auth-panel'; signupBtn.id='mt-auth-tab-signup'; loginBtn.id='mt-auth-tab-login'; form.id='mt-auth-form'; submit.id='mt-auth-submit'; cancel.id='mt-auth-cancel'. [edit] js/account.js
+  5. Verify the edit to js/account.js is strictly additive (no removed lines) and that the pre-existing #mt-account fallback fix is still intact — the regression gate for the already-landed half of the mission. [verify] js/account.js
+  6. In one edit to docs/FEATURE-CATALOG-2026-06-23.md: append a `## Priority B — cataloged this pass` heading (if absent, placed after Priority A and before the TODO list) containing a `### Feature: Account auth modal (login/signup)` section that follows the catalog's own template fields exactly (Page/Loaded by/Pre-state required/Selectors/Interaction sequence/Expected behavior/Expected visual/Discoverability/Verdict gates/Regression history), citing the 7 real ids from step 4 (#mt-auth-overlay, #mt-auth-panel, #mt-auth-tab-signup, #mt-auth-tab-login, #mt-auth-form, #mt-auth-submit, #mt-auth-cancel) and both regression commits (b619a4d, cf18994) with no leftover template placeholders — AND in the same edit remove the now-stale `- js/account.js (login, profile, auth UI)` line from the TODO module list. [edit] docs/FEATURE-CATALOG-2026-06-23.md
+  7. Cross-check that all 7 new selector ids appear exactly once each in the working-tree js/account.js — catches drifted or missing selectors before relying on them in the catalog. [verify] js/account.js
+  8. Cross-check that all 7 selector ids cited in step 6's new catalog section are actually present in docs/FEATURE-CATALOG-2026-06-23.md — catches drifted or typo'd selectors before commit. [verify] docs/FEATURE-CATALOG-2026-06-23.md
+
+Done means: js/account.js, docs/FEATURE-CATALOG-2026-06-23.md exist/are updated as specified — verify by headless-browser render, not by reading the code

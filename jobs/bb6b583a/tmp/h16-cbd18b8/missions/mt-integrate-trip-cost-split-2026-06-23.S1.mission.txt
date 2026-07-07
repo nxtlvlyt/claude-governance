@@ -1,0 +1,28 @@
+MISSION-ID: mt-integrate-trip-cost-split-2026-06-23.S1
+MISSION-CLASS: code-repo
+PARENT: mt-integrate-trip-cost-split-2026-06-23
+TARTIB-INDEX: 1 of 2
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - functions/api/trip-cost/[code].js
+  - functions/api/trip-cost/[code]/settle.js
+  - js/trip-cost-split.js
+  - css/trip-cost-split.css
+REQUIRES: none (first in tartib order)
+STEPS: 8
+
+PARENT MAQSAD: Commit 5adf50a1942f490854ee34405d13aea1192300d6 is cherry-picked or
+
+Maqsad: sub-mission 1 of 2 — Record the actual live branch and HEAD SHA in the target repo, and confirm none of the six ALLOW-FILES paths already exist on disk before touching anything. through Verify css/trip-cost-split.css landed with real content (non-trivial size), consistent with the 272-line stylesheet the diff introduced.
+
+Steps:
+  1. Record the actual live branch and HEAD SHA, then idempotent baseline branch (amended 2026-07-03 — absence-preflight class, same fix as poi-tags.S1): if commit 5adf50a is ALREADY an ancestor of HEAD (git merge-base --is-ancestor 5adf50a HEAD), output ALREADY_INTEGRATED and treat the later restore/verify steps as presence confirmations; otherwise output CLEAN_BASELINE and proceed. Never exit 1 on the deliverables' existence. [command]
+  2. Re-verify live (not memorized) that commit 5adf50a1942f490854ee34405d13aea1192300d6 is reachable in this repo's object store via the shared linked-worktree store, with no fetch/remote-add needed. [command]
+  3. Cherry-pick commit 5adf50a1942f490854ee34405d13aea1192300d6 onto the live HEAD recorded in step 1 (skip if step 1 said ALREADY_INTEGRATED). If git reports a conflict this step fails loudly (non-zero) rather than silently resolving one side over the other. CONSTRAINT (amended 2026-07-03 after the clean-tree floor refused both prior plans): any working-tree cleanliness assertion in this or later steps must scope to THIS mission's ALLOW-FILES paths only (git status --porcelain -- <the six paths>), NEVER the whole tree — the engine already enforces containment via assertCleanOutsideAllowlist. [command]
+  4. Reword the integrated commit's message so it names both the source feature and its origin SHA, satisfying the done-criterion that git log identify the integration's provenance. [command] 
+  5. Verify functions/api/trip-cost/[code].js is syntactically valid and contains the self-healing CREATE TABLE IF NOT EXISTS pattern described in the mission's Niyyah. [command] functions/api/trip-cost/[code].js
+  6. Verify functions/api/trip-cost/[code]/settle.js is syntactically valid and contains substantive content (not a stub), consistent with the 254-line settle endpoint the diff introduced. [command] functions/api/trip-cost/[code]/settle.js
+  7. Verify js/trip-cost-split.js is syntactically valid and exports/defines mountCostSplit, the mount function trip-cost.html is expected to invoke. [command] js/trip-cost-split.js
+  8. Verify css/trip-cost-split.css landed with real content (non-trivial size), consistent with the 272-line stylesheet the diff introduced. [verify] css/trip-cost-split.css
+
+Done means: functions/api/trip-cost/[code].js, functions/api/trip-cost/[code]/settle.js, js/trip-cost-split.js, css/trip-cost-split.css exist at HEAD as specified AND node --check passes on the three .js files — executable verification appropriate to an integrate-and-commit deliverable (amended 2026-07-03: the render witness belongs to S2, which owns the visual-QC obligation and the headless trip-cost.html assertion)

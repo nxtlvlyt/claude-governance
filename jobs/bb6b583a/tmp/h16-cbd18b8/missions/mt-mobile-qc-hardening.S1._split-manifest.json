@@ -1,0 +1,21 @@
+{
+  "parentId": "mt-mobile-qc-hardening.S1",
+  "ceiling": 8,
+  "originalStepCount": 9,
+  "groupCount": 2,
+  "children": [
+    {
+      "id": "mt-mobile-qc-hardening.S1.S1",
+      "file": "missions/mt-mobile-qc-hardening.S1.S1.mission.txt",
+      "steps": 8,
+      "requires": null
+    },
+    {
+      "id": "mt-mobile-qc-hardening.S1.S2",
+      "file": "missions/mt-mobile-qc-hardening.S1.S2.mission.txt",
+      "steps": 1,
+      "requires": "mt-mobile-qc-hardening.S1.S1"
+    }
+  ],
+  "ts": "2026-07-03T06:43:01.551Z"
+}

@@ -1,0 +1,26 @@
+MISSION-ID: MT-INTEGRATE-PARTNER-WIDGET.S1
+MISSION-CLASS: code-repo
+PARENT: MT-INTEGRATE-PARTNER-WIDGET
+TARTIB-INDEX: 1 of 2
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - widget/v1/embed.js
+VISUAL-QC-REQUIRED
+REQUIRES: none (first in tartib order)
+STEPS: 8
+
+PARENT MAQSAD: Land commit 94e0263 ("feat(partner-widget): embeddable widget loader + iframe
+
+Maqsad: sub-mission 1 of 2 — Record the target repo's current branch and HEAD/log, and confirm none of the three ALLOW-FILES already exist on disk (positive-assertion: fails if any collision is found). through Confirm on-disk content of widget/v1/embed.js parses data-mt-* attributes and injects a same-origin iframe.
+
+Steps:
+  1. Record the target repo's current branch and HEAD/log, and confirm none of the three ALLOW-FILES already exist on disk (positive-assertion: fails if any collision is found). [command] 
+  2. Check whether 94e0263 is already an ancestor of the target repo's current HEAD before attempting a cherry-pick. [command] 
+  3. Cherry-pick 94e0263 (-x to record the source hash in the commit trailer) onto the target repo's current HEAD. All three ALLOW-FILES are pure adds per the confirmed dry run. If a real conflict occurs because the branch moved, resolve every conflicted file by keeping BOTH the target's existing content and the feature's added content (never --ours/--theirs, never dropping either side); if already-applied, use --skip, never --allow-empty. [command] widget/v1/embed.js
+  4. Syntax-check the one .js file this commit adds. [verify] 
+  5. Finalize the cherry-pick if it was left mid-flight (conflict resolution required a manual commit); no-op maintenance if it already auto-committed cleanly. [command] 
+  6. Confirm the ALLOW-FILES working tree is clean and the landed commit near HEAD cites 94e0263/partner-widget (fails if either check does not hold). [verify] 
+  7. Confirm on-disk content of docs/PARTNERS-WIDGET.md documents the embed snippet and data-mt-* attributes (not just that the cherry-pick exited 0). [verify] 
+  8. Confirm on-disk content of widget/v1/embed.js parses data-mt-* attributes and injects a same-origin iframe. [verify] 
+
+Done means: widget/v1/embed.js exist/are updated as specified — verify by headless-browser render, not by reading the code

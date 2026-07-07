@@ -1,0 +1,20 @@
+MISSION-ID: mt-integrate-poi-dedup-audit.S2
+MISSION-CLASS: code-repo
+PARENT: mt-integrate-poi-dedup-audit
+TARTIB-INDEX: 2 of 2
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - scripts/dedup-audit.mjs
+  - docs/dedup-report-2026-06-23.md
+  - scripts/dedup-admin-todos-2026-06-23.sql
+REQUIRES: mt-integrate-poi-dedup-audit.S1 (tartib — this sub-mission may not start until mt-integrate-poi-dedup-audit.S1's receipt exists)
+STEPS: 1
+
+PARENT MAQSAD: The commit "c899d07 feat(dedup-audit): scan pois + community_spot for
+
+Maqsad: sub-mission 2 of 2 — Stage exactly the three ALLOW-FILES (excluding pre-existing unrelated untracked files), commit with a message naming mt-feat-poi-dedup-audit and c899d07, and confirm the working tree is clean for the touched paths with the commit message correctly referencing the origin. through Stage exactly the three ALLOW-FILES (excluding pre-existing unrelated untracked files), commit with a message naming mt-feat-poi-dedup-audit and c899d07, and confirm the working tree is clean for the touched paths with the commit message correctly referencing the origin.
+
+Steps:
+  9. Stage exactly the three ALLOW-FILES (excluding pre-existing unrelated untracked files), commit with a message naming mt-feat-poi-dedup-audit and c899d07, and confirm the working tree is clean for the touched paths with the commit message correctly referencing the origin. [command] 
+
+Done means:  exist/are updated as specified

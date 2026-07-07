@@ -1,0 +1,21 @@
+{
+  "parentId": "mt-integrate-aurora-forecast-diff-report",
+  "ceiling": 8,
+  "originalStepCount": 9,
+  "groupCount": 2,
+  "children": [
+    {
+      "id": "mt-integrate-aurora-forecast-diff-report.S1",
+      "file": "missions/mt-integrate-aurora-forecast-diff-report.S1.mission.txt",
+      "steps": 8,
+      "requires": null
+    },
+    {
+      "id": "mt-integrate-aurora-forecast-diff-report.S2",
+      "file": "missions/mt-integrate-aurora-forecast-diff-report.S2.mission.txt",
+      "steps": 1,
+      "requires": "mt-integrate-aurora-forecast-diff-report.S1"
+    }
+  ],
+  "ts": "2026-07-01T11:52:43.519Z"
+}

@@ -1,0 +1,19 @@
+MISSION-ID: MT-INTEGRATE-POI-SERVICES-NEARBY.S2
+MISSION-CLASS: code-repo
+PARENT: MT-INTEGRATE-POI-SERVICES-NEARBY
+TARTIB-INDEX: 2 of 2
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - map.html
+VISUAL-QC-REQUIRED
+REQUIRES: MT-INTEGRATE-POI-SERVICES-NEARBY.S1 (tartib — this sub-mission may not start until MT-INTEGRATE-POI-SERVICES-NEARBY.S1's receipt exists)
+STEPS: 1
+
+PARENT MAQSAD: The commit "58e7560 feat(poi): nearby services chips in POI popup" is
+
+Maqsad: sub-mission 2 of 2 — Confirm map.html actually serves and loads from PREVIEW-BASE-URL (http://localhost:8788/map.html) via a local preview server (e.g. wrangler pages dev started/confirmed beforehand). If the server is unreachable or returns no content, this fails as a named NO_PREVIEW_BASE_URL condition rather than silently skipping the render check. through Confirm map.html actually serves and loads from PREVIEW-BASE-URL (http://localhost:8788/map.html) via a local preview server (e.g. wrangler pages dev started/confirmed beforehand). If the server is unreachable or returns no content, this fails as a named NO_PREVIEW_BASE_URL condition rather than silently skipping the render check.
+
+Steps:
+  9. Confirm map.html actually serves and loads from PREVIEW-BASE-URL (http://localhost:8788/map.html) via a local preview server (e.g. wrangler pages dev started/confirmed beforehand). If the server is unreachable or returns no content, this fails as a named NO_PREVIEW_BASE_URL condition rather than silently skipping the render check. [verify] map.html
+
+Done means: map.html exist/are updated as specified — verify by headless-browser render, not by reading the code

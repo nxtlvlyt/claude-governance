@@ -1,0 +1,144 @@
+MISSION mt-integrate-aurora-forecast-diff-report
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+VISUAL-QC-REQUIRED
+PREVIEW-BASE-URL: http://localhost:8788
+ALLOW-FILES:
+  - functions/api/aurora.js
+  - js/aurora-overlay.js
+  - map.html
+REQUIRES: none
+
+Niyyah: The feature "aurora-forecast" carries one finished commit — 1f4b646, "northern-lights
+forecast chip + viewing-zone overlay" — sitting in its own worktree, never landed on the
+target repo's integration line. This mission's entire job is mechanical: get that commit onto
+the target's current HEAD without losing anything already there, and produce the node-level
+and render-level receipts a verdict panel needs to judge the result afterward. Nothing this
+mission does, and nothing the act of landing the commit does, constitutes a judgment that the
+aurora feature's own code is correct, safe, or accurate — not the NOAA proxy's confidence
+ladder, not the caching behavior, not the viewing-zone math. That determination belongs
+entirely to this mission's own witness-and-verdict-panel run downstream, which inspects the
+integrated result after this mission produces it. Authoring or executing this mission is not
+verification of the feature.
+
+Maqsad: Commit 1f4b646 is cherry-picked or merged onto the current HEAD of the target repo
+C:\Users\marka\code\mt-integration-2026-06-22, with any conflict resolved by keeping BOTH
+sides — the target's existing unrelated work AND the aurora feature's changes, never silently
+dropping either — every changed .js/.mjs file passes `node --check`, the result is committed
+with a clear message, and the target repo's working tree is left clean with respect to the
+files this mission touches.
+
+Context (verified against live substrate this session, absolute paths, no prescribed
+resolution beyond "keep both sides"):
+- Source worktree: C:\Users\marka\code\mt-feat-aurora-forecast, checked out on branch
+  feat/aurora-forecast, tip commit 1f4b646. Do not modify that worktree; only read from it.
+- Verified this session: the source worktree and the target repo are linked worktrees of the
+  SAME underlying repository (`git rev-parse --git-common-dir` resolves to the identical path
+  from both locations). Because of that, commit 1f4b646 is already an object the target repo
+  can see directly — `git show 1f4b646` succeeds when run inside the target repo with no fetch
+  step first. This differs from other integration missions in this family that named two
+  genuinely separate git object stores; do not add an unconditional fetch step here on the
+  assumption the object is missing. If a future run somehow cannot resolve 1f4b646 as a target-
+  repo object (e.g. the worktree link was removed), only then pull it in first via
+  `git -C C:\Users\marka\code\mt-integration-2026-06-22 fetch C:\Users\marka\code\mt-feat-aurora-forecast 1f4b646`.
+- Confirmed diff stat for 1f4b646 (`git show --stat`, this session, run inside the target
+  repo): 3 files changed, 746 insertions(+), 1 deletion(-) — functions/api/aurora.js is a new
+  228-line Cloudflare Pages Function proxying NOAA SWPC's 3-day planetary Kp-index forecast
+  with 1h edge caching and a verified/best-effort/unknown confidence ladder; js/aurora-overlay.js
+  is a new 517-line client module rendering an aurora-chance chip and a viewing-zone map
+  overlay; map.html carries the +1/-1 change (this file is emitted as very few long physical
+  lines, so a single-line edit shows as one line replaced by its updated self).
+- Confirmed this session: neither functions/api/aurora.js nor js/aurora-overlay.js exists yet
+  at the target repo's current HEAD (`git cat-file -e HEAD:<path>` fails for both) — both are
+  expected to land as pure new-file adds.
+- Confirmed this session: map.html at the target's current HEAD still carries the tag
+  `<script src="js/ev-charging-layer.js" defer>` immediately followed by
+  `<script src="js/free-camping-filter.js" defer>` inside the shared script-tag block — the
+  same neighborhood the feature commit inserts into. A trial merge performed this session
+  (`git cherry-pick --no-commit -n 1f4b646`, then reverted before writing anything) applied
+  with git reporting an automatic merge of map.html and no conflict markers. That is a
+  snapshot of this session's HEAD only, not a guarantee — the target's HEAD may have moved
+  further by the time this mission actually fires, so the steps below still must handle a
+  conflicted map.html without dropping either side.
+- The target repo's current branch this session is a feature/QC branch, not a fixed release
+  branch — per this mission's own charge, it integrates onto whatever HEAD the target repo is
+  actually on when the mission fires, so no fixed target branch is declared above.
+- The target repo currently also carries pre-existing untracked files left behind by other,
+  unrelated missions (an e2e report, a scratch runner script, a feature-catalog entry, and
+  similar). None of those paths are in ALLOW-FILES above; this mission must not touch, stage,
+  or commit them, and their continued presence does not count against this mission's own
+  clean-tree requirement, which is scoped to functions/api/aurora.js, js/aurora-overlay.js, and
+  map.html only.
+- map.html is an .html file, so VISUAL-QC-REQUIRED and PREVIEW-BASE-URL are set above so the
+  engine's render-witness pipeline actually runs against the integrated page.
+  PREVIEW-BASE-URL: http://localhost:8788 is a PLACEHOLDER for a local `wrangler pages dev`
+  server — the operator needs to confirm the real local preview port before this mission's
+  render-witness step fires; do not assume 8788 is correct without checking first.
+
+Steps:
+  1. In the target repo, record the current branch and HEAD
+     (`git -C C:\Users\marka\code\mt-integration-2026-06-22 rev-parse --abbrev-ref HEAD` and
+     `... rev-parse HEAD`), and confirm functions/api/aurora.js and js/aurora-overlay.js do not
+     already exist at HEAD (`git -C C:\Users\marka\code\mt-integration-2026-06-22 cat-file -e
+     HEAD:functions/api/aurora.js` / `...HEAD:js/aurora-overlay.js`, each expected to fail).
+     [command] record-head-and-verify-new-files
+  2. Land the feature commit onto the target's current HEAD:
+     `git -C C:\Users\marka\code\mt-integration-2026-06-22 cherry-pick -x 1f4b646`. Per the
+     Context above, this should resolve directly with no fetch. If git reports the revision
+     unknown, run the single fallback fetch named in Context and retry once. If the cherry-
+     pick reports a conflict (the most likely candidate is map.html), stop and move to the
+     next step rather than resolving with `--ours` or `--theirs`. [command] integrate-aurora-commit
+  3. For any file the cherry-pick leaves conflicted, hand-resolve every conflict marker so the
+     resolved content keeps BOTH the target repo's pre-existing lines AND the aurora feature's
+     added content — for map.html specifically, the resolved script-tag block must contain the
+     new `<script src="js/aurora-overlay.js" defer>` tag immediately after the existing
+     `<script src="js/ev-charging-layer.js" defer>` tag, with every other pre-existing script
+     tag in that block still present. Never resolve a conflict by deleting either side's
+     content. [edit] resolve-conflicts
+  4. Run `node --check functions/api/aurora.js` and `node --check js/aurora-overlay.js` from
+     the target repo root, plus `node --check` on any other .js/.mjs file touched during
+     conflict resolution in the prior step; confirm every invocation exits 0.
+     [command] node-check-aurora-files
+  5. If the cherry-pick did not already leave a clean commit (conflict resolution required
+     `git add` followed by `git cherry-pick --continue`, or a manual merge commit instead),
+     commit explicitly with a message that names "aurora-forecast" and "1f4b646". Then confirm
+     `git -C C:\Users\marka\code\mt-integration-2026-06-22 status --short` shows no uncommitted
+     changes to functions/api/aurora.js, js/aurora-overlay.js, or map.html, and
+     `git -C C:\Users\marka\code\mt-integration-2026-06-22 log --oneline -5` shows the landed
+     commit. [command] commit-and-verify-clean
+  6. Start (or confirm already running) a local preview server for the target repo bound to
+     the PREVIEW-BASE-URL host:port (for example `wrangler pages dev .`), then render the map
+     page in a headless browser (headless Chrome / Playwright / puppeteer) and capture that the
+     page loads without a fatal script error and that an aurora forecast chip and/or "Aurora
+     viewing zone" overlay control is present in the rendered DOM. This is the render-witness
+     step RULE 7 of mission_lint.mjs requires because VISUAL-QC-REQUIRED is set above.
+     [command] headless-render-witness
+
+Done means:
+  - `git log --oneline` in C:\Users\marka\code\mt-integration-2026-06-22 shows a commit whose
+    message names "aurora-forecast" and/or "1f4b646".
+  - functions/api/aurora.js exists in the target repo at HEAD with non-trivial content: a
+    Cloudflare Pages Function that proxies NOAA SWPC's Kp-index forecast, with edge-caching
+    behavior and a verified/best-effort/unknown confidence ladder — verified by reading the
+    on-disk file, not by trusting the cherry-pick's exit code alone.
+  - js/aurora-overlay.js exists in the target repo at HEAD with non-trivial content: logic that
+    renders an aurora-chance chip and a viewing-zone map overlay.
+  - map.html contains exactly one `<script src="js/aurora-overlay.js" defer>` tag, positioned
+    immediately after the `<script src="js/ev-charging-layer.js" defer>` tag, and every other
+    pre-existing script tag in that block is still present — confirmed by reading the resolved
+    file's content.
+  - `node --check` exits 0 on functions/api/aurora.js and js/aurora-overlay.js, and on any
+    other .js/.mjs file this integration's conflict resolution touched.
+  - `git status --short` in the target repo shows no uncommitted changes to
+    functions/api/aurora.js, js/aurora-overlay.js, or map.html at the end of the mission
+    (pre-existing unrelated untracked files outside this mission's ALLOW-FILES are left as
+    found and are not this mission's concern).
+  - A headless browser (headless Chrome / Playwright / puppeteer) render of the map page served
+    from PREVIEW-BASE-URL loads without a fatal script error and shows the aurora chip/overlay
+    content — verified by rendering the page, not by reading the code. This witness, together
+    with the separate verdict-panel run downstream of this mission, is what actually judges
+    whether the feature's code is correct; this mission's own authorship and execution prove
+    only that the integration is mechanically sound, not that the feature is right.
+
+Context: Sandbox writes only, target repo working tree only.
+Amanah: entrusted; discharge with ihsan.

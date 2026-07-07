@@ -1,0 +1,42 @@
+#!/bin/sh
+# Post-commit self-witness gate (operator standing ruling 2026-06-16, self_witness.mjs's own
+# header): "any work outside the chain needs to be witnessed by both Laguna AND guardian."
+#
+# WHY POST-commit, not pre-commit: pre-commit (this directory) is deliberately DETERMINISTIC
+# and OLLAMA-FREE by design (see its own header) — a model dispatch there would stall every
+# commit 5-13s and risk GPU collision with the chain's own concurrent Ollama use, the exact
+# failure that motivated keeping pre-commit model-free in the first place. post-commit runs
+# AFTER the commit already landed, so it can never block or abort a commit — it is pure
+# witness, never a gate. Non-blocking by construction, matching self_witness.mjs's whole design.
+#
+# WHY skip "step: ..." commits: the muezzin daemon's own per-step commits (commitStep in
+# git_steps.mjs, exact convention "step: <label>") are IN-CHAIN work — each one already passed
+# through that mission's own architect/executor/witness/validator/auditor scrutiny. Re-running
+# laguna+guardian on every individual step commit would be redundant and would slow missions
+# with many steps meaningfully. The operator's ruling scopes to work OUTSIDE the chain — a
+# hand-authored conductor commit, an engine fix, anything with a normal descriptive subject
+# line. This hook fires only for those.
+#
+# Bypass (rare, explicit, mirrors pre-commit's own escape hatch): git commit --no-verify skips
+# ALL hooks including this one. To skip ONLY this hook on a commit that already landed,
+# SKIP_SELF_WITNESS=1 is honored below for manual reruns; there is no per-commit env hook on
+# the commit itself once it has already happened.
+
+SUBJECT=$(git log -1 --format=%s)
+case "$SUBJECT" in
+  step:*) exit 0 ;;   # in-chain step commit — already witnessed by the seat architecture
+esac
+
+if [ -n "$SKIP_SELF_WITNESS" ]; then
+  exit 0
+fi
+
+LOG="missions/_logs/post-commit-witness.log"
+mkdir -p "$(dirname "$LOG")" 2>/dev/null
+{
+  echo "=== post-commit self-witness: $(git rev-parse --short HEAD) \"$SUBJECT\" ($(date -u +%Y-%m-%dT%H:%M:%SZ)) ==="
+  node self_witness.mjs --check-commit
+  echo ""
+} >> "$LOG" 2>&1 &
+disown 2>/dev/null || true
+exit 0

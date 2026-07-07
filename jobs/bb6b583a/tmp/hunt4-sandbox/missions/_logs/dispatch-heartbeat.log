@@ -1,0 +1,2 @@
+2026-07-07T19:20:15.037Z attempt-fail provider=ollama-local model=qwen3.6 kind=TIMEOUT ms=9000
+2026-07-07T19:19:15.037Z attempt-fail provider=ollama-local model=qwen3.6 kind=TIMEOUT ms=9000

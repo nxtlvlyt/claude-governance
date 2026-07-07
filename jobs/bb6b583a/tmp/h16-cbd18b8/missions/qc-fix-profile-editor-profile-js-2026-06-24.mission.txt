@@ -1,0 +1,207 @@
+MISSION QC-FIX-PROFILE-EDITOR-PROFILE-JS-2026-06-24
+MISSION-CLASS: code-repo
+MISSION-ID: M-MUDDYTIRES.QC-FIX-PROFILE-EDITOR-PROFILE-JS-2026-06-24
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+TARGET-BRANCH: feat/qc-fix-profile-editor-profile-js-2026-06-24
+ALLOW-FILES:
+  - js/profile.js
+REQUIRES: none
+
+Niyyah: close the two live QC gates in the Profile editor — a logged-in user must
+never render as guest on a getMe() failure, and the public-profile edit form must
+validate its fields inline — without repeating either engine failure that killed
+the prior attempt on this exact file.
+
+Maqsad: land (or re-verify already-landed) the fix to js/profile.js on
+TARGET-BRANCH so that (1) bootstrap()'s `const user = await getMe();` call is
+wrapped so ANY getMe() rejection/throw (network error, CORS, 401) falls back
+cleanly to applyGuest() instead of leaving the page indeterminate/console-erroring,
+and (2) the public-profile save flow (wirePublicProfile()'s save handler)
+validates username format, requires display name, and requires social/website
+links to start with http(s):// — rendering each error inline in the existing
+#pp-msg field-message element rather than via console/alert, before the network
+PUT ever fires.
+
+Context (verified against live substrate this session, not recalled):
+- RE-AUTHORED after this exact mission file was deleted. The original run
+  (this mission's own mission-events.jsonl, 2026-06-25T22:31-22:53Z) died from two
+  ENGINE bugs, not a bad fix:
+  (1) An [edit] step targeting js/profile.js was refused at 22:42:09Z: "code-repo
+      target rejected: 'js/profile.js' is not in ALLOW-FILES (declared: js/*.js,
+      workers/**/*.js)" — mission_class.mjs's containment check was doing
+      literal-string equality against the declared glob. FIXED in the engine since
+      (mission_class.mjs ~lines 192-216, inline comment dated "2026-06-25 senior
+      fix": a glob-to-regex matcher now resolves 'js/profile.js' against 'js/*.js'
+      as allowed:true — reproduced live this session). This mission's ALLOW-FILES
+      above uses the exact literal filename (no glob at all) so it can never
+      regress on this axis even if the matcher itself regresses.
+  (2) After a re-plan, the SAME [edit] step then failed twice at 22:43:29Z with
+      "load-throw: module threw at import/load: document is not defined" —
+      orchestrate.mjs's per-step RUNTIME-VERIFY GATE (fires only when
+      `step.action_type === 'edit'`) dynamic-imports any edited .js/.mjs/.cjs
+      target in a bare Node subprocess with no DOM shim (jsdom is wired only for
+      .htm/.html in runtime_verify.mjs). js/profile.js's IIFE unconditionally reads
+      `document.readyState` at module top level, so ANY edit to this file via an
+      [edit] step throws this false-positive regardless of the edit's content.
+      THIS BUG IS STILL LIVE TODAY (runtime_verify.mjs routes .js exclusively
+      through verifyCode(), confirmed by reading the file this session) — it is
+      NOT fixed, and no mission text can disable it (its only kill switch,
+      MUEZZIN_RUNTIME_VERIFY=off, is a process env var read at orchestrate.mjs load
+      time, not a mission-file directive).
+      WORKAROUND (proven precedent, same repo, same session — see
+      qc-concern-retail-parking-overlay-retail-parking-overlay-js-2026-06-25.mission.txt,
+      which lands its fix entirely via [command] steps: git checkout / cherry-pick
+      / node --check / grep, with ZERO [edit] steps): the RUNTIME-VERIFY GATE only
+      fires on `action_type === 'edit'`, AND the final whole-mission BUILD GATE
+      explicitly excludes engineExec steps (command/verify steps are pushed with
+      `engineExec: true`; the build gate filters targets via `!s.engineExec`) —
+      confirmed by reading orchestrate.mjs ~lines 864-897 and ~1185-1198 this
+      session. Every step below is therefore [command], never [edit], on purpose.
+- The fix itself is not hypothetical — it already exists, verified correct, and
+  already sits on THIS mission's own TARGET-BRANCH: commit
+  18a510ea4b0f8f240383eae4b9183a274b57a57c ("qc-fix(profile-editor): restore
+  #profile-authed mount + field handlers + save flow per QC walk 2026-06-24",
+  authored 2026-06-24 21:39:19 -0400 — BEFORE the failed sandbox run above) is a
+  confirmed ANCESTOR of feat/qc-fix-profile-editor-profile-js-2026-06-24's current
+  tip (`git merge-base --is-ancestor 18a510e feat/qc-fix-profile-editor-profile-js-2026-06-24`
+  -> true, this session). `git merge-base --is-ancestor 18a510e main` -> false: it
+  has never reached main, so main and any branch cut fresh from main today still
+  carry the OLD unguarded code. `git apply --check --3way` of 18a510e's
+  js/profile.js diff against the CURRENT unfixed content applied cleanly (confirmed
+  this session) — the patch is not stale.
+- Commit 18a510e's diff, kept here for the fallback hand-apply path only (verified
+  via `git show 18a510e -- js/profile.js` this session):
+  (a) in bootstrap(), replaces the bare
+      `const user = await getMe(); if (user) { applyAuthed(user); } else { applyGuest(); }`
+      with the same three lines wrapped in `try { ... } catch (e) { applyGuest();
+      }` (comment: "getMe() threw (network error, CORS, etc.) — fall back to guest
+      view").
+  (b) in wirePublicProfile()'s save handler, immediately after the
+      `typeof apiFetch !== 'function'` guard and before building the PUT body,
+      inserts a "Field validation" block that: rejects a non-empty username
+      failing `/^[a-zA-Z0-9][a-zA-Z0-9_-]{2,29}$/` with message "Username: 3-30
+      chars, letters/numbers/hyphens/underscores, must start with a letter or
+      number."; rejects an empty display name with "Display name is required.";
+      and rejects any of pp-instagram/pp-youtube/pp-tiktok/pp-website whose value
+      fails `/^https?:\/\/.+/` with "Links must start with http:// or https://" —
+      writing each error into the existing `$('pp-msg')` element
+      (`msg.textContent` / `msg.className = 'text-sm text-red-600'`) and returning
+      before any fetch, i.e. inline on the form, never console/alert.
+  (c) also swaps `openAuthModal()`'s broken `formMode = mode` assignment for
+      `window.mtOpenAuth(mode, ...)` (falling back to `renderAuthModal` if absent)
+      — confirmed both main's and this branch's js/account.js already expose
+      `window.mtOpenAuth` (js/account.js line 267), so this part of the diff has no
+      unmet dependency either.
+- profile.html's `<label for="pp-username">` etc. markup is already present and
+  correctly associated with each input id (confirmed by reading profile.html this
+  session) — that half of the labeling gate needs no work, and profile.html is
+  correctly EXCLUDED from ALLOW-FILES.
+- No worker file needs editing. The three architects' own S2 diagnostic step
+  (this mission's _prior-attempt/panel-architect-opus.raw.txt) named a
+  workers/**/*.js branch only CONTINGENT on the 401 being server-side (bad
+  CORS/cookie config); the shipped fix commit 18a510e touches js/profile.js alone
+  and nothing under workers/, so the client-side branch is the one that was
+  actually true.
+- CONCURRENCY HAZARD (same as the retail-parking sibling mission, same repo): this
+  REPO-ROOT is ONE shared git worktree used by many concurrently-running qc-*
+  missions (confirmed live this session: the working tree was checked out to a
+  different mission's branch, feat/qc-concern-sentry-error-capture-sentry-init-js-2026-06-25,
+  when this file was authored). Before touching anything, confirm which branch is
+  actually checked out and do not assume it is this mission's TARGET-BRANCH. If a
+  checkout step fails because of untracked debris left by a DIFFERENT mission, name
+  that as a receipt — do not force-clean another mission's files to work around it.
+
+Steps:
+  1. Record current state before touching anything: `git -C
+     "C:\Users\marka\code\mt-integration-2026-06-22" status --short` and `git -C
+     "C:\Users\marka\code\mt-integration-2026-06-22" branch --show-current`.
+     [command] record-baseline
+  2. Checkout this mission's own TARGET-BRANCH by name: `git -C
+     "C:\Users\marka\code\mt-integration-2026-06-22" checkout
+     feat/qc-fix-profile-editor-profile-js-2026-06-24`. If it does not exist
+     locally, it is also on the `github` remote: `git -C
+     "C:\Users\marka\code\mt-integration-2026-06-22" fetch github
+     feat/qc-fix-profile-editor-profile-js-2026-06-24 && git -C
+     "C:\Users\marka\code\mt-integration-2026-06-22" checkout
+     feat/qc-fix-profile-editor-profile-js-2026-06-24`. Afterward, `git -C
+     "C:\Users\marka\code\mt-integration-2026-06-22" branch --show-current` MUST
+     print exactly `feat/qc-fix-profile-editor-profile-js-2026-06-24` before
+     proceeding — this is the exact check that would have caught the sibling
+     retail-parking mission's orphaned-commit failure. [command] checkout-target-branch
+  3. Check whether the fix is ALREADY present on this checkout (it should be —
+     commit 18a510e is a confirmed ancestor of this branch): `git -C
+     "C:\Users\marka\code\mt-integration-2026-06-22" log --oneline | Select-String
+     -Pattern "18a510e" -Quiet`. If True, the fix is already landed — skip step 4.
+     [command] check-already-landed
+  4. ONLY if step 3 returned False (fix missing): apply it via `git -C
+     "C:\Users\marka\code\mt-integration-2026-06-22" cherry-pick
+     18a510ea4b0f8f240383eae4b9183a274b57a57c`. If it reports "nothing to commit"
+     (already applied via a different path), resolve with `--skip`, never
+     `--allow-empty`. If it reports a real conflict (repo state drifted since this
+     session's checks), resolve js/profile.js by hand-applying changes (a)/(b)/(c)
+     from Context exactly, keeping every pre-existing line in the file — never
+     `--ours`/`--theirs`, never a resolution that deletes either side's content —
+     then `git add js/profile.js` and `git cherry-pick --continue`. Never use
+     `--amend`, `--force`, or `--no-verify` anywhere in this mission.
+     [command] apply-fix-if-missing
+  5. Verify the file still parses (syntax-only — `node --check` never
+     dynamic-imports, so it is safe against the runtime-verify DOM bug): `node
+     --check js/profile.js` from the repo root; must exit 0.
+     [command] node-check
+  6. Confirm the working tree is on the right branch and clean w.r.t.
+     js/profile.js: `git -C "C:\Users\marka\code\mt-integration-2026-06-22" branch
+     --show-current` (still `feat/qc-fix-profile-editor-profile-js-2026-06-24`) and
+     `git -C "C:\Users\marka\code\mt-integration-2026-06-22" status --short --
+     js/profile.js` (must be empty). [command] confirm-landed
+  7. Re-run the exact structural receipts that would have caught BOTH gates being
+     unfixed (the check the original run never reached, because it died at step
+     4's write, blind): `git -C "C:\Users\marka\code\mt-integration-2026-06-22"
+     show feat/qc-fix-profile-editor-profile-js-2026-06-24:js/profile.js |
+     Select-String -Pattern "try \{" -Context 0,3 | Select-String -Pattern
+     "getMe\(\)"` must show a match (the try-block containing the getMe() call);
+     and `git -C "C:\Users\marka\code\mt-integration-2026-06-22" show
+     feat/qc-fix-profile-editor-profile-js-2026-06-24:js/profile.js |
+     Select-String -Pattern "Username: 3|Display name is required|Links must
+     start" -Quiet` must return True — reading from THIS mission's own named
+     branch specifically, matching the exact check that proved the gap was still
+     real during evidence-gathering (the same grep against main/the working tree
+     returns nothing today). [command] grep-gate-receipts
+
+Done means:
+  - `git branch --show-current` in C:\Users\marka\code\mt-integration-2026-06-22
+    prints exactly `feat/qc-fix-profile-editor-profile-js-2026-06-24`.
+  - Reading js/profile.js from that branch (via `git show
+    <branch>:js/profile.js`, not just trusting the cherry-pick exit code) shows
+    bootstrap()'s `const user = await getMe();` wrapped in a `try { ... } catch
+    (e) { applyGuest(); }` block — a getMe() rejection/throw must fall to the guest
+    view, never leave `#profile-authed`/`#profile-guest` both hidden and never
+    throw uncaught.
+  - The same file, same branch, shows wirePublicProfile()'s save handler
+    containing inline validation for username (rejecting on failure with a
+    message written to `$('pp-msg')`), display name (non-empty required), and
+    each of pp-instagram/pp-youtube/pp-tiktok/pp-website (must start with
+    `http://` or `https://`) — each violation returns BEFORE the
+    `apiFetch('/me/profile', ...)` call fires, and the error text lands in the
+    existing on-page `#pp-msg` element, never `console.*` or `alert()`.
+  - `Select-String -Path js/profile.js -Pattern "Username: 3|Display name is
+    required|Links must start"` run against the checked-out TARGET-BRANCH working
+    tree returns matches — this is the exact grep that returned NOTHING against
+    main/working-tree during evidence-gathering; it must return SOMETHING now.
+  - `node --check js/profile.js` exits 0.
+  - `git status --short -- js/profile.js` in the target repo is empty
+    (pre-existing untracked debris elsewhere in the shared worktree from other
+    concurrent missions is not this mission's to clean up).
+  - No step in this mission wrote js/profile.js via action_type `edit` — every
+    write happened through a `git` command step — so the runtime_verify.mjs
+    document-is-not-defined bug (still live, unfixed, confirmed this session) is
+    never invoked. This is the mechanism, not an accident, and a future re-plan
+    must not "simplify" this into an [edit] step.
+  - profile.html and every file under workers/ are untouched (`git -C
+    C:\Users\marka\code\mt-integration-2026-06-22 status --short` shows no path
+    outside js/profile.js) — the labeling half of gate 2 was already correct, and
+    the 401 root cause was confirmed client-side only.
+
+Context: Sandbox writes only, target repo working tree only. REPO-ROOT is a
+SHARED worktree used by other concurrent qc-* missions — check branch/state before
+writing, never assume, never force-clean another mission's untracked files.
+Amanah: entrusted; discharge with ihsan.

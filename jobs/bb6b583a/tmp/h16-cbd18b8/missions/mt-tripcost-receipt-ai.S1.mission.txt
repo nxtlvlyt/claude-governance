@@ -1,0 +1,54 @@
+MISSION-ID: mt-tripcost-receipt-ai.S1
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - trip-cost.html
+  - js/trip-cost-split.js
+  - functions/api/trip-cost/extract.js
+UNLINKED-OK: this adds capability to the already-live /trip-cost page; reachability is owned by mt-tripcost-nav-link.S1 (queued ahead)
+REQUIRES: mt-copy-clarity.S1 (tartib — the page's copy is being rewritten for clarity first; this feature's UI strings must be authored against the POST-rewrite page, and the operator's keep/kill verdict on the splitter should precede new capability landing on it)
+STEPS: 6
+
+Maqsad: Operator word 2026-07-03 ("it should exist... Gemma 4 helping them"): on the
+trip-cost page, a person can SNAP A PHOTO of a real receipt and Gemma-4 reads it into the
+form — closing the gap between what the page's old copy implied ("add their receipts") and
+what it did (typed fields only). PROVEN FOUNDATION (conductor live probe this hour):
+/api/oracle/nl-brief returns real google/gemma-4-31b-it briefings on production — the
+AIMLAPI binding is functional. Deliverable, mirroring nl-brief's receipted TAQWA pattern:
+(R1) functions/api/trip-cost/extract.js — POST { image_b64, mime } (JPEG/PNG/WebP, hard cap
+~2.5MB base64; reject larger with a plain-language 413), sends the image to the AIMLAPI
+vision-capable Gemma-4 model with a prompt asking ONLY for { amount, currency, category
+(one of the page's list), description, spent_at } from the receipt, and returns
+{ ok:true, suggestion:{...}, degraded:false } — or { ok:true, suggestion:null,
+degraded:true } on ANY model failure/low-confidence read. NEVER fabricate: an amount the
+model cannot read confidently comes back null, never guessed. The photo is processed
+TRANSIENTLY — never written to R2/D1/disk (the R2 perms wall stays untouched; state the
+transient handling in a code comment AND in the UI copy).
+(R2) trip-cost.html + js/trip-cost-split.js — a "Snap your receipt" control (file input,
+accept=image/*, capture=environment) that POSTs to extract.js, then PRE-FILLS the existing
+form fields with the suggestion for the USER TO CONFIRM OR EDIT — the human always presses
+Add contribution; the AI never submits. Entries added from a photo carry a small
+"from photo" tag in the contributions list — that list IS the "what got ingested" view the
+operator asked for (every AI-read entry visible, editable, deletable like any other).
+Grade-6 copy per the copy-clarity bar; no jargon ("We read the photo and fill in the
+numbers. Check them, then add.").
+
+niyyah: The operator expected the site's existing AI helpfulness (crown-land briefings) to
+meet him here, and the honest version is exactly bounded: the model SUGGESTS, the human
+CONFIRMS, failures degrade to the typed form that already works, nothing is stored. Clear,
+not clever — the receipt photo becomes typed-in numbers the user can see and fix.
+
+Steps:
+  1. Idempotent baseline: record branch + HEAD; if functions/api/trip-cost/extract.js exists output CLEAN_ALREADY and treat edit steps as verify-only presence checks; else CLEAN_BASELINE. Never exit 1 on existence. [command]
+  2. Author functions/api/trip-cost/extract.js per R1 — copy nl-brief.js's env/key handling and degradation shape (read it first: functions/api/oracle/nl-brief.js is the receipted pattern); vision request to the AIMLAPI Gemma-4 model; size cap; transient-only comment. [edit] functions/api/trip-cost/extract.js
+  3. Wire the UI per R2 in js/trip-cost-split.js + the control markup in trip-cost.html — suggestion pre-fill only, human confirms, "from photo" tag on AI-assisted entries, degrade invisibly to the typed flow when extract returns degraded. [edit] js/trip-cost-split.js
+  4. Verify: node --check on both JS files; Select-String receipts that extract.js contains the size cap + degraded:true path + no R2/D1 write of image bytes, and that the UI never auto-submits (the Add button remains the only submit path). [verify]
+  5. git commit the three ALLOW-FILES by explicit name (git add trip-cost.html js/trip-cost-split.js functions/api/trip-cost/extract.js; git commit -m "<message naming this mission and the operator's 2026-07-03 word>"); confirm the commit is on HEAD. [command]
+  6. OUTCOME CHECK: in ONE self-contained multi-line command: confirm clean tree for the three files, wrangler pages deploy . --project-name=muddytires --branch=preview, capture URL, poll to 200, then TWO functional probes printed as evidence lines — (a) curl POST $url/api/trip-cost/extract with a tiny valid base64 test image: print EXTRACT_STATUS=<code> and EXTRACT_SHAPE=<ok|bad> (any of suggestion/degraded present = ok; a 5xx or non-JSON = bad); (b) playwright at 430x932: goto $url/trip-cost, assert the Snap-your-receipt control exists and the form still submits typed entries, print SNAP_CONTROL=present, TYPED_FLOW=intact, PAGEERRORS=<n>; then RECEIPT_AI_QC_PASS when EXTRACT_SHAPE=ok AND SNAP_CONTROL=present AND TYPED_FLOW=intact AND PAGEERRORS=0. Degraded:true from the model is an ACCEPTABLE probe result (the taqwa path IS a working path). [command]
+
+Done means: the three files committed at HEAD; the step-6 evidence lines show the extract
+endpoint answering with the honest suggestion/degraded shape and the page carrying the
+photo control with the typed flow intact — a person can photograph a receipt and Gemma
+fills the form for them to confirm, failures fall back to typing, nothing is stored, and
+every AI-read entry is visible in the contributions list with its from-photo tag
+(live-outcome bar; operator word receipt 2026-07-03).

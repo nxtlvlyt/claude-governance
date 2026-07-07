@@ -1,0 +1,41 @@
+MISSION-CLASS: build-program (multi-stage; NOT one mission — scope then decompose)
+MISSION-ID: M-MUDDYTIRES.RESILIENCE.2
+REPO-ROOT: github.com/nxtlvlyt/muddytires-pages (+ muddytires-backend for reference)
+REQUIRES: FRESH oriented instance (do NOT start in a drifted context); the live MySQL data exported off the NAS
+# Goal: muddytires FULLY live + functional on Cloudflare, zero NAS dependency — the dynamic features
+# (contribute, community edit, reviews, oracle, planner, feed) work without the home-stack. This makes
+# muddytires "SOTA" per the operator (2026-06-15). Source-scoped from the real backend this session.
+
+Niyyah: free muddytires entirely from the NAS — not just the read-only map (done, Stage 1), but the whole interactive site, so the home-stack can die and nothing is lost OR broken. The operator's #1 property fully on the edge.
+
+Maqsad: every muddytires feature serves from Cloudflare alone — POIs, photos, reviews, contributions, the natural-language road oracle, the planner — backed by a Cloudflare-hosted database, with the home-stack tunnel never in the path.
+
+ARCHITECTURE (verified by reading the backend 2026-06-15):
+- DATA: MySQL/MariaDB on the Synology. Tables seen in pois.php: the POI nodes (`b`, with lat/lng/node_type/name/note/amenities/photo/contributor + a `meta_json` column queried via JSON_VALUE for crown_camping.legal_status / casino.overnight_rv / overnight.status), `spot_photos` (spot_id, photo), `community_review` (rating, body, photo, contributor, created_at). → MAP TO **Cloudflare D1** (SQLite): MySQL `JSON_VALUE(meta_json,'$.x')` → SQLite `json_extract(meta_json,'$.x')`; prepared statements port directly.
+- AI ORACLE (oracle.php): model-agnostic NL layer — calls Anthropic `/v1/messages` (env ORACLE_MODEL default claude-haiku-4-5) with a deterministic fallback. The Synology needed a Python/curl bridge for HTTPS; **Workers call Anthropic natively** — the port is SIMPLER. NOT a vector/Qdrant system (earlier assumption was wrong).
+- ENDPOINTS to port (PHP → Workers/Pages Functions, by size/effort): pois.php (9.9KB, the GeoJSON data API — DO FIRST), feed.php (8.4KB), contribute.php (9.6KB) + contribute_submit/ocr/voice, community_edit.php (5.8KB), review.php (2.3KB), search.php (2.3KB), planner.php (5.3KB), oracle.php (18KB, the Claude layer), subscribe.php (2.3KB). Static pages (landing/guides/partners/about) can stay static or become simple routes.
+- SECRETS: ANTHROPIC_API_KEY (+ AIML/QDRANT names seen but oracle uses Anthropic), MODERATOR_PIN → Cloudflare Workers secrets (NOT in the repo).
+
+STAGED PLAN (each stage its own mission, receipted; decompose under the Hajj mission-architecture):
+1. **Export the live data off the NAS** (the one NAS-dependent step): mysqldump the muddytires DB (nodes + spot_photos + community_review) to a .sql/CSV. If the NAS is reachable, do this FIRST + commit the dump to a private repo (it is the irreplaceable thing). If the NAS is down, Stage 1 falls back to the pois.json snapshot (POIs only — loses review/photo history).
+   FINDING 2026-06-15 (verified): the DB connection config is NOT in the backed-up muddytires-backend code — pois.php uses a shared `$db` from an include that lived ON the NAS (un-backed-up). So Stage 1 must FIRST SSH into the NAS (creds in memory reference_nas_access), LOCATE the db bootstrap/config to get the DB name + user/pass, THEN read-only mysqldump. This is a careful NAS read-operation against the operator's most-protected asset — do it in a FRESH, oriented instance with NAS access READ-ONLY, never in a drifted context.
+2. **Load into Cloudflare D1**: create the D1 database, port the schema (MySQL→SQLite), import the data.
+3. **Port pois.php → a Worker** querying D1, returning the same GeoJSON shape (the frontend already calls pois.json?...; point it at the Worker route). PROVE the map renders from D1.
+4. **Port the write + read endpoints** (contribute / community_edit / review / search / feed / planner) → Workers on D1, secrets wired. Re-enable the interactive features.
+5. **Port oracle.php → a Worker** calling Anthropic directly (drop the Synology Python bridge).
+6. **Wire the frontend** (index.html) routes from the dead .php paths to the Worker routes; remove the static-only limitation.
+7. **Verify**: every feature works on muddytires.ca with the home-stack tunnel OFF; the apex already points at Pages (done).
+
+Amanah: this is the real "SOTA / NAS-proof" build. Receipts per stage (D1 query returns rows; the map renders from D1; a test contribution writes + reads back; the oracle answers). NO stage claims done without a live receipt.
+
+Constraints: FRESH instance (drift botches multi-stage builds — this session proved it); the muezzin engine is NOT yet reliable enough to autonomously do code-repo builds (the executor-edit COMPLETION gap — engine-reliability-1 must land first) — so until then this is a careful hand/agent build, witnessed; secrets never committed; NAS read-only (export only, never write); commit --no-verify.
+
+# ── DESIGN DECISIONS (strawman defaults, 2026-06-16 workshop — OPERATOR confirms/overrides each) ──
+# These are product-taste calls, captured so the build instance inherits intent. Marked STRAWMAN until the operator ratifies.
+# 1. ORACLE (the AI road layer, currently oracle.php → Claude-haiku): default = Gemini Flash (operator has Google AI Ultra → zero marginal cost). Scope = quick spot Q&A + camping-legality answers. [operator: confirm model + scope]
+# 2. SPOT DISCOVERY (the bronze_fetches/extraction_*/loaders pipeline): default = KEEP the bronze→silver→gold model; auto-ingest to STAGING; AI/human gate before "gold" goes live on the map (quality gate, not a firehose). [operator: how much auto vs curated]
+# 3. CONTRIBUTIONS & TRUST: default = open user submission → moderation QUEUE; keep the existing moderator-PIN flow to start, evolve to trust tiers later. [operator: friction vs openness]
+# 4. MEDIA: default = R2 (cheapest object storage) for photos to start; Cloudflare Images later for auto-resize; mobile uploads via a Worker. DB stores keys, not blobs. NOTE: the image FILES themselves are not yet backed up off the NAS — confirm filesystem vs blob + grab them. [operator: photos per spot, upload UX]
+# 5. MONETIZATION: default = free core map + partner placements (partners.php angle) as first revenue; premium tier later; NEVER gate the community data (goodwill). [operator: revenue model]
+# 6. SCOPE: default = "Canada-first vanlife companion" (map + planner + oracle + community + the quirky-oddities datasets as differentiator) — focused, not everything-app. [operator: where it stops]
+# Each ratified decision moves from STRAWMAN to a build requirement above.

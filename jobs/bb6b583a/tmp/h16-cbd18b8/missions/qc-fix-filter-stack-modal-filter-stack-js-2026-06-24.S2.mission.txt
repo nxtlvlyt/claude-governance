@@ -1,0 +1,24 @@
+MISSION-ID: M-MUDDYTIRES.QC-FIX-FILTER-STACK-MODAL-FILTER-STACK-JS-2026-06-24.S2
+MISSION-CLASS: code-repo
+PARENT: M-MUDDYTIRES.QC-FIX-FILTER-STACK-MODAL-FILTER-STACK-JS-2026-06-24
+TARTIB-INDEX: 2 of 2
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - js/ui-chrome.js
+  - js/filter-stack.js
+  - docs/FEATURE-CATALOG-2026-06-23.md
+REQUIRES: M-MUDDYTIRES.QC-FIX-FILTER-STACK-MODAL-FILTER-STACK-JS-2026-06-24.S1 (tartib — this sub-mission may not start until M-MUDDYTIRES.QC-FIX-FILTER-STACK-MODAL-FILTER-STACK-JS-2026-06-24.S1's receipt exists)
+STEPS: 5
+
+PARENT MAQSAD: verified this session (reading current disk content, not recalled) that a SECOND,
+
+Maqsad: sub-mission 2 of 2 — Inspect the 'Filter stack' result specifically for a passing click interaction — the exact behavior this mission fixes. through Final receipt on the mission's own named branch: the mechanical check that would have caught the original miss must now return no match.
+
+Steps:
+  9. Inspect the 'Filter stack' result specifically for a passing click interaction — the exact behavior this mission fixes. [verify] 
+  10. Regression check: compare the new report against docs/e2e-report-2026-07-01.json for the three pre-existing features — no new error verdicts, no new ui-chrome.js/filter-stack.js console errors. [verify] 
+  11. Stop the local server now that both the feature check and regression check are captured. [command] 
+  12. Commit the three allowed files with a message citing the mission ID and the specific gate restored. [command] 
+  13. Final receipt on the mission's own named branch: the mechanical check that would have caught the original miss must now return no match. [verify] 
+
+Done means:  exist/are updated as specified

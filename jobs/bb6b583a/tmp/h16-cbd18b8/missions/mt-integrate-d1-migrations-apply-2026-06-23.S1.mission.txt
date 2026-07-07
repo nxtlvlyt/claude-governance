@@ -1,0 +1,27 @@
+MISSION-ID: mt-integrate-d1-migrations-apply-2026-06-23.S1
+MISSION-CLASS: code-repo
+PARENT: mt-integrate-d1-migrations-apply-2026-06-23
+TARTIB-INDEX: 1 of 2
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - scripts/apply-d1-migrations-2026-06-23.mjs
+  - docs/D1-MIGRATIONS-APPLIED-2026-06-23.md
+  - docs/QC-PIPELINE-SOTA-2026-06-23.md
+REQUIRES: none (first in tartib order)
+STEPS: 8
+
+PARENT MAQSAD: The commits "375e40b docs(qc): SOTA-uplift QC pipeline — 8 mandatory gates +
+
+Maqsad: sub-mission 1 of 2 — Read-only confirmation in the source worktree that the three commits exist and that acae717 is present in the last 3 log entries, without modifying that worktree. through Create a final commit whose message names the integrated feature and origin commit hashes, since cherry-picked commits keep their original messages which do not contain those exact strings.
+
+Steps:
+  1. Read-only existence confirmation of the three source commits by running EXACTLY `git cat-file -e 375e40b; git cat-file -e 3bb992b; git cat-file -e acae717` (the -e flag is git cat-file's existence predicate: exit 0 when the object is present). Do NOT use `-n` or `git log -n` here — `git cat-file` has no `-n` switch and it errors with "unknown switch n". No worktree modification. [verify]
+  2. In the target repo, cherry-pick 375e40b, 3bb992b, acae717 in chronological order onto current HEAD in a single invocation using --empty=drop so the already-present 375e40b auto-drops as empty instead of stopping the sequence; this is the sole authoring action for all three ALLOW-FILES. [command] 
+  3. Syntax-check the integrated applier script. [verify] scripts/apply-d1-migrations-2026-06-23.mjs
+  4. Confirm the integration touched exactly one .js/.mjs file (the applier script) so no conflict resolution spilled outside ALLOW-FILES. [verify] 
+  5. Confirm the receipts doc landed intact with both the already-applied outcome text and the blocked-migration review_photos row. [verify] docs/D1-MIGRATIONS-APPLIED-2026-06-23.md
+  6. Confirm the QC pipeline doc is present and intact. [verify] docs/QC-PIPELINE-SOTA-2026-06-23.md
+  7. Confirm the applier script contains the idempotency-heuristic marker and the target binding name, proving a real script landed rather than a stub. [verify] scripts/apply-d1-migrations-2026-06-23.mjs
+  8. Create a final commit whose message names the integrated feature and origin commit hashes, since cherry-picked commits keep their original messages which do not contain those exact strings. [command] 
+
+Done means: scripts/apply-d1-migrations-2026-06-23.mjs, docs/D1-MIGRATIONS-APPLIED-2026-06-23.md, docs/QC-PIPELINE-SOTA-2026-06-23.md exist/are updated as specified

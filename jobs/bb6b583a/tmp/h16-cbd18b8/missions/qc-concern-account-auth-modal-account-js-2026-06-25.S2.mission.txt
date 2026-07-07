@@ -1,0 +1,19 @@
+MISSION-ID: M-MUDDYTIRES.QC-CONCERN-ACCOUNT-AUTH-MODAL-ACCOUNT-JS-2026-06-25.S2
+MISSION-CLASS: code-repo
+PARENT: M-MUDDYTIRES.QC-CONCERN-ACCOUNT-AUTH-MODAL-ACCOUNT-JS-2026-06-25
+TARTIB-INDEX: 2 of 2
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - js/account.js
+  - docs/FEATURE-CATALOG-2026-06-23.md
+REQUIRES: M-MUDDYTIRES.QC-CONCERN-ACCOUNT-AUTH-MODAL-ACCOUNT-JS-2026-06-25.S1 (tartib — this sub-mission may not start until M-MUDDYTIRES.QC-CONCERN-ACCOUNT-AUTH-MODAL-ACCOUNT-JS-2026-06-25.S1's receipt exists)
+STEPS: 1
+
+PARENT MAQSAD: On this mission's own TARGET-BRANCH: (a) verify the already-landed auth-modal fix
+
+Maqsad: sub-mission 2 of 2 — Stage and commit exactly the two ALLOW-FILES with a message naming account-auth-modal/account.js and a trailer citing this mission's MISSION-ID, then confirm the branch, clean status, and new commit. through Stage and commit exactly the two ALLOW-FILES with a message naming account-auth-modal/account.js and a trailer citing this mission's MISSION-ID, then confirm the branch, clean status, and new commit.
+
+Steps:
+  9. Stage and commit exactly the two ALLOW-FILES with a message naming account-auth-modal/account.js and a trailer citing this mission's MISSION-ID, then confirm the branch, clean status, and new commit. [command] 
+
+Done means:  exist/are updated as specified

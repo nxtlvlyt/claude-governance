@@ -1,0 +1,103 @@
+MISSION mt-integrate-visreg-baseline
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - mt-audit/visreg-baseline.mjs
+REQUIRES: none
+
+Niyyah: The feature "mt-feat-visreg-baseline" (commit 50223f7, sitting in the source
+worktree C:\Users\marka\code\mt-feat-visreg-baseline) has never been integrated into
+this repo's tree. This mission's entire job is mechanical integration — land the commit
+onto the target repo without losing either side's work, and prove the result is
+syntactically sound and committed cleanly. Nothing this mission does, and nothing about
+this mission's own authorship, constitutes a judgment that the visreg-baseline feature's
+CODE is correct — that the Puppeteer capture actually produces stable baselines across
+runs, that the pixelmatch diff threshold (default 2%) is the right sensitivity, that the
+prefers-reduced-motion + CSS-freeze approach actually eliminates animation flakiness, or
+that visualRegressionCheck()'s documented intent to become qc-harness-v2.mjs's sixth QC
+gate is sound once actually wired in (this commit only exports the function; it does not
+wire it). That determination belongs entirely to this mission's own witness + verdict-
+panel run, which inspects the integrated result AFTER this mission produces it. Authoring
+or executing this mission is not verification of the feature.
+
+Maqsad: The commit "50223f7 feat(visreg): add visual regression baseline + diff harness
+for apex" is cherry-picked or merged from the source worktree onto the current HEAD of
+C:\Users\marka\code\mt-integration-2026-06-22, with any conflicts resolved by keeping
+BOTH sides — this repo's existing unrelated changes AND the visreg-baseline feature's
+changes, never silently dropping either — mt-audit/visreg-baseline.mjs (and any other
+.js/.mjs file conflict resolution ends up touching) passes `node --check`, the result is
+committed with a clear message, and the target repo's working tree is left clean (git
+status shows no uncommitted changes to the touched files).
+
+Context (verified against live substrate this session, absolute paths, no prescribed
+resolution beyond "keep both sides"):
+- Source worktree: C:\Users\marka\code\mt-feat-visreg-baseline, branch
+  feat/visreg-baseline, HEAD already sitting exactly on 50223f7 (confirmed via
+  git log -1) — do not modify that worktree, only read/cherry-pick FROM it.
+- Confirmed diff stat for 50223f7 (git show --stat, this session): 1 file changed, 422
+  insertions(+), 0 deletions(-), a pure new addition: mt-audit/visreg-baseline.mjs. No
+  existing-file modifications anywhere in this commit.
+- Target repo (this session, git log --oneline -1 in
+  C:\Users\marka\code\mt-integration-2026-06-22): HEAD 5e19874, checked out branch
+  main. Confirmed by direct file check this session: mt-audit/visreg-baseline.mjs does
+  not exist anywhere in the target tree yet, so a cherry-pick is expected to apply as a
+  pure add with zero conflicts. If the target tree has since gained its own file at that
+  path by the time this mission fires, that is a changed condition from this authoring
+  session — resolve any resulting conflict by keeping BOTH sides' content (the target's
+  pre-existing lines AND the feature's added lines), never `--ours` / `--theirs` and
+  never a resolution that drops either side.
+- No TARGET-BRANCH header is set, deliberately: this mission's job is to land the commit
+  onto whichever branch/HEAD the target repo has checked out AT FIRE TIME ("the current
+  HEAD"), not onto a hardcoded branch name. Do not check out or switch branches as a step
+  of this mission; integrate in place on whatever tree is already checked out.
+- This diff touches zero .html files (confirmed: the single changed file is
+  mt-audit/visreg-baseline.mjs) — the visual-QC render-witness header used by other
+  integration missions is intentionally left off this mission's header block, and no
+  render-witness step is required or expected.
+- The commit's own message notes that pngjs + pixelmatch package.json dependency
+  entries are NOT part of this diff (they live in the canonical mt-audit/ tree outside
+  this repo per the commit's own notes) — this mission's ALLOW-FILES and scope cover
+  only the one file this commit actually changed; do not add or infer a package.json
+  edit that the commit itself did not make.
+
+Steps:
+  1. In the source worktree C:\Users\marka\code\mt-feat-visreg-baseline, confirm commit
+     50223f7 exists and capture its patch (e.g. `git show 50223f7` or
+     `git format-patch -1 50223f7`) without modifying that worktree. [command] capture-patch
+  2. In the target repo C:\Users\marka\code\mt-integration-2026-06-22, at whatever
+     branch/HEAD is currently checked out (no branch switch), apply the captured commit
+     via `git cherry-pick 50223f7` (adding the source worktree as a remote/reachable
+     object source if needed) or an equivalent merge of that single commit.
+     [command] integrate-commit
+  3. If cherry-pick reports conflicts on mt-audit/visreg-baseline.mjs (not expected,
+     since it is a pure new add) or on any other file, resolve each conflicted hunk by
+     hand so the resolved content contains BOTH the target's pre-existing content AND
+     the visreg-baseline feature's content — never `--ours` / `--theirs` and never a
+     resolution that deletes either side's lines. [edit] resolve-conflicts
+  4. Run `node --check mt-audit/visreg-baseline.mjs`, and `node --check` on every other
+     .js/.mjs file the merge touched or conflict resolution modified, confirming each
+     exits 0. [command] node-check-all
+  5. Stage and commit the integrated result in the target repo with a clear message
+     identifying the integrated feature and its origin commit (e.g. referencing
+     "mt-feat-visreg-baseline" and "50223f7"). Confirm `git status` afterward shows a
+     clean working tree. [command] commit-and-verify-clean
+
+Done means:
+  - `git log` in C:\Users\marka\code\mt-integration-2026-06-22 shows a commit containing
+    the integrated visreg-baseline feature, with a commit message that names
+    "mt-feat-visreg-baseline" and/or "50223f7".
+  - mt-audit/visreg-baseline.mjs exists in the target repo at HEAD with non-trivial
+    content (contains a `visualRegressionCheck` export, references puppeteer-core and
+    pixelmatch, and defines both a `--baseline` and a `--diff` CLI path).
+  - `node --check` exits 0 on mt-audit/visreg-baseline.mjs and on every other .js/.mjs
+    file this integration touched or conflict-resolved.
+  - `git status` in the target repo shows a clean working tree (no uncommitted changes)
+    at the end of the mission.
+  - None of the above constitutes verification that the feature's CODE is correct (e.g.
+    that the pixel-delta threshold, the reduced-motion freeze, or the eventual
+    qc-harness-v2.mjs wiring are right) — that determination belongs to this mission's
+    own witness + verdict-panel run downstream, not to this mission's authorship or
+    execution.
+
+Context: Sandbox writes only, target repo working tree only.
+Amanah: entrusted; discharge with ihsan.

@@ -1,0 +1,113 @@
+MISSION mt-integrate-contributor-leaderboard
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+TARGET-BRANCH: main
+VISUAL-QC-REQUIRED
+PREVIEW-BASE-URL: http://localhost:8788
+ALLOW-FILES:
+  - leaderboard.html
+  - functions/api/leaderboard.js
+  - about.html
+  - ambassadors.html
+  - index.html
+REQUIRES: none
+
+Niyyah: The feature "mt-feat-contributor-leaderboard" (commit 3b4b1eb, currently sitting
+in the source worktree C:\Users\marka\code\mt-feat-contributor-leaderboard) has never been
+integrated into this repo's HEAD. This mission's entire job is mechanical integration —
+land the commit onto the current tree without losing either side's changes, and prove the
+result is syntactically sound and rendered. Nothing this mission does constitutes a
+judgment that the leaderboard feature's CODE is correct, safe, or matches the product's
+privacy intent (e.g. that emails truly never leave the API, or that the tier-chip logic is
+right). That determination belongs to this mission's own witness + verdict-panel run, which
+inspects the integrated result after this mission produces it — not to the act of
+integration itself. Authoring or executing this mission is not verification of the feature.
+
+Maqsad: The commit "3b4b1eb feat(leaderboard): contributor status leaderboard page +
+/api/leaderboard.json" is cherry-picked or merged from the source worktree onto the current
+HEAD of C:\Users\marka\code\mt-integration-2026-06-22, with any conflicts resolved by
+keeping BOTH sides — this repo's existing unrelated changes AND the leaderboard feature's
+changes, never silently dropping either — every changed .js/.mjs file passes `node --check`,
+the result is committed with a clear message, and the target repo's working tree is left
+clean (git status shows no uncommitted changes to the touched files).
+
+Context (verified against live substrate 2026-06-30/07-01, absolute paths, no prescribed
+resolution beyond "keep both sides"):
+- Source worktree: C:\Users\marka\code\mt-feat-contributor-leaderboard, commit 3b4b1eb5,
+  already has the real feature commit on top of a merge chain — do not rewrite that
+  worktree, only read/cherry-pick FROM it.
+- Confirmed diff stat for 3b4b1eb (git show --stat, this session): 5 files changed,
+  339 insertions(+), 3 deletions(-) — leaderboard.html (151 new lines),
+  functions/api/leaderboard.js (185 new lines), and single-line footer/nav link additions
+  to about.html, ambassadors.html, index.html (+1/-1 each, adding a "Leaderboard" link).
+- Target repo HEAD (this session, `git log --oneline -1` in
+  C:\Users\marka\code\mt-integration-2026-06-22): 28cbc72. The target tree has since moved
+  ahead with unrelated work; about.html, ambassadors.html, and index.html may carry their
+  own nav/footer edits since 3b4b1eb's parent — a naive cherry-pick can conflict on those
+  single-line hunks. Where it conflicts, the resolved line must contain BOTH the target's
+  existing link/markup changes AND the new "Leaderboard" link text — never resolved by
+  taking only "ours" or only "theirs".
+- functions/api/leaderboard.js is a new Cloudflare Pages Function (D1-backed); it has no
+  counterpart in target HEAD, so it should apply cleanly as a pure add unless the target
+  repo has since added its own functions/api/leaderboard.js (check first; if so, keep both
+  sets of exported behavior rather than overwriting).
+- Because this diff touches leaderboard.html, VISUAL-QC-REQUIRED and PREVIEW-BASE-URL are
+  set above so the engine's render-witness pipeline actually runs against the integrated
+  page. PREVIEW-BASE-URL: http://localhost:8788 is a PLACEHOLDER for a local
+  `wrangler pages dev` server — the operator needs to confirm the actual local preview port
+  before this mission fires; do not assume 8788 is correct without checking.
+
+Steps:
+  1. In the source worktree C:\Users\marka\code\mt-feat-contributor-leaderboard, confirm
+     commit 3b4b1eb exists and capture its patch (e.g. `git show 3b4b1eb` or
+     `git format-patch -1 3b4b1eb`) without modifying that worktree. [command] capture-patch
+  2. In the target repo C:\Users\marka\code\mt-integration-2026-06-22, on TARGET-BRANCH main
+     at its current HEAD, apply the captured commit via `git cherry-pick 3b4b1eb` (adding
+     the source worktree as a remote/reachable object source if needed) or an equivalent
+     merge of that single commit. [command] integrate-commit
+  3. If cherry-pick reports conflicts on about.html, ambassadors.html, index.html, or any
+     other ALLOW-FILES entry, resolve each conflicted hunk by hand so the resolved content
+     contains BOTH the target's pre-existing change AND the leaderboard feature's change —
+     never `--ours` / `--theirs` and never a resolution that deletes either side's lines.
+     [edit] resolve-conflicts
+  4. Run `node --check leaderboard.html` is not applicable (not JS) — instead run
+     `node --check functions\api\leaderboard.js` and `node --check` on every other
+     .js/.mjs file the merge touched or conflicts modified, confirming each exits 0.
+     [command] node-check-all
+  5. Stage and commit the integrated result in the target repo with a clear message
+     identifying the integrated feature and its origin commit (e.g. referencing
+     "mt-feat-contributor-leaderboard" and "3b4b1eb"). Confirm `git status` afterward shows
+     a clean working tree. [command] commit-and-verify-clean
+  6. Start (or confirm already running) a local preview server for the target repo at the
+     PREVIEW-BASE-URL host:port (e.g. `wrangler pages dev`), then render /leaderboard.html
+     in a headless browser (headless Chrome / Playwright / puppeteer) and capture that the
+     page loads without a fatal script error and shows leaderboard content (e.g. a tier
+     chip element for lurker/submitter/producer/mentor). This is the render-witness step
+     RULE 7 of mission_lint.mjs requires because VISUAL-QC-REQUIRED is set above.
+     [command] headless-render-witness
+
+Done means:
+  - `git log` in C:\Users\marka\code\mt-integration-2026-06-22 shows a commit on the
+    TARGET-BRANCH containing the integrated leaderboard feature, with a commit message that
+    names "mt-feat-contributor-leaderboard" and/or "3b4b1eb".
+  - leaderboard.html and functions/api/leaderboard.js exist in the target repo at HEAD with
+    non-trivial content (leaderboard.html contains tier-chip markup for
+    lurker/submitter/producer/mentor; functions/api/leaderboard.js contains the D1 query
+    logic for community_spot/community_review counts).
+  - about.html, ambassadors.html, and index.html each contain a "Leaderboard" link AND
+    retain whatever pre-existing nav/footer content the target repo had before this mission
+    ran (both sides present, confirmed by reading the resolved lines, not assumed).
+  - `node --check` exits 0 on functions/api/leaderboard.js and on every other .js/.mjs file
+    this integration touched or conflict-resolved.
+  - `git status` in the target repo shows a clean working tree (no uncommitted changes) at
+    the end of the mission.
+  - A headless browser (headless Chrome / Playwright / puppeteer) render of
+    /leaderboard.html served from PREVIEW-BASE-URL loads without a fatal script error and
+    shows visible leaderboard/tier-chip content — verified by rendering the page, not by
+    reading the code. This witness result, together with the separate verdict-panel run
+    downstream of this mission, is what actually judges whether the feature's CODE is
+    correct — this mission's own authorship and execution only prove the integration is
+    mechanically sound, not that the feature is right.
+
+Context: Sandbox writes only, target repo working tree only.
+Amanah: entrusted; discharge with ihsan.

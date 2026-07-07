@@ -1,0 +1,21 @@
+{
+  "parentId": "MT-INTEGRATE-PARTNER-WIDGET",
+  "ceiling": 8,
+  "originalStepCount": 11,
+  "groupCount": 2,
+  "children": [
+    {
+      "id": "MT-INTEGRATE-PARTNER-WIDGET.S1",
+      "file": "missions/mt-integrate-partner-widget.S1.mission.txt",
+      "steps": 8,
+      "requires": null
+    },
+    {
+      "id": "MT-INTEGRATE-PARTNER-WIDGET.S2",
+      "file": "missions/mt-integrate-partner-widget.S2.mission.txt",
+      "steps": 3,
+      "requires": "MT-INTEGRATE-PARTNER-WIDGET.S1"
+    }
+  ],
+  "ts": "2026-07-02T01:01:48.453Z"
+}
