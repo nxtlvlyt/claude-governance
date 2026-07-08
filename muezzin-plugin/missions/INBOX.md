@@ -86,3 +86,14 @@ The fork found 7 real engine bugs under live fire; the Claude engine shares the 
 6. SINGLETON LIVENESS: pidfile pid can be RECYCLED to an unrelated process (fork receipt 23788) → false-alive; and CommandLine-based checks must match bare "node muezzin-daemon.mjs" (no repo substring). Harden liveness = pid+CommandLine.
 7. BOOT-STATUS GHOST: fresh daemon re-renders inherited RUNNING/FAILED marks from stale status/mark state.
 Also proven useful fork-side, consider adopting: RELOAD-REQUEST flag exists Claude-side? (fork daemon honors it; fork lacks a supervisor — separate fork item.)
+
+## INTAKE 2026-07-08 (from writing the two operator manuals side-by-side)
+1. THE CLAUDE CONDUCTOR HAS NO LADDER: agy's conductor is graded per-beat against 7
+   receipt-scored gates (fork SENIOR-QUALIFICATION.md); the Claude conductor is "born
+   senior" with no scorecard — yet today's receipts show it committing G5-class violations
+   (double-daemon via pidfile-rm; ghost-lane kill). PROPOSAL: the same gates grade Claude
+   conductor beats into a ladder ledger; self-accountability, same standard both sides.
+2. RAILS-INTO-ENGINE DIRECTION: agy proved engine-level gates (verdict, retro-repeat,
+   miqat) discipline ANY conductor, while harness-level hooks don't port and can misfire
+   (niyyah gate vs wakeup-transcript quirk, receipted today). Standing direction: when a
+   discipline can live in the engine instead of a hook, move it there.
