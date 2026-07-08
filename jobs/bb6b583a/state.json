@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "retro corpus analysis complete: 131 muddytires mission retros all blank 'learning material'; retro system had blind spot 07-01 to 07-03; androidtv assembly still on watch cycle",
+  "detail": "traced root cause: qwen3-coder-next burning budget on internal reasoning; escalation ladder working correctly; S1 done, S2 final assembly running through self-heal cycle (~9-10 min per attempt); di-fix verified sound",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 3448344,
+  "tokens": 3466312,
   "output": null,
   "children": null,
-  "linkScanOffset": 10740596,
+  "linkScanOffset": 10958649,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -40,6 +40,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-08T23:14:01.915Z",
+  "updatedAt": "2026-07-08T23:23:34.219Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }

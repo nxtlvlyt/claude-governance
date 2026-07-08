@@ -70,3 +70,11 @@
 [2026-07-08T22:21:52.766Z] [supervisor] workers=0
 [2026-07-08T22:21:52.795Z] [bg] bg: control socket bound at \\.\pipe\cc-daemon-*-control
 [2026-07-08T22:21:53.520Z] [bg] bg adopt: adopted=1 respawned=0 dead=0
+[2026-07-08T23:21:53.240Z] [supervisor] binary at C:\Users\marka\AppData\Roaming\npm\node_modules\@anthropic-ai\claude-code\bin\claude.exe changed (mtime changed) — self-restarting for upgrade
+[2026-07-08T23:21:53.243Z] [supervisor] shutting down (cause=upgrade, uptime=3602s, leases=1, live_workers=1)
+[2026-07-08T23:21:54.335Z] [supervisor] ─── daemon start ─── version=2.1.205 pid=37672 origin=transient
+[2026-07-08T23:21:55.050Z] [supervisor] auth: scheduling proactive refresh in 2800s
+[2026-07-08T23:21:55.057Z] [supervisor] auth: scheduling proactive refresh in 2800s
+[2026-07-08T23:21:55.438Z] [supervisor] workers=0
+[2026-07-08T23:21:55.472Z] [bg] bg: control socket bound at \\.\pipe\cc-daemon-*-control
+[2026-07-08T23:21:56.561Z] [bg] bg adopt: adopted=1 respawned=0 dead=0
