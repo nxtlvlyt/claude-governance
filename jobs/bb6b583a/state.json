@@ -1,19 +1,28 @@
 {
   "state": "working",
   "detail": "but nothing was moving until I said ok",
-  "tempo": "active",
+  "tempo": "idle",
   "inFlight": {
-    "tasks": 1,
+    "tasks": 2,
     "queued": 0,
     "kinds": [
-      "local_agent"
+      "local_agent",
+      "session_cron"
     ]
   },
   "selfWake": true,
+  "fan": [
+    {
+      "id": "a9c69f5c1d974e81e",
+      "kind": "agent",
+      "label": "Fork staleness gate fix",
+      "startedAt": 1783499407995
+    }
+  ],
   "tokens": 2502443,
   "output": null,
   "children": null,
-  "linkScanOffset": 6568988,
+  "linkScanOffset": 6639922,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -36,18 +45,10 @@
   "cliVersion": "2.1.202",
   "cwd": "C:\\Users\\marka",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-08T08:16:35.725Z",
+  "updatedAt": "2026-07-08T08:30:39.387Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z",
   "bridgeSessionId": "cse_015z5n4qQqp9BZ8kKSCkvtzT",
   "bridgeOutboundOnly": false,
   "bridgeSessionSeq": 85,
-  "backend": "daemon",
-  "fan": [
-    {
-      "id": "a7eef68a4baddae41",
-      "kind": "agent",
-      "label": "Purge fork Claude-side reads",
-      "startedAt": 1783498595592
-    }
-  ]
+  "backend": "daemon"
 }
