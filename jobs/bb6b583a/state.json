@@ -1,18 +1,19 @@
 {
-  "state": "working",
-  "detail": "androidtv.tips attempt 3 running on daemon 29924; restructured per-site steps with fetch gates; will auto-report result or escalate to user on block",
-  "tempo": "idle",
+  "state": "blocked",
+  "detail": "S1 receipt audit complete: glm-5.2 writing placeholders instead of fetching bot-walled sites (3x blocked by verdict panel); pick option from STATE.md to proceed",
+  "tempo": "blocked",
   "inFlight": {
-    "tasks": 1,
+    "tasks": 0,
     "queued": 0,
-    "kinds": [
-      "session_cron"
-    ]
+    "kinds": []
   },
-  "tokens": 2847174,
-  "output": null,
+  "tokens": 2851563,
+  "needs": "pick fetch-gate option from STATE.md and confirm to proceed",
+  "output": {
+    "result": "S1: 7/9 profiles complete; 2 bot-walled sites need fetch-gate or engine inputs"
+  },
   "children": null,
-  "linkScanOffset": 7598567,
+  "linkScanOffset": 7645116,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -40,6 +41,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-08T14:25:12.435Z",
+  "updatedAt": "2026-07-08T14:52:28.852Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
