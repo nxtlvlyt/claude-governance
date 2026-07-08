@@ -1,0 +1,37 @@
+{
+  "state": "done",
+  "detail": "health check: agent ready, governance bootstrap clean, no errors",
+  "tempo": "idle",
+  "inFlight": {
+    "tasks": 0,
+    "queued": 0,
+    "kinds": []
+  },
+  "tokens": 275,
+  "output": {
+    "result": "agent ready and operational"
+  },
+  "children": null,
+  "linkScanOffset": 217538,
+  "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka--claude-muezzin-plugin\\f757fc34-f7de-4d09-b4cf-60bb20551f0d.jsonl",
+  "template": "claude",
+  "respawnFlags": [
+    "--agent",
+    "claude",
+    "--permission-mode",
+    "default",
+    "--model",
+    "claude-fable-5[1m]"
+  ],
+  "intent": "are you ok",
+  "sessionId": "f757fc34-f7de-4d09-b4cf-60bb20551f0d",
+  "resumeSessionId": "f757fc34-f7de-4d09-b4cf-60bb20551f0d",
+  "daemonShort": "f757fc34",
+  "cliVersion": "2.1.204",
+  "cwd": "C:\\Users\\marka\\.claude\\muezzin-plugin",
+  "originCwd": "C:\\Users\\marka\\.claude\\muezzin-plugin",
+  "backend": "daemon",
+  "createdAt": "2026-07-08T19:06:42.532Z",
+  "updatedAt": "2026-07-08T19:07:03.818Z",
+  "firstTerminalAt": "2026-07-08T19:07:03.818Z"
+}
