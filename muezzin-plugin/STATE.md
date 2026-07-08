@@ -2004,3 +2004,5 @@ IN-FLIGHT / RESUME POINTERS:
   keep/kill verdict (review row 6) not yet given.
 BUDGET LAW OBEYED: workflow stopped, marathons ended; the daemon's Sonnet seats draw a
 SEPARATE bucket and keep draining product regardless of this session's Fable state.
+
+**2026-07-08 ~04:0xZ — agy sibling INTAKE DRY (6/6, all fork suites green; receipts in C:\Users\marka\agy-muezzin STATE.md/QUEUE.md; closing push sent 200). Claude-side untouched except QUEUE N14 + this line.**
