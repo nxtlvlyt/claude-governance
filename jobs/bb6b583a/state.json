@@ -1,19 +1,17 @@
 {
   "state": "blocked",
-  "detail": "fork ready & tested (agy mission DONE, all suites green); awaiting OLLAMA_API_KEY + go-ahead for unattended daemon + N4 rule review",
+  "detail": "agy sibling fully armed and tested (Gemini/cloud/local seats live); awaiting baton handoff to run work",
   "tempo": "blocked",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 2462521,
-  "needs": "set OLLAMA_API_KEY for cloud seats, give word to run daemon unattended, review N4 rule commit",
-  "output": {
-    "result": "fork complete & verified: agy mission DONE, 101/156/57/7 suites green, baton lock live"
-  },
+  "tokens": 2464563,
+  "needs": "hand the baton to agy to run work",
+  "output": null,
   "children": null,
-  "linkScanOffset": 6212814,
+  "linkScanOffset": 6254332,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -41,6 +39,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-08T02:57:41.346Z",
+  "updatedAt": "2026-07-08T03:56:47.245Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
