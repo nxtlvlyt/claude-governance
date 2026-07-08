@@ -1,29 +1,18 @@
 {
   "state": "working",
-  "detail": "agent will auto-requeue and judge; user will hear finished deliverable",
-  "tempo": "active",
+  "detail": "attempt-5 running with root-cause fix (pre-fetched evidence committed); watching for terminal verdict",
+  "tempo": "idle",
   "inFlight": {
-    "tasks": 2,
+    "tasks": 1,
     "queued": 0,
     "kinds": [
-      "local_agent",
       "session_cron"
     ]
   },
-  "fan": [
-    {
-      "id": "a521971f50327b8ba",
-      "kind": "agent",
-      "label": "Pre-stage corpus + rewrite atv-1",
-      "startedAt": 1783527265543
-    }
-  ],
-  "tokens": 2943209,
-  "output": {
-    "result": "attempt-5 building corpus, requeuing on timer; user notified on completion"
-  },
+  "tokens": 3004455,
+  "output": null,
   "children": null,
-  "linkScanOffset": 7957612,
+  "linkScanOffset": 8007835,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -51,6 +40,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-08T16:16:46.527Z",
+  "updatedAt": "2026-07-08T16:31:59.898Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
