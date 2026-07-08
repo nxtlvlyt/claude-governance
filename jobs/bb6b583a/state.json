@@ -1,17 +1,17 @@
 {
   "state": "blocked",
-  "detail": "n4 rule: self-fix permission gate (4 criteria for inline fixes vs missions); awaiting commit approval",
+  "detail": "awaiting decision: commit the 4-sentence rule paragraph or remove it",
   "tempo": "blocked",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 2741405,
-  "needs": "say \"commit it\" to approve or \"remove it\" to discard",
+  "tokens": 2741727,
+  "needs": "yes (commit it) or no (remove it)",
   "output": null,
   "children": null,
-  "linkScanOffset": 6879725,
+  "linkScanOffset": 6899078,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -38,6 +38,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-08T09:57:58.486Z",
+  "updatedAt": "2026-07-08T10:17:52.177Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
