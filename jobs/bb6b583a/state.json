@@ -1,9 +1,9 @@
 {
   "state": "working",
-  "detail": "2 research agents running benchmarks; results incoming",
+  "detail": "vision seat validated with Gemini Flash; executor benchmark search underway (kimi vs glm-5.2 vs qwen-coder)",
   "tempo": "active",
   "inFlight": {
-    "tasks": 2,
+    "tasks": 1,
     "queued": 0,
     "kinds": [
       "local_agent"
@@ -20,13 +20,14 @@
       "id": "ac1d1aa12ebeaace0",
       "kind": "agent",
       "label": "Probe agy image input",
-      "startedAt": 1783485410788
+      "startedAt": 1783485410788,
+      "doneAt": 1783485644033
     }
   ],
-  "tokens": 2485159,
+  "tokens": 2489590,
   "output": null,
   "children": null,
-  "linkScanOffset": 6385247,
+  "linkScanOffset": 6402353,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -53,6 +54,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-08T04:40:33.283Z",
+  "updatedAt": "2026-07-08T04:41:09.678Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
