@@ -238,6 +238,17 @@ declaring the gap closed, and it now has to hold across a pathway it never used 
 + 1 hunt item: #7 LANE-EXCLUSION — hook BUILT+TESTED 9/9 at
 ~/.claude/hooks/lane-exclusion-gate.mjs; registration in settings.json classifier-blocked —
 ONE approved edit from live, the LAST hunt item standing).
+**AGY SIBLING READY 2026-07-08 ~03:0xZ (loop closed, push sent 200):** fork at
+C:\Users\marka\agy-muezzin (commits 2f48ef7 argv/model-map fixes, e3da3d2 cloud lane,
+a495f41 beat CLI+baton+smoke) — smoke mission DONE through agy with zero claude providers;
+Gemini Flash (High) audition 4/4 with rails fail-closed correctly; jurisdiction rulebook at
+~/.agents (own git repo, Claude paths purged). CLAUDE-SIDE: baton gate live (this commit;
+daemon PID 22624; baton file names claude-muezzin — the sibling's daemon mechanically
+cannot fire this queue). PARKED FOR OPERATOR: N4 rule commit in ~/.claude (classifier);
+arming the fork daemon needs OLLAMA_API_KEY + his word. Fork intake seeded: gate
+staleness-awareness, residual Claude-side reads in fork conduct-cycle/webhook/doctor
+(flagged by the smoke agent), inherited product AUTORUN lines held by the fork's own gap-hold.
+
 **INTAKE DRAIN COMPLETE 2026-07-08 ~01:4xZ (operator-authorized loop "run the loop"):**
 N1/N2/N3/N5/N6/N7/N10/N12 struck (receipts in QUEUE), N8 resolved-by-retirement (gemma
 family out; census watch moves to mistral), N9 held (product-class), N11 recorded-as-note.

@@ -681,6 +681,15 @@ function shouldHaltMission(n, maxAttempts, failedStep) {
 // (72a17f6) enrolled the historical namespaces but missed the qc-* product-QC family.
 const GAP_HOLD_PRODUCT_PREFIXES = ['mt-', 'muddytires-', 'b13-', 'card-', 'cgsports-', 'quirky-', 'qc-concern-', 'qc-fix-', 'm1-'];
 const gapHoldLogged = new Set();
+
+// CONDUCTOR-BATON (plan step 5, 2026-07-07): pure gate — this side fires only when the
+// baton file's first line names "claude-muezzin" (the agy sibling's twin expects
+// "agy-muezzin"). Missing/foreign baton = held elsewhere, non-fatal skip in fire().
+export function batonAllows(content) {
+  if (content == null) return false;
+  return String(content).split(/\r?\n/)[0].trim() === 'claude-muezzin';
+}
+const batonHeldLogged = new Set();
 export function gapHoldSkips(raw) {
   const stem = path.basename(String(raw)).replace(/\.mission\.txt$/i, '');
   return GAP_HOLD_PRODUCT_PREFIXES.some((p) => stem.toLowerCase().startsWith(p));
@@ -1154,6 +1163,17 @@ async function mainLoop() {
   const laneStartTs = new Map(); // raw line -> ISO start timestamp
 
   const fire = async (raw) => {
+    // CONDUCTOR-BATON (plan step 5, 2026-07-07): single-writer lock shared with the agy
+    // sibling — this daemon fires only while missions/_logs/CONDUCTOR-BATON's first line
+    // is "claude-muezzin". Held elsewhere -> log once, skip non-fatally (gapHoldSkips shape).
+    {
+      let batonTxt = null;
+      try { batonTxt = readFileSync(path.join(LOGDIR, 'CONDUCTOR-BATON'), 'utf8'); } catch { /* missing -> held elsewhere */ }
+      if (!batonAllows(batonTxt)) {
+        if (!batonHeldLogged.has(raw)) { batonHeldLogged.add(raw); evt(`BATON-HELD-ELSEWHERE: ${raw} — missions/_logs/CONDUCTOR-BATON ${batonTxt === null ? 'missing' : 'first line is not "claude-muezzin"'}; daemon skips the fire (non-fatal, baton ruling 2026-07-07)`); }
+        return;
+      }
+    }
     const missionFile = path.resolve(HERE, raw);
     if (!existsSync(missionFile)) { evt(`FAILED (missing file): ${raw}`); setMark(raw, 'FAILED'); return; }
     // GAP-PRIORITY-HOLD (operator ruling 2026-07-03: "gap issues is always priority" —
@@ -1663,6 +1683,12 @@ if (process.argv.includes('--selftest')) {
   ck(gapHoldSkips('missions/qc-concern-poi-affiliate-cards-poi-affiliate-cards-js-2026-06-25.mission.txt') === true, 'gap-hold: qc-concern-* held (2026-07-07 live bypass receipt)');
   ck(gapHoldSkips('missions/qc-fix-share-spot-share-spot-js-2026-06-24.mission.txt') === true, 'gap-hold: qc-fix-* held (same family)');
   ck(gapHoldSkips('missions/m1-1-oracle-ingest-ontario-crownland-v6.mission.txt') === true, 'gap-hold: m1-* held (oracle-ingest is muddytires product)');
+  // CONDUCTOR-BATON (plan step 5): single-writer lock, both polarities + edges.
+  ck(batonAllows('claude-muezzin\ngranted 2026-07-07') === true, 'baton: first line "claude-muezzin" -> this daemon fires');
+  ck(batonAllows('claude-muezzin\r\ncrlf body') === true, 'baton: CRLF first line still grants');
+  ck(batonAllows('agy-muezzin\ngranted') === false, 'baton: sibling holds it -> this daemon skips');
+  ck(batonAllows(null) === false && batonAllows('') === false, 'baton: missing/empty file -> held elsewhere (fail-closed)');
+  ck(batonAllows('claude-muezzin-2') === false, 'baton: prefix collision does not grant (exact first-line match)');
   // NOTE-PRESERVING MARK (intake N10): a refusal/status mark must never clobber the
   // line's judgment note (live receipt 2026-07-07: 4 stamps reduced to bare timestamps).
   ck(buildMarkLine('FAILED missions/x.mission.txt  <!-- DIAGNOSED. FIX: requeue via fix-ledger -->', 'missions/x.mission.txt', 'FAILED', '2026-07-07T20:00:00Z')
