@@ -1122,6 +1122,16 @@ export function sweep(base = HERE, now = Date.now(), routeFile = path.join(proce
   // prompt's blanket phrasing let the conductor override it by habit. A running lane is the
   // DAEMON's work, not the conductor's busyness — same law as the CG rule below.)
   else report.push(`BEAT-COMPLETE BAR: ${actions.length} required action(s) above are CONDUCTOR work this beat — "nothing needed from you" is EARNED only after at least one lands (or its blocker is receipted in the report); a running lane is the daemon's work, not yours`);
+
+  // ADVISORY LINTERS over the freshest QUEUE.md writes (intake N3, 2026-07-07; advisory-first
+  // per the fm11 precedent — report lines, never blocking). Fifth-law causal claims AND the
+  // retest-boundaries class (operator-caught 2026-07-07: "blocked on the operator" carried
+  // forward from a stale denial — a fresh-session denial receipt must sit near the claim).
+  try {
+    const qtail = readText(path.join(base, 'missions', 'QUEUE.md')).slice(-6000);
+    for (const f of findUngatedCausalClaims(qtail).slice(0, 3)) report.push(`FIFTH-LAW ADVISORY (ungated causal claim in fresh QUEUE writes): "${f.context.slice(0, 140)}"`);
+    for (const f of findUngatedOperatorBlockClaims(qtail).slice(0, 3)) report.push(`RETEST-BOUNDARY ADVISORY (blocked-on-operator claim without a nearby fresh denial receipt): "${f.context.slice(0, 140)}"`);
+  } catch { /* advisory only — never breaks the sweep */ }
   return { daemonAlive, report, actions, autorun, doneness };
 }
 
@@ -1385,6 +1395,31 @@ export function findUngatedCausalClaims(text, { windowChars = 400 } = {}) {
   return flagged;
 }
 
+// BLOCKED-ON-OPERATOR LINT (intake N3, 2026-07-07 — the mechanical form of the
+// retest-boundaries lesson: the operator disbelieved a "waiting on you" claim and was
+// right; 2 of 3 "blocked" items executed immediately when attempted fresh). Flags
+// blocked-on-operator language lacking a NEARBY fresh-denial receipt token (the words
+// denied/classifier/DENIED plus something date-shaped, or an explicit IDENTITY-BOUND tag
+// for the legitimately-operator class: logins, credentials, product taste). Same pure
+// heuristic discipline as findUngatedCausalClaims above; advisory wiring only.
+export function findUngatedOperatorBlockClaims(text, { windowChars = 400 } = {}) {
+  const s = String(text || '');
+  const claimRe = /\b(?:waiting|blocked)[ -]on[ -]the[ -]operator\b|\boperator(?:'s)?[ -](?:word|approval|decision)[ -](?:required|needed)\b|\bneeds?[ -](?:the[ -])?operator(?:'s)?[ -](?:word|approval|say-?so)\b/gi;
+  const receiptRe = /\b(?:denied|denial|classifier)\b[\s\S]{0,160}?\b20\d\d-\d\d-\d\d|\b20\d\d-\d\d-\d\d[\s\S]{0,160}?\b(?:denied|denial|classifier)\b|\bIDENTITY-BOUND\b|\bidentity-bound\b/i;
+  const flagged = [];
+  let m;
+  while ((m = claimRe.exec(s))) {
+    const start = Math.max(0, m.index - windowChars);
+    const end = Math.min(s.length, m.index + m[0].length + windowChars);
+    if (!receiptRe.test(s.slice(start, end))) {
+      const lineStart = s.lastIndexOf('\n', m.index) + 1;
+      const lineEnd = (() => { const i = s.indexOf('\n', m.index); return i === -1 ? s.length : i; })();
+      flagged.push({ match: m[0], context: s.slice(lineStart, lineEnd).trim().slice(0, 200) });
+    }
+  }
+  return flagged;
+}
+
 function main() {
   if (process.argv.includes('--record')) {
     const arg = (k) => { const i = process.argv.indexOf(k); return i >= 0 ? process.argv[i + 1] : undefined; };
@@ -1522,6 +1557,11 @@ function selftest() {
     ck(findUngatedCausalClaims('This mission landed cleanly with all tests passing.').length === 0, 'causal-linter: ordinary prose with no causal-claim language is never flagged');
     const flagged = findUngatedCausalClaims('the reason for the crash is unknown right now, still investigating');
     ck(flagged.length === 1 && flagged[0].context.includes('the reason for the crash'), 'causal-linter: flagged entries carry the surrounding line as context, not just the bare match');
+    // ---- findUngatedOperatorBlockClaims (intake N3, retest-boundaries lint) ----
+    ck(findUngatedOperatorBlockClaims('this item is blocked on the operator until he replies').length === 1, 'operator-block-linter: bare "blocked on the operator" with no fresh denial receipt is FLAGGED');
+    ck(findUngatedOperatorBlockClaims('blocked on the operator — classifier denied this exact push 2026-07-07, quoted above').length === 0, 'operator-block-linter: a nearby dated denial receipt gates the claim');
+    ck(findUngatedOperatorBlockClaims("needs the operator's word: IDENTITY-BOUND (his aimlapi.com dashboard login)").length === 0, 'operator-block-linter: an explicit IDENTITY-BOUND tag gates the claim (the legitimately-operator class)');
+    ck(findUngatedOperatorBlockClaims('the mission completed with zero conductor involvement').length === 0, 'operator-block-linter: ordinary prose never flagged');
     ck(findUngatedCausalClaims('').length === 0, 'causal-linter: empty text -> no findings, never throws');
   }
 

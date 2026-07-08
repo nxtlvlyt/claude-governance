@@ -2071,7 +2071,9 @@ N1. ~~STRUCK 2026-07-07 (cure text prescribes the wrangler.toml name lookup; pur
     contract respected; suite ALL PASS)~~ RULE 9 cure-text hardcodes --project-name=muddytires (mission_lint.mjs) — genericize
     from the mission's REPO-ROOT wrangler.toml. (genericity audit)
 N2. board-truth-drain workflow's MT_REPO default hint — make it an args field. (same)
-N3. blocked-on-operator report lint — extend findUngatedCausalClaims, wire advisory-first.
+N3. ~~STRUCK 2026-07-07 (findUngatedOperatorBlockClaims + both linters wired advisory-first
+    over fresh QUEUE writes in sweep(); 4 fixtures; suite ALL PASS)~~ blocked-on-operator
+    report lint — extend findUngatedCausalClaims, wire advisory-first.
     (retest-boundaries lesson, operator-caught)
 N4. Conductor-direct exception CONDITIONS into conductor-core/faith (size cap +
     lane-boundary + receipt) so a relay seat applies them mechanically. (qwen audition)
