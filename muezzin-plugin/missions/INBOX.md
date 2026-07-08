@@ -97,3 +97,24 @@ Also proven useful fork-side, consider adopting: RELOAD-REQUEST flag exists Clau
    miqat) discipline ANY conductor, while harness-level hooks don't port and can misfire
    (niyyah gate vs wakeup-transcript quirk, receipted today). Standing direction: when a
    discipline can live in the engine instead of a hook, move it there.
+
+## INTAKE 2026-07-08 (retro-mining audit of the muddytires mt-integrate corpus, 131 files, 07-01 to 07-03)
+REAL FINDING (receipted, not manufactured): the retro system's "learning material" field
+(Halts/blocks) is EMPTY — literally "- none" — in ALL 131 mt-integrate retros with zero
+exceptions, even for missions that retried up to 9 TIMES (mt-integrate-trip-cost-split-2026-06-23.S2:
+9 retro files, every one blank). The quantitative fields (events/heals/halts counts) are also
+mostly 0 across the same window — the retro generator wasn't capturing real telemetry during
+this sprint. So: we do NOT have a mineable diagnosis corpus from the first ~20-131 muddytires
+missions. We know THAT many retried; we don't know WHY, because it was never written down.
+TIME-BOUND (not permanent): a 2026-07-07 retro (qc-concern-poi-affiliate-cards) DOES carry
+real content ("witness REJECT unrepaired") — the capture defect improved since, though still
+shows truncation ("step 1: " with nothing after — half-written fields).
+THE ACTUAL LESSON (this IS the efficiency finding, just not the one expected): a retro whose
+"learning material" field can silently write "none" through 9 straight retries is a retro
+system that isn't enforcing its own purpose. FIX OWED: (1) the retro writer should REFUSE to
+emit "none" when heals>0 or retry_of is set (a repeat attempt with no captured reason is a
+contradiction, not a valid state); (2) audit whether the current (07-07+) capture still
+truncates fields ("step 1: " empty) — cheap grep sweep, same method used here.
+This intake IS the deliverable — mining for pre-existing lessons found that the mining
+apparatus itself was the broken thing, which is more valuable to know than any specific
+mission-level tip would have been.
