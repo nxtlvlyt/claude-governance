@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "traced root cause: qwen3-coder-next burning budget on internal reasoning; escalation ladder working correctly; S1 done, S2 final assembly running through self-heal cycle (~9-10 min per attempt); di-fix verified sound",
+  "detail": "qwen3-coder-next unreliable in androidtv final assembly (5-6 fails per attempt); now on verdict-panel seats; watch still running",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 3466312,
+  "tokens": 3466891,
   "output": null,
   "children": null,
-  "linkScanOffset": 10958649,
+  "linkScanOffset": 10987735,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -40,6 +40,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-08T23:23:34.219Z",
+  "updatedAt": "2026-07-08T23:32:15.482Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
