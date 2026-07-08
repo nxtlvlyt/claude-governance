@@ -1,25 +1,28 @@
 {
   "state": "working",
   "detail": "I have to keep asking or you goto sleep right",
-  "tempo": "active",
+  "tempo": "idle",
   "inFlight": {
-    "tasks": 0,
+    "tasks": 2,
     "queued": 0,
-    "kinds": []
+    "kinds": [
+      "local_agent",
+      "session_cron"
+    ]
   },
   "selfWake": true,
   "fan": [
     {
-      "id": "b3gojb08v",
-      "kind": "shell",
-      "label": "grep -E \"atv-1|books-website\" missions/AUTORUN.md | grep -v \"DEAD-STEM\" | cut -c1-115 && node -e \"const s=JSON.parse(require('fs').readFileSync('missions/_logs/daemon-status.json','utf8'));const age=…",
-      "startedAt": 1783540881368
+      "id": "aea5fe70dae7e2ae6",
+      "kind": "agent",
+      "label": "Fix dep-loss in split pipeline",
+      "startedAt": 1783542634907
     }
   ],
   "tokens": 3043937,
   "output": null,
   "children": null,
-  "linkScanOffset": 9425547,
+  "linkScanOffset": 9571539,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -42,7 +45,7 @@
   "cliVersion": "2.1.202",
   "cwd": "C:\\Users\\marka",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-08T20:01:21.532Z",
+  "updatedAt": "2026-07-08T20:30:59.231Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z",
   "bridgeSessionId": "cse_015z5n4qQqp9BZ8kKSCkvtzT",
   "bridgeOutboundOnly": false,

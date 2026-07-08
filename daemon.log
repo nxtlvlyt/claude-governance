@@ -52,3 +52,5 @@
 [2026-07-08T19:06:42.487Z] [bg] bg adopt: adopted=1 respawned=0 dead=0
 [2026-07-08T19:06:42.566Z] [bg] bg spawned f757fc34 (fleet)
 [2026-07-08T19:06:42.660Z] [bg] bg spawned 997caadb (spare)
+[2026-07-08T20:06:43.378Z] [bg] bg settled 997caadb (done)
+[2026-07-08T20:07:43.356Z] [bg] bg settled f757fc34 (done)

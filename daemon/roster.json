@@ -1,7 +1,7 @@
 {
   "proto": 1,
   "supervisorPid": 7052,
-  "updatedAt": 1783537611914,
+  "updatedAt": 1783541263360,
   "workers": {
     "bb6b583a": {
       "pid": 20216,
@@ -59,120 +59,6 @@
       ],
       "rvAuth": "b4e7aba2af0137be2ec9f14e9b98f28b",
       "ptyAuth": "251fcc9bfa0851aaf6f0a3a61c38d924"
-    },
-    "f757fc34": {
-      "pid": 15680,
-      "procStart": "639191128025827890",
-      "sessionId": "f757fc34-f7de-4d09-b4cf-60bb20551f0d",
-      "rendezvousSock": "\\\\.\\pipe\\cc-daemon-69c76e4ae1bf5e5b-rv-f757fc34",
-      "ptySock": "\\\\.\\pipe\\cc-daemon-69c76e4ae1bf5e5b-pty-f757fc34",
-      "cliVersion": "2.1.204",
-      "startedAt": 1783537602566,
-      "attempt": 1,
-      "cwd": "C:\\Users\\marka\\.claude\\muezzin-plugin",
-      "dispatch": {
-        "proto": 1,
-        "short": "f757fc34",
-        "nonce": "efb2a29d",
-        "sessionId": "f757fc34-f7de-4d09-b4cf-60bb20551f0d",
-        "createdAt": 1783537602546,
-        "source": "fleet",
-        "cwd": "C:\\Users\\marka\\.claude\\muezzin-plugin",
-        "launch": {
-          "mode": "prompt",
-          "args": [
-            "--session-id",
-            "f757fc34-f7de-4d09-b4cf-60bb20551f0d",
-            "--agent",
-            "claude",
-            "--permission-mode",
-            "default",
-            "--",
-            "are you ok"
-          ]
-        },
-        "env": {},
-        "isolation": "none",
-        "respawnFlags": [
-          "--agent",
-          "claude",
-          "--permission-mode",
-          "default"
-        ],
-        "agent": "claude",
-        "seed": {
-          "intent": "are you ok"
-        },
-        "cols": 120,
-        "rows": 30
-      },
-      "decModes": [
-        1004,
-        1000,
-        1002,
-        1003,
-        1006,
-        2004,
-        2031
-      ],
-      "rvAuth": "f08377389978869caf439ef57f92fda5",
-      "ptyAuth": "712d05dea5ffeeff30a2c76f8fabef9e"
-    },
-    "997caadb": {
-      "pid": 23984,
-      "procStart": "639191128026795880",
-      "sessionId": "997caadb-a442-41ad-8c9e-24f4694940d3",
-      "rendezvousSock": "\\\\.\\pipe\\cc-daemon-69c76e4ae1bf5e5b-rv-997caadb",
-      "ptySock": "\\\\.\\pipe\\cc-daemon-69c76e4ae1bf5e5b-pty-997caadb",
-      "cliVersion": "2.1.204",
-      "startedAt": 1783537602660,
-      "attempt": 1,
-      "cwd": "C:\\Users\\marka\\.claude\\muezzin-plugin",
-      "dispatch": {
-        "proto": 1,
-        "short": "997caadb",
-        "nonce": "85c45173",
-        "sessionId": "997caadb-a442-41ad-8c9e-24f4694940d3",
-        "createdAt": 1783537602572,
-        "source": "spare",
-        "cwd": "C:\\Users\\marka\\.claude\\muezzin-plugin",
-        "launch": {
-          "mode": "prompt",
-          "args": [
-            "--session-id",
-            "997caadb-a442-41ad-8c9e-24f4694940d3",
-            "--agent",
-            "claude",
-            "--permission-mode",
-            "default"
-          ]
-        },
-        "env": {},
-        "isolation": "none",
-        "respawnFlags": [
-          "--agent",
-          "claude",
-          "--permission-mode",
-          "default"
-        ],
-        "agent": "claude",
-        "seed": {
-          "intent": ""
-        },
-        "cols": 120,
-        "rows": 30
-      },
-      "decModes": [
-        1004,
-        1000,
-        1002,
-        1003,
-        1006,
-        2004,
-        2031
-      ],
-      "rvAuth": "946e071ed21735e3fc2395a3ed7e533b",
-      "ptyAuth": "bb3449ed775add5fa8406b33ed8a921a"
     }
   }
 }
