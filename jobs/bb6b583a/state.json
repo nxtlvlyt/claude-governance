@@ -1,19 +1,27 @@
 {
-  "state": "blocked",
-  "detail": "S1 receipt audit complete: glm-5.2 writing placeholders instead of fetching bot-walled sites (3x blocked by verdict panel); pick option from STATE.md to proceed",
-  "tempo": "blocked",
+  "state": "working",
+  "detail": "over-surfaced decision; laguna confirmed fix scope is agent-owned; building mechanical fetch-gate now (A+B), requeue on completion",
+  "tempo": "active",
   "inFlight": {
-    "tasks": 0,
+    "tasks": 2,
     "queued": 0,
-    "kinds": []
+    "kinds": [
+      "local_agent",
+      "session_cron"
+    ]
   },
-  "tokens": 2851563,
-  "needs": "pick fetch-gate option from STATE.md and confirm to proceed",
-  "output": {
-    "result": "S1: 7/9 profiles complete; 2 bot-walled sites need fetch-gate or engine inputs"
-  },
+  "fan": [
+    {
+      "id": "a9924a6ca207bccbc",
+      "kind": "agent",
+      "label": "Build atv-1 fetch-guarantee attempt-4",
+      "startedAt": 1783522499875
+    }
+  ],
+  "tokens": 2858223,
+  "output": null,
   "children": null,
-  "linkScanOffset": 7645116,
+  "linkScanOffset": 7704320,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -41,6 +49,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-08T14:52:28.852Z",
+  "updatedAt": "2026-07-08T14:55:34.254Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
