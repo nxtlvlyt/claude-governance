@@ -1,18 +1,27 @@
 {
   "state": "working",
-  "detail": "qwen3-coder-next unreliable in androidtv final assembly (5-6 fails per attempt); now on verdict-panel seats; watch still running",
-  "tempo": "idle",
+  "detail": "found root cause: repair path hardcodes qwen3-coder-next, bypassing glm-5.2 seat selection; fixing routing logic in orchestrate.mjs + adding tests",
+  "tempo": "active",
   "inFlight": {
-    "tasks": 1,
+    "tasks": 2,
     "queued": 0,
     "kinds": [
+      "local_agent",
       "session_cron"
     ]
   },
-  "tokens": 3466891,
+  "fan": [
+    {
+      "id": "a158edd0909c36926",
+      "kind": "agent",
+      "label": "Fix repair-path mode bypass",
+      "startedAt": 1783553775269
+    }
+  ],
+  "tokens": 3479584,
   "output": null,
   "children": null,
-  "linkScanOffset": 10987735,
+  "linkScanOffset": 11192925,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -40,6 +49,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-08T23:32:15.482Z",
+  "updatedAt": "2026-07-08T23:36:57.744Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
