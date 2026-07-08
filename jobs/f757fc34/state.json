@@ -29,9 +29,11 @@
   "daemonShort": "f757fc34",
   "cliVersion": "2.1.204",
   "cwd": "C:\\Users\\marka\\.claude\\muezzin-plugin",
+  "createdAt": "2026-07-08T19:06:42.532Z",
+  "updatedAt": "2026-07-08T19:07:04.807Z",
+  "firstTerminalAt": "2026-07-08T19:07:03.818Z",
   "originCwd": "C:\\Users\\marka\\.claude\\muezzin-plugin",
   "backend": "daemon",
-  "createdAt": "2026-07-08T19:06:42.532Z",
-  "updatedAt": "2026-07-08T19:07:03.818Z",
-  "firstTerminalAt": "2026-07-08T19:07:03.818Z"
+  "name": "governance-bootstrap-verification",
+  "nameSource": "auto"
 }
