@@ -1,18 +1,17 @@
 {
-  "state": "done",
-  "detail": "agy system built, tested, armed—ready for supervised work; trust earned via receipts over cycles",
-  "tempo": "idle",
+  "state": "blocked",
+  "detail": "ready to supervise first agy cycle on androidtv.tips; awaiting user go-ahead",
+  "tempo": "blocked",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 2743355,
-  "output": {
-    "result": "agy system complete: engine/seats/vision/cloud/quotas/baton/rulebook operational"
-  },
+  "tokens": 2743768,
+  "needs": "say \"start androidtv on agy\" to begin",
+  "output": null,
   "children": null,
-  "linkScanOffset": 6953268,
+  "linkScanOffset": 6972562,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -39,6 +38,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-08T10:53:42.707Z",
+  "updatedAt": "2026-07-08T10:57:02.266Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
