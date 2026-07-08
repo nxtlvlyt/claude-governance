@@ -21,7 +21,7 @@
   "tokens": 2760651,
   "output": null,
   "children": null,
-  "linkScanOffset": 7371584,
+  "linkScanOffset": 7393436,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -44,7 +44,7 @@
   "cliVersion": "2.1.202",
   "cwd": "C:\\Users\\marka",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-08T12:56:29.127Z",
+  "updatedAt": "2026-07-08T13:23:18.921Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z",
   "bridgeSessionId": "cse_015z5n4qQqp9BZ8kKSCkvtzT",
   "bridgeOutboundOnly": false,
