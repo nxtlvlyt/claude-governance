@@ -1,27 +1,18 @@
 {
-  "state": "blocked",
-  "detail": "run the loop",
+  "state": "done",
+  "detail": "loop complete: 10 of 12 intake tasks struck; relay-conductor harness + audit drain live; N4 rule text staged awaiting review",
   "tempo": "idle",
   "inFlight": {
-    "tasks": 1,
+    "tasks": 0,
     "queued": 0,
-    "kinds": [
-      "session_cron"
-    ]
+    "kinds": []
   },
-  "selfWake": true,
-  "fan": [
-    {
-      "id": "ba2qgagjp",
-      "kind": "shell",
-      "label": "cd ~/.claude/muezzin-plugin && git add missions/QUEUE.md && git commit -m \"intake: N5 struck Co-Authored-By: Claude Fable 5 <noreply@anthropic.com> Claude-Session: https://claude.ai/code/session_015z…",
-      "startedAt": 1783473978107
-    }
-  ],
-  "tokens": 2244429,
-  "output": null,
+  "tokens": 2263387,
+  "output": {
+    "result": "intake register: 10/12 done; relay-conductor harness + audit drain live; N4 awaiting review"
+  },
   "children": null,
-  "linkScanOffset": 5787198,
+  "linkScanOffset": 5890237,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -33,8 +24,6 @@
     "--permission-mode",
     "auto"
   ],
-  "bgIsolation": "none",
-  "providerEnv": {},
   "intent": "but we had 30 gaps mission we were fixing first before we did anything else and a big project to que when they were done",
   "name": "daemon-restart-mission-triage",
   "nameSource": "auto",
@@ -43,11 +32,13 @@
   "daemonShort": "bb6b583a",
   "cliVersion": "2.1.202",
   "cwd": "C:\\Users\\marka",
-  "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-08T01:26:40.069Z",
-  "firstTerminalAt": "2026-07-07T15:47:23.132Z",
   "bridgeSessionId": "cse_015z5n4qQqp9BZ8kKSCkvtzT",
   "bridgeOutboundOnly": false,
   "bridgeSessionSeq": 85,
-  "backend": "daemon"
+  "bgIsolation": "none",
+  "providerEnv": {},
+  "backend": "daemon",
+  "createdAt": "2026-07-07T14:31:31.695Z",
+  "updatedAt": "2026-07-08T01:33:47.053Z",
+  "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }

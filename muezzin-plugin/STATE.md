@@ -238,6 +238,18 @@ declaring the gap closed, and it now has to hold across a pathway it never used 
 + 1 hunt item: #7 LANE-EXCLUSION — hook BUILT+TESTED 9/9 at
 ~/.claude/hooks/lane-exclusion-gate.mjs; registration in settings.json classifier-blocked —
 ONE approved edit from live, the LAST hunt item standing).
+**INTAKE DRAIN COMPLETE 2026-07-08 ~01:4xZ (operator-authorized loop "run the loop"):**
+N1/N2/N3/N5/N6/N7/N10/N12 struck (receipts in QUEUE), N8 resolved-by-retirement (gemma
+family out; census watch moves to mistral), N9 held (product-class), N11 recorded-as-note.
+N4 rule text LIVE on disk in ~/.claude/rules/conductor-core.md but its COMMIT is
+classifier-blocked pending operator review (an agent committing latitude-affecting rules
+about itself — surface, not retried). New engine capabilities: conduct-beat-local.mjs
+(relay-conductor beat, allowlisted verbs, rijal jsonl — the succession 5b harness, agy
+slot included) + board-truth-drain.mjs (survey+refute audit engine-native). Sweep at
+close: 0 blocking; 2 board actions remain (1 false-death candidate + doneness tail of 7
+held-requeue FAILED lines). Big-project (agy sibling) plan approved + step-1 recon done;
+next builds: fork (plan step 2) onward.
+
 **FINAL 2026-07-07 ~20:4xZ — PUSH SENT, OPERATOR WORD RECEIVED ("why wouldn't I push"),
 EXECUTED: main+master pushed (7dd6df5), production deployed, deploy marker WITNESSED
 (live /map == HEAD, e2e PASS), doneness blocking 0. Remaining next-beat: 1 false-death

@@ -2081,13 +2081,18 @@ N5. ~~STRUCK 2026-07-07 (conduct-beat-local.mjs: relay beat, allowlisted verbs, 
     claim gate, rijal jsonl, ollama live + agy slot; selftest 5/5)~~ conduct-beat-local.mjs —
     the local-conductor beat harness, allowlisted verbs only.
     (succession 5b; spec in the audition entry)
-N6. Survey+refute drain as .mjs over seat_dispatch (Claude-harness-free). (pairs with N5)
+N6. ~~STRUCK 2026-07-07 (board-truth-drain.mjs engine port: dispatchWithWaterfall localOnly,
+    GR10-serial, fail-closed refutes; selftest 4/4)~~ Survey+refute drain as .mjs over
+    seat_dispatch (Claude-harness-free). (pairs with N5)
 N7. ~~conduct-cycle --json empty fields~~ STRUCK 2026-07-07 as FALSE GAP (self-error,
     refuted before fixing): --json actions DO carry read_first (verified live: action keys
     id,class,approved_by_faith,why,read_first,rule; read_first count 4). The conductor's
     own extractor script read nonexistent keys (readFirst/files/mission). No tool defect;
     the register holds itself to the same verify-before-fix standard as the 29.
-N8. gemma4:12b vision-seat 24h clean-census watch (condition, auto-resolves or escalates).
+N8. ~~RESOLVED-BY-RETIREMENT 2026-07-07 (the 12b crashed x3 within 11min of seating; gemma
+    family fully demoted, mistral-small3.2:24b seated + selftested — the census watch now
+    applies to MISTRAL: a CUDA crash from it is a NEW item)~~ gemma4:12b vision-seat 24h
+    clean-census watch (condition, auto-resolves or escalates).
 N9. Fire-ban D1 seed-data (carried from the fire-ban mission's Context; the layer is live
     but renders only what the D1 table holds).
 N10. ~~STRUCK 2026-07-07 (buildMarkLine pure builder, 3 fixtures, suite ALL PASS, daemon
