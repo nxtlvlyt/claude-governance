@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "SENIOR-QUALIFICATION.md committed: 7-gate promotion ladder (junior→operating→senior) with log-based scoring, streak requirements, mirror checks, and demotion rules",
+  "detail": "wrote HOW-TO-RUN-MUEZZIN-CLAUDE.md and HOW-TO-RUN-MUEZZIN-AGY.md operator manuals on Desktop",
   "tempo": "active",
   "inFlight": {
     "tasks": 2,
@@ -19,12 +19,12 @@
       "group": "Extract"
     }
   ],
-  "tokens": 3234125,
+  "tokens": 3301535,
   "output": {
-    "result": "SENIOR-QUALIFICATION.md: 7-gate seniority framework with receipt-based scoring and mirror clause"
+    "result": "HOW-TO-RUN-MUEZZIN-CLAUDE.md + HOW-TO-RUN-MUEZZIN-AGY.md on Desktop"
   },
   "children": null,
-  "linkScanOffset": 10225182,
+  "linkScanOffset": 10286125,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -52,6 +52,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-08T22:43:40.904Z",
+  "updatedAt": "2026-07-08T22:45:11.132Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
