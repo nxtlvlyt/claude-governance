@@ -1,33 +1,18 @@
 {
-  "state": "working",
-  "detail": "vision seat validated with Gemini Flash; executor benchmark search underway (kimi vs glm-5.2 vs qwen-coder)",
-  "tempo": "active",
+  "state": "done",
+  "detail": "model seats settled: glm-5.2 executor + Gemini 3.5 Flash vision QC; suite 58/58 green, committed",
+  "tempo": "idle",
   "inFlight": {
-    "tasks": 1,
+    "tasks": 0,
     "queued": 0,
-    "kinds": [
-      "local_agent"
-    ]
+    "kinds": []
   },
-  "fan": [
-    {
-      "id": "ad68bb26547377a74",
-      "kind": "agent",
-      "label": "Executor benchmark research",
-      "startedAt": 1783485400598
-    },
-    {
-      "id": "ac1d1aa12ebeaace0",
-      "kind": "agent",
-      "label": "Probe agy image input",
-      "startedAt": 1783485410788,
-      "doneAt": 1783485644033
-    }
-  ],
-  "tokens": 2489590,
-  "output": null,
+  "tokens": 2498655,
+  "output": {
+    "result": "glm-5.2 executor (Terminal-Bench 81.0) + Gemini 3.5 Flash vision QC; all tests pass"
+  },
   "children": null,
-  "linkScanOffset": 6402353,
+  "linkScanOffset": 6476462,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -54,6 +39,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-08T04:41:09.678Z",
+  "updatedAt": "2026-07-08T04:45:27.314Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
