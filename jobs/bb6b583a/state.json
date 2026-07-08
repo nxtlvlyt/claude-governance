@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "competitor analysis agent self-split into 2 tasks; first file written, watcher re-armed to consolidate when both complete",
+  "detail": "bash watchers being replaced with harness-native timer; monitoring wakeup, next check on timer",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,23 +9,13 @@
       "session_cron"
     ]
   },
-  "selfWake": true,
-  "fan": [
-    {
-      "id": "bz60ro4dc",
-      "kind": "shell",
-      "label": "node \"$CLAUDE_JOB_DIR/tmp/atv1-watch2.mjs\"",
-      "startedAt": 1783509702839,
-      "doneAt": 1783509981286,
-      "failed": true
-    }
-  ],
-  "tokens": 2757961,
+  "tokens": 2760651,
   "output": null,
   "children": null,
-  "linkScanOffset": 7205944,
+  "linkScanOffset": 7222501,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
+  "selfWake": true,
   "respawnFlags": [
     "--reply-on-resume",
     "--model",
@@ -35,8 +25,6 @@
     "--permission-mode",
     "auto"
   ],
-  "bgIsolation": "none",
-  "providerEnv": {},
   "intent": "but we had 30 gaps mission we were fixing first before we did anything else and a big project to que when they were done",
   "name": "daemon-restart-mission-triage",
   "nameSource": "auto",
@@ -45,11 +33,13 @@
   "daemonShort": "bb6b583a",
   "cliVersion": "2.1.202",
   "cwd": "C:\\Users\\marka",
-  "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-08T11:54:15.982Z",
-  "firstTerminalAt": "2026-07-07T15:47:23.132Z",
   "bridgeSessionId": "cse_015z5n4qQqp9BZ8kKSCkvtzT",
   "bridgeOutboundOnly": false,
   "bridgeSessionSeq": 85,
-  "backend": "daemon"
+  "bgIsolation": "none",
+  "providerEnv": {},
+  "backend": "daemon",
+  "createdAt": "2026-07-07T14:31:31.695Z",
+  "updatedAt": "2026-07-08T12:14:54.101Z",
+  "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
