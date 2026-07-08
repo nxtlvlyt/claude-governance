@@ -2110,6 +2110,7 @@ N12. ~~STRUCK 2026-07-07 (witnessFlagEvent pure builder, 2 fixtures, suite ALL P
     affiliate-cards attempt 2: witness REJECT x2 with EMPTY note fields in mission-events —
     unadjudicable by construction). hunt-12's concern-line fix covered the no-verdict
     RE-ASK path only; the step-witness flag writer needs the same one-line-reason contract.
+N14. Ghost-lane staleness (Claude side): lane-exclusion-gate.mjs liveLanes() + any lane-refusal gates treat stale daemon-status lanes[] as live — same fix as the fork's intake-2 commit (receipts there); apply at next hooks pass.
 
 ## OPERATOR RULING 2026-07-07 (his words: "if we have improvements we know about those are
 ## priority right") — THE INTAKE REGISTER IS THE SUCCESSOR GAP LIST, DRAINED BEFORE REAL WORK
