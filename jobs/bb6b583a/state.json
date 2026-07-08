@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "A+B building autonomously (attempt-4 auto-requeue armed); operator-ask retracted, only C remains operator-bound",
+  "detail": "Attempt-4 fetch-gate building via agent; ScheduleWakeup armed for requeue; monitoring for terminal verdict",
   "tempo": "active",
   "inFlight": {
     "tasks": 2,
@@ -18,10 +18,10 @@
       "startedAt": 1783522499875
     }
   ],
-  "tokens": 2864429,
+  "tokens": 2865666,
   "output": null,
   "children": null,
-  "linkScanOffset": 7723671,
+  "linkScanOffset": 7736824,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -49,6 +49,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-08T14:56:45.620Z",
+  "updatedAt": "2026-07-08T14:57:10.338Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
