@@ -1,18 +1,44 @@
 {
-  "state": "done",
-  "detail": "models seated in agy-hybrid fork: Gemini 3.5 Flash (conductor/integrator), Gemini 3.1 Pro + glm-5.2 + deepseek (architects), kimi-k2.7-code (executor), GPT-OSS 120B (validator), minimax-m3 (auditor), north-mini-code + laguna (final auditor/witness); two auditions pending (executor, vision-QC)",
-  "tempo": "idle",
+  "state": "working",
+  "detail": "2 agents in flight: SOTA benchmarks for Kimi/GLM-5.2/Qwen-Coder; testing agy CLI image support for Gemini Flash vision QC",
+  "tempo": "active",
   "inFlight": {
-    "tasks": 0,
+    "tasks": 2,
     "queued": 0,
-    "kinds": []
+    "kinds": [
+      "local_agent"
+    ]
   },
-  "tokens": 2466741,
-  "output": {
-    "result": "agy-hybrid fork: 8 seats assigned, 2 auditions pending (executor head-to-head, vision-QC)"
-  },
+  "fan": [
+    {
+      "id": "ad68bb26547377a74",
+      "kind": "agent",
+      "label": "Executor benchmark research",
+      "startedAt": 1783485400598
+    },
+    {
+      "id": "ac1d1aa12ebeaace0",
+      "kind": "agent",
+      "label": "Probe agy image input",
+      "startedAt": 1783485410788
+    },
+    {
+      "id": "bytfa7ku7",
+      "kind": "shell",
+      "label": "curl -s --max-time 15 \"http://localhost:8080/search?q=test&format=json\" | head -c 500",
+      "startedAt": 1783485422617
+    },
+    {
+      "id": "bi9yen2dc",
+      "kind": "shell",
+      "label": "agy --help 2>&1 | head -80",
+      "startedAt": 1783485423925
+    }
+  ],
+  "tokens": 2470889,
+  "output": null,
   "children": null,
-  "linkScanOffset": 6328502,
+  "linkScanOffset": 6370462,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -24,6 +50,8 @@
     "--permission-mode",
     "auto"
   ],
+  "bgIsolation": "none",
+  "providerEnv": {},
   "intent": "but we had 30 gaps mission we were fixing first before we did anything else and a big project to que when they were done",
   "name": "daemon-restart-mission-triage",
   "nameSource": "auto",
@@ -32,13 +60,11 @@
   "daemonShort": "bb6b583a",
   "cliVersion": "2.1.202",
   "cwd": "C:\\Users\\marka",
+  "createdAt": "2026-07-07T14:31:31.695Z",
+  "updatedAt": "2026-07-08T04:37:03.990Z",
+  "firstTerminalAt": "2026-07-07T15:47:23.132Z",
   "bridgeSessionId": "cse_015z5n4qQqp9BZ8kKSCkvtzT",
   "bridgeOutboundOnly": false,
   "bridgeSessionSeq": 85,
-  "bgIsolation": "none",
-  "providerEnv": {},
-  "backend": "daemon",
-  "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-08T04:33:28.154Z",
-  "firstTerminalAt": "2026-07-07T15:47:23.132Z"
+  "backend": "daemon"
 }
