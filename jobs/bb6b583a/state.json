@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "found root cause: repair path hardcodes qwen3-coder-next, bypassing glm-5.2 seat selection; fixing routing logic in orchestrate.mjs + adding tests",
+  "detail": "repair-path fix building; will reload daemon autonomously between mission steps",
   "tempo": "active",
   "inFlight": {
     "tasks": 2,
@@ -18,10 +18,10 @@
       "startedAt": 1783553775269
     }
   ],
-  "tokens": 3479584,
+  "tokens": 3491230,
   "output": null,
   "children": null,
-  "linkScanOffset": 11192925,
+  "linkScanOffset": 11215539,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -49,6 +49,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-08T23:36:57.744Z",
+  "updatedAt": "2026-07-08T23:38:55.378Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
