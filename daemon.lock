@@ -1,15 +1,15 @@
 {
-  "pid": 7052,
+  "pid": 32580,
   "version": "2.1.204",
   "jsonPath": "C:\\Users\\marka\\.claude\\daemon.json",
   "logPath": "C:\\Users\\marka\\.claude\\daemon.log",
-  "startedAt": 1783537600633,
+  "startedAt": 1783543904517,
   "origin": "transient",
   "spawnedBy": {
     "label": "claude",
     "cwd": "C:\\Users\\marka\\.claude\\muezzin-plugin",
     "pid": 25620
   },
-  "procStart": "639191128001300010",
+  "procStart": "639191191039332070",
   "launchTarget": "C:\\Users\\marka\\AppData\\Roaming\\npm\\node_modules\\@anthropic-ai\\claude-code\\bin\\claude.exe"
 }
