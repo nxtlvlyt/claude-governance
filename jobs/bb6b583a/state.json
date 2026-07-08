@@ -1,18 +1,18 @@
 {
   "state": "done",
-  "detail": "rule ratified and committed with user approval; both systems clean",
+  "detail": "agy system built, tested, armed—ready for supervised work; trust earned via receipts over cycles",
   "tempo": "idle",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 2742950,
+  "tokens": 2743355,
   "output": {
-    "result": "rule committed with user ratification; all items resolved"
+    "result": "agy system complete: engine/seats/vision/cloud/quotas/baton/rulebook operational"
   },
   "children": null,
-  "linkScanOffset": 6938811,
+  "linkScanOffset": 6953268,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -39,6 +39,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-08T10:19:31.889Z",
+  "updatedAt": "2026-07-08T10:53:42.707Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
