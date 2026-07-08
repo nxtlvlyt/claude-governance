@@ -1,21 +1,19 @@
 {
   "state": "working",
-  "detail": "AnythingLLM workspace unaudited, not wired; S2 assembly still running on timer",
-  "tempo": "idle",
+  "detail": "agy also made a workspace in anything llm I'm not sure if that helps us",
+  "tempo": "active",
   "inFlight": {
-    "tasks": 1,
+    "tasks": 0,
     "queued": 0,
-    "kinds": [
-      "session_cron"
-    ]
+    "kinds": []
   },
+  "selfWake": true,
   "tokens": 3207391,
   "output": null,
   "children": null,
   "linkScanOffset": 9946011,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
-  "selfWake": true,
   "respawnFlags": [
     "--reply-on-resume",
     "--effort",
@@ -25,6 +23,8 @@
     "--model",
     "claude-opus-4-8"
   ],
+  "bgIsolation": "none",
+  "providerEnv": {},
   "intent": "but we had 30 gaps mission we were fixing first before we did anything else and a big project to que when they were done",
   "name": "daemon-restart-mission-triage",
   "nameSource": "auto",
@@ -33,13 +33,19 @@
   "daemonShort": "bb6b583a",
   "cliVersion": "2.1.202",
   "cwd": "C:\\Users\\marka",
+  "createdAt": "2026-07-07T14:31:31.695Z",
+  "updatedAt": "2026-07-08T22:28:21.541Z",
+  "firstTerminalAt": "2026-07-07T15:47:23.132Z",
   "bridgeSessionId": "cse_015z5n4qQqp9BZ8kKSCkvtzT",
   "bridgeOutboundOnly": false,
   "bridgeSessionSeq": 85,
-  "bgIsolation": "none",
-  "providerEnv": {},
   "backend": "daemon",
-  "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-08T22:23:27.433Z",
-  "firstTerminalAt": "2026-07-07T15:47:23.132Z"
+  "fan": [
+    {
+      "id": "bqukywctd",
+      "kind": "shell",
+      "label": "grep \"atv-1\" missions/AUTORUN.md | grep -v \"DEAD-STEM\" | cut -c1-95 && node -e \"const s=JSON.parse(require('fs').readFileSync('missions/_logs/daemon-status.json','utf8'));const age=Math.round((Date.n…",
+      "startedAt": 1783549701394
+    }
+  ]
 }
