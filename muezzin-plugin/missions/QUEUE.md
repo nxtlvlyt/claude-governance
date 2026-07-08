@@ -2077,7 +2077,9 @@ N3. ~~STRUCK 2026-07-07 (findUngatedOperatorBlockClaims + both linters wired adv
     (retest-boundaries lesson, operator-caught)
 N4. Conductor-direct exception CONDITIONS into conductor-core/faith (size cap +
     lane-boundary + receipt) so a relay seat applies them mechanically. (qwen audition)
-N5. conduct-beat-local.mjs — the local-conductor beat harness, allowlisted verbs only.
+N5. ~~STRUCK 2026-07-07 (conduct-beat-local.mjs: relay beat, allowlisted verbs, deed-over-
+    claim gate, rijal jsonl, ollama live + agy slot; selftest 5/5)~~ conduct-beat-local.mjs —
+    the local-conductor beat harness, allowlisted verbs only.
     (succession 5b; spec in the audition entry)
 N6. Survey+refute drain as .mjs over seat_dispatch (Claude-harness-free). (pairs with N5)
 N7. ~~conduct-cycle --json empty fields~~ STRUCK 2026-07-07 as FALSE GAP (self-error,
