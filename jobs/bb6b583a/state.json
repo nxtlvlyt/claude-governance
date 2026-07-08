@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "ok",
+  "detail": "S1 attempt-2 running on clean daemon (29924); double-daemon race fixed; heal-loop normal; next check on timer",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,32 +9,22 @@
       "session_cron"
     ]
   },
-  "selfWake": true,
-  "fan": [
-    {
-      "id": "b189vzrol",
-      "kind": "shell",
-      "label": "rm missions/_logs/daemon.pid && powershell -Command \"Start-Process node -ArgumentList 'muezzin-daemon.mjs' -WorkingDirectory 'C:\\Users\\marka\\agy-muezzin' -WindowStyle Hidden\" && sleep 15 && node -e \"…",
-      "startedAt": 1783515337933
-    }
-  ],
-  "tokens": 2760651,
+  "tokens": 2835795,
   "output": null,
   "children": null,
-  "linkScanOffset": 7393436,
+  "linkScanOffset": 7471576,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
+  "selfWake": true,
   "respawnFlags": [
     "--reply-on-resume",
-    "--model",
-    "claude-fable-5[1m]",
     "--effort",
     "xhigh",
     "--permission-mode",
-    "auto"
+    "auto",
+    "--model",
+    "claude-opus-4-8"
   ],
-  "bgIsolation": "none",
-  "providerEnv": {},
   "intent": "but we had 30 gaps mission we were fixing first before we did anything else and a big project to que when they were done",
   "name": "daemon-restart-mission-triage",
   "nameSource": "auto",
@@ -43,11 +33,13 @@
   "daemonShort": "bb6b583a",
   "cliVersion": "2.1.202",
   "cwd": "C:\\Users\\marka",
-  "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-08T13:23:18.921Z",
-  "firstTerminalAt": "2026-07-07T15:47:23.132Z",
   "bridgeSessionId": "cse_015z5n4qQqp9BZ8kKSCkvtzT",
   "bridgeOutboundOnly": false,
   "bridgeSessionSeq": 85,
-  "backend": "daemon"
+  "bgIsolation": "none",
+  "providerEnv": {},
+  "backend": "daemon",
+  "createdAt": "2026-07-07T14:31:31.695Z",
+  "updatedAt": "2026-07-08T13:54:08.676Z",
+  "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
