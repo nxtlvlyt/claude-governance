@@ -1,17 +1,26 @@
 {
-  "state": "blocked",
-  "detail": "ready to supervise first agy cycle on androidtv.tips; awaiting user go-ahead",
-  "tempo": "blocked",
+  "state": "working",
+  "detail": "androidtv.tips competitor analysis running on agy system (7 sites + SOTA search); agent monitoring end-to-end",
+  "tempo": "idle",
   "inFlight": {
-    "tasks": 0,
+    "tasks": 1,
     "queued": 0,
-    "kinds": []
+    "kinds": [
+      "local_bash"
+    ]
   },
-  "tokens": 2743768,
-  "needs": "say \"start androidtv on agy\" to begin",
+  "fan": [
+    {
+      "id": "bw97xx98c",
+      "kind": "shell",
+      "label": "node \"$CLAUDE_JOB_DIR/tmp/atv1-watch.mjs\"",
+      "startedAt": 1783509343081
+    }
+  ],
+  "tokens": 2756471,
   "output": null,
   "children": null,
-  "linkScanOffset": 6972562,
+  "linkScanOffset": 7125975,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -38,6 +47,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-08T10:57:02.266Z",
+  "updatedAt": "2026-07-08T11:15:57.531Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
