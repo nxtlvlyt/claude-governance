@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "androidtv.tips competitor analysis running on agy system (7 sites + SOTA search); agent monitoring end-to-end",
+  "detail": "competitor analysis agent self-split into 2 tasks; first file written, watcher re-armed to consolidate when both complete",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -11,16 +11,16 @@
   },
   "fan": [
     {
-      "id": "bw97xx98c",
+      "id": "bz60ro4dc",
       "kind": "shell",
-      "label": "node \"$CLAUDE_JOB_DIR/tmp/atv1-watch.mjs\"",
-      "startedAt": 1783509343081
+      "label": "node \"$CLAUDE_JOB_DIR/tmp/atv1-watch2.mjs\"",
+      "startedAt": 1783509702839
     }
   ],
-  "tokens": 2756471,
+  "tokens": 2757961,
   "output": null,
   "children": null,
-  "linkScanOffset": 7125975,
+  "linkScanOffset": 7163215,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -47,6 +47,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-08T11:15:57.531Z",
+  "updatedAt": "2026-07-08T11:21:55.241Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
