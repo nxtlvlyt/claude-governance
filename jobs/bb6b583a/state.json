@@ -1,17 +1,18 @@
 {
-  "state": "blocked",
-  "detail": "awaiting decision: commit the 4-sentence rule paragraph or remove it",
-  "tempo": "blocked",
+  "state": "done",
+  "detail": "rule ratified and committed with user approval; both systems clean",
+  "tempo": "idle",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 2741727,
-  "needs": "yes (commit it) or no (remove it)",
-  "output": null,
+  "tokens": 2742950,
+  "output": {
+    "result": "rule committed with user ratification; all items resolved"
+  },
   "children": null,
-  "linkScanOffset": 6899078,
+  "linkScanOffset": 6938811,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -38,6 +39,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-08T10:17:52.177Z",
+  "updatedAt": "2026-07-08T10:19:31.889Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
