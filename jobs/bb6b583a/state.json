@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "diagnosed sandbox visibility issue (committed vs uncommitted files); building fix to pre-fetch sites into committed repo, requeue and run on timer",
+  "detail": "attempt-5 build in progress (committed corpus + analysis-only); autonomous watch armed",
   "tempo": "active",
   "inFlight": {
     "tasks": 2,
@@ -18,10 +18,10 @@
       "startedAt": 1783527265543
     }
   ],
-  "tokens": 2934212,
+  "tokens": 2939322,
   "output": null,
   "children": null,
-  "linkScanOffset": 7927701,
+  "linkScanOffset": 7944536,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -49,6 +49,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-08T16:14:58.761Z",
+  "updatedAt": "2026-07-08T16:16:11.426Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
