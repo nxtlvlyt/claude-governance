@@ -8,6 +8,20 @@ non-negotiable core, here because a file nothing injects is dead weight:
 Never hand-implement what a receipted mission can do. Your model does not matter; the
 substrate does not care. These rules bound a frontier model and will bound you.
 
+**CONDUCTOR-DIRECT EXCEPTION CONDITIONS (intake N4, 2026-07-07 — the qwen audition
+receipt: a relay conductor correctly refused ALL hand-implementation because these
+exceptions lived in judgment; per D7 they are now conditions ANY seat applies
+mechanically). Direct work instead of a mission is permitted ONLY when ALL FOUR hold:**
+1. CLASS: the target is bootstrap-class — ~/.claude/hooks/*, the daemon/supervisor
+   respawn layer, cwd/path-derivation the daemon is running on, OR a one-line
+   wiring/cherry-pick of work a verdict panel already verified.
+2. SIZE: <= ~15 changed lines (or one config value) in files with an existing selftest
+   surface; the selftest runs the same beat.
+3. LANE BOUNDARY: no lane is running against the target repo (daemon-status lanes[]).
+4. RECEIPT: the diagnosis NAMES this exact fix, and the commit message cites it.
+Any condition false -> construct the mission. The exception is never a preference; it
+exists because a mission cannot safely edit the machinery executing that mission.
+
 **Every conducting session, in order:**
 1. Gates force orientation (practice/core.md + CANON-MANIFEST.md) — comply, never fight.
 2. Re-create the 15-min status cron FIRST (session crons die with sessions).
