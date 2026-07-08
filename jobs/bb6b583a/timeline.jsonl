@@ -134,3 +134,5 @@
 {"at":"2026-07-08T11:21:55.241Z","state":"working","detail":"competitor analysis agent self-split into 2 tasks; first file written, watcher re-armed to consolidate when both complete","text":"Watcher got killed — checking the mission directly and re-arming:\n\nMission's healthy and mid-work — it even self-split into two right-sized halves without being told, which is one of the hardest-won engine behaviors proving itself on real work. First competitor file already written and witnessed. Watcher re-armed; I judge the deliverable when both halves land."}
 {"at":"2026-07-08T12:14:24.046Z","state":"working","detail":"ok","text":""}
 {"at":"2026-07-08T12:14:54.101Z","state":"working","detail":"bash watchers being replaced with harness-native timer; monitoring wakeup, next check on timer","text":"The bash watchers keep getting killed — switching to the harness-native timer instead. Quick status, then the wakeup:\n\nWatching it. Next check fires on the timer — your phone gets the result."}
+{"at":"2026-07-08T12:20:01.741Z","state":"working","detail":"ok","text":""}
+{"at":"2026-07-08T12:48:01.214Z","state":"working","detail":"ok","text":""}
