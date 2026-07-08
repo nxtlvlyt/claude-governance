@@ -1,17 +1,17 @@
 {
   "state": "blocked",
-  "detail": "agy sibling fully armed and tested (Gemini/cloud/local seats live); awaiting baton handoff to run work",
+  "detail": "new conductor-core.md rule written; safety classifier blocked git-commit pending human review",
   "tempo": "blocked",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 2464563,
-  "needs": "hand the baton to agy to run work",
+  "tokens": 2464955,
+  "needs": "say \"commit it\" to finalize or \"revert\" to discard",
   "output": null,
   "children": null,
-  "linkScanOffset": 6254332,
+  "linkScanOffset": 6270404,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -39,6 +39,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-08T03:56:47.245Z",
+  "updatedAt": "2026-07-08T04:30:41.467Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
