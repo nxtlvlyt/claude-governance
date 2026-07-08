@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "attempt-5 build in progress (committed corpus + analysis-only); autonomous watch armed",
+  "detail": "agent will auto-requeue and judge; user will hear finished deliverable",
   "tempo": "active",
   "inFlight": {
     "tasks": 2,
@@ -18,10 +18,12 @@
       "startedAt": 1783527265543
     }
   ],
-  "tokens": 2939322,
-  "output": null,
+  "tokens": 2943209,
+  "output": {
+    "result": "attempt-5 building corpus, requeuing on timer; user notified on completion"
+  },
   "children": null,
-  "linkScanOffset": 7944536,
+  "linkScanOffset": 7957612,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -49,6 +51,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-08T16:16:11.426Z",
+  "updatedAt": "2026-07-08T16:16:46.527Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
