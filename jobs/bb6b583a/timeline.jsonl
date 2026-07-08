@@ -85,3 +85,5 @@
 {"at":"2026-07-07T21:56:05.133Z","state":"working","detail":"draining refusals: N10 done, 4 struck, 8 remaining","text":"Continuing the drain — N10 next (refusal marks must append, not clobber):\n\nN10 done and live. Intake: 4 struck, 8 left. Continuing."}
 {"at":"2026-07-07T23:13:12.325Z","state":"working","detail":"ok","text":""}
 {"at":"2026-07-07T23:22:16.685Z","state":"working","detail":"Continuing with N1.","text":"N12 next — the step-witness bare-note fix:\n\nRight — Edit tool it is. Reload first, then the strike:\n\nN12 done and live. Intake: 5 struck, 7 left (N1, N3, N4, N5, N6, N8-auto, N9-held). Continuing with N1."}
+{"at":"2026-07-08T00:00:33.252Z","state":"working","detail":"ok","text":""}
+{"at":"2026-07-08T00:03:23.827Z","state":"working","detail":"N1 de-hardcoded (lint module pure-text contract restored); 6 items remaining (N3 next)","text":"N1 — de-hardcoding RULE 9's cure text:\n\nThe module's own contract says \"Pure text analysis — no fs\" (line 10) — my fix violates it. Correcting to placeholder-only, no fs:\n\nN1 done (lint stays pure-text; daemon reload not needed — lint loads per-fire). Intake: 6 struck, 6 left. N3 next."}

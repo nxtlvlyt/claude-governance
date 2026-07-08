@@ -123,7 +123,11 @@ export function lintMission(text) {
   // localhost:8788 in an amendment-history note).
   const handrollsLocalhost = /localhost:8788|bound to PREVIEW-BASE-URL'?s port/i.test(t);
   if (handrollsLocalhost && !deploysViaWrangler) {
-    add('handrolled-localhost-preview', "mission targets a hand-rolled localhost:8788 preview server — exec steps never receive a PREVIEW-BASE-URL value and nothing serves that port (trip-cost.S2 FAILED x2 receipt, 2026-07-03). Replace the step with the engine-native verb: wrangler pages deploy . --project-name=muddytires --branch=preview (paired with the mission's git commit per RULE 8), parse the emitted *.muddytires.pages.dev URL to a scratch file, render from that URL.");
+    // GENERICIZED (intake N1, 2026-07-07): the cure text hardcoded --project-name=muddytires —
+    // a generic engine rule prescribing one project's name is wrong for every other project
+    // (genericity audit receipt). This module is PURE TEXT by contract (header line 10: no fs),
+    // so the cure prescribes the lookup rather than resolving it here.
+    add('handrolled-localhost-preview', "mission targets a hand-rolled localhost:8788 preview server — exec steps never receive a PREVIEW-BASE-URL value and nothing serves that port (trip-cost.S2 FAILED x2 receipt, 2026-07-03). Replace the step with the engine-native verb: wrangler pages deploy . --project-name=<the `name` field of the mission's REPO-ROOT wrangler.toml> --branch=preview (paired with the mission's git commit per RULE 8), parse the emitted *.pages.dev URL to a scratch file, render from that URL.");
   }
 
   // RULE 10 — CROSS-STEP SCRATCH STATE (2026-07-03, trip-cost.S2 5th-run receipt: a scratch

@@ -1,16 +1,16 @@
 {
   "state": "working",
-  "detail": "Continuing with N1.",
+  "detail": "N1 de-hardcoded (lint module pure-text contract restored); 6 items remaining (N3 next)",
   "tempo": "idle",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 2233628,
+  "tokens": 2237689,
   "output": null,
   "children": null,
-  "linkScanOffset": 5473784,
+  "linkScanOffset": 5545743,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -37,6 +37,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-07T23:22:16.685Z",
+  "updatedAt": "2026-07-08T00:03:23.827Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }

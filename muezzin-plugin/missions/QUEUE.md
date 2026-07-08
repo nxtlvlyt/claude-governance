@@ -2067,7 +2067,8 @@ remainder, queued):
 ## push; the 29 stays a CLOSED SET — these are the successor list, prioritized after dry)
 Found while draining the 29 this session, all receipted above, consolidated here so the
 gap-dry push can name the intake count instead of a successor rediscovering them:
-N1. RULE 9 cure-text hardcodes --project-name=muddytires (mission_lint.mjs) — genericize
+N1. ~~STRUCK 2026-07-07 (cure text prescribes the wrangler.toml name lookup; pure-text
+    contract respected; suite ALL PASS)~~ RULE 9 cure-text hardcodes --project-name=muddytires (mission_lint.mjs) — genericize
     from the mission's REPO-ROOT wrangler.toml. (genericity audit)
 N2. board-truth-drain workflow's MT_REPO default hint — make it an args field. (same)
 N3. blocked-on-operator report lint — extend findUngatedCausalClaims, wire advisory-first.
