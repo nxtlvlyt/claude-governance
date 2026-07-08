@@ -1,17 +1,18 @@
 {
-  "state": "blocked",
-  "detail": "6 known improvements queued per standing rule; awaiting go-ahead to drain them",
-  "tempo": "blocked",
+  "state": "done",
+  "detail": "models seated in agy-hybrid fork: Gemini 3.5 Flash (conductor/integrator), Gemini 3.1 Pro + glm-5.2 + deepseek (architects), kimi-k2.7-code (executor), GPT-OSS 120B (validator), minimax-m3 (auditor), north-mini-code + laguna (final auditor/witness); two auditions pending (executor, vision-QC)",
+  "tempo": "idle",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 2466024,
-  "needs": "say the word to start draining the improvements",
-  "output": null,
+  "tokens": 2466741,
+  "output": {
+    "result": "agy-hybrid fork: 8 seats assigned, 2 auditions pending (executor head-to-head, vision-QC)"
+  },
   "children": null,
-  "linkScanOffset": 6309188,
+  "linkScanOffset": 6328502,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -38,6 +39,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-08T04:32:33.549Z",
+  "updatedAt": "2026-07-08T04:33:28.154Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
