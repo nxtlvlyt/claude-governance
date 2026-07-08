@@ -75,3 +75,14 @@ These are part of "que everything" but cannot fire into a wall — each names ex
 - RESOLVED 2026-07-01 (re-verified against live code): `STATUS_RE` at muezzin-daemon.mjs:329 already includes PARKED (`/^(DONE|FAILED|RUNNING|SPLIT|PARKED)\b/`), same 2026-06-25 batch as the three bugs above; `pickPromotion` excludes PARKED by path via `terminalMissionIds`. Struck through, not deleted.
 
 ~~- **OPERATIONAL — no way to "park" a mission without removing the file.** Operator/senior conductor needs a way to say "this mission is broken, ignore it, don't fire it again" without (a) deleting the mission.txt file, (b) blanket FAILED-prefixing every AUTORUN line. Proposal: add a `PARKED` terminal status to engine STATUS_RE alongside DONE/FAILED/SPLIT/RUNNING, and have pickPromotion exclude PARKED missions by path absolutely.~~
+
+## BACKPORT INTAKE 2026-07-08 (from agy-muezzin fork's first live project — 8-attempt arc, all receipted in fork QUEUE.md/STATE.md)
+The fork found 7 real engine bugs under live fire; the Claude engine shares the code lineage, so EACH needs evaluation here (receipts + fixes + selftests exist fork-side to port):
+1. AUTOSPLIT DEP-LOSS (fork fix e1cba9e): mission_split child serializer drops context_dependencies; child re-plan invents substitute paths. Port parseDeclaredDeps/injectDeclaredDeps + serializer emit.
+2. AUTOSPLIT GATE-LOSS (fork fix 9ae0072): same serializer drops validation_command; anti-fabrication gates re-invented at child re-plan. Port parseDeclaredValidations/injectDeclaredValidations.
+3. STALE-SANDBOX ON REQUEUE: child sandbox + _checkpoint.json persist across FAILED requeues → verdict panel re-judges old artifacts; checkpoint resumes by STEP INDEX across text changes. Fix owed: sandbox reset on requeue + content-hash checkpoint keys + verdict ignores artifacts older than run-start.
+4. TARTIB OUTPUT-PASSING: DONE child's artifacts invisible to its successor (S2 assembled without S1's parts; verify gate caught it). Fix owed: stage DONE artifacts where successors resolve them.
+5. DAEMON LINE-RESURRECTION: daemon full-file AUTORUN rewrites resurrect externally-purged pending lines from memory/files; conductor queue edits only stick when... (fork workaround: park mission FILES). Evaluate Claude daemon for same.
+6. SINGLETON LIVENESS: pidfile pid can be RECYCLED to an unrelated process (fork receipt 23788) → false-alive; and CommandLine-based checks must match bare "node muezzin-daemon.mjs" (no repo substring). Harden liveness = pid+CommandLine.
+7. BOOT-STATUS GHOST: fresh daemon re-renders inherited RUNNING/FAILED marks from stale status/mark state.
+Also proven useful fork-side, consider adopting: RELOAD-REQUEST flag exists Claude-side? (fork daemon honors it; fork lacks a supervisor — separate fork item.)

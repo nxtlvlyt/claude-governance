@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "S1 complete with clean verdict-panel pass; final assembly re-running with evidence access (ETA ~1h)",
+  "detail": "filed 7-item backport to Claude plugin INBOX; fork improvements queued with selftests; S2 assembly in flight",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 3201799,
+  "tokens": 3204529,
   "output": null,
   "children": null,
-  "linkScanOffset": 9867971,
+  "linkScanOffset": 9904163,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -40,6 +40,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-08T22:08:14.223Z",
+  "updatedAt": "2026-07-08T22:10:38.879Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
