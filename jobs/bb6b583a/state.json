@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "affiliate deep-dive live on daemon (3/6 pages fetched); next check ~20:13",
+  "detail": "affiliate deep-dive running; watch re-armed ~25m",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 3749986,
+  "tokens": 3751765,
   "output": null,
   "children": null,
-  "linkScanOffset": 13813850,
+  "linkScanOffset": 13844591,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -40,6 +40,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-09T02:09:50.748Z",
+  "updatedAt": "2026-07-09T02:13:52.483Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
