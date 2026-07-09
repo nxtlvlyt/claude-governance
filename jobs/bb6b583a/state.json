@@ -1,26 +1,16 @@
 {
   "state": "working",
-  "detail": "agy conductor beat 001 passed 5/5 gates; awaiting atv-3 queue",
-  "tempo": "active",
+  "detail": "beat 002 green, agy conductor live on Gemini; atv-3 S1 mid-run",
+  "tempo": "idle",
   "inFlight": {
-    "tasks": 1,
+    "tasks": 0,
     "queued": 0,
-    "kinds": [
-      "local_agent"
-    ]
+    "kinds": []
   },
-  "fan": [
-    {
-      "id": "a305598917d42a90e",
-      "kind": "agent",
-      "label": "Build phase-3 self-updating architecture mission",
-      "startedAt": 1783576861888
-    }
-  ],
-  "tokens": 3915378,
+  "tokens": 3942328,
   "output": null,
   "children": null,
-  "linkScanOffset": 15033900,
+  "linkScanOffset": 15097643,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -47,6 +37,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-09T06:07:22.554Z",
+  "updatedAt": "2026-07-09T06:15:34.943Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
