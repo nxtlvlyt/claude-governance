@@ -1,16 +1,17 @@
 {
-  "state": "working",
-  "detail": "backlog churning (Claude: 61 queued, 2 lanes; Agy idle after atv-5 done)",
-  "tempo": "idle",
+  "state": "blocked",
+  "detail": "atv-6 design mission ready to queue; awaiting decision on pre-test vs. daemon-run",
+  "tempo": "blocked",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 4373425,
+  "tokens": 4378672,
+  "needs": "write design mission now + queue it, or explicitly clear a live Stitch test first?",
   "output": null,
   "children": null,
-  "linkScanOffset": 18712190,
+  "linkScanOffset": 18768320,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -37,6 +38,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-09T17:39:59.942Z",
+  "updatedAt": "2026-07-09T18:05:20.802Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
