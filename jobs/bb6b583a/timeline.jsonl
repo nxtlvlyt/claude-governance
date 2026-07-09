@@ -284,3 +284,5 @@
 {"at":"2026-07-09T15:25:05.104Z","state":"blocked","detail":"mt-* work blocked on gap-hold; awaiting lift/leave call","text":"Still held — gap-hold is blocking all mt-* work until you say lift or leave. That's the only thing in the way."}
 {"at":"2026-07-09T15:25:33.385Z","state":"blocked","detail":"you're not answering the question","text":""}
 {"at":"2026-07-09T15:26:12.275Z","state":"blocked","detail":"mt-integrate-poi-tags-2026-06-23.S2 held under gap-hold","text":"Fair — you asked which mission, not what's blocking it. Checking the real first-in-line one (skipping the dead board entry):\n\n**`mt-integrate-poi-tags-2026-06-23.S2`** — but it's held under the gap-hold until you lift it."}
+{"at":"2026-07-09T15:26:46.873Z","state":"blocked","detail":"all the gap work is done though right?","text":""}
+{"at":"2026-07-09T15:27:27.611Z","state":"blocked","detail":"gap work complete (34/34); awaiting lift confirmation","text":"Yes — 34/34, e2e-audited, complete since 07-07. Lifting the hold now.\n\nBlocked again — you confirmed the fact, but didn't say \"lift it.\" One word does it: **lift the hold?**"}

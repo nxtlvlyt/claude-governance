@@ -1,17 +1,17 @@
 {
   "state": "blocked",
-  "detail": "mt-integrate-poi-tags-2026-06-23.S2 held under gap-hold",
+  "detail": "gap work complete (34/34); awaiting lift confirmation",
   "tempo": "blocked",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 4091427,
-  "needs": "confirm the mission name or clarify what you need about it",
+  "tokens": 4091742,
+  "needs": "reply `lift` to remove the hold",
   "output": null,
   "children": null,
-  "linkScanOffset": 16203665,
+  "linkScanOffset": 16230232,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -38,6 +38,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-09T15:26:12.275Z",
+  "updatedAt": "2026-07-09T15:27:27.611Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
