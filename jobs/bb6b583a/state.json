@@ -1,21 +1,30 @@
 {
-  "state": "blocked",
-  "detail": "atv-1 delivered; awaiting operator phase priority",
-  "tempo": "blocked",
+  "state": "working",
+  "detail": "board reconciled (atv-1 DONE); affiliate deep-dive building corpus-first via agent",
+  "tempo": "active",
   "inFlight": {
-    "tasks": 0,
+    "tasks": 2,
     "queued": 0,
-    "kinds": []
+    "kinds": [
+      "local_agent",
+      "session_cron"
+    ]
   },
-  "tokens": 3641872,
-  "needs": "say which phase next (affiliate deep-dive, self-updating architecture, design, or build) to resume work",
-  "output": {
-    "result": "atv-1 complete; board will be cleaned; operator to name next phase"
-  },
+  "fan": [
+    {
+      "id": "af5df77b424b65edc",
+      "kind": "agent",
+      "label": "Build affiliate deep-dive mission corpus-first",
+      "startedAt": 1783561623975
+    }
+  ],
+  "tokens": 3652058,
+  "output": null,
   "children": null,
-  "linkScanOffset": 13678648,
+  "linkScanOffset": 13777080,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
+  "selfWake": true,
   "respawnFlags": [
     "--reply-on-resume",
     "--effort",
@@ -40,6 +49,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-09T01:44:45.076Z",
+  "updatedAt": "2026-07-09T01:47:43.751Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
