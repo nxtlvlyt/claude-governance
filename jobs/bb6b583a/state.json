@@ -1,16 +1,17 @@
 {
-  "state": "working",
-  "detail": "atv-6 committed & running; daemon executing live Stitch calls",
-  "tempo": "idle",
+  "state": "blocked",
+  "detail": "atv-6 captures Stitch refs, not local images; clarify if local PNGs needed",
+  "tempo": "blocked",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 4393789,
+  "tokens": 4395133,
+  "needs": "confirm: do you want actual image files saved locally, or are Stitch-hosted refs sufficient?",
   "output": null,
   "children": null,
-  "linkScanOffset": 18931914,
+  "linkScanOffset": 18961040,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -37,6 +38,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-09T18:10:24.859Z",
+  "updatedAt": "2026-07-09T18:29:51.465Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
