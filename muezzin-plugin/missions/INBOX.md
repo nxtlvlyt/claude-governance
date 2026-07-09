@@ -118,3 +118,12 @@ truncates fields ("step 1: " empty) — cheap grep sweep, same method used here.
 This intake IS the deliverable — mining for pre-existing lessons found that the mining
 apparatus itself was the broken thing, which is more valuable to know than any specific
 mission-level tip would have been.
+
+## RESOLVED 2026-07-09: Stitch status across all three surfaces (operator asked, verified live)
+- nxtbeast Claude CLI: HAS Stitch, working (OAuth via gcloud ADC, node C:/Users/marka/.claude/tools/stitch-launch.mjs -> npx @_davideast/stitch-mcp proxy; verified live 2026-06-11, "Connected to Stitch, discovered 14 tools").
+- Laptop Claude CLI (this session): does NOT have it. One-line fix, no file editing:
+  claude mcp add stitch --transport http https://stitch.googleapis.com/mcp --header "X-Goog-Api-Key: <key>" -s user
+- agy-muezzin fork: config staged (mcp_config.json), placeholder key only.
+ONE operator step covers BOTH remaining gaps: mint one API key at stitch.withgoogle.com ->
+Settings -> API Keys -> Create API Key, then (a) paste into agy's mcp_config.json, (b) run
+the claude mcp add command above on the laptop with the same key.
