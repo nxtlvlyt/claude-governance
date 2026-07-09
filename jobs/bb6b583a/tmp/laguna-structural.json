@@ -1,0 +1,8 @@
+{
+  "model": "laguna-xs-2.1:q8_0",
+  "stream": false,
+  "messages": [{
+    "role": "user",
+    "content": "A single mission step asks a model to author ONE document with 5 sections (per-competitor profiles for 7 sites, cross-site patterns, affiliate shortlist, gap list, sources) in one emission, reading 9 evidence files as context. Across 3 separate attempts with 3 different underlying seats, the model has fabricated content that CONTRADICTS its own cited evidence each time (invented monetization details for sites whose evidence said something different, including inventing content for a site marked unreachable). The evidence-reading and seat-selection mechanisms are both verified correct via unit tests. Compare to a SIBLING step in the same mission (the per-competitor PROFILE step) which succeeded cleanly on its first correctly-configured attempt: it was ONE file, ONE evidence source, per step. Question: is the fix (A) keep retrying the same one-giant-synthesis step shape with better prompting/instructions, or (B) restructure the assembly into smaller per-section or per-competitor steps (each an [edit] step grounded in ONE evidence file, mirroring what already worked), then a final trivial concatenation step? Answer with the letter and one sentence why."
+  }]
+}
