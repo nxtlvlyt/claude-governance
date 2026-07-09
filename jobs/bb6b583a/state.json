@@ -1,17 +1,17 @@
 {
   "state": "blocked",
-  "detail": "gap work complete (34/34); awaiting lift confirmation",
+  "detail": "agy idle, muddytires ready; confirm lift gap-hold",
   "tempo": "blocked",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 4091742,
-  "needs": "reply `lift` to remove the hold",
+  "tokens": 4092917,
+  "needs": "lift the gap-hold?",
   "output": null,
   "children": null,
-  "linkScanOffset": 16230232,
+  "linkScanOffset": 16267291,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -38,6 +38,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-09T15:27:27.611Z",
+  "updatedAt": "2026-07-09T15:29:08.389Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
