@@ -1,16 +1,17 @@
 {
-  "state": "working",
-  "detail": "verified atv-3/4 sources; writing atv-5 mission scaffold",
-  "tempo": "idle",
+  "state": "blocked",
+  "detail": "nxtbeast agy has working Stitch key; laptop config at different path",
+  "tempo": "blocked",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 4289882,
+  "tokens": 4298012,
+  "needs": "copy nxtbeast's Stitch key to laptop agy config?",
   "output": null,
   "children": null,
-  "linkScanOffset": 17473391,
+  "linkScanOffset": 17585977,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -37,6 +38,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-09T15:58:45.228Z",
+  "updatedAt": "2026-07-09T16:05:01.221Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
