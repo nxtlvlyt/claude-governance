@@ -1,19 +1,16 @@
 {
-  "state": "blocked",
-  "detail": "build mission in progress; needs your OK to deploy to Cloudflare",
-  "tempo": "blocked",
+  "state": "working",
+  "detail": "diagnosed Stitch routing gap in seat_dispatch.mjs; P1c queued",
+  "tempo": "idle",
   "inFlight": {
-    "tasks": 1,
+    "tasks": 0,
     "queued": 0,
-    "kinds": [
-      "session_cron"
-    ]
+    "kinds": []
   },
-  "tokens": 4407912,
-  "needs": "approve deployment to Cloudflare",
+  "tokens": 4421630,
   "output": null,
   "children": null,
-  "linkScanOffset": 19324812,
+  "linkScanOffset": 19475604,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -41,6 +38,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-09T18:54:56.767Z",
+  "updatedAt": "2026-07-09T19:20:36.084Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
