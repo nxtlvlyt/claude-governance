@@ -1,6 +1,6 @@
 {
-  "state": "working",
-  "detail": "stitch calls 44m in, 4 screens pending; next check ~20m",
+  "state": "done",
+  "detail": "condensed output; atv-6 wakeup armed",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,12 @@
       "session_cron"
     ]
   },
-  "tokens": 4406353,
-  "output": null,
+  "tokens": 4407529,
+  "output": {
+    "result": "text shortened per feedback"
+  },
   "children": null,
-  "linkScanOffset": 19259623,
+  "linkScanOffset": 19299309,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -40,6 +42,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-09T18:53:23.102Z",
+  "updatedAt": "2026-07-09T18:54:39.790Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
