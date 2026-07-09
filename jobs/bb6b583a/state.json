@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "atv-4 built and running; awaiting 04:41 conductor beat",
+  "detail": "atv-4 running to 04:41 conductor beat; watch armed",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,19 +9,10 @@
       "session_cron"
     ]
   },
-  "fan": [
-    {
-      "id": "a8f5054d860873fdd",
-      "kind": "agent",
-      "label": "Build content/technical prep mission (no Stitch needed)",
-      "startedAt": 1783592053376,
-      "doneAt": 1783592696644
-    }
-  ],
-  "tokens": 4005877,
+  "tokens": 4005984,
   "output": null,
   "children": null,
-  "linkScanOffset": 15267753,
+  "linkScanOffset": 15284848,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -49,6 +40,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-09T10:25:20.766Z",
+  "updatedAt": "2026-07-09T10:25:30.921Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
