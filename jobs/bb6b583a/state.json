@@ -1,18 +1,19 @@
 {
-  "state": "done",
-  "detail": "Stitch documented across CLI/docs/examples; API-key path staged (safe, revocable); kernel-security boundary confirmed — OAuth credential movement blocked by design",
-  "tempo": "idle",
+  "state": "blocked",
+  "detail": "androidtv.tips atv-1 delivered; awaiting go for next phase",
+  "tempo": "blocked",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 3634386,
+  "tokens": 3636949,
+  "needs": "do you want me to start the next androidtv phase now?",
   "output": {
-    "result": "Stitch integration documented; API-key auth path ready"
+    "result": "androidtv.tips competitor analysis complete: 27 URLs, 7 sites, affiliate shortlist + gaps in agy-muezzin/deliverables/atv-1/"
   },
   "children": null,
-  "linkScanOffset": 13558905,
+  "linkScanOffset": 13654561,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -30,15 +31,15 @@
   "sessionId": "bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf",
   "resumeSessionId": "bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf",
   "daemonShort": "bb6b583a",
-  "cliVersion": "2.1.202",
+  "cliVersion": "2.1.205",
   "cwd": "C:\\Users\\marka",
   "bridgeSessionId": "cse_015z5n4qQqp9BZ8kKSCkvtzT",
   "bridgeOutboundOnly": false,
-  "bridgeSessionSeq": 85,
+  "bridgeSessionSeq": 6390,
   "bgIsolation": "none",
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-09T01:34:35.145Z",
+  "updatedAt": "2026-07-09T01:42:33.550Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
