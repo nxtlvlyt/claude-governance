@@ -1,7 +1,7 @@
 {
-  "state": "done",
-  "detail": "likelihood assessment: 75-80% confidence sustaining both",
-  "tempo": "idle",
+  "state": "blocked",
+  "detail": "GAP-PRIORITY-HOLD blocking 44 muddytires missions; lift condition appears met",
+  "tempo": "blocked",
   "inFlight": {
     "tasks": 1,
     "queued": 0,
@@ -9,12 +9,13 @@
       "session_cron"
     ]
   },
-  "tokens": 4073064,
+  "tokens": 4081203,
+  "needs": "say the word to lift the hold, or confirm keeping it in place",
   "output": {
-    "result": "75-80% confidence managing both streams; self-corrects reliably when flagged, but doesn't catch own drift pre-impact yet"
+    "result": "found: mt-integrate daemon blocked by GAP-PRIORITY-HOLD since July 3rd; lift condition (ledger #7–#11, gap-dry push) satisfied July 7th but hold file never cleared"
   },
   "children": null,
-  "linkScanOffset": 15810084,
+  "linkScanOffset": 15988820,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -42,6 +43,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-09T13:30:45.788Z",
+  "updatedAt": "2026-07-09T13:43:35.123Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
