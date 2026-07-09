@@ -1,18 +1,18 @@
 {
   "state": "done",
-  "detail": "identified why agy conductor was idle: routine beats never routed to it",
+  "detail": "androidtv affiliate plan completed & verified; both deliverables preserved",
   "tempo": "idle",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 3878954,
+  "tokens": 3882974,
   "output": {
-    "result": "agy conductor capable of routine beats (qwen passed 5/5); idle due to manual polling loop—route beats through harness to activate"
+    "result": "atv-1 competitor analysis + atv-2 affiliate deep-dive verified and committed to deliverables/"
   },
   "children": null,
-  "linkScanOffset": 14832166,
+  "linkScanOffset": 14878138,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -39,6 +39,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-09T05:56:13.180Z",
+  "updatedAt": "2026-07-09T05:58:16.526Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
