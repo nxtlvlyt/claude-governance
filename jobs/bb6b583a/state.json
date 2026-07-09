@@ -1,18 +1,18 @@
 {
   "state": "done",
-  "detail": "queued P2d in QUEUE.md (ef1c236); scanned by conductor",
+  "detail": "agy daemon live (pid 26724); atv-5 running 33min on mission, step 6 complete",
   "tempo": "idle",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 4362009,
+  "tokens": 4362736,
   "output": {
-    "result": "Work queued as P2d in QUEUE.md (commit ef1c236); conductor beat scans it next"
+    "result": "agy actively executing: daemon pid 26724, atv-5 mission in progress (step 6 done, 33min elapsed)"
   },
   "children": null,
-  "linkScanOffset": 18443385,
+  "linkScanOffset": 18471112,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -39,6 +39,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-09T16:47:02.371Z",
+  "updatedAt": "2026-07-09T16:53:52.619Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
