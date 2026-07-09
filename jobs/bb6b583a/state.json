@@ -1,6 +1,6 @@
 {
   "state": "blocked",
-  "detail": "MCP server lifecycle confirmed; stitch live next session",
+  "detail": "OAuth token handoff blocked by auto-mode; SSH tunnel ready, needs session reload",
   "tempo": "active",
   "inFlight": {
     "tasks": 1,
@@ -17,12 +17,10 @@
       "startedAt": 1783611037572
     }
   ],
-  "tokens": 4189089,
-  "output": {
-    "result": "verified MCP servers attach on session start; stitch will be available next session"
-  },
+  "tokens": 4208877,
+  "output": null,
   "children": null,
-  "linkScanOffset": 16797959,
+  "linkScanOffset": 16856537,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -49,6 +47,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-09T15:42:12.514Z",
+  "updatedAt": "2026-07-09T15:44:08.142Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
