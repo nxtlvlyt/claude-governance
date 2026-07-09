@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "atv-4 running, watch armed at 05:39",
+  "detail": "content-prep attempt 2 progressing; key still pending user",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 4014333,
+  "tokens": 4018000,
   "output": null,
   "children": null,
-  "linkScanOffset": 15404805,
+  "linkScanOffset": 15460962,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -40,6 +40,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-09T11:14:03.116Z",
+  "updatedAt": "2026-07-09T11:44:36.609Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
