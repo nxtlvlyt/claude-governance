@@ -1,18 +1,27 @@
 {
   "state": "working",
-  "detail": "daemon dispatching; supervision wakeup set 20:39",
-  "tempo": "idle",
+  "detail": "S1 verified clean, engine fix building, S2 assembling final plan",
+  "tempo": "active",
   "inFlight": {
-    "tasks": 1,
+    "tasks": 2,
     "queued": 0,
     "kinds": [
+      "local_agent",
       "session_cron"
     ]
   },
-  "tokens": 3755224,
+  "fan": [
+    {
+      "id": "a60615ec4b53a5385",
+      "kind": "agent",
+      "label": "Fix verdict-panel JSON-parse robustness",
+      "startedAt": 1783564922366
+    }
+  ],
+  "tokens": 3767665,
   "output": null,
   "children": null,
-  "linkScanOffset": 13907477,
+  "linkScanOffset": 14005603,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -40,6 +49,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-09T02:15:34.122Z",
+  "updatedAt": "2026-07-09T02:43:20.312Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
