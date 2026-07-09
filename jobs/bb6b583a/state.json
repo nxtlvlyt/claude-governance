@@ -1,27 +1,18 @@
 {
   "state": "working",
-  "detail": "TorBox 403 reconfirmed; atv-2 S2 assembling, verdict engine building",
-  "tempo": "active",
+  "detail": "verdict-panel fix live, daemon 26724 running; atv-2 S2 verify in progress",
+  "tempo": "idle",
   "inFlight": {
-    "tasks": 2,
+    "tasks": 1,
     "queued": 0,
     "kinds": [
-      "local_agent",
       "session_cron"
     ]
   },
-  "fan": [
-    {
-      "id": "a60615ec4b53a5385",
-      "kind": "agent",
-      "label": "Fix verdict-panel JSON-parse robustness",
-      "startedAt": 1783564922366
-    }
-  ],
-  "tokens": 3769637,
+  "tokens": 3805533,
   "output": null,
   "children": null,
-  "linkScanOffset": 14025649,
+  "linkScanOffset": 14091339,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -49,6 +40,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-09T02:44:04.373Z",
+  "updatedAt": "2026-07-09T02:57:24.957Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
