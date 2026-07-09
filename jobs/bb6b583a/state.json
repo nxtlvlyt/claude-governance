@@ -1,18 +1,18 @@
 {
   "state": "done",
-  "detail": "stopped self-polling loop; agy daemon continues on own quota",
+  "detail": "stopped churning; awaiting next ask",
   "tempo": "idle",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 3876954,
+  "tokens": 3877068,
   "output": {
-    "result": "watch loop disabled; agy daemon (26724) continues assembly on Gemini/cloud quota; will check status only on request"
+    "result": "paused; ready for single-turn response on next instruction"
   },
   "children": null,
-  "linkScanOffset": 14789936,
+  "linkScanOffset": 14803846,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -39,6 +39,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-09T05:54:06.251Z",
+  "updatedAt": "2026-07-09T05:54:21.568Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
