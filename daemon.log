@@ -97,3 +97,6 @@
 [2026-07-09T01:18:06.132Z] [supervisor] workers=0
 [2026-07-09T01:18:06.227Z] [bg] bg: control socket bound at \\.\pipe\cc-daemon-*-control
 [2026-07-09T01:18:06.977Z] [bg] bg adopt: adopted=1 respawned=0 dead=0
+[2026-07-09T08:04:35.881Z] [supervisor] auth: proactive refresh starting
+[2026-07-09T08:04:36.488Z] [supervisor] auth: scheduling proactive refresh in 28560s
+[2026-07-09T08:04:36.489Z] [supervisor] auth: proactive refresh succeeded
