@@ -1,18 +1,18 @@
 {
   "state": "done",
-  "detail": "pre-push hook + STATE.md docs committed (47fc53d); one operator step remains",
+  "detail": "queued P2d in QUEUE.md (ef1c236); scanned by conductor",
   "tempo": "idle",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 4357402,
+  "tokens": 4362009,
   "output": {
-    "result": "Fixed push protection via pre-push hook (tracked in git); documented setup in STATE.md; Codeberg remote requires your account"
+    "result": "Work queued as P2d in QUEUE.md (commit ef1c236); conductor beat scans it next"
   },
   "children": null,
-  "linkScanOffset": 18359796,
+  "linkScanOffset": 18443385,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -39,6 +39,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-09T16:44:05.192Z",
+  "updatedAt": "2026-07-09T16:47:02.371Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
