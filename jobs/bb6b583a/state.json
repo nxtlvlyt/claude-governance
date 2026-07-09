@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "atv-4 running to 04:41 conductor beat; watch armed",
+  "detail": "conductor beat 4: still running, key placeholder, silent per design",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 4005984,
+  "tokens": 4009391,
   "output": null,
   "children": null,
-  "linkScanOffset": 15284848,
+  "linkScanOffset": 15338738,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -40,6 +40,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-09T10:25:30.921Z",
+  "updatedAt": "2026-07-09T10:45:02.705Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
