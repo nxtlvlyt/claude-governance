@@ -1,27 +1,18 @@
 {
   "state": "working",
-  "detail": "Loop continues.",
-  "tempo": "active",
+  "detail": "Loop continues quietly.",
+  "tempo": "idle",
   "inFlight": {
-    "tasks": 2,
+    "tasks": 1,
     "queued": 0,
     "kinds": [
-      "local_agent",
       "session_cron"
     ]
   },
-  "fan": [
-    {
-      "id": "ad5104a1d5e7e6671",
-      "kind": "agent",
-      "label": "Tighten atv-4 step-3 grounding, re-queue",
-      "startedAt": 1783599254845
-    }
-  ],
-  "tokens": 4029837,
+  "tokens": 4060464,
   "output": null,
   "children": null,
-  "linkScanOffset": 15547865,
+  "linkScanOffset": 15611413,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -49,6 +40,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-09T12:15:20.664Z",
+  "updatedAt": "2026-07-09T12:25:05.019Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
