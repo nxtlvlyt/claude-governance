@@ -1,18 +1,27 @@
 {
   "state": "working",
-  "detail": "verdict-panel fix confirmed; S1 repair loop active, next check pending",
-  "tempo": "idle",
+  "detail": "verdict panel caught ranking drift; fixing grounding + re-run",
+  "tempo": "active",
   "inFlight": {
-    "tasks": 1,
+    "tasks": 2,
     "queued": 0,
     "kinds": [
+      "local_agent",
       "session_cron"
     ]
   },
-  "tokens": 3828826,
+  "fan": [
+    {
+      "id": "aa15a438bcd5eb4aa",
+      "kind": "agent",
+      "label": "Tighten atv-2 ranking step grounding, re-queue",
+      "startedAt": 1783571922711
+    }
+  ],
+  "tokens": 3837080,
   "output": null,
   "children": null,
-  "linkScanOffset": 14361272,
+  "linkScanOffset": 14419556,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -40,6 +49,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-09T04:15:12.389Z",
+  "updatedAt": "2026-07-09T04:39:24.009Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
