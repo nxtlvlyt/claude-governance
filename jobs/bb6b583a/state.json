@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "S1 re-running under grounding fix; watch armed for next check",
+  "detail": "S1 re-running with preflight & corrected citation rules",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 3856850,
+  "tokens": 3870511,
   "output": null,
   "children": null,
-  "linkScanOffset": 14479326,
+  "linkScanOffset": 14674073,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -40,6 +40,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-09T05:01:56.350Z",
+  "updatedAt": "2026-07-09T05:32:16.396Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
