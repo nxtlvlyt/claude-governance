@@ -1,0 +1,21 @@
+{
+  "parentId": "mt-feedback-capture.S1",
+  "ceiling": 8,
+  "originalStepCount": 11,
+  "groupCount": 2,
+  "children": [
+    {
+      "id": "mt-feedback-capture.S1.S1",
+      "file": "missions/mt-feedback-capture.S1.S1.mission.txt",
+      "steps": 8,
+      "requires": null
+    },
+    {
+      "id": "mt-feedback-capture.S1.S2",
+      "file": "missions/mt-feedback-capture.S1.S2.mission.txt",
+      "steps": 3,
+      "requires": "mt-feedback-capture.S1.S1"
+    }
+  ],
+  "ts": "2026-07-09T22:41:47.402Z"
+}

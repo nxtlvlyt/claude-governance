@@ -1,0 +1,30 @@
+MISSION-ID: mt-feedback-capture.S1.S1
+MISSION-CLASS: code-repo
+PARENT: mt-feedback-capture.S1
+TARTIB-INDEX: 1 of 2
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - d1/migrate-feedback-2026-07-03.sql
+  - functions/api/feedback.js
+  - js/feedback-widget.js
+  - map.html
+  - index.html
+VISUAL-QC-REQUIRED
+REQUIRES: none (first in tartib order)
+STEPS: 8
+
+PARENT MAQSAD: Operator-sent growth transcript 2026-07-03 (proof over promise: in the free phase
+
+Maqsad: sub-mission 1 of 2 — Record baseline branch/HEAD and check whether js/feedback-widget.js already exists (idempotency baseline); never fails on existence. through Syntax-verify functions/api/feedback.js before commit.
+
+Steps:
+  1. Record baseline branch/HEAD and check whether js/feedback-widget.js already exists (idempotency baseline); never fails on existence. [command] 
+  2. Author d1/migrate-feedback-2026-07-03.sql per D1: idempotent CREATE TABLE IF NOT EXISTS feedback (id INTEGER PRIMARY KEY, ts TEXT, page TEXT, message TEXT NOT NULL, contact TEXT NULL, day_key TEXT) — no accounts, no PII beyond optional contact. [edit] d1/migrate-feedback-2026-07-03.sql
+  3. Author functions/api/feedback.js per D2: POST-only onRequestPost (GET path returns 405), validates message length 3..2000, computes day_key from hash(IP+UTC date), rejects with 429 past 20/day, inserts via env.DB.prepare/bind, returns honest thanks JSON, never echoes raw input back — following functions/api/stats.json.js request/env/json() conventions. [edit] functions/api/feedback.js
+  4. Author js/feedback-widget.js per D3: vanilla-JS widget (textarea + optional contact + send button), uses textContent only for any user-controlled string (never innerHTML), POSTs JSON {message,contact,page} to /api/feedback, works at 375px width. [edit] js/feedback-widget.js
+  5. Wire js/feedback-widget.js into map.html: additive-only script tag + small affordance positioned to avoid the top-left zoom/search stack and bottom day-rhythm strip (mt-mobile-qc-hardening.S1 receipts). [edit] map.html
+  6. Wire js/feedback-widget.js into index.html: additive-only script tag + footer link 'Something broken? Tell us' opening the widget. [edit] index.html
+  7. Syntax-verify js/feedback-widget.js before commit. [verify] js/feedback-widget.js
+  8. Syntax-verify functions/api/feedback.js before commit. [verify] functions/api/feedback.js
+
+Done means: d1/migrate-feedback-2026-07-03.sql, functions/api/feedback.js, js/feedback-widget.js, map.html, index.html exist/are updated as specified — verify by headless-browser render, not by reading the code

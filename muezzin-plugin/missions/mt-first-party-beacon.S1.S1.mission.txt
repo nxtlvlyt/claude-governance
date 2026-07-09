@@ -1,0 +1,29 @@
+MISSION-ID: mt-first-party-beacon.S1.S1
+MISSION-CLASS: code-repo
+PARENT: mt-first-party-beacon.S1
+TARTIB-INDEX: 1 of 2
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - d1/migrate-beacon-2026-07-03.sql
+  - functions/api/beacon.js
+  - js/mt-beacon.js
+  - index.html
+  - map.html
+REQUIRES: none (first in tartib order)
+STEPS: 8
+
+PARENT MAQSAD: Operator-sent growth transcript 2026-07-03 ("masters have more ways to win": beginners
+
+Maqsad: sub-mission 1 of 2 — Record baseline branch + HEAD; check whether js/mt-beacon.js already exists (idempotency guard) without ever failing on existence. through Scoped cleanliness: confirm changes are limited to the five ALLOW-FILES.
+
+Steps:
+  1. Record baseline branch + HEAD; check whether js/mt-beacon.js already exists (idempotency guard) without ever failing on existence. [command] 
+  2. Author d1/migrate-beacon-2026-07-03.sql: idempotent CREATE TABLE IF NOT EXISTS beacon_daily(day,page,event,viewport,count) with UNIQUE(day,page,event,viewport) as the UPSERT conflict target; aggregates only, no IP/UA/visitor-id columns. [edit] d1/migrate-beacon-2026-07-03.sql
+  3. Author functions/api/beacon.js: POST-only Pages Function, strict allowlist (page: index|map|guides|other; event: view|layer_open; viewport: mobile|desktop), UPSERT count+1 into beacon_daily for today's UTC day via env.DB, 405 on GET, no cookies/identifiers set. [edit] functions/api/beacon.js
+  4. Author js/mt-beacon.js: on load, do nothing if doNotTrack/globalPrivacyControl signal is set; otherwise sendBeacon/fetch one {page,event:'view',viewport} POST, plus debounced {event:'layer_open'} per layer-panel open on the map (capped per pageview). [edit] js/mt-beacon.js
+  5. Wire index.html: add one additive script tag loading js/mt-beacon.js, no other changes. [edit] index.html
+  6. Wire map.html: add one additive script tag loading js/mt-beacon.js, no other changes. [edit] map.html
+  7. Syntax-verify both authored JS surfaces parse cleanly before commit. [verify] js/mt-beacon.js
+  8. Scoped cleanliness: confirm changes are limited to the five ALLOW-FILES. [verify] 
+
+Done means: d1/migrate-beacon-2026-07-03.sql, functions/api/beacon.js, js/mt-beacon.js, index.html, map.html exist/are updated as specified — verify by headless-browser render, not by reading the code

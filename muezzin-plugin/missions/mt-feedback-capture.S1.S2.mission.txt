@@ -1,0 +1,24 @@
+MISSION-ID: mt-feedback-capture.S1.S2
+MISSION-CLASS: code-repo
+PARENT: mt-feedback-capture.S1
+TARTIB-INDEX: 2 of 2
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - js/feedback-widget.js
+  - functions/api/feedback.js
+  - d1/migrate-feedback-2026-07-03.sql
+  - map.html
+  - index.html
+REQUIRES: mt-feedback-capture.S1.S1 (tartib — this sub-mission may not start until mt-feedback-capture.S1.S1's receipt exists)
+STEPS: 3
+
+PARENT MAQSAD: Operator-sent growth transcript 2026-07-03 (proof over promise: in the free phase
+
+Maqsad: sub-mission 2 of 2 — Scoped cleanliness: confirm git status limited to the five ALLOW-FILES shows real changes present. through Outcome harness: create scratch-feedback-test.mjs stubbing env.DB, exercise onRequestPost for valid-insert/short-message-reject/GET-405/21st-same-day-429, require exit 0 with FEEDBACK_OK, then delete the scratch file — create/use/delete in one command.
+
+Steps:
+  9. Scoped cleanliness: confirm git status limited to the five ALLOW-FILES shows real changes present. [verify] 
+  10. Commit the five ALLOW-FILES by explicit name citing mt-feedback-capture.S1 and the 2026-07-03 transcript receipt; idempotent no-op if already committed. [command] 
+  11. Outcome harness: create scratch-feedback-test.mjs stubbing env.DB, exercise onRequestPost for valid-insert/short-message-reject/GET-405/21st-same-day-429, require exit 0 with FEEDBACK_OK, then delete the scratch file — create/use/delete in one command. [command] 
+
+Done means:  exist/are updated as specified

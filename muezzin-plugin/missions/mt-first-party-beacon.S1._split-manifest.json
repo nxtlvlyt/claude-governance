@@ -1,0 +1,21 @@
+{
+  "parentId": "mt-first-party-beacon.S1",
+  "ceiling": 8,
+  "originalStepCount": 11,
+  "groupCount": 2,
+  "children": [
+    {
+      "id": "mt-first-party-beacon.S1.S1",
+      "file": "missions/mt-first-party-beacon.S1.S1.mission.txt",
+      "steps": 8,
+      "requires": null
+    },
+    {
+      "id": "mt-first-party-beacon.S1.S2",
+      "file": "missions/mt-first-party-beacon.S1.S2.mission.txt",
+      "steps": 3,
+      "requires": "mt-first-party-beacon.S1.S1"
+    }
+  ],
+  "ts": "2026-07-09T22:50:53.765Z"
+}

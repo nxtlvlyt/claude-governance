@@ -1,0 +1,20 @@
+MISSION-ID: mt-first-party-beacon.S1.S2
+MISSION-CLASS: code-repo
+PARENT: mt-first-party-beacon.S1
+TARTIB-INDEX: 2 of 2
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - scratch-beacon-test.mjs
+REQUIRES: mt-first-party-beacon.S1.S1 (tartib — this sub-mission may not start until mt-first-party-beacon.S1.S1's receipt exists)
+STEPS: 3
+
+PARENT MAQSAD: Operator-sent growth transcript 2026-07-03 ("masters have more ways to win": beginners
+
+Maqsad: sub-mission 2 of 2 — Commit the five ALLOW-FILES by explicit name with a message citing this mission and the 2026-07-03 growth-transcript receipt; idempotent no-op if already committed. through Run the outcome harness and remove the scratch file; require a clean exit proving allowlist/UPSERT/405 and client send-on-load/respect-DNT-by-silence behavior.
+
+Steps:
+  9. Commit the five ALLOW-FILES by explicit name with a message citing this mission and the 2026-07-03 growth-transcript receipt; idempotent no-op if already committed. [command] 
+  10. Author scratch-beacon-test.mjs: stubs env.DB to assert a valid {page:'map',event:'view',viewport:'mobile'} fixture UPSERTs while {page:'evil'} is rejected and GET is 405; stubs window/document/navigator/fetch to assert js/mt-beacon.js POSTs the correct payload on load and makes NO network call when doNotTrack/globalPrivacyControl is set; prints BEACON_OK and exits 0 only if all assertions pass. [edit] scratch-beacon-test.mjs
+  11. Run the outcome harness and remove the scratch file; require a clean exit proving allowlist/UPSERT/405 and client send-on-load/respect-DNT-by-silence behavior. [command] 
+
+Done means: scratch-beacon-test.mjs exist/are updated as specified
