@@ -1,16 +1,18 @@
 {
   "state": "working",
-  "detail": "diagnosed Stitch routing gap in seat_dispatch.mjs; P1c queued",
+  "detail": "arming auto-merge; ~26 min until merge",
   "tempo": "idle",
   "inFlight": {
-    "tasks": 0,
+    "tasks": 1,
     "queued": 0,
-    "kinds": []
+    "kinds": [
+      "session_cron"
+    ]
   },
-  "tokens": 4421630,
+  "tokens": 4422375,
   "output": null,
   "children": null,
-  "linkScanOffset": 19475604,
+  "linkScanOffset": 19493356,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -38,6 +40,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-09T19:20:36.084Z",
+  "updatedAt": "2026-07-09T19:21:08.912Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
