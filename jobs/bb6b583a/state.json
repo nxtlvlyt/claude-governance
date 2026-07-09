@@ -1,33 +1,16 @@
 {
   "state": "working",
-  "detail": "diagnosing bootstrap-gate bug; awaiting subagent response",
-  "tempo": "active",
+  "detail": "verified atv-3/4 sources; writing atv-5 mission scaffold",
+  "tempo": "idle",
   "inFlight": {
-    "tasks": 1,
+    "tasks": 0,
     "queued": 0,
-    "kinds": [
-      "local_agent"
-    ]
+    "kinds": []
   },
-  "fan": [
-    {
-      "id": "ad93b36f21e22b0e3",
-      "kind": "agent",
-      "label": "Retrieve atv-5 mission text as plain output",
-      "startedAt": 1783612552453,
-      "doneAt": 1783612560842
-    },
-    {
-      "id": "a4e01abfa626a3523",
-      "kind": "agent",
-      "label": "Build atv-5 technical scaffold implementation",
-      "startedAt": 1783612568855
-    }
-  ],
-  "tokens": 4274209,
+  "tokens": 4289882,
   "output": null,
   "children": null,
-  "linkScanOffset": 17069026,
+  "linkScanOffset": 17473391,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -54,6 +37,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-09T15:56:20.066Z",
+  "updatedAt": "2026-07-09T15:58:45.228Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
