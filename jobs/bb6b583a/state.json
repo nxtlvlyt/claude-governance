@@ -1,16 +1,16 @@
 {
   "state": "working",
-  "detail": "monitoring streak for L1→L2 bar (10 clean beats); will notify on graduation",
+  "detail": "backlog churning (Claude: 61 queued, 2 lanes; Agy idle after atv-5 done)",
   "tempo": "idle",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 4371754,
+  "tokens": 4373425,
   "output": null,
   "children": null,
-  "linkScanOffset": 18681953,
+  "linkScanOffset": 18712190,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -37,6 +37,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-09T17:37:19.505Z",
+  "updatedAt": "2026-07-09T17:39:59.942Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
