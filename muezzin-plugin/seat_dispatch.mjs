@@ -952,12 +952,47 @@ export async function dispatchWithWaterfall(baseBody, { cwd, localOnly = false, 
   throw new WaterfallError('ALL_FAILED', 'waterfall', baseBody.model, `local: ${lastErr?.message}; no claude-tier mapping for this seat`);
 }
 
-function extractJson(text) {
-  const fenced = text.match(/```(?:json)?\s*(\{[\s\S]*?\})\s*```/);
-  let raw = fenced ? fenced[1] : null;
-  if (!raw) { const last = text.lastIndexOf('{'); if (last >= 0) raw = text.slice(last); }
-  if (!raw) return null;
-  try { return JSON.parse(raw); } catch { return null; }
+// Robust verdict-contract JSON extraction (receipted 2x — atv-1 S2 attempt-9 + atv-2 S1,
+// both BLOCKED on "no JSON verdict found" despite clean content and a valid MAJORITY verdict).
+// A seat almost always DELIVERS its verdict but wraps it in prose, a partially-closed code
+// fence, or trailing commentary; the old "one fenced-regex OR lastIndexOf('{')-to-end"
+// heuristic then returned null and the seat's actual judgment was LOST — nullifying the panel.
+// This collects EVERY candidate object — all fenced ```json blocks AND every balanced {...}
+// span from a single string/escape-aware pass (records on each matching close, so a stray
+// leading brace can never swallow the real contract, nested findings objects are tolerated,
+// and prose before/after is ignored) — then returns the LONGEST parseable object that carries
+// a "verdict" key (the actual contract, not an incidental inner object). Pure prose with no
+// balanced JSON still returns null (→ _failed → quorum fallback in verdict_merge handles it).
+export function extractJson(text) {
+  const s = String(text || '');
+  const candidates = [];
+  const fenceRe = /```(?:json)?\s*(\{[\s\S]*?\})\s*```/gi;   // every fenced block, not just the first
+  for (let m; (m = fenceRe.exec(s));) candidates.push(m[1]);
+  // single O(n) pass: push a candidate span for EVERY matched {...} pair (top-level and nested).
+  const stack = [];
+  let inStr = false, esc = false;
+  for (let i = 0; i < s.length; i++) {
+    const ch = s[i];
+    if (inStr) {
+      if (esc) esc = false;
+      else if (ch === '\\') esc = true;
+      else if (ch === '"') inStr = false;
+      continue;
+    }
+    if (ch === '"') inStr = true;
+    else if (ch === '{') stack.push(i);
+    else if (ch === '}' && stack.length) candidates.push(s.slice(stack.pop(), i + 1));
+  }
+  candidates.sort((a, b) => b.length - a.length);   // full contract outranks any inner object that also parses
+  let fallback = null;
+  for (const raw of candidates) {
+    let obj; try { obj = JSON.parse(raw); } catch { continue; }
+    if (obj && typeof obj === 'object' && !Array.isArray(obj)) {
+      if (typeof obj.verdict === 'string') return obj;   // an actual verdict contract — prefer it
+      if (fallback === null) fallback = obj;             // parseable but not a contract — last resort
+    }
+  }
+  return fallback;
 }
 
 // dispatch a SEAT. seat = { role, model, today, sampling? }. framing = the mission text the seat judges.

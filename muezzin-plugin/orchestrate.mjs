@@ -11,7 +11,9 @@ import { deconstruct, deconstructPanel, PANEL_INTEGRATOR_MODEL } from './deconst
 import { splitOversizedPlan, emitSubMissions } from './mission_split.mjs';
 import { isCommandClassMission, buildLiteralCommandQueue } from './command_queue.mjs';
 import { implementStep, isProseTarget } from './executor.mjs';
-import { execReceipt, dispatchSeat, isLongRunCmd } from './seat_dispatch.mjs';
+// extractJson imported for the quorum-fallback self-test (picked from agy-muezzin 662e103;
+// executorFloorSeat from the fork's version of this import is fork-only and unused here).
+import { execReceipt, dispatchSeat, isLongRunCmd, extractJson } from './seat_dispatch.mjs';
 import { commitStep, rollbackStep, ensureSandboxRepo, assertRepoRoot, assertCleanOutsideAllowlist, preflightAllowlistClean, resetAllowFiles, abortInProgressGitOp, completeResolvedPickIfAny, stageFiles, commitTouchesFiles, assertNoUndeclaredShrinkage } from './git_steps.mjs';
 import { makeRepairFn } from './repair.mjs';
 import { parseMissionClass } from './mission_class.mjs';
@@ -1905,6 +1907,43 @@ if (process.argv[1]?.endsWith('orchestrate.mjs')) {
     ck(er.length === 2 && er.every((r) => r.type === 'exec' && r.ok === true), 'engineReceiptsFromSteps: one exec receipt per witnessed+committed step only');
     ck(mv([{ seat: 'validator', verdict: 'APPROVE', findings: [], receipts: er }]).consensus === 'APPROVE', 'panel APPROVE on engine-witnessed deeds -> APPROVE (zero-findings-BLOCK bug dead)');
     ck(mv([{ seat: 'validator', verdict: 'APPROVE', findings: [], receipts: engineReceiptsFromSteps([]) }]).consensus === 'BLOCK', 'zero witnessed steps -> APPROVE still BLOCKs (deeds floor intact)');
+  }
+
+  // VERDICT PANEL SURVIVES ONE SEAT'S MALFORMED OUTPUT (receipted 2x — atv-1 S2 attempt-9 +
+  // atv-2 S1, both BLOCKED SOLELY on "no JSON verdict found" despite clean, conductor-verified
+  // content and a valid MAJORITY). Two prongs: (1) extractJson RECOVERS a verdict a seat wrapped
+  // in prose/fence noise — the seat DID verdict, it wasn't lost; (2) even pure-prose output
+  // (nothing recoverable, _failed) is DROPPED by the quorum fallback when >=2 seats ruled, so
+  // the panel produces a valid consensus instead of BLOCKing on the one formatting glitch.
+  {
+    const { mergeVerdicts: mv } = await import('./verdict_merge.mjs');
+    const er = engineReceiptsFromSteps([{ step: 1, ok: true, sha: 'abc123' }]);   // one witnessed deed so APPROVE is not downgraded
+
+    // (1) prose-wrapped + trailing-commentary + nested-findings JSON is RECOVERED, not lost.
+    const prose = `Here is my assessment of the artifacts.\n\nThe content satisfies the mission.\n\n\`\`\`json\n{"seat":"validator","verdict":"APPROVE","findings":[{"id":"F1","severity":"low","description":"nit"}],"closed_concerns":[]}\n\`\`\`\n\nOverall I am confident in this ruling. {trailing note}`;
+    const rec = extractJson(prose);
+    ck(rec && rec.verdict === 'APPROVE' && Array.isArray(rec.findings) && rec.findings.length === 1, 'extractJson: recovers a verdict wrapped in prose + trailing brace-noise + nested findings (seat DID verdict — not "no JSON verdict found")');
+    ck(extractJson('I decline to emit JSON; the work looks fine to me though.') === null, 'extractJson: genuinely unparseable prose still returns null (→ _failed → quorum handles it)');
+
+    // (2) panel: 2 clean APPROVE + 1 seat whose OUTPUT never parsed (dispatchSeat _failed shape).
+    const failedSeat = { seat: 'final_auditor', verdict: 'BLOCK', findings: [{ id: 'CONTRACT', severity: 'high', description: 'invalid/missing verdict: no JSON verdict found' }], _failed: true };
+    const panel = mv([
+      { seat: 'validator', verdict: 'APPROVE', findings: [], receipts: er },
+      { seat: 'auditor', verdict: 'APPROVE', findings: [], receipts: er },
+      failedSeat,
+    ]);
+    ck(panel.consensus === 'APPROVE', 'verdict panel: 1 seat malformed output + 2 valid APPROVE -> APPROVE (NOT "no JSON verdict found" BLOCK) — the receipted 2x bug is dead');
+    ck(panel.dispositions.some((d) => d.dropped && /malformed\/absent output/.test(d.reason || '')), 'verdict panel: the dropped malformed-output seat is recorded honestly, not silently discarded');
+    // semantics unchanged: a GENUINE BLOCK (a seat that DID parse and judged BLOCK) still wins.
+    const dissent = mv([
+      { seat: 'validator', verdict: 'APPROVE', findings: [], receipts: er },
+      { seat: 'auditor', verdict: 'APPROVE', findings: [], receipts: er },
+      { seat: 'final_auditor', verdict: 'BLOCK', findings: [{ id: 'F1', severity: 'high', description: 'real integrity failure' }] },
+    ]);
+    ck(dissent.consensus === 'BLOCK', 'verdict panel: a genuine parsed BLOCK still nullifies the panel — the fix touches only malformed OUTPUT, never a real judgment');
+    // below quorum: only 1 seat ruled validly -> fail closed (absence is not APPROVE).
+    const below = mv([failedSeat, { ...failedSeat, seat: 'validator' }, { seat: 'auditor', verdict: 'APPROVE', findings: [], receipts: er }]);
+    ck(below.consensus === 'BLOCK', 'verdict panel: 2 seats malformed + 1 valid = below quorum -> BLOCK (producer!=verifier unmet, absence is not APPROVE)');
   }
 
   // GRADUATED EXPIATION end-to-end: APPROVE_WITH_DAMM completes the mission AND banks

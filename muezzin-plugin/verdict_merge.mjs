@@ -49,7 +49,28 @@ export function mergeVerdicts(contracts) {
     return { consensus: 'BLOCK', escalate: true, dispositions: [{ seat: 'none', verdict: 'BLOCK', reason: 'no seats — absence is not APPROVE' }], carried_concerns };
   }
 
-  for (const c of contracts) {
+  // QUORUM FALLBACK (receipted 2x — atv-1 S2 attempt-9 + atv-2 S1, both BLOCKED SOLELY on
+  // "no JSON verdict found" despite clean, conductor-verified content and a valid MAJORITY
+  // verdict). A contract flagged _failed did NOT deliver a JUDGMENT: dispatchSeat sets it when
+  // the dispatch died OR the seat's OUTPUT would not parse/validate. That is a FORMATTING/INFRA
+  // failure, not a BLOCK VOTE, and it must not nullify a panel the majority validly ruled.
+  // RULE: when >=2 seats delivered a parseable contract (producer!=verifier preserved), the
+  // _failed seats are DROPPED from consensus and recorded honestly; the panel rules on the
+  // survivors. Below quorum (<2 real verdicts) we FAIL CLOSED — every contract stays and the
+  // failure still BLOCKs (absence is not APPROVE). This NEVER weakens a real judgment: a genuine
+  // BLOCK/REJECT/REVISE from a seat that DID parse carries no _failed flag and is untouched here.
+  let scored = contracts;
+  const failed = contracts.filter((c) => c && c._failed === true);
+  const real = contracts.filter((c) => !(c && c._failed === true));
+  if (failed.length > 0 && real.length >= 2) {
+    scored = real;
+    for (const c of failed) {
+      const why = (Array.isArray(c?.findings) ? c.findings : []).map((f) => f?.description).filter(Boolean).join('; ') || 'output did not parse / dispatch failed';
+      dispositions.push({ seat: c?.seat ?? 'unknown', verdict: 'DROPPED', dropped: true, reason: `malformed/absent output (not a judgment) dropped from consensus — ${real.length} seats delivered valid verdicts (quorum, producer!=verifier): ${why}` });
+    }
+  }
+
+  for (const c of scored) {
     const v = validateVerdictContract(c);
     if (!v.ok) {                  // failed seat — does not get to count as agreement
       dispositions.push({ seat: c?.seat ?? 'unknown', verdict: 'BLOCK', reason: 'invalid contract: ' + v.errors.join('; ') });
@@ -142,6 +163,19 @@ if (import.meta.url === `file://${process.argv[1]}` || process.argv[1]?.endsWith
   // incoherence is repaired UPSTREAM in defaultVerdictPhase, never overridden at merge).
   check(mergeVerdicts([{ seat: 'v', verdict: 'BLOCK', findings: [W('gap')], receipts: RC }]).consensus, 'BLOCK', 'seat BLOCK never downgrades at merge — incoherence is repaired upstream, dissent is never overridden');
   check(mergeVerdicts([{ seat: 'a', verdict: 'APPROVE', findings: [], receipts: RC }, { seat: 'b', verdict: 'REVISE', findings: [W('gap')], receipts: RC }]).consensus, 'APPROVE_WITH_DAMM', 'two seats: APPROVE + wajib-REVISE -> consensus APPROVE_WITH_DAMM');
+
+  // QUORUM FALLBACK (receipted 2x — atv-1 S2 + atv-2 S1, both BLOCKED on "no JSON verdict found"
+  // despite clean content + valid majority). A _failed seat (malformed/absent OUTPUT) is dropped
+  // when >=2 seats delivered valid verdicts; below quorum it fails closed. Real judgments untouched.
+  const PF = { seat: 'final_auditor', verdict: 'BLOCK', findings: [{ id: 'CONTRACT', severity: 'high', description: 'invalid/missing verdict: no JSON verdict found' }], _failed: true };  // exactly what dispatchSeat emits on a parse miss
+  const A1 = { seat: 'validator', verdict: 'APPROVE', findings: [], receipts: RC };
+  const A2 = { seat: 'auditor', verdict: 'APPROVE', findings: [], receipts: RC };
+  check(mergeVerdicts([A1, A2, PF]).consensus, 'APPROVE', 'QUORUM: 2 valid APPROVE + 1 malformed-output seat -> APPROVE (the formatting glitch no longer nullifies the panel)');
+  check(mergeVerdicts([A1, A2, PF]).dispositions.some((d) => d.dropped) , true, 'QUORUM: the dropped _failed seat is recorded honestly in dispositions');
+  check(mergeVerdicts([A1, A2, PF]).escalate, false, 'QUORUM: a majority-APPROVE panel does not escalate on a dropped-output seat');
+  check(mergeVerdicts([A1, A2, { seat: 'x', verdict: 'BLOCK', findings: F(1) }]).consensus, 'BLOCK', 'SEMANTICS: a GENUINE BLOCK (no _failed) still wins — quorum never weakens a real judgment');
+  check(mergeVerdicts([A1, A2, { seat: 'x', verdict: 'REJECT', findings: F(1), receipts: RC }]).consensus, 'REJECT', 'SEMANTICS: a genuine REJECT that parsed still counts');
+  check(mergeVerdicts([PF, { ...PF, seat: 'validator' }, A1]).consensus, 'BLOCK', 'BELOW QUORUM: only 1 valid verdict (2 seats failed to parse) -> BLOCK (absence is not APPROVE, producer!=verifier unmet)');
 
   console.log(`\n${fails === 0 ? 'ALL PASS — keystone merge engine sound' : fails + ' FAIL'}`);
   process.exit(fails === 0 ? 0 : 1);
