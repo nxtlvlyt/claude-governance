@@ -35,8 +35,8 @@ Steps:
      emitted *.pages.dev URL into a variable, write scratch-nearme-qc.mjs (playwright
      render of /map.html from that URL; exit non-zero on any fatal page error or any
      console error naming near-me.js; assert the served HTML contains the near-me.js
-     script tag), node scratch-nearme-qc.mjs, Remove-Item scratch-nearme-qc.mjs —
-     create-use-delete in this single step. [command]
+     script tag), then run-and-clean with the exit code preserved — the command MUST
+     literally end with: node scratch-nearme-qc.mjs; $rc = $LASTEXITCODE; Remove-Item scratch-nearme-qc.mjs -ErrorAction SilentlyContinue; exit $rc [command]
 
 Done means: map.html, functions/api/spots/near.js, js/near-me.js exist at HEAD committed
 citing ca83ba4, node --check passes on both new files, map.html carries the near-me.js tag
