@@ -2219,3 +2219,18 @@ UNBLOCKS on the operator's word ("deploy muddytires") or a non-auto session. The
 deploy → node scripts/verify-popups-e2e.mjs must exit 0 → conduct-cycle --record-deploy.
 NOTE: live site currently serves the van me-dot already but STALE aurora-overlay.js (D1/D2
 copy not yet live) — the operator's twice-raised ask is half-served until this fires.
+
+## 2026-07-10 ENGINE ITEM: S2 REQUIRES tokens unresolvable by queuedDepsHold (38-file census)
+The deconstructor emits REQUIRES in MISSION-ID format (e.g. "MT-INTEGRATE-WILDLIFE-
+ADVISORY.S1") but queuedDepsHold resolves tokens against AUTORUN lines, which carry
+lowercase file paths — every such token "resolve[s] to no AUTORUN line -- silently treated
+as no-dependency" (daemon-events verbatim, warned every sweep = standing log noise).
+Census this beat: 38 S2 mission files carry the class. LIVE HAZARD is currently contained:
+the SEPARATE stem-based TARTIB-HOLD correctly holds X.S2 while X.S1 is not DONE/RESOLVED
+(receipts 07-08 + 07-10 for near-me.S2) — but any REQUIRES naming a NON-stem dependency
+(cross-mission) is silently dropped, and the noise buries real warnings.
+FIX (engine, small, pick one): (a) resolver-side — normalize mission-shaped tokens
+(uppercase ID -> lowercase stem) and match AUTORUN lines by stem; or (b) generator-side —
+deconstructor emits file-path REQUIRES. (a) also heals the 38 existing files without
+touching them; prefer (a). DO NOT hand-edit the 38 files (the generator would regress them
+on the next autosplit). Owner: next engine batch.

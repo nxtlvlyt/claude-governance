@@ -12,16 +12,16 @@
   "selfWake": true,
   "fan": [
     {
-      "id": "bfcsvwisi",
+      "id": "b0587417f",
       "kind": "shell",
-      "label": "Select-String -Path C:\\Users\\marka\\.claude\\muezzin-plugin\\missions\\_logs\\daemon-events.log -Pattern 'MIQAT-REFUSED.*(region-heatmap|wildlife-advisory)' | Select-Object -Last 2 | ForEach-Object { $_.L…",
-      "startedAt": 1783707554050
+      "label": "Set-Location C:\\Users\\marka\\.claude\\muezzin-plugin\\missions; Select-String -Path *.S2.mission.txt -Pattern '^REQUIRES: MT-' -List | ForEach-Object { $_.Filename }",
+      "startedAt": 1783709300262
     }
   ],
   "tokens": 4837696,
   "output": null,
   "children": null,
-  "linkScanOffset": 28545764,
+  "linkScanOffset": 28617657,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -44,7 +44,7 @@
   "cliVersion": "2.1.206",
   "cwd": "C:\\Users\\marka",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-10T18:20:48.338Z",
+  "updatedAt": "2026-07-10T18:49:50.512Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z",
   "bridgeSessionId": "cse_015z5n4qQqp9BZ8kKSCkvtzT",
   "bridgeOutboundOnly": false,
