@@ -1,18 +1,27 @@
 {
   "state": "working",
-  "detail": "re-armed after step 1 re-check; draining backlog at next wake ~08:20",
+  "detail": "conductor bug fixed; running self-test suite",
   "tempo": "idle",
   "inFlight": {
-    "tasks": 1,
+    "tasks": 2,
     "queued": 0,
     "kinds": [
+      "local_bash",
       "session_cron"
     ]
   },
-  "tokens": 4672768,
+  "fan": [
+    {
+      "id": "bq75y0y60",
+      "kind": "shell",
+      "label": "cd \"C:/Users/marka/agy-muezzin\" && node --check orchestrate.mjs && echo SYNTAX_OK node orchestrate.mjs 2>&1 | grep -E \"artifactFilesFor|ALL PASS|FAIL\" | head -8",
+      "startedAt": 1783691936630
+    }
+  ],
+  "tokens": 4678419,
   "output": null,
   "children": null,
-  "linkScanOffset": 23788852,
+  "linkScanOffset": 23911955,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -40,6 +49,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-10T13:53:35.317Z",
+  "updatedAt": "2026-07-10T13:59:10.754Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
