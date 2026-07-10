@@ -1,7 +1,7 @@
 {
-  "state": "blocked",
-  "detail": "6 of 7 failures were false-FAILED from engine bugs; 2 fixes staged",
-  "tempo": "blocked",
+  "state": "working",
+  "detail": "atv-10 copy leak fix queued (attempt 3); design pass (atv-11) chained; redeploy pending",
+  "tempo": "idle",
   "inFlight": {
     "tasks": 1,
     "queued": 0,
@@ -9,13 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 4806836,
-  "needs": "deploy muddytires",
-  "output": {
-    "result": "identified root cause: commit-guard + render-clause bugs account for ~6 false FAILEDs daily; fixes staged, awaiting deploy approval"
-  },
+  "tokens": 4835987,
+  "output": null,
   "children": null,
-  "linkScanOffset": 26735813,
+  "linkScanOffset": 27035011,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -43,6 +40,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-10T15:47:10.553Z",
+  "updatedAt": "2026-07-10T15:58:10.743Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
