@@ -1,6 +1,6 @@
 {
   "state": "blocked",
-  "detail": "muddytires deploy blocked: needs operator auth",
+  "detail": "pre-deploy audit clean; awaiting deploy command",
   "tempo": "blocked",
   "inFlight": {
     "tasks": 1,
@@ -9,13 +9,13 @@
       "session_cron"
     ]
   },
-  "tokens": 5043300,
-  "needs": "authorize muddytires deploy (wrangler pages deploy) — auto-mode classifier denied twice without session auth",
+  "tokens": 5044463,
+  "needs": "say \"deploy muddytires\" to proceed",
   "output": {
-    "result": "fixes committed + live page verified out-of-sync; atv-12 redeploy queued post-design-pass; awaiting operator go on muddytires wrangler deploy"
+    "result": "aurora copy + day-rhythm scroll + cookieless beacon + scenic data; safety checks passed"
   },
   "children": null,
-  "linkScanOffset": 29856042,
+  "linkScanOffset": 29891692,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -43,6 +43,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-10T23:14:52.755Z",
+  "updatedAt": "2026-07-10T23:21:07.655Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
