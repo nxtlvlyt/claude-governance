@@ -1,6 +1,6 @@
 {
   "state": "blocked",
-  "detail": "androidtv.tips copy fixed & live; muddytires staged—awaiting deploy approval",
+  "detail": "muddytires deploy blocked: needs operator auth",
   "tempo": "blocked",
   "inFlight": {
     "tasks": 1,
@@ -9,13 +9,13 @@
       "session_cron"
     ]
   },
-  "tokens": 5042203,
-  "needs": "reply \"deploy muddytires\" to ship staged work",
+  "tokens": 5043300,
+  "needs": "authorize muddytires deploy (wrangler pages deploy) — auto-mode classifier denied twice without session auth",
   "output": {
-    "result": "androidtv.tips jargon/placeholder copy fixed (3 pages verified); muddytires aurora copy staged + audited; scenic-popup OSM data 4,215 entries committed; awaiting authorization to deploy muddytires"
+    "result": "fixes committed + live page verified out-of-sync; atv-12 redeploy queued post-design-pass; awaiting operator go on muddytires wrangler deploy"
   },
   "children": null,
-  "linkScanOffset": 29833834,
+  "linkScanOffset": 29856042,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -43,6 +43,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-10T23:14:08.506Z",
+  "updatedAt": "2026-07-10T23:14:52.755Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
