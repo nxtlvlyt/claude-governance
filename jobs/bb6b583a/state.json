@@ -12,16 +12,16 @@
   "selfWake": true,
   "fan": [
     {
-      "id": "btau79y84",
+      "id": "bvn1utwn3",
       "kind": "shell",
-      "label": "cd \"C:/Users/marka/.claude/muezzin-plugin\" && python3 -c \" import json d = json.load(open('missions/mt-addspot-user-fixes.S1.mission.result.json')) print('phase:', d.get('phase'), '| stoppedAt:', d.g…",
-      "startedAt": 1783666598999
+      "label": "echo \"=== claude daemon ===\" && cat \"C:/Users/marka/.claude/muezzin-plugin/missions/_logs/daemon-status.json\" | grep -E '\"pid\"|\"state\"|\"queued\"|\"path\"' echo \"\" echo \"=== FAILED since 06:56 ===\" && gr…",
+      "startedAt": 1783668590306
     }
   ],
   "tokens": 4642243,
   "output": null,
   "children": null,
-  "linkScanOffset": 23506702,
+  "linkScanOffset": 23524537,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -44,7 +44,7 @@
   "cliVersion": "2.1.206",
   "cwd": "C:\\Users\\marka",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-10T06:58:18.099Z",
+  "updatedAt": "2026-07-10T07:30:17.063Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z",
   "bridgeSessionId": "cse_015z5n4qQqp9BZ8kKSCkvtzT",
   "bridgeOutboundOnly": false,
