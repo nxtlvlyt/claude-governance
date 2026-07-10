@@ -10,16 +10,16 @@
   "selfWake": true,
   "fan": [
     {
-      "id": "bzw549akb",
+      "id": "bo82h3xwn",
       "kind": "shell",
-      "label": "$l = Select-String -Path C:\\Users\\marka\\.claude\\muezzin-plugin\\missions\\AUTORUN.md -Pattern '^FAILED missions/mt-money-competitor' | Select-Object -First 1; \"L$($l.LineNumber): tail=\" + $l.Line.Subst…",
-      "startedAt": 1783717536365
+      "label": "$l = Select-String -Path C:\\Users\\marka\\.claude\\muezzin-plugin\\missions\\AUTORUN.md -Pattern '^FAILED missions/mt-integrate-weather-aware' | Select-Object -First 1; \"L$($l.LineNumber): tail=\" + $l.Lin…",
+      "startedAt": 1783719443434
     }
   ],
   "tokens": 4837696,
   "output": null,
   "children": null,
-  "linkScanOffset": 29134389,
+  "linkScanOffset": 29382055,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -42,7 +42,7 @@
   "cliVersion": "2.1.206",
   "cwd": "C:\\Users\\marka",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-10T21:05:36.535Z",
+  "updatedAt": "2026-07-10T21:37:23.700Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z",
   "bridgeSessionId": "cse_015z5n4qQqp9BZ8kKSCkvtzT",
   "bridgeOutboundOnly": false,
