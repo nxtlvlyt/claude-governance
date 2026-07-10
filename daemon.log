@@ -124,3 +124,6 @@
 [2026-07-10T00:36:22.151Z] [bg] bg: control socket bound at \\.\pipe\cc-daemon-*-control
 [2026-07-10T00:36:23.497Z] [bg] bg adopt: adopted=1 respawned=0 dead=0
 [2026-07-10T00:36:38.817Z] [bg] bg: post-takeover prewarm burst — respawned 0/1 stale workers, 1 refused in 0s
+[2026-07-10T07:51:10.190Z] [supervisor] auth: proactive refresh starting
+[2026-07-10T07:51:11.146Z] [supervisor] auth: scheduling proactive refresh in 28560s
+[2026-07-10T07:51:11.147Z] [supervisor] auth: proactive refresh succeeded
