@@ -107,6 +107,16 @@ A FAILED mark is a DIAGNOSIS DEBT with a due date, never ambient debt. Condition
 - **Cross-project attention is not a defense.** "The other project was delivering" is the
   drift mode, not a mitigation — the fifth-law mechanism (a prose priority loses to an
   autonomous queue) applies to FAILURES exactly as it applies to gaps.
+- **The backlog is not exempt (loophole closed 2026-07-10, same day: the conductor set a
+  7-hour "overnight hold" of pure heartbeat wakes while ~15 ALREADY-failed missions sat
+  undiagnosed — reading "failed since your last wake" as exempting failures from BEFORE
+  it; operator: "did the conductor fail for the last 7 hours?").** An undiagnosed FAILED
+  backlog is due at >=1 diagnosis per wake until dry. A hold/quiet-hours cadence may
+  suspend NEW product work; it never suspends diagnosis debt. Each wake's diagnosis
+  closes one item fully: false-death -> RESOLVED-LANDED stamp with receipts; text defect
+  -> amend + preflight receipt + requeue; capability gap -> PARK with the diagnosis in
+  the AUTORUN comment. (First backlog pass receipt: mt-filter-stack-dedupe.S1 resolved as
+  a false death in one wake — its own step-1 baseline had printed DEDUP_PRESENT.)
 (If a future instance still lets a zero-DONE window pass undiagnosed, the escalation is
 mechanical: a daemon notify/hold — FAILED-STREAK-HOLD — that pauses same-class fires after
 N consecutive failures until a preflight receipt names a diagnosis.)

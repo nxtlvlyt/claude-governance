@@ -1,6 +1,6 @@
 {
-  "state": "done",
-  "detail": "it's been 7 hours?",
+  "state": "working",
+  "detail": "re-armed after step 1 re-check; draining backlog at next wake ~08:20",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,21 +9,13 @@
       "session_cron"
     ]
   },
-  "selfWake": true,
-  "fan": [
-    {
-      "id": "bqyg2tbxt",
-      "kind": "shell",
-      "label": "cd \"C:/Users/marka/code/mt-integration-2026-06-22\" && grep -n \"mt-fs-dedupe\" js/filter-stack.js | head -3 echo \"---\" git log --oneline -3 -- js/filter-stack.js",
-      "startedAt": 1783691270541
-    }
-  ],
-  "tokens": 4642243,
+  "tokens": 4672768,
   "output": null,
   "children": null,
-  "linkScanOffset": 23745245,
+  "linkScanOffset": 23788852,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
+  "selfWake": true,
   "respawnFlags": [
     "--reply-on-resume",
     "--effort",
@@ -33,8 +25,6 @@
     "--permission-mode",
     "auto"
   ],
-  "bgIsolation": "none",
-  "providerEnv": {},
   "intent": "but we had 30 gaps mission we were fixing first before we did anything else and a big project to que when they were done",
   "name": "daemon-restart-mission-triage",
   "nameSource": "auto",
@@ -43,11 +33,13 @@
   "daemonShort": "bb6b583a",
   "cliVersion": "2.1.206",
   "cwd": "C:\\Users\\marka",
-  "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-10T13:49:56.829Z",
-  "firstTerminalAt": "2026-07-07T15:47:23.132Z",
   "bridgeSessionId": "cse_015z5n4qQqp9BZ8kKSCkvtzT",
   "bridgeOutboundOnly": false,
   "bridgeSessionSeq": 8904,
-  "backend": "daemon"
+  "bgIsolation": "none",
+  "providerEnv": {},
+  "backend": "daemon",
+  "createdAt": "2026-07-07T14:31:31.695Z",
+  "updatedAt": "2026-07-10T13:53:35.317Z",
+  "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
