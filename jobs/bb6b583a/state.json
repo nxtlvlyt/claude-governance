@@ -1,6 +1,6 @@
 {
   "state": "done",
-  "detail": "muddy tires: 3 live production features; 31 historical completions verified",
+  "detail": "site live at androidtv-tips.pages.dev since yesterday",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,12 +9,12 @@
       "session_cron"
     ]
   },
-  "tokens": 4725590,
+  "tokens": 4725714,
   "output": {
-    "result": "filter-stack dedupe + e2e mobile-QC live on muddytires.ca; mt-aurora-humanize in progress"
+    "result": "https://androidtv-tips.pages.dev — live with styled hub content, DNS hookup remains"
   },
   "children": null,
-  "linkScanOffset": 24797410,
+  "linkScanOffset": 24822141,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -42,6 +42,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-10T14:49:01.541Z",
+  "updatedAt": "2026-07-10T14:50:04.991Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
