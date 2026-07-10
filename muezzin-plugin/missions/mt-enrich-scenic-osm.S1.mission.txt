@@ -32,7 +32,13 @@ Steps:
      Overpass (https://overpass-api.de/api/interpreter) with one bulk "node(id:...)" query
      for their tags, derives {scenic_type, name?, wikidata?} per node (mapping above,
      omit-if-empty), and writes data/scenic-enrichment.json sorted by osm_id. [edit]
-  2. Run the builder for the Saskatchewan pilot bbox EXACTLY: node scripts/build-scenic-enrichment.mjs "-107,52.5,-105,53.8" [command]
+  2. Run the builder for the Saskatchewan pilot bbox EXACTLY — the command MUST carry the
+     literal # LONG-RUN marker (2026-07-10 receipt: 253 tile fetches + ~15 Overpass batches
+     with politeness delays legitimately run 3-5 minutes; the run died at the 120s
+     single-line hang guard mid-Overpass with its own success log "found 4215 scenic
+     osm_ids" in the kill receipt). Run exactly:
+     # LONG-RUN
+     node scripts/build-scenic-enrichment.mjs "-107,52.5,-105,53.8" [command]
   3. Verify data/scenic-enrichment.json exists, parses as JSON, and has at least 1 entry
      whose scenic_type is a non-empty string. [verify] data/scenic-enrichment.json
   4. Syntax-check the builder. [verify] scripts/build-scenic-enrichment.mjs

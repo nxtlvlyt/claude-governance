@@ -20,15 +20,26 @@ niyyah: This is money-plan fuel, not a feature scan. Every claim carries a sourc
 a price without a URL is a da'if claim and gets omitted. Descriptive "X has feature Y"
 lines without revenue relevance are out of scope.
 
+GATHER-QUALITY RULE (attempt-2 receipts 2026-07-10: the improvised gather saved 2000-char
+raw-HTML <head> fragments — zero pricing prose reached the author, who then honestly wrote
+"not evidenced" 34 times; the mission died at the verify it could never pass): the gather
+must capture rendered TEXT (tags stripped) from PRICING-INTENT pages (the homepage plus any
+on-page links matching pricing|plans|pro|premium|membership|upgrade), several thousand chars
+per page — never raw-HTML head fragments.
+
 Steps:
-  1. Search-grounded gather: for each named competitor, fetch pricing/plans pages and one
-     independent source (app-store listing or review article); save raw notes with URLs
-     into gather-notes.md. [command]
+  1. Search-grounded gather, pricing-intent pages, TEXT not raw HTML. Run exactly (# LONG-RUN
+     — 9 competitors x up to 3 fetches with politeness delays legitimately exceeds 120s):
+     # LONG-RUN
+     Remove-Item gather-notes.md -ErrorAction SilentlyContinue; $sites = @('https://ioverlander.com/','https://www.sekr.app/','https://thedyrt.com/','https://www.campendium.com/','https://directionrv.com/','https://freeroam.app/','https://harvesthosts.com/','https://www.hipcamp.com/','https://roadtrippers.com/'); foreach ($u in $sites) { try { $r = Invoke-WebRequest -Uri $u -UseBasicParsing -TimeoutSec 25 -ErrorAction Stop; $html = $r.Content; $text = ($html -replace '(?s)<script.*?</script>', ' ' -replace '(?s)<style.*?</style>', ' ' -replace '<[^>]+>', ' ' -replace '\s+', ' '); Add-Content gather-notes.md ("## " + $u); Add-Content gather-notes.md $text.Substring(0, [Math]::Min(6000, $text.Length)); $links = [regex]::Matches($html, 'href="([^"]*(?:pricing|plans|premium|membership|upgrade|/pro\b)[^"]*)"') | ForEach-Object { $_.Groups[1].Value } | Select-Object -Unique -First 2; foreach ($l in $links) { if ($l -notmatch '^https?:') { $l = ($u.TrimEnd('/') + '/' + $l.TrimStart('/')) }; try { $r2 = Invoke-WebRequest -Uri $l -UseBasicParsing -TimeoutSec 25 -ErrorAction Stop; $t2 = ($r2.Content -replace '(?s)<script.*?</script>', ' ' -replace '(?s)<style.*?</style>', ' ' -replace '<[^>]+>', ' ' -replace '\s+', ' '); Add-Content gather-notes.md ("### PRICING-PAGE " + $l); Add-Content gather-notes.md $t2.Substring(0, [Math]::Min(6000, $t2.Length)) } catch { Add-Content gather-notes.md ("### PRICING-PAGE " + $l + " FETCH_FAILED " + $_.Exception.Message) }; Start-Sleep -Milliseconds 800 } } catch { Add-Content gather-notes.md ("## " + $u + " FETCH_FAILED " + $_.Exception.Message) }; Start-Sleep -Milliseconds 800 }; if (-not (Test-Path gather-notes.md) -or ((Select-String -Path gather-notes.md -Pattern '^## https' -AllMatches).Matches.Count -lt 9)) { exit 1 } [command]
   2. Author competitor-landscape-2026.md sections 1-9 (one per competitor: price points w/
      URLs, install/review counts, revenue mechanics, the could-copy paragraph), complete in
-     one emission, citing only gathered sources. [edit] competitor-landscape-2026.md
-  3. Verify every competitor section contains at least one https:// source URL and at least
-     one explicit price or "confirmed free" finding. [verify] competitor-landscape-2026.md
+     one emission, citing only gathered sources. This RE-AUTHORS the existing file against
+     the richer step-1 gather — prior "not evidenced" rows must be resolved from the new
+     pricing-page text or restated as named unknowns per step 5's bar. [edit] competitor-landscape-2026.md
+  3. Verify every COMPETITOR section (a "## " section other than the comparative table and
+     the wedges section) contains at least one https:// source URL and at least one explicit
+     price or free finding. Run exactly: $parts = (Get-Content competitor-landscape-2026.md -Raw) -split '(?m)^## '; $secs = $parts[1..($parts.Count-1)] | Where-Object { $_ -notmatch '^(Comparative Table|Three Wedges)' }; if (@($secs).Count -lt 9) { exit 1 }; $bad = @($secs | Where-Object { ($_ -notmatch 'https://') -or ($_ -notmatch '(?i)\$[0-9]|free|/yr|/mo|per year|per month|CAD|USD') }); if ($bad.Count -gt 0) { exit 1 } [verify] competitor-landscape-2026.md
   4. Verify the comparative table and the three-wedges section exist and each wedge names
      which competitor gap it exploits. [verify] competitor-landscape-2026.md
   5. Verify zero sections claim "not evidenced" or "unreadable" — a gap is stated as a
