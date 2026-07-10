@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "atv-10 copy leak fix queued (attempt 3); design pass (atv-11) chained; redeploy pending",
+  "detail": "fixes queued in atv-10/atv-11; awaiting redeploy, will witness",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 4835987,
+  "tokens": 4837696,
   "output": null,
   "children": null,
-  "linkScanOffset": 27035011,
+  "linkScanOffset": 27077524,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -40,6 +40,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-10T15:58:10.743Z",
+  "updatedAt": "2026-07-10T15:59:14.895Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
