@@ -10,16 +10,16 @@
   "selfWake": true,
   "fan": [
     {
-      "id": "bo82h3xwn",
+      "id": "bw4xto5ja",
       "kind": "shell",
-      "label": "$l = Select-String -Path C:\\Users\\marka\\.claude\\muezzin-plugin\\missions\\AUTORUN.md -Pattern '^FAILED missions/mt-integrate-weather-aware' | Select-Object -First 1; \"L$($l.LineNumber): tail=\" + $l.Lin…",
-      "startedAt": 1783719443434
+      "label": "Set-Location C:\\Users\\marka\\agy-muezzin; node mission_lint.mjs missions\\atv-10b-restore-comments.mission.txt 2>&1 | Select-Object -Last 1",
+      "startedAt": 1783721371072
     }
   ],
   "tokens": 4837696,
   "output": null,
   "children": null,
-  "linkScanOffset": 29382055,
+  "linkScanOffset": 29480462,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -42,7 +42,7 @@
   "cliVersion": "2.1.206",
   "cwd": "C:\\Users\\marka",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-10T21:37:23.700Z",
+  "updatedAt": "2026-07-10T22:09:31.221Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z",
   "bridgeSessionId": "cse_015z5n4qQqp9BZ8kKSCkvtzT",
   "bridgeOutboundOnly": false,
