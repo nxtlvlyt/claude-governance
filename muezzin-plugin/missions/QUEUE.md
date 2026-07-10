@@ -2182,3 +2182,40 @@ board-truth-drain shape), each item's check derived from its OWN close receipt (
 hold classes: classifier fixture fires; hooks: synthetic trigger blocks; lint rules:
 the receipted kill-shape rejects; census items: the metric window holds). Failures
 reopen the item — the push waits.
+
+## 2026-07-10 ENGINE ITEM: render-clause Done-means boilerplate on non-rendering missions
+Found via k6-load-baseline.S1 false-death (personal Read of result.json this beat): the
+deconstructor/autosplit appends "verify by headless-browser render, not by reading the
+code" into children's Done-means REGARDLESS of artifact class. For page-class missions
+(map.html/index.html) the clause is meaningful; for script/doc/data missions (k6 script,
+LOAD-TESTING.md) it is category-inappropriate and hands the verdict panel a guaranteed
+arkan-REJECT: k6's 8 steps all ran ok:true, deliverables committed 93ee9c5 (byte-identical
+to source c13ecad at HEAD), and the panel REJECTed 3x on the single boilerplate clause.
+CENSUS: 40 mission files carry the identical clause (Select-String receipt this beat) —
+several of the open FAILED-tail diagnoses will trace to the same class; check each REJECT's
+findings for this signature BEFORE any deeper diagnosis.
+FIX (engine, small): in the deconstructor's Done-means synthesis, gate the render clause on
+the child's ALLOW-FILES containing an .html entry (or an explicit RENDER-VERIFY tag); for
+non-rendering artifact classes emit "verify by executed command receipts" instead. Owner:
+next engine batch. Until landed, conductor judgment treats a REJECT whose ONLY findings cite
+the render clause on a non-rendering mission as a candidate false death, verified by byte
+receipts at HEAD (k6 precedent, this entry).
+
+## 2026-07-10 DEPLOY STAGED — muddytires production, awaiting operator word (identity-bound: classifier)
+Everything pre-deploy is DONE this beat: (a) diff audit 7dd6df5..HEAD (11 commits, 12 files)
+content-verified — aurora humanize D1/D2/D3 (all three markers at HEAD; van-emoji divIcon
+verified byte-level), mt-beacon (clean: no cookies/identifiers, doNotTrack respected, both
+script tags present, syntax-pass; its verdict-BLOCK was verification-artifact-only — bundle
+truncation + render boilerplate + panel misread of per-step commits), day-rhythm scroll
+(witness-approved 3rd revision, additive, manual-scroll-respecting), rest inert (tests/docs/
+tooling); (b) founding-receipt map.html check PASS (Apply/filter/search present, script count
+44 = 43 + the beacon tag); (c) tree CLEANED — 5 untracked residue items moved to
+C:\Users\marka\code\mt-stranded-2026-07-10\ (incl. functions/api/poi-tags.js which would have
+shipped as an UN-REVIEWED live Pages Function; poi-tags/poi-hover strands preserved there for
+their parked missions). BLOCKED at the last step: auto-mode classifier denied BOTH
+`wrangler pages deploy` production AND --branch=preview this session (fresh receipts, retested
+per the boundary rule; reason: no user authorization naming muddytires this session).
+UNBLOCKS on the operator's word ("deploy muddytires") or a non-auto session. Then:
+deploy → node scripts/verify-popups-e2e.mjs must exit 0 → conduct-cycle --record-deploy.
+NOTE: live site currently serves the van me-dot already but STALE aurora-overlay.js (D1/D2
+copy not yet live) — the operator's twice-raised ask is half-served until this fires.

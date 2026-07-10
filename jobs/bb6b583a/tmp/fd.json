@@ -1,0 +1,29 @@
+{
+  "id": "FALSE-DEATH-CANDIDATES",
+  "class": "judgment",
+  "approved_by_faith": true,
+  "why": "20 unresolved FAILED code-repo mission(s) have ALLOW-FILES byte-identical-landed at HEAD — a FAILED mark contradicted by the repo is a false death (receipt class: 9 of 13 sampled were false, 2026-07-02 hunt)",
+  "candidates": [
+    "missions/qc-concern-poi-affiliate-cards-poi-affiliate-cards-js-2026-06-25.mission.txt [PARTIAL vs 63f6929: map.html=present-differs poi-affiliate-cards.js=present-identical e2e-runner.mjs=present-differs FEATURE-CATALOG-2026-06-23.md=present-differs]",
+    "missions/mt-addspot-user-fixes.S1.mission.txt [PARTIAL: map.html=present-nosha add-spot-worker.js=present-nosha]",
+    "missions/mt-integrate-crown-legal-full-text-2026-06-23.S1.mission.txt [PARTIAL vs 487d8d5: land-tenure.js=present-identical crown-land-overlay.js=present-differs]",
+    "missions/mt-integrate-wikipedia-link-2026-06-23.mission.txt [PARTIAL vs cf373c9: wikipedia-link.js=absent poi-wikipedia.js=absent map.html=present-differs]",
+    "missions/mt-integrate-near-me-discovery.S1.mission.txt [PARTIAL vs ca83ba4: map.html=present-differs near.js=absent near-me.js=absent]",
+    "missions/mt-integrate-region-heatmap-2026-06-23.S1.mission.txt [PARTIAL vs 9a29244: map.html=present-differs heatmap-points.js=absent region-heatmap-layer.js=absent]",
+    "missions/mt-integrate-wildlife-advisory.S1.mission.txt [PARTIAL vs 623a4785214503389055e56fd137a2b78753e2ab: wildlife-advisory.js=absent wildlife-advisory-layer.js=absent map.html=present-differs]",
+    "missions/mt-integrate-poi-services-nearby.S1.mission.txt [PARTIAL vs 58e7560: map.html=present-differs poi-services-nearby.js=absent]",
+    "missions/mt-integrate-poi-hover-preview-cards.S1.mission.txt [PARTIAL vs 3b8bb06: poi-hover-preview.js=absent map.html=present-differs]",
+    "missions/mt-integrate-spot-share-card.mission.txt [PARTIAL vs 18e7eb9: share-card.js=absent map.html=present-differs]",
+    "missions/mt-integrate-dynamic-favicon-fire-ban.S1.mission.txt [PARTIAL vs d48f959: icon-fire-ban.svg=absent index.html=present-differs dynamic-favicon.js=absent map.html=present-differs]",
+    "missions/mt-integrate-testimonials.S1.mission.txt [PARTIAL vs 06c58148cf01b13388f08b53b2cd8e8942f7b182: landing.html=present-differs build-testimonials.mjs=absent]",
+    "missions/mt-integrate-k6-load-baseline.S1.mission.txt [FULL vs c13ecad7d324d93d08457b5b8f37da8a42962f9f: k6-baseline.js=present-identical LOAD-TESTING.md=present-identical]",
+    "missions/mt-integrate-lighthouse-fix1-extensionless-verification-docs.S1.mission.txt [PARTIAL vs c184a60: HEAD=absent QC-PIPELINE-SOTA-2026-06-23.md=present-identical AUDIT-LIGHTHOUSE-FIX1-2026-06-23.md=absent map-extensionless.json=absent map-extensionless-run2.json=absent map-html-with-redirect.json=absent HEAD=absent]",
+    "missions/mt-integrate-qc-v3-chunked-panel-2026-06-23.S1.mission.txt [PARTIAL vs 375e40b0db479ede0e14407e6eb416e85936d305: workflow-qc-gated-promote-v3-2026-06-23.mjs=present-differs QC-PANEL-CHUNKED-REVIEW-2026-06-23.md=present-differs]",
+    "missions/mt-ingest-rest-services.S1.mission.txt [PARTIAL: rest-services.json=absent build-rest-services.mjs=present-nosha]",
+    "missions/mt-dayrhythm-now.S1.mission.txt [PARTIAL: day-rhythm.js=present-nosha]",
+    "missions/mt-copy-clarity.S1.mission.txt [PARTIAL: index.html=present-nosha map.html=present-nosha]",
+    "missions/mt-feedback-capture.S1.S1.mission.txt [PARTIAL: migrate-feedback-2026-07-03.sql=absent feedback.js=absent feedback-widget.js=absent map.html=present-nosha index.html=present-nosha]",
+    "missions/mt-first-party-beacon.S1.S1.mission.txt [PARTIAL: migrate-beacon-2026-07-03.sql=present-nosha beacon.js=present-nosha mt-beacon.js=present-nosha index.html=present-nosha map.html=present-nosha]"
+  ],
+  "rule": "verify each candidate from the repo (merge-base/byte receipts), then annotate the line RESOLVED-LANDED (+ tartib-readable # RESOLVED twin) or FALSE-DEATH-JUDGED: GENUINE <why> — never leave a candidate bare (PARTIAL = check the wiring/hunk the sweep names as differing/absent before judging; S2/verify-class missions whose ALLOW-FILES mirror their S1 are EXECUTION work — file identity proves nothing, judge from their own Done-means)"
+}

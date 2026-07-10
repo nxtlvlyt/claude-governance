@@ -1,7 +1,7 @@
 {
   "state": "done",
-  "detail": "explained androidtv.tips preview scaffold; identified jargon leak",
-  "tempo": "idle",
+  "detail": "@\"C:\\Users\\marka\\.claude\\uploads\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf\\8afa53ee-89863.png\" what even is this",
+  "tempo": "active",
   "inFlight": {
     "tasks": 1,
     "queued": 0,
@@ -9,15 +9,21 @@
       "session_cron"
     ]
   },
+  "selfWake": true,
+  "fan": [
+    {
+      "id": "bmzfhz4iy",
+      "kind": "shell",
+      "label": "# TOOL-CANNOT-SERVE: niyyah gate Path B — same-turn shell staging (60s TTL). $ts = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds(); @{ ts = $ts; niyyah_text = \"niyyah:`n source: mt-dayrhythm-now.S1…",
+      "startedAt": 1783697403748
+    }
+  ],
   "tokens": 4726945,
-  "output": {
-    "result": "preview is working skeleton; needs jargon strip + editorial pass before design"
-  },
+  "output": null,
   "children": null,
   "linkScanOffset": 25455356,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
-  "selfWake": true,
   "respawnFlags": [
     "--reply-on-resume",
     "--effort",
@@ -27,6 +33,8 @@
     "--permission-mode",
     "auto"
   ],
+  "bgIsolation": "none",
+  "providerEnv": {},
   "intent": "but we had 30 gaps mission we were fixing first before we did anything else and a big project to que when they were done",
   "name": "daemon-restart-mission-triage",
   "nameSource": "auto",
@@ -35,13 +43,11 @@
   "daemonShort": "bb6b583a",
   "cliVersion": "2.1.206",
   "cwd": "C:\\Users\\marka",
+  "createdAt": "2026-07-07T14:31:31.695Z",
+  "updatedAt": "2026-07-10T15:30:03.892Z",
+  "firstTerminalAt": "2026-07-07T15:47:23.132Z",
   "bridgeSessionId": "cse_015z5n4qQqp9BZ8kKSCkvtzT",
   "bridgeOutboundOnly": false,
   "bridgeSessionSeq": 8904,
-  "bgIsolation": "none",
-  "providerEnv": {},
-  "backend": "daemon",
-  "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-10T14:51:54.805Z",
-  "firstTerminalAt": "2026-07-07T15:47:23.132Z"
+  "backend": "daemon"
 }
