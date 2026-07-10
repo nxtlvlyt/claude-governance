@@ -5,6 +5,7 @@ TARTIB-INDEX: 1 of 2
 REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
 ALLOW-FILES:
   - js/plan-day-weather.js
+  - map.html
 VISUAL-QC-REQUIRED
 REQUIRES: none (first in tartib order)
 STEPS: 8
@@ -13,14 +14,19 @@ PARENT MAQSAD: Land commit bbf702d ("feat(weather-aware-planning): inline foreca
 
 Maqsad: sub-mission 1 of 2 — Record the target repo's current branch, HEAD, and recent log, and confirm js/plan-day-weather.js is not already present on disk before integrating. through Confirm the target repo's working tree is clean with respect to both ALLOW-FILES entries after commit, scoped to those files only.
 
+STEP-SHAPE DISCIPLINE (plan-gate findings 2026-07-09, embedded as literal commands — the
+planner must use these verbatim, not improvise): idempotent absence-preflight (branch on
+ALREADY_INTEGRATED, never bare exit-1-on-existence), cherry-pick conflict-exit tolerated
+with artifact assertion, artifact witnesses (Test-Path + content), never sha-in-log-window.
+
 Steps:
-  1. Record the target repo's current branch, HEAD, and recent log, and confirm js/plan-day-weather.js is not already present on disk before integrating. [command] 
-  2. Check ancestry of bbf702d against current HEAD so a redundant or empty cherry-pick is never attempted; fails loudly if the commit is already landed. [command] 
-  3. Land commit bbf702d onto whatever branch is currently checked out via git cherry-pick, introducing js/plan-day-weather.js and updating map.html's script tags in one atomic git operation. [command] js/plan-day-weather.js
-  4. Confirm js/plan-day-weather.js carries the real feature content (not a stub or partial merge artifact) by checking for its HEAVY_RAIN_POP threshold, __mtPlanDayWeather debug surface, and fetchWeather function. [verify] 
-  5. Run node --check on the landed weather module to confirm it is syntactically valid before committing. [command] 
-  6. Confirm map.html contains the new plan-day-weather.js script tag alongside every pre-existing neighboring script tag, proving the cherry-pick kept both sides and dropped nothing. [verify] 
-  7. Stage and commit the integrated result with a message naming mt-feat-weather-aware-planning-2026-06-23 / plan-day-weather and citing bbf702d. [command] 
-  8. Confirm the target repo's working tree is clean with respect to both ALLOW-FILES entries after commit, scoped to those files only. [verify] 
+  1. Baseline, stdout only, IDEMPOTENT. Run exactly: git rev-parse --abbrev-ref HEAD; git rev-parse HEAD; if (Test-Path js/plan-day-weather.js) { Write-Output ALREADY_PRESENT } else { Write-Output CLEAN_BASELINE } [command]
+  2. Ancestry check, IDEMPOTENT (already-landed is a SUCCESS state, not a failure). Run exactly: git merge-base --is-ancestor bbf702d HEAD; if ($LASTEXITCODE -eq 0) { Write-Output ALREADY_INTEGRATED } else { Write-Output NOT_YET_INTEGRATED }; exit 0 [command]
+  3. Land commit bbf702d via cherry-pick; a conflict exit is TOLERATED — the assertion is the artifact. Run exactly: if ((git merge-base --is-ancestor bbf702d HEAD; $LASTEXITCODE) -eq 0) { Write-Output SKIP_ALREADY_INTEGRATED; exit 0 }; git cherry-pick -x bbf702d; if (Test-Path (git rev-parse --git-path CHERRY_PICK_HEAD)) { git cherry-pick --continue --no-edit }; if (-not (Test-Path js/plan-day-weather.js)) { exit 1 } [command] js/plan-day-weather.js
+  4. Confirm js/plan-day-weather.js carries the real feature content (not a stub or partial merge artifact) by checking for its HEAVY_RAIN_POP threshold, __mtPlanDayWeather debug surface, and fetchWeather function. [verify]
+  5. Run node --check on the landed weather module to confirm it is syntactically valid before committing. [command]
+  6. Artifact witness for the wiring (never a log-window sha check). Run exactly: if (-not (Select-String -Path map.html -Pattern 'plan-day-weather.js' -Quiet)) { exit 1 }; if (-not ((Select-String -Path map.html -Pattern '<script' -AllMatches).Matches.Count -ge 44)) { exit 1 } [verify]
+  7. Commit the integrated result, idempotent on staged/pending state (the k6 step-8 proven shape). Run exactly: git add -- js/plan-day-weather.js map.html; git diff --cached --quiet -- js/plan-day-weather.js map.html; if ($LASTEXITCODE -eq 0) { Write-Output ALREADY_COMMITTED } else { git commit -m "feat(weather-aware-planning): inline forecast on overnights (integrate bbf702d)" -- js/plan-day-weather.js map.html; if ($LASTEXITCODE -ne 0) { exit 1 } } [command]
+  8. Scoped cleanliness. Run exactly: if ((git status --porcelain -- js/plan-day-weather.js map.html).Length -gt 0) { exit 1 }; Write-Output SCOPE_CLEAN [verify]
 
 Done means: js/plan-day-weather.js exist/are updated as specified — verify by headless-browser render, not by reading the code
