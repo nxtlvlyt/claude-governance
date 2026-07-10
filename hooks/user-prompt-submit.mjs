@@ -88,6 +88,30 @@ Required: re-read the governing source for current work before the next
 Edit/Write. The source must be open, not assumed from memory (CLAUDE.md D12).`;
 }
 
+// DIAGNOSIS-DEBT SURFACE (seventh law's mechanical escalation, 2026-07-10 — paid for by the
+// 7h idle-loop failure: conduct-cycle.mjs computed the full DIAGNOSE list all along, the
+// conductor just never ran it; operator: "I thought we built this process so good even a
+// local model could be the conductor"). Judgment drains out of the seat into this hook:
+// every prompt counts FAILED AUTORUN lines that lack a judgment annotation (RESOLVED/
+// PARKED/DIAGNOSED/FIX/SUPERSEDED/BLOCKED/re-queued) and injects the debt so NO conductor —
+// frontier or local — can fail to see it. Fail-open: any error injects nothing. Bounded:
+// top-3 items only (~600 chars), inside the documented 10k additionalContext cap
+// (change-shape witnessed 2x via WebFetch against code.claude.com/docs/en/hooks 2026-07-10).
+try {
+  const autorunDebt = readFileSync(join(os.homedir(), '.claude', 'muezzin-plugin', 'missions', 'AUTORUN.md'), 'utf8')
+    .split(/\r?\n/)
+    .filter((l) => /^FAILED\s+missions\//.test(l) && !/RESOLVED|PARKED|DIAGNOSED|FIX:|SUPERSEDED|BLOCKED|re-queued/i.test(l));
+  if (autorunDebt.length > 0) {
+    reminder += `
+
+DIAGNOSIS DEBT (seventh law, ~/.claude/rules/conductor-core.md — computed mechanically by this hook):
+${autorunDebt.length} FAILED mission(s) carry NO judgment annotation. A FAILED mark is a diagnosis
+debt with a due date, never ambient debt. Run \`node conduct-cycle.mjs\` in
+~/.claude/muezzin-plugin and work its DIAGNOSE list before new product work. Oldest first:
+${autorunDebt.slice(0, 3).map((l) => '  - ' + (l.match(/missions\/\S+/) || [''])[0]).join('\n')}`;
+  }
+} catch { /* fail-open — a broken debt count must never break prompt submission */ }
+
 process.stdout.write(JSON.stringify({
   hookSpecificOutput: {
     hookEventName: 'UserPromptSubmit',
