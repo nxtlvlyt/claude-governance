@@ -88,6 +88,29 @@ generations, queue saturation, burned mission attempts; 103 stop-hook ratchet fi
 ceremony while naming exactly this drift. If a future instance still hand-rolls past this law,
 the escalation is a PreToolUse lint on Bash bodies matching node -e/inline-heredoc-code.)
 
+**The seventh law, paid for 2026-07-10 (operator: "it's been a conductor failure why no muddy
+tires work has gotten done?" — the daemon fired mt-* missions for ~6 hours, 2026-07-09
+17:30-23:00, EVERY completed attempt FAILED, zero DONEs, and the conductor logged it as
+"backlog debt surfacing" while spending its attention on the other project):**
+A FAILED mark is a DIAGNOSIS DEBT with a due date, never ambient debt. Conditions:
+- **Due next wake.** If any mission FAILED since the conductor's last wake, at least ONE of
+  those failures gets root-caused + amended + re-queued (or explicitly PARKED with the
+  diagnosis in its AUTORUN comment) in the CURRENT wake, BEFORE any new product work on any
+  project. The first failure of a fresh class is due the hour it appears.
+- **Zero-DONE window = stop the line.** A window where N>=3 missions completed and ALL
+  failed is never "expected debt" — it is a stop-the-line event: no further fires of the
+  same class until one specimen is diagnosed (the receipts: 15+ consecutive mt-* FAILs
+  treated as ambient while the first specimen — mt-addspot's executor-improvised PowerShell
+  ParserError at a trivially-mechanical prose step — took 15 minutes to root-cause once
+  actually looked at, and its fix-shape (carry the LITERAL command in the mission text)
+  likely rescues several siblings).
+- **Cross-project attention is not a defense.** "The other project was delivering" is the
+  drift mode, not a mitigation — the fifth-law mechanism (a prose priority loses to an
+  autonomous queue) applies to FAILURES exactly as it applies to gaps.
+(If a future instance still lets a zero-DONE window pass undiagnosed, the escalation is
+mechanical: a daemon notify/hold — FAILED-STREAK-HOLD — that pauses same-class fires after
+N consecutive failures until a preflight receipt names a diagnosis.)
+
 **Three practices paid for 2026-06-25 (the iteration-burned-budget session):**
 - Mine substrate before manufacturing data. Weeks of mission outcomes already live in
   MISSION-LEDGER.md + retros + Hermes logs — extract them BEFORE designing a synthetic
