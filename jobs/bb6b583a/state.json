@@ -12,16 +12,16 @@
   "selfWake": true,
   "fan": [
     {
-      "id": "bzwqxwwg9",
+      "id": "brkehj4o5",
       "kind": "shell",
-      "label": "cd \"C:/Users/marka/.claude/muezzin-plugin\" && cat missions/mt-integrate-poi-tags-2026-06-23.S1.S1.mission.result.json | head -c 700 echo \"\" echo \"=== worktree state now ===\" cd \"C:/Users/marka/code/m…",
-      "startedAt": 1783653119290
+      "label": "cd \"C:/Users/marka/agy-muezzin\" && cat >> sites/androidtv-tips/DEPLOY-RECEIPTS.md << 'EOF' ## Redeploy 2 — real hub content + production branch (2026-07-10) ``` npx wrangler pages deploy sites/androi…",
+      "startedAt": 1783655291509
     }
   ],
   "tokens": 4599391,
   "output": null,
   "children": null,
-  "linkScanOffset": 22588763,
+  "linkScanOffset": 22775377,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -44,7 +44,7 @@
   "cliVersion": "2.1.206",
   "cwd": "C:\\Users\\marka",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-10T03:13:55.506Z",
+  "updatedAt": "2026-07-10T03:49:18.748Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z",
   "bridgeSessionId": "cse_015z5n4qQqp9BZ8kKSCkvtzT",
   "bridgeOutboundOnly": false,
