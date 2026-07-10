@@ -400,3 +400,5 @@
 {"at":"2026-07-10T00:19:54.001Z","state":"working","detail":"ok","text":""}
 {"at":"2026-07-10T00:20:02.286Z","state":"working","detail":"wakeup armed; checking back in ~25 min","text":"Sounds good — wakeup's armed, I'll check back in ~25 min or sooner if anything needs you."}
 {"at":"2026-07-10T00:22:58.765Z","state":"working","detail":"ok keep going","text":""}
+{"at":"2026-07-10T00:49:01.644Z","state":"working","detail":"ok keep going","text":""}
+{"at":"2026-07-10T01:03:57.381Z","state":"working","detail":"S2 rendering in progress; wakeup armed to catch outcome","text":"S2 is firing now — the RESOLVED-LANDED stamp released the gate exactly as designed. The wakeup's already armed and will catch S2's outcome. Summary of this stretch: atv-7b DONE with independent-panel-confirmed render receipt, S1 closed honestly (with my overclaim corrected — S1 covered 7 pages, not 8), and S2 (the real remaining guides-page work) is now running through the engine properly instead of being hand-done."}
