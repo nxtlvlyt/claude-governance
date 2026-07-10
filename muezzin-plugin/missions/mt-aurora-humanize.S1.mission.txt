@@ -36,14 +36,27 @@ exists. Every wording derives from the kpToLat table, the real forecast rows, an
 SunCalc darkness — the honest-empty precedent applies: when the data cannot say, the
 chip says less, never more. Cleanliness assertions scope to the two ALLOW-FILES only.
 
+STEP-SHAPE DISCIPLINE (amended 2026-07-10 after the plan gate refused attempt-2's realization
+with three prescriptive errors — this block constrains the PLAN, the deliverables above are
+unchanged): (a) NO step may leave any file outside the two ALLOW-FILES on disk after its own
+command finishes — baseline facts (branch/HEAD/presence) go to STDOUT via piped commands
+(`git rev-parse --abbrev-ref HEAD; git rev-parse HEAD; Select-String ...`), NEVER into
+baseline-*.txt scratch files; the step-8 harness must be CREATE-USE-DELETE inside ONE command
+(write file; run it; Remove-Item it — chained with `;` so no residue survives even on
+failure paths that still reach the chain tail). (b) Every validation_command witnesses the
+SPECIFIC added behavior locally — the three D1 wording strings, a best-window/`best window`
+render site, the van divIcon in map.html's locationfound handler — plus node --check; never
+a generic substring presence alone. The mission's outcome IS local JS + the VISUAL-QC render
+witness (its own header); no remote/deploy witness is claimed or required by any step.
+
 Steps:
-  1. Idempotent baseline: record branch + HEAD; if js/aurora-overlay.js already contains the string 'best window' output CLEAN_ALREADY and treat edit steps as verify-only presence checks; else output CLEAN_BASELINE. Never exit 1 on existence. [command]
+  1. Idempotent baseline: report branch + HEAD + presence VIA STDOUT ONLY (one piped command, no files written): if js/aurora-overlay.js already contains the string 'best window' output CLEAN_ALREADY and treat edit steps as verify-only presence checks; else output CLEAN_BASELINE. Never exit 1 on existence. [command]
   2. In js/aurora-overlay.js: add the location-aware clause (D1) to the chip renderer — map-center latitude vs the kpToLat southern edge for tonight's peak Kp, three wordings exactly as the Maqsad specifies, appended to the existing plain-language headline. [edit] js/aurora-overlay.js
   3. In js/aurora-overlay.js: add the best-window computation (D2) — kp >= 4 forecast rows intersected with SunCalc dusk-to-dawn at map center, rendered as 'best window: <start> - <end>' in local time; the two honest fallbacks exactly as the Maqsad specifies. [edit] js/aurora-overlay.js
   4. In map.html: extend the locationfound handler (D3) — L.divIcon van-emoji marker (~26px, white halo) at e.latlng alongside the existing accuracy circle; module-scoped variable holds the current marker and re-locate replaces it. [edit] map.html
   5. node --check js/aurora-overlay.js. [verify] js/aurora-overlay.js
   6. Confirm the two ALLOW-FILES are the only modified paths (git status --porcelain -- js/aurora-overlay.js map.html scoped check; never whole-tree). [verify]
   7. Commit both ALLOW-FILES by explicit name with a message naming this mission and all three deliverables, then confirm the commit is on HEAD. [command]
-  8. OUTCOME CHECK: write a cwd-relative scratch harness that extracts the chip-wording function's band logic and asserts the three D1 wordings fire at (edge-2°N, edge+2°S, edge+8°S) for a fixed Kp fixture, and that a fixture forecast with kp 5 rows at night yields a non-empty window string while an all-kp-2 fixture yields none — run it, require exit 0 with output AURORA_HUMANIZE_OK, remove the scratch file. [command]
+  8. OUTCOME CHECK (create-use-delete in ONE command per the discipline block): a single command writes the scratch harness, runs it, and Remove-Item's it in the same chained invocation — the harness extracts the chip-wording function's band logic and asserts the three D1 wordings fire at (edge-2°N, edge+2°S, edge+8°S) for a fixed Kp fixture, and that a fixture forecast with kp 5 rows at night yields a non-empty window string while an all-kp-2 fixture yields none — require exit 0 with output AURORA_HUMANIZE_OK; the Remove-Item sits in the same command chain so no residue survives. [command]
 
 Done means: both ALLOW-FILES committed at HEAD carrying D1+D2+D3, node --check passes, the scratch outcome harness exits 0 with AURORA_HUMANIZE_OK, AND the engine's headless-browser render of /map (the visual witness pipeline against the auto-provisioned preview) shows the aurora chip carrying a location clause and the van-emoji marker after a simulated locate — executable + headless-browser render verification appropriate to a user-facing map feature (authored under the live-outcome bar, 2026-07-03).

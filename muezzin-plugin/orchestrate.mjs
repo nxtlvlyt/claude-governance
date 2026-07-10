@@ -206,7 +206,13 @@ export function priorVerdictsBlock(contracts) {
 // the sandbox's own .md files (newest first — the assembled deliverable sorts first)
 // ARE the artifacts. Exported for selftest.
 export function artifactFilesFor(steps, cwd) {
-  const fromTargets = [...new Set(steps.filter((s) => s.ok).flatMap((s) => s.targets || []))];
+  // P2e fix (ported from agy-muezzin 2026-07-10, receipted 2x there — atv-7b + atv-7.S2
+  // panel REVISEs: "artifact bundle omits <the mission's own file> and instead contains
+  // unrelated repo docs"): engine-exec command/verify steps record `target` (SINGULAR) —
+  // only [edit] steps carry `targets` (plural). Collecting only the plural left
+  // command-class missions with an empty list, so the *.md-fallback swept random repo-root
+  // docs into the panel bundle in code-repo missions (where cwd is the repo root).
+  const fromTargets = [...new Set(steps.filter((s) => s.ok).flatMap((s) => s.targets || (s.target ? [s.target] : [])))];
   if (fromTargets.length) return fromTargets;
   try {
     return readdirSync(cwd)
