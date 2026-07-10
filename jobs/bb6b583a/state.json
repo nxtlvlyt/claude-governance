@@ -1,27 +1,20 @@
 {
-  "state": "working",
-  "detail": "cherry-pick conflict resolved; tests running",
+  "state": "done",
+  "detail": "engine parity closed: quorum fallback + render-check on both sides",
   "tempo": "idle",
   "inFlight": {
-    "tasks": 2,
+    "tasks": 1,
     "queued": 0,
     "kinds": [
-      "local_bash",
       "session_cron"
     ]
   },
-  "fan": [
-    {
-      "id": "bbtrtycl7",
-      "kind": "shell",
-      "label": "cd \"C:/Users/marka/.claude/muezzin-plugin\" && node --check orchestrate.mjs && node --check seat_dispatch.mjs && node --check verdict_merge.mjs && echo \"ALL SYNTAX OK\" echo \"---run the three self-test…",
-      "startedAt": 1783659077268
-    }
-  ],
-  "tokens": 4629478,
-  "output": null,
+  "tokens": 4632223,
+  "output": {
+    "result": "Claude daemon will pick up new code at next idle boundary via graceful-reload"
+  },
   "children": null,
-  "linkScanOffset": 23023814,
+  "linkScanOffset": 23062455,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -49,6 +42,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-10T04:53:29.443Z",
+  "updatedAt": "2026-07-10T04:58:09.805Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
