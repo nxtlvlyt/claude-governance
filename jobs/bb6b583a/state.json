@@ -1,21 +1,19 @@
 {
   "state": "working",
   "detail": "do you know when this will be fixed The genuine process gap your screenshot exposed: QC only judges what a mission's Done-means names, and until atv-10 no mission had chartered \"reads like a finished site to a visitor.\" The Gap-3/Gap-5 jargon and placeholder footer shipped because nothing was asked to check for them. That's a charter gap, not a broken checker — and atv-10 now covers it. So the fix path for the look: the P1c fix (so Stitch design can run) or a hand-styled design pass. Say which and I'll queue it.",
-  "tempo": "idle",
+  "tempo": "active",
   "inFlight": {
-    "tasks": 1,
+    "tasks": 0,
     "queued": 0,
-    "kinds": [
-      "session_cron"
-    ]
+    "kinds": []
   },
   "selfWake": true,
   "fan": [
     {
-      "id": "bpq9svi4v",
+      "id": "bzw549akb",
       "kind": "shell",
-      "label": "# TOOL-CANNOT-SERVE: niyyah gate Path B — same-turn shell staging (60s TTL). $ts = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds(); @{ ts = $ts; niyyah_text = \"niyyah:`n source: mt-integrate-wikipe…",
-      "startedAt": 1783715368336
+      "label": "$l = Select-String -Path C:\\Users\\marka\\.claude\\muezzin-plugin\\missions\\AUTORUN.md -Pattern '^FAILED missions/mt-money-competitor' | Select-Object -First 1; \"L$($l.LineNumber): tail=\" + $l.Line.Subst…",
+      "startedAt": 1783717536365
     }
   ],
   "tokens": 4837696,
@@ -44,7 +42,7 @@
   "cliVersion": "2.1.206",
   "cwd": "C:\\Users\\marka",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-10T20:30:40.283Z",
+  "updatedAt": "2026-07-10T21:05:36.535Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z",
   "bridgeSessionId": "cse_015z5n4qQqp9BZ8kKSCkvtzT",
   "bridgeOutboundOnly": false,

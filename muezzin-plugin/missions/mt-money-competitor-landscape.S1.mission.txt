@@ -20,6 +20,13 @@ niyyah: This is money-plan fuel, not a feature scan. Every claim carries a sourc
 a price without a URL is a da'if claim and gets omitted. Descriptive "X has feature Y"
 lines without revenue relevance are out of scope.
 
+ATTEMPT-LOG (2026-07-10, conductor): attempt-5's fire was a DISPATCH NETWORK transient
+(plan seat unreachable, zero steps — not a text defect; seat live-probed healthy 0.31.1
+afterward). The attempt-4 content is READY on disk (fresh document 7ffea1f: 8/9 sections
+with real prices+URLs, Hipcamp as a sourced honest-negative; step-3 regex dry-run
+badCount=0). This run should resume steps 1-2 from checkpoint and complete 3-6, emitting
+summary.txt for the synthesis mission.
+
 GATHER-QUALITY RULE (attempt-2 receipts 2026-07-10: the improvised gather saved 2000-char
 raw-HTML <head> fragments — zero pricing prose reached the author, who then honestly wrote
 "not evidenced" 34 times; the mission died at the verify it could never pass): the gather
