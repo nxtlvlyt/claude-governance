@@ -2219,6 +2219,12 @@ UNBLOCKS on the operator's word ("deploy muddytires") or a non-auto session. The
 deploy → node scripts/verify-popups-e2e.mjs must exit 0 → conduct-cycle --record-deploy.
 NOTE: live site currently serves the van me-dot already but STALE aurora-overlay.js (D1/D2
 copy not yet live) — the operator's twice-raised ask is half-served until this fires.
+DEPLOYED 2026-07-10 (operator word: "hey deploy as long as there's nothing else we need to
+do beforehand"): wrangler deploy complete from clean tree at b1adea7; e2e outcome verifier
+4/4 PASS exit 0; witnessed marker stamped ("live /map == HEAD:map.html, tree clean, e2e
+outcome PASS"); live-verified serving: aurora D1/D2 copy 3/3 markers, van me-dot, beacon
+tag. The operator's twice-raised aurora ask is now FULLY live. Doneness deploy-freshness
+blocker closed. ENTRY CLOSED.
 
 ## 2026-07-10 ENGINE ITEM: S2 REQUIRES tokens unresolvable by queuedDepsHold (38-file census)
 The deconstructor emits REQUIRES in MISSION-ID format (e.g. "MT-INTEGRATE-WILDLIFE-
