@@ -1,11 +1,13 @@
 {
   "state": "working",
   "detail": "do you know when this will be fixed The genuine process gap your screenshot exposed: QC only judges what a mission's Done-means names, and until atv-10 no mission had chartered \"reads like a finished site to a visitor.\" The Gap-3/Gap-5 jargon and placeholder footer shipped because nothing was asked to check for them. That's a charter gap, not a broken checker — and atv-10 now covers it. So the fix path for the look: the P1c fix (so Stitch design can run) or a hand-styled design pass. Say which and I'll queue it.",
-  "tempo": "active",
+  "tempo": "idle",
   "inFlight": {
-    "tasks": 0,
+    "tasks": 1,
     "queued": 0,
-    "kinds": []
+    "kinds": [
+      "session_cron"
+    ]
   },
   "selfWake": true,
   "fan": [
@@ -19,7 +21,7 @@
   "tokens": 4837696,
   "output": null,
   "children": null,
-  "linkScanOffset": 29591461,
+  "linkScanOffset": 29639130,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -42,7 +44,7 @@
   "cliVersion": "2.1.206",
   "cwd": "C:\\Users\\marka",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-10T22:38:17.445Z",
+  "updatedAt": "2026-07-10T22:39:15.741Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z",
   "bridgeSessionId": "cse_015z5n4qQqp9BZ8kKSCkvtzT",
   "bridgeOutboundOnly": false,
