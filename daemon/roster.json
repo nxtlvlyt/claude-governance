@@ -1,14 +1,15 @@
 {
   "proto": 1,
   "supervisorPid": 38016,
-  "updatedAt": 1783643783644,
+  "updatedAt": 1783645471828,
   "workers": {
     "bb6b583a": {
-      "pid": 7336,
+      "pid": 32316,
+      "procStart": "639192206649558340",
       "sessionId": "bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf",
       "rendezvousSock": "\\\\.\\pipe\\cc-daemon-69c76e4ae1bf5e5b-rv-bb6b583a",
       "ptySock": "\\\\.\\pipe\\cc-daemon-69c76e4ae1bf5e5b-pty-bb6b583a",
-      "cliVersion": "2.1.205",
+      "cliVersion": "2.1.206",
       "startedAt": 1783434699887,
       "attempt": 2,
       "cwd": "C:\\Users\\marka",
