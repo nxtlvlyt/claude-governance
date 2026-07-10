@@ -46,7 +46,7 @@ paid for; diagnose before touching what is not understood; every claim receipted
 browser run.
 
 Steps:
-  1. Idempotent baseline: record branch + HEAD; report WIRED if map.html already references photo-upload-ux.js, else UNWIRED. Never exit 1 on existence. [command]
+  1. Idempotent baseline (LITERAL command — amended 2026-07-10 after two attempts died on executor-improvised PowerShell for this trivially-mechanical step; the exact command below dry-ran clean at REPO-ROOT this session: branch=main, HEAD recorded, UNWIRED): run exactly `git rev-parse --abbrev-ref HEAD; git rev-parse HEAD; if (Select-String -Path map.html -Pattern "photo-upload-ux.js" -Quiet) { Write-Output "WIRED" } else { Write-Output "UNWIRED" }` — record branch + HEAD, report WIRED/UNWIRED. Never exit 1 on existence. [command]
   2. D1 DIAGNOSIS (no edits): deploy the CURRENT tree to the auto-provisioned preview, then a playwright run at 430x932 that adds a test spot via the add flow, clicks the fresh marker, and prints evidence lines FRESH_PIN_POPUP=<own|bylaw|none>, then reloads, finds the same spot from pois.json, clicks it, prints RELOADED_PIN_POPUP=<own|bylaw|none>. These receipts DECIDE step 3's fix. [command]
   3. D1 FIX per the step-2 receipts (binding/z-order/post-reload path — smallest change in the two ALLOW-FILES; if the receipt points outside them, STOP and report the file). D2: append the photo-upload-ux.js script tag to map.html (additive, after add-spot-worker.js). D3: verify-or-add the guidance strings per the Maqsad. [edit] map.html
   4. node --check js/add-spot-worker.js; Select-String receipts: map.html contains photo-upload-ux.js exactly once; git diff --stat shows additions-only in map.html. [verify]
