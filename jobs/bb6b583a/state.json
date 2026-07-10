@@ -1,6 +1,6 @@
 {
   "state": "blocked",
-  "detail": "QC process working; site bareness is design gap not QC failure",
+  "detail": "6 of 7 failures were false-FAILED from engine bugs; 2 fixes staged",
   "tempo": "blocked",
   "inFlight": {
     "tasks": 1,
@@ -9,13 +9,13 @@
       "session_cron"
     ]
   },
-  "tokens": 4805549,
-  "needs": "choose P1c fix (enable Stitch design) or hand-styled design pass",
+  "tokens": 4806836,
+  "needs": "deploy muddytires",
   "output": {
-    "result": "QC verified correctly; missing design phase + charter gap caused bare look. Three receipts: (1) CSS minimal baseline pending design tool access, (2) QC catching real defects, (3) charter gap now covered by atv-10"
+    "result": "identified root cause: commit-guard + render-clause bugs account for ~6 false FAILEDs daily; fixes staged, awaiting deploy approval"
   },
   "children": null,
-  "linkScanOffset": 26711105,
+  "linkScanOffset": 26735813,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -43,6 +43,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-10T15:33:00.106Z",
+  "updatedAt": "2026-07-10T15:47:10.553Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
