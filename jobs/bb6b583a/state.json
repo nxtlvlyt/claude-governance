@@ -12,16 +12,16 @@
   "selfWake": true,
   "fan": [
     {
-      "id": "bbxd6ln0k",
+      "id": "btau79y84",
       "kind": "shell",
       "label": "cd \"C:/Users/marka/.claude/muezzin-plugin\" && python3 -c \" import json d = json.load(open('missions/mt-addspot-user-fixes.S1.mission.result.json')) print('phase:', d.get('phase'), '| stoppedAt:', d.g…",
-      "startedAt": 1783664761931
+      "startedAt": 1783666598999
     }
   ],
   "tokens": 4642243,
   "output": null,
   "children": null,
-  "linkScanOffset": 23457576,
+  "linkScanOffset": 23506702,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -44,7 +44,7 @@
   "cliVersion": "2.1.206",
   "cwd": "C:\\Users\\marka",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-10T06:29:14.483Z",
+  "updatedAt": "2026-07-10T06:58:18.099Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z",
   "bridgeSessionId": "cse_015z5n4qQqp9BZ8kKSCkvtzT",
   "bridgeOutboundOnly": false,
