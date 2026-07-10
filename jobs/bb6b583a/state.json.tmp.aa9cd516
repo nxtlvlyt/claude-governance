@@ -12,16 +12,16 @@
   "selfWake": true,
   "fan": [
     {
-      "id": "bq2jwvov0",
+      "id": "ba7i2l909",
       "kind": "shell",
-      "label": "Get-Content C:\\Users\\marka\\agy-muezzin\\missions\\AUTORUN.md -Tail 2 | ForEach-Object { $_.Substring(0, [Math]::Min(120, $_.Length)) }",
-      "startedAt": 1783723097262
+      "label": "# TOOL-CANNOT-SERVE: niyyah gate Path B — same-turn shell staging (60s TTL). $ts = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds(); @{ ts = $ts; niyyah_text = \"niyyah:`n source: atv-10b-restore-com…",
+      "startedAt": 1783725164925
     }
   ],
   "tokens": 4837696,
   "output": null,
   "children": null,
-  "linkScanOffset": 29639130,
+  "linkScanOffset": 29795360,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -44,7 +44,7 @@
   "cliVersion": "2.1.206",
   "cwd": "C:\\Users\\marka",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-10T22:39:15.741Z",
+  "updatedAt": "2026-07-10T23:13:34.361Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z",
   "bridgeSessionId": "cse_015z5n4qQqp9BZ8kKSCkvtzT",
   "bridgeOutboundOnly": false,
