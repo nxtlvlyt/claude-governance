@@ -108,12 +108,9 @@ prescribed resolution beyond "keep both sides"):
   downstream of the integration, will determine.
 
 Steps:
-  1. In the target repo, confirm the actually-checked-out branch and HEAD
-     (`git -C C:\Users\marka\code\mt-integration-2026-06-22 branch --show-current` and
-     `git -C C:\Users\marka\code\mt-integration-2026-06-22 log --oneline -1`), and confirm
-     neither functions/api/wikipedia-link.js nor js/poi-wikipedia.js already exists on
-     disk. Because this session directly observed HEAD move between commands, treat
-     whatever is checked out at this moment as the true landing point. [command]
+  1. Baseline, stdout only, IDEMPOTENT (amended 2026-07-10 after the plan gate refused a
+     realization that made existence a failure — ALREADY_PRESENT is a SUCCESS state, the
+     ancestry check in step 2 routes it). Run exactly: git -C C:\Users\marka\code\mt-integration-2026-06-22 branch --show-current; git -C C:\Users\marka\code\mt-integration-2026-06-22 log --oneline -1; if ((Test-Path C:\Users\marka\code\mt-integration-2026-06-22\functions\api\wikipedia-link.js) -or (Test-Path C:\Users\marka\code\mt-integration-2026-06-22\js\poi-wikipedia.js)) { Write-Output ALREADY_PRESENT } else { Write-Output CLEAN_BASELINE } [command]
      verify-target-state
   2. Check ancestry before attempting a cherry-pick: `git -C
      C:\Users\marka\code\mt-integration-2026-06-22 merge-base --is-ancestor cf373c9

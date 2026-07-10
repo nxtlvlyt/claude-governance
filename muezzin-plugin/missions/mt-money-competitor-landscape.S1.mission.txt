@@ -42,8 +42,12 @@ Steps:
   2. Author competitor-landscape-2026.md sections 1-9 (one per competitor: price points w/
      URLs, install/review counts, revenue mechanics, the could-copy paragraph), complete in
      one emission, citing only gathered sources. This RE-AUTHORS the existing file against
-     the richer step-1 gather — prior "not evidenced" rows must be resolved from the new
-     pricing-page text or restated as named unknowns per step 5's bar. [edit] competitor-landscape-2026.md
+     the richer step-1 gather. BANNED PHRASES (attempt-7 receipt: step 5 failed on the
+     literal token — the ban belongs at authoring time): the literal strings "not
+     evidenced" and "unreadable" may NOT appear anywhere in the document; state gaps as
+     named unknowns in other words, e.g. "not shown on the fetched pages (tried <url>)"
+     or "No membership/subscription price point appears on the fetched pages". [edit] competitor-landscape-2026.md
+     validation_command: $c = Get-Content competitor-landscape-2026.md -Raw; if ($c -match '(?i)not evidenced|unreadable') { exit 1 }; if (((Select-String -Path competitor-landscape-2026.md -Pattern '^## ' -AllMatches).Matches.Count) -lt 11) { exit 1 }
   3. Verify every COMPETITOR section (a "## " section other than the comparative table and
      the wedges section) contains at least one https:// source URL and EITHER an explicit
      price/free finding OR an explicit honest-negative pricing statement (a marketplace

@@ -29,9 +29,10 @@ Steps:
   5. Verify the newly integrated client script is syntactically valid JavaScript. [verify] js/near-me.js
   6. Artifact witness for the wiring. Run exactly: if (-not (Select-String -Path map.html -Pattern 'near-me.js' -Quiet)) { exit 1 }; if (-not ((Select-String -Path map.html -Pattern '<script' -AllMatches).Matches.Count -ge 44)) { exit 1 } [verify] map.html
   7. Commit if pending (idempotent, k6 step-8 shape) then scoped cleanliness. Run exactly: git add -- map.html functions/api/spots/near.js js/near-me.js; git diff --cached --quiet -- map.html functions/api/spots/near.js js/near-me.js; if ($LASTEXITCODE -ne 0) { git commit -m "feat(near-me): GET /api/spots/near + Spots-near-me control (integrate ca83ba4)" -- map.html functions/api/spots/near.js js/near-me.js; if ($LASTEXITCODE -ne 0) { exit 1 } }; if ((git status --porcelain -- map.html functions/api/spots/near.js js/near-me.js).Length -gt 0) { exit 1 }; Write-Output SCOPE_CLEAN [verify]
-  8. EXECUTING render witness in ONE self-contained command (the wikipedia-link RULE-9-
-     compliant shape — never a hand-rolled localhost server): confirm clean ALLOW-FILES
-     tree, wrangler pages deploy . --project-name=muddytires --branch=preview, capture the
+  8. Run wrangler preview deploy + node playwright render witness in ONE self-contained
+     command (the wikipedia-link RULE-9-compliant shape — never a hand-rolled localhost
+     server): confirm clean ALLOW-FILES tree, wrangler pages deploy .
+     --project-name=muddytires --branch=preview, capture the
      emitted *.pages.dev URL into a variable, write scratch-nearme-qc.mjs (playwright
      render of /map.html from that URL; exit non-zero on any fatal page error or any
      console error naming near-me.js; assert the served HTML contains the near-me.js

@@ -1,23 +1,27 @@
 {
   "state": "done",
-  "detail": "deployed b1adea7; e2e 4/4 green, live on muddytires.ca",
-  "tempo": "idle",
+  "detail": "hey deploy as long as there's nothing else we need to do beforehand",
+  "tempo": "active",
   "inFlight": {
-    "tasks": 1,
+    "tasks": 0,
     "queued": 0,
-    "kinds": [
-      "session_cron"
-    ]
+    "kinds": []
   },
+  "selfWake": true,
+  "fan": [
+    {
+      "id": "benra2wh7",
+      "kind": "shell",
+      "label": "$l = Select-String -Path C:\\Users\\marka\\.claude\\muezzin-plugin\\missions\\AUTORUN.md -Pattern '^FAILED missions/mt-integrate-weather-aware' | Select-Object -First 1; \"L$($l.LineNumber): tail=\" + $l.Lin…",
+      "startedAt": 1783727718137
+    }
+  ],
   "tokens": 5049829,
-  "output": {
-    "result": "deployed aurora copy, van me-dot, day-rhythm scroll fix, beacon — all live, e2e verified"
-  },
+  "output": null,
   "children": null,
   "linkScanOffset": 30019940,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
-  "selfWake": true,
   "respawnFlags": [
     "--reply-on-resume",
     "--effort",
@@ -27,6 +31,8 @@
     "--permission-mode",
     "auto"
   ],
+  "bgIsolation": "none",
+  "providerEnv": {},
   "intent": "but we had 30 gaps mission we were fixing first before we did anything else and a big project to que when they were done",
   "name": "daemon-restart-mission-triage",
   "nameSource": "auto",
@@ -35,13 +41,11 @@
   "daemonShort": "bb6b583a",
   "cliVersion": "2.1.206",
   "cwd": "C:\\Users\\marka",
+  "createdAt": "2026-07-07T14:31:31.695Z",
+  "updatedAt": "2026-07-10T23:55:18.331Z",
+  "firstTerminalAt": "2026-07-07T15:47:23.132Z",
   "bridgeSessionId": "cse_015z5n4qQqp9BZ8kKSCkvtzT",
   "bridgeOutboundOnly": false,
   "bridgeSessionSeq": 8904,
-  "bgIsolation": "none",
-  "providerEnv": {},
-  "backend": "daemon",
-  "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-10T23:36:46.240Z",
-  "firstTerminalAt": "2026-07-07T15:47:23.132Z"
+  "backend": "daemon"
 }
