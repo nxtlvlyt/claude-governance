@@ -141,9 +141,20 @@ rules (deploys/SearXNG/web queue until reconnect).
   ruling — the succession ruling still holds the test FORMAT as operator-spec-pending;
   recorded here as his discussion-stage observation.
 
-## THE HERMES REVEAL (operator, 2026-07-11 ~02:1x: "this was a project that's already
-## been started but we didn't know enough to finish it like we do now")
-The hypothetical IS resuming HERMES. Disk receipts (Read this session):
+## STARTED-PROJECT IDENTITY: UNKNOWN — HERMES CLAIM RETRACTED (operator word 2026-07-11
+## ~02:3x: "it's not Hermes"; conductor error owned — graded a hypothesis as confirmed,
+## the same fifth-law failure class twice in one night)
+Operator's reveal stands: "this was a project that's already been started but we didn't
+know enough to finish it like we do now" — but WHICH project is still his to name or
+mine to find with receipts. Search receipts so far: local dirs swept (hermes-agent is
+real but NOT it; warroom = governance workspace; 2boots = astro site); nxtbeast home
+swept — live candidates there: .openclaw (heavily-iterated OpenClaw install: config x4
+backups, gateway, telegram, devices, skills, memory, workspace), ai-roommate-phase0
+(llama-cpp + models), .cagent, .aider, .codex, claude-stack-portable (empty dir),
+coding-bakeoff. OpenClaw grep for muezzin/conductor DNA in flight at retraction time.
+The HERMES INVENTORY BELOW STAYS as context — it is real substrate (a chattable-CLI
+platform with a 2026-06-25 muezzin advice-graft whose own text records the
+advice-without-rails failure) — but it is NOT the operator's started project.
 - C:\Users\marka\hermes-agent — full OSS agent-CLI codebase (Python): hermes_cli/, agent/,
   gateway/, providers/, plugins/, skills/, tools/, ui-tui/ (the TUI), cron/, mcp_serve.py,
   trajectory_compressor.py, sandboxes. Repo state frozen 2026-06-26.
