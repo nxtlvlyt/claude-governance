@@ -1,0 +1,56 @@
+MISSION-ID: mt-enrich-scenic-osm.S2
+MISSION-CLASS: code-repo
+PARENT: mt-enrich-scenic-osm
+TARTIB-INDEX: 2 of 2
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - map.html
+VISUAL-QC-REQUIRED
+REQUIRES: mt-enrich-scenic-osm.S1 (tartib — S1 RESOLVED-LANDED 2026-07-10, data committed 22c38f6)
+STEPS: 5
+
+Maqsad: wire the scenic enrichment data into the map's scenic popups — the user-visible
+half of the operator's 2026-07-02 complaint (two "Scenic Viewpoint" nodes near Nisbet
+Provincial Forest showed empty popups). S1 landed data/scenic-enrichment.json at HEAD
+(commit 22c38f6): 4215 entries mapping osm_id -> {scenic_type, name?, wikidata?} for the
+SK pilot bbox. map.html already carries an SE={...} scenic-type dictionary (the vocabulary
+the builder targets — see scripts/build-scenic-enrichment.mjs L143-151 comments). This
+mission makes map.html lazily fetch the overlay JSON once and, when a scenic POI's popup
+opens and its osm_id has an entry, render the entry's name and SE-mapped scenic_type label
+in that popup. POIs with no entry keep today's honest empty state — the overlay only ADDS
+truth, never fabricates.
+
+niyyah: the popup was fixed to stop fabricating; S1 supplied real data; this step lets the
+honest path say something true. Additive only: no existing popup logic is removed, the
+fetch is lazy + cached + fail-silent (a missing/failed overlay file leaves popups exactly
+as they are today).
+
+Steps:
+  1. Baseline, stdout only. Run exactly: node -e "const s=require('fs').readFileSync('map.html','utf8'); console.log('SE-dict:', /\bSE\s*=\s*\{/.test(s)); console.log('scenic-refs:', (s.match(/scenic/gi)||[]).length); console.log('enrichment-wired:', s.includes('scenic-enrichment.json'))" [command]
+  2. Wire the overlay in map.html (single authoring step for this file): add a small
+     additive script block that (a) lazily fetches '/data/scenic-enrichment.json' ONCE on
+     the first scenic-popup open (cached in a module-scope variable; fetch failure or 404
+     caches an empty object and never retries or throws), and (b) in the existing scenic
+     popup-content path, when the POI's osm_id matches an entry, prepends the entry's
+     name (if present) as the popup title line and the SE-dictionary label for the
+     entry's scenic_type (fall back to the raw scenic_type string if the SE dictionary
+     has no key). ZERO changes to existing popup logic for non-matching or non-scenic
+     POIs; no new network calls except the one lazy overlay fetch. [edit] map.html
+     validation_command: $raw = Get-Content map.html -Raw; if ($raw -notmatch 'scenic-enrichment\.json') { exit 1 }; if (Select-String -Path map.html -Pattern '^<{7}|^={7}|^>{7}') { exit 1 }; if (-not ((Select-String -Path map.html -Pattern '<script' -AllMatches).Matches.Count -ge 44)) { exit 1 }
+  3. Commit map.html (idempotent, k6 step-8 shape). Run exactly: git add -- map.html; git diff --cached --quiet -- map.html; if ($LASTEXITCODE -eq 0) { Write-Output ALREADY_COMMITTED } else { git commit -m "feat(scenic-enrichment): wire data/scenic-enrichment.json into scenic popups (S2 of 22c38f6)" -- map.html; if ($LASTEXITCODE -ne 0) { exit 1 } } [command]
+  4. Verify the data contract holds at HEAD. Run exactly: node -e "const d=JSON.parse(require('fs').readFileSync('data/scenic-enrichment.json','utf8')); const ks=Object.keys(d); if(ks.length<1000) process.exit(1); const e=d[ks[0]]; if(!e.scenic_type) process.exit(1); console.log('entries:', ks.length)" [verify] ; context_dependencies: data/scenic-enrichment.json
+  5. Run wrangler preview deploy + node playwright render witness in ONE self-contained
+     command: confirm clean ALLOW-FILES tree, wrangler pages deploy .
+     --project-name=muddytires --branch=preview, capture the emitted *.pages.dev URL,
+     write scratch-scenic-qc.mjs (playwright: load <url>/map.html, wait for the map,
+     assert no fatal page error and no console error naming scenic-enrichment; then fetch
+     <url>/data/scenic-enrichment.json directly and assert HTTP 200 with >1000 keys),
+     then run-and-clean with the exit code preserved — the command MUST literally end
+     with: node scratch-scenic-qc.mjs; $rc = $LASTEXITCODE; Remove-Item scratch-scenic-qc.mjs -ErrorAction SilentlyContinue; exit $rc [command]
+
+Done means: map.html at HEAD lazily loads data/scenic-enrichment.json (fail-silent, one
+fetch, cached) and scenic popups render the enriched name + SE-mapped type label for
+matching osm_ids while non-matching POIs are byte-identical in behavior; committed with a
+message citing the S1 data commit; the preview-deploy playwright witness loads the map
+with zero scenic-enrichment console errors and the overlay JSON serves HTTP 200 with the
+full entry set.
