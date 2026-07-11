@@ -2406,6 +2406,26 @@ deconstructor emits file-path REQUIRES. (a) also heals the 38 existing files wit
 touching them; prefer (a). DO NOT hand-edit the 38 files (the generator would regress them
 on the next autosplit). Owner: next engine batch.
 
+ITEM 22 — PARK-OWNER INVARIANT: A PARK WITHOUT AN OWNED EXIT IS A GRAVE (filed
+2026-07-11 ~23:3xZ, operator: "why are we parking failures instead of fixing them,
+that doesn't make any sense"). RECEIPTS: stitch-design-mastery FAILED 2026-06-12 and
+atv-6-stitch-design FAILED 2026-07-09 both carried diagnoses, both effectively parked,
+NOTHING owned the fix — the design pipeline ran without its designer for a month while
+the seat sat √ Connected on nxtbeast (verified live 2026-07-11). The seventh law puts a
+due date on FAILED marks, but PARKED exits that radar — parks are the loophole in the
+diagnosis-debt system. RULE (both forks, conductor practice NOW + engine sweep next
+batch): (a) a PARKED line is LEGAL only if its comment names an UNPARK OWNER that is
+itself a live queue line or numbered engine item — "pending engine batch" prose does
+not qualify; (b) conduct-cycle sweep flags any PARKED line whose named owner cannot be
+resolved to a live line/item as a ROTTEN PARK = re-entered diagnosis debt, due next
+wake; (c) when an owner lands, the sweep surfaces the unpark check automatically.
+Compliant example (same wake as this filing): mt-spot-briefs.S1 parked WITH
+mt-enrich-scenic-wikidata queued as its named owner. Existing rotten parks to
+re-own on the next sweep: get-upgrade, studio-tools-card, m01-1-layna-dossier-assembly
+(all "pending engine batch" with no batch line), plus the two Stitch graves (now owned
+by the Stitch-revival work order — convert it to a queued mission to make it legal
+under this rule).
+
 ITEM 21 — DESIGN-CONTRACT GATE, MECHANICAL (filed 2026-07-11 ~22:0xZ, operator: "we
 discussed all this already why hasn't it been put in place" — DUE NEXT WAKE, first item
 of the next engine beat): the design-MD pattern was operator-relayed and INBOX-filed
