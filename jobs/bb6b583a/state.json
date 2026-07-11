@@ -1,10 +1,10 @@
 {
   "state": "working",
-  "detail": "16 Sonnet agents auditing warroom; scenic popup mission fixed",
-  "tempo": "active",
+  "detail": "running 606-test suite; audit in progress",
+  "tempo": "blocked",
   "inFlight": {
     "tasks": 1,
-    "queued": 0,
+    "queued": 1,
     "kinds": [
       "local_workflow"
     ]
@@ -14,80 +14,97 @@
       "id": "a16a0fb015f342695",
       "kind": "workflow",
       "label": "read:build-spec",
-      "group": "Read",
       "startedAt": 1783787376729,
-      "doneAt": 1783787545659
+      "doneAt": 1783787545659,
+      "group": "Read"
     },
     {
       "id": "ade500ae66c1cf444",
       "kind": "workflow",
       "label": "read:history",
-      "group": "Read",
-      "startedAt": 1783787376734
+      "startedAt": 1783787376734,
+      "doneAt": 1783787600344,
+      "group": "Read"
     },
     {
       "id": "a588ce63839bf83f9",
       "kind": "workflow",
       "label": "read:plans",
-      "group": "Read",
       "startedAt": 1783787376736,
-      "doneAt": 1783787508496
+      "doneAt": 1783787508496,
+      "group": "Read"
     },
     {
       "id": "abf6f903217a48012",
       "kind": "workflow",
       "label": "read:core",
-      "group": "Read",
-      "startedAt": 1783787376738
+      "startedAt": 1783787376738,
+      "group": "Read"
     },
     {
       "id": "aadb6ce16bd5f8d07",
       "kind": "workflow",
       "label": "read:clients",
-      "group": "Read",
       "startedAt": 1783787376740,
-      "doneAt": 1783787526304
+      "doneAt": 1783787526304,
+      "group": "Read"
     },
     {
       "id": "adfc1f3fced3fa8e4",
       "kind": "workflow",
       "label": "read:missions",
-      "group": "Read",
-      "startedAt": 1783787376742
+      "startedAt": 1783787376742,
+      "group": "Read"
     },
     {
       "id": "a6f2aeba54d4aa886",
       "kind": "workflow",
       "label": "read:wiring",
-      "group": "Read",
-      "startedAt": 1783787376744
+      "startedAt": 1783787376744,
+      "group": "Read"
     },
     {
       "id": "aa670f7690d3348e4",
       "kind": "workflow",
       "label": "audit:plans",
-      "group": "Audit",
-      "startedAt": 1783787508591
+      "startedAt": 1783787508591,
+      "group": "Audit"
     },
     {
       "id": "a8e0b2642c1050efa",
       "kind": "workflow",
       "label": "audit:clients",
-      "group": "Audit",
-      "startedAt": 1783787526310
+      "startedAt": 1783787526310,
+      "group": "Audit"
     },
     {
       "id": "a4a665ec87834a5e9",
       "kind": "workflow",
       "label": "audit:build-spec",
-      "group": "Audit",
-      "startedAt": 1783787545694
+      "startedAt": 1783787545694,
+      "group": "Audit"
+    },
+    {
+      "id": "a122dad3478c0a186",
+      "kind": "workflow",
+      "label": "audit:history",
+      "startedAt": 1783787600367,
+      "group": "Audit"
+    },
+    {
+      "id": "b511hvyqn",
+      "kind": "shell",
+      "label": "Set-Location \"C:\\Users\\marka\\projects\\warroom\"; python -m pytest -q --timeout=120 2>&1 | Select-Object -Last 12 | Out-String",
+      "startedAt": 1783787591494,
+      "doneAt": 1783787592333,
+      "failed": true
     }
   ],
-  "tokens": 6223529,
+  "tokens": 6254697,
+  "needs": "approve Bash: cd \"C:/Users/marka/projects/warroom\" && find . -iname \"cli*\" -not -path \"*/node_modules/*\" 2>/dev/null; echo \"---\"; find . -maxdepth 1 -iname \"*.py\"; echo \"---toplevel---\"; ls -la | head -50",
   "output": null,
   "children": null,
-  "linkScanOffset": 36277947,
+  "linkScanOffset": 36316254,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -114,6 +131,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-11T16:32:26.160Z",
+  "updatedAt": "2026-07-11T16:33:28.709Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
