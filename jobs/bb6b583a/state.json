@@ -1,6 +1,6 @@
 {
   "state": "blocked",
-  "detail": "warroom parity analysis ready; awaiting go-ahead to launch 12-agent Sonnet workplan",
+  "detail": "audit workflow re-scoped (reader+skeptic pairs); awaiting go or context",
   "tempo": "blocked",
   "inFlight": {
     "tasks": 2,
@@ -18,11 +18,11 @@
       "startedAt": 1783758459069
     }
   ],
-  "tokens": 6124242,
-  "needs": "say go to fire the 12-agent Sonnet workplan, or hold until after context lands",
+  "tokens": 6125362,
+  "needs": "go ahead with audit or provide more context first?",
   "output": null,
   "children": null,
-  "linkScanOffset": 35878029,
+  "linkScanOffset": 35906602,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -50,6 +50,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-11T08:40:42.244Z",
+  "updatedAt": "2026-07-11T08:43:41.913Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
