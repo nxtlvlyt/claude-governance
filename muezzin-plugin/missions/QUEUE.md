@@ -2406,6 +2406,25 @@ deconstructor emits file-path REQUIRES. (a) also heals the 38 existing files wit
 touching them; prefer (a). DO NOT hand-edit the 38 files (the generator would regress them
 on the next autosplit). Owner: next engine batch.
 
+ITEM 21 — DESIGN-CONTRACT GATE, MECHANICAL (filed 2026-07-11 ~22:0xZ, operator: "we
+discussed all this already why hasn't it been put in place" — DUE NEXT WAKE, first item
+of the next engine beat): the design-MD pattern was operator-relayed and INBOX-filed
+hours before atv-11b was authored WITHOUT it — prose adoption lost to the running queue
+(the receipted GAP-PRIORITY class: a prose priority loses to an autonomous queue). The
+conductor authored the contract (sites/androidtv-tips/DESIGN.md) and the contract-bound
+mission (atv-12-design-to-contract) only AFTER the operator's screenshot verdict.
+ESCALATION (both forks' mission_lint.mjs): refuse any DESIGN-PASS-CLASS mission that
+does not bind to a design contract file. SCOPING IS THE HARD PART — the trigger must be
+design-pass semantics (stylesheet rewrite / design system / restyle / "design pass"
+language + css targets), NOT bare VISUAL-QC-REQUIRED, or it false-refuses the ~43
+queued mt integrate missions that carry render witnesses but are not design passes.
+Selftest bar: (a) atv-11's original mission text (pre-contract) is REFUSED; (b)
+atv-12-design-to-contract PASSES (names DESIGN.md); (c) every currently-queued mt
+mission still lints ok:true (zero false refusals against the live queue — run the
+census in the selftest). Companion receipts: agy image-input capability verified
+2026-07-11 (@path in print mode, receipt in agy INBOX) — the vision-iteration seat for
+contract v2+ is Gemini via agy; screenshots come from the mission witness itself.
+
 ITEM 20 — STALE CHECKPOINT RESUMES PAST AMENDMENTS (filed 2026-07-11, TWO same-day
 receipts across BOTH forks): the engine checkpoint lives at
 missions/<stem>/_checkpoint.json (orchestrate.mjs writeCheckpoint(cwd) — cwd is the
