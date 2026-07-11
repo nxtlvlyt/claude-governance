@@ -1,6 +1,6 @@
 {
-  "state": "working",
-  "detail": "976 passed, 5 failed (stale model pins); audit in flight",
+  "state": "blocked",
+  "detail": "16-agent read fan-out causing permission spam; awaiting user action",
   "tempo": "active",
   "inFlight": {
     "tasks": 1,
@@ -110,10 +110,10 @@
       "group": "Audit"
     }
   ],
-  "tokens": 6390419,
+  "tokens": 6417168,
   "output": null,
   "children": null,
-  "linkScanOffset": 36359115,
+  "linkScanOffset": 36395903,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -140,6 +140,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-11T16:59:48.739Z",
+  "updatedAt": "2026-07-11T17:01:33.610Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
