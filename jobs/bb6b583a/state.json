@@ -10,16 +10,16 @@
   "selfWake": true,
   "fan": [
     {
-      "id": "b9pb7b35p",
+      "id": "bjtsag3n1",
       "kind": "shell",
-      "label": "# TOOL-CANNOT-SERVE: niyyah gate Path B — same-turn shell staging (60s TTL). $ts = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds(); @{ ts = $ts; niyyah_text = \"niyyah:`n source: AUTORUN.md L978 (Re…",
-      "startedAt": 1783746594937
+      "label": "# TOOL-CANNOT-SERVE: niyyah gate Path B — same-turn shell staging (60s TTL); the mission-text append follows the agy-G3-verified recovery pattern. $ts = [DateTimeOffset]::UtcNow.ToUnixTimeMillisecond…",
+      "startedAt": 1783748743261
     }
   ],
   "tokens": 5182600,
   "output": null,
   "children": null,
-  "linkScanOffset": 32265475,
+  "linkScanOffset": 32410807,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -42,7 +42,7 @@
   "cliVersion": "2.1.206",
   "cwd": "C:\\Users\\marka",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-11T05:09:55.142Z",
+  "updatedAt": "2026-07-11T05:45:43.416Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z",
   "bridgeSessionId": "cse_015z5n4qQqp9BZ8kKSCkvtzT",
   "bridgeOutboundOnly": false,
