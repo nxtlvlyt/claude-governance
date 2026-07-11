@@ -2277,10 +2277,25 @@ from the agy process or agy from the Claude CLI process" — each with a same-se
     per-step validation_command lines; mt-integrate missions were prose the planner
     improvised — today's single biggest failure source (improvised commits, verifies,
     gathers). New/amended missions on BOTH sides carry literal validations.
-13. AGY LEARNS THE GUARANTEED-DELIVERY LAYER: Claude CLI has ~/.claude/rules harness
-    injection + the per-prompt DIAGNOSIS-DEBT hook; agy has a rulebook but no mechanical
-    per-prompt debt injection. Port the injection pattern into agy's session bootstrap
-    (or fold into N5, which supersedes both).
+13. AGY GUARANTEED-DELIVERY LAYER — REVIVE, DON'T BUILD (premise corrected 2026-07-11,
+    operator challenge "are we sure agy doesn't have that hook system? please don't
+    assume" — he was right, the original filing was wrong): agy HAS a live hook harness.
+    Substrate: C:\Users\marka\.gemini\config\plugins\muezzin\ (hooks.json +
+    muezzin_hook.py, built 2026-06-26) registers PreToolUse/PostToolUse/PreInvocation/
+    Stop. LIVE-TESTED 2026-07-11 00:24: a planted pending-*.md senior-intervention file
+    was consumed (.consumed rename) + OPERATOR-NOTIFY.log entry written during a trivial
+    agy v1.0.16 --print session — PreInvocation fires per-turn TODAY. Present and live:
+    niyyah gate (substrate-edit deny unless pending-muezzin-niyyah.json <5min old),
+    path-existence/tilde-path deny, destructive-git deny, per-turn FRAMEWORK_INJECT +
+    one-shot senior-intervention pickup. Gaps to close (the real work): (a) Stop hook is
+    DEFANGED — muezzin_hook.py L411 hardcodes has_marker=True so the silent-exit block
+    can never fire; (b) no bootstrap gate (nothing blocks action until orientation);
+    (c) the inject is STATIC 2026-06-26 text (junior-conductor framing, blanket
+    --no-verify guidance, stale mission-discipline stats) injected into EVERY current
+    agy turn — needs a content-refresh pass against current rulings; (d) no computed
+    DIAGNOSIS-DEBT (static text, not board-derived); (e) PostToolUse last-response
+    writer hasn't written since 06-26 despite tool-heavy sessions — payload-shape drift
+    suspected, needs its own receipt before trusting --post/--stop paths.
 14. PER-PROJECT DEPLOY PARITY: conduct-cycle --record-deploy hardcodes the muddytires
     repo/URL; the fork's androidtv deploys have no parity/record verb at all. Make the
     parity checker per-project config so both sites get byte-match + outcome-witness
