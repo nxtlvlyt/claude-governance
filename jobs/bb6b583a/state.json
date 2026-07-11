@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "inventorying CLI substrate; awaiting queued messages",
+  "detail": "humility check on passive-wait; plan mode exited, AIMLAPI confirmed OpenAI-compat",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 6066425,
+  "tokens": 6072025,
   "output": null,
   "children": null,
-  "linkScanOffset": 35170315,
+  "linkScanOffset": 35229367,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -23,7 +23,7 @@
     "--model",
     "claude-opus-4-8",
     "--permission-mode",
-    "plan"
+    "acceptEdits"
   ],
   "intent": "but we had 30 gaps mission we were fixing first before we did anything else and a big project to que when they were done",
   "name": "daemon-restart-mission-triage",
@@ -40,6 +40,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-11T08:04:48.441Z",
+  "updatedAt": "2026-07-11T08:07:29.725Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
