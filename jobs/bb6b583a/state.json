@@ -1,7 +1,7 @@
 {
-  "state": "working",
-  "detail": "CLI design: mission continuity + conductor test spec drafted",
-  "tempo": "idle",
+  "state": "blocked",
+  "detail": "waiting on context (previous conversation + custom CLI scope)",
+  "tempo": "blocked",
   "inFlight": {
     "tasks": 1,
     "queued": 0,
@@ -9,10 +9,11 @@
       "session_cron"
     ]
   },
-  "tokens": 6077634,
+  "tokens": 6079893,
+  "needs": "send the rest of your message + confirm: build a custom CLI that conforms to your process/governance",
   "output": null,
   "children": null,
-  "linkScanOffset": 35279588,
+  "linkScanOffset": 35302698,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -40,6 +41,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-11T08:10:00.959Z",
+  "updatedAt": "2026-07-11T08:11:05.212Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
