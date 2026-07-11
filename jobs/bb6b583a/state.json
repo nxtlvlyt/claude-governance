@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "atv-11 design pass complete; S2 content piece queued; redeploy + verify in flight",
+  "detail": "agy doesn't need workflow; 2 focused builds queued as checklist items 14/atv-12",
   "tempo": "active",
   "inFlight": {
     "tasks": 3,
@@ -32,21 +32,24 @@
       "kind": "workflow",
       "label": "prep:mt-integrate-wikipedia-link-20",
       "group": "Prepare",
-      "startedAt": 1783797101491
+      "startedAt": 1783797101491,
+      "doneAt": 1783797474221
     },
     {
       "id": "a1e9aa5e224ea6040",
       "kind": "workflow",
       "label": "prep:mt-integrate-poi-services-near",
       "group": "Prepare",
-      "startedAt": 1783797101356
+      "startedAt": 1783797101356,
+      "doneAt": 1783797283381
     },
     {
       "id": "a9373299722642d77",
       "kind": "workflow",
       "label": "prep:mt-integrate-poi-hover-preview",
       "group": "Prepare",
-      "startedAt": 1783797101510
+      "startedAt": 1783797101510,
+      "doneAt": 1783797433546
     },
     {
       "id": "a28002ae05e949105",
@@ -61,7 +64,8 @@
       "kind": "workflow",
       "label": "prep:mt-integrate-dynamic-favicon-f",
       "group": "Prepare",
-      "startedAt": 1783797101915
+      "startedAt": 1783797101915,
+      "doneAt": 1783797336586
     },
     {
       "id": "a600c5d0848e5bfc2",
@@ -76,14 +80,16 @@
       "kind": "workflow",
       "label": "prep:mt-integrate-partner-embed-ifr",
       "group": "Prepare",
-      "startedAt": 1783797102410
+      "startedAt": 1783797102410,
+      "doneAt": 1783797314404
     },
     {
       "id": "a970c968bb75a3ece",
       "kind": "workflow",
       "label": "prep:mt-integrate-partner-widget.S1",
       "group": "Prepare",
-      "startedAt": 1783797101743
+      "startedAt": 1783797101743,
+      "doneAt": 1783797441518
     },
     {
       "id": "a45d25373c8b02533",
@@ -114,76 +120,164 @@
       "kind": "workflow",
       "label": "prep:mt-integrate-poi-dedup-audit.S",
       "group": "Prepare",
-      "startedAt": 1783797101649
+      "startedAt": 1783797101649,
+      "doneAt": 1783797327847
     },
     {
       "id": "ab9d6a95bf4a5e086",
       "kind": "workflow",
       "label": "prep:mt-ingest-rest-services.S1",
       "group": "Prepare",
-      "startedAt": 1783797101626
+      "startedAt": 1783797101626,
+      "doneAt": 1783797298397
     },
     {
       "id": "aac200bc30e70ebaf",
       "kind": "workflow",
       "label": "prep:mt-copy-clarity.S1",
       "group": "Prepare",
-      "startedAt": 1783797101676
+      "startedAt": 1783797101676,
+      "doneAt": 1783797348761
     },
     {
       "id": "a81c6369cd659cdac",
       "kind": "workflow",
       "label": "prep:mt-feedback-capture.S1.S1",
       "group": "Prepare",
-      "startedAt": 1783797102564
+      "startedAt": 1783797102564,
+      "doneAt": 1783797391315
     },
     {
       "id": "a6cea61d19a2183cd",
       "kind": "workflow",
       "label": "verify:mt-integrate-lighthouse-fix1",
       "group": "Verify",
-      "startedAt": 1783797244757
+      "startedAt": 1783797244757,
+      "doneAt": 1783797516551
     },
     {
       "id": "ab47b08da933081f4",
       "kind": "workflow",
       "label": "verify:mt-integrate-k6-load-baselin",
       "group": "Verify",
-      "startedAt": 1783797250736
+      "startedAt": 1783797250736,
+      "doneAt": 1783797538359
     },
     {
       "id": "a9130bce850fb9c47",
       "kind": "workflow",
       "label": "verify:mt-integrate-spot-share-card",
       "group": "Verify",
-      "startedAt": 1783797259534
+      "startedAt": 1783797259534,
+      "doneAt": 1783797494130
     },
     {
       "id": "a64979424a871bf16",
       "kind": "workflow",
       "label": "verify:mt-integrate-lighthouse-ci.S",
       "group": "Verify",
-      "startedAt": 1783797263732
+      "startedAt": 1783797263732,
+      "doneAt": 1783797414812
     },
     {
       "id": "a59704e7e8e38c653",
       "kind": "workflow",
       "label": "verify:mt-integrate-testimonials.S1",
       "group": "Verify",
-      "startedAt": 1783797271906
+      "startedAt": 1783797271906,
+      "doneAt": 1783797656806
     },
     {
-      "id": "wjxsh8pc2:23",
+      "id": "a7a425d8010b67fe5",
       "kind": "workflow",
       "label": "verify:mt-spot-briefs.S1",
       "group": "Verify",
-      "startedAt": 1783797281379
+      "startedAt": 1783797283534,
+      "doneAt": 1783797585340
+    },
+    {
+      "id": "a57968dced751f2ce",
+      "kind": "workflow",
+      "label": "verify:mt-integrate-poi-services-ne",
+      "group": "Verify",
+      "startedAt": 1783797285743,
+      "doneAt": 1783797583960
+    },
+    {
+      "id": "acc46a99cfddee6fb",
+      "kind": "workflow",
+      "label": "verify:mt-ingest-rest-services.S1",
+      "group": "Verify",
+      "startedAt": 1783797303832,
+      "doneAt": 1783797629802
+    },
+    {
+      "id": "a1b86441c71890482",
+      "kind": "workflow",
+      "label": "verify:mt-integrate-partner-embed-i",
+      "group": "Verify",
+      "startedAt": 1783797316748,
+      "doneAt": 1783797625350
+    },
+    {
+      "id": "a024b34c2f1a0773d",
+      "kind": "workflow",
+      "label": "verify:mt-integrate-poi-dedup-audit",
+      "group": "Verify",
+      "startedAt": 1783797330302,
+      "doneAt": 1783797664683
+    },
+    {
+      "id": "a1d6b272ca35e5f2e",
+      "kind": "workflow",
+      "label": "verify:mt-integrate-dynamic-favicon",
+      "group": "Verify",
+      "startedAt": 1783797339182,
+      "doneAt": 1783797587292
+    },
+    {
+      "id": "acdb529442459bead",
+      "kind": "workflow",
+      "label": "verify:mt-copy-clarity.S1",
+      "group": "Verify",
+      "startedAt": 1783797351619
+    },
+    {
+      "id": "af566e1e03fc49c96",
+      "kind": "workflow",
+      "label": "verify:mt-feedback-capture.S1.S1",
+      "group": "Verify",
+      "startedAt": 1783797394036,
+      "doneAt": 1783797663754
+    },
+    {
+      "id": "ac500a267c09d992c",
+      "kind": "workflow",
+      "label": "verify:mt-integrate-poi-hover-previ",
+      "group": "Verify",
+      "startedAt": 1783797436736
+    },
+    {
+      "id": "af73785279b4d5881",
+      "kind": "workflow",
+      "label": "verify:mt-integrate-partner-widget.",
+      "group": "Verify",
+      "startedAt": 1783797444243
+    },
+    {
+      "id": "abe572b98d85fa543",
+      "kind": "workflow",
+      "label": "verify:mt-integrate-wikipedia-link-",
+      "group": "Verify",
+      "startedAt": 1783797476725
     }
   ],
-  "tokens": 7034587,
-  "output": null,
+  "tokens": 7459893,
+  "output": {
+    "result": "agy parity+e2e: 1 engine edit (parity config) + 1 e2e script (Sonnet draft); queued in atv-12 redeploy, not workflow"
+  },
   "children": null,
-  "linkScanOffset": 39149140,
+  "linkScanOffset": 39178003,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -211,6 +305,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-11T19:14:41.906Z",
+  "updatedAt": "2026-07-11T19:21:05.163Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
