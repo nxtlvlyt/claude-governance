@@ -2250,10 +2250,23 @@ would hit. Promote from wakeup-prompt folklore to COMPUTED checks/instructions:
 7. Autosplit-inherited multi-page loop validations can demand LATER steps'/S2's work at an
    earlier step (atv-11.S1 step-6 receipt) — the deconstructor should scope copied
    validations to the child step's own targets.
+8. HOOK-SEMANTICS PORT (operator question 2026-07-11 "any way to make our system better
+   universally... Claude CLI / agy / local conductor"): the Claude-CLI-only hooks' MODEL-
+   FACING semantics move into the engine so all three conductors are bound identically —
+   "read the receipt before judging" becomes conduct-cycle refusing a judgment annotation
+   without a receipt reference; the niyyah discipline becomes a required source-citation
+   field in the N5 beat log that the SCRIPT validates. Rails in the substrate the
+   conductor operates THROUGH, not the harness it runs IN.
+9. SINGLE PROTOCOL SOURCE: one versioned CONDUCTOR-PROTOCOL file in the engine repo that
+   both jurisdictions load — replaces the two hand-synced rulebooks (conductor-core.md vs
+   ~/.agents/rules/muezzin-conductor.md, which needed manual law-porting twice this
+   session and have drifted before).
 Owner: next engine batch; items 2+3 are pure conduct-cycle sweep additions (cheapest,
-highest value); item 5 is the honesty fix a local conductor needs most. agy L2 status at
-filing: streak 10/10, G2 2/2, G3 0/1 — route the next natural agy gate block through an
-agy conductor beat for the final requirement.
+highest value); item 5 is the honesty fix a local conductor needs most; items 8-9 fold
+into the N5 build (they define what N5's rails must carry). agy L2 status at filing:
+streak 10/10, G2 2/2, G3 0/1 — route the next natural agy gate block through an agy
+conductor beat for the final requirement. SEQUENCE (operator-ratified order): agy G3 →
+graduation → N5 beat-harness build (with items 1-9 as its spec) → local-conductor test.
 
 ## 2026-07-10 ENGINE ITEM: S2 REQUIRES tokens unresolvable by queuedDepsHold (38-file census)
 The deconstructor emits REQUIRES in MISSION-ID format (e.g. "MT-INTEGRATE-WILDLIFE-
