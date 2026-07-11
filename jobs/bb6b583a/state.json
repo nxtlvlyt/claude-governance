@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "warroom audit running (14+ agents); agy diagnosing atv root cause",
+  "detail": "no sleep rule found; no best time to message — quota/memory are machine constraints",
   "tempo": "active",
   "inFlight": {
     "tasks": 2,
@@ -100,6 +100,7 @@
       "kind": "workflow",
       "label": "audit:clients",
       "startedAt": 1783790310939,
+      "doneAt": 1783790482959,
       "group": "Audit"
     },
     {
@@ -117,10 +118,12 @@
       "group": "Audit"
     }
   ],
-  "tokens": 6493203,
-  "output": null,
+  "tokens": 6557304,
+  "output": {
+    "result": "no governance rule against sleep messaging; message anytime — only quota/session limits matter"
+  },
   "children": null,
-  "linkScanOffset": 36886832,
+  "linkScanOffset": 36935011,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -148,6 +151,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-11T17:19:43.993Z",
+  "updatedAt": "2026-07-11T17:21:51.516Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
