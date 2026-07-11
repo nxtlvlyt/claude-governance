@@ -1,13 +1,12 @@
 {
   "state": "working",
-  "detail": "pytest suite running on nxtbeast; awaiting results",
+  "detail": "976 passed, 5 failed (stale model pins); audit in flight",
   "tempo": "active",
   "inFlight": {
-    "tasks": 2,
+    "tasks": 1,
     "queued": 0,
     "kinds": [
-      "local_workflow",
-      "local_bash"
+      "local_workflow"
     ]
   },
   "fan": [
@@ -86,6 +85,7 @@
       "kind": "workflow",
       "label": "audit:build-spec",
       "startedAt": 1783787545694,
+      "doneAt": 1783788862942,
       "group": "Audit"
     },
     {
@@ -108,18 +108,12 @@
       "label": "audit:core",
       "startedAt": 1783787735773,
       "group": "Audit"
-    },
-    {
-      "id": "byrcdfutt",
-      "kind": "shell",
-      "label": "ssh nxtbeast \"cd /d C:\\warroom && python -m pytest -q 2>&1\" 2>&1 | Select-Object -Last 12 | Out-String",
-      "startedAt": 1783788489917
     }
   ],
-  "tokens": 6322065,
+  "tokens": 6390419,
   "output": null,
   "children": null,
-  "linkScanOffset": 36344049,
+  "linkScanOffset": 36359115,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -146,6 +140,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-11T16:48:26.196Z",
+  "updatedAt": "2026-07-11T16:59:48.739Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
