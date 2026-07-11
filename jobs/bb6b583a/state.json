@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "2 flagged items fixed; engine workflow + vision pass pending",
+  "detail": "atv-13 attempt 3 running (witness corrected); mt daemon on S1; workflow preparing",
   "tempo": "active",
   "inFlight": {
     "tasks": 2,
@@ -82,10 +82,10 @@
       "group": "Verify"
     }
   ],
-  "tokens": 8205978,
+  "tokens": 8207641,
   "output": null,
   "children": null,
-  "linkScanOffset": 52416572,
+  "linkScanOffset": 52450453,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -113,6 +113,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-11T23:57:27.070Z",
+  "updatedAt": "2026-07-11T23:59:53.017Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }

@@ -154,3 +154,6 @@
 [2026-07-11T15:37:19.571Z] [supervisor] auth: no token found, will re-check keychain every 30s
 [2026-07-11T15:59:50.551Z] [supervisor] auth: scheduling proactive refresh in 28560s
 [2026-07-11T15:59:50.552Z] [supervisor] auth: token refreshed via keychain re-check retry
+[2026-07-11T23:55:50.517Z] [supervisor] auth: proactive refresh starting
+[2026-07-11T23:55:50.594Z] [supervisor] auth: scheduling proactive refresh in 28504s
+[2026-07-11T23:55:50.600Z] [supervisor] auth: token still valid (cross-process refresh or not yet due)
