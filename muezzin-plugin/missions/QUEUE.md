@@ -2313,6 +2313,31 @@ muezzin-plugin/CONDUCTOR-PORT-PLAYBOOK.md — four-layer port map, the proven ag
 order, the lessons ledger with receipt pointers, jurisdiction pattern, rails-port
 options, acceptance bar. The N5 builder and the local-conductor test READ IT FIRST;
 update it in the same session any new port lesson is paid for.
+WARROOM-BORROW BLOCK (enrolled 2026-07-11 after the operator asked "did we que all the
+fixes we learned from warroom" and the answer was documented-but-not-queued — the exact
+guaranteed-delivery failure; SPEC = muezzin-plugin/WARROOM-INTAKE-2026-07-11.md, gap
+matrix "muezzin should borrow", 19 receipted items; per-item receipts in the workflow
+journal). SYSTEM-FIX PRIORITY CLASS. The load-bearing six, for the next engine batches:
+W1. MECHANICAL BUDGET ENFORCEMENT: muezzin has budget STRATEGY (rulings) but zero
+    budget MECHANISM — warroom's advisory-cap failure is the negative receipt; build the
+    fail-closed version (caps enforced at dispatch, unknown-priced = refuse).
+W2. NO-CLOUD CLIENT-LAYER OVERRIDE (warroom ollama.py num_gpu=0 pattern): the 2026-07-02
+    ruling is prose; add the mechanical strip/force at seat_dispatch so no config drift
+    or caller flag can reach ollama.com. Pair with the asymmetry audit the workflow
+    flagged: check muezzin for solved-once-not-propagated safety patterns.
+W3. RETRY LATCH (warroom retry.py): three-strike (same-params, reduced-scope, mark-failed)
+    with a persistent mission-abort latch — mechanizes FAILED-x2-diagnose.
+W4. LINEAGE-DIVERSITY CHECK for verdict panels + the witness pair (warroom gauntlet
+    synthesis): warn when panel/witness models share a training family.
+W5. SCHEDULED DRIFT SWEEPS for seated models (warroom drift/): rijal records auditions
+    but never re-checks a seat on a calendar; add re-audition cadence.
+W6. DOC-VS-CODE DRIFT DIFF (warroom eligibility.py dual-source check): seat-plan docs vs
+    seat_modes TABLE, auto-warn on divergence.
+Items 7-19 (faith provenance headers, redact-before-store, staged-repair gating, triage
+ledger with second-dispatch, planted-assumption audition tasks, read-only-by-construction
+scanners, etc.) stay specced in the intake doc — read it before any engine batch. NOTE:
+warroom PARITY work (S0-S10 on warroom itself) is deliberately NOT enrolled — held on
+the operator's go + his four recorded decisions + more context he is still giving.
 ITEM 15 — PANEL ARTIFACT TRUNCATION = FALSE-REJECT CLASS (paid 2026-07-11 03:1x,
 scenic.S2 attempt-8): the verdict panel receives HEAD-TRUNCATED artifact slices (10,000
 chars of a 398,166-char map.html — the panel's own F1-sunnah finding names it), so any
