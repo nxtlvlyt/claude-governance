@@ -1,9 +1,9 @@
 {
   "state": "working",
-  "detail": "no sleep rule found; no best time to message — quota/memory are machine constraints",
+  "detail": "Running right now: the warroom audit (hardened, resumed), agy's independent diagnosis of the atv stylesheet root cause, both mission daemons, the pickup wakeup, and now the faith-mandated cron above it all.",
   "tempo": "active",
   "inFlight": {
-    "tasks": 2,
+    "tasks": 3,
     "queued": 0,
     "kinds": [
       "local_workflow",
@@ -15,115 +15,116 @@
       "id": "a16a0fb015f342695",
       "kind": "workflow",
       "label": "read:build-spec",
+      "group": "Read",
       "startedAt": 1783790306781,
-      "doneAt": 1783790306781,
-      "group": "Read"
+      "doneAt": 1783790306781
     },
     {
       "id": "ade500ae66c1cf444",
       "kind": "workflow",
       "label": "read:history",
+      "group": "Read",
       "startedAt": 1783790306784,
-      "doneAt": 1783790306784,
-      "group": "Read"
+      "doneAt": 1783790306784
     },
     {
       "id": "a588ce63839bf83f9",
       "kind": "workflow",
       "label": "read:plans",
+      "group": "Read",
       "startedAt": 1783790306787,
-      "doneAt": 1783790306787,
-      "group": "Read"
+      "doneAt": 1783790306787
     },
     {
       "id": "abf6f903217a48012",
       "kind": "workflow",
       "label": "read:core",
+      "group": "Read",
       "startedAt": 1783790306789,
-      "doneAt": 1783790306789,
-      "group": "Read"
+      "doneAt": 1783790306789
     },
     {
       "id": "aadb6ce16bd5f8d07",
       "kind": "workflow",
       "label": "read:clients",
+      "group": "Read",
       "startedAt": 1783790306791,
-      "doneAt": 1783790306791,
-      "group": "Read"
+      "doneAt": 1783790306791
     },
     {
       "id": "adfc1f3fced3fa8e4",
       "kind": "workflow",
       "label": "read:missions",
+      "group": "Read",
       "startedAt": 1783790306792,
-      "doneAt": 1783790306792,
-      "group": "Read"
+      "doneAt": 1783790306792
     },
     {
       "id": "a6f2aeba54d4aa886",
       "kind": "workflow",
       "label": "read:wiring",
+      "group": "Read",
       "startedAt": 1783790306794,
-      "doneAt": 1783790306794,
-      "group": "Read"
+      "doneAt": 1783790306794
     },
     {
       "id": "aca18a48db1c731ad",
       "kind": "workflow",
       "label": "audit:build-spec",
-      "startedAt": 1783790311607,
-      "group": "Audit"
+      "group": "Audit",
+      "startedAt": 1783790311607
     },
     {
       "id": "a16de91b41c746f4f",
       "kind": "workflow",
       "label": "audit:history",
+      "group": "Audit",
       "startedAt": 1783790310435,
-      "group": "Audit"
+      "doneAt": 1783790630394
     },
     {
       "id": "a6a041f24b4a536ab",
       "kind": "workflow",
       "label": "audit:plans",
+      "group": "Audit",
       "startedAt": 1783790311376,
-      "group": "Audit"
+      "doneAt": 1783790583530
     },
     {
       "id": "a810f5d4c6284ffcf",
       "kind": "workflow",
       "label": "audit:core",
+      "group": "Audit",
       "startedAt": 1783790310814,
-      "group": "Audit"
+      "doneAt": 1783790538962
     },
     {
       "id": "a68b762273ef7f97a",
       "kind": "workflow",
       "label": "audit:clients",
+      "group": "Audit",
       "startedAt": 1783790310939,
-      "doneAt": 1783790482959,
-      "group": "Audit"
+      "doneAt": 1783790482959
     },
     {
       "id": "aeebafcdb385e4363",
       "kind": "workflow",
       "label": "audit:missions",
-      "startedAt": 1783790310831,
-      "group": "Audit"
+      "group": "Audit",
+      "startedAt": 1783790310831
     },
     {
       "id": "a3a3530673fcfb8f2",
       "kind": "workflow",
       "label": "audit:wiring",
-      "startedAt": 1783790310804,
-      "group": "Audit"
+      "group": "Audit",
+      "startedAt": 1783790310804
     }
   ],
-  "tokens": 6557304,
-  "output": {
-    "result": "no governance rule against sleep messaging; message anytime — only quota/session limits matter"
-  },
+  "tokens": 6619241,
+  "output": null,
   "children": null,
-  "linkScanOffset": 36935011,
+  "linkScanOffset": 37005310,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -151,6 +152,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-11T17:21:51.516Z",
+  "updatedAt": "2026-07-11T17:23:50.976Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
