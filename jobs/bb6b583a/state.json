@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "attempt-3 running (26m); filing engine items; awaiting 30m mark",
+  "detail": "retry lane open; 12:47 wakeup pending; daemons healthy",
   "tempo": "idle",
   "inFlight": {
     "tasks": 2,
@@ -9,10 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 6794837,
+  "tokens": 6800388,
   "output": null,
   "children": null,
-  "linkScanOffset": 38455210,
+  "linkScanOffset": 38529170,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -40,6 +40,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-11T18:29:55.459Z",
+  "updatedAt": "2026-07-11T18:46:19.821Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
