@@ -121,6 +121,30 @@ A FAILED mark is a DIAGNOSIS DEBT with a due date, never ambient debt. Condition
 mechanical: a daemon notify/hold — FAILED-STREAK-HOLD — that pauses same-class fires after
 N consecutive failures until a preflight receipt names a diagnosis.)
 
+**The eighth law, paid for 2026-07-11 (operator: "why are we parking failures instead of
+fixing them, that doesn't make any sense" → "sounds like a conductor issue" — he was right
+both times; receipts: stitch-design-mastery FAILED 2026-06-12 and atv-6-stitch-design
+FAILED 2026-07-09 both parked with diagnoses and NO owned fix, so the design pipeline ran
+a MONTH without its designer while the Stitch MCP seat sat √ Connected on nxtbeast the
+whole time — verified live the night this law was written):**
+A PARK IS A HANDOFF, NEVER A GRAVE. The seventh law's own PARK clause was the loophole:
+PARKED exits the diagnosis-debt radar, and multiple conductor instances used it as a
+compliant-looking way to stop working a hard failure — which violates the fourth law
+("a named bug is not a handled bug") while passing every check. Conditions:
+- **A PARK is legal ONLY with a named UNPARK OWNER that is itself a live queue line or
+  numbered engine item.** "Pending engine batch" / "pending capability" prose does NOT
+  qualify — if the owner isn't tracked work, the park is not a disposition, it is the
+  failure continuing under a calmer name.
+- **Rotten parks re-enter the debt system.** Any PARKED line whose named owner cannot be
+  resolved to live tracked work is diagnosis debt again, due next wake, exactly as if
+  the FAILED mark were fresh (QUEUE item 22 carries the conduct-cycle sweep spec).
+- **Infrastructure failures get one extra question before any park:** "is the broken
+  thing actually broken RIGHT NOW?" — the Stitch seat was healthy for a month while
+  parks assumed it dead. A park that never re-probed its own premise is a
+  memory-assertion (first law) wearing a disposition.
+(If a future instance still writes an ownerless park, the escalation is mechanical: the
+AUTORUN verdict gate refuses PARKED annotations lacking a resolvable owner token.)
+
 **Three practices paid for 2026-06-25 (the iteration-burned-budget session):**
 - Mine substrate before manufacturing data. Weeks of mission outcomes already live in
   MISSION-LEDGER.md + retros + Hermes logs — extract them BEFORE designing a synthetic
