@@ -276,7 +276,11 @@ export function validateMicroQueue(queue, opts = {}) {
     (queue.steps || []).forEach((s) => {
       if (s?.action_type !== 'command' && s?.action_type !== 'verify') return;
       const cmd = String(s?.validation_command || '');
-      const created = [...cmd.matchAll(/(?:Out-File(?:\s+-\w+(?:\s+\S+)?)*\s+|Set-Content\s+(?:-Path\s+)?|Add-Content\s+(?:-Path\s+)?|New-Item\s+(?:-ItemType\s+\w+\s+)?(?:-Path\s+)?|>{1,2}\s*)["']?([\w][\w./\\-]*\.\w{1,6})["']?/g)].map((m) => m[1]);
+      // (?<![=\-<>]) on the redirect branch: JS arrow functions (`=>`) and `->` inside a
+      // drafted command are NOT shell redirects — scenic.S2 attempt-7 receipt 2026-07-11:
+      // `errors => consoleMessages.push(e)` matched as creating 'consoleMessages.push',
+      // `m => m.toLowerCase()` as 'm.toLowe' (\w{1,6} cap), killing the plan on residue.
+      const created = [...cmd.matchAll(/(?:Out-File(?:\s+-\w+(?:\s+\S+)?)*\s+|Set-Content\s+(?:-Path\s+)?|Add-Content\s+(?:-Path\s+)?|New-Item\s+(?:-ItemType\s+\w+\s+)?(?:-Path\s+)?|(?<![=\-<>])>{1,2}\s*)["']?([\w][\w./\\-]*\.\w{1,6})["']?/g)].map((m) => m[1]);
       for (const raw of created) {
         const norm = raw.toLowerCase().replace(/\\/g, '/');
         if (opts.allowFiles.includes(norm)) continue;                                   // declared deliverable
@@ -818,6 +822,9 @@ Context: Node + TypeScript project; DB schema in prisma/schema.prisma; tests run
   ck(validateMicroQueue(srStep('git show e31469f:x | Out-File tmpfile.mjs; node tmpfile.mjs; Remove-Item tmpfile.mjs'), srOpts).ok, 'scratch-residue: create-use-delete in ONE command passes');
   ck(validateMicroQueue(srStep('Set-Content scripts/e2e-runner.mjs -Value $x'), srOpts).ok, 'scratch-residue: writing a declared ALLOW-FILE is a deliverable, not residue');
   ck(validateMicroQueue(srStep('echo hi > scratch-x.txt'), { codeRepo: true, allowFiles: [] }).ok, 'scratch-residue: missions with no parseable ALLOW-FILES skip the rule (fail-open)');
+  // scenic.S2 attempt-7 receipt 2026-07-11: JS arrow tokens in drafted code are not redirects
+  ck(validateMicroQueue(srStep("Set-Content scratch-qc.mjs -Value $body; node scratch-qc.mjs; Remove-Item scratch-qc.mjs # body: page.on('console', m => consoleMessages.push(m.text())); errors.filter(m => m.toLowerCase())"), srOpts).ok, 'scratch-residue: `=>` arrow-function tokens are NOT flagged as file creations');
+  ck(!validateMicroQueue(srStep('node build.mjs > scratch-out.txt; Test-Path scratch-out.txt'), srOpts).ok, 'scratch-residue: a REAL `>` redirect without cleanup is still REJECTED after the lookbehind fix');
   ck(JSON.stringify(parseAllowFiles('MISSION-CLASS: code-repo\nALLOW-FILES:\n  - scripts\\e2e-runner.mjs\n  - Docs/CAT.md\nSTEPS: 2\n')) === JSON.stringify(['scripts/e2e-runner.mjs', 'docs/cat.md']), 'parseAllowFiles extracts + normalizes (lowercase, forward slashes)');
 
   // INLINE-EVAL MANGLE (plan-level half of the prose INLINE-EVAL RULE; 3-mission kill class,
