@@ -3,6 +3,7 @@ MISSION-CLASS: research
 REPO-ROOT: C:\Users\marka\.claude\muezzin-plugin\missions\mt-money-competitor-landscape.S1
 ALLOW-FILES:
   - competitor-landscape-2026.md
+  - summary.txt
 REQUIRES: none
 STEPS: 6
 
@@ -57,7 +58,13 @@ Steps:
      which competitor gap it exploits. [verify] competitor-landscape-2026.md
   5. Verify zero sections claim "not evidenced" or "unreadable" — a gap is stated as a
      named unknown with what was tried, never a placeholder. [verify] competitor-landscape-2026.md
-  6. Emit a 5-line summary of the three wedges to summary.txt for the synthesis mission. [command]
+  6. Emit a 5-line summary of the three wedges to summary.txt for the synthesis mission
+     (attempt-9 receipt: the realization was validation-only and never CREATED the file —
+     this step must WRITE then verify). Author summary.txt with exactly 5 lines: line 1 a
+     one-sentence landscape verdict, lines 2-4 one line per wedge (name + which competitor
+     gap it exploits), line 5 the recommended first wedge to build. Then verify. Run
+     exactly after authoring: if (-not (Test-Path summary.txt)) { exit 1 }; if (@(Get-Content summary.txt).Count -ne 5) { exit 1 } [edit] summary.txt
+     validation_command: if (-not (Test-Path summary.txt)) { exit 1 }; if (@(Get-Content summary.txt).Count -ne 5) { exit 1 }; if ((Get-Content summary.txt -Raw) -match '(?i)not evidenced|unreadable') { exit 1 }
 
 Done means: competitor-landscape-2026.md exists with 9 sourced competitor sections, a
 comparative table, three evidenced monetization wedges, and zero placeholder rows.
