@@ -1,6 +1,6 @@
 {
   "state": "blocked",
-  "detail": "found 5 agent/platform candidates on nxtbeast; need project name/path",
+  "detail": "awaiting project name or path",
   "tempo": "blocked",
   "inFlight": {
     "tasks": 2,
@@ -18,11 +18,11 @@
       "startedAt": 1783758459069
     }
   ],
-  "tokens": 6111271,
-  "needs": "which project is it? name or path is enough",
+  "tokens": 6111623,
+  "needs": "which project?",
   "output": null,
   "children": null,
-  "linkScanOffset": 35670229,
+  "linkScanOffset": 35702573,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -50,6 +50,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-11T08:29:48.251Z",
+  "updatedAt": "2026-07-11T08:30:27.513Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
