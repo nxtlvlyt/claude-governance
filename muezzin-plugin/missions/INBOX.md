@@ -127,3 +127,8 @@ mission-level tip would have been.
 ONE operator step covers BOTH remaining gaps: mint one API key at stitch.withgoogle.com ->
 Settings -> API Keys -> Create API Key, then (a) paste into agy's mcp_config.json, (b) run
 the claude mcp add command above on the laptop with the same key.
+
+## NEW 2026-07-11 (operator screenshots, conductor pre-triaged)
+- MT COMPETITOR/CONTENT LEAD — Indigenous BC app (VERB Interactive, 3.8star/47 reviews/10K+ installs): regional discovery app, winnable-quality niche. Two angles: (a) add to the money-competitor analysis corpus; (b) evaluate an Indigenous-tourism POI/content layer for muddytires (licensed/respectful sources only — Destination BC / Indigenous Tourism BC open data first). Mission-class research, shape after amendment backlog clears.
+- DESIGN TOOLING (friend advice, receipted screenshot): (a) evaluate+install Claude design skills — github.com/greensock/gsap-skills (official GreenSock), impeccable.style, ui-ux-pro-max-skill.nextlevelbuilder.io — SECURITY REVIEW FIRST (third-party skills are injection surface: read every file before installing to ~/.claude/skills); (b) ADOPT THE DESIGN-MD PATTERN: iterate visuals in a vision model (we have agy/Gemini instead of AI Studio), then have it emit a design-spec .MD, then the implementer builds from that contract — this is exactly what atv-11 lacked (prose specs drifted 7 attempts); file as the design-mission format for atv/mt going forward.
+- NOTEBOOKLM CLI+MCP (jacob-bd/notebooklm-mcp-cli): scriptable notebooks + podcast generation. Van-fit use: pipe business-context corpus / weekly board reports into audio digests for driving. PARKED: needs operator Google-account setup (identity-bound) + fits after core lanes; zero cost while parked.
