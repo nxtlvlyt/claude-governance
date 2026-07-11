@@ -1,6 +1,6 @@
 {
-  "state": "done",
-  "detail": "hook system confirmed live in agy; rewrote QUEUE.md item 13 with findings",
+  "state": "working",
+  "detail": "I'll fold it into the N5 batch and keep the beats running.",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,12 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 5829248,
-  "output": {
-    "result": "agy hooks proven live (niyyah gate, per-prompt injection active); five gaps identified in stop-hook, bootstrap gate, injection refresh, diagnosis-debt, PostToolUse receipt"
-  },
+  "tokens": 5829587,
+  "output": null,
   "children": null,
-  "linkScanOffset": 33336455,
+  "linkScanOffset": 33368860,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -42,6 +40,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-11T06:46:19.815Z",
+  "updatedAt": "2026-07-11T06:47:29.242Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
