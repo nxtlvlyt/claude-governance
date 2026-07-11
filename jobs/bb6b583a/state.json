@@ -1,6 +1,6 @@
 {
   "state": "done",
-  "detail": "queued 5 cross-learnings (items 10–14); pointer corrected to 14 items",
+  "detail": "priority rule confirmed and recorded: system fixes/upgrades always first",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,12 +9,12 @@
       "session_cron"
     ]
   },
-  "tokens": 5152078,
+  "tokens": 5156220,
   "output": {
-    "result": "5 cross-learnings queued in QUEUE.md lines 2266–2294; harness pointer updated to all 14 items"
+    "result": "standing ruling updated: system health outranks product work; conductor attention prioritizes 14-item spec"
   },
   "children": null,
-  "linkScanOffset": 31428639,
+  "linkScanOffset": 31502418,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -42,6 +42,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-11T02:45:58.624Z",
+  "updatedAt": "2026-07-11T02:49:08.286Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }

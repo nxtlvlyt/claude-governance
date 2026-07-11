@@ -75,6 +75,11 @@ rulings. This file is the loudness fix.)
   per-project deploy parity). Read that QUEUE entry BEFORE building. (3) Then the local-conductor test (bar = the
   receipted qwen 5/5 relay audition). If this ruling reads stale against current reality,
   surface the conflict per the fifth law — never silently obey either layer.
+  PRIORITY (operator reaffirmation 2026-07-11: "system fixes and upgrades always have
+  priority right"): the 14-item spec inherits the 2026-07-03/07-07 priority class —
+  CONDUCTOR BEAT CAPACITY goes to system fixes/upgrades before new product work; the
+  daemons' product lanes keep running in parallel (keep-busy coexists — the priority
+  governs where the conductor's attention goes, exactly how the 2026-07-10/11 drain ran).
 
 ## Communication rulings
 - **Phone pushes are OUTCOME-ONLY and information-dense** (mission DONE/FAILED + real
