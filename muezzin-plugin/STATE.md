@@ -1,5 +1,35 @@
 # STATE.md — muezzin-plugin (this project's contextualization of CLAUDE.md)
 
+## ⚡ SESSION LEDGER 2026-07-11 (written pre-compaction; the successor resumes from HERE)
+
+IN-FLIGHT AT WRITE TIME: mt lane running qc-fix-aurora-export-syntax (Sentry live-error
+fix, guarded deploy step 4 included); agy lane running atv-11-design-pass.S2 (final
+design-pass piece — after DONE: author atv-12 redeploy --branch=main WITH per-project
+parity verb (QUEUE item 14; canonical e2e = scripts/verify-popups-e2e.mjs), WebFetch
+androidtv.tips live, OPERATOR REPORT); warroom S0 COMMITTED (cf0d971 — laptop runnable,
+954/17/17; next: S2-TZ brief to agy, split <5min per piece).
+APPLY NEXT: the 16 verified mt amendments — durable prep at
+missions/_logs/AMENDMENT-PREP-2026-07-11.json (APPROVE stems first: mt-spot-briefs.S1;
+wikipedia-link.S1 uses the SKEPTIC's corrected_edits — RULE 9, wrangler deploy not
+localhost). These unblock the 29 queued mt missions.
+OPERATOR RULINGS TONIGHT (all in operator-rulings.md — READ IT): deploys conductor-called
+when guards pass; sonnet workflows standing-authorized (agents read-only, conductor
+applies); warroom 4 decisions + GO given (cloud yes, hard caps, STANDALONE/shareable,
+seats his review) sequenced after agy-100% + N5; never advise operator rest/sleep
+(GR16 originals synced to memory dir); local-conductor test format still awaits his spec.
+AGY-100% CHECKLIST: (a) stop-hook DONE (scoped, 4-polarity receipts); open: (b) bootstrap
+gate (c) FRAMEWORK_INJECT refresh (d) computed debt (e) --post receipt + parity verb +
+self-waking (N5) + unsupervised streak + atv live-witnessed + clean board.
+OPERATIONAL LAWS PAID THIS SESSION (mechanized in QUEUE items 15-19 + W1-W6): niyyah
+Path A DEAD this session-family (transcript fork) — Path B = Bash printf-ARGUMENT honest
+ts, 60s TTL, SMALL mutations; NEVER --print-timeout on agy (drops the prompt — flag-free
+PowerShell or dispatchAgy); AUTORUN pending = BARE path + ONE comment (QUEUED is not a
+token); panel truncation causes false REJECTs on big files (item 15 — verify personally);
+gpt-oss-20b cloud mystery SOLVED (one smoke-test ping 07-08 by the fork-build session,
+unratified — allowlist queued with item 14/W2).
+Fuller context: QUEUE.md (items 1-19, W1-W6, WARROOM-BORROW), WARROOM-INTAKE-2026-07-11.md,
+CONDUCTOR-PORT-PLAYBOOK.md, plans/rosy-percolating-treasure.md.
+
 ## ⛔ THE FIRST TOOL CALL OF EVERY CONDUCTOR TURN
 
 ```
