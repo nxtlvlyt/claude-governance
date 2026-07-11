@@ -122,8 +122,31 @@ rules (deploys/SearXNG/web queue until reconnect).
    harness-agnostic rails are exactly the CLI's conductor core — build once, reuse).
 
 ## Answered so far (operator, 2026-07-11)
-- Deliverable now: DISCUSSION, not a design doc yet.
+- Deliverable now: DISCUSSION, not a design doc yet. Operator (queued msg, ~02:0x):
+  "I'm not asking you to build it yet, I still have a lot more information to give you."
+  MORE OPERATOR INPUT PENDING — this file keeps accumulating it.
 - End goal: resilience floor (quota/internet fallback), not replacement.
+- MISSION CONTINUITY (operator verbatim, queued msg): "it should be able to continue
+  missions as well as run seperate and its own missions" — the CLI must (a) pick up and
+  continue missions the Claude/agy jurisdictions started (shared mission/AUTORUN/receipt
+  formats + shared work repos + baton-lock respect = the Directive-8 cold-boot test as a
+  PRODUCT REQUIREMENT), and (b) run its own separate mission queue.
+- "Chattable" CONFIRMED (operator verbatim: "it would be a chattable CLI like Claude and
+  agy") — the earlier "chargeable" was indeed chat-able.
+- OPERATOR INSIGHT, possibly the seed of the local-conductor test spec (his words:
+  "but if we were to build something like this would that not be the best test of a
+  local conductor and muezzin?") — building the CLI as the test vehicle: a local model
+  seated as conductor inside our own harness IS the strongest test (whole system stands
+  without vendor rails; the ladder/receipts instrument ports directly). NOT yet a
+  ruling — the succession ruling still holds the test FORMAT as operator-spec-pending;
+  recorded here as his discussion-stage observation.
+
+## AIMLAPI channel receipts (WebFetch, 2026-07-11 this session)
+- CONFIRMED OpenAI-compatible: https://api.aimlapi.com/v1/chat/completions, Bearer auth,
+  base_url https://api.aimlapi.com/v1 (docs.aimlapi.com/api-references/text-models-llm.md).
+- GET /models returned an actual model CATALOG (ids, descriptions, context lengths,
+  endpoints, tags) — a live discovery endpoint exists for `models refresh`; verify
+  auth-required-or-not with a direct header-free probe at build time.
 - Tiering: "Both, tiered equally" — cloud APIs → nxtbeast → laptop-local, every tier
   first-class with audited seat tables.
 - Product shape (operator verbatim): "it would be its own self contained CLI, when

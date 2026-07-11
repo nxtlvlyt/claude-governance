@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "humility check on passive-wait; plan mode exited, AIMLAPI confirmed OpenAI-compat",
+  "detail": "CLI design: mission continuity + conductor test spec drafted",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 6072025,
+  "tokens": 6077634,
   "output": null,
   "children": null,
-  "linkScanOffset": 35229367,
+  "linkScanOffset": 35279588,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -40,6 +40,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-11T08:07:29.725Z",
+  "updatedAt": "2026-07-11T08:10:00.959Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
