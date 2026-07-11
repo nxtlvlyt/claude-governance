@@ -1,6 +1,6 @@
 {
-  "state": "working",
-  "detail": "audit + agy diagnosis running; daemons + cron active",
+  "state": "done",
+  "detail": "audit: 10-stage fix plan, 4 governance decisions needed",
   "tempo": "idle",
   "inFlight": {
     "tasks": 2,
@@ -9,140 +9,12 @@
       "session_cron"
     ]
   },
-  "fan": [
-    {
-      "id": "a16a0fb015f342695",
-      "kind": "workflow",
-      "label": "read:build-spec",
-      "startedAt": 1783790306781,
-      "doneAt": 1783790306781,
-      "group": "Read"
-    },
-    {
-      "id": "ade500ae66c1cf444",
-      "kind": "workflow",
-      "label": "read:history",
-      "startedAt": 1783790306784,
-      "doneAt": 1783790306784,
-      "group": "Read"
-    },
-    {
-      "id": "a588ce63839bf83f9",
-      "kind": "workflow",
-      "label": "read:plans",
-      "startedAt": 1783790306787,
-      "doneAt": 1783790306787,
-      "group": "Read"
-    },
-    {
-      "id": "abf6f903217a48012",
-      "kind": "workflow",
-      "label": "read:core",
-      "startedAt": 1783790306789,
-      "doneAt": 1783790306789,
-      "group": "Read"
-    },
-    {
-      "id": "aadb6ce16bd5f8d07",
-      "kind": "workflow",
-      "label": "read:clients",
-      "startedAt": 1783790306791,
-      "doneAt": 1783790306791,
-      "group": "Read"
-    },
-    {
-      "id": "adfc1f3fced3fa8e4",
-      "kind": "workflow",
-      "label": "read:missions",
-      "startedAt": 1783790306792,
-      "doneAt": 1783790306792,
-      "group": "Read"
-    },
-    {
-      "id": "a6f2aeba54d4aa886",
-      "kind": "workflow",
-      "label": "read:wiring",
-      "startedAt": 1783790306794,
-      "doneAt": 1783790306794,
-      "group": "Read"
-    },
-    {
-      "id": "aca18a48db1c731ad",
-      "kind": "workflow",
-      "label": "audit:build-spec",
-      "startedAt": 1783790311607,
-      "doneAt": 1783790742224,
-      "group": "Audit"
-    },
-    {
-      "id": "a16de91b41c746f4f",
-      "kind": "workflow",
-      "label": "audit:history",
-      "startedAt": 1783790310435,
-      "doneAt": 1783790630394,
-      "group": "Audit"
-    },
-    {
-      "id": "a6a041f24b4a536ab",
-      "kind": "workflow",
-      "label": "audit:plans",
-      "startedAt": 1783790311376,
-      "doneAt": 1783790583530,
-      "group": "Audit"
-    },
-    {
-      "id": "a810f5d4c6284ffcf",
-      "kind": "workflow",
-      "label": "audit:core",
-      "startedAt": 1783790310814,
-      "doneAt": 1783790538962,
-      "group": "Audit"
-    },
-    {
-      "id": "a68b762273ef7f97a",
-      "kind": "workflow",
-      "label": "audit:clients",
-      "startedAt": 1783790310939,
-      "doneAt": 1783790482959,
-      "group": "Audit"
-    },
-    {
-      "id": "aeebafcdb385e4363",
-      "kind": "workflow",
-      "label": "audit:missions",
-      "startedAt": 1783790310831,
-      "doneAt": 1783790721968,
-      "group": "Audit"
-    },
-    {
-      "id": "a3a3530673fcfb8f2",
-      "kind": "workflow",
-      "label": "audit:wiring",
-      "startedAt": 1783790310804,
-      "doneAt": 1783790649316,
-      "group": "Audit"
-    },
-    {
-      "id": "a9aa5db21e63205b8",
-      "kind": "workflow",
-      "label": "synth:gap-matrix",
-      "startedAt": 1783790744818,
-      "doneAt": 1783791041970,
-      "group": "Synthesize"
-    },
-    {
-      "id": "aa997b489e0d638d9",
-      "kind": "workflow",
-      "label": "synth:parity-plan",
-      "startedAt": 1783790745408,
-      "doneAt": 1783791015631,
-      "group": "Synthesize"
-    }
-  ],
-  "tokens": 6708360,
-  "output": null,
+  "tokens": 6717737,
+  "output": {
+    "result": "audit complete: muezzin & warroom findings + cross-system failure patterns; 10-stage remediation, 4 architectural decisions for user review"
+  },
   "children": null,
-  "linkScanOffset": 37177226,
+  "linkScanOffset": 37418164,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -170,6 +42,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-11T17:30:50.716Z",
+  "updatedAt": "2026-07-11T17:34:35.554Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
