@@ -1,6 +1,6 @@
 {
-  "state": "done",
-  "detail": "N5 build sequence: self-waking slice tonight, unsupervised after qwen audit",
+  "state": "working",
+  "detail": "qwen audition: 5/5 test on 2026-07-07; harness built, needs timer daemon + lesson upgrade",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,12 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 5913842,
-  "output": {
-    "result": "N5 timeline: self-woken beat tonight (~few hrs, propose-only); unsupervised after 5/5 clean relay beats on live harness (~1 day); full spec completion through tomorrow"
-  },
+  "tokens": 5916026,
+  "output": null,
   "children": null,
-  "linkScanOffset": 34334094,
+  "linkScanOffset": 34388895,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -42,6 +40,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-11T07:26:13.204Z",
+  "updatedAt": "2026-07-11T07:27:51.778Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
