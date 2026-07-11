@@ -2338,6 +2338,15 @@ ledger with second-dispatch, planted-assumption audition tasks, read-only-by-con
 scanners, etc.) stay specced in the intake doc — read it before any engine batch. NOTE:
 warroom PARITY work (S0-S10 on warroom itself) is deliberately NOT enrolled — held on
 the operator's go + his four recorded decisions + more context he is still giving.
+ITEM 19 — SENTRY AUTO-POLL (filed 2026-07-11, operator: will I need to send a screenshot
+every week?): nothing polls Sentry — the operator was the sensor for the aurora-export
+live error (receipted same day: his screenshot -> root cause -> queued guarded-deploy
+mission). Build: a cron-beat/conduct-cycle step calling the Sentry API (GET unresolved
+issues for project muddytires), diffing vs last-seen state, and auto-queueing a
+diagnosis mission per NEW error class (explicit-validation format, same shape as
+qc-fix-aurora-export). OPERATOR PIECE (once, identity-bound): create a Sentry auth
+token (Settings -> Auth Tokens, scopes project:read + event:read) and provide it; after
+that, zero screenshots ever.
 ITEM 16 — DISPATCH-TOOL LINT (paid 2026-07-11, three agy misfires): PreToolUse lint on
 shell bodies matching hand-rolled model-dispatch shapes (agy --print, raw model CLIs)
 without a dispatch-tool receipt — the sixth law's own prescribed escalation. Root
