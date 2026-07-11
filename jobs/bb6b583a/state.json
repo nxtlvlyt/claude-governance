@@ -1,20 +1,56 @@
 {
-  "state": "done",
-  "detail": "atv-12 markup fix verified live; gap priority ruling recorded; all items own'd",
-  "tempo": "idle",
+  "state": "working",
+  "detail": "10-agent workflow running: design-lint, park-sweep, autosplit, hold-prefix, stitch fixes in parallel",
+  "tempo": "active",
   "inFlight": {
-    "tasks": 1,
+    "tasks": 2,
     "queued": 0,
     "kinds": [
+      "local_workflow",
       "session_cron"
     ]
   },
-  "tokens": 7911102,
-  "output": {
-    "result": "Homepage live with atv-12 fix (descriptions inside anchors); gap-priority ruling documented; atv-13 rebuilding stylesheet; all open items assigned"
-  },
+  "fan": [
+    {
+      "id": "a5d10696af8779a65",
+      "kind": "workflow",
+      "label": "prep:item21-lint-gate",
+      "startedAt": 1783812825364,
+      "group": "Prepare"
+    },
+    {
+      "id": "a8ab68424f79e1d46",
+      "kind": "workflow",
+      "label": "prep:item22-rotten-park-sweep",
+      "startedAt": 1783812828478,
+      "group": "Prepare"
+    },
+    {
+      "id": "a6acc0252bc5a20a2",
+      "kind": "workflow",
+      "label": "prep:autosplit-tag-inheritance",
+      "startedAt": 1783812825317,
+      "group": "Prepare"
+    },
+    {
+      "id": "a608ec219f0b7df4c",
+      "kind": "workflow",
+      "label": "prep:gap-hold-prefixes",
+      "startedAt": 1783812825860,
+      "group": "Prepare"
+    },
+    {
+      "id": "ae6a2d2af15e1f4fc",
+      "kind": "workflow",
+      "label": "prep:stitch-revival-mission",
+      "startedAt": 1783812826378,
+      "group": "Prepare"
+    }
+  ],
+  "tokens": 7922549,
+  "output": null,
   "children": null,
-  "linkScanOffset": 52052395,
+  "linkScanOffset": 52108123,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -42,6 +78,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-11T23:30:41.462Z",
+  "updatedAt": "2026-07-11T23:34:10.234Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
