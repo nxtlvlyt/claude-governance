@@ -1,6 +1,6 @@
 {
-  "state": "done",
-  "detail": "spot-briefs data gap identified (7/4,215 wikidata); engine fix proved, board healthy",
+  "state": "working",
+  "detail": "atv-12 executing (~50min, full run); mt lane draining queue; next report after Gemini vision pass",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,12 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 7853199,
-  "output": {
-    "result": "spot-briefs parked on data gap (wikidata enrichment needed); engine fix validated; atv-12 + queue proceeding"
-  },
+  "tokens": 7854606,
+  "output": null,
   "children": null,
-  "linkScanOffset": 50944985,
+  "linkScanOffset": 50967572,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -42,6 +40,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-11T22:35:03.686Z",
+  "updatedAt": "2026-07-11T22:44:36.150Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
