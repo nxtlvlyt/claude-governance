@@ -6,14 +6,121 @@
     "tasks": 1,
     "queued": 0,
     "kinds": [
-      "session_cron"
+      "local_workflow"
     ]
   },
   "selfWake": true,
+  "fan": [
+    {
+      "id": "a16a0fb015f342695",
+      "kind": "workflow",
+      "label": "read:build-spec",
+      "group": "Read",
+      "startedAt": 1783790306781,
+      "doneAt": 1783790306781
+    },
+    {
+      "id": "ade500ae66c1cf444",
+      "kind": "workflow",
+      "label": "read:history",
+      "group": "Read",
+      "startedAt": 1783790306784,
+      "doneAt": 1783790306784
+    },
+    {
+      "id": "a588ce63839bf83f9",
+      "kind": "workflow",
+      "label": "read:plans",
+      "group": "Read",
+      "startedAt": 1783790306787,
+      "doneAt": 1783790306787
+    },
+    {
+      "id": "abf6f903217a48012",
+      "kind": "workflow",
+      "label": "read:core",
+      "group": "Read",
+      "startedAt": 1783790306789,
+      "doneAt": 1783790306789
+    },
+    {
+      "id": "aadb6ce16bd5f8d07",
+      "kind": "workflow",
+      "label": "read:clients",
+      "group": "Read",
+      "startedAt": 1783790306791,
+      "doneAt": 1783790306791
+    },
+    {
+      "id": "adfc1f3fced3fa8e4",
+      "kind": "workflow",
+      "label": "read:missions",
+      "group": "Read",
+      "startedAt": 1783790306792,
+      "doneAt": 1783790306792
+    },
+    {
+      "id": "a6f2aeba54d4aa886",
+      "kind": "workflow",
+      "label": "read:wiring",
+      "group": "Read",
+      "startedAt": 1783790306794,
+      "doneAt": 1783790306794
+    },
+    {
+      "id": "aca18a48db1c731ad",
+      "kind": "workflow",
+      "label": "audit:build-spec",
+      "group": "Audit",
+      "startedAt": 1783790311607
+    },
+    {
+      "id": "a16de91b41c746f4f",
+      "kind": "workflow",
+      "label": "audit:history",
+      "group": "Audit",
+      "startedAt": 1783790310435
+    },
+    {
+      "id": "a6a041f24b4a536ab",
+      "kind": "workflow",
+      "label": "audit:plans",
+      "group": "Audit",
+      "startedAt": 1783790311376
+    },
+    {
+      "id": "a810f5d4c6284ffcf",
+      "kind": "workflow",
+      "label": "audit:core",
+      "group": "Audit",
+      "startedAt": 1783790310814
+    },
+    {
+      "id": "a68b762273ef7f97a",
+      "kind": "workflow",
+      "label": "audit:clients",
+      "group": "Audit",
+      "startedAt": 1783790310939
+    },
+    {
+      "id": "aeebafcdb385e4363",
+      "kind": "workflow",
+      "label": "audit:missions",
+      "group": "Audit",
+      "startedAt": 1783790310831
+    },
+    {
+      "id": "a3a3530673fcfb8f2",
+      "kind": "workflow",
+      "label": "audit:wiring",
+      "group": "Audit",
+      "startedAt": 1783790310804
+    }
+  ],
   "tokens": 6429495,
   "output": null,
   "children": null,
-  "linkScanOffset": 36590795,
+  "linkScanOffset": 36696036,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -23,7 +130,7 @@
     "--model",
     "claude-opus-4-8",
     "--permission-mode",
-    "acceptEdits"
+    "auto"
   ],
   "bgIsolation": "none",
   "providerEnv": {},
@@ -36,7 +143,7 @@
   "cliVersion": "2.1.206",
   "cwd": "C:\\Users\\marka",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-11T17:08:03.822Z",
+  "updatedAt": "2026-07-11T17:18:31.787Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z",
   "bridgeSessionId": "cse_015z5n4qQqp9BZ8kKSCkvtzT",
   "bridgeOutboundOnly": false,
