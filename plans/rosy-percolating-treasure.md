@@ -141,6 +141,36 @@ rules (deploys/SearXNG/web queue until reconnect).
   ruling — the succession ruling still holds the test FORMAT as operator-spec-pending;
   recorded here as his discussion-stage observation.
 
+## THE HERMES REVEAL (operator, 2026-07-11 ~02:1x: "this was a project that's already
+## been started but we didn't know enough to finish it like we do now")
+The hypothetical IS resuming HERMES. Disk receipts (Read this session):
+- C:\Users\marka\hermes-agent — full OSS agent-CLI codebase (Python): hermes_cli/, agent/,
+  gateway/, providers/, plugins/, skills/, tools/, ui-tui/ (the TUI), cron/, mcp_serve.py,
+  trajectory_compressor.py, sandboxes. Repo state frozen 2026-06-26.
+- HERMES_HOME (C:\Users\marka\AppData\Local\hermes) — the live customization home
+  (survives `hermes update` repo wipes, receipted memory): config.yaml (home-4090
+  default + cloud-model orchestra aliases), hooks/, skills/, SOUL.md, state.db (sessions
+  through 06-26), memories/, cron/, AND provider caches already doing multi-channel
+  discovery: models_dev_cache.json + ollama_cloud_models_cache.json +
+  provider_models_cache.json.
+- plugins\muezzin_framework (2026-06-25/26, "Markus Bass + Claude conductor"):
+  pre_llm_call / on_session_start / post_llm_call plugin hooks + shell pre/post_tool_call
+  hooks — REAL lifecycle points. Content is the same ADVICE-INJECTION generation as the
+  agy plugin (identical FRAMEWORK_INJECT junior-conductor text); its own text records
+  why that era failed: "17 of 18 sessions exited without emitting EITHER marker",
+  "5/11 fail rate" — advice without rails, before the rails existed.
+WHAT THIS INVERTS: the design panel ranked the chat loop / TUI / streaming / providers /
+session persistence as the hard 3-5+ evening tail of a greenfield CLI — Hermes ALREADY
+HAS all of it. The build becomes "bring the RAILS to an existing chat CLI" (the port
+playbook applied to Hermes: engine fork as the mission layer, rails via Hermes's plugin
+lifecycle + conduct-beat relay for the conductor seat, channels/seats/audition as
+config), not "build a chat CLI around rails." The missing knowledge that killed the
+June attempt is now WRITTEN: CONDUCTOR-PORT-PLAYBOOK.md, N5 spec items 1-14, the
+ladder, engine gates, jurisdiction pattern, {model,channel} rijal.
+Caveats: `hermes update` hard-resets the repo (all grafts must live in HERMES_HOME);
+repo is 15 days stale (update decision needed at build time); Python-side rails vs
+Node engine = subprocess boundary (same shape as conduct-cycle --json relay, proven).
+
 ## AIMLAPI channel receipts (WebFetch, 2026-07-11 this session)
 - CONFIRMED OpenAI-compatible: https://api.aimlapi.com/v1/chat/completions, Bearer auth,
   base_url https://api.aimlapi.com/v1 (docs.aimlapi.com/api-references/text-models-llm.md).

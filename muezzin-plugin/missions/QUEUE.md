@@ -2313,6 +2313,17 @@ muezzin-plugin/CONDUCTOR-PORT-PLAYBOOK.md — four-layer port map, the proven ag
 order, the lessons ledger with receipt pointers, jurisdiction pattern, rails-port
 options, acceptance bar. The N5 builder and the local-conductor test READ IT FIRST;
 update it in the same session any new port lesson is paid for.
+ITEM 2 ADDENDUM — AUTORUN LINE GRAMMAR (paid 2026-07-11 02:1x, two phantom failures):
+the verify-the-flip sweep must validate line FORMAT, not just the token change. The
+daemon's contract: pending lines are BARE paths ("missions/x.mission.txt  <!-- ... -->");
+"QUEUED" is NOT a STATUS_RE token (DONE/FAILED/RUNNING/SPLIT/PARKED only) — a QUEUED
+prefix becomes part of the parsed filename -> FAILED(missing file) -> dead-stem-retire;
+and ALL annotations must live INSIDE the single <!-- --> comment — text after the
+closing --> also concatenates into the parsed path (second phantom failure, 08:18Z).
+Sweep check: any AUTORUN line whose lead token is not in STATUS_RE and not a bare
+missions/ path, or with text outside a single well-formed comment, gets flagged
+BEFORE the daemon eats it. (Receipts: daemon-events 07:19Z/07:22Z/08:18Z/08:19Z both
+sides; both missions RUNNING after the bare-path rebuild at 08:21Z.)
 
 ## 2026-07-10 ENGINE ITEM: S2 REQUIRES tokens unresolvable by queuedDepsHold (38-file census)
 The deconstructor emits REQUIRES in MISSION-ID format (e.g. "MT-INTEGRATE-WILDLIFE-
