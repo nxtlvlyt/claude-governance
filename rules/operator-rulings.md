@@ -42,6 +42,17 @@ rulings. This file is the loudness fix.)
   for conductor beats — a prose priority loses to an autonomous queue every time (receipted
   2026-07-03: aurora shipped hollow while canary #29 sat queued-with-receipts for 2 days).
   "Queued with receipts" is NOT "handled."
+  EXTENSION (operator word 2026-07-11 ~22:0x: "it would be impossible [for] the conductor
+  [to] always know that gap issues get fixed before missions"): the CLASSIFICATION step
+  itself may not live in conductor judgment. Any operator-relayed PROCESS instruction
+  (a workflow, a pattern, a "do it this way" — e.g. the design-MD screenshots
+  2026-07-11) defaults to GAP-CLASS ON ARRIVAL: hold considered set, conductor beat
+  capacity goes to mechanizing it, and the gap closes ONLY when a mechanical gate
+  (lint rule, hook, engine check) lands — never when it is documented/filed/noted.
+  Receipt this extension mechanizes: the design-MD pattern was INBOX-filed hours
+  before atv-11b was authored without it; the operator had to screenshot the damage
+  himself. Companion escalation: QUEUE ITEM 21 (design-contract lint gate, due next
+  wake).
 - **nxtbeast concurrency: TWO SERIAL LANES that MAY overlap** (operator word 2026-07-02
   ~22:30): small models (witness pair ornith/guardian, laguna, north-mini) may run IN
   PARALLEL WITH the chain's big local models — the massive system-RAM overflow absorbs
