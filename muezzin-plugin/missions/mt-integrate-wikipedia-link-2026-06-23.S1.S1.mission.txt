@@ -1,0 +1,28 @@
+MISSION-ID: MT-INTEGRATE-WIKIPEDIA-LINK-2026-06-23.S1.S1
+MISSION-CLASS: code-repo
+PARENT: MT-INTEGRATE-WIKIPEDIA-LINK-2026-06-23.S1
+TARTIB-INDEX: 1 of 2
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - functions/api/wikipedia-link.js
+  - js/poi-wikipedia.js
+  - map.html
+VISUAL-QC-REQUIRED
+REQUIRES: none (first in tartib order)
+STEPS: 8
+
+PARENT MAQSAD: sub-mission 1 of 2 — Baseline check (idempotent): print current branch and HEAD of the target repo, and report ALREADY_PRESENT if either new feature file already exists on disk, else CLEAN_BASELINE. Pure diagnostic, no implementation file authored. through Stage and commit the three already-written ALLOW-FILES with a message citing mt-feat-wikipedia-link-2026-06-23 and cf373c9; idempotent no-op (ALREADY_COMMITTED) if a commit citing cf373c9 already exists in recent history.
+
+Maqsad: sub-mission 1 of 2 — Baseline check (idempotent, diagnostic only): print current branch and HEAD SHA; report ALREADY_PRESENT if either new feature file already exists on disk, else CLEAN_BASELINE. Authors nothing. through Stage and commit the three already-written ALLOW-FILES with a message citing mt-feat-wikipedia-link-2026-06-23 and cf373c9. Idempotent: if the scoped working tree for these files is already clean (nothing staged after add), report ALREADY_COMMITTED instead of re-committing. Does not author new content in any implementation file — it commits content already written by steps 3-5.
+
+Steps:
+  1. Baseline check (idempotent, diagnostic only): print current branch and HEAD SHA; report ALREADY_PRESENT if either new feature file already exists on disk, else CLEAN_BASELINE. Authors nothing. [command] 
+  2. Ancestry check: determine whether commit cf373c9 is already an ancestor of the target repo's current HEAD; report IS_ANCESTOR or NOT_ANCESTOR. Guards later steps against redundant work. Authors nothing. [command] 
+  3. Restore functions/api/wikipedia-link.js from commit cf373c9 into the working tree via single-path git checkout (idempotent no-op if identical content already present). This is the ONLY step that writes this file. [command] functions/api/wikipedia-link.js
+  4. Restore js/poi-wikipedia.js from commit cf373c9 into the working tree via single-path git checkout (idempotent no-op if identical content already present). This is the ONLY step that writes this file. [command] js/poi-wikipedia.js
+  5. Edit map.html: insert exactly one new tag, <script src="js/poi-wikipedia.js" defer></script>, immediately after the existing <script src="js/poi-provenance.js" defer></script> tag, preserving every other pre-existing script tag (including js/plan-day-weather.js) untouched. This is the ONLY step that writes map.html. [edit] map.html
+  6. Syntax-check functions/api/wikipedia-link.js as landed in step 3 (read-only verification, authors nothing). [verify] functions/api/wikipedia-link.js
+  7. Syntax-check js/poi-wikipedia.js as landed in step 4 (read-only verification, authors nothing). [verify] js/poi-wikipedia.js
+  8. Stage and commit the three already-written ALLOW-FILES with a message citing mt-feat-wikipedia-link-2026-06-23 and cf373c9. Idempotent: if the scoped working tree for these files is already clean (nothing staged after add), report ALREADY_COMMITTED instead of re-committing. Does not author new content in any implementation file — it commits content already written by steps 3-5. [command] 
+
+Done means: functions/api/wikipedia-link.js, js/poi-wikipedia.js, map.html exist/are updated as specified — verify by headless-browser render, not by reading the code

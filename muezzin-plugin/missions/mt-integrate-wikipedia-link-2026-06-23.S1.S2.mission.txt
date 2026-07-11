@@ -1,0 +1,20 @@
+MISSION-ID: MT-INTEGRATE-WIKIPEDIA-LINK-2026-06-23.S1.S2
+MISSION-CLASS: code-repo
+PARENT: MT-INTEGRATE-WIKIPEDIA-LINK-2026-06-23.S1
+TARTIB-INDEX: 2 of 2
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - functions/api/wikipedia-link.js
+  - js/poi-wikipedia.js
+  - map.html
+REQUIRES: MT-INTEGRATE-WIKIPEDIA-LINK-2026-06-23.S1.S1 (tartib — this sub-mission may not start until MT-INTEGRATE-WIKIPEDIA-LINK-2026-06-23.S1.S1's receipt exists)
+STEPS: 1
+
+PARENT MAQSAD: sub-mission 1 of 2 — Baseline check (idempotent): print current branch and HEAD of the target repo, and report ALREADY_PRESENT if either new feature file already exists on disk, else CLEAN_BASELINE. Pure diagnostic, no implementation file authored. through Stage and commit the three already-written ALLOW-FILES with a message citing mt-feat-wikipedia-link-2026-06-23 and cf373c9; idempotent no-op (ALREADY_COMMITTED) if a commit citing cf373c9 already exists in recent history.
+
+Maqsad: sub-mission 2 of 2 — OUTCOME CHECK (headless-render witness): write scratch-qc-wiki-chip.mjs (Playwright ESM script), navigate directly to the target repo's map.html via a file:// URL, poll until window.mtWikipediaChip is defined, call it with a synthetic match object, and assert the returned HTML contains the literal substring class="mt-wiki-chip". Exits non-zero with a named reason on any failure. Cleans up the scratch file after running. through OUTCOME CHECK (headless-render witness): write scratch-qc-wiki-chip.mjs (Playwright ESM script), navigate directly to the target repo's map.html via a file:// URL, poll until window.mtWikipediaChip is defined, call it with a synthetic match object, and assert the returned HTML contains the literal substring class="mt-wiki-chip". Exits non-zero with a named reason on any failure. Cleans up the scratch file after running.
+
+Steps:
+  9. OUTCOME CHECK (headless-render witness): write scratch-qc-wiki-chip.mjs (Playwright ESM script), navigate directly to the target repo's map.html via a file:// URL, poll until window.mtWikipediaChip is defined, call it with a synthetic match object, and assert the returned HTML contains the literal substring class="mt-wiki-chip". Exits non-zero with a named reason on any failure. Cleans up the scratch file after running. [command] 
+
+Done means:  exist/are updated as specified
