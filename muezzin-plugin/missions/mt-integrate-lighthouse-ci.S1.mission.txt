@@ -17,7 +17,7 @@ PARENT MAQSAD: Land commit 34db2da ("ci(lighthouse): score-delta CI on every PR 
 Maqsad: sub-mission 1 of 2 — Record target repo branch/HEAD state and assert none of the five ALLOW-FILES paths already exist on disk before integration. through Verify docs/LIGHTHOUSE-CI.md was landed on disk with real, non-stub content.
 
 Steps:
-  1. Record target repo branch/HEAD state and assert none of the five ALLOW-FILES paths already exist on disk before integration. [command] 
+  1. Record target repo branch/HEAD state and assert none of the five ALLOW-FILES paths already exist on disk before integration. [command] Write-Output "BRANCH:$(git rev-parse --abbrev-ref HEAD) SHA:$(git rev-parse HEAD)"; $targets = @('.github/workflows/lighthouse-ci.yml','scripts/lhci-compare.mjs','mt-audit/lighthouserc.json','scripts/lhci-pre-commit.mjs','docs/LIGHTHOUSE-CI.md'); $existing = $targets | Where-Object { Test-Path $_ }; if ($existing) { Write-Output "ALREADY-PRESENT: $($existing -join ', ')" } else { Write-Output "PREFLIGHT-OK: none of the five ALLOW-FILES exist" }
   2. Check whether commit 34db2da is already an ancestor of the target repo's current HEAD before attempting a cherry-pick; this is informational since either outcome is a valid state per mission context. [command] 
   3. Cherry-pick commit 34db2da from the shared object store onto the target repo's current HEAD, landing all five feature files. [command] 
   4. Verify .github/workflows/lighthouse-ci.yml was landed on disk with real, non-stub content. [verify] .github/workflows/lighthouse-ci.yml

@@ -7,6 +7,7 @@ ALLOW-FILES:
   - docs/PARTNERS-WIDGET.md
   - widget/v1/embed.js
   - widget/v1/index.html
+VISUAL-QC-REQUIRED
 REQUIRES: MT-INTEGRATE-PARTNER-WIDGET.S1 (tartib — this sub-mission may not start until MT-INTEGRATE-PARTNER-WIDGET.S1's receipt exists)
 STEPS: 3
 
@@ -17,6 +18,6 @@ Maqsad: sub-mission 2 of 2 — Confirm on-disk content of widget/v1/index.html r
 Steps:
   9. Confirm on-disk content of widget/v1/index.html reads query params and posts a resize height back via postMessage. [verify] 
   10. Confirm the local preview server actually answers at PREVIEW-BASE-URL before rendering; asserts both HTTP 200 and a non-empty body, failing (NO_PREVIEW_BASE_URL-style) if the port is wrong or nothing is bound. [command] 
-  11. Headless-render each of the three widget types (campsite-near-here, fire-ban-status, quick-search) against PREVIEW-BASE-URL and witness zero fatal page errors across all three loads. [verify] 
+  11. Run `npx playwright test` (or an equivalent node/npx headless-render script) against PREVIEW-BASE-URL for each of the three widget types (campsite-near-here, fire-ban-status, quick-search) and witness zero fatal page errors across all three loads. [command]
 
-Done means:  exist/are updated as specified
+Done means: widget/v1/index.html and all three widget types (campsite-near-here, fire-ban-status, quick-search) render cleanly against PREVIEW-BASE-URL with zero fatal page errors — verified via headless-browser (Playwright) render, not by reading the code.

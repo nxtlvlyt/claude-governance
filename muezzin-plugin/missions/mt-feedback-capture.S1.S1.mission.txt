@@ -11,7 +11,7 @@ ALLOW-FILES:
   - index.html
 VISUAL-QC-REQUIRED
 REQUIRES: none (first in tartib order)
-STEPS: 8
+STEPS: 9
 
 PARENT MAQSAD: Operator-sent growth transcript 2026-07-03 (proof over promise: in the free phase
 
@@ -26,5 +26,19 @@ Steps:
   6. Wire js/feedback-widget.js into index.html: additive-only script tag + footer link 'Something broken? Tell us' opening the widget. [edit] index.html
   7. Syntax-verify js/feedback-widget.js before commit. [verify] js/feedback-widget.js
   8. Syntax-verify functions/api/feedback.js before commit. [verify] functions/api/feedback.js
+  9. Run wrangler preview deploy + node playwright render witness in ONE self-contained
+     command: confirm clean ALLOW-FILES tree, wrangler pages deploy .
+     --project-name=muddytires --branch=preview, capture the emitted *.pages.dev URL,
+     write scratch-feedback-qc.mjs (playwright: set viewport 375x812; load
+     <url>/map.html, wait for the map, assert the feedback affordance is visible and
+     does not overlap the top-left zoom/search stack or bottom day-rhythm strip, assert
+     no fatal page error and no console error naming feedback-widget; then load
+     <url>/index.html and assert the footer link 'Something broken? Tell us' is
+     visible). MODULE DISCIPLINE (mt-enrich-scenic-osm.S2 attempt-2 receipt: the
+     scratch used require() and died — "require is not defined in ES module scope"):
+     .mjs files are ES modules; the scratch file's FIRST line MUST be exactly: import
+     { chromium } from 'playwright'; — never require(), and use top-level await (ESM
+     supports it). Then run-and-clean with the exit code preserved — the command MUST
+     literally end with: node scratch-feedback-qc.mjs; $rc = $LASTEXITCODE; Remove-Item scratch-feedback-qc.mjs -ErrorAction SilentlyContinue; exit $rc [command]
 
 Done means: d1/migrate-feedback-2026-07-03.sql, functions/api/feedback.js, js/feedback-widget.js, map.html, index.html exist/are updated as specified — verify by headless-browser render, not by reading the code

@@ -23,8 +23,12 @@ source chain (no summary without provenance); the groundedness gate is what make
 authorship safe to automate.
 
 Steps:
-  1. Write scripts/build-spot-briefs.mjs: reads data/scenic-enrichment.json, for each entry
-     with a wikidata id resolves the linked Wikipedia article via
+  1. Write scripts/build-spot-briefs.mjs: resolve ALL file I/O paths (loadJson/saveJson) with
+     `path.resolve(process.cwd(), filename)` — NEVER `new URL(filename, import.meta.url)`,
+     which resolves relative to scripts/ and silently no-ops (step 3 always runs `node
+     scripts/build-spot-briefs.mjs` from REPO-ROOT, so cwd-relative resolution is correct;
+     import.meta.url-relative resolution is not). Reads data/scenic-enrichment.json, for each
+     entry with a wikidata id resolves the linked Wikipedia article via
      https://www.wikidata.org/wiki/Special:EntityData/<id>.json (sitelinks enwiki) and fetches
      its plain-text extract via the Wikipedia REST summary API; calls the local Ollama server
      (http://nxtbeast:11434/api/generate, model qwen3.6:27b) with a prompt requiring a 1-2
@@ -33,12 +37,15 @@ Steps:
      writes data/spot-briefs.json sorted by osm_id with sources array (wikipedia url +
      license note CC BY-SA). Entries with no wikidata/extract are omitted. [edit]
   2. Syntax-check the builder. [verify] scripts/build-spot-briefs.mjs
-  3. Run the builder EXACTLY: node scripts/build-spot-briefs.mjs [command]
+  3. Run: node scripts/build-spot-briefs.mjs — reads scripts/build-spot-briefs.mjs
+     (context_dependencies, action_type 'verify'), writes data/spot-briefs.json [command]
   4. Verify data/spot-briefs.json exists, parses, and every entry has a non-empty why_go
      AND at least one source url. [verify] data/spot-briefs.json
   5. Verify no entry's why_go contains the strings "Cool place" or "worth a quick stop"
      (the filler classes) — briefs must be spot-specific. [verify] data/spot-briefs.json
-  6. Commit both ALLOW-FILES with a message naming the entry count and source licensing. [command]
+  6. Run: git add data/spot-briefs.json scripts/build-spot-briefs.mjs && git commit -m
+     "<msg naming entry count + source licensing>" — both files listed as
+     context_dependencies, action_type 'verify' (not re-authored) [command]
 
 Done means: data/spot-briefs.json exists with >=1 grounded, source-attributed why_go entry
 for the SK pilot, zero filler strings, builder passes node --check, both files committed.

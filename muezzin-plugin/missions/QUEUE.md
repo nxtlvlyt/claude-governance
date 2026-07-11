@@ -2405,3 +2405,28 @@ FIX (engine, small, pick one): (a) resolver-side — normalize mission-shaped to
 deconstructor emits file-path REQUIRES. (a) also heals the 38 existing files without
 touching them; prefer (a). DO NOT hand-edit the 38 files (the generator would regress them
 on the next autosplit). Owner: next engine batch.
+
+ITEM 20 — STALE CHECKPOINT RESUMES PAST AMENDMENTS (filed 2026-07-11, TWO same-day
+receipts across BOTH forks): the engine checkpoint lives at
+missions/<stem>/_checkpoint.json (orchestrate.mjs writeCheckpoint(cwd) — cwd is the
+per-mission events dir), NOT <REPO-ROOT>/_checkpoint.json. A requeue that clears
+result.json but misses the per-mission checkpoint silently resumes the PRE-AMENDMENT
+banked steps: the trust-boundary check (sha touches target) passes because the OLD
+commit genuinely touched the file — it cannot detect that the step SPEC changed.
+Receipts: (1) mt-spot-briefs.S1 attempt-3 20:24-20:41Z re-failed with the identical
+ENOENT because step 1 resumed sha 1274575 (the import.meta.url-buggy script) from
+missions/mt-spot-briefs.S1/_checkpoint.json ts 07-10T18:08 — the requeue had verified
+only the repo-root path; (2) atv-11-design-pass.S1.S1 (agy fork) DONE-marked with
+step-2 resumed:true banking a css that fails its own amended validation → the site
+shipped unstyled and the render witness (DOM-count, not computed styles) couldn't see
+it (repaired by atv-11b-vocab-bridge). ~78 stale _checkpoint.json files currently sit
+under missions/ (census this wake).
+FIX (two layers): (a) PROCEDURE (live now — encoded in the 2026-07-11 preflights): the
+requeue checklist's "clear checkpoint" step names missions/<stem>/_checkpoint.json
+explicitly; (b) ENGINE (small): readCheckpoint() auto-invalidates any checkpoint whose
+ts is OLDER than the mission .txt's mtime — an amended mission text always outranks
+banked steps (keep-only-if-every-banked-step-is-correct, mechanized). Also: the render
+witness lesson rides with this — presence witnesses (DOM counts) pass unstyled pages;
+computed-style-over-HTTP is the honest bar for design missions (atv-11b's witness is
+the template). Owner: next engine batch (same staleness-belongs-to-substrate shape as
+item 17).

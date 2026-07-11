@@ -8,7 +8,7 @@ ALLOW-FILES:
   - build-testimonials.mjs
 VISUAL-QC-REQUIRED
 REQUIRES: none (first in tartib order)
-STEPS: 8
+STEPS: 9
 
 PARENT MAQSAD: The commit "06c58148cf01b13388f08b53b2cd8e8942f7b182 feat(landing): add
 
@@ -22,6 +22,7 @@ Steps:
   5. Ensure landing.html contains BOTH the repo's pre-existing sections AND the new testimonials block intact between markers -- hand-resolve any conflict markers the cherry-pick left, never dropping either side. [edit] landing.html
   6. Ensure build-testimonials.mjs holds the full ~321-line build script with no conflict markers or truncation from the cherry-pick. [edit] build-testimonials.mjs
   7. Syntax-check build-testimonials.mjs, the only .js/.mjs file this integration touches per the confirmed diff stat (2 files changed: build-testimonials.mjs + landing.html). [verify] 
-  8. If the cherry-pick was left uncommitted by conflict resolution, stage and finalize it with a message naming testimonials/06c5814; confirm the working tree is clean with no unmerged paths. [command] 
+  8. If the cherry-pick was left uncommitted by conflict resolution, stage and finalize it with a message naming testimonials/06c5814; confirm the working tree is clean with no unmerged paths. [command]
+  9. (amended post-MIQAT-REFUSED 2026-07-09T19:14:27Z — VISUAL-QC-REQUIRED correctly found no executable step in this file; the parent mission's render-check step was misassigned to sub-mission S2, which REQUIRES this mission and can therefore never fire first) In ONE command: confirm clean tree for build-testimonials.mjs and landing.html (git commit first if this mission's edits are not yet committed — never deploy a dirty tree), then wrangler pages deploy . --project-name=muddytires --branch=preview, capture the emitted *.pages.dev URL, write scratch-qc.mjs (playwright render of landing.html from that URL, exit non-zero if the page throws a fatal script error or the marked testimonials section is absent from the rendered DOM), run node scratch-qc.mjs, then Remove-Item scratch-qc.mjs. [command] visual-witness-render
 
 Done means: landing.html, build-testimonials.mjs exist/are updated as specified — verify by headless-browser render, not by reading the code

@@ -4,13 +4,11 @@ PARENT: mt-integrate-lighthouse-fix1-extensionless-verification-docs
 TARTIB-INDEX: 1 of 2
 REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
 ALLOW-FILES:
-  - .git/HEAD
   - docs/QC-PIPELINE-SOTA-2026-06-23.md
   - docs/AUDIT-LIGHTHOUSE-FIX1-2026-06-23.md
   - docs/lighthouse-fix1-2026-06-23/map-extensionless.json
   - docs/lighthouse-fix1-2026-06-23/map-extensionless-run2.json
   - docs/lighthouse-fix1-2026-06-23/map-html-with-redirect.json
-  - .git/logs/HEAD
 REQUIRES: none (first in tartib order)
 STEPS: 8
 

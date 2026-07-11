@@ -14,6 +14,6 @@ PARENT MAQSAD: Land commit c13ecad7d324d93d08457b5b8f37da8a42962f9f from its sou
 Maqsad: sub-mission 2 of 2 — Confirm the landed commit is present in main's history (filtered for k6-load-baseline) and the working tree is clean, checked directly rather than assumed. through Confirm the landed commit is present in main's history (filtered for k6-load-baseline) and the working tree is clean, checked directly rather than assumed.
 
 Steps:
-  9. Confirm the landed commit is present in main's history (filtered for k6-load-baseline) and the working tree is clean, checked directly rather than assumed. [verify] 
+  9. Confirm the landed commit is present in main's history (filtered for k6-load-baseline, keyed to the recommit's filenames/message, NOT the original source SHA c13ecad7d324d93d08457b5b8f37da8a42962f9f which by S1's checkout+fresh-commit integration method can never become an ancestor of main) and the working tree is clean, checked directly rather than assumed, by running: if (((git log --oneline -- tests/load/k6-baseline.js docs/LOAD-TESTING.md | Select-String -Pattern 'k6-load-baseline' -Quiet)) -and ([string]::IsNullOrWhiteSpace((git status --porcelain -- tests/load/k6-baseline.js docs/LOAD-TESTING.md))) -and ((git rev-parse --abbrev-ref HEAD) -eq 'main')) { exit 0 } else { exit 1 } [verify]
 
 Done means:  exist/are updated as specified

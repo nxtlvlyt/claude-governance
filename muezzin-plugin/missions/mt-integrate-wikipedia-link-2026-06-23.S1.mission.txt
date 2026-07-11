@@ -9,7 +9,7 @@ ALLOW-FILES:
   - map.html
 VISUAL-QC-REQUIRED
 REQUIRES: none (first in tartib order)
-STEPS: 8
+STEPS: 9
 
 PARENT MAQSAD: Land commit cf373c9 ("feat(wikipedia-link): /api/wikipedia-link + popup chip for
 
@@ -23,6 +23,7 @@ Steps:
   5. Edit map.html: insert exactly one new tag, <script src="js/poi-wikipedia.js" defer></script>, immediately after the existing <script src="js/poi-provenance.js" defer></script> tag, while preserving every pre-existing script tag on the target's HEAD side (including js/plan-day-weather.js) untouched. This is the ONLY step that writes map.html. [edit] map.html
   6. Syntax-check functions/api/wikipedia-link.js as landed in step 3 (read-only verification, authors nothing). [verify] functions/api/wikipedia-link.js
   7. Syntax-check js/poi-wikipedia.js as landed in step 4 (read-only verification, authors nothing). [verify] js/poi-wikipedia.js
-  8. Stage and commit the three already-written ALLOW-FILES with a message citing mt-feat-wikipedia-link-2026-06-23 and cf373c9; idempotent no-op (ALREADY_COMMITTED) if a commit citing cf373c9 already exists in recent history. [command] 
+  8. Stage and commit the three already-written ALLOW-FILES with a message citing mt-feat-wikipedia-link-2026-06-23 and cf373c9; idempotent no-op (ALREADY_COMMITTED) if a commit citing cf373c9 already exists in recent history. [command]
+  9. OUTCOME CHECK (headless-render witness; added 2026-07-11 after MIQAT-REFUSED found this VISUAL-QC-REQUIRED mission had no step that executes anything — RULE 11 grep-only-visual-verification). In ONE command: write scratch-qc-wiki-chip.mjs (a Playwright script using ESM import syntax, never require()) that launches headless Chromium and navigates DIRECTLY to the target repo's map.html via a file:// URL (REPO-ROOT + \map.html, i.e. file:///C:/Users/marka/code/mt-integration-2026-06-22/map.html) — deliberately no local preview server and no dependency on the parent mission's placeholder preview port, since this check only exercises the client-side chip renderer js/poi-wikipedia.js exposes; S2's own deploy-and-render step already covers the served-page integration check separately, and the mission engine's plan-gate refuses any hand-rolled local-preview-server text that isn't paired with a real deploy verb. Poll until window.mtWikipediaChip is defined (js/poi-wikipedia.js exposes this renderer specifically "for any future caller that wants to... unit test" per its own source comment), call it inside the page via page.evaluate with a synthetic match object ({match:{confidence:0.9,url:'https://en.wikipedia.org/wiki/Test_Article',title:'Test Article',extract:'CI verification extract.'}}), and assert the returned HTML string contains the literal substring class="mt-wiki-chip" — the popup-chip's real CSS class, read from js/poi-wikipedia.js this session. Exit non-zero with a named reason if window.mtWikipediaChip is undefined, throws, or the returned HTML lacks that class. The command MUST literally end with: node scratch-qc-wiki-chip.mjs; $rc = $LASTEXITCODE; Remove-Item scratch-qc-wiki-chip.mjs -ErrorAction SilentlyContinue; exit $rc [command]
 
-Done means: functions/api/wikipedia-link.js, js/poi-wikipedia.js, map.html exist/are updated as specified — verify by headless-browser render, not by reading the code
+Done means: functions/api/wikipedia-link.js, js/poi-wikipedia.js, map.html exist/are updated as specified, and step 9's headless-render receipt shows the wikipedia popup-chip (class="mt-wiki-chip") actually rendered via window.mtWikipediaChip in a live browser render of map.html — not verified by reading the code

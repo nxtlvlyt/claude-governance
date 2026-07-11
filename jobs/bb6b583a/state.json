@@ -1,18 +1,18 @@
 {
   "state": "working",
-  "detail": "atv-11b vocab-fix mission running (~26m), will redeploy preview on pass",
+  "detail": "atv preview live; 16 amendments applied, queue draining, cron ~10m",
   "tempo": "idle",
   "inFlight": {
-    "tasks": 2,
+    "tasks": 1,
     "queued": 0,
     "kinds": [
       "session_cron"
     ]
   },
-  "tokens": 7642843,
+  "tokens": 7742446,
   "output": null,
   "children": null,
-  "linkScanOffset": 45145179,
+  "linkScanOffset": 47107584,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -40,6 +40,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-11T20:15:16.857Z",
+  "updatedAt": "2026-07-11T21:01:01.366Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }

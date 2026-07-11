@@ -4,8 +4,9 @@ PARENT: MT-INTEGRATE-PARTNER-WIDGET
 TARTIB-INDEX: 1 of 2
 REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
 ALLOW-FILES:
+  - docs/PARTNERS-WIDGET.md
   - widget/v1/embed.js
-VISUAL-QC-REQUIRED
+  - widget/v1/index.html
 REQUIRES: none (first in tartib order)
 STEPS: 8
 
@@ -23,4 +24,4 @@ Steps:
   7. Confirm on-disk content of docs/PARTNERS-WIDGET.md documents the embed snippet and data-mt-* attributes (not just that the cherry-pick exited 0). [verify] 
   8. Confirm on-disk content of widget/v1/embed.js parses data-mt-* attributes and injects a same-origin iframe. [verify] 
 
-Done means: widget/v1/embed.js exist/are updated as specified — verify by headless-browser render, not by reading the code
+Done means: widget/v1/embed.js lands on disk via the 94e0263 cherry-pick, syntax-checks clean, and its content is grep-confirmed to parse data-mt-* attributes and inject a same-origin iframe (steps 4-8) — headless-browser visual verification is S2's responsibility (step 11), not S1's.

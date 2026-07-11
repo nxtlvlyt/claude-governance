@@ -35,10 +35,10 @@ surface); scope every assertion to the two ALLOW-FILES.
 
 Steps:
   1. Idempotent baseline: record branch + HEAD; if index.html no longer contains 'Discovery Vectors' output CLEAN_ALREADY and treat edit steps as verify-only presence checks; else CLEAN_BASELINE. Never exit 1 on existence. [command]
-  2. Write the scratch grader (Set-Content scratch-copy-grade.mjs): extract user-visible strings from index.html + map.html as the Maqsad specifies, compute Flesch-Kincaid grade per string, print each string with its grade, exit 0 with COPY_GRADE_BASELINE after printing. Run it and keep its output as the before-receipt. [command]
+  2. In ONE command: Set-Content scratch-copy-grade-baseline.mjs with a script that extracts user-visible strings from index.html + map.html as the Maqsad specifies, computes Flesch-Kincaid grade per string, and prints each string with its grade; run it via node scratch-copy-grade-baseline.mjs, capture its output as the before-receipt, exit 0 with COPY_GRADE_BASELINE, then Remove-Item scratch-copy-grade-baseline.mjs. [command]
   3. Rewrite the offending strings in index.html per D2 (grade >8 -> plain language <=6, trust claims preserved, 'Discovery Vectors' and 'Critical infra' eliminated). [edit] index.html
   4. Rewrite the offending strings in map.html per D2 under the same rules (layer names, control labels, section copy — leave the aurora chip strings untouched). [edit] map.html
-  5. Re-run the scratch grader: require every extracted headline/CTA/blurb string to grade <=8 with headline+CTA strings <=6, output COPY_CLARITY_OK, then remove the scratch file. [verify]
+  5. In ONE command: recreate the same grading script as scratch-copy-grade-verify.mjs, run it via node scratch-copy-grade-verify.mjs, require every extracted headline/CTA/blurb string to grade <=8 with headline+CTA strings <=6, output COPY_CLARITY_OK, then Remove-Item scratch-copy-grade-verify.mjs. [verify]
   6. Scoped cleanliness: git status --porcelain -- index.html map.html shows only these two files modified. [verify]
   7. Commit the two ALLOW-FILES by explicit name with a message naming this mission and listing every before -> after string pair, confirm the commit is on HEAD. [command]
 
