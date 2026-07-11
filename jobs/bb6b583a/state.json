@@ -1,7 +1,7 @@
 {
-  "state": "blocked",
-  "detail": "Sentry poller queued (item 19); needs auth token to enable",
-  "tempo": "blocked",
+  "state": "done",
+  "detail": "dispatch verified build spec, auth, scope; poller/diffing/queueing substrate-buildable",
+  "tempo": "idle",
   "inFlight": {
     "tasks": 2,
     "queued": 0,
@@ -9,13 +9,12 @@
       "session_cron"
     ]
   },
-  "tokens": 7576063,
-  "needs": "create Sentry auth token (Settings → Auth Tokens, scopes project:read + event:read) and provide it",
+  "tokens": 7576932,
   "output": {
-    "result": "auto poller ready to queue; needs Sentry token to activate (no more manual screenshots after)"
+    "result": "token is sole operator credential; poller, diffing, mission-queueing are automated—no weekly screenshots needed"
   },
   "children": null,
-  "linkScanOffset": 40967135,
+  "linkScanOffset": 40986160,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -43,6 +42,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-11T19:45:26.143Z",
+  "updatedAt": "2026-07-11T19:46:09.503Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
