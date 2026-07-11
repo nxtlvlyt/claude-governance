@@ -1,6 +1,6 @@
 {
-  "state": "done",
-  "detail": "design plan filed: screenshot→DESIGN.md→implement cycle via agy; skills security review queued",
+  "state": "working",
+  "detail": "design contract written; atv-12 branch deployed, preview refreshing (20–40m)",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,12 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 7793680,
-  "output": {
-    "result": "fix workflow: iterate on screenshots to emit DESIGN.md, implement to contract, preview before ship; skills review in progress"
-  },
+  "tokens": 7822055,
+  "output": null,
   "children": null,
-  "linkScanOffset": 50226249,
+  "linkScanOffset": 50459249,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -42,6 +40,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-11T21:44:51.193Z",
+  "updatedAt": "2026-07-11T21:55:17.515Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
