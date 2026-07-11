@@ -1,6 +1,6 @@
 {
-  "state": "working",
-  "detail": "I'll fold it into the N5 batch and keep the beats running.",
+  "state": "done",
+  "detail": "roadmap: stop-hook + stale-inject tonight; bootstrap+diagnosis-debt with N5 build",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,12 @@
       "session_cron"
     ]
   },
-  "tokens": 5829587,
-  "output": null,
+  "tokens": 5831228,
+  "output": {
+    "result": "two small fixes (stop-hook, stale-inject) tonight; bootstrap gate + diagnosis-debt in N5 build"
+  },
   "children": null,
-  "linkScanOffset": 33368860,
+  "linkScanOffset": 33409733,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -40,6 +42,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-11T06:47:29.242Z",
+  "updatedAt": "2026-07-11T06:48:20.066Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
