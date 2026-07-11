@@ -1,6 +1,6 @@
 {
-  "state": "working",
-  "detail": "agy dispatch beat running; daemons healthy, pickup scheduled",
+  "state": "done",
+  "detail": "root cause isolated: --print-timeout drops prompt; dispatch corrected",
   "tempo": "idle",
   "inFlight": {
     "tasks": 3,
@@ -12,16 +12,18 @@
   },
   "fan": [
     {
-      "id": "bckusw2yo",
+      "id": "ba611wne0",
       "kind": "shell",
-      "label": "agy --model \"gemini-3.5-flash\" --print --print-timeout 8m \"Read the file C:/Users/marka/agy-muezzin/missions/_logs/agy-beat-brief.txt and follow its instructions exactly.\" > C:\\Users\\marka\\agy-muezzi…",
-      "startedAt": 1783791719983
+      "label": "agy --model \"gemini-3.5-flash\" --print \"Read the file C:/Users/marka/agy-muezzin/missions/_logs/agy-beat-brief.txt and follow its instructions exactly.\" > C:\\Users\\marka\\agy-muezzin\\missions\\_logs\\ag…",
+      "startedAt": 1783791899332
     }
   ],
-  "tokens": 6737931,
-  "output": null,
+  "tokens": 6740035,
+  "output": {
+    "result": "misfire caused by --print-timeout flag in agy_dispatch; daemons healthy, corrected dispatch running"
+  },
   "children": null,
-  "linkScanOffset": 37708275,
+  "linkScanOffset": 37751299,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -49,6 +51,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-11T17:43:44.621Z",
+  "updatedAt": "2026-07-11T17:45:14.367Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
