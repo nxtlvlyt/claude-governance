@@ -1,128 +1,129 @@
 {
-  "state": "blocked",
-  "detail": "so we will never know if we can fix warroom because you're tired at 3am where you live why are you asking me what I want next I don't understand what's happening there's so much work to do, are you quitting because you're tired",
+  "state": "working",
+  "detail": "warroom audit running (14+ agents); agy diagnosing atv root cause",
   "tempo": "active",
   "inFlight": {
-    "tasks": 1,
+    "tasks": 2,
     "queued": 0,
     "kinds": [
-      "local_workflow"
+      "local_workflow",
+      "session_cron"
     ]
   },
-  "selfWake": true,
   "fan": [
     {
       "id": "a16a0fb015f342695",
       "kind": "workflow",
       "label": "read:build-spec",
-      "group": "Read",
       "startedAt": 1783790306781,
-      "doneAt": 1783790306781
+      "doneAt": 1783790306781,
+      "group": "Read"
     },
     {
       "id": "ade500ae66c1cf444",
       "kind": "workflow",
       "label": "read:history",
-      "group": "Read",
       "startedAt": 1783790306784,
-      "doneAt": 1783790306784
+      "doneAt": 1783790306784,
+      "group": "Read"
     },
     {
       "id": "a588ce63839bf83f9",
       "kind": "workflow",
       "label": "read:plans",
-      "group": "Read",
       "startedAt": 1783790306787,
-      "doneAt": 1783790306787
+      "doneAt": 1783790306787,
+      "group": "Read"
     },
     {
       "id": "abf6f903217a48012",
       "kind": "workflow",
       "label": "read:core",
-      "group": "Read",
       "startedAt": 1783790306789,
-      "doneAt": 1783790306789
+      "doneAt": 1783790306789,
+      "group": "Read"
     },
     {
       "id": "aadb6ce16bd5f8d07",
       "kind": "workflow",
       "label": "read:clients",
-      "group": "Read",
       "startedAt": 1783790306791,
-      "doneAt": 1783790306791
+      "doneAt": 1783790306791,
+      "group": "Read"
     },
     {
       "id": "adfc1f3fced3fa8e4",
       "kind": "workflow",
       "label": "read:missions",
-      "group": "Read",
       "startedAt": 1783790306792,
-      "doneAt": 1783790306792
+      "doneAt": 1783790306792,
+      "group": "Read"
     },
     {
       "id": "a6f2aeba54d4aa886",
       "kind": "workflow",
       "label": "read:wiring",
-      "group": "Read",
       "startedAt": 1783790306794,
-      "doneAt": 1783790306794
+      "doneAt": 1783790306794,
+      "group": "Read"
     },
     {
       "id": "aca18a48db1c731ad",
       "kind": "workflow",
       "label": "audit:build-spec",
-      "group": "Audit",
-      "startedAt": 1783790311607
+      "startedAt": 1783790311607,
+      "group": "Audit"
     },
     {
       "id": "a16de91b41c746f4f",
       "kind": "workflow",
       "label": "audit:history",
-      "group": "Audit",
-      "startedAt": 1783790310435
+      "startedAt": 1783790310435,
+      "group": "Audit"
     },
     {
       "id": "a6a041f24b4a536ab",
       "kind": "workflow",
       "label": "audit:plans",
-      "group": "Audit",
-      "startedAt": 1783790311376
+      "startedAt": 1783790311376,
+      "group": "Audit"
     },
     {
       "id": "a810f5d4c6284ffcf",
       "kind": "workflow",
       "label": "audit:core",
-      "group": "Audit",
-      "startedAt": 1783790310814
+      "startedAt": 1783790310814,
+      "group": "Audit"
     },
     {
       "id": "a68b762273ef7f97a",
       "kind": "workflow",
       "label": "audit:clients",
-      "group": "Audit",
-      "startedAt": 1783790310939
+      "startedAt": 1783790310939,
+      "group": "Audit"
     },
     {
       "id": "aeebafcdb385e4363",
       "kind": "workflow",
       "label": "audit:missions",
-      "group": "Audit",
-      "startedAt": 1783790310831
+      "startedAt": 1783790310831,
+      "group": "Audit"
     },
     {
       "id": "a3a3530673fcfb8f2",
       "kind": "workflow",
       "label": "audit:wiring",
-      "group": "Audit",
-      "startedAt": 1783790310804
+      "startedAt": 1783790310804,
+      "group": "Audit"
     }
   ],
-  "tokens": 6429495,
+  "tokens": 6493203,
   "output": null,
   "children": null,
-  "linkScanOffset": 36696036,
+  "linkScanOffset": 36886832,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
+  "selfWake": true,
   "respawnFlags": [
     "--reply-on-resume",
     "--effort",
@@ -132,8 +133,6 @@
     "--permission-mode",
     "auto"
   ],
-  "bgIsolation": "none",
-  "providerEnv": {},
   "intent": "but we had 30 gaps mission we were fixing first before we did anything else and a big project to que when they were done",
   "name": "daemon-restart-mission-triage",
   "nameSource": "auto",
@@ -142,11 +141,13 @@
   "daemonShort": "bb6b583a",
   "cliVersion": "2.1.206",
   "cwd": "C:\\Users\\marka",
-  "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-11T17:18:31.787Z",
-  "firstTerminalAt": "2026-07-07T15:47:23.132Z",
   "bridgeSessionId": "cse_015z5n4qQqp9BZ8kKSCkvtzT",
   "bridgeOutboundOnly": false,
   "bridgeSessionSeq": 8904,
-  "backend": "daemon"
+  "bgIsolation": "none",
+  "providerEnv": {},
+  "backend": "daemon",
+  "createdAt": "2026-07-07T14:31:31.695Z",
+  "updatedAt": "2026-07-11T17:19:43.993Z",
+  "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
