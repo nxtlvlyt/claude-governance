@@ -1,7 +1,7 @@
 {
-  "state": "working",
-  "detail": "atv-12 executing (~50min, full run); mt lane draining queue; next report after Gemini vision pass",
-  "tempo": "idle",
+  "state": "blocked",
+  "detail": "queued wikidata enrichment mission; awaiting Sentry auth token + androidtv preview sign-off",
+  "tempo": "blocked",
   "inFlight": {
     "tasks": 1,
     "queued": 0,
@@ -9,10 +9,13 @@
       "session_cron"
     ]
   },
-  "tokens": 7854606,
-  "output": null,
+  "tokens": 7866557,
+  "needs": "1. Sentry auth token (Settings > Auth Tokens: project:read + event:read scopes); 2. approval on androidtv-12 preview when Gemini vision pass clears",
+  "output": {
+    "result": "wikidata enrichment mission queued (mt-enrich-scenic-wikidata); 4,215 entries with 15km coordinate gate; nxtbeast model briefs once coverage lands"
+  },
   "children": null,
-  "linkScanOffset": 50967572,
+  "linkScanOffset": 51139816,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -40,6 +43,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-11T22:44:36.150Z",
+  "updatedAt": "2026-07-11T22:55:43.294Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }

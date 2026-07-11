@@ -1,0 +1,45 @@
+MISSION-ID: mt-enrich-scenic-wikidata
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - scripts/enrich-scenic-wikidata.mjs
+  - data/scenic-enrichment.json
+REQUIRES: none
+STEPS: 4
+
+Maqsad: raise wikidata coverage in data/scenic-enrichment.json — the receipted unpark
+condition for the PARKED mt-spot-briefs.S1 pilot (its attempt-6 receipt: builder ran for
+real, "0 entries processed", because only ~7 of 4215 entries carry a wikidata field —
+data gap, not mission defect; operator word 2026-07-11: this is a large mechanical
+crunch, run it, don't wait). Substrate receipts this charter is built on (conductor,
+this wake): data/scenic-enrichment.json = osm_id-keyed {scenic_type, name} objects, many
+names GENERIC ("Scenic Viewpoint", "scenic", "viewpoint" — hundreds, unmatchable by
+design); pois.json at repo root is a large GeoJSON-like file with Point geometry
+coordinates and osm_tags — the coordinate join source. HONESTY GATE (non-negotiable,
+2026-07-02 no-fabrication precedent): a wikidata id attaches ONLY on a
+coordinate-verified match — candidate entity's P625 location within 15 km of the POI's
+own coordinates. Name-similarity alone NEVER attaches an id; generic names are never
+queried; no coordinates joined = never queried. An honest sparse result beats a fat
+fabricated one.
+
+niyyah: the Crown-Land oracle pattern's first half — mechanical, attributed, resumable
+enrichment producing a verified artifact the local-model pilot can then consume. Free
+Wikidata public API (wbsearchentities + wbgetentities, batched, descriptive User-Agent,
+<=5 req/s), no keys, no cost. Idempotent by construction: every processed entry gets
+either its wikidata id or a wd_checked no-match stamp, so re-running skips all prior
+work — the conductor re-fires this mission until step 3 reports remaining: 0.
+
+Steps:
+  1. Author scripts/enrich-scenic-wikidata.mjs. File I/O via path.resolve(process.cwd(), ...) — NEVER new URL(x, import.meta.url) (the receipted spot-briefs bug class). Behavior: (a) load data/scenic-enrichment.json and pois.json; build an osm_id -> [lng, lat] map from pois.json features (discover the join field from the data itself — features carry osm_tags and Point geometry; print the join-rate so the receipt shows how many scenic entries got coordinates); (b) candidate set = entries with NO wikidata field, NO wd_checked field, a coordinate join, and a DISTINCTIVE name (skip case-insensitive generics: scenic, viewpoint, scenic viewpoint, lookout, rest area, picnic area, and any name shorter than 4 chars); (c) for each candidate: Wikidata wbsearchentities (en, limit 5) on the name, then one batched wbgetentities call per <=50 candidate ids fetching claims.P625; accept the nearest candidate whose P625 coordinates lie within 15 km (haversine) of the POI — write entry.wikidata = QID; if none qualify write entry.wd_checked = "no-match-2026-07-11"; on any fetch error skip the entry silently (leave it unstamped for the next run — errors are never stamped as no-match); (d) TIME BUDGET: accept a seconds budget as argv[2] defaulting to 780; check elapsed time before each entry and stop cleanly when exceeded; (e) always save data/scenic-enrichment.json (pretty-printed, keys in original order) and print exactly one summary line: WD-ENRICH checked=<n> matched=<n> nomatch=<n> remaining=<n> joined=<n>; (f) descriptive User-Agent header (muddytires-enrichment/1.0; contact page URL) and a 250ms delay between search calls. [edit] scripts/enrich-scenic-wikidata.mjs
+     validation_command: node --check scripts/enrich-scenic-wikidata.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; $c = Get-Content scripts/enrich-scenic-wikidata.mjs -Raw; if ($c -match 'import\.meta\.url') { exit 1 }; if ($c -notmatch 'process\.cwd\(\)') { exit 1 }; if ($c -notmatch 'P625') { exit 1 }; if ($c -notmatch 'wd_checked') { exit 1 }
+  2. Syntax-check the builder by running: node --check scripts/enrich-scenic-wikidata.mjs — must exit 0. [verify] scripts/enrich-scenic-wikidata.mjs
+  3. Run one budgeted slice EXACTLY: node scripts/enrich-scenic-wikidata.mjs 780 — reads scripts/enrich-scenic-wikidata.mjs (context_dependencies, action_type 'verify'), writes data/scenic-enrichment.json. The WD-ENRICH summary line is the receipt. [command]
+     validation_command: $c = Get-Content data/scenic-enrichment.json -Raw; $wd = ([regex]::Matches($c, '"wikidata"')).Count; $ck = ([regex]::Matches($c, '"wd_checked"')).Count; Write-Output ("wikidata-fields: " + $wd + " wd_checked-fields: " + $ck); if (($wd + $ck) -lt 8) { exit 1 }
+  4. Commit both ALLOW-FILES EXACTLY: git add -- scripts/enrich-scenic-wikidata.mjs data/scenic-enrichment.json; git diff --cached --quiet; if ($LASTEXITCODE -eq 0) { Write-Output ALREADY_COMMITTED } else { git commit -m "feat(enrich): coordinate-verified wikidata reconciliation slice for scenic entries (unpark owner for mt-spot-briefs.S1)"; if ($LASTEXITCODE -ne 0) { exit 1 } } [command]
+
+Done means: scripts/enrich-scenic-wikidata.mjs exists, syntax-checks, ran one budgeted
+slice against the live Wikidata API with the WD-ENRICH receipt line printed, and
+data/scenic-enrichment.json is committed carrying strictly more wikidata/wd_checked
+stamps than the ~7-of-4215 baseline — coverage moved, honestly (coordinate-verified
+only). CONDUCTOR NOTE: re-fire this mission each beat until the receipt shows
+remaining: 0, then UNPARK mt-spot-briefs.S1 per its parked-line condition.
