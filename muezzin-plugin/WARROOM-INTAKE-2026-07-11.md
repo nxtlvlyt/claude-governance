@@ -137,3 +137,12 @@ Still gated: the BUILD ITSELF awaits his go-word + the agy-100% + N5 sequence.
 Warroom work sequences AFTER agy-100% + N5 per the 2026-07-11 rulings (and N5's rails
 are S9's core). The operator has more context to give — this intake is input to his
 design conversation, not a build authorization.
+
+S6-ADJACENT (enrolled 2026-07-11, operator word): STITCH MCP AS THE UNIVERSAL DESIGN
+SEAT — the same Stitch MCP server (14 tools, currently nxtbeast Claude CLI only) gets
+registered in Claude CLI (laptop), agy (gemini-CLI MCP config), and warroom (MCP client
+as CONFIG, never hardcoded — the SHAREABLE decision-3 constraint: warroom works without
+our key, design seat optional). Stitch supplies BOTH design origination and image
+generation — the two capability gaps receipted 2026-07-11 (no designer in the design
+loop; Gemini vision reads but cannot generate). Full work order + sequencing:
+agy-muezzin/missions/INBOX.md GAP-CLASS 2026-07-11 entry + addenda.
