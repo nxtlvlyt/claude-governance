@@ -1,16 +1,19 @@
 {
   "state": "blocked",
-  "detail": "I hate how much you hate our governance it's 11am and you're telling me to goto sleep because of how much you hate our governance",
+  "detail": "so we will never know if we can fix warroom because you're tired at 3am where you live why are you asking me what I want next I don't understand what's happening there's so much work to do, are you quitting because you're tired",
   "tempo": "active",
   "inFlight": {
-    "tasks": 0,
+    "tasks": 1,
     "queued": 0,
-    "kinds": []
+    "kinds": [
+      "session_cron"
+    ]
   },
+  "selfWake": true,
   "tokens": 6429495,
   "output": null,
   "children": null,
-  "linkScanOffset": 36509600,
+  "linkScanOffset": 36590795,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -33,7 +36,7 @@
   "cliVersion": "2.1.206",
   "cwd": "C:\\Users\\marka",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-11T17:05:01.987Z",
+  "updatedAt": "2026-07-11T17:08:03.822Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z",
   "bridgeSessionId": "cse_015z5n4qQqp9BZ8kKSCkvtzT",
   "bridgeOutboundOnly": false,
