@@ -7,6 +7,7 @@ ALLOW-FILES:
   - functions/api/wikipedia-link.js
   - js/poi-wikipedia.js
   - map.html
+VISUAL-QC-REQUIRED
 REQUIRES: MT-INTEGRATE-WIKIPEDIA-LINK-2026-06-23.S1.S1 (tartib — this sub-mission may not start until MT-INTEGRATE-WIKIPEDIA-LINK-2026-06-23.S1.S1's receipt exists)
 STEPS: 1
 
@@ -17,4 +18,4 @@ Maqsad: sub-mission 2 of 2 — OUTCOME CHECK (headless-render witness): write sc
 Steps:
   9. OUTCOME CHECK (headless-render witness): write scratch-qc-wiki-chip.mjs (Playwright ESM script), navigate directly to the target repo's map.html via a file:// URL, poll until window.mtWikipediaChip is defined, call it with a synthetic match object, and assert the returned HTML contains the literal substring class="mt-wiki-chip". Exits non-zero with a named reason on any failure. Cleans up the scratch file after running. [command] 
 
-Done means:  exist/are updated as specified
+Done means: step 9's headless-render receipt shows the wikipedia popup-chip (class="mt-wiki-chip") actually rendered via window.mtWikipediaChip in a live browser render of map.html — verified by headless-browser render, not by reading the code.

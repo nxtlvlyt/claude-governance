@@ -7,7 +7,6 @@ ALLOW-FILES:
   - functions/api/wikipedia-link.js
   - js/poi-wikipedia.js
   - map.html
-VISUAL-QC-REQUIRED
 REQUIRES: none (first in tartib order)
 STEPS: 8
 
@@ -25,4 +24,4 @@ Steps:
   7. Syntax-check js/poi-wikipedia.js as landed in step 4 (read-only verification, authors nothing). [verify] js/poi-wikipedia.js
   8. Stage and commit the three already-written ALLOW-FILES with a message citing mt-feat-wikipedia-link-2026-06-23 and cf373c9. Idempotent: if the scoped working tree for these files is already clean (nothing staged after add), report ALREADY_COMMITTED instead of re-committing. Does not author new content in any implementation file — it commits content already written by steps 3-5. [command] 
 
-Done means: functions/api/wikipedia-link.js, js/poi-wikipedia.js, map.html exist/are updated as specified — verify by headless-browser render, not by reading the code
+Done means: functions/api/wikipedia-link.js, js/poi-wikipedia.js, map.html land on disk via the cf373c9 restores + script-tag insert, both js files syntax-check clean, and the commit citing cf373c9 exists — git-mechanical verification only; the headless-browser render witness is S1.S2's charter (it carries VISUAL-QC-REQUIRED and the executable step 9), moved there 2026-07-11 after MIQAT-REFUSED grep-only-visual-verification on this child (autosplit had copied the parent's tag here while the render step went to S1.S2 — the partner-widget fix shape applied).
