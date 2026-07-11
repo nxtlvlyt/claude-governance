@@ -1,6 +1,6 @@
 {
   "state": "done",
-  "detail": "promoted eighth law to guaranteed-delivery; parks now require unpark owner + diagnosis",
+  "detail": "ruling enforced: gap work first, hold mechanically enforced",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,12 +9,12 @@
       "session_cron"
     ]
   },
-  "tokens": 7901169,
+  "tokens": 7907755,
   "output": {
-    "result": "eighth law added to conductor core: parks are handoffs, not graves; blocks ownerless parks"
+    "result": "Gap-priority hold rewritten; prefix-match fix queued; design product blocked until gaps close"
   },
   "children": null,
-  "linkScanOffset": 51892389,
+  "linkScanOffset": 52002462,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -42,6 +42,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-11T23:25:22.689Z",
+  "updatedAt": "2026-07-11T23:28:35.952Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
