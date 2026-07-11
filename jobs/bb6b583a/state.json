@@ -1,6 +1,6 @@
 {
   "state": "done",
-  "detail": "warroom fixes sorted: 6 load-bearing items queued, 10-stage plan specced, awaiting go",
+  "detail": "war room: bones solid (REPL/dispatch/faiths/tests), missing: real-world exercise (seats/missions/safety); 4–6 eve roadmap",
   "tempo": "idle",
   "inFlight": {
     "tasks": 2,
@@ -9,12 +9,12 @@
       "session_cron"
     ]
   },
-  "tokens": 6786316,
+  "tokens": 6788471,
   "output": {
-    "result": "warroom intake parsed: Bucket 1 (6 system fixes queued), Bucket 2 (10-stage warroom plan specced, awaiting your decisions)"
+    "result": "Current state: bones working (976 passing tests, REPL/dispatch/auditions built); gaps are untested subsystems (9 uncalibrated seats, mission queue, resilience tiers). 4–6 evenings to completion, gated on your 4 decisions + sequencing (agy→100%, N5 first)."
   },
   "children": null,
-  "linkScanOffset": 38307473,
+  "linkScanOffset": 38336219,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -42,6 +42,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-11T18:11:42.076Z",
+  "updatedAt": "2026-07-11T18:13:34.514Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
