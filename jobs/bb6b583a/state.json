@@ -1,20 +1,20 @@
 {
   "state": "done",
-  "detail": "Sentry email legit; aurora overlay bug found & auto-fix queued",
+  "detail": "mt daemon running aurora Sentry-fix; agy daemon on atv-11.S2",
   "tempo": "idle",
   "inFlight": {
     "tasks": 2,
-    "queued": 0,
+    "queued": 1,
     "kinds": [
       "session_cron"
     ]
   },
-  "tokens": 7573740,
+  "tokens": 7574112,
   "output": {
-    "result": "aurora.js module syntax error caught by Sentry; auto-fix mission queued (strips module, verifies, commits, ships)"
+    "result": "Both daemons running expected tasks; no intervention needed; 13:53 wakeup will judge and continue"
   },
   "children": null,
-  "linkScanOffset": 40905333,
+  "linkScanOffset": 40926246,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -42,6 +42,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-11T19:43:30.651Z",
+  "updatedAt": "2026-07-11T19:44:22.851Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
