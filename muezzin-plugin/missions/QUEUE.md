@@ -2338,6 +2338,24 @@ ledger with second-dispatch, planted-assumption audition tasks, read-only-by-con
 scanners, etc.) stay specced in the intake doc — read it before any engine batch. NOTE:
 warroom PARITY work (S0-S10 on warroom itself) is deliberately NOT enrolled — held on
 the operator's go + his four recorded decisions + more context he is still giving.
+ITEM 16 — DISPATCH-TOOL LINT (paid 2026-07-11, three agy misfires): PreToolUse lint on
+shell bodies matching hand-rolled model-dispatch shapes (agy --print, raw model CLIs)
+without a dispatch-tool receipt — the sixth law's own prescribed escalation. Root
+receipt: --print-timeout DROPS the trailing prompt (three misfires, all "investigated"
+the flag itself); flag-free shape works; agy_dispatch.mjs must also strip/guard that
+flag in buildAgyArgs.
+ITEM 17 — NIYYAH-GATE TTL ANCHORS TO PASS-FILE MTIME, NOT THE ts FIELD (paid
+2026-07-11): an honest ts died at age_ms=98403 because large-Write composition exceeds
+60s; the auto-mode classifier CORRECTLY denied a forward-biased-ts workaround
+(security-weaken class — accepted); the honest interim is small mutations per refresh.
+Fix: hook reads the file's mtime (unforgeable by content) or raises TTL to ~180s.
+ITEM 18 — CROSS-MACHINE MEMORY SYNC + SCRIPTURE-MIGRATION DIFF (paid 2026-07-11, the
+sleep-rule night): feedback memories are machine-local (nxtbeast-only rules caused a
+THIRD repeat of a twice-recorded failure), and the CLAUDE.md golden-rules->14-directive
+rewrite silently DROPPED operator rule GR16. Fix shape: (a) memory-dir sync between
+laptop and nxtbeast (scp/rsync cadence or shared store), (b) any Scripture rewrite
+requires a migration diff listing every dropped rule for operator sign-off. Full
+receipts: operator-rulings.md no-sleep entry.
 ITEM 15 — PANEL ARTIFACT TRUNCATION = FALSE-REJECT CLASS (paid 2026-07-11 03:1x,
 scenic.S2 attempt-8): the verdict panel receives HEAD-TRUNCATED artifact slices (10,000
 chars of a 398,166-char map.html — the panel's own F1-sunnah finding names it), so any
