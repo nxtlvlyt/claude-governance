@@ -1,0 +1,35 @@
+MISSION-ID: M-MUDDYTIRES.QC-FIX-AURORA-EXPORT-SYNTAX-2026-07-11
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - js/aurora-overlay.js
+REQUIRES: none
+STEPS: 4
+
+Maqsad: kill the live production SyntaxError spamming Sentry (weekly report 2026-07-11,
+operator-surfaced: 8x "SyntaxError: Unexpected token 'export'", project muddytires,
+ongoing, spiking on deploy day). ROOT CAUSE (conductor receipts, all greps this session):
+map.html loads js/aurora-overlay.js as a CLASSIC script (<script src="js/aurora-overlay.js"
+defer> — no type="module"), but the file contains top-level `export` statements, so every
+visitor's browser throws at parse time and the aurora overlay never executes in
+production. Zero files import from aurora-overlay.js (repo-wide grep: no matches), so the
+export keywords serve no consumer. FIX SHAPE: remove the top-level `export ` keywords
+(keep every function/const declaration intact — export function X -> function X, export
+const Y -> const Y, delete any bare `export { ... }` statement lines); do NOT add
+type="module" to the tag (module scope would hide the globals the overlay attaches and
+change defer semantics).
+
+niyyah: the operator saw the error report and asked; the honest fix makes the file match
+how it is actually served. Smallest possible diff: only the export keywords change.
+
+Steps:
+  1. Baseline, stdout only. Run exactly: $c = Get-Content js/aurora-overlay.js -Raw; Write-Output ("export-lines: " + ([regex]::Matches($c, '(?m)^export ')).Count); Write-Output ("bare-export-blocks: " + ([regex]::Matches($c, '(?m)^export\s*\{')).Count); node --check js/aurora-overlay.js; Write-Output ("node-check-exit: " + $LASTEXITCODE) [command]
+  2. Remove ES-module surface from js/aurora-overlay.js ONLY: every line-leading `export function` becomes `function`, `export const` becomes `const`, `export let` becomes `let`, `export var` becomes `var`; delete entire lines that are bare re-export statements (^export\s*\{...}). ZERO other changes — no logic edits, no renames, comments untouched. [edit] js/aurora-overlay.js
+     validation_command: $c = Get-Content js/aurora-overlay.js -Raw; if ([regex]::Matches($c, '(?m)^export\b').Count -ne 0) { exit 1 }; node --check js/aurora-overlay.js; if ($LASTEXITCODE -ne 0) { exit 1 }; if ((Get-Item js/aurora-overlay.js).Length -lt 500) { exit 1 }
+  3. Commit (idempotent). Run exactly: git add -- js/aurora-overlay.js; git diff --cached --quiet -- js/aurora-overlay.js; if ($LASTEXITCODE -eq 0) { Write-Output ALREADY_COMMITTED } else { git commit -m "fix(aurora-overlay): strip top-level export keywords — file is served as a classic script (Sentry SyntaxError, operator report 2026-07-11)" -- js/aurora-overlay.js; if ($LASTEXITCODE -ne 0) { exit 1 } } [command]
+  4. Guarded production deploy + live witness in ONE command (deploys are conductor-called when guards pass, operator ruling 2026-07-11): confirm clean tree (git status --porcelain must be empty), then wrangler pages deploy . --project-name=muddytires --branch=main, then node scripts/verify-popups-e2e.mjs (must exit 0), then fetch the LIVE https://muddytires.ca/js/aurora-overlay.js and assert it contains no line-leading export token. Run exactly: $st = git status --porcelain; if ($st) { Write-Output "TREE DIRTY"; exit 1 }; wrangler pages deploy . --project-name=muddytires --branch=main; if ($LASTEXITCODE -ne 0) { exit 1 }; node scripts/verify-popups-e2e.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; $live = (Invoke-WebRequest -Uri "https://muddytires.ca/js/aurora-overlay.js" -UseBasicParsing).Content; if ($live -match '(?m)^export\b') { Write-Output "LIVE STILL HAS EXPORT"; exit 1 }; Write-Output DEPLOY-WITNESSED [command]
+
+Done means: js/aurora-overlay.js carries zero top-level export tokens, parses clean
+(node --check), is committed with the Sentry citation, and the LIVE served copy on
+muddytires.ca confirms the fix with the full e2e suite green — the Sentry error class
+stops accruing from this deploy forward.
