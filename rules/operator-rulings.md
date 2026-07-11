@@ -72,9 +72,14 @@ rulings. This file is the loudness fix.)
   items 1-14 (conductor-lesson checks 1-7; hook-semantics port + single CONDUCTOR-PROTOCOL
   source 8-9; cross-jurisdiction ports 10-14: queue compaction, universal conductor
   ladder, explicit-validation mission format, agy guaranteed-delivery injection,
-  per-project deploy parity). Read that QUEUE entry BEFORE building. (3) Then the local-conductor test (bar = the
-  receipted qwen 5/5 relay audition). If this ruling reads stale against current reality,
-  surface the conflict per the fifth law — never silently obey either layer.
+  per-project deploy parity). Read that QUEUE entry BEFORE building. (3) Then the
+  local-conductor test — FORMAT AWAITS THE OPERATOR'S SPEC (operator word 2026-07-11:
+  "I haven't told you how I want the qwen test done yet"). The 2026-07-07 qwen 5/5 relay
+  audition is a SCREENING receipt proving the relay half is qwen-holdable — it is NOT the
+  test design. Do NOT run the local-conductor test on an inferred format; build N5 and
+  the self-waking wiring (upstream, format-independent), then wait for his spec. If this
+  ruling reads stale against current reality, surface the conflict per the fifth law —
+  never silently obey either layer.
   PRIORITY (operator reaffirmation 2026-07-11: "system fixes and upgrades always have
   priority right"): the 14-item spec inherits the 2026-07-03/07-07 priority class —
   CONDUCTOR BEAT CAPACITY goes to system fixes/upgrades before new product work; the
