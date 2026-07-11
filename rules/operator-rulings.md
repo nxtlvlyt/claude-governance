@@ -95,6 +95,11 @@ rulings. This file is the loudness fix.)
   daemons' product lanes keep running in parallel (keep-busy coexists — the priority
   governs where the conductor's attention goes, exactly how the 2026-07-10/11 drain ran).
 
+- **SONNET WORKFLOWS: STANDING AUTHORIZATION (operator word 2026-07-11: "run sonnet
+  workflows for whatever you need").** The conductor fires Sonnet workflows without
+  per-run asks when they fit the work. Scope discipline: workflow agents PREPARE
+  (read-only — Read/Grep/Glob, never shell: the prompt-storm receipt) and the conductor
+  APPLIES through the gates; spend stays proportionate to the task.
 - **DEPLOYS ARE CONDUCTOR-CALLED WHEN THE GUARDS PASS (operator word 2026-07-11: "why
   do I have to keep saying deploy if everything is e2e certified and we have a parity
   guard").** Production deploys (muddytires + any site with the same guard chain) no

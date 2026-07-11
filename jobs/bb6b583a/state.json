@@ -1,21 +1,31 @@
 {
-  "state": "done",
-  "detail": "ok make sure everything is qued and we are working towards everything",
+  "state": "working",
+  "detail": "33-agent workflow running: 16 muddy-tires fixes in prep; applying verified edits",
   "tempo": "active",
   "inFlight": {
-    "tasks": 2,
+    "tasks": 3,
     "queued": 0,
     "kinds": [
+      "local_workflow",
       "session_cron"
     ]
   },
-  "selfWake": true,
-  "tokens": 6826781,
+  "fan": [
+    {
+      "id": "af1605f3489a7b92b",
+      "kind": "workflow",
+      "label": "list-stems",
+      "startedAt": 1783797016526,
+      "group": "Prepare"
+    }
+  ],
+  "tokens": 6835522,
   "output": null,
   "children": null,
-  "linkScanOffset": 39017659,
+  "linkScanOffset": 39120375,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
+  "selfWake": true,
   "respawnFlags": [
     "--reply-on-resume",
     "--effort",
@@ -25,8 +35,6 @@
     "--permission-mode",
     "auto"
   ],
-  "bgIsolation": "none",
-  "providerEnv": {},
   "intent": "but we had 30 gaps mission we were fixing first before we did anything else and a big project to que when they were done",
   "name": "daemon-restart-mission-triage",
   "nameSource": "auto",
@@ -35,11 +43,13 @@
   "daemonShort": "bb6b583a",
   "cliVersion": "2.1.206",
   "cwd": "C:\\Users\\marka",
-  "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-11T19:07:19.133Z",
-  "firstTerminalAt": "2026-07-07T15:47:23.132Z",
   "bridgeSessionId": "cse_015z5n4qQqp9BZ8kKSCkvtzT",
   "bridgeOutboundOnly": false,
   "bridgeSessionSeq": 8904,
-  "backend": "daemon"
+  "bgIsolation": "none",
+  "providerEnv": {},
+  "backend": "daemon",
+  "createdAt": "2026-07-07T14:31:31.695Z",
+  "updatedAt": "2026-07-11T19:11:12.334Z",
+  "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
