@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "agy graduation plausible tonight (~60%); 4 carried fixes queued; failure-tail 1–2 days",
+  "detail": "max",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,13 +9,21 @@
       "session_cron"
     ]
   },
+  "selfWake": true,
+  "fan": [
+    {
+      "id": "bfaa0yy80",
+      "kind": "shell",
+      "label": "# TOOL-CANNOT-SERVE: niyyah gate Path B — same-turn shell staging (60s TTL). $ts = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds(); @{ ts = $ts; niyyah_text = \"niyyah:`n source: AUTORUN.md line 978…",
+      "startedAt": 1783738916109
+    }
+  ],
   "tokens": 5157505,
   "output": null,
   "children": null,
-  "linkScanOffset": 31530256,
+  "linkScanOffset": 31711201,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
-  "selfWake": true,
   "respawnFlags": [
     "--reply-on-resume",
     "--effort",
@@ -25,6 +33,8 @@
     "--permission-mode",
     "auto"
   ],
+  "bgIsolation": "none",
+  "providerEnv": {},
   "intent": "but we had 30 gaps mission we were fixing first before we did anything else and a big project to que when they were done",
   "name": "daemon-restart-mission-triage",
   "nameSource": "auto",
@@ -33,13 +43,11 @@
   "daemonShort": "bb6b583a",
   "cliVersion": "2.1.206",
   "cwd": "C:\\Users\\marka",
+  "createdAt": "2026-07-07T14:31:31.695Z",
+  "updatedAt": "2026-07-11T03:03:24.465Z",
+  "firstTerminalAt": "2026-07-07T15:47:23.132Z",
   "bridgeSessionId": "cse_015z5n4qQqp9BZ8kKSCkvtzT",
   "bridgeOutboundOnly": false,
   "bridgeSessionSeq": 8904,
-  "bgIsolation": "none",
-  "providerEnv": {},
-  "backend": "daemon",
-  "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-11T02:50:05.115Z",
-  "firstTerminalAt": "2026-07-07T15:47:23.132Z"
+  "backend": "daemon"
 }
