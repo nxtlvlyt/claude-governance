@@ -3,153 +3,19 @@
   "detail": "workplan relaunched: 38 Sonnet agents investigating 19 failed missions",
   "tempo": "active",
   "inFlight": {
-    "tasks": 2,
+    "tasks": 1,
     "queued": 0,
     "kinds": [
-      "local_workflow",
       "session_cron"
     ]
   },
   "selfWake": true,
   "fan": [
     {
-      "id": "a5c74e46290887b26",
-      "kind": "workflow",
-      "label": "inv:mt-spot-briefs.S1",
-      "group": "Investigate",
-      "startedAt": 1783739274625
-    },
-    {
-      "id": "ae2f439ce32d4b461",
-      "kind": "workflow",
-      "label": "inv:mt-integrate-wikipedia-link-2026-06-23.S1",
-      "group": "Investigate",
-      "startedAt": 1783739275653
-    },
-    {
-      "id": "a55ce198b2f865402",
-      "kind": "workflow",
-      "label": "inv:mt-integrate-poi-services-nearby.S1",
-      "group": "Investigate",
-      "startedAt": 1783739275285
-    },
-    {
-      "id": "a903ac8b772e7b118",
-      "kind": "workflow",
-      "label": "inv:mt-integrate-poi-hover-preview-cards.S1",
-      "group": "Investigate",
-      "startedAt": 1783739274744
-    },
-    {
-      "id": "a8e3fdd4013de67e9",
-      "kind": "workflow",
-      "label": "inv:mt-integrate-spot-share-card",
-      "group": "Investigate",
-      "startedAt": 1783739274717
-    },
-    {
-      "id": "aab290c452b4e2096",
-      "kind": "workflow",
-      "label": "inv:mt-integrate-dynamic-favicon-fire-ban.S1",
-      "group": "Investigate",
-      "startedAt": 1783739275151
-    },
-    {
-      "id": "ac63fb1ae70270efa",
-      "kind": "workflow",
-      "label": "inv:mt-integrate-testimonials.S1",
-      "group": "Investigate",
-      "startedAt": 1783739275942
-    },
-    {
-      "id": "a3e5b120634d3ea1e",
-      "kind": "workflow",
-      "label": "inv:mt-integrate-partner-embed-iframe-verification.S1",
-      "group": "Investigate",
-      "startedAt": 1783739275199
-    },
-    {
-      "id": "acfbfb5ad7441c35f",
-      "kind": "workflow",
-      "label": "inv:mt-integrate-partner-widget.S1",
-      "group": "Investigate",
-      "startedAt": 1783739275245
-    },
-    {
-      "id": "a2c88a0d855e65996",
-      "kind": "workflow",
-      "label": "inv:mt-integrate-visreg-baseline",
-      "group": "Investigate",
-      "startedAt": 1783739275035
-    },
-    {
-      "id": "ab4ef84525ce99a14",
-      "kind": "workflow",
-      "label": "inv:mt-integrate-k6-load-baseline.S2",
-      "group": "Investigate",
-      "startedAt": 1783739275319
-    },
-    {
-      "id": "aaf0d8ba387d841b9",
-      "kind": "workflow",
-      "label": "inv:mt-integrate-lighthouse-ci.S1",
-      "group": "Investigate",
-      "startedAt": 1783739274660
-    },
-    {
-      "id": "ab0610431a82a7d4b",
-      "kind": "workflow",
-      "label": "inv:mt-integrate-lighthouse-fix1-extensionless-verification-docs.S1",
-      "group": "Investigate",
-      "startedAt": 1783739274772
-    },
-    {
-      "id": "a47dc4a109a146cd6",
-      "kind": "workflow",
-      "label": "inv:mt-integrate-poi-dedup-audit.S1",
-      "group": "Investigate",
-      "startedAt": 1783739274445
-    },
-    {
-      "id": "abfaa6324b6e0584a",
-      "kind": "workflow",
-      "label": "inv:mt-integrate-qc-v3-chunked-panel-2026-06-23.S1",
-      "group": "Investigate",
-      "startedAt": 1783739274689
-    },
-    {
-      "id": "afca595b5ece373f2",
-      "kind": "workflow",
-      "label": "inv:mt-ingest-rest-services.S1",
-      "group": "Investigate",
-      "startedAt": 1783739274804
-    },
-    {
-      "id": "wh2s7fndu:17",
-      "kind": "workflow",
-      "label": "inv:mt-copy-clarity.S1",
-      "group": "Investigate",
-      "startedAt": 1783739265538
-    },
-    {
-      "id": "wh2s7fndu:18",
-      "kind": "workflow",
-      "label": "inv:mt-feedback-capture.S1.S1",
-      "group": "Investigate",
-      "startedAt": 1783739265540
-    },
-    {
-      "id": "wh2s7fndu:19",
-      "kind": "workflow",
-      "label": "inv:mt-first-party-beacon.S1.S2",
-      "group": "Investigate",
-      "startedAt": 1783739265542
-    },
-    {
-      "id": "b71nyngoj",
+      "id": "b0vfp0fn2",
       "kind": "shell",
-      "label": "ls -la \"C:/Users/marka/.claude/muezzin-plugin/missions/\" | grep -i \"mt-integrate-lighthouse-ci\"",
-      "startedAt": 1783739292723
+      "label": "$o = Get-Content 'C:\\Users\\marka\\.claude\\muezzin-plugin\\missions\\_logs\\WORKFLOW-VERDICTS-2026-07-11.json' -Raw | ConvertFrom-Json; $q = $o.result.upheld | Where-Object { $_.stem -eq 'mt-integrate-qc-…",
+      "startedAt": 1783740338163
     }
   ],
   "tokens": 5182600,
@@ -178,7 +44,7 @@
   "cliVersion": "2.1.206",
   "cwd": "C:\\Users\\marka",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-11T03:08:13.184Z",
+  "updatedAt": "2026-07-11T03:25:38.335Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z",
   "bridgeSessionId": "cse_015z5n4qQqp9BZ8kKSCkvtzT",
   "bridgeOutboundOnly": false,
