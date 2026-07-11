@@ -1,18 +1,16 @@
 {
-  "state": "done",
-  "detail": "atv-11 split into S1.S1/S1.S2; Scenic in verdict phase; stale gemini-3-flash ref contained",
+  "state": "working",
+  "detail": "scenic + atv converging on detail-class rejections; engine fixed 2x; nothing stuck",
   "tempo": "idle",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 6139812,
-  "output": {
-    "result": "atv-11 rendered amendment caused 8-step ceiling split → two children queued; Scenic deep in verdict (vision QC running); gemini-3-flash dispatch contained to local Ollama 404, no cloud egress"
-  },
+  "tokens": 6141496,
+  "output": null,
   "children": null,
-  "linkScanOffset": 36110531,
+  "linkScanOffset": 36161857,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -39,6 +37,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-11T16:00:55.421Z",
+  "updatedAt": "2026-07-11T16:27:09.958Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
