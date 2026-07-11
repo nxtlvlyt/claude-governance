@@ -72,14 +72,23 @@ rulings. This file is the loudness fix.)
   items 1-14 (conductor-lesson checks 1-7; hook-semantics port + single CONDUCTOR-PROTOCOL
   source 8-9; cross-jurisdiction ports 10-14: queue compaction, universal conductor
   ladder, explicit-validation mission format, agy guaranteed-delivery injection,
-  per-project deploy parity). Read that QUEUE entry BEFORE building. (3) Then the
-  local-conductor test — FORMAT AWAITS THE OPERATOR'S SPEC (operator word 2026-07-11:
-  "I haven't told you how I want the qwen test done yet"). The 2026-07-07 qwen 5/5 relay
-  audition is a SCREENING receipt proving the relay half is qwen-holdable — it is NOT the
-  test design. Do NOT run the local-conductor test on an inferred format; build N5 and
-  the self-waking wiring (upstream, format-independent), then wait for his spec. If this
-  ruling reads stale against current reality, surface the conflict per the fifth law —
-  never silently obey either layer.
+  per-project deploy parity). Read that QUEUE entry BEFORE building. (2.5) AGY 100% DONE
+  gate (operator word 2026-07-11: "I just need you to make sure agy is done 100% before
+  we move to that"): the local-conductor test does not start until the agy jurisdiction
+  is COMPLETE, receipt-checkable as: (a) hook plugin finished per QUEUE item 13 (scoped
+  stop-hook, inject refresh, bootstrap gate, computed debt, --post receipt); (b) agy
+  self-waking conductor beats live (scheduled harness, allowlisted verbs, rijal-logged);
+  (c) a clean unsupervised-apply beat streak on its ladder; (d) the atv visitor-ready
+  chain shipped and live-witnessed (atv-11 -> atv-12 redeploy -> WebFetch receipt);
+  (e) atv deploy parity per QUEUE item 14; (f) zero undiagnosed FAILED marks on the agy
+  board. A board label alone NEVER satisfies this gate — each item needs its receipt.
+  (3) Then the local-conductor test — FORMAT AWAITS THE OPERATOR'S SPEC (operator word
+  2026-07-11: "I haven't told you how I want the qwen test done yet"). The 2026-07-07
+  qwen 5/5 relay audition is a SCREENING receipt proving the relay half is qwen-holdable
+  — it is NOT the test design. Do NOT run the local-conductor test on an inferred format;
+  build N5 and the self-waking wiring (upstream, format-independent), then wait for his
+  spec. If this ruling reads stale against current reality, surface the conflict per the
+  fifth law — never silently obey either layer.
   PRIORITY (operator reaffirmation 2026-07-11: "system fixes and upgrades always have
   priority right"): the 14-item spec inherits the 2026-07-03/07-07 priority class —
   CONDUCTOR BEAT CAPACITY goes to system fixes/upgrades before new product work; the

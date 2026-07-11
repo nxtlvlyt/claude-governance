@@ -1,7 +1,7 @@
 {
-  "state": "blocked",
-  "detail": "qwen local-conductor test format awaits your spec",
-  "tempo": "blocked",
+  "state": "done",
+  "detail": "agy gate defined: 6 concrete items (hook plugin, conductor beats, clean streak, visitor-ready chain, deploy parity, zero FAILED marks) with receipts required before qwen test",
+  "tempo": "idle",
   "inFlight": {
     "tasks": 1,
     "queued": 0,
@@ -9,11 +9,12 @@
       "session_cron"
     ]
   },
-  "tokens": 5918600,
-  "needs": "specify the test format and how you want it run",
-  "output": null,
+  "tokens": 5921587,
+  "output": {
+    "result": "agy 100% gate: 6 checkable items + receipts required before moving to qwen test harness"
+  },
   "children": null,
-  "linkScanOffset": 34465518,
+  "linkScanOffset": 34525364,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -41,6 +42,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-11T07:29:38.305Z",
+  "updatedAt": "2026-07-11T07:30:53.141Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
