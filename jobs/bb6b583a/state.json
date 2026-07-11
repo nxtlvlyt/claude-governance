@@ -3,25 +3,23 @@
   "detail": "workplan relaunched: 38 Sonnet agents investigating 19 failed missions",
   "tempo": "active",
   "inFlight": {
-    "tasks": 1,
+    "tasks": 0,
     "queued": 0,
-    "kinds": [
-      "session_cron"
-    ]
+    "kinds": []
   },
   "selfWake": true,
   "fan": [
     {
-      "id": "b0vfp0fn2",
+      "id": "b9nzvh2bo",
       "kind": "shell",
-      "label": "$o = Get-Content 'C:\\Users\\marka\\.claude\\muezzin-plugin\\missions\\_logs\\WORKFLOW-VERDICTS-2026-07-11.json' -Raw | ConvertFrom-Json; $q = $o.result.upheld | Where-Object { $_.stem -eq 'mt-integrate-qc-…",
-      "startedAt": 1783740338163
+      "label": "# TOOL-CANNOT-SERVE: niyyah gate Path B — same-turn shell staging (60s TTL). $ts = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds(); @{ ts = $ts; niyyah_text = \"niyyah:`n source: AUTORUN.md L118 (Re…",
+      "startedAt": 1783742746594
     }
   ],
   "tokens": 5182600,
   "output": null,
   "children": null,
-  "linkScanOffset": 31836811,
+  "linkScanOffset": 31977146,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -44,7 +42,7 @@
   "cliVersion": "2.1.206",
   "cwd": "C:\\Users\\marka",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-11T03:25:38.335Z",
+  "updatedAt": "2026-07-11T04:05:46.736Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z",
   "bridgeSessionId": "cse_015z5n4qQqp9BZ8kKSCkvtzT",
   "bridgeOutboundOnly": false,

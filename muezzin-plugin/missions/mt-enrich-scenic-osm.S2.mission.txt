@@ -47,8 +47,12 @@ Steps:
      --project-name=muddytires --branch=preview, capture the emitted *.pages.dev URL,
      write scratch-scenic-qc.mjs (playwright: load <url>/map.html, wait for the map,
      assert no fatal page error and no console error naming scenic-enrichment; then fetch
-     <url>/data/scenic-enrichment.json directly and assert HTTP 200 with >1000 keys),
-     then run-and-clean with the exit code preserved — the command MUST literally end
+     <url>/data/scenic-enrichment.json directly and assert HTTP 200 with >1000 keys).
+     MODULE DISCIPLINE (attempt-2 receipt: the scratch used require() and died —
+     "require is not defined in ES module scope"): .mjs files are ES modules; the scratch
+     file's FIRST line MUST be exactly: import { chromium } from 'playwright';
+     — never require(), and use top-level await (ESM supports it). Then run-and-clean
+     with the exit code preserved — the command MUST literally end
      with: node scratch-scenic-qc.mjs; $rc = $LASTEXITCODE; Remove-Item scratch-scenic-qc.mjs -ErrorAction SilentlyContinue; exit $rc [command]
 
 Done means: map.html at HEAD lazily loads data/scenic-enrichment.json (fail-silent, one
