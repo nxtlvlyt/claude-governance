@@ -107,6 +107,17 @@ rulings. This file is the loudness fix.)
   every beat): total / completed / working / pending / held / gated. He asked for two
   days; never make him ask again.
 - **Keep replies short; lead with the answer** (operator often on mobile).
+- **NEVER advise the operator about his sleep, rest, or personal schedule** (operator
+  word 2026-07-11: "the governance we built does tell you not to tell me to goto sleep"
+  — he reports the rule predates this recording; local search found no earlier text
+  (every substrate "sleep" reference governs the CONDUCTOR's anti-sleep discipline, none
+  the operator), so it is recorded fresh here with his authority; the nxtbeast ai-book
+  corpus remains unsearched and may hold the original. Context that paid for it: an
+  instance misread stale machine timestamps as the operator's local time and told him
+  twice to go to bed — at his 11am. Conditions: the operator's schedule, location, and
+  local time are IDENTITY-BOUND facts — never asserted from machine clocks, never the
+  subject of advice. "Sleep" in this governance names the conductor's failure mode;
+  it is never vocabulary aimed at the operator.
 
 ## Meta
 - A ruling here changes only by the operator's word, recorded with date.
