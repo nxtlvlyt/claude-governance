@@ -1,6 +1,6 @@
 {
   "state": "done",
-  "detail": "foundation proven (portable engine, relay pattern); N5 beat harness queued with full spec",
+  "detail": "sequencing ruling moved to guaranteed-injection layer; future instances cannot miss it",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,12 +9,12 @@
       "session_cron"
     ]
   },
-  "tokens": 5129744,
+  "tokens": 5135840,
   "output": {
-    "result": "portable engine + relay pattern proven and running; N5 beat harness designed and queued in QUEUE.md (items 1–9)"
+    "result": "operator ruling (succession sequence + N5 build order) now in ~/.claude/rules/ — injected into every session before first tool call"
   },
   "children": null,
-  "linkScanOffset": 31096065,
+  "linkScanOffset": 31184838,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -42,6 +42,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-11T02:28:00.860Z",
+  "updatedAt": "2026-07-11T02:33:45.137Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }

@@ -60,6 +60,21 @@ rulings. This file is the loudness fix.)
 - **Dependencies before firing**: missions carry REQUIRES; never fire into a known
   structural wall ("are you setting up missions for failure?" — verified partially
   true, 2026-06-10).
+- **SUCCESSION SEQUENCE + N5 SPEC POINTER (operator word 2026-07-11: "we will test a local
+  conductor after agy graduates" + "just want to make sure nothing is forgotten...
+  just because some things are written down doesn't mean that a future instance will ever
+  go read them").** Standing order, recorded HERE because ~/.claude/rules/ is the
+  guaranteed-delivery layer: (1) agy L2 graduation needs exactly ONE more item — a real
+  gate-recovery beat (G3); route the next natural agy-side gate block through an agy
+  conductor beat (ladder: agy-muezzin/missions/_logs/senior-ladder.jsonl — streak 10/10,
+  G2 2/2 at filing). (2) After graduation: BUILD N5 (the beat harness) — its full spec is
+  muezzin-plugin/missions/QUEUE.md "2026-07-11 ENGINE ITEM: encode the conductor lessons"
+  items 1-9 (clear-procedure printing, verify-the-flip sweep, preflight-class matching,
+  first-line-verb hint, lint file-verdict honesty, safe queue-append verb,
+  split-validation scoping, hook-semantics port, single CONDUCTOR-PROTOCOL source). Read
+  that QUEUE entry BEFORE building. (3) Then the local-conductor test (bar = the
+  receipted qwen 5/5 relay audition). If this ruling reads stale against current reality,
+  surface the conflict per the fifth law — never silently obey either layer.
 
 ## Communication rulings
 - **Phone pushes are OUTCOME-ONLY and information-dense** (mission DONE/FAILED + real
