@@ -1,20 +1,27 @@
 {
-  "state": "done",
-  "detail": "identified rule-delivery gap; corrected memory layer + injection",
+  "state": "working",
+  "detail": "agy dispatch beat running; daemons healthy, pickup scheduled",
   "tempo": "idle",
   "inFlight": {
-    "tasks": 2,
+    "tasks": 3,
     "queued": 0,
     "kinds": [
+      "local_bash",
       "session_cron"
     ]
   },
-  "tokens": 6732369,
-  "output": {
-    "result": "Claude.md governance now in guaranteed-delivery layer; systemic gaps documented as engine items"
-  },
+  "fan": [
+    {
+      "id": "bckusw2yo",
+      "kind": "shell",
+      "label": "agy --model \"gemini-3.5-flash\" --print --print-timeout 8m \"Read the file C:/Users/marka/agy-muezzin/missions/_logs/agy-beat-brief.txt and follow its instructions exactly.\" > C:\\Users\\marka\\agy-muezzi…",
+      "startedAt": 1783791719983
+    }
+  ],
+  "tokens": 6737931,
+  "output": null,
   "children": null,
-  "linkScanOffset": 37621710,
+  "linkScanOffset": 37708275,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -42,6 +49,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-11T17:40:59.754Z",
+  "updatedAt": "2026-07-11T17:43:44.621Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
