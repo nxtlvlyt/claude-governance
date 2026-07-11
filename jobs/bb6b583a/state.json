@@ -1,6 +1,6 @@
 {
-  "state": "done",
-  "detail": "analyzed 3 apps; filed learnings for muddytires design + Indigenous POI layer",
+  "state": "working",
+  "detail": "atv-11b vocab-fix mission running (~26m), will redeploy preview on pass",
   "tempo": "idle",
   "inFlight": {
     "tasks": 2,
@@ -9,12 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 7584794,
-  "output": {
-    "result": "Indigenous BC app (10K installs, moat-thin, design.md contract workflow), friend's GreenSock skills, NotebookLM CLI parked; lanes (aurora, atv-11.S2) running"
-  },
+  "tokens": 7642843,
+  "output": null,
   "children": null,
-  "linkScanOffset": 44410600,
+  "linkScanOffset": 45145179,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -42,6 +40,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-11T19:54:10.203Z",
+  "updatedAt": "2026-07-11T20:15:16.857Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
