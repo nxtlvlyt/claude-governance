@@ -1,20 +1,20 @@
 {
   "state": "done",
-  "detail": "dispatch verified build spec, auth, scope; poller/diffing/queueing substrate-buildable",
+  "detail": "confirmed load capacity: 2 agy + muddytires, tested live 3h",
   "tempo": "idle",
   "inFlight": {
     "tasks": 2,
-    "queued": 0,
+    "queued": 1,
     "kinds": [
       "session_cron"
     ]
   },
-  "tokens": 7576932,
+  "tokens": 7577899,
   "output": {
-    "result": "token is sole operator credential; poller, diffing, mission-queueing are automated—no weekly screenshots needed"
+    "result": "capacity confirmed: dual agy sessions + muddytires sustainable; architecture separates queue writers + priority-gates load"
   },
   "children": null,
-  "linkScanOffset": 40986160,
+  "linkScanOffset": 41015350,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -42,6 +42,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-11T19:46:09.503Z",
+  "updatedAt": "2026-07-11T19:47:53.821Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
