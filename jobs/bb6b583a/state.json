@@ -1,6 +1,6 @@
 {
   "state": "done",
-  "detail": "roadmap: stop-hook + stale-inject tonight; bootstrap+diagnosis-debt with N5 build",
+  "detail": "documented conductor/muezzin/framework port process in CONDUCTOR-PORT-PLAYBOOK.md",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,12 +9,12 @@
       "session_cron"
     ]
   },
-  "tokens": 5831228,
+  "tokens": 5847679,
   "output": {
-    "result": "two small fixes (stop-hook, stale-inject) tonight; bootstrap gate + diagnosis-debt in N5 build"
+    "result": "muezzin-plugin/CONDUCTOR-PORT-PLAYBOOK.md: single-entry-point port playbook with four-layer map, proven port order, lessons ledger, and jurisdiction patterns; wired into QUEUE N5 entry"
   },
   "children": null,
-  "linkScanOffset": 33409733,
+  "linkScanOffset": 33609663,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -42,6 +42,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-11T06:48:20.066Z",
+  "updatedAt": "2026-07-11T06:58:16.284Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }

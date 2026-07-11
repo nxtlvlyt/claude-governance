@@ -2307,6 +2307,12 @@ cross-jurisdiction ports (11 and 12 are the highest-leverage). agy L2 status at 
 streak 10/10, G2 2/2, G3 0/1 — route the next natural agy gate block through an agy
 conductor beat for the final requirement. SEQUENCE (operator-ratified order): agy G3 →
 graduation → N5 beat-harness build (with items 1-14 as its spec) → local-conductor test.
+PORT PLAYBOOK (added 2026-07-11, operator: "have we documented our process...?"): the
+single entry point for standing this system up in ANY new harness is
+muezzin-plugin/CONDUCTOR-PORT-PLAYBOOK.md — four-layer port map, the proven agy port
+order, the lessons ledger with receipt pointers, jurisdiction pattern, rails-port
+options, acceptance bar. The N5 builder and the local-conductor test READ IT FIRST;
+update it in the same session any new port lesson is paid for.
 
 ## 2026-07-10 ENGINE ITEM: S2 REQUIRES tokens unresolvable by queuedDepsHold (38-file census)
 The deconstructor emits REQUIRES in MISSION-ID format (e.g. "MT-INTEGRATE-WILDLIFE-
