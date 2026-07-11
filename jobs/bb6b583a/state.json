@@ -1,27 +1,21 @@
 {
-  "state": "done",
-  "detail": "just want to make sure that nothing is forgotten everything is qued just because some things are written down doesn't mean that a future instance will ever go read them",
-  "tempo": "active",
+  "state": "working",
+  "detail": "comparing agy/Claude CLI/agui patterns; identified 5 key learnings",
+  "tempo": "idle",
   "inFlight": {
-    "tasks": 0,
+    "tasks": 1,
     "queued": 0,
-    "kinds": []
+    "kinds": [
+      "session_cron"
+    ]
   },
-  "selfWake": true,
-  "fan": [
-    {
-      "id": "bmsycxoop",
-      "kind": "shell",
-      "label": "# TOOL-CANNOT-SERVE: niyyah gate Path B — same-turn shell staging (60s TTL). $ts = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds(); @{ ts = $ts; niyyah_text = \"niyyah:`n source: AUTORUN.md line 980…",
-      "startedAt": 1783737629727
-    }
-  ],
-  "tokens": 5135840,
+  "tokens": 5150070,
   "output": null,
   "children": null,
-  "linkScanOffset": 31184838,
+  "linkScanOffset": 31375452,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
+  "selfWake": true,
   "respawnFlags": [
     "--reply-on-resume",
     "--effort",
@@ -31,8 +25,6 @@
     "--permission-mode",
     "auto"
   ],
-  "bgIsolation": "none",
-  "providerEnv": {},
   "intent": "but we had 30 gaps mission we were fixing first before we did anything else and a big project to que when they were done",
   "name": "daemon-restart-mission-triage",
   "nameSource": "auto",
@@ -41,11 +33,13 @@
   "daemonShort": "bb6b583a",
   "cliVersion": "2.1.206",
   "cwd": "C:\\Users\\marka",
-  "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-11T02:40:30.022Z",
-  "firstTerminalAt": "2026-07-07T15:47:23.132Z",
   "bridgeSessionId": "cse_015z5n4qQqp9BZ8kKSCkvtzT",
   "bridgeOutboundOnly": false,
   "bridgeSessionSeq": 8904,
-  "backend": "daemon"
+  "bgIsolation": "none",
+  "providerEnv": {},
+  "backend": "daemon",
+  "createdAt": "2026-07-07T14:31:31.695Z",
+  "updatedAt": "2026-07-11T02:43:41.984Z",
+  "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }

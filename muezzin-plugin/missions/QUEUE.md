@@ -2261,12 +2261,37 @@ would hit. Promote from wakeup-prompt folklore to COMPUTED checks/instructions:
    both jurisdictions load — replaces the two hand-synced rulebooks (conductor-core.md vs
    ~/.agents/rules/muezzin-conductor.md, which needed manual law-porting twice this
    session and have drifted before).
+CROSS-JURISDICTION LEARNINGS (operator question 2026-07-11 "anything Claude CLI can learn
+from the agy process or agy from the Claude CLI process" — each with a same-session receipt):
+10. CLAUDE LEARNS QUEUE HYGIENE FROM THE FORK: the fork purged 78 inherited lines to a
+    dated backup and keeps a fork-native queue; the Claude-side AUTORUN is ~1060 mixed
+    live/dead lines that produced a real double-fire risk (money-competitor had 3 lines —
+    one DUPLICATE-RETIRED by hand) and standing QUEUE-DUP daemon warnings. Build an
+    AUTORUN compaction verb (archive resolved/retired lines to _logs/, keep the live
+    queue small).
+11. UNIVERSAL CONDUCTOR LADDER: the senior-ladder (streak / G2 real-diagnosis / G3
+    gate-recovery, lesson-per-beat, independent verification) exists only for agy. Port
+    it to grade EVERY conductor's beats — Claude instances included, and it becomes the
+    acceptance harness for the local-conductor test (same instrument, same bar).
+12. EXPLICIT-VALIDATION MISSION FORMAT AS STANDARD BOTH SIDES: atv missions carry
+    per-step validation_command lines; mt-integrate missions were prose the planner
+    improvised — today's single biggest failure source (improvised commits, verifies,
+    gathers). New/amended missions on BOTH sides carry literal validations.
+13. AGY LEARNS THE GUARANTEED-DELIVERY LAYER: Claude CLI has ~/.claude/rules harness
+    injection + the per-prompt DIAGNOSIS-DEBT hook; agy has a rulebook but no mechanical
+    per-prompt debt injection. Port the injection pattern into agy's session bootstrap
+    (or fold into N5, which supersedes both).
+14. PER-PROJECT DEPLOY PARITY: conduct-cycle --record-deploy hardcodes the muddytires
+    repo/URL; the fork's androidtv deploys have no parity/record verb at all. Make the
+    parity checker per-project config so both sites get byte-match + outcome-witness
+    stamps.
 Owner: next engine batch; items 2+3 are pure conduct-cycle sweep additions (cheapest,
 highest value); item 5 is the honesty fix a local conductor needs most; items 8-9 fold
-into the N5 build (they define what N5's rails must carry). agy L2 status at filing:
+into the N5 build (they define what N5's rails must carry); items 10-14 are the
+cross-jurisdiction ports (11 and 12 are the highest-leverage). agy L2 status at filing:
 streak 10/10, G2 2/2, G3 0/1 — route the next natural agy gate block through an agy
 conductor beat for the final requirement. SEQUENCE (operator-ratified order): agy G3 →
-graduation → N5 beat-harness build (with items 1-9 as its spec) → local-conductor test.
+graduation → N5 beat-harness build (with items 1-14 as its spec) → local-conductor test.
 
 ## 2026-07-10 ENGINE ITEM: S2 REQUIRES tokens unresolvable by queuedDepsHold (38-file census)
 The deconstructor emits REQUIRES in MISSION-ID format (e.g. "MT-INTEGRATE-WILDLIFE-
