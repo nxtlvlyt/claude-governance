@@ -1,6 +1,6 @@
 {
   "state": "done",
-  "detail": "confirmed: only agy used ollama cloud (1× gpt-oss:20b on July 8)",
+  "detail": "found the decision-maker: prior conductor on July 8, hand-testing cloud provider",
   "tempo": "idle",
   "inFlight": {
     "tasks": 3,
@@ -18,12 +18,12 @@
       "startedAt": 1783798319619
     }
   ],
-  "tokens": 7564431,
+  "tokens": 7566303,
   "output": {
-    "result": "agy made 1 gpt-oss:20b call (July 8 03:56Z, ~110 tokens); fork uses draft roster only (minimax/kimi/deepseek/glm). Fix: model allowlist on cloud provider."
+    "result": "gpt-oss:20b chosen by Claude conductor during smoke-test (July 8, 03:56) as smallest cloud canary; never committed. Systemic issue: ad-hoc session actions bypass governance; fixes queued."
   },
   "children": null,
-  "linkScanOffset": 39541654,
+  "linkScanOffset": 39584104,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -51,6 +51,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-11T19:35:28.741Z",
+  "updatedAt": "2026-07-11T19:37:21.890Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
