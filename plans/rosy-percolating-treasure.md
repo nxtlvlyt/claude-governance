@@ -1,4 +1,145 @@
-# Big Project — Planning Notes (operator-driven Q&A session, 2026-07-07)
+# CUSTOM CLI HYPOTHETICAL — Discussion Notes (operator-driven, 2026-07-11, IN DISCUSSION — no design doc yet by operator's word: "we have much more to discuss before you build the design document")
+
+## Operator's stated purpose (2026-07-11, his words)
+"it will be for when I run out of Cloud usage or internet so switching to local and API
+makes sense" — i.e. the RESILIENCE FLOOR, not a third parallel jurisdiction. The ladder:
+Claude CLI (weekly budget) → agy (Vertex 4h window) → custom CLI (AIMLAPI + Ollama Cloud
++ local Ollama, degrading gracefully to FULLY LOCAL when the van has no internet).
+
+## Operator's feature asks (2026-07-11 message)
+1. Custom CLI embodying the whole conductor/muezzin process natively (hooks, gates,
+   governance, faiths) — "more natural" than bolting onto vendor harnesses.
+2. Three channels: AIMLAPI API, Ollama Cloud API, local Ollama.
+3. User picks model+channel per seat.
+4. Faith files native.
+5. Built-in seat-audition tooling (test new models per seat as they appear).
+6. Model-agnostic by design ("it's not always about how frontier a model is").
+
+## Verified inventory receipts (Explore agent, this session)
+- Provider row is ALREADY OpenAI-compatible chat-completions ({id,url,envKeys[]});
+  AIMLAPI_KEY already in env; AIMLAPI already called elsewhere in the codebase (CF
+  Function vision endpoint). A PROVIDERS[] array pattern existed (removed by Claude-side
+  jurisdiction ruling) — the abstraction remains; 3 channels = restoring an array + config.
+- Seat tables are CODE LITERALS (seat_modes.mjs TABLE) hot-switched via
+  muezzin-route.json "mode" — user-pickable seats = externalize to seats.json + verbs.
+- Rails-in-script proven: conduct-beat-local.mjs (allowlisted verbs, deed-over-claim
+  gate, rijal jsonl, injectable backends, offline selftest; qwen 5/5 receipt).
+- ~44 of ~48 engine modules harness-neutral with embedded selftests; only
+  seat_dispatch (partially), agy_dispatch, daemon's agy import, doctor's `claude
+  --version` are vendor-coupled.
+- Audition raw material complete (model_rijal.mjs, senior-ladder.jsonl G1-G7,
+  SENIOR-QUALIFICATION.md 3-rung ladder, rijal_score.mjs) — missing only the driver verb.
+- Hook LOGIC portable, hook LIFECYCLE vendor-specific — a custom CLI owns its lifecycle,
+  so gates become loop PHASES (native) instead of veto hooks (bolted).
+
+## Design panel status
+3 blind Sonnet design agents launched 2026-07-11 (~01:0x): (A) minimal-wrapper/max-reuse,
+(B) rails-native agent loop, (C) provider/seat/audition layer.
+(C) LANDED — key moves: channels.json schema (auth/discovery/GR10-as-declared-
+concurrency-policy/cost-tier/identity_risk per channel); seats.json two-file split
+(profile library + thin route pointer, seat_defs carry faith+role_class+must_differ_from+
+foreign_tribe_of); Badal rule mechanical in `seats set` (verifier seats refuse unaudited
+{model,channel} pairs, --force-unaudited is loud never silent); audition funnel
+(eligibility gate → cheap screen 1-3 canaries → full audition N>=5 golden tasks minted
+ONLY from receipted missions → probation shadow-riding for verdict seats); rijal keyed on
+{model,channel} NEVER model alone; every ordinary dispatch feeds the fit matrix via
+downstream_grading (verdict chain grades the producer for free); 7 named risks (screen
+miscalibration, golden-task leakage, channel-conflation, aggregator opacity/no-digest,
+GR10-in-config, forced-seating erosion, sample-size illusions). DISCOVERED PRIOR ART:
+ROSTER_AND_SEATING_SPEC.md (in repo) — an earlier unbuilt design of almost exactly this
+layer (ikhtilāṭ digest-change re-audition, foreign-tribe witness rule, challenge-round
+hysteresis) — the design carries its vocabulary forward.
+(B) LANDED — core diagnosis: "every vendor-harness pain has the same shape — the hook
+has to RECONSTRUCT state it should simply OWN" (exhibit A: the 60s-TTL pending-niyyah
+side channel, which fired ~8 times in this very session). Design: a turn STATE MACHINE
+where orientation/niyyah/permission/witness/stop are PHASES — TOOL-EXECUTION is
+unreachable (not "checked", unreachable) without ORIENTED; niyyah is a schema field of
+the same structured envelope as the action (no cross-turn race); sessionClass
+(mission|chat|conductor) is a constructor field (kills the agy stop-hook stub problem);
+stop-check calls board_debt.compute() — a function, not ~30 guilt-regexes over prose.
+GRADUATED TOOL PROTOCOL: native function-calling OR JSON-verb-relay (the proven qwen
+pattern) — two transports, ONE gateAction; "graduated ergonomics, not graduated
+governance." Containment generalizes mission_class.mjs's one-door rule to all actions;
+type-level enforcement (dispatcher can't import raw fs/git). Persistence: phase
+transitions as first-class JSONL events (gate state = query, not text-mining);
+incremental hash chain; render_state's no-LLM-writes-the-record rule kept. TOP-5 HONEST
+COSTS ranked: (1) streaming/cancellation correctness x3 providers, (2) terminal UX
+parity on Windows, (3) per-provider quirk tax (open-ended), (4) idempotent retry for
+mutating actions under network partial-failure, (5) crash/restart FSM reconciliation.
+Plus: losing the vendor ecosystem (MCP, IDE, skills) that rides free today.
+(A) LANDED — the striking finding: v0 is FAR smaller than assumed. Every engine module
+is already an independently-runnable CLI program (run-mission, orchestrate-cli,
+conduct-cycle with full flag dispatch, doctor, daemon, board-truth-drain, rijal_score);
+bin/muezzin.mjs is a lookup table + spawnSync argv passthrough (~0.5 evening). FAITHS
+ARE ALREADY NATIVE — getFaith(role) in seat_dispatch injects ~/.agents/faiths/<role>
+into every seat dispatch on every provider today (requirement 4 = zero new code). No
+package.json anywhere — zero dependencies, Node builtins only. The daemon already IS
+the autonomous agent loop (queue-driven); what's missing is only the conversational
+REPL (deferred out of v0 as "separable UI sugar", 3-5+ evenings, high uncertainty).
+Staged plan: dispatcher 0.5 → selftest sweep 0.5-1 → beat driver 0.5 → seats.json
+externalization 1-1.5 (carry _why provenance from TABLE comments!) → providers.json +
+pinned-channel branch 1.5-2 (**BLOCKED ON OPERATOR RULING: restoring the Ollama Cloud
+row collides with the 2026-07-02 NO-CLOUD structural-removal ruling — dated addendum
+required BEFORE code; also OLLAMA_API_KEY vs OLLAMA_CLOUD_API_KEY canonical-key
+ambiguity**) → audition verb 0.5-1. Total v0 ≈ 4-6 evenings sans REPL. Key risks:
+governance-before-code; GR10 pinned-channel branch must delegate into the existing
+localOnly VRAM-admission path, never duplicate it lighter; Windows spawn = argv array
+never shell string (the exact bug run-mission.mjs exists to prevent).
+
+## Tiering answer + laptop-tier receipts (2026-07-11, this session)
+Operator chose: "Both, tiered equally" — the availability waterfall treats EVERY tier
+as first-class with audited seat tables: cloud APIs (AIMLAPI + Ollama Cloud) →
+nxtbeast-local (4090, needs Tailscale/connectivity) → LAPTOP-LOCAL (true offline floor).
+Laptop probe (read-only, this session): RTX 4070 Laptop GPU (8GB-class; WMI AdapterRAM
+caps at 4GB — verify with nvidia-smi before sizing), 15.7GB RAM, i7-13700H. Laptop
+Ollama IS ALREADY RUNNING with a real roster: ornith:9b + granite guardian 8b (THE
+WITNESS PAIR IS ALREADY LAPTOP-LOCAL), gemma4:12b, qwen3.5:9b, lfm2.5:8b, granite
+4.1 3b/8b (+3 :cloud pointer tags). So the offline floor exists TODAY minus: a
+laptop-tier conductor-relay audition (the 5/5 receipt was qwen3.6:27b ON NXTBEAST —
+qwen3.5:9b needs its own audition at the laptop tier), and offline-honest degradation
+rules (deploys/SearXNG/web queue until reconnect).
+
+## OPEN DISCUSSION THREADS (the "much more to discuss")
+1. OFFLINE TIERS: "no internet" in the van likely also severs Tailscale→nxtbeast. Does
+   the local channel split into laptop-local (what fits on the laptop?) vs
+   nxtbeast-local (4090, needs connectivity)? What hardware floor does the conductor
+   seat need (qwen 27B relay receipt was ON nxtbeast)?
+2. WHAT DEGRADES OFFLINE: deploys (Cloudflare), SearXNG-grounding, web research all
+   need internet. Honest offline mode = missions on local repos continue, shipping
+   QUEUES until reconnect? Which seats/witnesses can honestly run fully local?
+3. SWITCHOVER TRIGGER: manual verb vs automatic (quota-exhaustion receipts +
+   connectivity probes). Route-window pattern exists; extend to availability-waterfall?
+4. SCOPE OF "NATIVE": full interactive agent-loop CLI (own tool-calling, permissioning,
+   REPL) vs headless conductor+missions first (the engine already runs headless) with
+   interactive shell later.
+5. GOVERNANCE PORT: which of the ~22 rails are load-bearing day-1 (bootstrap, niyyah,
+   stop-validation, lane exclusion, GR10, deed-over-claim) vs later (hash-chain, prose
+   governance)?
+6. JURISDICTION RULEBOOK: operator's words imply all 3 channels permitted in THIS
+   jurisdiction (closed-frontier-via-API allowed here, unlike Claude-side). Record as
+   a dated ruling when the jurisdiction is created — not before.
+7. SEQUENCING: per 2026-07-11 rulings this build sits AFTER agy-100% + N5 (and N5's
+   harness-agnostic rails are exactly the CLI's conductor core — build once, reuse).
+
+## Answered so far (operator, 2026-07-11)
+- Deliverable now: DISCUSSION, not a design doc yet.
+- End goal: resilience floor (quota/internet fallback), not replacement.
+- Tiering: "Both, tiered equally" — cloud APIs → nxtbeast → laptop-local, every tier
+  first-class with audited seat tables.
+- Product shape (operator verbatim): "it would be its own self contained CLI, when
+  launched it would be able to check missions statuses and it should be chargeable like
+  Claude and agy cli" — i.e. a SELF-CONTAINED CONVERSATIONAL CLI (launch → orients →
+  reports mission status → converse), like Claude Code/agy. [Conductor reading:
+  "chargeable" = "chat-able"; flagged for operator correction if billing was meant.]
+  This overrides the panel's headless-first lean: headless engine wrapping is an
+  internal MILESTONE, the PRODUCT is the conversational CLI — agent B's native turn
+  state-machine is the core build, agent A's dispatcher its first floor, agent C's
+  channels/seats/audition its config surface.
+
+---
+
+# EXECUTED — Big Project (agy sibling) Planning Notes (2026-07-07, HISTORICAL — the agy
+# build shipped; living documentation now in muezzin-plugin/CONDUCTOR-PORT-PLAYBOOK.md)
 
 ## Context (accumulating as the operator lays it out)
 
