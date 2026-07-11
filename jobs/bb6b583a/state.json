@@ -1,7 +1,7 @@
 {
-  "state": "blocked",
-  "detail": "warroom plan blocked on 3 operator decisions: auth-scope, budget, product taste",
-  "tempo": "blocked",
+  "state": "done",
+  "detail": "decoded project status: agy/androidtv in-flight, warroom blocked on 4 decisions + go",
+  "tempo": "idle",
   "inFlight": {
     "tasks": 2,
     "queued": 0,
@@ -9,13 +9,12 @@
       "session_cron"
     ]
   },
-  "tokens": 6813376,
-  "needs": "decide on Ollama Cloud auth scope, budget directive application, and product taste ruling for warroom S6",
+  "tokens": 6814421,
   "output": {
-    "result": "warroom blocked; atv retry final stretch (13:10 wake); 3 decisions await: auth scope, budget, product taste"
+    "result": "agy-100% checklist in progress (stop-hook repaired); androidtv retry running; warroom needs 4 decisions + 'go' signal to start"
   },
   "children": null,
-  "linkScanOffset": 38706876,
+  "linkScanOffset": 38741084,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -43,6 +42,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-11T18:53:57.793Z",
+  "updatedAt": "2026-07-11T18:54:45.261Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
