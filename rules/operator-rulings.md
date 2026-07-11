@@ -69,10 +69,10 @@ rulings. This file is the loudness fix.)
   conductor beat (ladder: agy-muezzin/missions/_logs/senior-ladder.jsonl — streak 10/10,
   G2 2/2 at filing). (2) After graduation: BUILD N5 (the beat harness) — its full spec is
   muezzin-plugin/missions/QUEUE.md "2026-07-11 ENGINE ITEM: encode the conductor lessons"
-  items 1-9 (clear-procedure printing, verify-the-flip sweep, preflight-class matching,
-  first-line-verb hint, lint file-verdict honesty, safe queue-append verb,
-  split-validation scoping, hook-semantics port, single CONDUCTOR-PROTOCOL source). Read
-  that QUEUE entry BEFORE building. (3) Then the local-conductor test (bar = the
+  items 1-14 (conductor-lesson checks 1-7; hook-semantics port + single CONDUCTOR-PROTOCOL
+  source 8-9; cross-jurisdiction ports 10-14: queue compaction, universal conductor
+  ladder, explicit-validation mission format, agy guaranteed-delivery injection,
+  per-project deploy parity). Read that QUEUE entry BEFORE building. (3) Then the local-conductor test (bar = the
   receipted qwen 5/5 relay audition). If this ruling reads stale against current reality,
   surface the conflict per the fifth law — never silently obey either layer.
 

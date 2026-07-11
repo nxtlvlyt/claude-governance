@@ -1,6 +1,6 @@
 {
-  "state": "working",
-  "detail": "comparing agy/Claude CLI/agui patterns; identified 5 key learnings",
+  "state": "done",
+  "detail": "queued 5 cross-learnings (items 10–14); pointer corrected to 14 items",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,12 @@
       "session_cron"
     ]
   },
-  "tokens": 5150070,
-  "output": null,
+  "tokens": 5152078,
+  "output": {
+    "result": "5 cross-learnings queued in QUEUE.md lines 2266–2294; harness pointer updated to all 14 items"
+  },
   "children": null,
-  "linkScanOffset": 31375452,
+  "linkScanOffset": 31428639,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -40,6 +42,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-11T02:43:41.984Z",
+  "updatedAt": "2026-07-11T02:45:58.624Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
