@@ -1,6 +1,6 @@
 {
   "state": "done",
-  "detail": "agy gate defined: 6 concrete items (hook plugin, conductor beats, clean streak, visitor-ready chain, deploy parity, zero FAILED marks) with receipts required before qwen test",
+  "detail": "agy roadmap: fan-out not needed; final certification workflow recommended",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,12 +9,12 @@
       "session_cron"
     ]
   },
-  "tokens": 5921587,
+  "tokens": 5922976,
   "output": {
-    "result": "agy 100% gate: 6 checkable items + receipts required before moving to qwen test harness"
+    "result": "No Sonnet workflow needed for build/fixes/wiring; use ~12-agent certification workflow only at end to adversarially verify all six receipts before declaring agy 100%"
   },
   "children": null,
-  "linkScanOffset": 34525364,
+  "linkScanOffset": 34553227,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -42,6 +42,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-11T07:30:53.141Z",
+  "updatedAt": "2026-07-11T07:31:48.188Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
