@@ -2226,6 +2226,35 @@ outcome PASS"); live-verified serving: aurora D1/D2 copy 3/3 markers, van me-dot
 tag. The operator's twice-raised aurora ask is now FULLY live. Doneness deploy-freshness
 blocker closed. ENTRY CLOSED.
 
+## 2026-07-11 ENGINE ITEM: encode the 2026-07-10/11 conductor lessons into conduct-cycle + the N5 beat harness (local-conductor prep — operator asked "have we learned anything that can help our system universally")
+Every item below has a same-day receipt where a FRONTIER conductor (this session) made the
+mistake and a gate or a burned attempt caught it — exactly the classes a local conductor
+would hit. Promote from wakeup-prompt folklore to COMPUTED checks/instructions:
+1. CLEAR-PROCEDURE completeness: requeue prep must clear result.json + _sandbox + the
+   mission-dir _checkpoint.json (checkpoint resume silently re-served stale work 3x this
+   session). conduct-cycle DIAGNOSE items should PRINT the three paths with their
+   exists/cleared state.
+2. VERIFY-THE-FLIP: an annotated FAILED line whose leading token never flipped never
+   refires (missed 2x: weather, near-me). Sweep check: any line containing "re-queued"
+   whose leading token is still FAILED -> REQUIRED ACTION "flip or explain".
+3. Preflight COVERS class must equal the newest retro's failure class (weather attempt-4
+   refusal receipt). The sweep can compute both and name mismatches.
+4. RULE-11 first-line-verb contract belongs in the DIAGNOSE hint text (verbs must be on
+   step FIRST lines; near-me MIQAT-refused twice while verbs sat in continuation lines).
+5. mission_lint file-verdict honesty: `node mission_lint.mjs <file>` prints the SELFTEST's
+   ALL PASS and a conductor reads it as a file verdict (this one did, repeatedly). Add a
+   real file-lint mode with distinct output, or have conduct-cycle run the lint itself.
+6. Queue-file appends: Add-Content without a trailing-newline check corrupted AUTORUN
+   (atv-11 invisible-line receipt). The safe append belongs in a conduct-cycle verb
+   (--queue <mission>) instead of hand-edits.
+7. Autosplit-inherited multi-page loop validations can demand LATER steps'/S2's work at an
+   earlier step (atv-11.S1 step-6 receipt) — the deconstructor should scope copied
+   validations to the child step's own targets.
+Owner: next engine batch; items 2+3 are pure conduct-cycle sweep additions (cheapest,
+highest value); item 5 is the honesty fix a local conductor needs most. agy L2 status at
+filing: streak 10/10, G2 2/2, G3 0/1 — route the next natural agy gate block through an
+agy conductor beat for the final requirement.
+
 ## 2026-07-10 ENGINE ITEM: S2 REQUIRES tokens unresolvable by queuedDepsHold (38-file census)
 The deconstructor emits REQUIRES in MISSION-ID format (e.g. "MT-INTEGRATE-WILDLIFE-
 ADVISORY.S1") but queuedDepsHold resolves tokens against AUTORUN lines, which carry

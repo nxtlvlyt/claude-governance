@@ -1,27 +1,21 @@
 {
   "state": "working",
-  "detail": "what does money attempt mean",
-  "tempo": "active",
+  "detail": "agy one gate-block from graduation; 7 universal lessons queued for engine batch",
+  "tempo": "idle",
   "inFlight": {
-    "tasks": 0,
+    "tasks": 1,
     "queued": 0,
-    "kinds": []
+    "kinds": [
+      "session_cron"
+    ]
   },
-  "selfWake": true,
-  "fan": [
-    {
-      "id": "bensozmcn",
-      "kind": "shell",
-      "label": "# TOOL-CANNOT-SERVE: niyyah gate Path B — same-turn shell staging (60s TTL). $ts = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds(); @{ ts = $ts; niyyah_text = \"niyyah:`n source: atv-11-design-pass.…",
-      "startedAt": 1783735689223
-    }
-  ],
-  "tokens": 5110577,
+  "tokens": 5125251,
   "output": null,
   "children": null,
-  "linkScanOffset": 30808822,
+  "linkScanOffset": 31006307,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
+  "selfWake": true,
   "respawnFlags": [
     "--reply-on-resume",
     "--effort",
@@ -31,8 +25,6 @@
     "--permission-mode",
     "auto"
   ],
-  "bgIsolation": "none",
-  "providerEnv": {},
   "intent": "but we had 30 gaps mission we were fixing first before we did anything else and a big project to que when they were done",
   "name": "daemon-restart-mission-triage",
   "nameSource": "auto",
@@ -41,11 +33,13 @@
   "daemonShort": "bb6b583a",
   "cliVersion": "2.1.206",
   "cwd": "C:\\Users\\marka",
-  "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-11T02:08:09.374Z",
-  "firstTerminalAt": "2026-07-07T15:47:23.132Z",
   "bridgeSessionId": "cse_015z5n4qQqp9BZ8kKSCkvtzT",
   "bridgeOutboundOnly": false,
   "bridgeSessionSeq": 8904,
-  "backend": "daemon"
+  "bgIsolation": "none",
+  "providerEnv": {},
+  "backend": "daemon",
+  "createdAt": "2026-07-07T14:31:31.695Z",
+  "updatedAt": "2026-07-11T02:16:07.226Z",
+  "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
