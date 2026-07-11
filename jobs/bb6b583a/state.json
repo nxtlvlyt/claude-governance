@@ -1,18 +1,17 @@
 {
-  "state": "done",
-  "detail": "friction analyzed; architecture holding; daemons shipped real work",
-  "tempo": "idle",
+  "state": "blocked",
+  "detail": "What would you like next?",
+  "tempo": "blocked",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 6427423,
-  "output": {
-    "result": "Tonight proved the system works: scenic popup live, engine bug shipped, 976 warroom tests passing; friction isolated to this session's unusual probing, not the core daemons"
-  },
+  "tokens": 6429495,
+  "needs": "What would you like next?",
+  "output": null,
   "children": null,
-  "linkScanOffset": 36473754,
+  "linkScanOffset": 36509600,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -39,6 +38,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-11T17:03:37.922Z",
+  "updatedAt": "2026-07-11T17:05:00.294Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
