@@ -1,21 +1,19 @@
 {
   "state": "working",
   "detail": "workplan relaunched: 38 Sonnet agents investigating 19 failed missions",
-  "tempo": "idle",
+  "tempo": "active",
   "inFlight": {
-    "tasks": 1,
+    "tasks": 0,
     "queued": 0,
-    "kinds": [
-      "session_cron"
-    ]
+    "kinds": []
   },
   "selfWake": true,
   "fan": [
     {
-      "id": "bkjjf4izg",
+      "id": "b9pb7b35p",
       "kind": "shell",
-      "label": "# TOOL-CANNOT-SERVE: three line-token flips in one deterministic pass (each single Edit races the daemon rewrites — receipted 5x today); per-line receipts printed; niyyah staged for the batch. $ts = …",
-      "startedAt": 1783744584942
+      "label": "# TOOL-CANNOT-SERVE: niyyah gate Path B — same-turn shell staging (60s TTL). $ts = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds(); @{ ts = $ts; niyyah_text = \"niyyah:`n source: AUTORUN.md L978 (Re…",
+      "startedAt": 1783746594937
     }
   ],
   "tokens": 5182600,
@@ -44,7 +42,7 @@
   "cliVersion": "2.1.206",
   "cwd": "C:\\Users\\marka",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-11T04:37:02.830Z",
+  "updatedAt": "2026-07-11T05:09:55.142Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z",
   "bridgeSessionId": "cse_015z5n4qQqp9BZ8kKSCkvtzT",
   "bridgeOutboundOnly": false,
