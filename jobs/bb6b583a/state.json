@@ -1,6 +1,6 @@
 {
   "state": "done",
-  "detail": "warroom finish plan: stages 0-9 mapped, Sonnet limits named, mission-engine path clear",
+  "detail": "warroom completion roadmap: 6-phase plan (stand up, jurisdiction, missions, channels, audit run, bridge)",
   "tempo": "idle",
   "inFlight": {
     "tasks": 2,
@@ -9,12 +9,12 @@
       "session_cron"
     ]
   },
-  "tokens": 6809634,
+  "tokens": 6811659,
   "output": {
-    "result": "Sonnet can drive S0/S1/S2/S4/S5 in parallel; S3/S6/S8/S9 operator-gated; S8's live inference serial—run as missions via muezzin, not workflows"
+    "result": "6-phase warroom completion plan: jurisdiction setup → 6 foundation missions → failover/budget → local model audit run → mission bridge + acceptance tests"
   },
   "children": null,
-  "linkScanOffset": 38638749,
+  "linkScanOffset": 38677758,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -42,6 +42,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-11T18:50:32.359Z",
+  "updatedAt": "2026-07-11T18:53:01.438Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
