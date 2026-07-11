@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "33-agent workflow running: 16 muddy-tires fixes in prep; applying verified edits",
+  "detail": "atv-11 design pass complete; S2 content piece queued; redeploy + verify in flight",
   "tempo": "active",
   "inFlight": {
     "tasks": 3,
@@ -15,14 +15,175 @@
       "id": "af1605f3489a7b92b",
       "kind": "workflow",
       "label": "list-stems",
+      "group": "Prepare",
       "startedAt": 1783797016526,
-      "group": "Prepare"
+      "doneAt": 1783797097829
+    },
+    {
+      "id": "afd26d99c2a4033ef",
+      "kind": "workflow",
+      "label": "prep:mt-spot-briefs.S1",
+      "group": "Prepare",
+      "startedAt": 1783797101454,
+      "doneAt": 1783797279187
+    },
+    {
+      "id": "afb00689422a3b3d8",
+      "kind": "workflow",
+      "label": "prep:mt-integrate-wikipedia-link-20",
+      "group": "Prepare",
+      "startedAt": 1783797101491
+    },
+    {
+      "id": "a1e9aa5e224ea6040",
+      "kind": "workflow",
+      "label": "prep:mt-integrate-poi-services-near",
+      "group": "Prepare",
+      "startedAt": 1783797101356
+    },
+    {
+      "id": "a9373299722642d77",
+      "kind": "workflow",
+      "label": "prep:mt-integrate-poi-hover-preview",
+      "group": "Prepare",
+      "startedAt": 1783797101510
+    },
+    {
+      "id": "a28002ae05e949105",
+      "kind": "workflow",
+      "label": "prep:mt-integrate-spot-share-card",
+      "group": "Prepare",
+      "startedAt": 1783797101706,
+      "doneAt": 1783797256502
+    },
+    {
+      "id": "a8cc55402f2a48307",
+      "kind": "workflow",
+      "label": "prep:mt-integrate-dynamic-favicon-f",
+      "group": "Prepare",
+      "startedAt": 1783797101915
+    },
+    {
+      "id": "a600c5d0848e5bfc2",
+      "kind": "workflow",
+      "label": "prep:mt-integrate-testimonials.S1",
+      "group": "Prepare",
+      "startedAt": 1783797102084,
+      "doneAt": 1783797270018
+    },
+    {
+      "id": "ad5cd82c87d6b3649",
+      "kind": "workflow",
+      "label": "prep:mt-integrate-partner-embed-ifr",
+      "group": "Prepare",
+      "startedAt": 1783797102410
+    },
+    {
+      "id": "a970c968bb75a3ece",
+      "kind": "workflow",
+      "label": "prep:mt-integrate-partner-widget.S1",
+      "group": "Prepare",
+      "startedAt": 1783797101743
+    },
+    {
+      "id": "a45d25373c8b02533",
+      "kind": "workflow",
+      "label": "prep:mt-integrate-k6-load-baseline.",
+      "group": "Prepare",
+      "startedAt": 1783797102383,
+      "doneAt": 1783797247226
+    },
+    {
+      "id": "a1b33afd40c548ce0",
+      "kind": "workflow",
+      "label": "prep:mt-integrate-lighthouse-ci.S1",
+      "group": "Prepare",
+      "startedAt": 1783797102007,
+      "doneAt": 1783797254105
+    },
+    {
+      "id": "aac785fcf5eef9fae",
+      "kind": "workflow",
+      "label": "prep:mt-integrate-lighthouse-fix1-e",
+      "group": "Prepare",
+      "startedAt": 1783797103095,
+      "doneAt": 1783797241859
+    },
+    {
+      "id": "aa905b088a57ce414",
+      "kind": "workflow",
+      "label": "prep:mt-integrate-poi-dedup-audit.S",
+      "group": "Prepare",
+      "startedAt": 1783797101649
+    },
+    {
+      "id": "ab9d6a95bf4a5e086",
+      "kind": "workflow",
+      "label": "prep:mt-ingest-rest-services.S1",
+      "group": "Prepare",
+      "startedAt": 1783797101626
+    },
+    {
+      "id": "aac200bc30e70ebaf",
+      "kind": "workflow",
+      "label": "prep:mt-copy-clarity.S1",
+      "group": "Prepare",
+      "startedAt": 1783797101676
+    },
+    {
+      "id": "a81c6369cd659cdac",
+      "kind": "workflow",
+      "label": "prep:mt-feedback-capture.S1.S1",
+      "group": "Prepare",
+      "startedAt": 1783797102564
+    },
+    {
+      "id": "a6cea61d19a2183cd",
+      "kind": "workflow",
+      "label": "verify:mt-integrate-lighthouse-fix1",
+      "group": "Verify",
+      "startedAt": 1783797244757
+    },
+    {
+      "id": "ab47b08da933081f4",
+      "kind": "workflow",
+      "label": "verify:mt-integrate-k6-load-baselin",
+      "group": "Verify",
+      "startedAt": 1783797250736
+    },
+    {
+      "id": "a9130bce850fb9c47",
+      "kind": "workflow",
+      "label": "verify:mt-integrate-spot-share-card",
+      "group": "Verify",
+      "startedAt": 1783797259534
+    },
+    {
+      "id": "a64979424a871bf16",
+      "kind": "workflow",
+      "label": "verify:mt-integrate-lighthouse-ci.S",
+      "group": "Verify",
+      "startedAt": 1783797263732
+    },
+    {
+      "id": "a59704e7e8e38c653",
+      "kind": "workflow",
+      "label": "verify:mt-integrate-testimonials.S1",
+      "group": "Verify",
+      "startedAt": 1783797271906
+    },
+    {
+      "id": "wjxsh8pc2:23",
+      "kind": "workflow",
+      "label": "verify:mt-spot-briefs.S1",
+      "group": "Verify",
+      "startedAt": 1783797281379
     }
   ],
-  "tokens": 6835522,
+  "tokens": 7034587,
   "output": null,
   "children": null,
-  "linkScanOffset": 39120375,
+  "linkScanOffset": 39149140,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -50,6 +211,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-11T19:11:12.334Z",
+  "updatedAt": "2026-07-11T19:14:41.906Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
