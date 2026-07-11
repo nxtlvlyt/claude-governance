@@ -1,23 +1,30 @@
 {
   "state": "done",
-  "detail": "gpt-oss-20b hunt: Claude side clean, agy fork approved models only, likely Ollama web app",
-  "tempo": "idle",
+  "detail": "I noticed that something is using got oss 20b on my ollama cloud that's not a model I approved",
+  "tempo": "active",
   "inFlight": {
     "tasks": 2,
     "queued": 0,
     "kinds": [
+      "local_bash",
       "session_cron"
     ]
   },
+  "selfWake": true,
+  "fan": [
+    {
+      "id": "bxkcw7hn0",
+      "kind": "shell",
+      "label": "# TOOL-CANNOT-SERVE: warroom S0 mechanical completion (venv + pip + pytest) — long-running environment setup, background. cd /c/Users/marka/projects/warroom python -m venv .venv && ./.venv/Scripts/py…",
+      "startedAt": 1783798319619
+    }
+  ],
   "tokens": 7556469,
-  "output": {
-    "result": "gpt-oss-20b most likely from Ollama.com playground signed to your account; check dashboard timestamp to confirm, rotate API key if recurring"
-  },
+  "output": null,
   "children": null,
   "linkScanOffset": 39379877,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
-  "selfWake": true,
   "respawnFlags": [
     "--reply-on-resume",
     "--effort",
@@ -27,6 +34,8 @@
     "--permission-mode",
     "auto"
   ],
+  "bgIsolation": "none",
+  "providerEnv": {},
   "intent": "but we had 30 gaps mission we were fixing first before we did anything else and a big project to que when they were done",
   "name": "daemon-restart-mission-triage",
   "nameSource": "auto",
@@ -35,13 +44,11 @@
   "daemonShort": "bb6b583a",
   "cliVersion": "2.1.206",
   "cwd": "C:\\Users\\marka",
+  "createdAt": "2026-07-07T14:31:31.695Z",
+  "updatedAt": "2026-07-11T19:32:00.084Z",
+  "firstTerminalAt": "2026-07-07T15:47:23.132Z",
   "bridgeSessionId": "cse_015z5n4qQqp9BZ8kKSCkvtzT",
   "bridgeOutboundOnly": false,
   "bridgeSessionSeq": 8904,
-  "bgIsolation": "none",
-  "providerEnv": {},
-  "backend": "daemon",
-  "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-11T19:29:46.992Z",
-  "firstTerminalAt": "2026-07-07T15:47:23.132Z"
+  "backend": "daemon"
 }
