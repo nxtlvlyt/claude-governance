@@ -1,16 +1,15 @@
 {
   "state": "done",
-  "detail": "I noticed that something is using got oss 20b on my ollama cloud that's not a model I approved",
-  "tempo": "active",
+  "detail": "confirmed: only agy used ollama cloud (1× gpt-oss:20b on July 8)",
+  "tempo": "idle",
   "inFlight": {
-    "tasks": 2,
+    "tasks": 3,
     "queued": 0,
     "kinds": [
       "local_bash",
       "session_cron"
     ]
   },
-  "selfWake": true,
   "fan": [
     {
       "id": "bxkcw7hn0",
@@ -19,12 +18,15 @@
       "startedAt": 1783798319619
     }
   ],
-  "tokens": 7556469,
-  "output": null,
+  "tokens": 7564431,
+  "output": {
+    "result": "agy made 1 gpt-oss:20b call (July 8 03:56Z, ~110 tokens); fork uses draft roster only (minimax/kimi/deepseek/glm). Fix: model allowlist on cloud provider."
+  },
   "children": null,
-  "linkScanOffset": 39379877,
+  "linkScanOffset": 39541654,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
+  "selfWake": true,
   "respawnFlags": [
     "--reply-on-resume",
     "--effort",
@@ -34,8 +36,6 @@
     "--permission-mode",
     "auto"
   ],
-  "bgIsolation": "none",
-  "providerEnv": {},
   "intent": "but we had 30 gaps mission we were fixing first before we did anything else and a big project to que when they were done",
   "name": "daemon-restart-mission-triage",
   "nameSource": "auto",
@@ -44,11 +44,13 @@
   "daemonShort": "bb6b583a",
   "cliVersion": "2.1.206",
   "cwd": "C:\\Users\\marka",
-  "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-11T19:32:00.084Z",
-  "firstTerminalAt": "2026-07-07T15:47:23.132Z",
   "bridgeSessionId": "cse_015z5n4qQqp9BZ8kKSCkvtzT",
   "bridgeOutboundOnly": false,
   "bridgeSessionSeq": 8904,
-  "backend": "daemon"
+  "bgIsolation": "none",
+  "providerEnv": {},
+  "backend": "daemon",
+  "createdAt": "2026-07-07T14:31:31.695Z",
+  "updatedAt": "2026-07-11T19:35:28.741Z",
+  "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
