@@ -1,6 +1,6 @@
 {
-  "state": "done",
-  "detail": "war room: bones solid (REPL/dispatch/faiths/tests), missing: real-world exercise (seats/missions/safety); 4–6 eve roadmap",
+  "state": "working",
+  "detail": "agy daemon 15m into atv-11.S1.S1 attempt-3; awaiting render witness result",
   "tempo": "idle",
   "inFlight": {
     "tasks": 2,
@@ -9,12 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 6788471,
-  "output": {
-    "result": "Current state: bones working (976 passing tests, REPL/dispatch/auditions built); gaps are untested subsystems (9 uncalibrated seats, mission queue, resilience tiers). 4–6 evenings to completion, gated on your 4 decisions + sequencing (agy→100%, N5 first)."
-  },
+  "tokens": 6789337,
+  "output": null,
   "children": null,
-  "linkScanOffset": 38336219,
+  "linkScanOffset": 38370123,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -42,6 +40,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-11T18:13:34.514Z",
+  "updatedAt": "2026-07-11T18:14:22.427Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
