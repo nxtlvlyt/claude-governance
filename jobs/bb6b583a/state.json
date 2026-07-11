@@ -1,12 +1,13 @@
 {
   "state": "working",
-  "detail": "running 606-test suite; audit in progress",
-  "tempo": "blocked",
+  "detail": "pytest suite running on nxtbeast; awaiting results",
+  "tempo": "active",
   "inFlight": {
-    "tasks": 1,
-    "queued": 1,
+    "tasks": 2,
+    "queued": 0,
     "kinds": [
-      "local_workflow"
+      "local_workflow",
+      "local_bash"
     ]
   },
   "fan": [
@@ -39,6 +40,7 @@
       "kind": "workflow",
       "label": "read:core",
       "startedAt": 1783787376738,
+      "doneAt": 1783787735763,
       "group": "Read"
     },
     {
@@ -54,6 +56,7 @@
       "kind": "workflow",
       "label": "read:missions",
       "startedAt": 1783787376742,
+      "doneAt": 1783787657739,
       "group": "Read"
     },
     {
@@ -75,6 +78,7 @@
       "kind": "workflow",
       "label": "audit:clients",
       "startedAt": 1783787526310,
+      "doneAt": 1783787753734,
       "group": "Audit"
     },
     {
@@ -92,19 +96,30 @@
       "group": "Audit"
     },
     {
-      "id": "b511hvyqn",
+      "id": "aa00ff9745d588ddd",
+      "kind": "workflow",
+      "label": "audit:missions",
+      "startedAt": 1783787657750,
+      "group": "Audit"
+    },
+    {
+      "id": "a65b95a47fb35fbd9",
+      "kind": "workflow",
+      "label": "audit:core",
+      "startedAt": 1783787735773,
+      "group": "Audit"
+    },
+    {
+      "id": "byrcdfutt",
       "kind": "shell",
-      "label": "Set-Location \"C:\\Users\\marka\\projects\\warroom\"; python -m pytest -q --timeout=120 2>&1 | Select-Object -Last 12 | Out-String",
-      "startedAt": 1783787591494,
-      "doneAt": 1783787592333,
-      "failed": true
+      "label": "ssh nxtbeast \"cd /d C:\\warroom && python -m pytest -q 2>&1\" 2>&1 | Select-Object -Last 12 | Out-String",
+      "startedAt": 1783788489917
     }
   ],
-  "tokens": 6254697,
-  "needs": "approve Bash: cd \"C:/Users/marka/projects/warroom\" && find . -iname \"cli*\" -not -path \"*/node_modules/*\" 2>/dev/null; echo \"---\"; find . -maxdepth 1 -iname \"*.py\"; echo \"---toplevel---\"; ls -la | head -50",
+  "tokens": 6322065,
   "output": null,
   "children": null,
-  "linkScanOffset": 36316254,
+  "linkScanOffset": 36344049,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -131,6 +146,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-11T16:33:28.709Z",
+  "updatedAt": "2026-07-11T16:48:26.196Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
