@@ -1,6 +1,6 @@
 {
   "state": "blocked",
-  "detail": "awaiting project name or path",
+  "detail": "locating warroom on nxtbeast desktop; laptop copy frozen at 06-21",
   "tempo": "blocked",
   "inFlight": {
     "tasks": 2,
@@ -18,11 +18,11 @@
       "startedAt": 1783758459069
     }
   ],
-  "tokens": 6111623,
-  "needs": "which project?",
+  "tokens": 6119736,
+  "needs": "confirm warroom location on nxtbeast desktop or provide path",
   "output": null,
   "children": null,
-  "linkScanOffset": 35702573,
+  "linkScanOffset": 35824420,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -50,6 +50,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-11T08:30:27.513Z",
+  "updatedAt": "2026-07-11T08:34:16.236Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }

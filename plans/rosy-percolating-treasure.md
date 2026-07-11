@@ -141,20 +141,47 @@ rules (deploys/SearXNG/web queue until reconnect).
   ruling — the succession ruling still holds the test FORMAT as operator-spec-pending;
   recorded here as his discussion-stage observation.
 
-## STARTED-PROJECT IDENTITY: UNKNOWN — HERMES CLAIM RETRACTED (operator word 2026-07-11
-## ~02:3x: "it's not Hermes"; conductor error owned — graded a hypothesis as confirmed,
-## the same fifth-law failure class twice in one night)
-Operator's reveal stands: "this was a project that's already been started but we didn't
-know enough to finish it like we do now" — but WHICH project is still his to name or
-mine to find with receipts. Search receipts so far: local dirs swept (hermes-agent is
-real but NOT it; warroom = governance workspace; 2boots = astro site); nxtbeast home
-swept — live candidates there: .openclaw (heavily-iterated OpenClaw install: config x4
-backups, gateway, telegram, devices, skills, memory, workspace), ai-roommate-phase0
-(llama-cpp + models), .cagent, .aider, .codex, claude-stack-portable (empty dir),
-coding-bakeoff. OpenClaw grep for muezzin/conductor DNA in flight at retraction time.
-The HERMES INVENTORY BELOW STAYS as context — it is real substrate (a chattable-CLI
-platform with a 2026-06-25 muezzin advice-graft whose own text records the
-advice-without-rails failure) — but it is NOT the operator's started project.
+## THE STARTED PROJECT = WARROOM (operator named it 2026-07-11 ~02:4x, after I burned
+## two wrong guesses — Hermes, then OpenClaw probing — and he correctly asked "why not
+## just ask me?"; lesson: which-project-do-you-mean was NEVER substrate-resolvable)
+NxTLvL War Room — laptop copy C:\Users\marka\projects\warroom (synced 2026-06-21);
+operator says it also lives on the nxtbeast desktop (locate that copy — likely newer —
+before any build work; nxtbeast home also shows a capital-P Projects dir). README Read
+this session: **v1 SHIPPED 2026-04-18** (v1.3 by 04-20), 606 tests across 29 modules.
+It PREDATES the entire muezzin/conductor/agy lineage — and Directives 12/13 were
+refined DURING its build (warroom is where the governance came from).
+WHAT V1 ALREADY IS (receipts, not design): Typer CLI + interactive slash-command REPL
+(chattable); 9 seats with faiths/ + faith_builder.py; missions/tryouts/ = THE AUDITION
+SYSTEM (rubric/task/candidate/judge-panel/scorer with floor DQs); clients/ = ollama.py
+(local, CPU-only per then-GR3) + aimlapi.py (unified paid backend: Claude/Gemini/GPT
+via one key) + budget.py (session/daily/monthly caps + spend logs) + anythingllm.py +
+searxng_client.py + secrets.py; core/ = router (CPU-serialized priority dispatch),
+facilitator (cross-role deliberation), substrate_reasoning (5-step + confidence
+routing), eligibility matrix, guardrails, hierarchy_enforcer, watchdog, retry,
+failover.py — **Autonomous Mode trigger detection: "Claude Code absent, War Room
+drives" — the operator's resilience-floor purpose was ALREADY CODED in April**;
+gauntlet (N-model consensus), drift sweeps, hygiene/organization/curation/predigest
+missions; Global API Waterfall Order.txt; mcp/manifest.json (9-tool MCP surface,
+dormant). Big docs unread yet (defer to design phase): WARROOM-BUILD-SPEC.md 98KB,
+STATE.md 231KB, WARROOM-SOTA-PLAN.md 55KB, OPERATOR-CONTEXT.md 50KB,
+RESOLUTION_LEDGER.md, WARROOM-COMPETITIVE-LANDSCAPE.md.
+WHAT WAS NEVER DONE (the "didn't know enough to finish" gap, from its own README):
+post-v1 operator activities never ran — ROSTER.md null-stubbed (tryouts never run to
+seat config/roster.yaml), AnythingLLM scoped key never provisioned, MCP surface never
+activated. And its own D14-candidate ("Built ≠ running" — /hygiene + /organization
+built but CLI-stubbed) names tonight's lesson class from 3 months earlier.
+WHAT THE 18 SUBSEQUENT WEEKS SUPPLY (the finishing knowledge): deed-over-claim receipts
++ engine gates (verdict panels, RETRO-REPEAT, MIQAT, containment), the requeue/retro
+discipline, the graduation ladder, jurisdiction pattern + baton lock, rails-in-script
+relay (qwen 5/5), {model,channel} rijal, mission substrate at production scale (both
+daemons), CONDUCTOR-PORT-PLAYBOOK.md, and the N5 spec. Tonight's design-panel outputs
+independently converged on warroom's shapes (channels config ≈ clients/, seats.json ≈
+roster.yaml, audition funnel ≈ tryouts/) — validating its architecture from the outside.
+OPERATOR'S 3-CHANNEL ASK vs warroom: local ollama ✓ (clients/ollama.py), AIMLAPI ✓
+(clients/aimlapi.py), Ollama Cloud API = the NEW third client. Mission continuity
+(continue Claude/agy missions + own queue) = the muezzin mission-format bridge, new.
+Note: v1's GR3 (CPU-only local, 4090 belonged to ComfyUI) likely stale — re-check
+current GPU policy before re-running tryouts.
 - C:\Users\marka\hermes-agent — full OSS agent-CLI codebase (Python): hermes_cli/, agent/,
   gateway/, providers/, plugins/, skills/, tools/, ui-tui/ (the TUI), cron/, mcp_serve.py,
   trajectory_compressor.py, sandboxes. Repo state frozen 2026-06-26.
