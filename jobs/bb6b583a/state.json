@@ -1,6 +1,6 @@
 {
   "state": "done",
-  "detail": "agy has 3 more missions for atv: S1 (design, running), S2 (hubs+verify), atv-12 (redeploy)",
+  "detail": "muddytires: 84 done, 35 queued, zero undiagnosed failures",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,12 +9,12 @@
       "session_cron"
     ]
   },
-  "tokens": 5790007,
+  "tokens": 5791355,
   "output": {
-    "result": "3 missions left: atv-11.S1 (design, in progress), atv-11.S2 (hubs+verify), atv-12 (redeploy to stable)"
+    "result": "84 missions done, 35 ready to fire, all failures diagnosed; mt-money-revenue-synthesis unblocked"
   },
   "children": null,
-  "linkScanOffset": 32614915,
+  "linkScanOffset": 32652006,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -42,6 +42,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-11T06:05:30.601Z",
+  "updatedAt": "2026-07-11T06:07:44.134Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
