@@ -1,16 +1,93 @@
 {
   "state": "working",
-  "detail": "scenic + atv converging on detail-class rejections; engine fixed 2x; nothing stuck",
-  "tempo": "idle",
+  "detail": "16 Sonnet agents auditing warroom; scenic popup mission fixed",
+  "tempo": "active",
   "inFlight": {
-    "tasks": 0,
+    "tasks": 1,
     "queued": 0,
-    "kinds": []
+    "kinds": [
+      "local_workflow"
+    ]
   },
-  "tokens": 6141496,
+  "fan": [
+    {
+      "id": "a16a0fb015f342695",
+      "kind": "workflow",
+      "label": "read:build-spec",
+      "group": "Read",
+      "startedAt": 1783787376729,
+      "doneAt": 1783787545659
+    },
+    {
+      "id": "ade500ae66c1cf444",
+      "kind": "workflow",
+      "label": "read:history",
+      "group": "Read",
+      "startedAt": 1783787376734
+    },
+    {
+      "id": "a588ce63839bf83f9",
+      "kind": "workflow",
+      "label": "read:plans",
+      "group": "Read",
+      "startedAt": 1783787376736,
+      "doneAt": 1783787508496
+    },
+    {
+      "id": "abf6f903217a48012",
+      "kind": "workflow",
+      "label": "read:core",
+      "group": "Read",
+      "startedAt": 1783787376738
+    },
+    {
+      "id": "aadb6ce16bd5f8d07",
+      "kind": "workflow",
+      "label": "read:clients",
+      "group": "Read",
+      "startedAt": 1783787376740,
+      "doneAt": 1783787526304
+    },
+    {
+      "id": "adfc1f3fced3fa8e4",
+      "kind": "workflow",
+      "label": "read:missions",
+      "group": "Read",
+      "startedAt": 1783787376742
+    },
+    {
+      "id": "a6f2aeba54d4aa886",
+      "kind": "workflow",
+      "label": "read:wiring",
+      "group": "Read",
+      "startedAt": 1783787376744
+    },
+    {
+      "id": "aa670f7690d3348e4",
+      "kind": "workflow",
+      "label": "audit:plans",
+      "group": "Audit",
+      "startedAt": 1783787508591
+    },
+    {
+      "id": "a8e0b2642c1050efa",
+      "kind": "workflow",
+      "label": "audit:clients",
+      "group": "Audit",
+      "startedAt": 1783787526310
+    },
+    {
+      "id": "a4a665ec87834a5e9",
+      "kind": "workflow",
+      "label": "audit:build-spec",
+      "group": "Audit",
+      "startedAt": 1783787545694
+    }
+  ],
+  "tokens": 6223529,
   "output": null,
   "children": null,
-  "linkScanOffset": 36161857,
+  "linkScanOffset": 36277947,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -37,6 +114,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-11T16:27:09.958Z",
+  "updatedAt": "2026-07-11T16:32:26.160Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }

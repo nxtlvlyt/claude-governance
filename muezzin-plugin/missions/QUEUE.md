@@ -2313,6 +2313,20 @@ muezzin-plugin/CONDUCTOR-PORT-PLAYBOOK.md — four-layer port map, the proven ag
 order, the lessons ledger with receipt pointers, jurisdiction pattern, rails-port
 options, acceptance bar. The N5 builder and the local-conductor test READ IT FIRST;
 update it in the same session any new port lesson is paid for.
+ITEM 15 — PANEL ARTIFACT TRUNCATION = FALSE-REJECT CLASS (paid 2026-07-11 03:1x,
+scenic.S2 attempt-8): the verdict panel receives HEAD-TRUNCATED artifact slices (10,000
+chars of a 398,166-char map.html — the panel's own F1-sunnah finding names it), so any
+deliverable deeper in a large file is INVISIBLE and gets REJECTed as missing arkan even
+when every step passed and a live preview witness exited 0. Conductor personally
+verified the wiring at HEAD (git show: _seEnrichFetch block, 3b8d67e) — RESOLVED-LANDED.
+FIX SHAPE: artifact slicing for the panel must be RELEVANCE-EXTRACTED (regions around
+the mission's key tokens/edited hunks — git diff of the mission's commits is the natural
+slice), never head-truncation; and a panel finding that admits its own visibility limit
+(the F1-sunnah shape) should DOWNGRADE the corresponding arkan claim, fail-open to the
+witness receipts. Secondary receipt same attempt: the panel misread a PowerShell
+here-string WRAPPER as the .mjs file content (the scratch's first line WAS the mandated
+import) — panels judging code-in-command-strings need the materialized file, not the
+authoring command.
 ITEM 2 ADDENDUM — AUTORUN LINE GRAMMAR (paid 2026-07-11 02:1x, two phantom failures):
 the verify-the-flip sweep must validate line FORMAT, not just the token change. The
 daemon's contract: pending lines are BARE paths ("missions/x.mission.txt  <!-- ... -->");
