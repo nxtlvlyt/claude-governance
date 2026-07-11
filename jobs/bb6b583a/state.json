@@ -1,6 +1,6 @@
 {
   "state": "blocked",
-  "detail": "locating warroom on nxtbeast desktop; laptop copy frozen at 06-21",
+  "detail": "warroom parity analysis ready; awaiting go-ahead to launch 12-agent Sonnet workplan",
   "tempo": "blocked",
   "inFlight": {
     "tasks": 2,
@@ -18,11 +18,11 @@
       "startedAt": 1783758459069
     }
   ],
-  "tokens": 6119736,
-  "needs": "confirm warroom location on nxtbeast desktop or provide path",
+  "tokens": 6124242,
+  "needs": "say go to fire the 12-agent Sonnet workplan, or hold until after context lands",
   "output": null,
   "children": null,
-  "linkScanOffset": 35824420,
+  "linkScanOffset": 35878029,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -50,6 +50,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-11T08:34:16.236Z",
+  "updatedAt": "2026-07-11T08:40:42.244Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
