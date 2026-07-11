@@ -109,8 +109,9 @@ rulings. This file is the loudness fix.)
   drop-to-local (reverses his 2026-04-21 advisory-only directive, warroom scope).
   (3) STANDALONE DAEMON — new first-class requirement: SHAREABLE ("share the war room
   with a friend to use on their own projects"); self-contained, no dependency on his
-  engine/machines. (4) SEAT PROMOTIONS need his review of tryout scores. THE BUILD
-  ITSELF still awaits his explicit go + the agy-100% + N5 sequence. Spec:
+  engine/machines. (4) SEAT PROMOTIONS need his review of tryout scores. GO GIVEN
+  (operator word 2026-07-11: "go") — the build is AUTHORIZED and sequences behind
+  agy-100% + N5 per his standing order. Spec:
   muezzin-plugin/WARROOM-INTAKE-2026-07-11.md.
 
 ## Communication rulings
