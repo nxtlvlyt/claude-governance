@@ -1,29 +1,20 @@
 {
   "state": "done",
-  "detail": "root cause isolated: --print-timeout drops prompt; dispatch corrected",
+  "detail": "wudu covers S1.S1 attempt-3; all daemons green, cron rule respected",
   "tempo": "idle",
   "inFlight": {
-    "tasks": 3,
+    "tasks": 2,
     "queued": 0,
     "kinds": [
-      "local_bash",
       "session_cron"
     ]
   },
-  "fan": [
-    {
-      "id": "ba611wne0",
-      "kind": "shell",
-      "label": "agy --model \"gemini-3.5-flash\" --print \"Read the file C:/Users/marka/agy-muezzin/missions/_logs/agy-beat-brief.txt and follow its instructions exactly.\" > C:\\Users\\marka\\agy-muezzin\\missions\\_logs\\ag…",
-      "startedAt": 1783791899332
-    }
-  ],
-  "tokens": 6740035,
+  "tokens": 6777247,
   "output": {
-    "result": "misfire caused by --print-timeout flag in agy_dispatch; daemons healthy, corrected dispatch running"
+    "result": "verified: stylesheet target corrected, agy daemon running attempt-3, mt daemon draining queue, all cron items covered by 12:25 wakeup"
   },
   "children": null,
-  "linkScanOffset": 37751299,
+  "linkScanOffset": 38186744,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -51,6 +42,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-11T17:45:14.367Z",
+  "updatedAt": "2026-07-11T18:00:28.194Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
