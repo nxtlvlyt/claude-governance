@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "10-agent workflow running: design-lint, park-sweep, autosplit, hold-prefix, stitch fixes in parallel",
+  "detail": "2 flagged items fixed; engine workflow + vision pass pending",
   "tempo": "active",
   "inFlight": {
     "tasks": 2,
@@ -16,6 +16,7 @@
       "kind": "workflow",
       "label": "prep:item21-lint-gate",
       "startedAt": 1783812825364,
+      "doneAt": 1783813334400,
       "group": "Prepare"
     },
     {
@@ -30,6 +31,7 @@
       "kind": "workflow",
       "label": "prep:autosplit-tag-inheritance",
       "startedAt": 1783812825317,
+      "doneAt": 1783813246847,
       "group": "Prepare"
     },
     {
@@ -37,6 +39,7 @@
       "kind": "workflow",
       "label": "prep:gap-hold-prefixes",
       "startedAt": 1783812825860,
+      "doneAt": 1783813028283,
       "group": "Prepare"
     },
     {
@@ -44,13 +47,45 @@
       "kind": "workflow",
       "label": "prep:stitch-revival-mission",
       "startedAt": 1783812826378,
+      "doneAt": 1783813217599,
       "group": "Prepare"
+    },
+    {
+      "id": "af1de25862be8fc7d",
+      "kind": "workflow",
+      "label": "skeptic:gap-hold-prefixes",
+      "startedAt": 1783813033576,
+      "doneAt": 1783813262715,
+      "group": "Verify"
+    },
+    {
+      "id": "a577faab2b05d2deb",
+      "kind": "workflow",
+      "label": "skeptic:stitch-revival-mission",
+      "startedAt": 1783813223018,
+      "group": "Verify"
+    },
+    {
+      "id": "a2dbec24e6f6f744b",
+      "kind": "workflow",
+      "label": "skeptic:autosplit-tag-inheritance",
+      "startedAt": 1783813251814,
+      "doneAt": 1783813693595,
+      "group": "Verify"
+    },
+    {
+      "id": "a4958699f917e1473",
+      "kind": "workflow",
+      "label": "skeptic:item21-lint-gate",
+      "startedAt": 1783813338728,
+      "doneAt": 1783813904976,
+      "group": "Verify"
     }
   ],
-  "tokens": 7922549,
+  "tokens": 8205978,
   "output": null,
   "children": null,
-  "linkScanOffset": 52108123,
+  "linkScanOffset": 52416572,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -78,6 +113,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-11T23:34:10.234Z",
+  "updatedAt": "2026-07-11T23:57:27.070Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }

@@ -1,0 +1,20 @@
+MISSION-ID: mt-integrate-spot-share-card.S2
+MISSION-CLASS: code-repo
+PARENT: mt-integrate-spot-share-card
+TARTIB-INDEX: 2 of 2
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - js/share-card.js
+  - map.html
+VISUAL-QC-REQUIRED
+REQUIRES: mt-integrate-spot-share-card.S1 (tartib — this sub-mission may not start until mt-integrate-spot-share-card.S1's receipt exists)
+STEPS: 1
+
+PARENT MAQSAD: The commit "18e7eb9 feat(share-card): per-spot printable share-card with QR code
+
+Maqsad: sub-mission 2 of 2 — Visual-QC witness: ensure the ALLOW-FILES tree is committed, deploy the current tree via wrangler pages preview, capture the emitted *.pages.dev URL, headlessly render map.html from that URL asserting no fatal page error and that the share-card.js script tag is present in served markup, then remove the scratch script in the same command (create-use-delete, no residue). Surfaces NO_PREVIEW_BASE_URL if no deploy URL is emitted. through Visual-QC witness: ensure the ALLOW-FILES tree is committed, deploy the current tree via wrangler pages preview, capture the emitted *.pages.dev URL, headlessly render map.html from that URL asserting no fatal page error and that the share-card.js script tag is present in served markup, then remove the scratch script in the same command (create-use-delete, no residue). Surfaces NO_PREVIEW_BASE_URL if no deploy URL is emitted.
+
+Steps:
+  9. Visual-QC witness: ensure the ALLOW-FILES tree is committed, deploy the current tree via wrangler pages preview, capture the emitted *.pages.dev URL, headlessly render map.html from that URL asserting no fatal page error and that the share-card.js script tag is present in served markup, then remove the scratch script in the same command (create-use-delete, no residue). Surfaces NO_PREVIEW_BASE_URL if no deploy URL is emitted. [command] 
+
+Done means: step 9's headless-render receipt shows map.html served from the emitted *.pages.dev preview URL with no fatal page error and the share-card.js script tag present in the served markup — verified by headless-browser render, not by reading the code.

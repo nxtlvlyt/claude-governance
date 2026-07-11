@@ -1,0 +1,21 @@
+{
+  "parentId": "mt-integrate-spot-share-card",
+  "ceiling": 8,
+  "originalStepCount": 9,
+  "groupCount": 2,
+  "children": [
+    {
+      "id": "mt-integrate-spot-share-card.S1",
+      "file": "missions/mt-integrate-spot-share-card.S1.mission.txt",
+      "steps": 8,
+      "requires": null
+    },
+    {
+      "id": "mt-integrate-spot-share-card.S2",
+      "file": "missions/mt-integrate-spot-share-card.S2.mission.txt",
+      "steps": 1,
+      "requires": "mt-integrate-spot-share-card.S1"
+    }
+  ],
+  "ts": "2026-07-11T23:41:54.316Z"
+}

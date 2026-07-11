@@ -1,0 +1,26 @@
+MISSION-ID: mt-integrate-spot-share-card.S1
+MISSION-CLASS: code-repo
+PARENT: mt-integrate-spot-share-card
+TARTIB-INDEX: 1 of 2
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - js/share-card.js
+  - map.html
+REQUIRES: none (first in tartib order)
+STEPS: 8
+
+PARENT MAQSAD: The commit "18e7eb9 feat(share-card): per-spot printable share-card with QR code
+
+Maqsad: sub-mission 1 of 2 — Ensure the target repo is checked out on TARGET-BRANCH main (checkout if a different branch is active), then idempotently detect whether the share-card feature is already present on disk so re-runs never fail on a state this mission's own prior work produced. through Verify the target repo's working tree is clean for this mission's ALLOW-FILES (js/share-card.js, map.html) with no uncommitted changes remaining, as the terminal gate before visual QC.
+
+Steps:
+  1. Ensure the target repo is checked out on TARGET-BRANCH main (checkout if a different branch is active), then idempotently detect whether the share-card feature is already present on disk so re-runs never fail on a state this mission's own prior work produced. [command] 
+  2. Confirm source commit 18e7eb96e661d9f0beaf5b46fb596e8b94aaeba5 is a valid, reachable commit object in this repo's shared object store (no fetch/remote-add needed) before referencing its blobs. [command] 
+  3. Extract js/share-card.js as it exists in commit 18e7eb9 (a brand-new file, confirmed absent from current main, so this is a clean add with no conflict possible) directly from the git blob and write it into the target repo. [command] js/share-card.js
+  4. Insert exactly one <script src="js/share-card.js" defer></script> tag into map.html's existing script-tag chain, immediately after the js/share-export.js tag, preserving every other existing tag and line of map.html unchanged (both sides kept, nothing dropped). [edit] map.html
+  5. Syntax-check the newly-added js/share-card.js module to confirm it is mechanically sound (no claim about behavioral correctness). [verify] js/share-card.js
+  6. Confirm map.html did not lose any pre-existing content during the tag insertion: line count did not shrink below its known pre-change size, and the pre-existing js/share-export.js tag is still present alongside the new tag. [verify] map.html
+  7. Commit the integration (js/share-card.js add + map.html tag insertion) with a message naming the source feature and SHA, idempotently skipping the commit if these two files are already clean (already committed by a prior run). [command] 
+  8. Verify the target repo's working tree is clean for this mission's ALLOW-FILES (js/share-card.js, map.html) with no uncommitted changes remaining, as the terminal gate before visual QC. [verify] 
+
+Done means: js/share-card.js lands from the 18e7eb9 blob, map.html carries exactly one new share-card script tag with all pre-existing content intact, the js syntax-checks clean, and the commit naming the feature/SHA exists with a clean ALLOW-FILES tree — git-mechanical verification only; the headless-browser render witness is S2's charter (it carries VISUAL-QC-REQUIRED and the executable deploy+render step 9), moved there 2026-07-11 after MIQAT-REFUSED grep-only-visual-verification on this child (third receipt of the autosplit tag-inheritance class; engine fix in flight via wf_fb4bed3e).
