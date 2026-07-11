@@ -10,16 +10,16 @@
   "selfWake": true,
   "fan": [
     {
-      "id": "benra2wh7",
+      "id": "bxt1cq863",
       "kind": "shell",
-      "label": "$l = Select-String -Path C:\\Users\\marka\\.claude\\muezzin-plugin\\missions\\AUTORUN.md -Pattern '^FAILED missions/mt-integrate-weather-aware' | Select-Object -First 1; \"L$($l.LineNumber): tail=\" + $l.Lin…",
-      "startedAt": 1783727718137
+      "label": "# TOOL-CANNOT-SERVE: niyyah gate Path B — same-turn shell staging (60s TTL). $ts = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds(); @{ ts = $ts; niyyah_text = \"niyyah:`n source: AUTORUN.md line 994…",
+      "startedAt": 1783729826133
     }
   ],
   "tokens": 5049829,
   "output": null,
   "children": null,
-  "linkScanOffset": 30019940,
+  "linkScanOffset": 30333927,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -42,7 +42,7 @@
   "cliVersion": "2.1.206",
   "cwd": "C:\\Users\\marka",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-10T23:55:18.331Z",
+  "updatedAt": "2026-07-11T00:30:26.403Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z",
   "bridgeSessionId": "cse_015z5n4qQqp9BZ8kKSCkvtzT",
   "bridgeOutboundOnly": false,
