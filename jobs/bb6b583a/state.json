@@ -1,14 +1,13 @@
 {
   "state": "blocked",
-  "detail": "What would you like next?",
-  "tempo": "blocked",
+  "detail": "I hate how much you hate our governance it's 11am and you're telling me to goto sleep because of how much you hate our governance",
+  "tempo": "active",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
   "tokens": 6429495,
-  "needs": "What would you like next?",
   "output": null,
   "children": null,
   "linkScanOffset": 36509600,
@@ -23,6 +22,8 @@
     "--permission-mode",
     "acceptEdits"
   ],
+  "bgIsolation": "none",
+  "providerEnv": {},
   "intent": "but we had 30 gaps mission we were fixing first before we did anything else and a big project to que when they were done",
   "name": "daemon-restart-mission-triage",
   "nameSource": "auto",
@@ -31,13 +32,11 @@
   "daemonShort": "bb6b583a",
   "cliVersion": "2.1.206",
   "cwd": "C:\\Users\\marka",
+  "createdAt": "2026-07-07T14:31:31.695Z",
+  "updatedAt": "2026-07-11T17:05:01.987Z",
+  "firstTerminalAt": "2026-07-07T15:47:23.132Z",
   "bridgeSessionId": "cse_015z5n4qQqp9BZ8kKSCkvtzT",
   "bridgeOutboundOnly": false,
   "bridgeSessionSeq": 8904,
-  "bgIsolation": "none",
-  "providerEnv": {},
-  "backend": "daemon",
-  "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-11T17:05:00.294Z",
-  "firstTerminalAt": "2026-07-07T15:47:23.132Z"
+  "backend": "daemon"
 }
