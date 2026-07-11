@@ -95,6 +95,16 @@ rulings. This file is the loudness fix.)
   daemons' product lanes keep running in parallel (keep-busy coexists — the priority
   governs where the conductor's attention goes, exactly how the 2026-07-10/11 drain ran).
 
+- **WARROOM'S FOUR DECISIONS — DECIDED (operator word 2026-07-11):** (1) warroom is its
+  OWN JURISDICTION, Ollama Cloud PERMITTED (agy pattern; the 2026-07-02 no-cloud ruling
+  stays Claude-side). (2) HARD BUDGET CAPS, fail-closed — the cap trips the waterfall's
+  drop-to-local (reverses his 2026-04-21 advisory-only directive, warroom scope).
+  (3) STANDALONE DAEMON — new first-class requirement: SHAREABLE ("share the war room
+  with a friend to use on their own projects"); self-contained, no dependency on his
+  engine/machines. (4) SEAT PROMOTIONS need his review of tryout scores. THE BUILD
+  ITSELF still awaits his explicit go + the agy-100% + N5 sequence. Spec:
+  muezzin-plugin/WARROOM-INTAKE-2026-07-11.md.
+
 ## Communication rulings
 - **Phone pushes are OUTCOME-ONLY and information-dense** (mission DONE/FAILED + real
   reason + scoreboard counts). Lifecycle/plumbing pushes are noise (2026-06-10:

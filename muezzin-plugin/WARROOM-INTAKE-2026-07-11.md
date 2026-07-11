@@ -99,7 +99,20 @@ the S1 write-path bypass gates everything that writes; budget enforcement mechan
 disabled by a prior operator directive; the 3-tier cascade is new logic (and nxtbeast
 reachability from the van was not re-verified against warroom's code).
 
-## THE FOUR OPERATOR DECISIONS (nothing below proceeds past its gate without these)
+## THE FOUR OPERATOR DECISIONS — ALL DECIDED 2026-07-11 (operator, via tap + two
+## clarifying exchanges; his words preserved)
+1. CLOUD: YES — warroom is its own jurisdiction permitting Ollama Cloud (agy pattern).
+2. BUDGET: HARD CAPS — fail-closed; his framing: the cap IS what trips "used up ->
+   drops to local" in the waterfall. Reverses the 2026-04-21 advisory-only directive
+   for warroom.
+3. WIRING: STANDALONE DAEMON — decided on a NEW REQUIREMENT he surfaced: warroom must
+   be SHAREABLE ("if I share the war room with a friend to use on their own projects")
+   — self-contained, no dependency on his engine or machines. This makes shareability
+   a first-class design constraint for S9 and packaging generally.
+4. SEATS: OPERATOR REVIEWS tryout scores before any promotion (his product-taste rule).
+Still gated: the BUILD ITSELF awaits his go-word + the agy-100% + N5 sequence.
+
+## The four decisions as originally posed (context preserved)
 1. **Ollama Cloud jurisdiction:** does the 2026-07-02 blanket NO-CLOUD ruling bind
    warroom, or is warroom its own jurisdiction with cloud permitted (agy pattern)?
    Gates S6.
