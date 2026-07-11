@@ -1,18 +1,27 @@
 {
   "state": "working",
-  "detail": "muddy-tires scenic fix live on preview; 29 queued missions blocked by 16-fix backlog",
+  "detail": "guard chain running (deploy → e2e → parity check)",
   "tempo": "idle",
   "inFlight": {
-    "tasks": 2,
+    "tasks": 3,
     "queued": 0,
     "kinds": [
+      "local_bash",
       "session_cron"
     ]
   },
-  "tokens": 6822380,
+  "fan": [
+    {
+      "id": "bdwk7c04h",
+      "kind": "shell",
+      "label": "Set-Location \"C:\\Users\\marka\\code\\mt-integration-2026-06-22\"; Write-Host \"=== guard 1: clean tree ===\"; $st = git status --porcelain; if ($st) { Write-Host \"TREE DIRTY - NO DEPLOY:\"; $st; exit 1 }; W…",
+      "startedAt": 1783796661653
+    }
+  ],
+  "tokens": 6824761,
   "output": null,
   "children": null,
-  "linkScanOffset": 38928811,
+  "linkScanOffset": 38979537,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -40,6 +49,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-11T19:02:06.806Z",
+  "updatedAt": "2026-07-11T19:04:42.687Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }

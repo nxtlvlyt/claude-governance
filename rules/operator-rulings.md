@@ -95,6 +95,14 @@ rulings. This file is the loudness fix.)
   daemons' product lanes keep running in parallel (keep-busy coexists — the priority
   governs where the conductor's attention goes, exactly how the 2026-07-10/11 drain ran).
 
+- **DEPLOYS ARE CONDUCTOR-CALLED WHEN THE GUARDS PASS (operator word 2026-07-11: "why
+  do I have to keep saying deploy if everything is e2e certified and we have a parity
+  guard").** Production deploys (muddytires + any site with the same guard chain) no
+  longer wait for per-deploy operator words. CONDITIONS (all mechanical, all must pass):
+  clean ALLOW-FILES tree, e2e suite exit 0, parity byte-match vs HEAD, deploy_gate
+  render verification, witnessed --record-deploy marker. Any guard failing = NO deploy,
+  diagnose first. Identity-bound items (his logins, DNS, accounts) remain his. This
+  supersedes the per-word gate recorded earlier tonight for scenic.
 - **WARROOM'S FOUR DECISIONS — DECIDED (operator word 2026-07-11):** (1) warroom is its
   OWN JURISDICTION, Ollama Cloud PERMITTED (agy pattern; the 2026-07-02 no-cloud ruling
   stays Claude-side). (2) HARD BUDGET CAPS, fail-closed — the cap trips the waterfall's
