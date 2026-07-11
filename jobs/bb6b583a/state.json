@@ -1,20 +1,20 @@
 {
   "state": "done",
-  "detail": "audit: 10-stage fix plan, 4 governance decisions needed",
+  "detail": "identified rule-delivery gap; corrected memory layer + injection",
   "tempo": "idle",
   "inFlight": {
     "tasks": 2,
-    "queued": 1,
+    "queued": 0,
     "kinds": [
       "session_cron"
     ]
   },
-  "tokens": 6717737,
+  "tokens": 6732369,
   "output": {
-    "result": "audit complete: muezzin & warroom findings + cross-system failure patterns; 10-stage remediation, 4 architectural decisions for user review"
+    "result": "Claude.md governance now in guaranteed-delivery layer; systemic gaps documented as engine items"
   },
   "children": null,
-  "linkScanOffset": 37418164,
+  "linkScanOffset": 37621710,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -42,6 +42,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-11T17:34:35.554Z",
+  "updatedAt": "2026-07-11T17:40:59.754Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }

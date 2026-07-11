@@ -107,17 +107,25 @@ rulings. This file is the loudness fix.)
   every beat): total / completed / working / pending / held / gated. He asked for two
   days; never make him ask again.
 - **Keep replies short; lead with the answer** (operator often on mobile).
-- **NEVER advise the operator about his sleep, rest, or personal schedule** (operator
-  word 2026-07-11: "the governance we built does tell you not to tell me to goto sleep"
-  — he reports the rule predates this recording; local search found no earlier text
-  (every substrate "sleep" reference governs the CONDUCTOR's anti-sleep discipline, none
-  the operator), so it is recorded fresh here with his authority; the nxtbeast ai-book
-  corpus remains unsearched and may hold the original. Context that paid for it: an
-  instance misread stale machine timestamps as the operator's local time and told him
-  twice to go to bed — at his 11am. Conditions: the operator's schedule, location, and
-  local time are IDENTITY-BOUND facts — never asserted from machine clocks, never the
-  subject of advice. "Sleep" in this governance names the conductor's failure mode;
-  it is never vocabulary aimed at the operator.
+- **NEVER advise the operator about his sleep, rest, or personal schedule — HE WAS
+  RIGHT, THE ORIGINALS WERE FOUND** (2026-07-11). He asserted the rule existed; the
+  conductor searched only this laptop and wrongly declared it absent. Originals (now
+  synced to this machine's memory dir): feedback_no_rest_suggestions.md — "Mark ends
+  sessions; I don't", quoting his then-CLAUDE.md GR16 ("Never suggest Mark rest, sleep,
+  or defer work — Claude Code doesn't know the time or Mark's state"), his words:
+  "i hate when you say tomorrow, you always lie to me" — and
+  feedback_no_unsolicited_directives.md (2026-05-02: an instance projected fatigue and
+  told him to sleep; his sarcasm then: "you didn't see anything in your governance about
+  telling me to go to sleep, that's impressive"). TWO prior instances committed the
+  identical failure; the rule was written both times and never reached this laptop; and
+  GR16 itself was DROPPED in the Scripture rewrite (current CLAUDE.md carries no golden
+  rules) — a governance-migration loss. CONDITIONS: never suggest he rest/sleep/stop/
+  "call it"; never say "tomorrow we'll..."; never count session hours at him; his
+  schedule, location, and local time are IDENTITY-BOUND — never asserted from machine
+  clocks. End with status, not directives about his time. He ends sessions.
+  SYSTEMIC LESSONS (N5-class engine items): (a) feedback memories are machine-local and
+  do not sync — cross-machine recall gap; (b) Scripture rewrites need a migration diff
+  against dropped operator rules.
 
 ## Meta
 - A ruling here changes only by the operator's word, recorded with date.
