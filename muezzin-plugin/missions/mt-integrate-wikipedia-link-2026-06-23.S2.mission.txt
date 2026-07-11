@@ -1,0 +1,21 @@
+MISSION-ID: MT-INTEGRATE-WIKIPEDIA-LINK-2026-06-23.S2
+MISSION-CLASS: code-repo
+PARENT: MT-INTEGRATE-WIKIPEDIA-LINK-2026-06-23
+TARTIB-INDEX: 2 of 2
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - functions/api/wikipedia-link.js
+  - js/poi-wikipedia.js
+  - map.html
+REQUIRES: MT-INTEGRATE-WIKIPEDIA-LINK-2026-06-23.S1 (tartib — this sub-mission may not start until MT-INTEGRATE-WIKIPEDIA-LINK-2026-06-23.S1's receipt exists)
+STEPS: 2
+
+PARENT MAQSAD: Land commit cf373c9 ("feat(wikipedia-link): /api/wikipedia-link + popup chip for
+
+Maqsad: sub-mission 2 of 2 — Verify the target repo's working tree is clean with respect to the three ALLOW-FILES entries after the commit (scoped status check, positive-assertion: fails if any of the three still show as dirty). through Single atomic command: ensure the tree is committed (safety net, no-ops if step 8 already committed), deploy the target repo to Cloudflare Pages preview, capture the emitted *.pages.dev URL, write a cwd-relative scratch Playwright script that renders /map.html and fails on any fatal script/console error or a missing script tag (poi-wikipedia.js, poi-provenance.js, plan-day-weather.js), run it, delete the scratch file, and preserve its exit code. Surfaces NO_PREVIEW_BASE_URL explicitly if no preview URL is captured.
+
+Steps:
+  9. Verify the target repo's working tree is clean with respect to the three ALLOW-FILES entries after the commit (scoped status check, positive-assertion: fails if any of the three still show as dirty). [verify] 
+  10. Single atomic command: ensure the tree is committed (safety net, no-ops if step 8 already committed), deploy the target repo to Cloudflare Pages preview, capture the emitted *.pages.dev URL, write a cwd-relative scratch Playwright script that renders /map.html and fails on any fatal script/console error or a missing script tag (poi-wikipedia.js, poi-provenance.js, plan-day-weather.js), run it, delete the scratch file, and preserve its exit code. Surfaces NO_PREVIEW_BASE_URL explicitly if no preview URL is captured. [command] 
+
+Done means:  exist/are updated as specified
