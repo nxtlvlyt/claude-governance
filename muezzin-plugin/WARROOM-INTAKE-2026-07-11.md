@@ -91,6 +91,14 @@ S8 RUN the tryouts against 9/11 uncalibrated seats (harness exists, ~12k lines; 
    operator-reviewed, never auto-promoted) — 3-4
 S9 mission substrate + muezzin continuity (from scratch: no queue files exist; shape
    GATED ON ARCHITECTURE DECISION relay-vs-daemon) — 3-5
+   S9 HARD REQUIREMENT (enrolled 2026-07-11, QUEUE item 20 — paid twice in one day on
+   BOTH engine forks): if warroom's mission layer carries ANY checkpoint/resume
+   mechanism, resumability MUST be keyed to a content hash of the mission text
+   (mission_sha256), invalidating on mismatch OR absence — an amended mission text
+   always outranks banked steps, and a sha-validity check alone cannot detect a changed
+   step SPEC. Reference implementation + selftests: muezzin-plugin orchestrate.mjs
+   235d94f / agy-muezzin 4bd6e40 (AMENDED-MISSION + LEGACY-HASHLESS cases). Do not
+   build resume without porting these two test cases.
 S10 governance hygiene: independent second dispatch before dismissing findings — 1
 
 ## Blockers (6 — full text in run output)

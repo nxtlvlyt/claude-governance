@@ -2421,12 +2421,22 @@ step-2 resumed:true banking a css that fails its own amended validation → the 
 shipped unstyled and the render witness (DOM-count, not computed styles) couldn't see
 it (repaired by atv-11b-vocab-bridge). ~78 stale _checkpoint.json files currently sit
 under missions/ (census this wake).
-FIX (two layers): (a) PROCEDURE (live now — encoded in the 2026-07-11 preflights): the
+FIX (two layers): (a) PROCEDURE (live — encoded in the 2026-07-11 preflights): the
 requeue checklist's "clear checkpoint" step names missions/<stem>/_checkpoint.json
-explicitly; (b) ENGINE (small): readCheckpoint() auto-invalidates any checkpoint whose
-ts is OLDER than the mission .txt's mtime — an amended mission text always outranks
-banked steps (keep-only-if-every-banked-step-is-correct, mechanized). Also: the render
-witness lesson rides with this — presence witnesses (DOM counts) pass unstyled pages;
-computed-style-over-HTTP is the honest bar for design missions (atv-11b's witness is
-the template). Owner: next engine batch (same staleness-belongs-to-substrate shape as
-item 17).
+explicitly; (b) ENGINE — LANDED 2026-07-11 SAME WAKE on BOTH forks (operator asked
+"when will the root cause be corrected... universally"; conductor-direct under the
+four exception conditions — orchestrate self-modification class, ~30 changed lines
+against the existing checkpoint selftest surface, no lane against either plugin repo,
+this item names the exact fix): checkpoints now carry mission_sha256 (a content hash
+of the mission text); readCheckpoint invalidates on mismatch OR absence, so an amended
+mission text always outranks banked steps and every pre-fix hashless checkpoint (~78
+on disk) is auto-invalidated — no mass deletion needed. Better than the mtime shape
+originally proposed (content-derived, unforgeable by touch, no path plumbing).
+Receipts: muezzin-plugin 235d94f + agy-muezzin 4bd6e40, each with AMENDED-MISSION +
+LEGACY-HASHLESS selftest cases, ALL PASS both suites; agy daemon restarted onto the
+new module (pid 39308), mt daemon restart pending its running lane (module is cached
+per-process — a fix on disk is NOT live until restart). WARROOM: enrolled as an S9
+HARD REQUIREMENT in WARROOM-INTAKE-2026-07-11.md (its mission layer doesn't exist yet
+— the requirement gates its construction). Also: the render witness lesson rides with
+this — presence witnesses (DOM counts) pass unstyled pages; computed-style-over-HTTP
+is the honest bar for design missions (atv-11b's witness is the template).

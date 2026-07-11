@@ -29,6 +29,7 @@ import { runtimeVerify } from './runtime_verify.mjs';
 import { capturePreviews, buildPreviewPathFn } from './visual_capture.mjs';
 import { witnessVisualDiff } from './visual_witness.mjs';
 import { readFileSync, existsSync, appendFileSync, mkdirSync, renameSync, writeFileSync, readdirSync, statSync } from 'fs';
+import { createHash } from 'crypto';
 import { execSync } from 'child_process';
 import path from 'path';
 
@@ -155,16 +156,23 @@ export function hasConflictMarkers(text) {
 // steps already committed in the sandbox instead of re-running them from step 1. Best-effort:
 // the checkpoint is an OPTIMIZATION on top of the in-run same-step retry (which is what makes a
 // single run convergent); a write/read failure never breaks a mission.
-function writeCheckpoint(cwd, missionId, steps) {
+function writeCheckpoint(cwd, missionId, steps, missionHash) {
   try {
     const done = (steps || []).filter((s) => s && s.ok).map((s) => ({ step: s.step, sha: s.sha || null, targets: s.targets || (s.target ? [s.target] : []), engineExec: !!s.engineExec }));
-    writeFileSync(path.join(cwd, '_checkpoint.json'), JSON.stringify({ ts: new Date().toISOString(), mission_id: missionId || null, completed: done }, null, 2));
+    writeFileSync(path.join(cwd, '_checkpoint.json'), JSON.stringify({ ts: new Date().toISOString(), mission_id: missionId || null, mission_sha256: missionHash || null, completed: done }, null, 2));
   } catch { /* checkpoint is best-effort — never break a run on it */ }
 }
-function readCheckpoint(cwd, missionId) {
+function readCheckpoint(cwd, missionId, missionHash) {
   try {
     const cp = JSON.parse(readFileSync(path.join(cwd, '_checkpoint.json'), 'utf8'));
     if (missionId && cp.mission_id && cp.mission_id !== missionId) return null;  // different mission in this cwd — ignore
+    // AMENDMENT INVALIDATION (QUEUE item 20, paid 2026-07-11 twice in one day — mt-spot-briefs.S1
+    // attempt-3 + atv-11.S1.S1 both resumed PRE-AMENDMENT banked steps and re-failed/false-passed):
+    // a checkpoint is only trustworthy for the EXACT mission text it was written under. The
+    // trust-boundary sha check below cannot catch this (the old commit genuinely touches the
+    // target — it is the step SPEC that changed). Hash mismatch OR a hashless legacy checkpoint
+    // (pre-fix era, provenance unprovable) -> invalidate; the steps re-run for real.
+    if (missionHash && cp.mission_sha256 !== missionHash) return null;
     return cp && Array.isArray(cp.completed) ? cp : null;
   } catch { return null; }
 }
@@ -993,7 +1001,8 @@ export async function orchestrate(mission, cwd, {
   // the completed work is preserved, the mission resumes from where it stopped. Only steps
   // proven committed (sha present) are skipped; engine-exec (non-idempotent: append/POST) is
   // NEVER skipped (re-running it is unsafe — laguna finding 3), so it always re-executes.
-  const cp = readCheckpoint(cwd, queue.mission_id);
+  const missionHash = createHash('sha256').update(String(mission || '')).digest('hex');
+  const cp = readCheckpoint(cwd, queue.mission_id, missionHash);
   const resumeDone = new Map((cp?.completed || []).filter((d) => d.sha && !d.engineExec).map((d) => [d.step, d]));
   if (resumeDone.size) emit({ phase: 'resume', event: 'checkpoint', completed: [...resumeDone.keys()] });
 
@@ -1483,7 +1492,7 @@ export async function orchestrate(mission, cwd, {
       // CHECKPOINT (REPLAN ISOLATION step 1): record the now-committed steps so a re-entered
       // run RESUMES past them. Written AFTER the commit so a checkpoint never claims a step the
       // sandbox can't prove. Best-effort — a checkpoint failure never breaks the run.
-      writeCheckpoint(cwd, queue.mission_id, steps);
+      writeCheckpoint(cwd, queue.mission_id, steps, missionHash);
       stepDone = true; break;   // step succeeded — leave the attempt loop, outer loop advances to the next step
     } else {
       recEmission('miss');                               // badal feed: an unrepaired witness failure is an ordinary miss
@@ -2393,7 +2402,11 @@ if (process.argv[1]?.endsWith('orchestrate.mjs')) {
       const run1Calls = {};
       const failAt3 = async (step) => { run1Calls[step.step_index] = (run1Calls[step.step_index] || 0) + 1; if (step.step_index === 3) return { ok: false, error: 'witness rejected', model: 'm' }; fs.writeFileSync(path.join(cpDir, step.target_files[0]), `export const v = ${step.step_index};\n`); return { ok: true, model: 'm' }; };
       const rejAt3 = async (step) => step.step_index === 3 ? { verdict: 'REJECT', findings: [{ description: 'x' }] } : { verdict: 'APPROVE', findings: [] };
-      const r1 = await orchestrate('M-CP run1', cpDir, { deconstructFn: async () => ({ ok: true, queue: cpQ }), implementFn: failAt3, maxRepairs: 0, stepRetries: 0, verdictFn: approveVerdict, witnessFn: rejAt3 });
+      // The daemon's retry re-fires the SAME mission file — identical text across runs 1-3 is
+      // what the real retry looks like (and what checkpoint resume is FOR). An AMENDED text is
+      // the item-20 invalidation case, tested separately below.
+      const cpMission = 'M-CP mission text (stable across daemon retries)';
+      const r1 = await orchestrate(cpMission, cpDir, { deconstructFn: async () => ({ ok: true, queue: cpQ }), implementFn: failAt3, maxRepairs: 0, stepRetries: 0, verdictFn: approveVerdict, witnessFn: rejAt3 });
       ck(r1.ok === false && r1.stoppedAt === 3, 'REPLAN/checkpoint: run 1 commits 1-2, fails at 3');
       ck(fs.existsSync(path.join(cpDir, '_checkpoint.json')), 'REPLAN/checkpoint: _checkpoint.json persists the completed steps after run 1');
       const cpData = JSON.parse(fs.readFileSync(path.join(cpDir, '_checkpoint.json'), 'utf8'));
@@ -2401,7 +2414,7 @@ if (process.argv[1]?.endsWith('orchestrate.mjs')) {
       // run 2: the daemon's clean-pass retry. Steps 1-2 must be SKIPPED (resumed), only step 3 re-run.
       const run2Calls = {};
       const allGood = async (step) => { run2Calls[step.step_index] = (run2Calls[step.step_index] || 0) + 1; fs.writeFileSync(path.join(cpDir, step.target_files[0]), `export const v = ${step.step_index};\n`); return { ok: true, model: 'm' }; };
-      const r2 = await orchestrate('M-CP run2', cpDir, { deconstructFn: async () => ({ ok: true, queue: cpQ }), implementFn: allGood, maxRepairs: 0, stepRetries: 0, verdictFn: approveVerdict, witnessFn: okWitness });
+      const r2 = await orchestrate(cpMission, cpDir, { deconstructFn: async () => ({ ok: true, queue: cpQ }), implementFn: allGood, maxRepairs: 0, stepRetries: 0, verdictFn: approveVerdict, witnessFn: okWitness });
       ck(r2.ok === true && r2.phase === 'done', 'REPLAN/checkpoint: run 2 (daemon clean-pass) reaches DONE');
       ck(run2Calls[1] === undefined && run2Calls[2] === undefined, 'REPLAN/checkpoint: steps 1-2 were NOT re-implemented on the retry (resumed from the checkpoint — the discarded-work bug is dead)');
       ck(run2Calls[3] === 1, 'REPLAN/checkpoint: ONLY step 3 re-ran on the clean-pass retry');
@@ -2418,10 +2431,29 @@ if (process.argv[1]?.endsWith('orchestrate.mjs')) {
       fs.writeFileSync(path.join(cpDir, '_checkpoint.json'), JSON.stringify(corrupted, null, 2));
       const run3Calls = {};
       const allGood3 = async (step) => { run3Calls[step.step_index] = (run3Calls[step.step_index] || 0) + 1; fs.writeFileSync(path.join(cpDir, step.target_files[0]), `export const v = ${step.step_index};\n`); return { ok: true, model: 'm' }; };
-      const r3 = await orchestrate('M-CP run3', cpDir, { deconstructFn: async () => ({ ok: true, queue: cpQ }), implementFn: allGood3, maxRepairs: 0, stepRetries: 0, verdictFn: approveVerdict, witnessFn: okWitness });
+      const r3 = await orchestrate(cpMission, cpDir, { deconstructFn: async () => ({ ok: true, queue: cpQ }), implementFn: allGood3, maxRepairs: 0, stepRetries: 0, verdictFn: approveVerdict, witnessFn: okWitness });
       ck(r3.ok === true && r3.phase === 'done', 'CORRUPTED CHECKPOINT: run 3 (with a tampered step-1 sha) still reaches DONE');
       ck(run3Calls[1] === 1, 'CORRUPTED CHECKPOINT: step 1 (wrong sha, touches only "seed") is RE-RUN for real, not silently resumed');
       ck(run3Calls[2] === undefined, 'CORRUPTED CHECKPOINT: step 2 (valid sha, the control) STILL resumes correctly — the fix is per-entry, not a blanket distrust');
+
+      // AMENDED MISSION INVALIDATION (QUEUE item 20, 2026-07-11 — mt-spot-briefs.S1 attempt-3 +
+      // atv-11.S1.S1 both resumed PRE-AMENDMENT banked steps): a checkpoint written under one
+      // mission text must NOT resume a run of a DIFFERENT (amended) text, even when every sha
+      // is valid — the step SPEC changed, so keep-only-if-every-banked-step-is-correct fails.
+      const run4Calls = {};
+      const allGood4 = async (step) => { run4Calls[step.step_index] = (run4Calls[step.step_index] || 0) + 1; fs.writeFileSync(path.join(cpDir, step.target_files[0]), `export const v = ${step.step_index};\n`); return { ok: true, model: 'm' }; };
+      const r4 = await orchestrate(cpMission + ' AMENDED 2026-07-11: step specs corrected', cpDir, { deconstructFn: async () => ({ ok: true, queue: cpQ }), implementFn: allGood4, maxRepairs: 0, stepRetries: 0, verdictFn: approveVerdict, witnessFn: okWitness });
+      ck(r4.ok === true && r4.phase === 'done', 'AMENDED-MISSION CHECKPOINT: the amended-text run reaches DONE');
+      ck(run4Calls[1] === 1 && run4Calls[2] === 1 && run4Calls[3] === 1, 'AMENDED-MISSION CHECKPOINT: ALL steps re-ran for real — the stale checkpoint (valid shas, wrong mission text) was invalidated by the mission_sha256 mismatch');
+      ck(r4.steps.filter((s) => s.resumed).length === 0, 'AMENDED-MISSION CHECKPOINT: zero steps carry resumed:true under an amended text');
+      // Legacy hashless checkpoints (pre-item-20 era) are also invalidated: provenance unprovable.
+      const legacy = JSON.parse(fs.readFileSync(path.join(cpDir, '_checkpoint.json'), 'utf8'));
+      delete legacy.mission_sha256;
+      fs.writeFileSync(path.join(cpDir, '_checkpoint.json'), JSON.stringify(legacy, null, 2));
+      const run5Calls = {};
+      const allGood5 = async (step) => { run5Calls[step.step_index] = (run5Calls[step.step_index] || 0) + 1; fs.writeFileSync(path.join(cpDir, step.target_files[0]), `export const v = ${step.step_index};\n`); return { ok: true, model: 'm' }; };
+      const r5 = await orchestrate(cpMission + ' AMENDED 2026-07-11: step specs corrected', cpDir, { deconstructFn: async () => ({ ok: true, queue: cpQ }), implementFn: allGood5, maxRepairs: 0, stepRetries: 0, verdictFn: approveVerdict, witnessFn: okWitness });
+      ck(r5.ok === true && run5Calls[1] === 1 && run5Calls[2] === 1 && run5Calls[3] === 1, 'LEGACY HASHLESS CHECKPOINT: invalidated (all steps re-ran) — pre-fix checkpoints are never trusted');
       const resumedStep2 = r3.steps.find((s) => s.step === 2);
       ck(resumedStep2 && resumedStep2.resumed === true, 'CORRUPTED CHECKPOINT: step 2 is marked resumed:true in the result (legitimate resume unaffected)');
       const rerunStep1 = r3.steps.find((s) => s.step === 1);
