@@ -1,6 +1,6 @@
 {
   "state": "blocked",
-  "detail": "Sentry project creation failed; awaiting curl output",
+  "detail": "Sentry API requires write-scoped token; can't create via API",
   "tempo": "blocked",
   "inFlight": {
     "tasks": 1,
@@ -9,11 +9,11 @@
       "session_cron"
     ]
   },
-  "tokens": 8783879,
-  "needs": "paste the output from your curl command (or use the browser link to confirm project creation)",
+  "tokens": 8784692,
+  "needs": "visit https://abass-inc.sentry.io/projects/new/ and create project `androidtv-tips` in browser, or provide write-scoped SENTRY_AUTH_TOKEN",
   "output": null,
   "children": null,
-  "linkScanOffset": 60613149,
+  "linkScanOffset": 60673690,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -41,6 +41,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-12T04:20:04.638Z",
+  "updatedAt": "2026-07-12T04:20:53.478Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
