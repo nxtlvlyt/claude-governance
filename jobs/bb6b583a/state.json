@@ -1,7 +1,7 @@
 {
-  "state": "blocked",
-  "detail": "Sentry API requires write-scoped token; can't create via API",
-  "tempo": "blocked",
+  "state": "done",
+  "detail": "refire gate: class-4 provenance moved to mission text; v2 prompt ready",
+  "tempo": "idle",
   "inFlight": {
     "tasks": 1,
     "queued": 0,
@@ -9,11 +9,12 @@
       "session_cron"
     ]
   },
-  "tokens": 8784692,
-  "needs": "visit https://abass-inc.sentry.io/projects/new/ and create project `androidtv-tips` in browser, or provide write-scoped SENTRY_AUTH_TOKEN",
-  "output": null,
+  "tokens": 8789016,
+  "output": {
+    "result": "gate conditions met; Run 5 queued for next daemon beat; daemons healthy"
+  },
   "children": null,
-  "linkScanOffset": 60673690,
+  "linkScanOffset": 60750762,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -41,6 +42,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-12T04:20:53.478Z",
+  "updatedAt": "2026-07-12T04:31:42.240Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
