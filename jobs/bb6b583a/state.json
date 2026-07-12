@@ -1,9 +1,9 @@
 {
   "state": "working",
-  "detail": "mt-enrich-scenic-wikidata diagnosed + parked; continuing queue",
+  "detail": "muezzin daemons RUNNING; monitoring per standing conductor duty",
   "tempo": "idle",
   "inFlight": {
-    "tasks": 3,
+    "tasks": 2,
     "queued": 0,
     "kinds": [
       "local_bash",
@@ -18,10 +18,10 @@
       "startedAt": 1783835427923
     }
   ],
-  "tokens": 9802279,
+  "tokens": 9802791,
   "output": null,
   "children": null,
-  "linkScanOffset": 78177132,
+  "linkScanOffset": 78208509,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -49,6 +49,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-12T19:20:58.565Z",
+  "updatedAt": "2026-07-12T19:21:59.253Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
