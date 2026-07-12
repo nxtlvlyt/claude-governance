@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "poi-dedup S2 re-fired with fixed mission text; checking in 5m",
+  "detail": "both daemons RUNNING, healthy; next check scheduled",
   "tempo": "idle",
   "inFlight": {
     "tasks": 3,
@@ -18,10 +18,10 @@
       "startedAt": 1783835427923
     }
   ],
-  "tokens": 9783731,
+  "tokens": 9784194,
   "output": null,
   "children": null,
-  "linkScanOffset": 77991900,
+  "linkScanOffset": 78011229,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -49,6 +49,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-12T19:06:57.772Z",
+  "updatedAt": "2026-07-12T19:07:49.387Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
