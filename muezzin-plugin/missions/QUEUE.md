@@ -2667,3 +2667,22 @@ Playbook verbatim source: operator message 2026-07-12 (transcript); adapted cont
 cite it as provenance. ALSO NOTE: Stitch reference pages (Luminous Dark) must get
 their headings/copy from the CONTENT contract, not from Stitch's placeholder text —
 the two contracts compose: DESIGN.md owns look, CONTENT-CONTRACT.md owns words.
+
+
+## 2026-07-12 ITEM 19 SCOPE EXTENSION — GitHub Actions into the verification loop (operator ask: "any way for the GitHub issues to be pulled into the conductor for verification?")
+
+ITEM 19 (Sentry auto-poller) becomes the EXTERNAL-SIGNALS POLLER. One cron-beat script:
+(a) Sentry unresolved issues — BOTH projects (muddytires 4511612938551296 +
+    androidtv-tips 4511720612036608), stored token, endpoints receipted.
+(b) GitHub Actions conclusions — `gh run list -R nxtlvlyt/muddytires-pages --json
+    conclusion,workflowName,headBranch,createdAt,databaseId` (gh CLI ALREADY
+    authenticated on this laptop — receipts this session: run list + run view produced
+    the dup-env-key diagnosis). Config = a watched-repos list, extensible.
+(c) Diff vs last-seen state file; NEW failures append to the DIAGNOSIS-DEBT surface
+    (INBOX + gap register) — which the user-prompt-submit hook already injects into
+    every conductor turn mechanically.
+CLOSES THE LOOP the operator has been hand-carrying: CI failure -> poller -> register
+-> hook injection -> conductor verifies with receipts. Zero forwarded screenshots.
+The five lighthouse emails tonight are the receipt for why: the failure class sat
+visible in GitHub since 2026-07-01 and reached the conductor only via the operator's
+phone.

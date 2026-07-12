@@ -1,6 +1,6 @@
 {
   "state": "done",
-  "detail": "daemons healthy, event log clear, dependencies pinned",
+  "detail": "GitHub Issues integration design complete; ITEM 19 poller shape specified",
   "tempo": "idle",
   "inFlight": {
     "tasks": 2,
@@ -18,12 +18,12 @@
       "startedAt": 1783835427923
     }
   ],
-  "tokens": 8967915,
+  "tokens": 8970420,
   "output": {
-    "result": "both daemons working; stitch retro-block landed (d036719); S2 dependency token pinned for S1; no open failures"
+    "result": "GitHub Actions + Sentry external-signals poller: single cron loop, CLI-authenticated, appends to conductor diagnosis surface"
   },
   "children": null,
-  "linkScanOffset": 70320406,
+  "linkScanOffset": 70371387,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -51,6 +51,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-12T08:02:34.364Z",
+  "updatedAt": "2026-07-12T08:03:58.291Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
