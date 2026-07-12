@@ -112,6 +112,43 @@ ${autorunDebt.slice(0, 3).map((l) => '  - ' + (l.match(/missions\/\S+/) || [''])
   }
 } catch { /* fail-open — a broken debt count must never break prompt submission */ }
 
+// GAP-REGISTER SURFACE (QUEUE item 24, 2026-07-12 — paid for by FIVE same-day
+// misclassifications the operator counted: design-MD filed as a lead, Stitch graves
+// unowned a month, hold prefixes never enrolling atv-*, the fork's product bypassing its
+// own hold, W1-W6 undated. The one gap class that never failed is the hook-computed one
+// above — so gap bookkeeping moves here too. The conductor's judgment shrinks to writing
+// one register line at arrival; this check makes unowned/rotten/stale entries impossible
+// to not-see). Fail-open; bounded to top-3.
+// WITNESS NOTE (Gemini foreign-frontier audit 2026-07-12, VERDICT: ADJUST — accepted):
+// the owner-token regex is a cheap SURFACE heuristic and is self-spoofable; the SOUND
+// resolution (does the owner actually exist as a live queue line/item?) belongs to
+// conduct-cycle's offline sweep per item 24(b), which can afford the file I/O this
+// per-prompt hook cannot. Keep the register small (archive closed entries) — this read
+// is synchronous like the AUTORUN read above and must stay cheap.
+try {
+  const gapLines = readFileSync(join(os.homedir(), '.claude', 'muezzin-plugin', 'missions', '_logs', 'GAP-REGISTER.jsonl'), 'utf8')
+    .split(/\r?\n/).filter((l) => l.trim());
+  const gaps = gapLines.map((l) => { try { return JSON.parse(l); } catch { return null; } }).filter(Boolean);
+  const open = gaps.filter((g) => g.status === 'open');
+  const ownedNoRef = gaps.filter((g) => g.status === 'owned' && !(g.owner && /QUEUE ITEM|ENGINE BATCH|missions\/|INBOX|INTAKE|wf_|\.md/i.test(g.owner)));
+  const staleDays = 5;
+  const now = Date.now();
+  const dormantStale = gaps.filter((g) => g.status !== 'closed' && g.class === 'dormant'
+    && g.arrived && (now - new Date(g.arrived).getTime()) > staleDays * 86400000
+    && !/BATCH 2|dated/i.test(String(g.owner || '')));
+  const flagged = [...open, ...ownedNoRef, ...dormantStale];
+  if (flagged.length > 0) {
+    const closed = gaps.filter((g) => g.status === 'closed').length;
+    reminder += `
+
+GAP REGISTER (item 24, computed mechanically by this hook — ${gaps.length} tracked, ${closed} closed):
+${flagged.length} gap(s) need conductor attention (open-with-no-owner-action, untracked owner, or dormant-aging):
+${flagged.slice(0, 3).map((g) => `  - ${g.id} [${g.status}] owner: ${g.owner || 'NONE'}`).join('\n')}
+Rule: every gap entry needs an owner resolvable to tracked work; dormant gaps need a dated batch.
+Register: ~/.claude/muezzin-plugin/missions/_logs/GAP-REGISTER.jsonl`;
+  }
+} catch { /* fail-open — a broken gap count must never break prompt submission */ }
+
 process.stdout.write(JSON.stringify({
   hookSpecificOutput: {
     hookEventName: 'UserPromptSubmit',
