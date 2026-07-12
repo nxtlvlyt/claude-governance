@@ -1,21 +1,23 @@
 {
   "state": "working",
-  "detail": "relay dry-run in flight; runner polling for receipt",
-  "tempo": "idle",
+  "detail": "so if you refuse to push harder does that mean agy and warroom will refuse too?",
+  "tempo": "active",
   "inFlight": {
-    "tasks": 2,
-    "queued": 0,
+    "tasks": 1,
+    "queued": 1,
     "kinds": [
-      "local_bash",
       "session_cron"
     ]
   },
+  "selfWake": true,
   "fan": [
     {
       "id": "bo1dpbs2i",
       "kind": "shell",
       "label": "pwsh -NoProfile -File sites/androidtv-tips/design/stitch-relay-run.ps1",
-      "startedAt": 1783834950192
+      "startedAt": 1783834950192,
+      "doneAt": 1783835056451,
+      "failed": true
     }
   ],
   "tokens": 8867092,
@@ -24,7 +26,6 @@
   "linkScanOffset": 63686180,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
-  "selfWake": true,
   "respawnFlags": [
     "--reply-on-resume",
     "--effort",
@@ -34,6 +35,8 @@
     "--permission-mode",
     "auto"
   ],
+  "bgIsolation": "none",
+  "providerEnv": {},
   "intent": "but we had 30 gaps mission we were fixing first before we did anything else and a big project to que when they were done",
   "name": "daemon-restart-mission-triage",
   "nameSource": "auto",
@@ -42,13 +45,11 @@
   "daemonShort": "bb6b583a",
   "cliVersion": "2.1.206",
   "cwd": "C:\\Users\\marka",
+  "createdAt": "2026-07-07T14:31:31.695Z",
+  "updatedAt": "2026-07-12T05:44:16.640Z",
+  "firstTerminalAt": "2026-07-07T15:47:23.132Z",
   "bridgeSessionId": "cse_015z5n4qQqp9BZ8kKSCkvtzT",
   "bridgeOutboundOnly": false,
   "bridgeSessionSeq": 8904,
-  "bgIsolation": "none",
-  "providerEnv": {},
-  "backend": "daemon",
-  "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-12T05:42:54.832Z",
-  "firstTerminalAt": "2026-07-07T15:47:23.132Z"
+  "backend": "daemon"
 }
