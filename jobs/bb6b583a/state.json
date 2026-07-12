@@ -1,7 +1,7 @@
 {
   "state": "done",
-  "detail": "mapped fix mechanism per harness (warroom/CLI/agy); filed ITEM 23",
-  "tempo": "idle",
+  "detail": "so does that mean that we need to universally update it and all three areas flawed CLI agy and the war room spec",
+  "tempo": "active",
   "inFlight": {
     "tasks": 1,
     "queued": 0,
@@ -9,15 +9,21 @@
       "session_cron"
     ]
   },
+  "selfWake": true,
+  "fan": [
+    {
+      "id": "byyneojc6",
+      "kind": "shell",
+      "label": "Set-Location \"C:\\Users\\marka\\agy-muezzin\"; \"List the exact names of every stitch MCP tool available to you. Reply ONLY with tool names, one per line, no prose. If none, reply NO-STITCH-TOOLS.\" | clau…",
+      "startedAt": 1783820921959
+    }
+  ],
   "tokens": 8327595,
-  "output": {
-    "result": "universal principle with 3 harness-specific mechanisms: warroom native, CLI hook layer, agy mission-scope check — all filed with owners"
-  },
+  "output": null,
   "children": null,
   "linkScanOffset": 55610988,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
-  "selfWake": true,
   "respawnFlags": [
     "--reply-on-resume",
     "--effort",
@@ -27,6 +33,8 @@
     "--permission-mode",
     "auto"
   ],
+  "bgIsolation": "none",
+  "providerEnv": {},
   "intent": "but we had 30 gaps mission we were fixing first before we did anything else and a big project to que when they were done",
   "name": "daemon-restart-mission-triage",
   "nameSource": "auto",
@@ -35,13 +43,11 @@
   "daemonShort": "bb6b583a",
   "cliVersion": "2.1.206",
   "cwd": "C:\\Users\\marka",
+  "createdAt": "2026-07-07T14:31:31.695Z",
+  "updatedAt": "2026-07-12T01:48:42.247Z",
+  "firstTerminalAt": "2026-07-07T15:47:23.132Z",
   "bridgeSessionId": "cse_015z5n4qQqp9BZ8kKSCkvtzT",
   "bridgeOutboundOnly": false,
   "bridgeSessionSeq": 8904,
-  "bgIsolation": "none",
-  "providerEnv": {},
-  "backend": "daemon",
-  "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-12T01:43:48.233Z",
-  "firstTerminalAt": "2026-07-07T15:47:23.132Z"
+  "backend": "daemon"
 }
