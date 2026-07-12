@@ -1,6 +1,6 @@
 {
   "state": "blocked",
-  "detail": "patcher ready; awaiting authorization to patch missionLandedState srcSha extraction",
+  "detail": "both daemons idle, board quiet; awaiting governance choice",
   "tempo": "blocked",
   "inFlight": {
     "tasks": 2,
@@ -18,11 +18,11 @@
       "startedAt": 1783835427923
     }
   ],
-  "tokens": 9270491,
-  "needs": "authorize: patch missionLandedState's srcSha extraction in conduct-cycle.mjs to require explicit BASELINE-SHA: field (or just say 'do it')",
+  "tokens": 9271778,
+  "needs": "confirm governance choice (option 2)",
   "output": null,
   "children": null,
-  "linkScanOffset": 73671542,
+  "linkScanOffset": 73690821,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -50,6 +50,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-12T09:36:31.504Z",
+  "updatedAt": "2026-07-12T09:37:56.042Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
