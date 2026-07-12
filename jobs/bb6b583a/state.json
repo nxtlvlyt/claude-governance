@@ -1,6 +1,6 @@
 {
-  "state": "done",
-  "detail": "both daemons idle, healthy; queue 32→31 as expected",
+  "state": "working",
+  "detail": "both daemons idle, healthy; monitoring",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,12 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 9909849,
-  "output": {
-    "result": "daemons stable, queue count normalized after parked-line fix"
-  },
+  "tokens": 9910193,
+  "output": null,
   "children": null,
-  "linkScanOffset": 78861544,
+  "linkScanOffset": 78879341,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -42,6 +40,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-12T21:44:16.825Z",
+  "updatedAt": "2026-07-12T21:59:30.358Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
