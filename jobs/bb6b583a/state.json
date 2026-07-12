@@ -1,13 +1,12 @@
 {
-  "state": "working",
-  "detail": "Engine Batch 2 prep workflow launched: 16 agents on 8 gaps",
-  "tempo": "active",
+  "state": "done",
+  "detail": "lighthouse-ci fix committed (666f889) and live; 1 queue item prepped, credit limit hit",
+  "tempo": "idle",
   "inFlight": {
-    "tasks": 3,
+    "tasks": 2,
     "queued": 0,
     "kinds": [
       "local_bash",
-      "local_workflow",
       "session_cron"
     ]
   },
@@ -17,68 +16,14 @@
       "kind": "shell",
       "label": "until [ -s \"/c/Users/marka/AppData/Local/Temp/claude/C--Users-marka/deef569c-dcf6-4695-8f3b-3ee6d4a96da1/tasks/bw6pn43xr.output\" ]; do sleep 2; done; head -45 \"/c/Users/marka/AppData/Local/Temp/claud…",
       "startedAt": 1783835427923
-    },
-    {
-      "id": "a022e5717f17a67b2",
-      "kind": "workflow",
-      "label": "prep:attempt2-replay",
-      "startedAt": 1783843833735,
-      "group": "Prep"
-    },
-    {
-      "id": "a26e2787d8fb0af1e",
-      "kind": "workflow",
-      "label": "prep:niyyah-ttl",
-      "startedAt": 1783843833846,
-      "group": "Prep"
-    },
-    {
-      "id": "a1202b80592b8359e",
-      "kind": "workflow",
-      "label": "prep:rule5-opsdeploy",
-      "startedAt": 1783843833632,
-      "group": "Prep"
-    },
-    {
-      "id": "abb8372dc0b36741d",
-      "kind": "workflow",
-      "label": "prep:rule14-content-contract",
-      "startedAt": 1783843833762,
-      "group": "Prep"
-    },
-    {
-      "id": "a85faaed9cac67ea4",
-      "kind": "workflow",
-      "label": "prep:w2-nocloud-strip",
-      "startedAt": 1783843833595,
-      "group": "Prep"
-    },
-    {
-      "id": "a25fb48af79f483ca",
-      "kind": "workflow",
-      "label": "prep:w3-retry-latch",
-      "startedAt": 1783843834608,
-      "group": "Prep"
-    },
-    {
-      "id": "acb2cea17aa93f915",
-      "kind": "workflow",
-      "label": "prep:seat-health-roundtrip",
-      "startedAt": 1783843833795,
-      "group": "Prep"
-    },
-    {
-      "id": "a5d328ed27440483d",
-      "kind": "workflow",
-      "label": "prep:witness-revise-refire",
-      "startedAt": 1783843835143,
-      "group": "Prep"
     }
   ],
-  "tokens": 8984996,
-  "output": null,
+  "tokens": 9163186,
+  "output": {
+    "result": "lighthouse-ci workflow fix committed live on GitHub (666f889); batch 2 paused at credit wall with niyyah TTL item ready; both daemons healthy"
+  },
   "children": null,
-  "linkScanOffset": 70546188,
+  "linkScanOffset": 70778947,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -106,6 +51,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-12T08:10:57.999Z",
+  "updatedAt": "2026-07-12T08:23:49.704Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }

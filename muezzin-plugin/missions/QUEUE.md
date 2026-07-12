@@ -2698,3 +2698,23 @@ Claude agy and warroom" — yes, by construction): ONE script, per-jurisdiction 
   MACHINE-level (sentry-poll.env + gh CLI auth), shared by both forks on this laptop.
 - warroom: born with it — spec item added to WARROOM-INTAKE (it is the modern shape of
   warroom v1's own watchdog/failover.py pattern, as config not code).
+
+
+## 2026-07-12 ENGINE BATCH 2 PREP — PARTIAL (credit wall mid-run)
+
+wf_6528dbd8-e39 (8 items, 16 agents) hit /usage-credits after 4/12 calls. ONE item
+returned a full prep: gap-niyyah-ttl-mtime — 3 verified edits (mtime-based freshness
+via statSync, 60s->300s window, doc-comment citing the receipt), an apply-time smoke
+test (no selftest surface exists in ~/.claude/hooks/*.mjs), confidence 0.9+, fork-port
+delta: NONE (hook lives Claude-side only). UNAPPLIED pending its skeptic pass — the
+verify call for this item also hit the credit wall, so it has NOT been adversarially
+checked and must not be applied blind (the whole point of the two-phase pattern).
+BONUS FINDING (unverified, flag only): surrender-check.mjs lines ~140-153 carries the
+IDENTICAL age-check bug (embedded ts + 60s TTL) for pending-surrender.json — same-turn
+substrate-class edits stage BOTH files, so fixing only niyyah-gate leaves half the
+restaging tax in place. Recommend queueing the identical fix for surrender-check.mjs
+in the same apply pass once credits return.
+The other 7 items (attempt2-replay, rule5-opsdeploy, rule14-content-contract,
+w2-nocloud-strip, w3-retry-latch, seat-health-roundtrip, witness-revise-refire) never
+ran or ran partial with no verify — RE-RUN THE WORKFLOW FRESH once credits are back
+(do not resume from wf_6528dbd8-e39 — none of the failed calls are worth caching).
