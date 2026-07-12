@@ -1,0 +1,71 @@
+temp dir: C:\Users\marka\AppData\Local\Temp\git_steps_test_S09NY3
+  PASS: commitStep returned ok
+  PASS: commitStep returned a 40-char sha (b10143d477b0582085480fc56a38a76915bfa6ce)
+  PASS: file is modified before rollback
+  PASS: rollbackStep returned ok
+  PASS: ensureSandboxRepo inits a nested sandbox repo
+  PASS: nested sandbox toplevel IS the mission cwd (not the parent repo)
+  PASS: second call is a no-op (already a sandbox root)
+  PASS: baseline commit makes pre-placed references restorable
+  PASS: file content reverted to committed version after rollback
+  PASS: assertRepoRoot: repo toplevel ok + baseline sha (b10143d4)
+  PASS: assertRepoRoot: a SUBDIRECTORY of the repo is REFUSED (not the toplevel)
+  PASS: assertRepoRoot: a NON-repo dir is REFUSED (never git-init an unmanaged project)
+  PASS: assertCleanOutsideAllowlist: only an allowlisted file dirty => clean
+  PASS: assertCleanOutsideAllowlist: an OFF-allowlist dirty file => breach named (containment-drift)
+  PASS: preflight: clean repo for declared allowlist => passes, empty baseline
+  PASS: preflight: ALLOW-FILES path already dirty => REFUSED, conflict named
+  PASS: preflight: refusal carries the actionable named reason
+  PASS: preflight: pre-existing OFF-allowlist dirt does NOT block; captured as baseline
+  PASS: drift guard: pre-existing off-allowlist dirt (in baseline) is NOT charged to the mission
+  PASS: drift guard: a NEW off-allowlist write by the mission IS flagged; pre-existing baseline dirt is not
+  PASS: own-reset: BEFORE reset, an untracked own ALLOW-FILE from the prior attempt makes pre-flight REFUSE (reproduces the loop)
+  PASS: own-reset: reset acts on the dirty untracked own allow-file
+  PASS: own-reset: the untracked own allow-file (mission's own prior creation) is DELETED
+  PASS: own-reset: AFTER reset the pre-flight PASSES — the mission's OWN prior output no longer blocks its retry (loop broken)
+  PASS: own-reset: a dirty TRACKED own allow-file is acted on
+  PASS: own-reset: a TRACKED own allow-file is RESTORED to committed HEAD (not deleted)
+  PASS: own-reset: a FOREIGN off-allowlist file is NEVER touched by reset (containment hole not reopened)
+  PASS: own-reset: foreign off-allowlist dirt SURVIVES reset
+  PASS: own-reset: an off-allowlist file remains a containment breach (drift guard STILL flags it after reset)
+  PASS: own-reset: a clean allow-file => no-op (nothing reset)
+  PASS: code-repo commitStep (explicit allowlist) ok
+  PASS: code-repo commit staged ONLY the allowlisted file (never '.', uninvolved untracked file excluded)
+  PASS: code-repo commit advanced HEAD
+  PASS: commitTouchesFiles: a real commit that DID touch the claimed file -> true
+  PASS: commitTouchesFiles: a real commit that did NOT touch the claimed file -> false (the exact bug: a checkpoint pointed at an unrelated commit)
+  PASS: commitTouchesFiles: an unreachable/garbage sha -> false (fail-closed, never trusted)
+  PASS: commitTouchesFiles: no claimed targets -> false (nothing to verify against)
+  PASS: commitTouchesFiles: no sha -> false
+  PASS: abortInProgressGitOp: clean repo => no-op (aborted:null)
+  PASS: abortInProgressGitOp: setup produced a cherry-pick CONFLICT (mid-operation state)
+  PASS: abortInProgressGitOp: `git checkout -- <file>` FAILS on the unmerged path (reproduces the sandbox-reset cascade)
+  PASS: abortInProgressGitOp: aborts the in-progress cherry-pick (aborted=cherry-pick)
+  PASS: abortInProgressGitOp: after abort, no operation remains in progress
+  PASS: abortInProgressGitOp: after abort, resetAllowFiles SUCCEEDS (the cascade is broken)
+  PASS: abortInProgressGitOp: setup produced a merge CONFLICT
+  PASS: abortInProgressGitOp: aborts an in-progress merge (aborted=merge)
+  PASS: completeResolvedPick: clean repo => no-op (continued:null)
+  PASS: completeResolvedPick: unresolved conflict => blocked:unmerged (unmerged)
+  PASS: completeResolvedPick: resolved pick within allow-files => continued (cherry-pick/undefined)
+  PASS: completeResolvedPick: after continue, CHERRY_PICK_HEAD is gone (pick finalized)
+  PASS: completeResolvedPick: a NEW commit landed (deliverable committed)
+  PASS: completeResolvedPick: pick touching a non-allow file => blocked:out-of-allowlist (out-of-allowlist)
+  PASS: completeResolvedPick: a blocked (out-of-allowlist) pick did NOT commit — containment held
+  PASS: completeResolvedPick: staged file with conflict markers => blocked:markers (markers)
+  PASS: idempotency setup: B landed as B' (different sha), is-ancestor(B) is FALSE — the trap that fools naive checks
+  PASS: sourceCommitAlreadyIntegrated: patch-id detects B already applied as B' (as=87fd1f6)
+  PASS: sourceCommitAlreadyIntegrated: an unknown/absent sha => integrated:false (fail-safe)
+  PASS: extractSourceShas: pulls cherry-pick + origin shas (2 found)
+  PASS: extractSourceShas: comma-separated multi-pick yields all 3 shas (375e40b,3bb992b,acae717)
+  PASS: extractSourceShas: prose with no hex sha => empty
+  PASS: shrinkage: 40->9 lines without intent => VIOLATION ({"file":"doc.md","oldLines":41,"newLines":9,"source":"head"})
+  PASS: shrinkage: declared condense/remove intent => allowed
+  PASS: shrinkage: 40->25 (above 50% ratio) => allowed
+  PASS: shrinkage: <20-line file => exempt (tiny files churn legitimately)
+  PASS: shrinkage: untracked/new file => exempt (no HEAD baseline)
+  PASS: shrinkage: untracked file WITH a supplied pre-edit baseline still catches the gut ({"ok":false,"violations":[{"file":"scratch.md","oldLines":41,"newLines":3,"source":"baseline"}],"declared":false})
+  PASS: shrinkage: untracked file with NO baseline supplied => still exempt (byte-unchanged default behavior)
+  PASS: shrinkage: NESTED path with OS-native separator still detects the gut ({"ok":false,"violations":[{"file":"docs\\nested.md","oldLines":41,"newLines":2,"source":"head"}],"declared":false})
+temp dir removed
+SELF-TEST: ALL PASS
