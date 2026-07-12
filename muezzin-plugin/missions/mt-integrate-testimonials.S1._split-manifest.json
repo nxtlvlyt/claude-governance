@@ -1,0 +1,21 @@
+{
+  "parentId": "MT-INTEGRATE-TESTIMONIALS.S1",
+  "ceiling": 8,
+  "originalStepCount": 9,
+  "groupCount": 2,
+  "children": [
+    {
+      "id": "MT-INTEGRATE-TESTIMONIALS.S1.S1",
+      "file": "missions/mt-integrate-testimonials.S1.S1.mission.txt",
+      "steps": 8,
+      "requires": null
+    },
+    {
+      "id": "MT-INTEGRATE-TESTIMONIALS.S1.S2",
+      "file": "missions/mt-integrate-testimonials.S1.S2.mission.txt",
+      "steps": 1,
+      "requires": "MT-INTEGRATE-TESTIMONIALS.S1.S1"
+    }
+  ],
+  "ts": "2026-07-12T00:03:30.571Z"
+}

@@ -1,0 +1,20 @@
+MISSION-ID: MT-INTEGRATE-TESTIMONIALS.S1.S2
+MISSION-CLASS: code-repo
+PARENT: MT-INTEGRATE-TESTIMONIALS.S1
+TARTIB-INDEX: 2 of 2
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - landing.html
+  - build-testimonials.mjs
+VISUAL-QC-REQUIRED
+REQUIRES: MT-INTEGRATE-TESTIMONIALS.S1.S1 (tartib — this sub-mission may not start until MT-INTEGRATE-TESTIMONIALS.S1.S1's receipt exists)
+STEPS: 1
+
+PARENT MAQSAD: sub-mission 1 of 2 — Ensure the target repo has TARGET-BRANCH main actually checked out before any write (repo volatility was observed this session; do not trust a previously recorded HEAD). through If the cherry-pick was left uncommitted by conflict resolution, stage and finalize it with a message naming testimonials/06c5814; confirm the working tree is clean with no unmerged paths.
+
+Maqsad: sub-mission 2 of 2 — Deploy preview via wrangler, render landing.html with Playwright, and verify the testimonials section is present. through Deploy preview via wrangler, render landing.html with Playwright, and verify the testimonials section is present.
+
+Steps:
+  9. Deploy preview via wrangler, render landing.html with Playwright, and verify the testimonials section is present. [command] 
+
+Done means: step 9's headless-render receipt shows landing.html served from the wrangler preview URL with the testimonials section present in the rendered DOM and no fatal page error — verified by headless-browser render, not by reading the code.

@@ -1,0 +1,26 @@
+MISSION-ID: MT-INTEGRATE-TESTIMONIALS.S1.S1
+MISSION-CLASS: code-repo
+PARENT: MT-INTEGRATE-TESTIMONIALS.S1
+TARTIB-INDEX: 1 of 2
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - landing.html
+  - build-testimonials.mjs
+REQUIRES: none (first in tartib order)
+STEPS: 8
+
+PARENT MAQSAD: sub-mission 1 of 2 — Ensure the target repo has TARGET-BRANCH main actually checked out before any write (repo volatility was observed this session; do not trust a previously recorded HEAD). through If the cherry-pick was left uncommitted by conflict resolution, stage and finalize it with a message naming testimonials/06c5814; confirm the working tree is clean with no unmerged paths.
+
+Maqsad: sub-mission 1 of 2 — Checkout main branch to ensure TARGET-BRANCH is checked out before any writes. through Finalize any lingering cherry‑pick and confirm working tree clean for mission files.
+
+Steps:
+  1. Checkout main branch to ensure TARGET-BRANCH is checked out before any writes. [command] 
+  2. Verify pre-integration state: build-testimonials.mjs missing and landing.html lacks testimonials:start marker. [verify] 
+  3. Confirm source commit 06c5814 exists in the shared object store. [command] 
+  4. Cherry-pick commit 06c5814 onto main, completing any auto‑resolved conflicts. [command] 
+  5. Resolve conflict markers in landing.html and ensure testimonials:start is present. [edit] landing.html
+  6. Ensure build-testimonials.mjs contains the full script with no conflict markers. [edit] build-testimonials.mjs
+  7. Syntax‑check the generated build-testimonials.mjs with Node. [verify] build-testimonials.mjs
+  8. Finalize any lingering cherry‑pick and confirm working tree clean for mission files. [command] 
+
+Done means: landing.html and build-testimonials.mjs land via the 06c5814 cherry-pick with conflicts resolved keeping both sides, the ~321-line build script intact and syntax-checked, and the integration committed with a clean tree — git-mechanical verification only; the headless-browser render witness is S1.S2's charter (it carries VISUAL-QC-REQUIRED and the executable wrangler+playwright step 9), moved there 2026-07-11 after MIQAT-REFUSED on this child (fourth receipt of the autosplit tag-inheritance class; engine fix in flight via wf_fb4bed3e).
