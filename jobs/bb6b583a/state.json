@@ -1,7 +1,7 @@
 {
-  "state": "blocked",
-  "detail": "Sentry project creation required (Browser JS)",
-  "tempo": "blocked",
+  "state": "working",
+  "detail": "polling project endpoint; will fetch DSN on Create Project",
+  "tempo": "idle",
   "inFlight": {
     "tasks": 1,
     "queued": 0,
@@ -9,11 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 8744988,
-  "needs": "create project: left menu ☰ → Projects → Create Project → Browser JavaScript → name: androidtv-tips → create",
+  "tokens": 8746352,
   "output": null,
   "children": null,
-  "linkScanOffset": 60023845,
+  "linkScanOffset": 60048849,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -41,6 +40,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-12T03:53:31.197Z",
+  "updatedAt": "2026-07-12T03:54:43.411Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
