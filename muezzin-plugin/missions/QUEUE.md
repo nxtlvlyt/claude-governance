@@ -2761,3 +2761,32 @@ the seat received a truncated/malformed prompt, then either (a) split step 1 int
 smaller sub-steps if density is the cause, or (b) file as a genuine engine gap in
 GAP-REGISTER.jsonl if a dispatch/context-budget bug is confirmed. Do not blind-refire
 again — 6+ heal attempts already burned on the identical failure shape.
+
+## UPDATE (2026-07-12, conductor — executed the unpark condition above rather than
+## leaving it filed-and-unexecuted)
+No raw step-1 transcript exists anywhere on disk — confirmed by direct code read, not
+absence-of-search: `orchestrate.mjs` only persists diag artifacts for the PLAN phase
+(L912/923); `executor.mjs`'s empty-content guard (L500-510) captures just a 300-char
+truncated head of the response into the error string, never the full prompt or raw
+response. So "read an existing raw.txt" as originally framed is not actionable —
+there is nothing to read. mission-events.jsonl (the mission's own working dir,
+distinct from _logs/diag/) DOES have the full attempt history: 9 attempts over ~70min,
+escalating default-local -> sonnet -> OPUS. Every tier, including Opus, returned
+literally 0 chars.
+
+CONTEXT-BUDGET THEORY WEAKENED, NOT CONFIRMED: step 1's context_dependencies
+(data/scenic-enrichment.json 328KB + pois.json 2.7MB) never reach the seat raw —
+`windowDepsForPrompt` (executor.mjs L307-309) caps at 60KB/dep, 150KB total. Uniform
+zero-output across local AND Opus argues against a capability/context-window ceiling
+(Opus's window is far larger) and toward a DISPATCH/PROMPT-CONSTRUCTION bug instead —
+plausibly `windowDepsForPrompt`'s truncation logic doing something pathological when
+it windows a huge SINGLE-LINE minified-GeoJSON blob (pois.json is almost certainly
+one unbroken line — no internal newlines to truncate cleanly on), producing a
+malformed or unreadable prompt fragment that trips every model identically.
+
+REVISED UNPARK CONDITION (replaces the one above): a fresh reproduction is needed,
+with temporary raw-transcript logging added to the executor dispatch path (log the
+fully-assembled prompt + raw response for this one step, then remove the logging) —
+archival digging is exhausted, nothing further to find without a new run instrumented
+for it. This is real diagnosis-debt scoped work, not a quick fix; still correctly
+PARKED against this item, not blind-refired.

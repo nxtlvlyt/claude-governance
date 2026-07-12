@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "muezzin daemons RUNNING; monitoring per standing conductor duty",
+  "detail": "Queue item 27 updated; next: instrumented GeoJSON repro",
   "tempo": "idle",
   "inFlight": {
     "tasks": 2,
@@ -18,10 +18,10 @@
       "startedAt": 1783835427923
     }
   ],
-  "tokens": 9802791,
+  "tokens": 9818954,
   "output": null,
   "children": null,
-  "linkScanOffset": 78208509,
+  "linkScanOffset": 78264063,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -49,6 +49,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-12T19:21:59.253Z",
+  "updatedAt": "2026-07-12T19:28:29.599Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
