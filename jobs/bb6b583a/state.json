@@ -1,31 +1,36 @@
 {
   "state": "working",
-  "detail": "so if you refuse to push harder does that mean agy and warroom will refuse too?",
-  "tempo": "active",
+  "detail": "dry-run surfaced Google quota project blocker; probing stitch-mcp fix",
+  "tempo": "idle",
   "inFlight": {
-    "tasks": 1,
-    "queued": 1,
+    "tasks": 3,
+    "queued": 0,
     "kinds": [
+      "local_bash",
       "session_cron"
     ]
   },
-  "selfWake": true,
   "fan": [
     {
-      "id": "bo1dpbs2i",
+      "id": "bw6pn43xr",
       "kind": "shell",
-      "label": "pwsh -NoProfile -File sites/androidtv-tips/design/stitch-relay-run.ps1",
-      "startedAt": 1783834950192,
-      "doneAt": 1783835056451,
-      "failed": true
+      "label": "ssh nxtbeast \"npx.cmd -y @_davideast/stitch-mcp@latest proxy --help 2>&1 && npx.cmd -y @_davideast/stitch-mcp@latest doctor 2>&1\" 2>&1 | head -40",
+      "startedAt": 1783835268352
+    },
+    {
+      "id": "b2gb8f0k9",
+      "kind": "shell",
+      "label": "until [ -s \"/c/Users/marka/AppData/Local/Temp/claude/C--Users-marka/deef569c-dcf6-4695-8f3b-3ee6d4a96da1/tasks/bw6pn43xr.output\" ]; do sleep 2; done; head -45 \"/c/Users/marka/AppData/Local/Temp/claud…",
+      "startedAt": 1783835427923
     }
   ],
-  "tokens": 8867092,
+  "tokens": 8875393,
   "output": null,
   "children": null,
-  "linkScanOffset": 63686180,
+  "linkScanOffset": 63836723,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
+  "selfWake": true,
   "respawnFlags": [
     "--reply-on-resume",
     "--effort",
@@ -35,8 +40,6 @@
     "--permission-mode",
     "auto"
   ],
-  "bgIsolation": "none",
-  "providerEnv": {},
   "intent": "but we had 30 gaps mission we were fixing first before we did anything else and a big project to que when they were done",
   "name": "daemon-restart-mission-triage",
   "nameSource": "auto",
@@ -45,11 +48,13 @@
   "daemonShort": "bb6b583a",
   "cliVersion": "2.1.206",
   "cwd": "C:\\Users\\marka",
-  "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-12T05:44:16.640Z",
-  "firstTerminalAt": "2026-07-07T15:47:23.132Z",
   "bridgeSessionId": "cse_015z5n4qQqp9BZ8kKSCkvtzT",
   "bridgeOutboundOnly": false,
   "bridgeSessionSeq": 8904,
-  "backend": "daemon"
+  "bgIsolation": "none",
+  "providerEnv": {},
+  "backend": "daemon",
+  "createdAt": "2026-07-07T14:31:31.695Z",
+  "updatedAt": "2026-07-12T05:53:58.759Z",
+  "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }

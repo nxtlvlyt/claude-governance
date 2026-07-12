@@ -160,3 +160,11 @@ EXTRACTION SEAT (the proposals closing question): neither pause-and-self-compact
 PRIOR ART TO MINE BEFORE BUILDING: hermes-agent/trajectory_compressor.py (C:\Users\marka\hermes-agent — an existing OSS compaction implementation on this machine) + Claude CLI compaction behavior receipts (this sessions own ledger-block survival) + the CONDUCTOR-PORT-PLAYBOOK D8 section.
 
 ## COMPACTION WITNESSES (operator design extension 2026-07-12, his words in substance: the two local checks that already audit the conductor "would just have an additional role of feeding into the compaction events so they're not strained like the conductor would be"): the existing witness pair (ornith:9b structural + granite guardian groundedness) takes the COMPACTION AUDITOR role in warroom. Division of labor per the enrolled context-management corrections: the WORKING model writes the Tier-2 ledger at decision time (never at the boundary); at a compaction trigger the SMALL LOCAL WITNESSES verify — ornith checks the ledger structurally covers the active work (open lanes, unresolved diagnoses, pending handoffs all present), guardian checks any Tier-3 digest for GROUNDEDNESS against the raw transcript (its literal specialty). A witness flag BLOCKS the flush until the gap is written — witnesses raise flags, never author state (the humble-validation law carries over verbatim: their verdicts get re-derived, APPROVE is not a rubber stamp). This is cheap (small models, local, no frontier strain), and it makes compaction a VERIFIED event instead of Claude-CLI-style blind summarize-at-death — the receipted edge this system already has over the vendor harnesses.
+
+
+## S-DRYRUN (2026-07-12, ninth-law port — REQUIRED): DRY-RUN-IS-CONDUCTOR-WORK
+The warroom's conducting seat inherits the ninth law verbatim (conductor-core.md,
+2026-07-12): after >= 2 mission failures, the mandated dry-run is run BY the conductor
+in-session, never deferred to another queue cycle. Weaker seats inherit conditions,
+not judgment — this exists because the operator asked "if you refuse to push harder
+does that mean agy and warroom will refuse too?" The answer must be no, mechanically.

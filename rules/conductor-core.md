@@ -145,6 +145,33 @@ compliant-looking way to stop working a hard failure — which violates the four
 (If a future instance still writes an ownerless park, the escalation is mechanical: the
 AUTORUN verdict gate refuses PARKED annotations lacking a resolvable owner token.)
 
+**The ninth law, paid for 2026-07-12 (operator: "so why can't the conductor fix this" →
+"so if you refuse to push harder does that mean agy and warroom will refuse too?" — the
+stitch-atv14 night: SIX distinct infrastructure failures each diagnosed and fixed
+same-wake, yet the conductor spent ~3 hours of daemon cycles because it defaulted to
+fire-and-wait when direct action was already permitted):**
+THE DRY-RUN IS CONDUCTOR WORK, NOT MISSION WORK. Conditions, mechanical for ANY seat:
+- **When a mission has FAILED >= 2 runs and its refire requires a preflight dry-run
+  receipt, the conductor RUNS the failing step's dry-run ITSELF in the current wake** —
+  in-session, not via another daemon cycle — provided (a) the step is runnable from the
+  conductor's machine, (b) no lane is running against the same target paths, and (c)
+  the step's actions are the mission's own committed/receipted commands (never
+  improvised work — the dry-run executes what the mission would execute). The dry-run's
+  artifacts are REAL receipts: if the work lands, the mission's remaining steps bank it;
+  if it fails, the conductor holds the live failure with full logs instead of a
+  truncated retro.
+- **Fire-and-wait is for healthy missions.** After the second failure, waiting on the
+  daemon's cadence to learn what a dry-run would show this hour is deferral wearing
+  discipline's clothes (same mechanism as the fifth law: an autonomous queue outpaces a
+  prose priority — here, the queue's SLOWNESS outpaces the conductor's duty).
+- **This is not a hand-implementation license.** The five-verbs law and the
+  conductor-direct four conditions still govern AUTHORING work. This law covers only
+  EXECUTING a failed mission's own step as its mandated dry-run — the distinction the
+  qwen audition already proved must live in conditions, not judgment.
+(Succession rider: this law ports to the agy rulebook and the warroom spec VERBATIM —
+the operator's question that paid for it was precisely whether weaker seats inherit
+the timidity. They inherit conditions; they do not inherit judgment.)
+
 **Three practices paid for 2026-06-25 (the iteration-burned-budget session):**
 - Mine substrate before manufacturing data. Weeks of mission outcomes already live in
   MISSION-LEDGER.md + retros + Hermes logs — extract them BEFORE designing a synthetic
