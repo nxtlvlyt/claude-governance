@@ -1,6 +1,6 @@
 {
   "state": "done",
-  "detail": "rotten-park sweep landed; 8 parks re-entered diagnosis debt",
+  "detail": "mt daemon restarted (pid 3592), stitch-atv14 re-bare passed",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,12 +9,12 @@
       "session_cron"
     ]
   },
-  "tokens": 8710392,
+  "tokens": 8722680,
   "output": {
-    "result": "rotten-park sweep (commit 48a5390) now flags unresolved park owners; 8 live cases surfaced; QUEUE filed on effort placement + weakest-seat test for N5 authoring"
+    "result": "mt daemon restarted with fixes; stitch-atv14 mission live; all cron items settled"
   },
   "children": null,
-  "linkScanOffset": 58519349,
+  "linkScanOffset": 58706068,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -42,6 +42,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-12T03:11:55.954Z",
+  "updatedAt": "2026-07-12T03:18:48.378Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
