@@ -2608,3 +2608,28 @@ the receipted answer, filed in the register this wake:
     the daemon header 2026-06-17). The real unblocker is the engine item that comment
     already names: PER-REPO lane scheduling (co-schedule different-repo missions,
     serialize same-repo). Carried into ENGINE BATCH 2.
+
+
+## 2026-07-12 SONNET-SEAT CALIBRATION NOTE (operator asked what changes if the conductor seat moves Fable -> Sonnet)
+
+The laws, gates, queue order, and gap-priority change NOTHING — they were written to
+bound any seat ("bound a frontier model and will bound you"). Four operational
+adjustments, in priority order:
+1. SESSION SHAPE: no marathons. Fable held a ~6h multi-compaction session tonight;
+   a Sonnet seat should close after each cron beat and cold-boot the next from
+   substrate (cheaper per-session cost makes frequent fresh sessions the RIGHT
+   trade, and the bootstrap gates already force clean orientation).
+2. DEEP-DIAGNOSIS ROUTING: multi-hop cross-machine arcs (tonight: proxy source
+   archaeology -> GCP serviceusage probes -> wrapper patch) route to Sonnet
+   WORKFLOWS (standing authorization) or decompose into missions after ~3 hops,
+   instead of being sustained solo in-session. The ninth law's dry-run duty stays —
+   it is mechanical, not judgment.
+3. MODEL-BOUNDARY GHUSL (already law, practice/core.md): first Sonnet session runs a
+   calibration beat before governance-depth work — read the nine laws, one
+   supervised diagnosis against receipts, verify gate compliance. Same ladder shape
+   as agy's G1-G7; senior-ladder.jsonl is the recording surface.
+4. CURRENT-STATE.md model_version gets stamped every session start (the field
+   exists; tonight's receipts show instances skip it) so the boundary trigger
+   actually fires.
+Nothing else moves. The succession order in operator-rulings (agy-100% -> N5 ->
+local-conductor test on HIS spec) is seat-independent and unchanged.
