@@ -1,3 +1,0 @@
-Maqsad: x.
-ON-DONE: missions/ghost.mission.txt
-Done means: x.

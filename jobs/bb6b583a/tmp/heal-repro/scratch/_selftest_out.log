@@ -128,3 +128,35 @@ PASS  heal(): LOOP-CAP retires the bare re-fire-risk line
 PASS  heal(): the retired line is commented out with a named LOOP-CAP-RETIRED annotation
 PASS  heal(): DONE/FAILED/RUNNING history lines for the same stem are left untouched (not a re-fire risk)
 PASS  heal(): an unrelated bare mission is never touched by LOOP-CAP retirement
+PASS  heal(): idempotent -- a second heal() pass retires nothing further (no bare line remains for this stem)
+PASS  heal(): a manifest child with NO AUTORUN line at all, but a real mission.txt on disk, is recovered
+PASS  heal(): an already-queued manifest child is left alone -- not re-added as a duplicate
+PASS  heal(): a manifest child whose mission.txt was never actually created is NOT recovered -- nothing to fabricate a queue line for
+PASS  heal(): the recovered line is tagged SPLIT-CHILD -- the QUEUE-DUP guard exemption (hunt-item #13) applies to it too
+PASS  heal(): the already-queued line is byte-unchanged, not duplicated or rewritten
+PASS  heal(): idempotent -- a second pass recovers nothing further (the S1 line now satisfies the manifest check)
+PASS  mt-b2-flag-table: EMPTY_CONTENT_THINKING row is byte-identical to the old hand-written flag line
+PASS  mt-b2-flag-table: CUDA row is byte-identical to the old hand-written flag line
+PASS  mt-b2-flag-table: CUDA row still emits its CUDA-CRASH-CLASS action
+PASS  mt-b2-flag-table: new local-TIMEOUT row fires its flag line at threshold
+PASS  mt-b2-flag-table: new local-NETWORK row fires its flag line at threshold
+PASS  mt-b2-flag-table: local-TIMEOUT below threshold stays silent
+PASS  mt-b2-flag-table: local-NETWORK below threshold stays silent
+PASS  healthy daemon detected
+PASS  healthy state -> zero required actions
+PASS  complete-ending line present
+PASS  healthy zero-action state does NOT print the beat-complete bar
+PASS  healthy fixture reaches barMet (frontier clean + deployed-current)
+PASS  non-empty actions -> BEAT-COMPLETE BAR counter-license printed (complete ending must be EARNED)
+PASS  QUEUE.md-visibility: no QUEUE.md file present (the ordinary fixture case) -> no report line, never an error
+PASS  QUEUE.md-visibility: 2 UNPARKS conditions in QUEUE.md are counted and surfaced in the report
+PASS  QUEUE.md-visibility: report-only, never a blocking action -- a present-but-unfired UNPARKS condition must not manufacture required-action noise every beat
+PASS  closed(): a note saying UNRESOLVED does NOT close the FAILED (leading-\b fix)
+PASS  closed(): an explicit RESOLVED note still closes
+PASS  presence-AND-landed: all ALLOW-FILES present but patch not in tree -> L3 BLOCK (recall restored)
+PASS  per-file fallback: whole-commit patch-id misses (co-touched-file drift) but file-scoped patch-id matches -> NOT flagged stranded
+PASS  divergence guard: git error -> divergenceCount null (never a false zero)
+PASS  divergence guard: git error -> explicit fail-closed BLOCK, not silent fail-open
+PASS  divergence guard: clean git (0 commits diverged) -> no blocking, zero behavior change for the healthy path
+
+ALL PASS

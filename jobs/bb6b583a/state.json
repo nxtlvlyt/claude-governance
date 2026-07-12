@@ -1,9 +1,9 @@
 {
   "state": "working",
-  "detail": "mission FAILED; daemons idle/healthy; agent investigating; 10m recheck",
+  "detail": "investigation agent a4c945689ee559c4a auditing daemon-status state leaks; recheck in 10m",
   "tempo": "active",
   "inFlight": {
-    "tasks": 5,
+    "tasks": 4,
     "queued": 0,
     "kinds": [
       "local_bash",
@@ -23,18 +23,12 @@
       "kind": "agent",
       "label": "Resume heal() crash root-cause and diagnosis",
       "startedAt": 1783855313527
-    },
-    {
-      "id": "brfm2bf2c",
-      "kind": "shell",
-      "label": "cd \"C:\\Users\\marka\\.claude\\jobs\\bb6b583a\\tmp\\heal-repro\\scratch\" && node conduct-cycle.mjs --selftest > _selftest_out.log 2>&1; echo \"EXIT CODE: $?\"; wc -l _selftest_out.log",
-      "startedAt": 1783855709076
     }
   ],
-  "tokens": 9536935,
+  "tokens": 9581496,
   "output": null,
   "children": null,
-  "linkScanOffset": 75906188,
+  "linkScanOffset": 75975772,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -62,6 +56,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-12T11:32:44.525Z",
+  "updatedAt": "2026-07-12T11:40:05.730Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
