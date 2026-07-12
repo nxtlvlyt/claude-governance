@@ -1,7 +1,7 @@
 {
   "state": "blocked",
-  "detail": "project creation probe returned NotFound; awaiting command output",
-  "tempo": "blocked",
+  "detail": "! curl -s -X POST \"https://sentry.io/api/0/teams/abass-inc/abass-inc/projects/\" -H \"Authorization: [REDACTED] -n 's/^SENTRY_AUTH_TOKEN=[REDACTED] /c/Users/marka/.claude/state/sentry-poll.env)\" -H \"Content-Type: application/json\" -d \"{\\\"name\\\":\\\"androidtv-tips\\\",\\\"platform\\\":\\\"javascript\\\"}\"",
+  "tempo": "active",
   "inFlight": {
     "tasks": 1,
     "queued": 0,
@@ -9,14 +9,21 @@
       "session_cron"
     ]
   },
+  "selfWake": true,
+  "fan": [
+    {
+      "id": "b0wx6ncwz",
+      "kind": "shell",
+      "label": "python -c \" import json, time n = {'ts': int(time.time()*1000), 'niyyah_text': 'niyyah:\\n source: stitch-atv14-reference.mission.result.json — Read this turn via the Read tool: step-2 stdout is the n…",
+      "startedAt": 1783829812962
+    }
+  ],
   "tokens": 8770930,
-  "needs": "paste the output from your `!` curl/pwsh command",
   "output": null,
   "children": null,
   "linkScanOffset": 60446123,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
-  "selfWake": true,
   "respawnFlags": [
     "--reply-on-resume",
     "--effort",
@@ -26,6 +33,8 @@
     "--permission-mode",
     "auto"
   ],
+  "bgIsolation": "none",
+  "providerEnv": {},
   "intent": "but we had 30 gaps mission we were fixing first before we did anything else and a big project to que when they were done",
   "name": "daemon-restart-mission-triage",
   "nameSource": "auto",
@@ -34,13 +43,11 @@
   "daemonShort": "bb6b583a",
   "cliVersion": "2.1.206",
   "cwd": "C:\\Users\\marka",
+  "createdAt": "2026-07-07T14:31:31.695Z",
+  "updatedAt": "2026-07-12T04:16:53.128Z",
+  "firstTerminalAt": "2026-07-07T15:47:23.132Z",
   "bridgeSessionId": "cse_015z5n4qQqp9BZ8kKSCkvtzT",
   "bridgeOutboundOnly": false,
   "bridgeSessionSeq": 8904,
-  "bgIsolation": "none",
-  "providerEnv": {},
-  "backend": "daemon",
-  "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-12T04:08:38.339Z",
-  "firstTerminalAt": "2026-07-07T15:47:23.132Z"
+  "backend": "daemon"
 }
