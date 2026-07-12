@@ -1,6 +1,6 @@
 {
   "state": "blocked",
-  "detail": "lighthouse-ci workflow: reword mission text (option 1) or fix engine bug (option 2)?",
+  "detail": "patcher ready; awaiting authorization to patch missionLandedState srcSha extraction",
   "tempo": "blocked",
   "inFlight": {
     "tasks": 2,
@@ -18,11 +18,11 @@
       "startedAt": 1783835427923
     }
   ],
-  "tokens": 9238546,
-  "needs": "reply with '1' or '2'",
+  "tokens": 9270491,
+  "needs": "authorize: patch missionLandedState's srcSha extraction in conduct-cycle.mjs to require explicit BASELINE-SHA: field (or just say 'do it')",
   "output": null,
   "children": null,
-  "linkScanOffset": 73368769,
+  "linkScanOffset": 73671542,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -50,6 +50,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-12T09:15:11.959Z",
+  "updatedAt": "2026-07-12T09:36:31.504Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
