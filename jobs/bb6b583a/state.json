@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "found 5 root causes; 4 filed as engine gaps, relay dry-run in progress",
+  "detail": "polling relay for STITCH-RECEIPT.md; V3 binding queued",
   "tempo": "idle",
   "inFlight": {
     "tasks": 3,
@@ -18,16 +18,16 @@
       "startedAt": 1783835427923
     },
     {
-      "id": "bjpgv3oa4",
+      "id": "bummk7nkf",
       "kind": "shell",
       "label": "pwsh -NoProfile -File sites/androidtv-tips/design/stitch-relay-run.ps1",
-      "startedAt": 1783836012172
+      "startedAt": 1783836537259
     }
   ],
-  "tokens": 8888827,
+  "tokens": 8890112,
   "output": null,
   "children": null,
-  "linkScanOffset": 64013357,
+  "linkScanOffset": 64041710,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -55,6 +55,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-12T06:04:32.303Z",
+  "updatedAt": "2026-07-12T06:09:09.457Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
