@@ -1,6 +1,6 @@
 {
-  "state": "working",
-  "detail": "poller script finalized for all 3 jurisdictions; encoding universality",
+  "state": "done",
+  "detail": "7/29 gap fixes closed; 5 in-flight, 17 batched; census current",
   "tempo": "idle",
   "inFlight": {
     "tasks": 2,
@@ -18,10 +18,12 @@
       "startedAt": 1783835427923
     }
   ],
-  "tokens": 8972473,
-  "output": null,
+  "tokens": 8975747,
+  "output": {
+    "result": "Gap audit: 7 fully closed (hash-guard, lint RULE 13, autosplit, atv prefix, register, rotten-park sweep, Stitch d036719); 5 in-flight (resetAllowFiles, niyyah-gate, replay, seat-health, SEO/CRO); 17 dormant (batched into Engine Batch 2)"
+  },
   "children": null,
-  "linkScanOffset": 70420493,
+  "linkScanOffset": 70484249,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -49,6 +51,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-12T08:05:18.828Z",
+  "updatedAt": "2026-07-12T08:07:38.041Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
