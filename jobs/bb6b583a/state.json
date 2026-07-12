@@ -1,6 +1,6 @@
 {
-  "state": "working",
-  "detail": "register seeded (22 gaps); hook block written & witnessed; flushing at next beat",
+  "state": "blocked",
+  "detail": "witness gate visibility lag; awaiting authorization to land hook",
   "tempo": "active",
   "inFlight": {
     "tasks": 2,
@@ -48,6 +48,7 @@
       "kind": "workflow",
       "label": "prep:stitch-revival-mission",
       "startedAt": 1783822118980,
+      "doneAt": 1783822865193,
       "group": "Prepare"
     },
     {
@@ -80,12 +81,19 @@
       "label": "skeptic:item22-rotten-park-sweep",
       "startedAt": 1783822532275,
       "group": "Verify"
+    },
+    {
+      "id": "ab846ec17115d4dd8",
+      "kind": "workflow",
+      "label": "skeptic:stitch-revival-mission",
+      "startedAt": 1783822873756,
+      "group": "Verify"
     }
   ],
-  "tokens": 8485167,
+  "tokens": 8536018,
   "output": null,
   "children": null,
-  "linkScanOffset": 56360861,
+  "linkScanOffset": 56458627,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -113,6 +121,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-12T02:19:31.379Z",
+  "updatedAt": "2026-07-12T02:23:56.202Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
