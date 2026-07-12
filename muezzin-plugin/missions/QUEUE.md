@@ -2419,6 +2419,37 @@ deconstructor emits file-path REQUIRES. (a) also heals the 38 existing files wit
 touching them; prefer (a). DO NOT hand-edit the 38 files (the generator would regress them
 on the next autosplit). Owner: next engine batch.
 
+ITEM 24 — MECHANICAL GAP REGISTER: MOVE CLASSIFICATION BOOKKEEPING OFF CONDUCTOR
+JUDGMENT (filed 2026-07-12, operator: "it's been at least 3 to 5 times today we found
+the conductor was not classifying gap fix issues correctly... is there any way we can
+fix the root cause"). THE FIVE RECEIPTS, one day: design-MD pattern filed as an INBOX
+lead instead of a gap; Stitch FAILEDs parked with no owner for a month; GAP-HOLD
+prefixes never enrolled atv-*; the fork's own product firing through its hold all week;
+W1-W6 owned by undated "next engine batch" prose. THE COUNTER-EXAMPLE that names the
+root cause: FAILED-mark diagnosis debt NEVER got missed today — because
+user-prompt-submit COMPUTES it mechanically every beat. Every failed class relied on
+per-turn conductor recognition; the one hook-computed class worked. ROOT FIX (same
+mechanism, generalized):
+(a) GAP-REGISTER file (missions/_logs/GAP-REGISTER.jsonl, both forks): one dated entry
+    per gap — {id, arrived, class: bite|dormant, owner: <queue-line-path or ITEM-N>,
+    status: open|owned|closed, closes_when}. The conductor's judgment shrinks to ONE
+    cheap act at arrival: write the entry (the 2026-07-11 arrival ruling already
+    mandates the classification default — operator-relayed process instructions are
+    gap-class on arrival).
+(b) COMPUTED CHECKS (the part judgment kept fumbling, moved to machines): the
+    user-prompt-submit hook + conduct-cycle sweep both compute and SURFACE, exactly
+    like diagnosis debt: (1) entries with no owner; (2) owners that no longer resolve
+    to live tracked work (the item-22 rotten check, generalized); (3) dormant entries
+    older than N days with no dated batch; (4) bite-class entries open while
+    product-class fires are happening (the hold-consistency check). Output format
+    mirrors the DIAGNOSIS DEBT block — a list the conductor cannot not-see.
+(c) SCOREBOARD LINE: gaps open/owned/rotten/dormant-aging joins the standing
+    mission scoreboard (the operator's existing two-day-old mandate — never make him
+    ask for a standing artifact again).
+POSITION: FIRST in Engine Batch 2 — the register is the classifier that makes every
+other batch item un-loseable. Backfill at build time: seed the register from tonight's
+known set (items 15-23, W1-W6, GAP-PRIORITY-HOLD gaps 1-3, intake items 7-19).
+
 ITEM 23 — COMPACTION-WITNESS PORT, ALL THREE JURISDICTIONS (filed 2026-07-12, operator:
 "does that mean we need to universally update it in all three — Claude CLI, agy and the
 warroom spec"). PRINCIPLE IS UNIVERSAL (substrate-first continuous writes + small-local-
