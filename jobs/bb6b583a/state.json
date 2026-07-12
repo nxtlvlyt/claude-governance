@@ -1,92 +1,20 @@
 {
-  "state": "blocked",
-  "detail": "awaiting Century link for executor-capability wall diagnosis",
-  "tempo": "active",
+  "state": "done",
+  "detail": "8 of 9 fixes verified, persisted to missions/_logs/, apply pointer written",
+  "tempo": "idle",
   "inFlight": {
-    "tasks": 2,
+    "tasks": 1,
     "queued": 0,
     "kinds": [
-      "local_workflow",
       "session_cron"
     ]
   },
-  "fan": [
-    {
-      "id": "a5d10696af8779a65",
-      "kind": "workflow",
-      "label": "prep:item21-lint-gate",
-      "startedAt": 1783812825364,
-      "doneAt": 1783813334400,
-      "group": "Prepare"
-    },
-    {
-      "id": "a8ab68424f79e1d46",
-      "kind": "workflow",
-      "label": "prep:item22-rotten-park-sweep",
-      "startedAt": 1783812828478,
-      "group": "Prepare"
-    },
-    {
-      "id": "a6acc0252bc5a20a2",
-      "kind": "workflow",
-      "label": "prep:autosplit-tag-inheritance",
-      "startedAt": 1783812825317,
-      "doneAt": 1783813246847,
-      "group": "Prepare"
-    },
-    {
-      "id": "a608ec219f0b7df4c",
-      "kind": "workflow",
-      "label": "prep:gap-hold-prefixes",
-      "startedAt": 1783812825860,
-      "doneAt": 1783813028283,
-      "group": "Prepare"
-    },
-    {
-      "id": "ae6a2d2af15e1f4fc",
-      "kind": "workflow",
-      "label": "prep:stitch-revival-mission",
-      "startedAt": 1783812826378,
-      "doneAt": 1783813217599,
-      "group": "Prepare"
-    },
-    {
-      "id": "af1de25862be8fc7d",
-      "kind": "workflow",
-      "label": "skeptic:gap-hold-prefixes",
-      "startedAt": 1783813033576,
-      "doneAt": 1783813262715,
-      "group": "Verify"
-    },
-    {
-      "id": "a577faab2b05d2deb",
-      "kind": "workflow",
-      "label": "skeptic:stitch-revival-mission",
-      "startedAt": 1783813223018,
-      "doneAt": 1783814437070,
-      "group": "Verify"
-    },
-    {
-      "id": "a2dbec24e6f6f744b",
-      "kind": "workflow",
-      "label": "skeptic:autosplit-tag-inheritance",
-      "startedAt": 1783813251814,
-      "doneAt": 1783813693595,
-      "group": "Verify"
-    },
-    {
-      "id": "a4958699f917e1473",
-      "kind": "workflow",
-      "label": "skeptic:item21-lint-gate",
-      "startedAt": 1783813338728,
-      "doneAt": 1783813904976,
-      "group": "Verify"
-    }
-  ],
-  "tokens": 8258042,
-  "output": null,
+  "tokens": 8261799,
+  "output": {
+    "result": "fix set durable in substrate + APPLY-NEXT-2026-07-12.md; item-22 re-run queued; ready for next wake"
+  },
   "children": null,
-  "linkScanOffset": 52768977,
+  "linkScanOffset": 52848685,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -114,6 +42,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-12T00:34:16.723Z",
+  "updatedAt": "2026-07-12T00:37:58.286Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
