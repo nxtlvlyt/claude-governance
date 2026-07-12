@@ -1,6 +1,6 @@
 {
-  "state": "working",
-  "detail": "live daemon risk found & parked; fixing REQUIRES token format",
+  "state": "done",
+  "detail": "both daemons idle, healthy; queue 32→31 as expected",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,12 @@
       "session_cron"
     ]
   },
-  "tokens": 9909378,
-  "output": null,
+  "tokens": 9909849,
+  "output": {
+    "result": "daemons stable, queue count normalized after parked-line fix"
+  },
   "children": null,
-  "linkScanOffset": 78840993,
+  "linkScanOffset": 78861544,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -40,6 +42,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-12T21:35:51.650Z",
+  "updatedAt": "2026-07-12T21:44:16.825Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
