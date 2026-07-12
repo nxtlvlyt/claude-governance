@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "quota project fixed; dry-run #2 running; awaiting Stitch reference",
+  "detail": "relay dry-run mid-flight (Stitch generation); daemons healthy",
   "tempo": "idle",
   "inFlight": {
     "tasks": 3,
@@ -24,10 +24,10 @@
       "startedAt": 1783836012172
     }
   ],
-  "tokens": 8882905,
+  "tokens": 8883905,
   "output": null,
   "children": null,
-  "linkScanOffset": 63923147,
+  "linkScanOffset": 63943540,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -55,6 +55,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-12T06:00:40.808Z",
+  "updatedAt": "2026-07-12T06:01:47.104Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
