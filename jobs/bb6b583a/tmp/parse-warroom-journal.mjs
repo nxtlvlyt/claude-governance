@@ -1,0 +1,13 @@
+import { readFileSync } from 'fs';
+const jpath = 'C:/Users/marka/.claude/projects/C--Users-marka/bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf/subagents/workflows/wf_a7fb1bdb-ce5/journal.jsonl';
+const rpath = 'C:/Users/marka/.claude/projects/C--Users-marka/bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf/workflows/wf_a7fb1bdb-ce5.json';
+const lines = readFileSync(jpath, 'utf8').trim().split('\n');
+const entries = lines.map(l => { try { return JSON.parse(l); } catch(e) { return null; } }).filter(Boolean);
+const runJson = JSON.parse(readFileSync(rpath, 'utf8'));
+const script = runJson.script;
+const keyMatches = [...script.matchAll(/key:\s*'([a-z-]+)'/g)].map(m=>m[1]);
+console.log('declared subsystem keys:', JSON.stringify(keyMatches));
+const readResults = entries.filter(e=>e.type==='result' && e.result && e.result.inventory);
+const auditResults = entries.filter(e=>e.type==='result' && e.result && e.result.verdicts);
+console.log('read stage subsystems present:', readResults.map(r=>r.result.subsystem));
+console.log('audit stage subsystems present:', auditResults.map(r=>r.result.subsystem));

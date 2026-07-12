@@ -1,0 +1,13 @@
+import { readFileSync, writeFileSync } from 'fs';
+const results = JSON.parse(readFileSync('C:/Users/marka/.claude/jobs/bb6b583a/tmp/warroom-results.json', 'utf8'));
+const blockersEntry = results.find(r => r.result && r.result.blockers);
+const synthEntry = results.find(r => r.result && r.result.muezzin_should_borrow);
+let out = '=== BLOCKERS ===\n';
+blockersEntry.result.blockers.forEach((b,i) => out += `${i+1}. ${b}\n\n`);
+out += '=== OPERATOR DECISIONS NEEDED ===\n';
+blockersEntry.result.operator_decisions_needed.forEach((b,i) => out += `${i+1}. ${b}\n\n`);
+out += '=== MUEZZIN SHOULD BORROW ===\n' + JSON.stringify(synthEntry.result.muezzin_should_borrow, null, 2) + '\n\n';
+out += '=== WARROOM NEEDS FROM MUEZZIN ===\n' + JSON.stringify(synthEntry.result.warroom_needs_from_muezzin, null, 2) + '\n\n';
+out += '=== SURPRISES ===\n' + JSON.stringify(synthEntry.result.surprises, null, 2) + '\n';
+writeFileSync('C:/Users/marka/.claude/jobs/bb6b583a/tmp/final-pieces.txt', out);
+console.log('done,', out.length, 'chars');

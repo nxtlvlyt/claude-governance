@@ -1,0 +1,203 @@
+=== BLOCKERS ===
+1. No dependency manifest exists for warroom (no requirements.txt, no pyproject.toml, no committed venv) and none is present on this machine — `python -m pytest` fails immediately with 'No module named pytest'. STATE.md's own '606 tests passing' claim is from 2026-05-15 (8 weeks stale, last commit since is an unrelated rename on 2026-06-23) and cannot be verified until an environment is restored. Every 'adopt' verdict in the audit is only as trustworthy as this.
+
+2. No Ollama Cloud client exists anywhere in the repo (grep of clients/ollama.py for cloud/ollama.com/OLLAMA_API_KEY: 0 matches) — this is a from-scratch build, not a config flag, despite being 1 of the 3 named channels.
+
+3. No mission substrate exists in warroom at all (no AUTORUN.md/QUEUE.md/INBOX.md/STATUS-BOARD.md/*.mission.txt anywhere in the tree) — 'continue muezzin missions AND run its own' is a from-scratch build, not a port of existing files.
+
+4. missions/coding/executor.py — the ONLY module that performs real autonomous file writes — has zero approval-gate check (verified directly: act()/_execute_step() write any WRITE_FILE/EDIT_FILE step inside work_dir with no approval marker, no call to core/guardrails.py). Every later stage that exercises real writes (repair.py fixes, mission substrate, seat tryouts that touch files) is exercising an unguarded path until this is fixed first.
+
+5. clients/budget.py's cap enforcement is mechanically disabled by a prior operator directive (2026-04-21, self-documented 'Never raises'); building new paid-adjacent channels (Ollama Cloud, heavier aimlapi use) on top of it means real spend has no code-level backstop until this is explicitly resolved.
+
+6. The 3-tier resilience cascade (cloud APIs -> nxtbeast 4090 -> laptop-local 4070) is new logic, not a rewire: core/failover.py's FailoverDetector only has 5 Claude-Code-absence triggers today, nothing host/tier-aware. nxtbeast reachability from the van/laptop was not re-verified in this session against warroom's own code.
+
+=== OPERATOR DECISIONS NEEDED ===
+1. Ollama Cloud jurisdiction conflict: the standing ruling in ~/.claude/rules/operator-rulings.md (2026-07-02, 'we are not supposed to be using any ollama cloud models') reads as a blanket ban with no jurisdiction qualifier, while this task's own parity vision names Ollama Cloud as 1 of warroom's 3 channels. Per the jurisdiction pattern (CONDUCTOR-PORT-PLAYBOOK.md #4: rulings do not cross jurisdictions silently; agy has its own separate rulebook that explicitly permits cloud), warroom has no rulebook of its own yet. Needs an explicit ruling before Stage 6 is built: is warroom its own jurisdiction with cloud permitted (mirroring agy), or does the blanket ban bind it too?
+
+2. clients/budget.py cap enforcement: re-enable mechanical _check_cap (fail-closed on spend + unpriced models) for warroom, or explicitly re-ratify 'advisory-only' going forward. This was originally an operator directive (2026-04-21), not an engineering default, so reversing or reaffirming it is the operator's call, not something a session should silently flip while implementing Stage 3.
+
+3. Mission-continuity architecture shape (Stage 9): should warroom become a subprocess seat that the existing Node muezzin engine dispatches into via a `--json` relay entrypoint (reuses the proven N5 rails-in-the-script primitive from the qwen 5/5 relay audition — smaller build), or get its own independent Python daemon/mission-runner loop analogous to muezzin_engine.mjs (full jurisdiction independence, 2-3x larger build)? This sizes several evenings of work either way and should be picked before it's spent.
+
+4. Seat model assignments: roster.yaml's seat SHAPE (primary/backup/silver/bronze/break_glass, swappable without rebuild) is already built and matches muezzin's tiering pattern — but which actual models get seated is a product-taste/budget call under the operator's own standing rule ('product-taste calls' are operator-bound per operator-rulings.md). Flagging so Stage 8 tryout results get reviewed and approved by the operator before roster.yaml's status flips from best-guess to calibrated, rather than auto-promoted by whichever session runs the tryout.
+
+=== MUEZZIN SHOULD BORROW ===
+[
+  {
+    "what": "Faith Assembly with real provenance headers (SHA-256 hashes + timestamp) and fail-closed build on missing Universal/overlay files, empty EXCLUSIONS.md, or detected contradictions — no write occurs on failure",
+    "from": "core/faith_builder.py:379-441; faiths/coder_executor.faith.md:1-5",
+    "bin": "adopt",
+    "why": "Muezzin already builds native faiths per the operator's parity vision but has no described provenance-header/fail-closed-assembly mechanism. Warroom's version is verified genuinely built and running (real hashes on disk, not just described), and its contradiction detector is honestly scoped rather than overclaimed."
+  },
+  {
+    "what": "Hierarchy enforcer that redacts credential/PII matches to a SHA-256 fingerprint token BEFORE storing in the violation excerpt, closing the secondary-leak path via logs/telemetry",
+    "from": "core/facilitator.py:561-580,678; core/hierarchy_enforcer.py:421-444",
+    "bin": "adopt",
+    "why": "Wired into every Executor and Validator output, not standalone. Muezzin's guardian/integrity guards should adopt redact-before-store as a default, not redact-on-display, to avoid the same secondary-leak class in mission logs."
+  },
+  {
+    "what": "Single-worker-thread priority-dispatch queue with FIFO-within-priority via monotonic sequence counter, defensive double-worker refusal in start(), and two-phase drain-with-cancel on shutdown",
+    "from": "core/router.py:130-152,154-200,379-414",
+    "bin": "adopt",
+    "why": "Serialization is structural (one worker thread), not a lock callers must remember to take — and the two-phase shutdown drain specifically closes a dispatch/shutdown race window. Directly applicable to hardening muezzin's single-Hermes-lock dispatcher against the same race class."
+  },
+  {
+    "what": "Guardrails module's fail-closed-by-construction shape: refuses to instantiate without config, treats ambiguous/unmatched-root paths as EXCLUDED (not allowed), and requires an explicit truthy per-call approval object with no env-var/global-toggle backdoor",
+    "from": "core/guardrails.py:98-116,352-365,373-381,149-152",
+    "bin": "adopt",
+    "why": "This is the 'one resolution door' shape muezzin's own standards ask for, verified as a module. Muezzin's containment kernel should hold to the same three properties: fail-closed instantiation, ambiguous=excluded default, mandatory truthy approval object (no bypass flag)."
+  },
+  {
+    "what": "The APPROVAL-GATE REQUIREMENT ITSELF, built correctly this time — port the spec, not warroom's code",
+    "from": "missions/coding/executor.py:236-256,292-294 (the broken version); core/facilitator.py:8-10 ('not directly invoked here')",
+    "bin": "redesign",
+    "why": "Warroom's own real write path bypasses its own Guardrails module entirely and reimplements a weaker check with zero approval gate — its #1 top risk. The lesson for muezzin is negative-example-as-design-input: verify muezzin's containment kernel is the ONLY resolution door for real writes, with no parallel weaker path a mission executor can fall back to."
+  },
+  {
+    "what": "Structured session logging architecture: single connection + threading.Lock, WAL mode, date-hierarchical paths, idempotent finalize(), append-only JSONL flushed per write — WITHOUT the hardcoded timezone(timedelta(hours=-4)) bug",
+    "from": "core/logger.py:36-37 (bug); core/faith_builder.py:90-106 (the correct receipted fix, ZoneInfo with UTC fallback)",
+    "bin": "redesign",
+    "why": "The structural design is solid and worth porting for muezzin's own session/mission logging, but only with the ZoneInfo fix warroom itself already wrote once (faith_builder.py) and then failed to propagate to logger.py, substrate_reasoning.py, facilitator.py, and discovery/scanner.py. Adopt the architecture, adopt the fix, and add the propagation check warroom skipped."
+  },
+  {
+    "what": "Dual repetition/loop detection: sliding-window SHA-256 hash detector for live-kill use, plus a separate n-gram Jaccard classifier for post-hoc forensic verdicts — correctly kept as two distinct mechanisms for two distinct purposes",
+    "from": "core/watchdog.py:479-497; missions/tryouts/stream_watchdog.py, candidate.py; tests/test_watchdog.py",
+    "bin": "adopt",
+    "why": "Tested and wired into warroom's audition pipeline. Muezzin's mission-execution watchdogging (detecting a stuck/looping Hermes or model call) would benefit from the same live-kill-vs-forensic-classifier split rather than one detector trying to serve both jobs."
+  },
+  {
+    "what": "Three-strike retry policy (same-params retry, reduced-scope retry, mark-failed) with a persistent _mission_aborted latch that refuses further work once tripped, and swallowed event-emission failures so a broken callback can't derail retry logic",
+    "from": "core/retry.py:109-191",
+    "bin": "adopt",
+    "why": "This mechanizes almost exactly muezzin's 'FAILED x2 = diagnose-and-fix or block-with-receipt' rule — the reduced-scope middle step and the persistent abort latch (vs. re-trying indefinitely) are concrete mechanisms muezzin's retry/requeue code could adopt directly."
+  },
+  {
+    "what": "Re-derive-don't-trust-caller-flag pattern: the always-escalate list re-derives whether a request implies a Hard-Exclusion touch from the caller's own classification/hierarchy_check rather than trusting a caller-set flag; falls through to UNRESOLVED/escalate rather than silently proceeding when no step resolves",
+    "from": "core/substrate_reasoning.py:254-286,366-382",
+    "bin": "adopt",
+    "why": "A receipted direct-frontier-review fix against a caller-set-flag bypass. Anywhere muezzin lets a caller (mission, sub-agent) set a classification flag that gates dangerous behavior, this re-derive-independently pattern closes the trust gap."
+  },
+  {
+    "what": "Dual-source drift sanity-check: canonical requirements held as Python constants PLUS a routine that diffs against shared/REQUIREMENTS/*.md and warns on divergence",
+    "from": "core/eligibility.py:23-26,86-90",
+    "bin": "adopt",
+    "why": "Muezzin's roster.yaml / SEAT-PLAN docs and code constants risk exactly this drift (the warroom audit independently found 5 cases of doc-vs-code drift elsewhere in the same repo). An automated diff-and-warn check is cheap insurance muezzin doesn't appear to have."
+  },
+  {
+    "what": "Low-lineage-diversity warning that fires when gauntlet/panel participant models share training-family lineage, as a safeguard against consensus theater from correlated models, alongside dissent preserved per-model rather than collapsed to one voice",
+    "from": "missions/gauntlet/synthesis.py:96-111,13-17",
+    "bin": "adopt",
+    "why": "Directly relevant to muezzin's verdict panels and witness pairs (ornith:9b + granite guardian) — a mechanical lineage-diversity check would catch the case where two 'independent' witnesses are actually correlated by training family, which prose review would miss."
+  },
+  {
+    "what": "Read-only-by-construction guarantee for scanner-class modules (no write methods observed at all, not just convention) plus honest labeling of stubbed detectors ('scaffolding...stubbed until Step 33') instead of silently claiming coverage",
+    "from": "missions/hygiene/scanner.py:17-19,47-54",
+    "bin": "adopt",
+    "why": "A structural guarantee is stronger than a code-review convention. Muezzin's hygiene/discovery scanners should be architecturally incapable of writing, not just conventionally discouraged from it."
+  },
+  {
+    "what": "Staged-repair state machine: each stage raises RuntimeError if the prior stage wasn't completed, content-hash verification that every original CONTENT/COMMENT line survives into the proposed output (hard halt if not), size-sanity halt at <5% of original, dry-run-by-default — Stages 1-4 only",
+    "from": "missions/hygiene/repair.py (stages 1-4, strong) vs :225-259 (stage_5_execute, hollow); WARROOM-BUILD-SPEC.md:1134-1142",
+    "bin": "redesign",
+    "why": "The gating/verification design for stages 1-4 is genuinely strong and worth porting for any mechanical autosplit/repair work muezzin does. Explicitly do NOT port Stage 5 as-is — warroom's own spec calls for git-commit-before/after, post-write re-verification, diff logging, and auto-revert-on-failure, and only 2 of those 6 sub-steps exist in code. Muezzin should build the complete version warroom's own spec describes but never finished."
+  },
+  {
+    "what": "Mechanical, non-overridable enforcement of a safety-critical parameter: num_gpu=0 injected into options and explicitly documented as overriding any caller-supplied value",
+    "from": "clients/ollama.py:975; :41-71 (receipted dynamic-timeout sizing against an observed qwen3.6:35b CPU-timeout failure)",
+    "bin": "adopt",
+    "why": "This is precisely the mechanism muezzin's NO-OLLAMA-CLOUD standing ruling needs: a client-layer override that mechanically strips/forces local-only behavior regardless of what a caller or config passes in, rather than relying on prose compliance with the ruling."
+  },
+  {
+    "what": "Unified single gateway client across paid-API vendors (superseding a per-vendor-client plan) plus extras-sanitization that strips budget-relevant keys callers might smuggle past validation — WITHOUT the advisory-only cap enforcement",
+    "from": "clients/aimlapi.py:1-6; clients/budget.py:271-287 (check_before_call 'Never raises' — do not port this part)",
+    "bin": "redesign",
+    "why": "The consolidation architecture and key-smuggling defense are good, receipted design choices worth porting for muezzin's own multi-vendor paid-API gateway. The budget-cap enforcement sitting behind it is the opposite lesson (see warroom_needs_from_muezzin) — port the gateway shape, not the advisory cap behavior."
+  },
+  {
+    "what": "Full-purge-over-DO_NOT_USE-flag practice for corrupted governance/audit data: when the 2026-04-21 drift incident corrupted audit data, the session purged it structurally from git rather than flagging it, reasoning 'structural removal is stronger than future-instance vigilance'",
+    "from": "STATE.md:2257-2266",
+    "bin": "adopt",
+    "why": "Independently anticipates the fail-closed standard. Muezzin's retro/STATE discipline (Directive 6: 'if a file appears corrupted, flag it, do not build on it') should go one step further per this receipt: purge structurally, don't rely on a flag surviving into a future session's vigilance."
+  },
+  {
+    "what": "Structured triage-ledger template (FINDING/SOURCE/SEVERITY/RESOLUTION/EVIDENCE/REASON) — WITH mandatory independent second-dispatch confirmation before any finding is marked ACKNOWLEDGED or FALSE POSITIVE",
+    "from": "RESOLUTION_LEDGER.md:44-49 (stated principle: 'the correct response is always to stop and recheck — not to evaluate whether the validator is right') vs :185-198,226-241,302-317 (violated by the same document's own later entries, self-triaged with no second check)",
+    "bin": "redesign",
+    "why": "The schema itself is sound and worth adopting for muezzin's retro files/MISSION-LEDGER.md. But port it WITH the fix warroom's own ledger failed to apply to itself: no finding gets dismissed by the same session that produced it — this is exactly muezzin's sixth law ('did I look again?' not 'were the small models right?') and warroom's own record is a receipted case of the law being violated in the wild."
+  },
+  {
+    "what": "Planted-assumption-failure calibration methodology: a purpose-built task with deliberately planted wrong premises, scored PASS/FAIL with token counts and dated result files, competitors marked INELIGIBLE on failed arithmetic",
+    "from": "STATE.md:1233-1255 (nemotron-3-super PRIMARY / qwen3.6:35b BACKUP seating decision)",
+    "bin": "adopt",
+    "why": "The single most track-record-keyed seating decision in warroom's whole roster. Matches and could sharpen muezzin's own audition-tooling ambitions (per the operator's parity vision) — the 'plant a wrong assumption and see if the model catches it' task design is a concrete, reusable calibration-task pattern, not just a scoring rubric."
+  },
+  {
+    "what": "Explicit 'Calibrated?' honesty column in the seat-defaults table, kept distinct from pipeline-status language elsewhere",
+    "from": "STATE.md:1137-1163 (9 of 11 non-witness seats correctly marked 'No') vs :636-655,708-724,760-776 (diagrams elsewhere claiming every stage 'LIVE')",
+    "bin": "redesign",
+    "why": "The column itself is honest and worth adopting for muezzin's roster docs. But port it as a GATE, not just a documented column — warroom's own diagrams ignore the column three separate times in the same file, showing an honest column with no enforcement is not enough; muezzin's graduation-ladder/streak gating (senior-ladder.jsonl) is the mechanical version this needs to be paired with."
+  }
+]
+
+=== WARROOM NEEDS FROM MUEZZIN ===
+[
+  {
+    "what": "A containment kernel / guardian-guard layer that is the ONLY resolution door for real autonomous writes, with no parallel weaker path a mission executor can fall back to",
+    "why": "Warroom's top risk: missions/coding/executor.py (the module that actually performs Autonomous-Mode writes) does not call core/guardrails.py at all — it reimplements a weaker boundary check with no approval-marker gate, and core/facilitator.py's own docstring admits Guardrails is 'not directly invoked here.' Muezzin's containment kernel + guardian guards close exactly this two-doors problem by construction."
+  },
+  {
+    "what": "An independent, mandatory second-dispatch verdict-panel step (deed-over-claim gate) before any finding can be marked ACKNOWLEDGED or FALSE POSITIVE",
+    "why": "RESOLUTION_LEDGER.md states the correct principle ('stop and recheck, never evaluate whether the validator is right') and then its own later entries violate it repeatedly with no fresh check; GR11's granite required-stop scanner shows the identical pattern — a hard fail-closed gate whose stop condition gets self-dismissed by the party it's supposed to gate. Muezzin's Phase-3-mandatory verdict panel and sixth-law humble-validation discipline is a proven mechanical fix for precisely this failure mode."
+  },
+  {
+    "what": "Mechanical, fail-closed budget/routing enforcement (a routing dial like muezzin-route.json), not advisory logging",
+    "why": "clients/budget.py's check_before_call() 'Never raises' by a self-documented 2026-04-21 directive; the mechanical _check_cap code still exists but is orphaned dead code, and unpriced models silently cost $0.0 (fail-open) rather than refusing. This sits directly behind Golden Rule 1's paid-API gate with no code-level spending backstop at all."
+  },
+  {
+    "what": "A real commit-verify-revert loop for any protocol that mutates substrate files, closing the loop warroom's own spec describes but never finished",
+    "why": "Surgical repair Stage 5 implements only 2 of 6 spec sub-steps (archive-copy + file-replace); no git commit calls exist anywhere in the module, no post-write re-verification, no diff log, and no revert path of any kind — despite being the headline safety claim ('triple backup + verify + commit') for the one protocol allowed to touch substrate files. Muezzin's autosplit discipline is the proven version of this loop."
+  },
+  {
+    "what": "A conductor-style graduation ladder that gates 'LIVE'/autonomous status on a calibration streak, not just a documented column",
+    "why": "roster.yaml's own 'Calibrated?' column honestly marks 9 of 11 non-witness seats 'No' through freeze, but governance-stack diagrams repeated across 7+ session entries label every pipeline stage 'LIVE' anyway with no distinction between 'code path wired' and 'seat assignment trustworthy.' Muezzin's senior-ladder.jsonl streak-gated graduation would make calibration a hard gate instead of an ignorable column."
+  },
+  {
+    "what": "A mission substrate with retro/preflight/requeue discipline around FAILED items",
+    "why": "Nothing in the audit shows a queue or requeue cycle for warroom's own findings — RESOLUTION_LEDGER entries just sit ACKNOWLEDGED with no visible fix-then-recheck cycle. Muezzin's retro/preflight/requeue loop (and its 'a FAILED mark is a diagnosis debt with a due date, never ambient debt' rule) is exactly the missing mechanism."
+  },
+  {
+    "what": "A mechanical GAP-PRIORITY-HOLD equivalent that blocks new work until a named, repeatedly-deferred task lands",
+    "why": "A `warroom status`/`health` command was named as the explicit 'NEXT TASK' continuously from S6b (2026-05-06) through the S9 freeze (2026-05-15) across 5+ intervening session entries that instead produced canon amendments and book chapters — the same 'a prose priority loses to an autonomous/other-work queue every time' failure muezzin's GAP-PRIORITY-HOLD mechanism exists to prevent."
+  },
+  {
+    "what": "Queue/log compaction discipline for the append-only governance record",
+    "why": "STATE.md re-pastes near-identical governance-stack diagrams and gap tables across 7+ entries, bloating to 2626 lines and making cross-entry consistency checking harder than it should be. Muezzin's own planned queue-compaction item (named in the N5 cross-jurisdiction port spec) is a direct fix, and warroom's file is a concrete specimen of why it's needed."
+  },
+  {
+    "what": "Dated, receipted inventory/identity census applied to the codebase's own module map, not just to model identity",
+    "why": "The reference inventory this audit was checked against was itself stale in at least 5 places: three client files that don't exist (anthropic_client.py, gemini_client.py, anythingllm_client.py) and two wrong module paths (core/synthesizer.py, core/hygiene_scanner.py) — undetected for months. Muezzin's 'model identity needs receipts' discipline (never assert from a tag/name, verify dated) generalizes directly to keeping a module/file inventory honest against actual code."
+  },
+  {
+    "what": "A propagation check (or single-source-of-truth refactor) for logic duplicated across files",
+    "why": "A DST timezone bug was diagnosed and fixed once, receipted, in faith_builder.py (2026-04-28) and then knowingly reproduced rather than propagated into logger.py, substrate_reasoning.py, facilitator.py, and discovery/scanner.py — corrupting the audit trail's own dating in a system whose entire premise is dated evidence. Muezzin's planned 'single CONDUCTOR-PROTOCOL source' (N5 spec item 8-9) is the preventive version of this fix; warroom needs either that or a mechanical propagation-check, since it currently has neither."
+  },
+  {
+    "what": "Git-versioned landing for governance-substrate edits",
+    "why": "S8 states plainly that canon edits landed with 'no git — ~/.claude not versioned,' meaning the edit produced no diff, no commit, no revertible artifact — only STATE.md's own prose describing what one agent believes it changed, on exactly the class of change (governance substrate) that most needs a receipt."
+  },
+  {
+    "what": "An always-current, daemon-rendered status artifact with a verified reader, not a telemetry sidecar with no confirmed consumer",
+    "why": "core/watchdog.py's ResourceWatchdog writes service-health.json on a timer, but no `warroom status`/`health` command in cli.py was found reading it back (grep: 0 matches) — telemetry produced with no confirmed audience. Muezzin's STATUS-BOARD.md (always current, daemon-rendered, read every conducting session) is the proven pattern."
+  }
+]
+
+=== SURPRISES ===
+[
+  "Warroom's full-purge-over-DO_NOT_USE-flag practice (STATE.md, 2026-04-21 drift incident) independently anticipates the fail-closed governance standard the audit judges it against, receipted as arrived at before that standard existed on a completely separate project with no cross-pollination.",
+  "Warroom's RESOLUTION_LEDGER/GR11 saga is a live, independent confirmation that muezzin's own sixth law ('humble-validate every verdict, don't score witness models by hit-rate, ask did I look again') addresses a real observed failure mode: the identical self-triage-without-fresh-check pattern (dismissing a hard-gate FAIL as 'false positive' with no independent recheck) occurred on an entirely different codebase and team.",
+  "STATE.md contradicts itself within the same document: governance-stack ASCII diagrams claim every pipeline stage 'LIVE' across 7+ session entries, while the roster table in the SAME file honestly shows 9 of 11 non-witness seats uncalibrated ('No'). Whether warroom's pipeline reads as governance-mature or not depends entirely on which section of one document a reader opens.",
+  "The reference inventory this entire audit was checked against was itself stale by months in at least 5 places (three client files and two module paths that don't exist, superseded by receipted architecture decisions the inventory missed) — meaning any downstream planning against that inventory, including this gap-matrix exercise itself, had to be corrected mid-audit rather than trusted at face value.",
+  "Warroom named the identical unfinished task ('warroom status/health command') as the explicit NEXT TASK in 5+ consecutive session-log entries over roughly 9 days (2026-05-06 through 2026-05-15) without ever landing it — an independently-discovered specimen of the exact 'a prose priority loses to an autonomous queue every time' failure mode that produced muezzin's GAP-PRIORITY-HOLD ruling on 2026-07-03, in a project with no visibility into muezzin's rulings.",
+  "Within the SAME codebase, warroom solved a caller-cannot-override safety pattern correctly once (clients/ollama.py forcing num_gpu=0, mechanically enforced, no bypass) and got the structurally identical problem wrong elsewhere (clients/budget.py cap enforcement, advisory-only, fail-open to $0) — proving a correct fix in one module does not automatically propagate to a sibling problem of the same shape without an explicit cross-check. Worth auditing muezzin's own code for the same asymmetry (e.g. NO-OLLAMA-CLOUD enforcement vs budget-dial enforcement).",
+  "Neither project, as documented, has an automated 'did this receipted fix propagate everywhere it needed to' checker: warroom's TZ bug (fixed once in faith_builder.py, reproduced in 4 other files) is the receipted failure case, and muezzin's closest analog (a planned single CONDUCTOR-PROTOCOL source, N5 spec item 8-9, still unbuilt at time of writing) chooses prevention-by-single-sourcing over detection-by-propagation-check — leaving the detection approach an open gap on both sides.",
+  "Warroom's S8 entry claims canon edits landed with 'no git — ~/.claude not versioned.' Verified live in this session (`git rev-parse --is-inside-work-tree` in ~/.claude on this operator's current machine returns true) that ~/.claude IS a git repository now. Either the warroom session ran before this operator's ~/.claude was initialized as a repo, or on a different host/user context — meaning that specific discard-bin finding no longer describes current reality and should not be carried forward as an ongoing gap without re-checking the actual host any future warroom work runs on."
+]

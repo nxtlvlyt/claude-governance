@@ -1,12 +1,13 @@
 {
   "state": "working",
-  "detail": "conduct-cycle regex fix verified; mission ~6.5min in, rechecking 3min",
-  "tempo": "idle",
+  "detail": "both daemons healthy; warroom+agy closed; srcsha fix delegated to agent",
+  "tempo": "active",
   "inFlight": {
-    "tasks": 3,
+    "tasks": 5,
     "queued": 0,
     "kinds": [
       "local_bash",
+      "local_agent",
       "session_cron"
     ]
   },
@@ -16,12 +17,24 @@
       "kind": "shell",
       "label": "until [ -s \"/c/Users/marka/AppData/Local/Temp/claude/C--Users-marka/deef569c-dcf6-4695-8f3b-3ee6d4a96da1/tasks/bw6pn43xr.output\" ]; do sleep 2; done; head -45 \"/c/Users/marka/AppData/Local/Temp/claud…",
       "startedAt": 1783835427923
+    },
+    {
+      "id": "a4c945689ee559c4a",
+      "kind": "agent",
+      "label": "Resume heal() crash root-cause and diagnosis",
+      "startedAt": 1783855313527
+    },
+    {
+      "id": "brfm2bf2c",
+      "kind": "shell",
+      "label": "cd \"C:\\Users\\marka\\.claude\\jobs\\bb6b583a\\tmp\\heal-repro\\scratch\" && node conduct-cycle.mjs --selftest > _selftest_out.log 2>&1; echo \"EXIT CODE: $?\"; wc -l _selftest_out.log",
+      "startedAt": 1783855709076
     }
   ],
-  "tokens": 9416731,
+  "tokens": 9528479,
   "output": null,
   "children": null,
-  "linkScanOffset": 75114098,
+  "linkScanOffset": 75853651,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -49,6 +62,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-12T10:56:24.399Z",
+  "updatedAt": "2026-07-12T11:30:58.131Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
