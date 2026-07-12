@@ -186,6 +186,27 @@ export function lintMission(text) {
     }
   }
 
+  // RULE 13 — DESIGN PASS WITHOUT CONTRACT (QUEUE item 21; receipts 2026-07-10/11: atv-11,
+  // the hand-styled design pass, rewrote the whole stylesheet from improvised per-mission
+  // taste and shipped the operator's phone verdict "why is it so visually bad?" — the cure
+  // that passed was atv-12-design-to-contract, which implemented a written BINDING DESIGN.md
+  // with "where this mission text and DESIGN.md disagree, DESIGN.md wins". Improvised taste
+  // is unreviewable; a contract file is). THE SCOPING IS THE RULE: the trigger is design-pass
+  // SEMANTICS in the mission text AND a .css write target in ALLOW-FILES/steps — NEVER bare
+  // VISUAL-QC-REQUIRED, which dozens of integrate missions carry without being design passes
+  // (mt-integrate-testimonials class), and a copy rewrite touching html only is not a design
+  // pass (mt-copy-clarity class). A mission that says "design contract" in prose both
+  // triggers and binds by construction — the phrase IS the binding; the hyphenated pattern
+  // name "design-to-contract" alone triggers but does NOT bind (naming the pattern is not
+  // naming the contract file).
+  const designPassLanguage = /design\s+(system|pass|contract)|restyle|rewrite the .*stylesheet|design-to-contract/i.test(t);
+  const cssInAllowFiles = /^[ \t]*-[ \t]+\S+\.css\s*$/im.test(t);
+  const cssInSteps = t.split(/\r?\n/).filter((l) => /^\s*\d+\.\s/.test(l)).some((l) => /\.css\b/i.test(l));
+  const bindsDesignContract = /\bDESIGN\.md\b|design contract/i.test(t);
+  if (designPassLanguage && (cssInAllowFiles || cssInSteps) && !bindsDesignContract) {
+    add('design-pass-without-contract', 'mission carries design-pass semantics (design system/pass, restyle, or stylesheet-rewrite language) AND writes a .css target, but binds to NO design contract file — no DESIGN.md mention, no "design contract". Improvised per-mission taste shipped atv-11 straight to the operator\'s "why is it so visually bad?" phone verdict (2026-07-11); the shape that passed is atv-12-design-to-contract: author the contract file first, then implement it with the contract named as the spec that WINS over the mission text.');
+  }
+
   return { ok: problems.length === 0, problems };
 }
 
@@ -326,6 +347,27 @@ if (process.argv[1] && process.argv[1].endsWith('mission_lint.mjs')) {
   ck(lintMission('MISSION-CLASS: code-repo\nREPO-ROOT: C:\\proj\\x\nALLOW-FILES:\n  - map.html\nMaqsad: t. Done means: t.\nSteps:\n  1. edit [edit]\n').ok, 'RULE 12: entry-surface (map.html) edits are exempt — no false positive on the dominant mission class');
   const withRun = 'MISSION-CLASS: code-repo\nREPO-ROOT: C:\\proj\\x\nALLOW-FILES:\n  - s.mjs\nVISUAL-QC-REQUIRED\nMaqsad: extend the QC script.\nSteps:\n  1. Edit s.mjs. [edit] s.mjs\n  2. Run it: node s.mjs and require coverage receipts. [command]\nDone means: rendered headless via playwright.';
   ck(lintMission(withRun).ok, 'RULE 11: VISUAL mission WITH an executing step passes');
+
+  // ---- RULE 13: DESIGN PASS WITHOUT CONTRACT (QUEUE item 21; atv-11 phone verdict "why is
+  // it so visually bad?" vs the atv-12-design-to-contract cure, 2026-07-11) ----
+  // (a) the ORIGINAL atv-11 shape: stylesheet-rewrite language + css target, no DESIGN.md -> refused.
+  const designPass = 'MISSION-CLASS: code-repo\nMISSION-ID: ATV-11-DESIGN-PASS\nREPO-ROOT: C:\\proj\\x\nALLOW-FILES:\n  - public/style.css\n  - public/index.html\nMaqsad: the hand-styled design pass — deliver a real design system in style.css.\nSteps:\n  1. Rewrite public/style.css into the full design system (typography scale, spacing scale, color system). [edit] public/style.css\n  2. Add the classes/wrappers the stylesheet needs to index.html, zero copy changes. [edit] public/index.html\nDone means: the homepage reads as a designed site, not a rendered markdown document.';
+  const dp = lintMission(designPass);
+  ck(!dp.ok && dp.problems.some((p) => p.rule === 'design-pass-without-contract'), 'RULE 13: stylesheet-rewrite design pass bound to NO contract REFUSED (the original atv-11 shape)');
+
+  // (b) the atv-12 shape: same css rewrite but names DESIGN.md as the binding spec -> passes.
+  const designToContract = 'MISSION-CLASS: code-repo\nMISSION-ID: ATV-12-DESIGN-TO-CONTRACT\nREPO-ROOT: C:\\proj\\x\nALLOW-FILES:\n  - public/assets/style.css\n  - public/index.html\nVISUAL-QC-REQUIRED\nMaqsad: implement DESIGN.md — the BINDING design contract; where this mission text and DESIGN.md disagree, DESIGN.md wins.\nSteps:\n  1. Rewrite public/assets/style.css to the contract, section by section. [edit] public/assets/style.css\n  2. In ONE command: write scratch-witness.mjs (puppeteer render of the homepage against the contract), node scratch-witness.mjs, then Remove-Item it. [command]\nDone means: the homepage renders to the DESIGN.md contract — verified by headless-browser render, not by reading the code.';
+  ck(lintMission(designToContract).ok, 'RULE 13: design pass bound to DESIGN.md passes (the atv-12-design-to-contract shape)');
+
+  // (c) the integrate class: VISUAL-QC-REQUIRED + render witness, ZERO design-pass language,
+  // no css target — the flag is carried by dozens of integrate missions and never triggers.
+  const integrateVisual = 'MISSION-CLASS: code-repo\nMISSION-ID: MT-INTEGRATE-TESTIMONIALS.S1\nREPO-ROOT: C:\\proj\\x\nALLOW-FILES:\n  - index.html\n  - build-testimonials.mjs\nVISUAL-QC-REQUIRED\nMaqsad: cherry-pick the testimonials commit onto main and finalize it with a clean tree.\nSteps:\n  1. Cherry-pick the commit introducing build-testimonials.mjs and the index.html testimonials section; git commit the resolution. [command]\n  2. In ONE command: wrangler pages deploy . --branch=preview, capture the emitted URL, write scratch-qc.mjs (playwright render of the testimonials section), node scratch-qc.mjs, then Remove-Item it. [command]\nDone means: index.html updated as specified — verify by headless-browser render, not by reading the code.';
+  ck(lintMission(integrateVisual).ok, 'RULE 13: integrate mission with VISUAL-QC-REQUIRED + render witness but NO design-pass language passes (mt-integrate-testimonials class — the flag alone never triggers)');
+
+  // (d) the mt-copy-clarity class: a COPY rewrite touching html only — "rewrite the offending
+  // strings" is not design-pass language and no .css is targeted.
+  const copyClarity = 'MISSION-CLASS: code-repo\nMISSION-ID: mt-copy-clarity.S1\nREPO-ROOT: C:\\proj\\x\nALLOW-FILES:\n  - index.html\n  - map.html\nVISUAL-QC-REQUIRED\nMaqsad: run every user-facing string through a reading-grade check; rewrite the offending strings to plain language at grade 6 or below without weakening the trust claims.\nSteps:\n  1. Rewrite the offending strings in index.html and map.html to plain language. [edit] index.html\n  2. In ONE command: write scratch-copy-grade.mjs (grade every extracted string), node scratch-copy-grade.mjs, require COPY_CLARITY_OK, then Remove-Item it. [verify]\nDone means: every user-facing copy string at grade <=8 proven by the grader AND the headless-browser render of the landing page shows the rewritten hero copy intact.';
+  ck(lintMission(copyClarity).ok, 'RULE 13: copy-clarity rewrite (html targets, no stylesheet rewrite) passes (mt-copy-clarity.S1 class — a copy pass is not a design pass)');
 
   console.log(`\n${fail ? fail + ' FAIL' : 'ALL PASS — mission miqat: flawed work orders refused at the boundary, zero cycles burned'}`);
   process.exit(fail ? 1 : 0);
