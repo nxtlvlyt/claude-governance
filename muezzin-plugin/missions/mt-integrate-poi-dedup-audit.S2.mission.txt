@@ -15,6 +15,10 @@ PARENT MAQSAD: The commit "c899d07 feat(dedup-audit): scan pois + community_spot
 Maqsad: sub-mission 2 of 2 — Stage exactly the three ALLOW-FILES (excluding pre-existing unrelated untracked files), commit with a message naming mt-feat-poi-dedup-audit and c899d07, and confirm the working tree is clean for the touched paths with the commit message correctly referencing the origin. through Stage exactly the three ALLOW-FILES (excluding pre-existing unrelated untracked files), commit with a message naming mt-feat-poi-dedup-audit and c899d07, and confirm the working tree is clean for the touched paths with the commit message correctly referencing the origin.
 
 Steps:
-  9. Stage exactly the three ALLOW-FILES (excluding pre-existing unrelated untracked files), commit with a message naming mt-feat-poi-dedup-audit and c899d07, and confirm the working tree is clean for the touched paths with the commit message correctly referencing the origin. [command] 
+  9. Stage exactly the three ALLOW-FILES (excluding pre-existing unrelated untracked files): git add -- scripts/dedup-audit.mjs docs/dedup-report-2026-06-23.md scripts/dedup-admin-todos-2026-06-23.sql; commit with a message naming mt-feat-poi-dedup-audit and c899d07 EXACTLY as: git commit -m "feat(dedup-audit): stage mt-feat-poi-dedup-audit deliverables (origin c899d07)". Verify by checking ONLY the single latest commit's own message and the working tree state — NEVER search a multi-commit git log window for a SHA (a cherry-pick lands under a NEW sha and old commits scroll out of any fixed-size window, producing false failures on real landings). Run exactly: git log -1 --format=%B | Select-String -Pattern 'mt-feat-poi-dedup-audit' -Quiet; if (-not $?) { exit 1 }; git status --short -- scripts/dedup-audit.mjs docs/dedup-report-2026-06-23.md scripts/dedup-admin-todos-2026-06-23.sql; if ($LASTEXITCODE -ne 0 -or (git status --short -- scripts/dedup-audit.mjs docs/dedup-report-2026-06-23.md scripts/dedup-admin-todos-2026-06-23.sql)) { exit 1 }; Write-Output STAGE-COMMIT-VERIFIED [command]
+     validation_command: git log -1 --format=%B | Select-String -Pattern 'mt-feat-poi-dedup-audit' -Quiet
 
-Done means:  exist/are updated as specified
+Done means: the three ALLOW-FILES are committed to HEAD with a message naming
+mt-feat-poi-dedup-audit and c899d07, and `git status --short` for those three
+paths is empty (clean working tree). Verification checks ONLY the single
+latest commit, never a multi-commit log window.
