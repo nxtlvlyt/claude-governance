@@ -1,0 +1,44 @@
+MISSION-ID: M-ENGINE.ITEM25.RESET-QUARANTINE
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\.claude\muezzin-plugin
+ALLOW-FILES:
+  - git_steps.mjs
+REQUIRES: none
+STEPS: 4
+
+Maqsad: close gap-reset-allowfiles-data-loss (QUEUE ITEM 25) at the engine — TWO bites
+receipted 2026-07-12: (1) stitch-atv14 02:13Z, the uncommitted atv DESIGN.md deleted at
+fire time (recovered only via conductor-transcript replay, commit 6672236); (2)
+mt-integrate-poi-dedup-audit.S2 ~04:0xZ, ALL THREE of S1's uncommitted deliverables
+(scripts/dedup-audit.mjs, docs/dedup-report-2026-06-23.md,
+scripts/dedup-admin-todos-2026-06-23.sql) destroyed at S2 fire time — the
+S1-creates/S2-commits split template makes the class SYSTEMIC. Root cause:
+resetAllowFiles (git_steps.mjs line ~318) rmSync-DELETES any dirty UNTRACKED
+allow-file on the presumption a prior failed attempt created it; false for pre-staged
+inputs and for sibling-child deliverables. Fix: quarantine instead of destroy.
+
+niyyah: clean-baseline property preserved (the file leaves the tree); the
+data-destruction property removed (content survives in quarantine). No behavior
+change for tracked files (checkout-restore stays).
+
+Steps:
+  1. Baseline, stdout only. Run exactly: git rev-parse --abbrev-ref HEAD; git rev-parse HEAD; node git_steps.mjs; if ($LASTEXITCODE -ne 0) { Write-Output PRE-SELFTEST-FAIL; exit 1 }; Write-Output PRE-SELFTEST-PASS [command]
+     validation_command: node git_steps.mjs
+  2. In git_steps.mjs, inside resetAllowFiles' untracked branch, replace the destroy line — `try { fs.rmSync(abs, { force: true }); } catch { /* locked/gone — best effort */ }` — with a QUARANTINE move: build `const qdir = path.join(repoRoot, 'missions', '_logs', 'reset-quarantine');` and `const qdst = path.join(qdir, new Date().toISOString().replace(/[:.]/g, '-') + '-' + path.basename(rel));` then `try { fs.mkdirSync(qdir, { recursive: true }); fs.renameSync(abs, qdst); } catch { try { fs.rmSync(abs, { force: true }); } catch { /* locked/gone — best effort */ } }` (rename-first; destruction only as the cross-device/locked fallback so the clean-tree invariant never regresses). Update the function's doc comment to state the quarantine behavior and cite the two 2026-07-12 bite receipts (stitch-atv14 DESIGN.md; poi-dedup S1 deliverables). [edit] git_steps.mjs ; context_dependencies: git_steps.mjs
+     validation_command: node --check git_steps.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; if (-not (Select-String -Path git_steps.mjs -Pattern 'reset-quarantine' -Quiet)) { exit 1 }
+  3. Extend the resetAllowFiles selftest block (the existing rst1 cases near line ~700) with a QUARANTINE case: create a temp repo fixture with a committed baseline, write an UNTRACKED file at an allow-listed path with known content, run resetAllowFiles, then assert (a) the file is GONE from the working tree, (b) exactly one file exists under missions/_logs/reset-quarantine/ of that temp repo whose content byte-matches the original, and (c) the tracked-file dirty case still checkout-restores (existing behavior locked). Follow the file's existing selftest conventions (temp dirs, ck() lines). [edit] git_steps.mjs ; context_dependencies: git_steps.mjs
+     validation_command: node git_steps.mjs
+  4. Commit EXACTLY: git add -- git_steps.mjs; git diff --cached --quiet; if ($LASTEXITCODE -eq 0) { Write-Output ALREADY_COMMITTED } else { git commit -m "fix(engine): resetAllowFiles quarantines untracked allow-files instead of destroying them (QUEUE ITEM 25; two 2026-07-12 bites: stitch-atv14 DESIGN.md + poi-dedup S1 deliverables); selftest QUARANTINE case ALL PASS"; if ($LASTEXITCODE -ne 0) { exit 1 } } [command]
+
+Done means: git_steps.mjs resetAllowFiles moves dirty untracked allow-files to
+missions/_logs/reset-quarantine/<ts>-<basename> (rename-first, destroy only as locked
+fallback), tracked-file restore behavior unchanged, node git_steps.mjs selftest ALL
+PASS including the new QUARANTINE case, committed. NOTE FOR THE CONDUCTOR (not a
+step): the fix goes live per-daemon at next restart (module cached per-process); the
+agy fork port is a follow-up cherry-pick mission; poi-dedup S1 re-runs AFTER this
+lands + mt daemon restart, then S2.
+
+# CONDUCTOR PROVENANCE (2026-07-12 ~05:4xZ): constructed per the conductor-direct
+# exception conditions — CLASS fails the letter (git_steps.mjs is engine, not
+# bootstrap-class), so the mission is the mandated path. Gap-priority: this is
+# gap-reset-allowfiles-data-loss's owner, bite-class x2, outranks product fires.

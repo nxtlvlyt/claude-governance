@@ -1,7 +1,7 @@
 {
-  "state": "blocked",
-  "detail": "project creation awaiting user; poi-dedup.S2 ready",
-  "tempo": "blocked",
+  "state": "done",
+  "detail": "Sentry project live (id 4511720612036608); DSN verified; 3 mission queues seeded",
+  "tempo": "idle",
   "inFlight": {
     "tasks": 1,
     "queued": 0,
@@ -9,11 +9,12 @@
       "session_cron"
     ]
   },
-  "tokens": 8827712,
-  "needs": "hit Create Project button in Sentry UI",
-  "output": null,
+  "tokens": 8845032,
+  "output": {
+    "result": "androidtv-tips Sentry project created and verified; loader DSN live; sentry-atv-wire, engine-item25-reset-quarantine, and stitch run 6 queued"
+  },
   "children": null,
-  "linkScanOffset": 61994633,
+  "linkScanOffset": 63367257,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -41,6 +42,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-12T05:12:24.481Z",
+  "updatedAt": "2026-07-12T05:26:27.817Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
