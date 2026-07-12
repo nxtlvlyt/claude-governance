@@ -1,6 +1,6 @@
 {
-  "state": "done",
-  "detail": "8 of 9 fixes verified, persisted to missions/_logs/, apply pointer written",
+  "state": "working",
+  "detail": "I'll store it gitignored on this machine and wire the auto-poll so this is the last time Sentry ever needs your hands.",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,12 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 8261799,
-  "output": {
-    "result": "fix set durable in substrate + APPLY-NEXT-2026-07-12.md; item-22 re-run queued; ready for next wake"
-  },
+  "tokens": 8262310,
+  "output": null,
   "children": null,
-  "linkScanOffset": 52848685,
+  "linkScanOffset": 53896539,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -42,6 +40,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-12T00:37:58.286Z",
+  "updatedAt": "2026-07-12T00:42:34.251Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
