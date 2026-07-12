@@ -2633,3 +2633,37 @@ adjustments, in priority order:
    actually fires.
 Nothing else moves. The succession order in operator-rulings (agy-100% -> N5 ->
 local-conductor test on HIS spec) is seat-independent and unchanged.
+
+
+## 2026-07-12 ITEM 26 — SEO & CRO COPY CONTRACT (operator-shared playbook; gap-class on arrival per the gap-priority extension)
+
+The operator shared the "SEO & CRO Voice" playbook and asked what our process learns.
+The DESIGN.md arc already proved the answer shape: prose taste fails, CONTRACTS with
+mechanical gates work. The playbook is the copy-side twin of the design contract.
+
+WHAT IT ADDS THAT WE PROVABLY LACKED (receipts): mt-copy-clarity grades readability
+(Flesch-Kincaid <=8) but nothing enforces SEO semantics — the atv homepage h1 and hub
+headings are exactly the "clean but invisible" class the playbook names; no page
+carries geo/intent modifiers, FAQ blocks, or the H1 formula.
+
+MECHANIZATION (the gate ladder, mirroring RULE 13):
+(a) CONTENT-CONTRACT.md per site (conductor-authorable input artifact like DESIGN.md +
+    briefs): the playbook's bans + formulas adapted per site — atv is a CONTENT site
+    (topical authority silos, high-intent FAQs, entity depth) not a local contractor,
+    so geo-modifiers adapt to niche-modifiers ("for Android TV", device names, "2026").
+    COMMIT the contract (item-25 lesson: uncommitted inputs die).
+(b) mission_lint RULE 14 rider (ENGINE BATCH 2): a mission with copy-pass semantics
+    (copy/content/heading/meta rewrite language + .html targets) that binds NO content
+    contract is refused at the miqat — same trigger discipline as RULE 13 (semantics +
+    target, never a bare tag).
+(c) COPY WITNESS greps (cheap, mechanical, in copy-mission validations): FAIL on
+    generic headings (About Us|Our Services|Testimonials|Welcome|Contact as h1-h3),
+    brand-only H1, single-word section headings; REQUIRE title<=60 chars +
+    meta-description<=160 on touched pages.
+(d) The playbook's "Structured SEO Wireframe" output format becomes the REQUIRED
+    deliverable shape for content-planning missions (URL slug + meta + tagged
+    structure + design notes + rationale) — plannable, verifiable, diffable.
+Playbook verbatim source: operator message 2026-07-12 (transcript); adapted contracts
+cite it as provenance. ALSO NOTE: Stitch reference pages (Luminous Dark) must get
+their headings/copy from the CONTENT contract, not from Stitch's placeholder text —
+the two contracts compose: DESIGN.md owns look, CONTENT-CONTRACT.md owns words.
