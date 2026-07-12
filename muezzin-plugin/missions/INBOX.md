@@ -135,3 +135,14 @@ the claude mcp add command above on the laptop with the same key.
 
 ## LEAD 2026-07-12 (operator screenshot, Sentry Settings > MCP & CLI): SENTRY MCP SERVER — INTERACTIVE COMPLEMENT TO ITEM 19
 Sentry ships an official streamable-HTTP MCP server (https://mcp.sentry.dev/mcp, org/project-scopable) + a CLI (sentry auth login). BOTH authenticate INTERACTIVELY (browser OAuth) — neither replaces the item-19 read token, which exists precisely because unattended cron polling needs a headless Bearer credential (interactively-authed MCP servers are absent in headless runs — port-playbook receipt). ADOPT AS COMPLEMENT: register the Sentry MCP in Claude CLI (project-scoped to muddytires per its own recommendation) for live interactive triage during conductor sessions — search errors, stack traces, root-cause without operator screenshots. Same cross-jurisdiction registration pattern as Stitch MCP (Claude/agy/warroom-as-config). Low priority behind the design-pipeline fix set; zero effect on item 19's build.
+
+
+## 2026-07-12 TRIAGE — 3x "lighthouse-ci.yml: No jobs were run" emails (operator forwarded)
+Benign: rapid consecutive mission pushes to muddytires-pages main; the workflow's
+concurrency cancel-in-progress kills queued audits when a newer push lands (HYPOTHESIS
+— consistent with 3 bursts tonight; refute by checking the runs' cancellation state on
+the Actions page). Production unaffected (wrangler deploys, not Actions). CHECK next
+wake: one solitary push should produce a real Lighthouse run with score deltas; if it
+ALSO reports no-jobs, the cause is repo Actions config (billing/disabled) and needs a
+real diagnosis. Mail hygiene: these thread-subscription emails are lifecycle noise —
+operator can mute the thread; outcome-only reporting stays our push channel.

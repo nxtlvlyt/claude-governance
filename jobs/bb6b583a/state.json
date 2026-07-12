@@ -1,10 +1,10 @@
 {
-  "state": "done",
-  "detail": "Sonnet transition plan: 4 workflow changes documented in QUEUE",
+  "state": "working",
+  "detail": "ITEM-25 resolved (quarantine live at restart); copy-clarity requeued; relay attempt 3 generating (40+ min, healthy)",
   "tempo": "idle",
   "inFlight": {
-    "tasks": 3,
-    "queued": 0,
+    "tasks": 2,
+    "queued": 1,
     "kinds": [
       "local_bash",
       "session_cron"
@@ -18,18 +18,18 @@
       "startedAt": 1783835427923
     },
     {
-      "id": "bmez5j30n",
+      "id": "buix7egtv",
       "kind": "shell",
-      "label": "pwsh -NoProfile -File sites/androidtv-tips/design/stitch-relay-run.ps1",
-      "startedAt": 1783840006990
+      "label": "pwsh -NoProfile -File C:/Users/marka/agy-muezzin/sites/androidtv-tips/design/stitch-relay-run.ps1",
+      "startedAt": 1783840843685,
+      "doneAt": 1783841290054,
+      "failed": true
     }
   ],
-  "tokens": 8907604,
-  "output": {
-    "result": "4 practical changes for Sonnet conductor: shorter sessions, route deep diagnosis to workflows, calibration beat, stamp model_version in CURRENT-STATE.md"
-  },
+  "tokens": 8928732,
+  "output": null,
   "children": null,
-  "linkScanOffset": 64441493,
+  "linkScanOffset": 67783510,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -57,6 +57,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-12T07:11:00.045Z",
+  "updatedAt": "2026-07-12T07:28:14.172Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
