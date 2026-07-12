@@ -1,6 +1,6 @@
 {
   "state": "blocked",
-  "detail": "kernel-security flagged: self-referential verification (conduct-cycle.mjs modified its own test); awaiting judgment",
+  "detail": "conduct-cycle.mjs self-cert risk; awaiting stamp word",
   "tempo": "blocked",
   "inFlight": {
     "tasks": 2,
@@ -18,11 +18,11 @@
       "startedAt": 1783835427923
     }
   ],
-  "tokens": 9766377,
-  "needs": "confirm whether to stamp RESOLVED-LANDED or hold pending external review",
+  "tokens": 9770451,
+  "needs": "confirm RESOLVED-LANDED stamp on engine-heal-selftest-race-fix.mission.txt or defer",
   "output": null,
   "children": null,
-  "linkScanOffset": 77754173,
+  "linkScanOffset": 77787236,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -50,6 +50,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-12T18:51:49.725Z",
+  "updatedAt": "2026-07-12T18:53:42.623Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
