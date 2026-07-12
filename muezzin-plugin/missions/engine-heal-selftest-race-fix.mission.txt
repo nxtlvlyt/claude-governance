@@ -1,0 +1,64 @@
+MISSION-ID: M-ENGINE.HEAL-SELFTEST-RACE-FIX
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\.claude\muezzin-plugin
+ALLOW-FILES:
+  - conduct-cycle.mjs
+REQUIRES: none
+STEPS: 4
+
+Maqsad: close gap-heal-selftest-chain-crash at the engine — engine-srcsha-anchor-fix.mission.txt
+FAILED at step 1, its own PRE-EXISTING baseline `node conduct-cycle.mjs --selftest` check,
+before its patcher ever ran. Root-caused (EXECUTED-grade, directly reproduced, not a
+guess): selftest()'s tmp working directory is a fixed, non-PID-suffixed path
+(`_selftest-conduct`) with no locking, so two concurrent `--selftest` invocations
+against this file race on the same shared AUTORUN.md/fix-ledger.json/daemon-status.json
+with arbitrary interleaving — reproduced directly with two concurrent processes, one
+threw a real uncaught TypeError. This explains why the crash SITE varied between two
+separate observations tonight (same race, different interleaving timing). A second,
+compounding factor: 9 of 10 heal() call sites in the selftest omit the sight/worktree/git
+stubs the other call sites already use, so they fall through to REAL network/git probes,
+turning a should-be-instant run into 5m29s — widening the race window and independently
+risking a real WORKTREE-HEAL exec() firing into a fixture's throw-on-any-call stub. A
+committed, dry-run-verified patcher script already exists at
+missions/_logs/heal-selftest-race-patch.mjs (idempotent, exits ALREADY-PATCHED on a
+second run) — this mission runs it rather than hand-editing.
+
+niyyah: close the race without changing selftest semantics — every existing PASS/FAIL
+assertion keeps its exact meaning; only the tmp-path isolation and the offline-stub
+threading change, both structural safety fixes with zero behavior change for a solo run.
+
+Steps:
+  1. Baseline, stdout only. Run exactly: git rev-parse --abbrev-ref HEAD; git rev-parse HEAD; node conduct-cycle.mjs --selftest; if ($LASTEXITCODE -ne 0) { Write-Output PRE-SELFTEST-FAIL; exit 1 }; Write-Output PRE-SELFTEST-PASS [command]
+     validation_command: node conduct-cycle.mjs --selftest
+  2. Run the committed patcher exactly: node missions/_logs/heal-selftest-race-patch.mjs; if ($LASTEXITCODE -ne 0) { exit 1 } [command]
+     validation_command: node --check conduct-cycle.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; if (-not (Select-String -Path conduct-cycle.mjs -Pattern '_selftest-conduct-\$\{process\.pid\}' -Quiet)) { exit 1 }
+  3. Full selftest, untruncated, then the actual regression test (two concurrent invocations). Run exactly: $t0 = Get-Date; node conduct-cycle.mjs --selftest 2>&1 | Tee-Object -Variable soloOut; $soloElapsed = (Get-Date) - $t0; $soloFail = ($soloOut | Select-String -Pattern '^FAIL').Count; if ($soloFail -ne 0) { Write-Output "SOLO-INCOMPLETE fail=$soloFail"; exit 1 }; Start-Job -ScriptBlock { Set-Location $using:PWD; node conduct-cycle.mjs --selftest 2>&1 | Out-File concurrent-a.log }; Start-Sleep -Seconds 1; node conduct-cycle.mjs --selftest > concurrent-b.log 2>&1; $bExit = $LASTEXITCODE; Get-Job | Wait-Job | Out-Null; Get-Job | Remove-Job; $aFail = (Select-String -Path concurrent-a.log -Pattern '^FAIL').Count; $bFail = (Select-String -Path concurrent-b.log -Pattern '^FAIL').Count; if ($bExit -ne 0 -or $aFail -ne 0 -or $bFail -ne 0) { Write-Output "CONCURRENT-REGRESSION-FAIL bExit=$bExit aFail=$aFail bFail=$bFail"; exit 1 }; Write-Output "RACE-FIX-VERIFIED solo=$($soloElapsed.TotalSeconds)s concurrent-clean=true" [command]
+     validation_command: node conduct-cycle.mjs --selftest
+  4. Commit EXACTLY: git add -- conduct-cycle.mjs; git diff --cached --quiet; if ($LASTEXITCODE -eq 0) { Write-Output ALREADY_COMMITTED } else { git commit -m "fix(engine): selftest() uses a PID-suffixed tmp path and threads offline stubs into all heal() call sites, closing a concurrent-invocation race (gap-heal-selftest-chain-crash; directly reproduced with two concurrent processes, one threw a real TypeError); solo run and concurrent regression test both verified clean"; if ($LASTEXITCODE -ne 0) { exit 1 } } [command]
+
+Done means: conduct-cycle.mjs's selftest() tmp path is PID-suffixed (no shared state
+between concurrent invocations); all 10 heal() call sites in the selftest thread the
+offline sight/worktree/git stubs; a solo `--selftest` run is ALL PASS in low single-digit
+seconds (down from ~5m29s); two concurrent `--selftest` invocations both complete ALL
+PASS with zero FAILs and zero thrown exceptions (the actual regression test for the
+filed bug); committed. NOTE FOR THE CONDUCTOR (not a step): fix goes live per-daemon at
+next restart (module cached per-process) — mt restart owed at next lane boundary.
+engine-srcsha-anchor-fix.mission.txt (currently FAILED, parked pending this fix) can
+only be safely re-bared AFTER this lands and the daemon restarts, since the race this
+fixes is what killed its own baseline step. Re-bare that mission next, not before.
+
+# CONDUCTOR PROVENANCE (2026-07-12): constructed per the five-verb law and the
+# conductor-direct exception conditions — CLASS fails (conduct-cycle.mjs is the
+# daemon's own beat-execution machinery) and SIZE fails (10-site multi-region edit,
+# not <=15-line/one-config-value). Gap-priority: this is gap-heal-selftest-chain-crash's
+# owner, bite-class — it blocks any code-repo mission whose baseline/validation step
+# runs `--selftest` against muezzin-plugin, including engine-srcsha-anchor-fix itself.
+# Diagnosis delegated to a background investigation agent, corrected mid-flight after
+# an independent sanity-check agent (dispatched separately, per the sixth law's
+# humility-check discipline) caught that the crash site was non-deterministic across
+# runs — the agent re-verified rather than defending its first hypothesis, confirmed
+# via direct two-concurrent-process reproduction (real TypeError, not a guess), and the
+# diagnosis file records this as an explicit revision, not a silent correction.
+# Patcher verified this session: dry-run PATCHED + node --check SYNTAX-OK, solo
+# selftest ALL PASS in 23s (down from 5m29s baseline), and the actual two-concurrent-
+# process regression test both processes ALL PASS with zero FAILs.

@@ -1,13 +1,12 @@
 {
   "state": "working",
-  "detail": "investigation agent a4c945689ee559c4a auditing daemon-status state leaks; recheck in 10m",
-  "tempo": "active",
+  "detail": "race-fix mission queued; checking back in 5m",
+  "tempo": "idle",
   "inFlight": {
-    "tasks": 4,
+    "tasks": 3,
     "queued": 0,
     "kinds": [
       "local_bash",
-      "local_agent",
       "session_cron"
     ]
   },
@@ -17,18 +16,12 @@
       "kind": "shell",
       "label": "until [ -s \"/c/Users/marka/AppData/Local/Temp/claude/C--Users-marka/deef569c-dcf6-4695-8f3b-3ee6d4a96da1/tasks/bw6pn43xr.output\" ]; do sleep 2; done; head -45 \"/c/Users/marka/AppData/Local/Temp/claud…",
       "startedAt": 1783835427923
-    },
-    {
-      "id": "a4c945689ee559c4a",
-      "kind": "agent",
-      "label": "Resume heal() crash root-cause and diagnosis",
-      "startedAt": 1783855313527
     }
   ],
-  "tokens": 9581496,
+  "tokens": 9657349,
   "output": null,
   "children": null,
-  "linkScanOffset": 75975772,
+  "linkScanOffset": 76461111,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -56,6 +49,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-12T11:40:05.730Z",
+  "updatedAt": "2026-07-12T12:04:58.911Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
