@@ -81,3 +81,50 @@ PASS  heal(): chain target appended to AUTORUN
 PASS  chain target is pending (daemon will fire it)
 PASS  once-only: a queued chain target never re-fires (any status counts as present)
 PASS  missing chain-target file is REPORT-only, never a broken queue line
+PASS  heal(): never restarts while a lane runs (a live mission is never killed)
+PASS  unrepaid damm -> REQUIRED ACTION every beat (no graveyard)
+PASS  unwitnessed waiver is STILL OWED (side-door closed); witnessed waiver clears
+PASS  blind searxng -> RESTART-SEARXNG mechanical action (the wedge can never again pass unwitnessed)
+PASS  blind searxng surfaces on the report
+PASS  stale CG repo -> CG-INCREMENT-DUE on the beat (idle=CG is now a condition, not willpower)
+PASS  fresh CG repo -> no nag (the gate has a dead-band, not a drumbeat)
+PASS  exactly one fraud group detected, keyed on the shared digest
+PASS  fraud group carries all 3 textually-unrelated aliases
+PASS  the :latest-alias group is classified benign, not flagged as fraud
+PASS  a single-name digest group is neither fraud nor benign (nothing to compare)
+PASS  sweep surfaces the fraud group as a MODEL-IDENTITY FLAG line naming all its aliases
+PASS  the benign :latest group never appears in a FLAG line
+PASS  unreachable nxtbeast skips the audit with a named reason, never crashes the sweep
+PASS  old lane + FRESH heartbeat -> STUCK-TASK suppressed (long seat call is work, not a hang)
+PASS  suppression is reported, never silent
+PASS  old lane + IN-FLIGHT attempt-start -> STUCK-TASK suppressed (seat still working)
+PASS  stuck lane -> STUCK-TASK mechanical action with taskkill command
+PASS  stuck lane surfaces on report
+PASS  heal(): stuck task bared and marked for requeue
+PASS  heal(): taskkill issued for stuck lane
+PASS  heal(): RUNNING line bared to pending
+PASS  heal(): SWEEP-HEAL event logged to daemon-events.log
+PASS  STUCK-TASK: the genuinely healthy second lane is named in collateral_paths, not silently dropped
+PASS  STUCK-TASK: the why text explicitly warns the healthy lane will ALSO be killed (real blast radius, not assumed single-lane scope)
+PASS  STUCK-TASK: the healthy lane is in collateral_paths, never misclassified as stuck_paths
+PASS  detectStuckLanes flags only lanes over TASK_STUCK_MS
+PASS  detectLoopCaps caps a stem appearing LOOP_CAP_REPEATS times
+PASS  detectLoopCaps ignores stems below cap
+PASS  detectWorktreeCorruption: clean tree -> not corrupted
+PASS  detectWorktreeCorruption: UU map.html -> corrupted, unmerged+untracked classified
+PASS  detectWorktreeCorruption: staged-orphan (A ) classified as staged (the photo-upload-ux gap)
+PASS  detectWorktreeCorruption: staged-only orphan -> corrupted via staged (not unmerged)
+PASS  sweep: corrupted worktree -> WORKTREE-HEAL mechanical action
+PASS  WORKTREE-HEAL: command restores the unmerged file from HEAD
+PASS  WORKTREE-HEAL: untracked orphan is report-only, never in a command
+PASS  WORKTREE-HEAL: staged orphan gets an UNSTAGE (git reset --) command
+PASS  WORKTREE-HEAL: staged orphan is UNSTAGED only, never checkout/rm (non-destructive)
+PASS  WORKTREE-HEAL: repo with a RUNNING lane -> NO heal action (live mission staged work protected)
+PASS  WORKTREE-HEAL: live-lane suppression is reported, never silent
+PASS  heal(): WORKTREE-HEAL runs the checkout-HEAD recovery via exec
+PASS  heal(): worktree-heal recorded in performed with repo
+PASS  sweep emits LOOP-CAP mechanical action for looping stem
+PASS  heal(): LOOP-CAP retires the bare re-fire-risk line
+PASS  heal(): the retired line is commented out with a named LOOP-CAP-RETIRED annotation
+PASS  heal(): DONE/FAILED/RUNNING history lines for the same stem are left untouched (not a re-fire risk)
+PASS  heal(): an unrelated bare mission is never touched by LOOP-CAP retirement

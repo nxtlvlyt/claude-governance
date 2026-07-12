@@ -1,0 +1,4 @@
+SWEEP-HEAL 2026-07-12T11:28:27.555Z STUCK-TASK pid=77777 paths=missions/stuck.mission.txt
+2026-07-12T11:28:27.555Z WORKTREE-HEAL: C:/fake/repo — ran 2/2 recovery cmds; untracked orphans left (report-only): aurora-render-witness.html
+2026-07-12T11:28:27.555Z DEAD-STEM-RETIRE: 1 ghost FAILED line(s) retired (mission.txt absent)
+SWEEP-HEAL 2026-07-12T11:28:27.555Z LOOP-CAP stems=loop
