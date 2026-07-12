@@ -1,6 +1,6 @@
 {
   "state": "blocked",
-  "detail": "need Sentry read token (event:read + project:read scopes)",
+  "detail": "awaiting Century link for executor-capability wall diagnosis",
   "tempo": "active",
   "inFlight": {
     "tasks": 2,
@@ -83,10 +83,10 @@
       "group": "Verify"
     }
   ],
-  "tokens": 8249137,
+  "tokens": 8258042,
   "output": null,
   "children": null,
-  "linkScanOffset": 52674525,
+  "linkScanOffset": 52768977,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -114,6 +114,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-12T00:19:45.894Z",
+  "updatedAt": "2026-07-12T00:34:16.723Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
