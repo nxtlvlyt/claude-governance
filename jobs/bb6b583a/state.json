@@ -1,7 +1,7 @@
 {
-  "state": "blocked",
-  "detail": "token creation workflow documented; awaiting API token",
-  "tempo": "blocked",
+  "state": "done",
+  "detail": "token verified & stored; build spec complete; mt daemon healthy, 41 queued",
+  "tempo": "idle",
   "inFlight": {
     "tasks": 1,
     "queued": 0,
@@ -9,11 +9,12 @@
       "session_cron"
     ]
   },
-  "tokens": 8264100,
-  "needs": "Create token (Project→Read, Issue&Event→Read, Create Token) and paste here",
-  "output": null,
+  "tokens": 8269271,
+  "output": {
+    "result": "watchdog token stored & verified; handoff file ready with working project-scoped endpoint; mt daemon draining, ready for next wake"
+  },
   "children": null,
-  "linkScanOffset": 54551379,
+  "linkScanOffset": 54619927,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -41,6 +42,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-12T00:45:01.501Z",
+  "updatedAt": "2026-07-12T00:48:47.692Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
