@@ -1,102 +1,20 @@
 {
-  "state": "blocked",
-  "detail": "gates decoded; edit landed; register live + working",
-  "tempo": "active",
+  "state": "done",
+  "detail": "rotten-park sweep landed; 8 parks re-entered diagnosis debt",
+  "tempo": "idle",
   "inFlight": {
-    "tasks": 2,
+    "tasks": 1,
     "queued": 0,
     "kinds": [
-      "local_workflow",
       "session_cron"
     ]
   },
-  "fan": [
-    {
-      "id": "a5d10696af8779a65",
-      "kind": "workflow",
-      "label": "prep:item21-lint-gate",
-      "startedAt": 1783822114882,
-      "doneAt": 1783822114882,
-      "group": "Prepare"
-    },
-    {
-      "id": "aacad90997ff7c9e9",
-      "kind": "workflow",
-      "label": "prep:item22-rotten-park-sweep",
-      "startedAt": 1783822120288,
-      "doneAt": 1783822523917,
-      "group": "Prepare"
-    },
-    {
-      "id": "a0d90a3dc61c16ebc",
-      "kind": "workflow",
-      "label": "prep:autosplit-tag-inheritance",
-      "startedAt": 1783822119015,
-      "doneAt": 1783822231826,
-      "group": "Prepare"
-    },
-    {
-      "id": "aec428923a97a90ba",
-      "kind": "workflow",
-      "label": "prep:gap-hold-prefixes",
-      "startedAt": 1783822119325,
-      "doneAt": 1783822251587,
-      "group": "Prepare"
-    },
-    {
-      "id": "a599077aa9e0402b6",
-      "kind": "workflow",
-      "label": "prep:stitch-revival-mission",
-      "startedAt": 1783822118980,
-      "doneAt": 1783822865193,
-      "group": "Prepare"
-    },
-    {
-      "id": "a05e385fe13902560",
-      "kind": "workflow",
-      "label": "skeptic:item21-lint-gate",
-      "startedAt": 1783822119647,
-      "doneAt": 1783822281180,
-      "group": "Verify"
-    },
-    {
-      "id": "a42958c4e01ff0efb",
-      "kind": "workflow",
-      "label": "skeptic:autosplit-tag-inheritance",
-      "startedAt": 1783822235206,
-      "doneAt": 1783822386161,
-      "group": "Verify"
-    },
-    {
-      "id": "aaed3c354de6cbf45",
-      "kind": "workflow",
-      "label": "skeptic:gap-hold-prefixes",
-      "startedAt": 1783822255552,
-      "doneAt": 1783822428600,
-      "group": "Verify"
-    },
-    {
-      "id": "ae2790ee110a33613",
-      "kind": "workflow",
-      "label": "skeptic:item22-rotten-park-sweep",
-      "startedAt": 1783822532275,
-      "doneAt": 1783823259627,
-      "group": "Verify"
-    },
-    {
-      "id": "ab846ec17115d4dd8",
-      "kind": "workflow",
-      "label": "skeptic:stitch-revival-mission",
-      "startedAt": 1783822873756,
-      "group": "Verify"
-    }
-  ],
-  "tokens": 8610316,
+  "tokens": 8710392,
   "output": {
-    "result": "witness dispatch gate fixed; GAP REGISTER live (1 open: androidtv-tips Sentry project)"
+    "result": "rotten-park sweep (commit 48a5390) now flags unresolved park owners; 8 live cases surfaced; QUEUE filed on effort placement + weakest-seat test for N5 authoring"
   },
   "children": null,
-  "linkScanOffset": 56575956,
+  "linkScanOffset": 58519349,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -124,6 +42,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-12T02:33:47.901Z",
+  "updatedAt": "2026-07-12T03:11:55.954Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }

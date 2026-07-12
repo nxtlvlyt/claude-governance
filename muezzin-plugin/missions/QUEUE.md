@@ -2546,3 +2546,46 @@ HARD REQUIREMENT in WARROOM-INTAKE-2026-07-11.md (its mission layer doesn't exis
 — the requirement gates its construction). Also: the render witness lesson rides with
 this — presence witnesses (DOM counts) pass unstyled pages; computed-style-over-HTTP
 is the honest bar for design missions (atv-11b's witness is the template).
+
+
+## 2026-07-12 ITEM 25 — ENGINE: resetAllowFiles QUARANTINE-NOT-DELETE (both forks; gap-reset-allowfiles-data-loss, bite receipted)
+
+THE BITE (stitch-atv14, 02:13Z): resetAllowFiles (git_steps.mjs) presumes an untracked
+dirty allow-file was created by a prior failed attempt and rmSync-DELETES it. False for
+PRE-STAGED uncommitted inputs: the atv design contract (DESIGN.md, authored by the
+conductor, never committed) was listed in ALLOW-FILES and got destroyed at fire time —
+step 1 then honestly failed MISSING-CONTRACT twice. Recovery required replaying the
+conductor transcript's Write+Edit chain (commit 6672236). The same class threatens ANY
+mt/agy mission whose ALLOW-FILES name uncommitted pre-staged artifacts.
+
+THE FIX (small, selftest surface exists at git_steps.mjs ~709-728): in the untracked
+branch, replace rmSync with a MOVE to missions/_logs/reset-quarantine/<ISO-ts>-<basename>
+(mkdir -p, collision-safe suffix). Clean-baseline property preserved (file leaves the
+tree); data-destruction property removed. Selftest: pre-staged untracked allow-file ->
+fire -> file gone from tree AND present in quarantine; mission-created leftover -> same
+path (identical handling is fine — quarantine is cheap). Land on BOTH forks + restart
+daemons at lane boundaries. WARROOM: inherits via the engine fork (note in intake).
+
+INTERIM RULE (until landed, encoded in the register entry): every pre-staged mission
+input gets COMMITTED before the mission naming it in ALLOW-FILES fires — tracked files
+are checkout-restored, never deleted (this is also just Directive 8: uncommitted =
+does not exist).
+
+
+## 2026-07-12 NOTE — two borrowings from an operator-shared viral prompt (the "Fable operating manual" post)
+
+Screened against our substrate: 8 of its 10 areas we already run mechanically (trigger/
+action form = D7; zero-judgment rules = the item-24 arc; name-the-failure = our paid-for
+receipts; self-attack = adversarial verify; known-vs-guessed = fifth law EXECUTED/
+HYPOTHESIS). Its core approach — a prose operating manual the model is trusted to follow
+— is the advice-without-rails generation that failed the June agy attempt (17/18 sessions
+ignored it). Two pieces ARE worth taking:
+1. MISSION-AUTHORING PREFLIGHT ADDITION — EFFORT PLACEMENT: before firing, name the ONE
+   step where an error hurts most and receipt THAT step's assumptions first. Receipt for
+   why: stitch-atv14 died at step 1 on two unverified input assumptions (uncommitted
+   contract, phantom blob) while authoring care went to the relay mechanics.
+2. N5 AUTHORING TEST — WEAKEST-SEAT EXECUTABLE: every line of CONDUCTOR-PROTOCOL/N5
+   output must be executable by the WEAKEST seat that will ever hold it: second person,
+   trigger->action, zero judgment calls, one worked example, the failure it prevents
+   named. (The qwen-relay exception-conditions migration already proved the direction;
+   this is the per-line test.)
