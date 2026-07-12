@@ -1,0 +1,50 @@
+MISSION-ID: M-MT.LIGHTHOUSE-CI-MANIFEST-FIX
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - .github/workflows/lighthouse-ci.yml
+REQUIRES: none
+STEPS: 3
+
+Maqsad: fix the SECOND lighthouse-ci.yml defect surfaced 2026-07-12, distinct from the
+duplicate-env-key parse failure (commit 666f889, already fixed and pushed). Live receipt
+(run 29185712123, commit 666f8895): the workflow now PARSES and RUNS — lhci collect
+audited all 8 production pages of muddytires.ca for the first time since 2026-06-23, and
+lhci assert genuinely evaluated the results (real findings: color-contrast, errors-in-
+console, heading-order, lcp-lazy-loaded failures — advisory, continue-on-error:true).
+The job still shows red because "Compute deltas vs baseline" (scripts/lhci-compare.mjs)
+crashes: "Lighthouse CI manifest not found at .../.lighthouseci/manifest.json. Did the
+lhci collect step run?" Root cause, GROUNDED against LHCI's own docs (WebFetch,
+github.com/GoogleChrome/lighthouse-ci docs/configuration.md, 2026-07-12): the manifest
+file is written ONLY by `lhci upload` (with upload.target=filesystem) or by `lhci
+autorun` (which runs collect+assert+upload together) — NEVER by `lhci collect` alone.
+This workflow runs collect and assert as separate steps and never calls upload or
+autorun, so lhci-compare.mjs is structurally guaranteed to fail this way on every
+future run, independent of the YAML fix. mt-audit/lighthouserc.json already carries the
+needed config (ci.upload.target: "filesystem", ci.upload.outputDir: ".lighthouseci") —
+only a new upload step is missing between assert and the deltas computation.
+
+niyyah: the smallest structurally-correct fix — one new step calling the tool's own
+documented upload command with the config that already exists; no changes to
+scripts/lhci-compare.mjs or mt-audit/lighthouserc.json (both are already correct for
+this shape).
+
+Steps:
+  1. Baseline, stdout only. Run exactly: git rev-parse --abbrev-ref HEAD; git rev-parse HEAD; if (-not (Select-String -Path .github/workflows/lighthouse-ci.yml -Pattern 'lhci assert --config=.lighthouseci/lighthouserc.json' -Quiet)) { Write-Output MISSING-ANCHOR; exit 1 }; if (Select-String -Path .github/workflows/lighthouse-ci.yml -Pattern 'lhci upload' -Quiet) { Write-Output ALREADY-HAS-UPLOAD; exit 1 }; Write-Output ANCHOR-PRESENT [command]
+     validation_command: git rev-parse HEAD
+  2. Insert a new step named "Run Lighthouse CI upload" immediately after the "Run Lighthouse CI assert" step (after its `run: lhci assert --config=.lighthouseci/lighthouserc.json` line and before the blank line + "Compute deltas vs baseline" step), matching this file's existing step conventions exactly (same `if: steps.target.outputs.skip != 'true'` guard, same indentation as its sibling steps): a step with `continue-on-error: true` (upload is best-effort — a filesystem write should not fail the job) whose run block is exactly `lhci upload --config=.lighthouseci/lighthouserc.json`. Zero other lines change — no reordering, no touching the assert or compute-deltas steps' own content. [edit] .github/workflows/lighthouse-ci.yml ; context_dependencies: .github/workflows/lighthouse-ci.yml
+     validation_command: if (-not (Select-String -Path .github/workflows/lighthouse-ci.yml -Pattern 'Run Lighthouse CI upload' -Quiet)) { exit 1 }; if (-not (Select-String -Path .github/workflows/lighthouse-ci.yml -Pattern 'lhci upload --config=.lighthouseci/lighthouserc.json' -Quiet)) { exit 1 }; python -c "import yaml; yaml.safe_load(open('.github/workflows/lighthouse-ci.yml', encoding='utf-8'))" ; if ($LASTEXITCODE -ne 0) { exit 1 }
+  3. Commit and push. Run exactly: git add -- .github/workflows/lighthouse-ci.yml; git diff --cached --quiet; if ($LASTEXITCODE -eq 0) { Write-Output ALREADY_COMMITTED } else { git commit -m "fix(ci): add missing lhci upload step so lighthouse-ci.yml's deltas computation finds the LHCI manifest (lhci collect alone never writes it - grounded against LHCI docs 2026-07-12; second distinct defect from the dup-env-key parse failure fixed in 666f889)"; if ($LASTEXITCODE -ne 0) { exit 1 }; git push github main; if ($LASTEXITCODE -ne 0) { exit 1 } } [command]
+
+Done means: lighthouse-ci.yml carries a new "Run Lighthouse CI upload" step between
+assert and compute-deltas, YAML parses clean, committed and pushed to github/main —
+the next push produces a complete Lighthouse run: real audit + real deltas + a PR
+comment/job-summary, closing the workflow's second and last known structural defect.
+
+# CONDUCTOR PROVENANCE (2026-07-12, first Sonnet-seat wake after the operator's
+# model switch): constructed as a mission rather than hand-edited direct, per
+# conductor-core.md's four conductor-direct conditions — CLASS fails (this is a
+# product repo's CI config, not bootstrap-class engine machinery), so the mission
+# is the mandated path. Root cause grounded via live WebFetch against LHCI's own
+# docs (fifth law: EXECUTED, not HYPOTHESIS) rather than asserted from training
+# knowledge of the tool's behavior.
