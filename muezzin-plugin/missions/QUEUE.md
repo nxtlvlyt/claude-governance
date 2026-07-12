@@ -2868,3 +2868,19 @@ CONCLUSION: this strengthens the case for engine fix (b) over the narrower per-m
 merge (a) — a REQUIRES-aware reset exemption fixes both this pair and poi-dedup at
 once, and prevents a third pair from tripping the same class later. Still not a
 same-wake patch; recorded here as evidence for whoever scopes that engine work next.
+
+## SECOND UPDATE (2026-07-12, conductor — preventive action, not just diagnosis)
+mt-integrate-poi-tags-2026-06-23.S1.S2 was sitting as a LIVE bare-pending line
+(fireable on the next daemon beat) when a routine status check surfaced a live
+daemon-events.log advisory: its REQUIRES token (MISSION-ID format, not a path) does
+not resolve to an AUTORUN line, so queuedDepsHold silently treats it as
+no-dependency even though S1.S1 is itself FAILED/PARKED, not done. Personally
+verified both deliverable files are genuinely absent from their expected paths right
+now — firing S1.S2 as bare-pending would have guaranteed the identical
+"pathspec did not match any files" failure poi-dedup S2 already hit 3 times. PARKED
+it (AUTORUN.md, commented out, cites this item as owner) before it could fire, rather
+than diagnosing the failure after the fact. This is also a THIRD piece of evidence
+the REQUIRES-token-format mismatch (MISSION-ID vs path) is itself worth fixing
+mechanically — queuedDepsHold's own advisory text already asks the conductor to
+verify these aren't citation typos for still-pending missions; this confirms at least
+one genuinely was.
