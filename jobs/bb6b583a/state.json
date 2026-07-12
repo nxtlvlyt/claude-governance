@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "6 duplicate queue lines cleaned; 32 legitimate holds remain",
+  "detail": "both daemons idle & healthy; conducting",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 9901164,
+  "tokens": 9901508,
   "output": null,
   "children": null,
-  "linkScanOffset": 78711403,
+  "linkScanOffset": 78727804,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -40,6 +40,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-12T20:49:32.078Z",
+  "updatedAt": "2026-07-12T20:59:25.459Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
