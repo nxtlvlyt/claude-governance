@@ -1,7 +1,7 @@
 {
-  "state": "working",
-  "detail": "I'll store it gitignored on this machine and wire the auto-poll so this is the last time Sentry ever needs your hands.",
-  "tempo": "idle",
+  "state": "blocked",
+  "detail": "token creation workflow documented; awaiting API token",
+  "tempo": "blocked",
   "inFlight": {
     "tasks": 1,
     "queued": 0,
@@ -9,10 +9,11 @@
       "session_cron"
     ]
   },
-  "tokens": 8262310,
+  "tokens": 8264100,
+  "needs": "Create token (Project→Read, Issue&Event→Read, Create Token) and paste here",
   "output": null,
   "children": null,
-  "linkScanOffset": 53896539,
+  "linkScanOffset": 54551379,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -40,6 +41,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-12T00:42:34.251Z",
+  "updatedAt": "2026-07-12T00:45:01.501Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
