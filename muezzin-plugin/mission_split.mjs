@@ -75,12 +75,24 @@ export function splitOversizedPlan(mission, queue, opts = {}) {
 // ---- buildDoneMeans ----------------------------------------------------------------
 // Dedupes a sub-mission group's step target_files and returns a mechanical Done-means
 // clause the verdict panel can judge against (mission_lint.mjs RULE 4). When any target
-// file is a web/UI extension (.html/.js/.css/.jsx/.tsx), the clause appends render-witness
-// language (mission_lint.mjs RULE 7 requires this whenever a VISUAL-QC-REQUIRED header is
+// file is a web/UI extension (.html/.js/.css/.jsx/.tsx) AND the group carries at least
+// one step that actually EXECUTES a render (mission_lint.mjs RULE 11's own predicate:
+// node/npx/npm/wrangler/playwright on a numbered step line), the clause appends
+// render-witness language (RULE 7 requires this whenever a VISUAL-QC-REQUIRED header is
 // present) and — if the parent mission text carries a VISUAL-QC-REQUIRED header — surfaces
 // that header line so the caller can forward it onto the child.
+// INHERITANCE FIX (2026-07-11, two live receipts: partner-widget + wikipedia-link.S1.S1
+// MIQAT-REFUSED 22:08Z): the header used to be forwarded onto EVERY web-UI child, but only
+// a child carrying an executable render step can HONOR it — mission_lint RULE 11
+// (grep-only-visual-verification) refused every other child the moment it fired. A child
+// without such a step now gets NEITHER the header NOR the render-witness clause (a render
+// demand its own steps cannot witness is a scheduled refusal, not a requirement); the
+// parent's visual-QC intent rides the tagged child that can actually execute the render.
 const WEB_UI_EXT_RE = /\.(html|js|css|jsx|tsx)$/i;
 const VISUAL_QC_LINE_RE = /^.*VISUAL-QC-REQUIRED.*$/im;
+// RULE 11's execution predicate, mirrored VERBATIM from mission_lint.mjs — the forwarder
+// and the gate must agree, or a forwarded header is a refusal scheduled at emit time.
+const RENDER_EXEC_STEP_RE = /\b(node|npx|npm|wrangler|playwright)\s/i;
 
 // Extracts just the parent's "Maqsad: ..." sentence, not its whole raw text (headers
 // included). Root-cause fix (2026-07-01, live receipt): the PARENT MAQSAD field used to
@@ -104,12 +116,19 @@ export function buildDoneMeans(group, parentMissionText) {
   }
 
   const hasWebUi = files.some((f) => WEB_UI_EXT_RE.test(f));
+  // RULE 11 MIRROR (2026-07-11 receipts above): test the SAME content emitSubMissions
+  // serializes into each numbered step line (description + [action] + targets — never
+  // validation_command, which is either not emitted or lands on a non-numbered line that
+  // RULE 11 ignores), so a forwarded VISUAL-QC-REQUIRED header can never be refused by
+  // the very predicate that gates it.
+  const hasRenderExecStep = (group?.steps || []).some((s) =>
+    RENDER_EXEC_STEP_RE.test(`${s.description} [${s.action_type}] ${(s.target_files || []).join(', ')}`));
   let clause = `Done means: ${files.join(', ')} exist/are updated as specified`;
-  if (hasWebUi) {
+  if (hasWebUi && hasRenderExecStep) {
     clause += ' — verify by headless-browser render, not by reading the code';
   }
 
-  const parentVisualQcMatch = hasWebUi ? String(parentMissionText || '').match(VISUAL_QC_LINE_RE) : null;
+  const parentVisualQcMatch = (hasWebUi && hasRenderExecStep) ? String(parentMissionText || '').match(VISUAL_QC_LINE_RE) : null;
   const visualQcHeaderLine = parentVisualQcMatch ? parentVisualQcMatch[0] : null;
 
   return { clause, hasWebUi, files, visualQcHeaderLine };
@@ -454,6 +473,60 @@ if (process.argv[1]?.endsWith('mission_split.mjs')) {
     ck(!/VISUAL-QC-REQUIRED/.test(codeChildText), 'buildDoneMeans: code-only child does NOT carry a forwarded VISUAL-QC-REQUIRED header');
 
     fsEmit2.rmSync(tmp2, { recursive: true, force: true });
+  }
+
+  // ---- VISUAL-QC INHERITANCE GATED ON AN EXECUTABLE RENDER STEP (2026-07-11, two live
+  // receipts: partner-widget + wikipedia-link.S1.S1 MIQAT-REFUSED 22:08Z) ----
+  // The VQC fixture above never catches this class: its code-only child has NO web-UI
+  // files, so the old hasWebUi gate already spared it. The live refusals were web-UI
+  // children WITHOUT an executable render step — the old code forwarded the header onto
+  // them and mission_lint RULE 11 (grep-only-visual-verification) refused them the moment
+  // they fired. Both children here touch web-UI files; ONLY child 2 carries the
+  // executable render step, so ONLY child 2 may inherit the header.
+  {
+    const os4 = await import('os');
+    const fs4 = await import('fs');
+    const { lintMission: lintMission4 } = await import('./mission_lint.mjs');
+    const tmp4 = fs4.mkdtempSync(path.join(os4.tmpdir(), 'msplit_vqi_'));
+    const missionsDir4 = path.join(tmp4, 'missions');
+    fs4.mkdirSync(missionsDir4, { recursive: true });
+
+    const parentTextVqi = 'MISSION-ID: M-VQI1\nMISSION-CLASS: research\nVISUAL-QC-REQUIRED\nMaqsad: ship a two-part widget with a render witness.';
+    const vqiQueue = {
+      mission_id: 'M-VQI1',
+      steps: [
+        { step_index: 1, description: 'author the widget markup', action_type: 'edit', target_files: ['web/widget.html'], context_dependencies: [], validation_command: 'true' },
+        { step_index: 2, description: 'style the widget', action_type: 'edit', target_files: ['web/widget.css'], context_dependencies: [], validation_command: 'true' },
+        { step_index: 3, description: 'wire the widget script', action_type: 'edit', target_files: ['web/widget.js'], context_dependencies: [], validation_command: 'true' },
+        { step_index: 4, description: 'render the widget page headless via playwright and require the witness receipt', action_type: 'command', target_files: ['web/widget.html'], context_dependencies: [], validation_command: 'true' },
+      ],
+    };
+    const planVqi = splitOversizedPlan(parentTextVqi, vqiQueue, { sizeCeiling: 2 });
+    ck(planVqi.split === true && planVqi.groupCount === 2, 'VQC-INHERITANCE fixture: 4 steps / ceiling 2 = 2 groups (BOTH web-UI; only group 2 executes)');
+
+    const outVqi = emitSubMissions(planVqi, {
+      missionsDir: missionsDir4,
+      parentMissionFile: 'vqi-1.mission.txt',
+      parentId: planVqi.parentId,
+    }, {
+      writeFile: (p, c) => { fs4.mkdirSync(path.dirname(p), { recursive: true }); fs4.writeFileSync(p, c); },
+    });
+    ck(outVqi.ok === true && outVqi.files.length === 2, 'VQC-INHERITANCE: emitSubMissions wrote 2 children');
+
+    const vqiS1 = fs4.readFileSync(path.join(missionsDir4, 'vqi-1.S1.mission.txt'), 'utf8');
+    const vqiS2 = fs4.readFileSync(path.join(missionsDir4, 'vqi-1.S2.mission.txt'), 'utf8');
+
+    ck(!/VISUAL-QC-REQUIRED/.test(vqiS1), 'VQC-INHERITANCE: web-UI child WITHOUT an executable render step does NOT inherit VISUAL-QC-REQUIRED (the partner-widget/wikipedia-link.S1.S1 refusal shape)');
+    ck(!/headless-browser render/.test(vqiS1), 'VQC-INHERITANCE: the untagged child\'s Done-means also drops the render-witness clause (no demand its own steps cannot honor)');
+    ck(/VISUAL-QC-REQUIRED/.test(vqiS2), 'VQC-INHERITANCE: the child CARRYING the executable render step inherits the header');
+    ck(/headless-browser render/.test(vqiS2), 'VQC-INHERITANCE: the tagged child\'s Done-means keeps the render-witness clause (RULE 7 stays satisfied alongside the header)');
+
+    const vqiS1Lint = lintMission4(vqiS1);
+    const vqiS2Lint = lintMission4(vqiS2);
+    ck(vqiS1Lint.ok === true && vqiS1Lint.problems.length === 0, 'VQC-INHERITANCE: the untagged child passes the REAL lintMission gate (RULE 11 no longer refuses it at the MIQAT)');
+    ck(vqiS2Lint.ok === true && vqiS2Lint.problems.length === 0, 'VQC-INHERITANCE: the tagged child passes lintMission with header + render clause + executing step aligned');
+
+    fs4.rmSync(tmp4, { recursive: true, force: true });
   }
 
   // ---- REAL INCIDENT (2026-07-01): code-repo children missing REPO-ROOT/ALLOW-FILES ----

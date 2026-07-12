@@ -1,6 +1,6 @@
 {
-  "state": "done",
-  "detail": "workflow not needed; output ready for conductor application",
+  "state": "working",
+  "detail": "autosplit bug fixed & committed; applying remaining fixes",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,12 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 8275295,
-  "output": {
-    "result": "APPLY-NEXT-2026-07-12.md prepared; awaiting conductor cron to apply fixes"
-  },
+  "tokens": 8299457,
+  "output": null,
   "children": null,
-  "linkScanOffset": 54801152,
+  "linkScanOffset": 55133358,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -42,6 +40,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-12T01:04:16.925Z",
+  "updatedAt": "2026-07-12T01:19:47.100Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
