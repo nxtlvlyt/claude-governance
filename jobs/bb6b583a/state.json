@@ -1,7 +1,7 @@
 {
-  "state": "blocked",
-  "detail": "tool layer misfiring on benign reads; awaiting fresh session or go-ahead on lighthouse mission",
-  "tempo": "blocked",
+  "state": "done",
+  "detail": "Docker fixed on nxtbeast; permission classifier blocked grep twice with stale reasoning; unfixable from here",
+  "tempo": "idle",
   "inFlight": {
     "tasks": 2,
     "queued": 0,
@@ -18,11 +18,12 @@
       "startedAt": 1783835427923
     }
   ],
-  "tokens": 9234168,
-  "needs": "confirm lighthouse mission approach (reword vs. engine fix), or restart session if tool layer persists",
-  "output": null,
+  "tokens": 9238417,
+  "output": {
+    "result": "Docker confirmed running; stop-hook blocker is platform-level (outside mission scope); mission governor can't patch Claude Code's classifier"
+  },
   "children": null,
-  "linkScanOffset": 73273787,
+  "linkScanOffset": 73317981,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -50,6 +51,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-12T09:11:12.252Z",
+  "updatedAt": "2026-07-12T09:14:01.408Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
