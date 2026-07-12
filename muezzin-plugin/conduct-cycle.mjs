@@ -1592,7 +1592,7 @@ function main() {
 // ---- offline selftest: fixtures on a temp base, no daemon, no model ----
 function selftest() {
   let fails = 0; const ck = (c, m) => { console.log(`${c ? 'PASS' : 'FAIL'}  ${m}`); if (!c) fails++; };
-  const tmp = path.join(HERE, '_selftest-conduct');
+  const tmp = path.join(HERE, `_selftest-conduct-${process.pid}`);
   rmSync(tmp, { recursive: true, force: true });
   mkdirSync(path.join(tmp, 'missions', '_logs'), { recursive: true });
   const logs = path.join(tmp, 'missions', '_logs');
@@ -1863,7 +1863,7 @@ function selftest() {
   // the pidfile independently of the status blob.
   writeFileSync(path.join(logs, 'daemon-status.json'), JSON.stringify({ pid: process.pid, state: 'running', lanes: [], queued: 0, ts: new Date(now).toISOString() }));
   writeFileSync(path.join(logs, 'daemon.pid'), String(process.pid));
-  const healed = heal(tmp, now, { exec: () => { throw new Error('must not restart a healthy daemon'); } });
+  const healed = heal(tmp, now, { exec: () => { throw new Error('must not restart a healthy daemon'); }, sightFn: sightOk.sightFn, worktreeReposFn: () => [], gitFn: stubGit });
   ck(healed.performed.some((p) => p.action === 'requeue' && p.stem === 'healed'), 'heal(): requeue performed');
   const after = parseAutorun(readText(path.join(tmp, 'missions', 'AUTORUN.md')));
   ck(after.pending.includes('missions/healed.mission.txt'), 'heal(): the healed mission line is now bare (pending → daemon re-fires)');
@@ -1885,7 +1885,7 @@ function selftest() {
   writeFileSync(path.join(tmp, 'missions', 'AUTORUN.md'), '# q\nFAILED missions/perstem-a.mission.txt  <!-- t -->\n');
   writeFixLedger(tmp, { entries: [] });
   recordFix(tmp, { cls: 'perstem-class', fix: 'perstem fix', requeue: ['perstem-a', 'perstem-b'] }, now);
-  const healPartial = heal(tmp, now, { exec: () => { throw new Error('no restart expected'); } });
+  const healPartial = heal(tmp, now, { exec: () => { throw new Error('no restart expected'); }, sightFn: sightOk.sightFn, worktreeReposFn: () => [], gitFn: stubGit });
   ck(healPartial.performed.some((p) => p.action === 'requeue' && p.stem === 'perstem-a'), 'mt-c3-perstem partial: the currently-FAILED stem (perstem-a) is requeued');
   const ledgerAfterPartial = readFixLedger(tmp);
   const entryPartial = ledgerAfterPartial.entries.find((e) => e.class === 'perstem-class');
@@ -1896,7 +1896,7 @@ function selftest() {
   ck(afterPartialAutorun.pending.includes('missions/perstem-a.mission.txt'), 'mt-c3-perstem partial: perstem-a line bared to pending (daemon re-fires)');
 
   writeFileSync(path.join(tmp, 'missions', 'AUTORUN.md'), '# q\nFAILED missions/perstem-b.mission.txt  <!-- t -->\n');
-  const healFull = heal(tmp, now, { exec: () => { throw new Error('no restart expected'); } });
+  const healFull = heal(tmp, now, { exec: () => { throw new Error('no restart expected'); }, sightFn: sightOk.sightFn, worktreeReposFn: () => [], gitFn: stubGit });
   ck(healFull.performed.some((p) => p.action === 'requeue' && p.stem === 'perstem-b'), 'mt-c3-perstem full: perstem-b requeues once it too is FAILED');
   const ledgerAfterFull = readFixLedger(tmp);
   const entryFull = ledgerAfterFull.entries.find((e) => e.class === 'perstem-class');
@@ -1920,7 +1920,7 @@ function selftest() {
   writeFileSync(path.join(tmp, 'missions', 'AUTORUN.md'), '# q\nDONE missions/producer.mission.txt  <!-- t -->\n');
   r = sweep(tmp, now, noRoute, sightOk);
   ck(r.actions.some((a) => a.id === 'CHAIN-follow-on' && a.class === 'mechanical' && a.approved_by_faith), 'ON-DONE: a DONE producer pulls its follow-on as a mechanical queue action');
-  const h1c2 = heal(tmp, now, { exec: () => { throw new Error('no restart expected'); } });
+  const h1c2 = heal(tmp, now, { exec: () => { throw new Error('no restart expected'); }, sightFn: sightOk.sightFn, worktreeReposFn: () => [], gitFn: stubGit });
   ck(h1c2.performed.some((p) => p.action === 'chain-queue' && p.stem === 'follow-on'), 'heal(): chain target appended to AUTORUN');
   const after1c2 = parseAutorun(readText(path.join(tmp, 'missions', 'AUTORUN.md')));
   ck(after1c2.pending.includes('missions/follow-on.mission.txt'), 'chain target is pending (daemon will fire it)');
@@ -1935,7 +1935,7 @@ function selftest() {
   writeFileSync(path.join(logs, 'daemon-status.json'), JSON.stringify({ pid: 999999999, state: 'running', lanes: ['missions/live.mission.txt'], queued: 0, ts: new Date(now - 10 * 60000).toISOString() }));
   writeFileSync(path.join(logs, 'daemon.pid'), '999999999');
   writeFileSync(path.join(tmp, 'missions', 'AUTORUN.md'), '# q\nRUNNING missions/live.mission.txt  <!-- t -->\n');
-  const h2 = heal(tmp, now, { exec: () => { throw new Error('RESTART FIRED WHILE A LANE WAS RUNNING'); } });
+  const h2 = heal(tmp, now, { exec: () => { throw new Error('RESTART FIRED WHILE A LANE WAS RUNNING'); }, sightFn: sightOk.sightFn, worktreeReposFn: () => [], gitFn: stubGit });
   ck(h2.performed.some((p) => p.action === 'restart-skipped'), 'heal(): never restarts while a lane runs (a live mission is never killed)');
 
   // fixture 1e: DAMM + WAIVER HARDENING — unrepaid damm is a required action; a waiver
@@ -2012,7 +2012,7 @@ function selftest() {
   ck(r.actions.some((a) => a.id === 'STUCK-TASK' && a.class === 'mechanical' && a.approved_by_faith && /77777/.test(a.command)), 'stuck lane -> STUCK-TASK mechanical action with taskkill command');
   ck(r.report.some((l) => /STUCK-TASK.*stuck.mission.txt/.test(l)), 'stuck lane surfaces on report');
   const killed = [];
-  const hStuck = heal(tmp, now, { exec: (cmd) => { killed.push(cmd); } });
+  const hStuck = heal(tmp, now, { exec: (cmd) => { killed.push(cmd); }, sightFn: sightOk.sightFn, worktreeReposFn: () => [], gitFn: stubGit });
   ck(hStuck.performed.some((p) => p.action === 'stuck-requeue' && p.stem === 'stuck'), 'heal(): stuck task bared and marked for requeue');
   ck(killed.some((cmd) => /taskkill.*\/PID\s+77777.*\/F.*\/T/.test(cmd)), 'heal(): taskkill issued for stuck lane');
   const afterStuck = parseAutorun(readText(path.join(tmp, 'missions', 'AUTORUN.md')));
@@ -2103,7 +2103,7 @@ function selftest() {
   writeFileSync(path.join(tmp, 'missions', 'AUTORUN.md'),
     '# q\nDONE missions/loop.mission.txt\nFAILED missions/loop.mission.txt\nRUNNING missions/loop.mission.txt\nmissions/loop.mission.txt  <!-- would fire a 4th time -->\nmissions/other.mission.txt  <!-- unrelated, must survive -->\n');
   const rLoop = sweep(tmp, now, noRoute, sightOk);
-  const healedLoop = heal(tmp, now, { exec: () => {} });
+  const healedLoop = heal(tmp, now, { exec: () => {}, sightFn: sightOk.sightFn, worktreeReposFn: () => [], gitFn: stubGit });
   ck(healedLoop.performed.some((p) => p.action === 'loop-cap-retire' && p.stem === 'loop'), 'heal(): LOOP-CAP retires the bare re-fire-risk line');
   const afterLoop = readText(path.join(tmp, 'missions', 'AUTORUN.md'));
   ck(/^# LOOP-CAP-RETIRED.*missions\/loop\.mission\.txt/m.test(afterLoop), 'heal(): the retired line is commented out with a named LOOP-CAP-RETIRED annotation');
@@ -2113,7 +2113,7 @@ function selftest() {
   // permanent history lines) already sit at the cap forever, and that's correct: the report
   // is honest history ("this stem looped 3x"), not a live re-fire warning. What must NOT
   // happen is heal() finding MORE to retire on a second pass (idempotent -- nothing bare left).
-  const healedLoop2 = heal(tmp, now, { exec: () => {} });
+  const healedLoop2 = heal(tmp, now, { exec: () => {}, sightFn: sightOk.sightFn, worktreeReposFn: () => [], gitFn: stubGit });
   ck(!healedLoop2.performed.some((p) => p.action === 'loop-cap-retire'), 'heal(): idempotent -- a second heal() pass retires nothing further (no bare line remains for this stem)');
 
   // fixture: STRANDED-SPLIT-CHILD RECOVERY (hunt-item #16, 2026-07-04) -- a manifest naming
@@ -2134,14 +2134,14 @@ function selftest() {
       ts: new Date(now).toISOString(),
     }));
     writeFileSync(path.join(tmp, 'missions', 'AUTORUN.md'), '# q\nmissions/splitpar.S2.mission.txt  <!-- already queued, untouched -->\n');
-    const healedStranded = heal(tmp, now, { exec: () => {} });
+    const healedStranded = heal(tmp, now, { exec: () => {}, sightFn: sightOk.sightFn, worktreeReposFn: () => [], gitFn: stubGit });
     ck(healedStranded.performed.some((p) => p.action === 'stranded-split-recovery' && p.stem === 'splitpar.S1'), 'heal(): a manifest child with NO AUTORUN line at all, but a real mission.txt on disk, is recovered');
     ck(!healedStranded.performed.some((p) => p.action === 'stranded-split-recovery' && p.stem === 'splitpar.S2'), 'heal(): an already-queued manifest child is left alone -- not re-added as a duplicate');
     ck(!healedStranded.performed.some((p) => p.action === 'stranded-split-recovery' && p.stem === 'splitpar.S3'), 'heal(): a manifest child whose mission.txt was never actually created is NOT recovered -- nothing to fabricate a queue line for');
     const afterStranded = readText(path.join(tmp, 'missions', 'AUTORUN.md'));
     ck(/^missions\/splitpar\.S1\.mission\.txt\s+<!-- SPLIT-CHILD -->$/m.test(afterStranded), 'heal(): the recovered line is tagged SPLIT-CHILD -- the QUEUE-DUP guard exemption (hunt-item #13) applies to it too');
     ck(afterStranded.includes('missions/splitpar.S2.mission.txt  <!-- already queued, untouched -->'), 'heal(): the already-queued line is byte-unchanged, not duplicated or rewritten');
-    const healedStranded2 = heal(tmp, now, { exec: () => {} });
+    const healedStranded2 = heal(tmp, now, { exec: () => {}, sightFn: sightOk.sightFn, worktreeReposFn: () => [], gitFn: stubGit });
     ck(!healedStranded2.performed.some((p) => p.action === 'stranded-split-recovery'), 'heal(): idempotent -- a second pass recovers nothing further (the S1 line now satisfies the manifest check)');
     rmSync(path.join(tmp, 'missions', 'splitpar._split-manifest.json'), { force: true });
     rmSync(path.join(tmp, 'missions', 'splitpar.S1.mission.txt'), { force: true });
