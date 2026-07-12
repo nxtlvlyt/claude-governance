@@ -1,6 +1,6 @@
 {
   "state": "done",
-  "detail": "Sonnet calibration complete; daemon pending, audit data live",
+  "detail": "Docker stuck STOPPED (5 orphaned processes); Lighthouse false-positive bug diagnosed",
   "tempo": "idle",
   "inFlight": {
     "tasks": 2,
@@ -18,12 +18,12 @@
       "startedAt": 1783835427923
     }
   ],
-  "tokens": 9194182,
+  "tokens": 9214732,
   "output": {
-    "result": "Model switched to Sonnet, nine laws re-read, LHCI workflow fixed, production audit data restored"
+    "result": "Docker alert: service stuck, needs restart (your call); Lighthouse: false-positive in baseline-commit regex (real engine bug filed)"
   },
   "children": null,
-  "linkScanOffset": 72272046,
+  "linkScanOffset": 73042507,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -51,6 +51,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-12T08:45:37.809Z",
+  "updatedAt": "2026-07-12T09:00:02.668Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
