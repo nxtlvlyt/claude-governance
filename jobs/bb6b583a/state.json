@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "dry-run surfaced Google quota project blocker; probing stitch-mcp fix",
+  "detail": "quota project fixed; dry-run #2 running; awaiting Stitch reference",
   "tempo": "idle",
   "inFlight": {
     "tasks": 3,
@@ -12,22 +12,22 @@
   },
   "fan": [
     {
-      "id": "bw6pn43xr",
-      "kind": "shell",
-      "label": "ssh nxtbeast \"npx.cmd -y @_davideast/stitch-mcp@latest proxy --help 2>&1 && npx.cmd -y @_davideast/stitch-mcp@latest doctor 2>&1\" 2>&1 | head -40",
-      "startedAt": 1783835268352
-    },
-    {
       "id": "b2gb8f0k9",
       "kind": "shell",
       "label": "until [ -s \"/c/Users/marka/AppData/Local/Temp/claude/C--Users-marka/deef569c-dcf6-4695-8f3b-3ee6d4a96da1/tasks/bw6pn43xr.output\" ]; do sleep 2; done; head -45 \"/c/Users/marka/AppData/Local/Temp/claud…",
       "startedAt": 1783835427923
+    },
+    {
+      "id": "bjpgv3oa4",
+      "kind": "shell",
+      "label": "pwsh -NoProfile -File sites/androidtv-tips/design/stitch-relay-run.ps1",
+      "startedAt": 1783836012172
     }
   ],
-  "tokens": 8875393,
+  "tokens": 8882905,
   "output": null,
   "children": null,
-  "linkScanOffset": 63836723,
+  "linkScanOffset": 63923147,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -55,6 +55,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-12T05:53:58.759Z",
+  "updatedAt": "2026-07-12T06:00:40.808Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
