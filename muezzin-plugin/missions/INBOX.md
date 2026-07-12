@@ -146,3 +146,15 @@ wake: one solitary push should produce a real Lighthouse run with score deltas; 
 ALSO reports no-jobs, the cause is repo Actions config (billing/disabled) and needs a
 real diagnosis. Mail hygiene: these thread-subscription emails are lifecycle noise —
 operator can mute the thread; outcome-only reporting stays our push channel.
+
+
+## 2026-07-12 UPDATE — lighthouse no-jobs emails: HYPOTHESIS REFUTED, real cause FOUND
+The concurrency-cancellation hypothesis is DEAD (refuted per its own check): gh run
+list shows EVERY run since 2026-07-01 concluding failure in 0s, and gh run view says
+"workflow file issue". Dup-key scan receipt: DUPLICATE KEY "env" at line 121 (first at
+line 75) in .github/workflows/lighthouse-ci.yml — GitHub's strict YAML parser refuses
+the file; python/lenient parsers hide it. IMPACT: zero Lighthouse audits have ever run
+from this file. FIX (staged, applies at the copy-clarity lane boundary — the running
+mission's scoped-cleanliness check forbids editing its repo mid-lane): merge the two
+env blocks in the step, commit, push; the next push then fires the FIRST real audit.
+The 5 operator emails were all this one defect.

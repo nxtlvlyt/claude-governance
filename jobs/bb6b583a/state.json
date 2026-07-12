@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "wired S1 idempotent steps + CONTENT-CONTRACT.md playbook filed; Stitch banking queued",
+  "detail": "d036719 committed (6 files); dup-key fix staged; Lighthouse audit pending merge",
   "tempo": "idle",
   "inFlight": {
     "tasks": 2,
@@ -18,10 +18,10 @@
       "startedAt": 1783835427923
     }
   ],
-  "tokens": 8957139,
+  "tokens": 8966943,
   "output": null,
   "children": null,
-  "linkScanOffset": 68233805,
+  "linkScanOffset": 70298940,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -49,6 +49,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-12T07:53:04.543Z",
+  "updatedAt": "2026-07-12T08:01:34.193Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
