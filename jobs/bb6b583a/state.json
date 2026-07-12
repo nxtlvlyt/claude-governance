@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "Queue item 27 updated; next: instrumented GeoJSON repro",
+  "detail": "confirmed S2 reset structural issue (QUEUE 28); files restored & safe",
   "tempo": "idle",
   "inFlight": {
     "tasks": 2,
@@ -18,10 +18,10 @@
       "startedAt": 1783835427923
     }
   ],
-  "tokens": 9818954,
+  "tokens": 9832718,
   "output": null,
   "children": null,
-  "linkScanOffset": 78264063,
+  "linkScanOffset": 78436907,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -49,6 +49,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-12T19:28:29.599Z",
+  "updatedAt": "2026-07-12T19:40:21.478Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }

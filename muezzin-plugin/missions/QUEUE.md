@@ -2790,3 +2790,57 @@ fully-assembled prompt + raw response for this one step, then remove the logging
 archival digging is exhausted, nothing further to find without a new run instrumented
 for it. This is real diagnosis-debt scoped work, not a quick fix; still correctly
 PARKED against this item, not blind-refired.
+
+
+## 2026-07-12 ITEM 28 — S1-CREATES/S2-COMMITS SPLIT PATTERN IS STRUCTURALLY BROKEN
+(unpark owner for mt-integrate-poi-dedup-audit.S2; DISTINCT from gap-reset-allowfiles-
+data-loss, which is correctly closed — that gap was about DATA LOSS and stays fixed)
+
+Diagnosed same-wake (conductor, personal Read of orchestrate.mjs:779 + mission-events.jsonl
++ direct quarantine-directory verification). S2 failed a 3rd time this wake: `git add
+scripts/dedup-audit.mjs` hit `fatal: pathspec ... did not match any files`. Checked the
+files on disk — GONE from their original location. Checked the quarantine directory
+(C:\Users\marka\AppData\Local\Temp\muezzin-reset-quarantine\mt-integration-2026-06-22\) —
+all three files present, byte-identical to the originals (32892 / 1489378 / 1552490 bytes,
+matching my earlier personal verification exactly). RESTORED them to their original paths
+this wake (safe, recoverable action — this is exactly what quarantine-not-destroy is for).
+
+ROOT CAUSE (confirmed by reading the code, not inferred): `resetAllowFiles(repoRoot,
+allowFiles)` runs UNCONDITIONALLY in orchestrate.mjs's sandbox setup (line 779) before
+EVERY code-repo mission fire — retry or first attempt, no distinction. It cannot tell
+"a file MY OWN prior failed attempt created" (the case it was designed for, per its own
+doc comment: RETRY OWN-OUTPUT RESET, spam-loop root fix 2026-06-16) apart from "a file a
+DIFFERENT prerequisite mission legitimately created for ME to consume" (S2's actual
+situation — S2 REQUIRES S1, S1 creates the three files untracked BY DESIGN, S2's whole
+job is to commit them). Every time S2 fires — including a bare first-ever fire, not just
+a retry — its own sandbox setup quarantines the very files it needs before its steps can
+run. The quarantine fix (item 25) closed the DESTRUCTIVE half of this (files survive,
+recoverable) but did not and could not close this half (files still vanish from the
+expected path on every single fire) — that was never item 25's target; this is a
+separate, deeper structural defect in the split-mission handoff pattern itself.
+
+WHY A MISSION-TEXT AMENDMENT CANNOT FIX THIS: the reset happens in orchestrate.mjs's
+sandbox phase, BEFORE any of the mission's own authored steps run. Nothing S2's mission
+text says can prevent its own precondition from being reset out from under it — this is
+not a wording/witness problem like the two defects already fixed on this stem, it is a
+sequencing problem in the engine itself.
+
+TWO CANDIDATE FIXES (neither applied yet — this is a park, not a same-wake fix; the
+scope is a redesign, not a text edit):
+(a) MERGE S1 and S2 into ONE non-split mission that creates AND commits the three files
+    in the same sandbox-setup pass — eliminates the gap the reset can land in entirely.
+    Smaller blast radius, directly unblocks this one mission, but does not fix the
+    general pattern for any OTHER REQUIRES-linked split mission elsewhere in the queue.
+(b) ENGINE FIX: resetAllowFiles (or its caller) checks whether a dirty untracked
+    allow-file matches the ALLOW-FILES of a REQUIRES-linked prerequisite mission that
+    went DONE more recently than the current mission's own last FAILED mark, and skips
+    resetting those specific files — a legitimate cross-mission handoff, not "my own
+    leftover." Larger, fixes the pattern generally (worth checking whether other
+    S1-creates/S2-commits missions in this queue share the exposure), but is a genuine
+    architecture change to shared sandbox-setup logic touching every code-repo mission,
+    not a same-wake patch.
+
+UNPARK: restored files are safe RIGHT NOW (no mission is running, nothing will reset
+them until S2 or any mission sharing its ALLOW-FILES is re-fired). Do not re-bare S2
+again until one of the two fixes above is designed and applied — a blind re-fire will
+reproduce the identical quarantine-then-vanish cycle a 4th time.
