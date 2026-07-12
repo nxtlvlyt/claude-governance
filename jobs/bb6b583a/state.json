@@ -1,30 +1,36 @@
 {
   "state": "working",
-  "detail": "polling relay for STITCH-RECEIPT.md; V3 binding queued",
-  "tempo": "active",
+  "detail": "Relay 3 live with proxy-header fix; ITEM-25 daemon executing; awaiting completion",
+  "tempo": "idle",
   "inFlight": {
-    "tasks": 2,
+    "tasks": 3,
     "queued": 0,
     "kinds": [
       "local_bash",
       "session_cron"
     ]
   },
-  "selfWake": true,
   "fan": [
     {
       "id": "b2gb8f0k9",
       "kind": "shell",
       "label": "until [ -s \"/c/Users/marka/AppData/Local/Temp/claude/C--Users-marka/deef569c-dcf6-4695-8f3b-3ee6d4a96da1/tasks/bw6pn43xr.output\" ]; do sleep 2; done; head -45 \"/c/Users/marka/AppData/Local/Temp/claud…",
       "startedAt": 1783835427923
+    },
+    {
+      "id": "bmez5j30n",
+      "kind": "shell",
+      "label": "pwsh -NoProfile -File sites/androidtv-tips/design/stitch-relay-run.ps1",
+      "startedAt": 1783840006990
     }
   ],
-  "tokens": 8890112,
+  "tokens": 8904769,
   "output": null,
   "children": null,
-  "linkScanOffset": 64041710,
+  "linkScanOffset": 64389220,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
+  "selfWake": true,
   "respawnFlags": [
     "--reply-on-resume",
     "--effort",
@@ -34,8 +40,6 @@
     "--permission-mode",
     "auto"
   ],
-  "bgIsolation": "none",
-  "providerEnv": {},
   "intent": "but we had 30 gaps mission we were fixing first before we did anything else and a big project to que when they were done",
   "name": "daemon-restart-mission-triage",
   "nameSource": "auto",
@@ -44,11 +48,13 @@
   "daemonShort": "bb6b583a",
   "cliVersion": "2.1.206",
   "cwd": "C:\\Users\\marka",
-  "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-12T06:15:12.751Z",
-  "firstTerminalAt": "2026-07-07T15:47:23.132Z",
   "bridgeSessionId": "cse_015z5n4qQqp9BZ8kKSCkvtzT",
   "bridgeOutboundOnly": false,
   "bridgeSessionSeq": 8904,
-  "backend": "daemon"
+  "bgIsolation": "none",
+  "providerEnv": {},
+  "backend": "daemon",
+  "createdAt": "2026-07-07T14:31:31.695Z",
+  "updatedAt": "2026-07-12T07:09:34.865Z",
+  "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }

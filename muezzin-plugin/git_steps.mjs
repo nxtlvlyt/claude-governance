@@ -291,11 +291,17 @@ export function assertCleanOutsideAllowlist(repoRoot, allowFiles = [], baselineD
  *
  * Scope is EXACTLY the mission's own allowlist — nothing else is touched, so this NEVER
  * reaches foreign dirt. Tracked allow-files are `git checkout`-restored to HEAD; untracked
- * allow-files (the mission's own prior creation) are deleted. After this, the containment
- * pre-flight sees the allowlist clean and the attempt proceeds — while genuinely-foreign
- * pre-existing dirt OUTSIDE the allowlist is untouched and STILL refused by the pre-flight,
- * and a mid-run write outside the allowlist is STILL caught by assertCleanOutsideAllowlist.
- * The containment hole is not reopened: a mission can only ever reset its OWN declared files.
+ * allow-files (the mission's own prior creation) are QUARANTINED — moved to a directory
+ * outside the repo, never deleted (engine-item25-reset-quarantine, 2026-07-12; two bite
+ * receipts paid for the change: this branch's fs.rmSync PERMANENTLY destroyed a mission's
+ * own prior-attempt output with no recovery path, and the SAME night's ownerless-park audit
+ * (eighth law) found deletion-as-cleanup silently erasing evidence a conductor later needed
+ * to diagnose a failure — Directive 6 requires a reversible move over a destructive delete).
+ * After this, the containment pre-flight sees the allowlist clean and the attempt proceeds —
+ * while genuinely-foreign pre-existing dirt OUTSIDE the allowlist is untouched and STILL
+ * refused by the pre-flight, and a mid-run write outside the allowlist is STILL caught by
+ * assertCleanOutsideAllowlist. The containment hole is not reopened: a mission can only ever
+ * reset its OWN declared files.
  * @returns {{ok:true, reset:string[]}|{ok:false, error:string}}  reset = the allow-files acted on
  */
 export function resetAllowFiles(repoRoot, allowFiles = []) {
@@ -315,7 +321,21 @@ export function resetAllowFiles(repoRoot, allowFiles = []) {
       if (tracked) {
         execSync(`git checkout -- ${quote(rel)}`, gitOpts(repoRoot));   // restore committed version
       } else {
-        try { fs.rmSync(abs, { force: true }); } catch { /* locked/gone — best effort */ }
+        // RESET-QUARANTINE (engine-item25-reset-quarantine, 2026-07-12 — two bite receipts:
+        // this branch used fs.rmSync to PERMANENTLY destroy a mission's own prior-attempt
+        // output with no recovery path, and the same night's ownerless-park audit (eighth
+        // law) found deletion-as-cleanup silently erasing evidence a conductor later needed
+        // to diagnose a failure. Directive 6: prefer a reversible move over a destructive
+        // delete. Untracked allow-files are MOVED to a quarantine directory OUTSIDE the repo
+        // (never deleted), so a retry's own-output reset stays idempotent — the pre-flight
+        // sees the allow-file clean — while the discarded content remains recoverable.
+        const quarantineDir = path.join(os.tmpdir(), "muezzin-reset-quarantine", path.basename(repoRoot));
+        try {
+          fs.mkdirSync(quarantineDir, { recursive: true });
+          const dest = path.join(quarantineDir, `${rel.replace(/[\\/]/g, "__")}.${Date.now()}`);
+          try { fs.renameSync(abs, dest); }
+          catch { fs.copyFileSync(abs, dest); fs.rmSync(abs, { force: true }); }
+        } catch { /* quarantine dir unwritable — leave the untracked file in place rather than lose it */ }
       }
       reset.push(rel);
     }
@@ -719,7 +739,9 @@ function selfTest() {
       commitStep(rstRepo, "seed", ["tracked.mjs"]);
 
       // (1) THE INCIDENT: an UNTRACKED allow-file the prior attempt CREATED (d1/STATUS.md).
-      // git checkout can't remove it, so the pre-flight refuses the retry — until reset deletes it.
+      // git checkout can't remove it, so the pre-flight refuses the retry — until reset
+      // quarantines it (engine-item25-reset-quarantine, 2026-07-12: this used to fs.rmSync
+      // the file with no recovery path — now it is moved aside, never destroyed).
       fs.mkdirSync(path.join(rstRepo, "d1"), { recursive: true });
       fs.writeFileSync(path.join(rstRepo, "d1", "STATUS.md"), "# created by attempt 1\n");
       const pfBefore = preflightAllowlistClean(rstRepo, ["d1/STATUS.md"]);
@@ -727,7 +749,17 @@ function selfTest() {
         "own-reset: BEFORE reset, an untracked own ALLOW-FILE from the prior attempt makes pre-flight REFUSE (reproduces the loop)");
       const rst1 = resetAllowFiles(rstRepo, ["d1/STATUS.md"]);
       assert(rst1.ok === true && rst1.reset.includes("d1/STATUS.md"), "own-reset: reset acts on the dirty untracked own allow-file");
-      assert(!fs.existsSync(path.join(rstRepo, "d1", "STATUS.md")), "own-reset: the untracked own allow-file (mission's own prior creation) is DELETED");
+      assert(!fs.existsSync(path.join(rstRepo, "d1", "STATUS.md")), "own-reset: the untracked own allow-file is REMOVED from its original path");
+      // QUARANTINE (engine-item25-reset-quarantine, 2026-07-12): the removed content is NOT
+      // gone — it is recoverable from the quarantine dir outside the repo, byte-identical.
+      const quarantineDir = path.join(os.tmpdir(), "muezzin-reset-quarantine", path.basename(rstRepo));
+      const quarantined = fs.existsSync(quarantineDir) ? fs.readdirSync(quarantineDir) : [];
+      const qMatch = quarantined.find((f) => f.startsWith("d1__STATUS.md"));
+      assert(!!qMatch, `own-reset QUARANTINE: the removed allow-file's content is recoverable in the quarantine dir (found=${JSON.stringify(quarantined)})`);
+      if (qMatch) {
+        assert(fs.readFileSync(path.join(quarantineDir, qMatch), "utf8") === "# created by attempt 1\n",
+          "own-reset QUARANTINE: quarantined content is byte-identical to the original (never destroyed, only moved)");
+      }
       const pfAfter = preflightAllowlistClean(rstRepo, ["d1/STATUS.md"]);
       assert(pfAfter.ok === true, "own-reset: AFTER reset the pre-flight PASSES — the mission's OWN prior output no longer blocks its retry (loop broken)");
 
