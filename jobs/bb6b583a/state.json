@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "agy session 2 re-fired with correct --print arg; warroom prep running",
+  "detail": "mapping ATV daemon vs warroom session; warroom queue build S9",
   "tempo": "idle",
   "inFlight": {
     "tasks": 2,
@@ -18,10 +18,10 @@
       "startedAt": 1783821477150
     }
   ],
-  "tokens": 8345500,
+  "tokens": 8345939,
   "output": null,
   "children": null,
-  "linkScanOffset": 55877478,
+  "linkScanOffset": 55916699,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -49,6 +49,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-12T01:58:21.530Z",
+  "updatedAt": "2026-07-12T01:58:43.873Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
