@@ -1,6 +1,6 @@
 {
   "state": "done",
-  "detail": "compaction architecture verified; witness pattern pinned",
+  "detail": "mapped fix mechanism per harness (warroom/CLI/agy); filed ITEM 23",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,12 +9,12 @@
       "session_cron"
     ]
   },
-  "tokens": 8325186,
+  "tokens": 8327595,
   "output": {
-    "result": "Claude CLI compaction vs. your dual-witness design: you've engineered the verification seat (ornith + granite guardian) that blocks flush until state is complete"
+    "result": "universal principle with 3 harness-specific mechanisms: warroom native, CLI hook layer, agy mission-scope check — all filed with owners"
   },
   "children": null,
-  "linkScanOffset": 55556626,
+  "linkScanOffset": 55610988,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -42,6 +42,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-12T01:40:18.368Z",
+  "updatedAt": "2026-07-12T01:43:48.233Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }

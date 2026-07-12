@@ -2406,6 +2406,29 @@ deconstructor emits file-path REQUIRES. (a) also heals the 38 existing files wit
 touching them; prefer (a). DO NOT hand-edit the 38 files (the generator would regress them
 on the next autosplit). Owner: next engine batch.
 
+ITEM 23 — COMPACTION-WITNESS PORT, ALL THREE JURISDICTIONS (filed 2026-07-12, operator:
+"does that mean we need to universally update it in all three — Claude CLI, agy and the
+warroom spec"). PRINCIPLE IS UNIVERSAL (substrate-first continuous writes + small-local-
+witness verification at the compaction boundary; witnesses flag, never author); the
+MECHANISM is per-harness:
+(a) WARROOM: native — enrolled in WARROOM-INTAKE (context-management architecture +
+    compaction-witnesses sections, 2026-07-12). Built into the bones at S9.
+(b) CLAUDE CLI: we cannot change vendor compaction internals; the lever is the HOOK
+    LAYER — verify whether the installed Claude Code exposes a PreCompact hook event;
+    if yes, wire it to (1) check ledger freshness vs session activity (STATE ledger /
+    APPLY-NEXT mtime vs recent mutation count) and (2) optionally dispatch the
+    ornith/guardian witness pair on nxtbeast to verify the handoff covers open work —
+    surface a BLOCKING warning when it does not. This mechanizes what the operator did
+    by hand 2026-07-11 ("you are about to compact do you need to do anything?") and
+    what the conductor did manually (APPLY-NEXT authored pre-boundary).
+(c) AGY: no known compact event; sessions are mission-scoped small by design. Port =
+    add the ledger-freshness check to the existing hook harness (muezzin_hook.py Stop /
+    PreInvocation) so a mission session cannot end with an unwritten handoff — rides
+    the item-13 hook revival slices.
+Owner: N5 batch (this is exactly the harness-agnostic-rails class N5 exists for);
+reference practice already proven live: this session survived multiple compactions on
+continuous substrate writes alone.
+
 ITEM 22 — PARK-OWNER INVARIANT: A PARK WITHOUT AN OWNED EXIT IS A GRAVE (filed
 2026-07-11 ~23:3xZ, operator: "why are we parking failures instead of fixing them,
 that doesn't make any sense"). RECEIPTS: stitch-design-mastery FAILED 2026-06-12 and
