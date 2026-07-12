@@ -146,3 +146,5 @@ our key, design seat optional). Stitch supplies BOTH design origination and imag
 generation — the two capability gaps receipted 2026-07-11 (no designer in the design
 loop; Gemini vision reads but cannot generate). Full work order + sequencing:
 agy-muezzin/missions/INBOX.md GAP-CLASS 2026-07-11 entry + addenda.
+
+OBSERVABILITY-AS-CONFIG (enrolled 2026-07-12, operator: "does agy and warroom need this too"): warroom inherits the item-19 WATCHDOG PATTERN (poll an error/outcome source -> diff vs last-seen -> auto-queue a diagnosis mission), never our credentials — per the SHAREABLE decision its Sentry (or any monitor) is a config slot a friend fills with their own or leaves empty. Reference implementation: the muddytires item-19 poller (spec + working endpoint receipt in muezzin-plugin/missions/_logs/APPLY-NEXT-2026-07-12.md).
