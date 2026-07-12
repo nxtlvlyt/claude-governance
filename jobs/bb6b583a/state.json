@@ -1,6 +1,6 @@
 {
-  "state": "working",
-  "detail": "ITEM-25 resolved (quarantine live at restart); copy-clarity requeued; relay attempt 3 generating (40+ min, healthy)",
+  "state": "done",
+  "detail": "Stitch homepage generated + saved (androidtv.tips, 15.9KB); design system extracted",
   "tempo": "idle",
   "inFlight": {
     "tasks": 2,
@@ -16,20 +16,14 @@
       "kind": "shell",
       "label": "until [ -s \"/c/Users/marka/AppData/Local/Temp/claude/C--Users-marka/deef569c-dcf6-4695-8f3b-3ee6d4a96da1/tasks/bw6pn43xr.output\" ]; do sleep 2; done; head -45 \"/c/Users/marka/AppData/Local/Temp/claud…",
       "startedAt": 1783835427923
-    },
-    {
-      "id": "buix7egtv",
-      "kind": "shell",
-      "label": "pwsh -NoProfile -File C:/Users/marka/agy-muezzin/sites/androidtv-tips/design/stitch-relay-run.ps1",
-      "startedAt": 1783840843685,
-      "doneAt": 1783841290054,
-      "failed": true
     }
   ],
-  "tokens": 8928732,
-  "output": null,
+  "tokens": 8940907,
+  "output": {
+    "result": "androidtv.tips homepage on disk (Luminous Dark design system from DESIGN.md); atv-13 ready to queue"
+  },
   "children": null,
-  "linkScanOffset": 67783510,
+  "linkScanOffset": 67940882,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -57,6 +51,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-12T07:28:14.172Z",
+  "updatedAt": "2026-07-12T07:38:20.866Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
