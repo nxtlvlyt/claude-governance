@@ -2718,3 +2718,46 @@ The other 7 items (attempt2-replay, rule5-opsdeploy, rule14-content-contract,
 w2-nocloud-strip, w3-retry-latch, seat-health-roundtrip, witness-revise-refire) never
 ran or ran partial with no verify — RE-RUN THE WORKFLOW FRESH once credits are back
 (do not resume from wf_6528dbd8-e39 — none of the failed calls are worth caching).
+
+
+## 2026-07-12 ITEM 27 — mt-enrich-scenic-wikidata: UNIVERSAL EMPTY-EMISSION AT STEP 1
+(unpark owner for the mission's own PARKED mark; gap-priority candidate, not yet
+promoted to GAP-REGISTER pending a second bite)
+
+Diagnosed same-wake (conductor, personal Read of mission-events.jsonl for the stem):
+step 1 (author scripts/enrich-scenic-wikidata.mjs) has NEVER produced usable content.
+22 of 28 attempts show the seat returning genuinely 0 characters ("(completely
+empty)") — not a code-fence extraction miss on non-empty content. This happened
+across THREE distinct architect-panel models (claude-sonnet-5, qwen3.6:27b,
+granite4.1:30b) AND after seat-escalated-dispatch to top-tier seats, terminating in
+seat-escalate-exhausted + recurring-error-suspect (priorOccurrences:2). A failure
+mode reproducing identically across multiple distinct model families/tiers points
+away from "this specific model is weak" and toward a prompt-construction or
+context-budget issue shared by the dispatch path for this step — worth checking
+against ~/.claude/canon/kv-cache-budget-checks.md's "context_length is not safe"
+warning before assuming anything else.
+
+Contributing factor (not yet confirmed as causal, flag only): step 1's instruction is
+a single unbroken ~2000-character paragraph specifying a non-trivial script (JSON I/O,
+coordinate-join discovery, batched Wikidata API calls, haversine distance, time
+budgeting, an exact output-line format) — denser than most single-step [edit]
+instructions seen elsewhere in this queue. Whether density alone can cause a
+UNIVERSAL empty response across three model families is unverified; needs an actual
+investigation pass (read the diag/raw output for a step-1 attempt specifically, not
+just the panel-architect files which are plan-phase only and unaffected) before
+concluding either way.
+
+"WD-ENRICH remaining" has never been computed — that count only exists inside the
+never-produced script's own printed summary (step 3), so the "RE-FIRE each beat until
+remaining: 0" framing on the mission's AUTORUN line was never actually tracking real
+progress; data/scenic-enrichment.json is byte-identical to the mission's own cited
+baseline (~7 of 4215 entries wikidata-stamped, 0 wd_checked) — zero movement across
+the one real attempt so far. mt-spot-briefs.S1 stays parked behind this with zero
+progress toward its own unpark condition.
+
+UNPARK CONDITION: read an actual step-1 diag/raw.txt file (not yet done — the
+existing diag dir only holds panel-architect plan-phase artifacts) to see whether
+the seat received a truncated/malformed prompt, then either (a) split step 1 into
+smaller sub-steps if density is the cause, or (b) file as a genuine engine gap in
+GAP-REGISTER.jsonl if a dispatch/context-budget bug is confirmed. Do not blind-refire
+again — 6+ heal attempts already burned on the identical failure shape.
