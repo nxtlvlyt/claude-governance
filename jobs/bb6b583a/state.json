@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "both daemons idle & healthy, monitoring per standing instructions",
+  "detail": "auditing systemic exposure in QUEUE ITEM 28; found 2 pairs at risk",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 9833739,
+  "tokens": 9891186,
   "output": null,
   "children": null,
-  "linkScanOffset": 78473129,
+  "linkScanOffset": 78535969,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -40,6 +40,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-12T19:44:59.065Z",
+  "updatedAt": "2026-07-12T20:01:17.593Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }

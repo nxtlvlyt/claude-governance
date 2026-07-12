@@ -2844,3 +2844,27 @@ UNPARK: restored files are safe RIGHT NOW (no mission is running, nothing will r
 them until S2 or any mission sharing its ALLOW-FILES is re-fired). Do not re-bare S2
 again until one of the two fixes above is designed and applied — a blind re-fire will
 reproduce the identical quarantine-then-vanish cycle a 4th time.
+
+## UPDATE (2026-07-12, conductor — executed the "worth checking" note above rather
+## than leaving it as unactioned prose)
+Surveyed all ~45 REQUIRES-linked sibling pairs in missions/*.mission.txt (dispatched
+investigation, personally reviewed the report). CONFIRMED SYSTEMIC, not a one-off:
+one other pair shares the identical exposure — mt-integrate-poi-tags-2026-06-23.S1.S1
+-> S1.S2. S1.S1 lands 5 new files via [command]-tagged single-path `git checkout <sha>
+-- <path>`, explicitly leaving them staged-but-uncommitted; S1.S2 declares the
+IDENTICAL ALLOW-FILES list and REQUIRES S1.S1 — byte-identical trap shape to
+poi-dedup. NOT currently a live risk: S1.S1 is already FAILED/PARKED (2026-07-10,
+predates this session, pending its own separate decision — adopt-and-commit vs clear
+attempt-1's output); S1.S2 has never fired. But if S1.S1 is ever re-bared and lands
+without committing, S1.S2 will hit the identical "pathspec did not match" failure the
+moment it fires.
+
+Most other REQUIRES-linked pairs are NOT exposed: ~20 mt-integrate-* pairs land via a
+real `cherry-pick` commit (parent creates a committed artifact, not untracked dirt),
+and others use [edit]-tagged steps which the engine auto-commits per-step. Confirmed
+2 of ~45 pairs affected by this exact mechanism — real, but bounded, not pervasive.
+
+CONCLUSION: this strengthens the case for engine fix (b) over the narrower per-mission
+merge (a) — a REQUIRES-aware reset exemption fixes both this pair and poi-dedup at
+once, and prevents a third pair from tripping the same class later. Still not a
+same-wake patch; recorded here as evidence for whoever scopes that engine work next.
