@@ -1,7 +1,7 @@
 {
-  "state": "blocked",
-  "detail": "verified curl command ready; awaiting user to run it",
-  "tempo": "blocked",
+  "state": "done",
+  "detail": "3 failures diagnosed & fixed; both daemons healthy, re-queued",
+  "tempo": "idle",
   "inFlight": {
     "tasks": 1,
     "queued": 0,
@@ -9,11 +9,12 @@
       "session_cron"
     ]
   },
-  "tokens": 8750309,
-  "needs": "run the curl command from my last message with `!` prefix",
-  "output": null,
+  "tokens": 8769575,
+  "output": {
+    "result": "3 distinct failure classes fixed: committed inputs, governance gate, and planner-friendly file structure; step 1 stable since fix, next daemon beat queued"
+  },
   "children": null,
-  "linkScanOffset": 60172355,
+  "linkScanOffset": 60390254,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -41,6 +42,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-12T03:59:09.745Z",
+  "updatedAt": "2026-07-12T04:07:47.914Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
