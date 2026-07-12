@@ -1,6 +1,6 @@
 {
   "state": "blocked",
-  "detail": "waiting on you.",
+  "detail": "agy and warroom gap-hold status unclear; awaiting clarification",
   "tempo": "blocked",
   "inFlight": {
     "tasks": 1,
@@ -9,11 +9,11 @@
       "session_cron"
     ]
   },
-  "tokens": 8271388,
-  "needs": "waiting on you.",
+  "tokens": 8272280,
+  "needs": "does agy and warroom need this too — yes or no?",
   "output": null,
   "children": null,
-  "linkScanOffset": 54664836,
+  "linkScanOffset": 54686111,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -41,6 +41,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-12T00:50:13.845Z",
+  "updatedAt": "2026-07-12T00:59:34.427Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
