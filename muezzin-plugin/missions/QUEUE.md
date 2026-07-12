@@ -2317,7 +2317,20 @@ WARROOM-BORROW BLOCK (enrolled 2026-07-11 after the operator asked "did we que a
 fixes we learned from warroom" and the answer was documented-but-not-queued — the exact
 guaranteed-delivery failure; SPEC = muezzin-plugin/WARROOM-INTAKE-2026-07-11.md, gap
 matrix "muezzin should borrow", 19 receipted items; per-item receipts in the workflow
-journal). SYSTEM-FIX PRIORITY CLASS. The load-bearing six, for the next engine batches:
+journal). SYSTEM-FIX PRIORITY CLASS.
+ENGINE BATCH 2 — DATED 2026-07-12 (operator challenge: "find it strange that none of
+them got worked on when they are gap fix issues" — he is right that "next engine batch"
+is the item-22 prose-owner shape; this line converts it to tracked work): BATCH 2 =
+W1-W6 below + the item-22 rotten-park sweep + the item-23 PreCompact hook probe.
+TRIGGER: starts the wake after the design-pipeline fix set closes (remaining: item-22
+workflow re-run from cache + Stitch mission DONE-judged). ORDER: W2 first (defense-in-
+depth on the NO-CLOUD ruling — partially structural since 2026-07-03, the client-layer
+strip closes the last door), then W1 (mechanical budget caps), W3 (retry latch), then
+W4/W5/W6. Preparation MAY use a sonnet workflow (standing authorization, read-only
+preparers + skeptics — the wf_fb4bed3e pattern, proven twice tonight); the conductor
+applies through gates. NOTHING in batch 2 yields to product authoring — bleeding gaps
+excepted, per the gap-priority ruling's own triage.
+The load-bearing six, for the next engine batches:
 W1. MECHANICAL BUDGET ENFORCEMENT: muezzin has budget STRATEGY (rulings) but zero
     budget MECHANISM — warroom's advisory-cap failure is the negative receipt; build the
     fail-closed version (caps enforced at dispatch, unknown-priced = refuse).
