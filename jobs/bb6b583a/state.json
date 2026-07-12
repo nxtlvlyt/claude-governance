@@ -1,6 +1,6 @@
 {
   "state": "done",
-  "detail": "daemon heartbeat confirmed, status idle by design",
+  "detail": "both daemons idle, healthy; no new issues",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,12 +9,12 @@
       "session_cron"
     ]
   },
-  "tokens": 9911086,
+  "tokens": 9911426,
   "output": {
-    "result": "muezzin daemon active and idle as designed; no issues detected"
+    "result": "conductor duty complete: both muezzin mission-daemon systems nominal"
   },
   "children": null,
-  "linkScanOffset": 78902544,
+  "linkScanOffset": 78921514,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -42,6 +42,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-12T22:14:27.404Z",
+  "updatedAt": "2026-07-12T22:29:20.266Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
