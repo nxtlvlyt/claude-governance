@@ -1,7 +1,7 @@
 {
-  "state": "working",
-  "detail": "Stitch relay fixed (niyyah gate issue); daemons healthy",
-  "tempo": "idle",
+  "state": "blocked",
+  "detail": "Sentry project androidtv-tips needed to wire DSN",
+  "tempo": "blocked",
   "inFlight": {
     "tasks": 1,
     "queued": 0,
@@ -9,10 +9,11 @@
       "session_cron"
     ]
   },
-  "tokens": 8743194,
+  "tokens": 8743476,
+  "needs": "create Sentry project `androidtv-tips` (Browser JS) in abass-inc org at sentry.io",
   "output": null,
   "children": null,
-  "linkScanOffset": 58927579,
+  "linkScanOffset": 58976188,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -40,6 +41,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-12T03:51:05.001Z",
+  "updatedAt": "2026-07-12T03:52:08.824Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
