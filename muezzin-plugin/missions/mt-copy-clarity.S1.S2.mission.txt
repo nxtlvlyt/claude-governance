@@ -1,0 +1,19 @@
+MISSION-ID: mt-copy-clarity.S1.S2
+MISSION-CLASS: code-repo
+PARENT: mt-copy-clarity.S1
+TARTIB-INDEX: 2 of 2
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - index.html
+  - map.html
+REQUIRES: mt-copy-clarity.S1.S1 (tartib — this sub-mission may not start until mt-copy-clarity.S1.S1's receipt exists)
+STEPS: 1
+
+PARENT MAQSAD: Operator-sent growth transcript 2026-07-03 ("clear not clever": run every user-facing
+
+Maqsad: sub-mission 2 of 2 — Commit index.html and map.html by explicit filename with a message naming mt-copy-clarity.S1, noting the eliminated jargon phrases and pointing to the baseline/verify receipts where every before->after string pair is captured so the operator can veto wording from the receipt alone. Idempotent: no-ops cleanly if this mission's commit already exists on HEAD. through Commit index.html and map.html by explicit filename with a message naming mt-copy-clarity.S1, noting the eliminated jargon phrases and pointing to the baseline/verify receipts where every before->after string pair is captured so the operator can veto wording from the receipt alone. Idempotent: no-ops cleanly if this mission's commit already exists on HEAD.
+
+Steps:
+  9. Commit index.html and map.html by explicit filename with a message naming mt-copy-clarity.S1, noting the eliminated jargon phrases and pointing to the baseline/verify receipts where every before->after string pair is captured so the operator can veto wording from the receipt alone. Idempotent: no-ops cleanly if this mission's commit already exists on HEAD. [command] 
+
+Done means:  exist/are updated as specified

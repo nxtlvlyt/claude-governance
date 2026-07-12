@@ -1,0 +1,29 @@
+MISSION-ID: mt-copy-clarity.S1.S1
+MISSION-CLASS: code-repo
+PARENT: mt-copy-clarity.S1
+TARTIB-INDEX: 1 of 2
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - scratch-copy-grade-baseline.mjs
+  - index.html
+  - map.html
+  - scratch-copy-grade-verify.mjs
+VISUAL-QC-REQUIRED
+REQUIRES: none (first in tartib order)
+STEPS: 8
+
+PARENT MAQSAD: Operator-sent growth transcript 2026-07-03 ("clear not clever": run every user-facing
+
+Maqsad: sub-mission 1 of 2 — Idempotent baseline: record current branch + HEAD SHA and check whether index.html still contains the literal defect phrase 'Discovery Vectors'. If absent, the mission already landed — treat later edit steps as verify-only; never fail the mission purely on presence/absence of the phrase. through Scoped cleanliness check: confirm the working tree shows modifications restricted to the two ALLOW-FILES (index.html, map.html) with no unrelated changes leaking in.
+
+Steps:
+  1. Idempotent baseline: record current branch + HEAD SHA and check whether index.html still contains the literal defect phrase 'Discovery Vectors'. If absent, the mission already landed — treat later edit steps as verify-only; never fail the mission purely on presence/absence of the phrase. [command] 
+  2. In ONE command, write scratch-copy-grade-baseline.mjs: a Node script that extracts user-visible copy strings (headings, section blurbs, CTA labels, layer/control names, hero text, <meta name="description">) from index.html and map.html, excludes aurora-chip-owned strings (mt-aurora-humanize.S1), computes a Flesch-Kincaid grade per string, and prints 'FILE | GRADE | STRING' for every extracted string as the before-receipt. Run it against both files, then delete the script. [command] scratch-copy-grade-baseline.mjs
+  3. Rewrite every string in index.html that graded above 8 in the baseline receipt down to plain language (<=6 for headline/CTA-class strings, <=8 otherwise). Eliminate the literal phrases 'Discovery Vectors' and 'Critical infra' if present. Preserve the honest-data trust claims (verified/likely/unconfirmed distinctions, 'traced to an official source') verbatim in meaning — simplify only surrounding prose. Do not touch aurora-chip-owned strings. [edit] index.html
+  4. Rewrite every string in map.html that graded above 8 in the baseline receipt down to plain language (<=6 headline/CTA-class, <=8 otherwise): layer names, control/legend labels, section blurbs. Eliminate 'Critical infra' if present. Preserve trust-claim meaning verbatim. Leave aurora-chip strings untouched (owned by mt-aurora-humanize.S1). [edit] map.html
+  5. In ONE command, recreate the identical extraction+grading logic as scratch-copy-grade-verify.mjs. Run it against the now-rewritten index.html and map.html. The script must print per-file completion markers INDEX_CLARITY_OK / MAP_CLARITY_OK only when every extracted string in that file grades <=8 (headline/CTA <=6), and print overall COPY_CLARITY_OK only when both hold; otherwise it must exit non-zero and omit the OK markers. Capture full output to copy-grade-verify-receipt.txt, then delete the script. [command] scratch-copy-grade-verify.mjs
+  6. Verify index.html specifically cleared the clarity bar by checking the verify-receipt for its per-file completion marker. [verify] index.html
+  7. Verify map.html specifically cleared the clarity bar by checking the verify-receipt for its per-file completion marker. [verify] map.html
+  8. Scoped cleanliness check: confirm the working tree shows modifications restricted to the two ALLOW-FILES (index.html, map.html) with no unrelated changes leaking in. [verify] 
+
+Done means: scratch-copy-grade-baseline.mjs, index.html, map.html, scratch-copy-grade-verify.mjs exist/are updated as specified — verify by headless-browser render, not by reading the code
