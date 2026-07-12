@@ -1,6 +1,6 @@
 {
-  "state": "done",
-  "detail": "mt daemon restarted (pid 3592), stitch-atv14 re-bare passed",
+  "state": "working",
+  "detail": "daemons alive (mt:3592, agy:9308); stitch mission mid-flight attempt 1",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,12 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 8722680,
-  "output": {
-    "result": "mt daemon restarted with fixes; stitch-atv14 mission live; all cron items settled"
-  },
+  "tokens": 8723888,
+  "output": null,
   "children": null,
-  "linkScanOffset": 58706068,
+  "linkScanOffset": 58728590,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -42,6 +40,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-12T03:18:48.378Z",
+  "updatedAt": "2026-07-12T03:29:26.399Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
