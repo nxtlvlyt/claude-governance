@@ -1,20 +1,27 @@
 {
-  "state": "done",
-  "detail": "preview serving v2-contract design; prod via run 7 (queued)",
+  "state": "working",
+  "detail": "relay dry-run in flight; runner polling for receipt",
   "tempo": "idle",
   "inFlight": {
-    "tasks": 1,
+    "tasks": 2,
     "queued": 0,
     "kinds": [
+      "local_bash",
       "session_cron"
     ]
   },
-  "tokens": 8864887,
-  "output": {
-    "result": "https://preview.androidtv-tips.pages.dev/ live now; prod deployment queued"
-  },
+  "fan": [
+    {
+      "id": "bo1dpbs2i",
+      "kind": "shell",
+      "label": "pwsh -NoProfile -File sites/androidtv-tips/design/stitch-relay-run.ps1",
+      "startedAt": 1783834950192
+    }
+  ],
+  "tokens": 8867092,
+  "output": null,
   "children": null,
-  "linkScanOffset": 63633841,
+  "linkScanOffset": 63686180,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -42,6 +49,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-12T05:39:02.667Z",
+  "updatedAt": "2026-07-12T05:42:54.832Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
