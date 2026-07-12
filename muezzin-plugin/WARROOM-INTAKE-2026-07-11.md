@@ -168,3 +168,12 @@ The warroom's conducting seat inherits the ninth law verbatim (conductor-core.md
 in-session, never deferred to another queue cycle. Weaker seats inherit conditions,
 not judgment — this exists because the operator asked "if you refuse to push harder
 does that mean agy and warroom will refuse too?" The answer must be no, mechanically.
+
+## S-SIGNALS (2026-07-12, REQUIRED): EXTERNAL-SIGNALS POLLER AS CONFIG
+The warroom ships with the external-signals poller (Sentry + GitHub Actions
+conclusions + extensible), configured per project in signals.json — one script shared
+with the muezzin engines, never a reimplementation. New failures append to the
+warroom's own debt surface so its conducting seat sees them every turn. Provenance:
+operator asks 2026-07-12 ("pulled into the conductor for verification" + "universal
+amongst Claude agy and warroom"); the five hand-forwarded lighthouse emails are the
+receipt for why this is REQUIRED, not optional.

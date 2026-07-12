@@ -2686,3 +2686,15 @@ CLOSES THE LOOP the operator has been hand-carrying: CI failure -> poller -> reg
 The five lighthouse emails tonight are the receipt for why: the failure class sat
 visible in GitHub since 2026-07-01 and reached the conductor only via the operator's
 phone.
+
+ITEM 19 UNIVERSALITY CLAUSE (operator ask 2026-07-12: "will this be universal amongst
+Claude agy and warroom" — yes, by construction): ONE script, per-jurisdiction CONFIG
+(signals.json: {sentry_projects[], github_repos[]}), never three implementations.
+- Claude side: cron-beat run; appends to this register/INBOX; the user-prompt-submit
+  hook already injects the surface.
+- agy: the script forks with the engine (harness-neutral, Node builtins only); its
+  signals.json watches the atv Sentry project + its repos; output feeds the agy INBOX
+  now and the agy injection layer when the item-13 hook slices land. Credentials are
+  MACHINE-level (sentry-poll.env + gh CLI auth), shared by both forks on this laptop.
+- warroom: born with it — spec item added to WARROOM-INTAKE (it is the modern shape of
+  warroom v1's own watchdog/failover.py pattern, as config not code).
