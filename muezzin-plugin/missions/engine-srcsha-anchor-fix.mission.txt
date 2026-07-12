@@ -1,0 +1,58 @@
+MISSION-ID: M-ENGINE.SRCSHA-ANCHOR-FIX
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\.claude\muezzin-plugin
+ALLOW-FILES:
+  - conduct-cycle.mjs
+REQUIRES: none
+STEPS: 4
+
+Maqsad: close gap-conduct-cycle-srcsha-anchor at the engine — the lighthouse-ci-manifest-fix
+mission FAILED via a false PRE-SATISFIED refusal: missionLandedState's srcSha extraction
+(missionLandedState, the mtext.match hex regex) grabbed the first 7+ char hex-looking
+token ANYWHERE in the mission's free prose, with no anchor requiring it be a declared
+baseline. That mission's Maqsad cited a prior commit as narrative color; the token
+happened to equal current HEAD, git diff against itself trivially reported identical,
+and the daemon concluded unfinished work was already landed. Fix: srcSha may only come
+from a declared BASELINE-SHA: field at start of a line; a bare hex-looking token in
+prose no longer drives a verdict past PARTIAL. A committed, dry-run-verified patcher
+script already exists at missions/_logs/srcsha-anchor-patch.mjs (idempotent, exits
+ALREADY-PATCHED on a second run) — this mission runs it rather than hand-editing.
+
+niyyah: close the false-positive class without weakening the legitimate opt-in path —
+a mission that DOES declare BASELINE-SHA: still gets the FULL-verdict fast path exactly
+as before; only the silent prose-token inference is removed.
+
+Steps:
+  1. Baseline, stdout only. Run exactly: git rev-parse --abbrev-ref HEAD; git rev-parse HEAD; node conduct-cycle.mjs --selftest; if ($LASTEXITCODE -ne 0) { Write-Output PRE-SELFTEST-FAIL; exit 1 }; Write-Output PRE-SELFTEST-PASS [command]
+     validation_command: node conduct-cycle.mjs --selftest
+  2. Run the committed patcher exactly: node missions/_logs/srcsha-anchor-patch.mjs; if ($LASTEXITCODE -ne 0) { exit 1 } [command]
+     validation_command: node --check conduct-cycle.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; if (-not (Select-String -Path conduct-cycle.mjs -Pattern 'ANCHOR REQUIREMENT \(2026-07-12' -Quiet)) { exit 1 }
+  3. Full selftest, untruncated. Run exactly: node conduct-cycle.mjs --selftest 2>&1 | Tee-Object -Variable out; $out | Select-String -Pattern '^FAIL' | ForEach-Object { Write-Output $_.Line }; $failCount = ($out | Select-String -Pattern '^FAIL').Count; $anchorCount = ($out | Select-String -Pattern 'ANCHOR REQUIREMENT').Count; if ($failCount -ne 0 -or $anchorCount -lt 3) { Write-Output "SELFTEST-INCOMPLETE fail=$failCount anchor=$anchorCount"; exit 1 }; Write-Output "SELFTEST-CLEAN anchor=$anchorCount" [command]
+     validation_command: node conduct-cycle.mjs --selftest
+  4. Commit EXACTLY: git add -- conduct-cycle.mjs; git diff --cached --quiet; if ($LASTEXITCODE -eq 0) { Write-Output ALREADY_COMMITTED } else { git commit -m "fix(engine): missionLandedState requires a declared BASELINE-SHA: field, never infers from bare hex tokens in prose (gap-conduct-cycle-srcsha-anchor; live incident: lighthouse-ci-manifest-fix false PRE-SATISFIED 2026-07-12); 3 new ANCHOR REQUIREMENT regression tests, full selftest ALL PASS"; if ($LASTEXITCODE -ne 0) { exit 1 } } [command]
+
+Done means: conduct-cycle.mjs's missionLandedState only derives srcSha from a declared
+`BASELINE-SHA: <sha>` field at start-of-line (case-insensitive); a bare hex-looking token
+anywhere else in mission prose no longer drives a FULL verdict; node conduct-cycle.mjs
+--selftest ALL PASS including the 3 new ANCHOR REQUIREMENT regression cases; committed.
+NOTE FOR THE CONDUCTOR (not a step): fix goes live per-daemon at next restart (module
+cached per-process) — mt restart owed at next lane boundary before re-firing
+lighthouse-ci-manifest-fix.mission.txt (which still needs its own unbuilt deliverable,
+the lhci upload step, separately from this engine fix). agy fork port is a follow-up
+cherry-pick mission.
+
+# CONDUCTOR PROVENANCE (2026-07-12, operator-directed): operator reviewed the two-path
+# choice recorded on lighthouse-ci-manifest-fix.mission.txt's FAILED annotation (reword
+# mission prose vs fix the engine regex) and ruled option 2 — fix the engine — is the
+# governance-correct path, and named the routing of that choice to him a lapse ("we
+# built an amazing governance to help you... is your wudu, prayer, niyyah failing").
+# Constructed as a mission per the five-verb law and the conductor-direct exception
+# conditions: CLASS fails (conduct-cycle.mjs is the daemon's own beat-execution
+# machinery — the fifth law: "a mission cannot safely edit the machinery executing that
+# mission" applies by name) and SIZE fails (multi-region: regex line + 4 fixture
+# strings + 3 new test blocks, not a <=15-line/one-config-value change). Gap-priority:
+# this is gap-conduct-cycle-srcsha-anchor's owner, bite-class, outranks product fires.
+# Patcher script verified this session: dry-run PATCHED + node --check SYNTAX-OK in a
+# full-engine scratch copy, then node conduct-cycle.mjs --selftest 163 PASS / 0 FAIL
+# with all 3 ANCHOR REQUIREMENT cases present and passing (untruncated capture, not the
+# earlier tail-30 view that hid them).
