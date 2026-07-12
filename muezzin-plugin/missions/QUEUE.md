@@ -2589,3 +2589,22 @@ ignored it). Two pieces ARE worth taking:
    trigger->action, zero judgment calls, one worked example, the failure it prevents
    named. (The qwen-relay exception-conditions migration already proved the direction;
    this is the per-line test.)
+
+
+## 2026-07-12 PRIORITY BUMP — ITEM 17 (niyyah TTL) + three conductor-drag gaps
+
+Operator asked "are there any other reasons the conductor has been holding us back?" —
+the receipted answer, filed in the register this wake:
+(a) ITEM 17 (niyyah state-file TTL 60s) promoted: ~15 restaging cycles this session,
+    roughly a quarter of conductor turn overhead. The mtime/TTL fix is small.
+(b) gap-attempt2-validation-replay: attempt-2 re-plans then replays validation only —
+    ~8 min waste per failure cycle, receipted 3x tonight.
+(c) gap-seat-health-is-roundtrip: Connected != working — the Stitch seat was 403-broken
+    for a month behind a green checkmark.
+(d) gap-witness-revise-on-refire: run-6's ornith REVISE named the planner drop before
+    the burn; mechanize the fourth law for refires.
+(e) agy single-lane serialization is DELIBERATE (MUEZZIN_MAX_LANES=1 — the whole atv
+    queue shares one repo; 2 lanes collide on the clean-worktree guards, receipted in
+    the daemon header 2026-06-17). The real unblocker is the engine item that comment
+    already names: PER-REPO lane scheduling (co-schedule different-repo missions,
+    serialize same-repo). Carried into ENGINE BATCH 2.

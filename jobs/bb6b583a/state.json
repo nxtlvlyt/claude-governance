@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "relay dry-run mid-flight (Stitch generation); daemons healthy",
+  "detail": "found 5 root causes; 4 filed as engine gaps, relay dry-run in progress",
   "tempo": "idle",
   "inFlight": {
     "tasks": 3,
@@ -24,10 +24,10 @@
       "startedAt": 1783836012172
     }
   ],
-  "tokens": 8883905,
+  "tokens": 8888827,
   "output": null,
   "children": null,
-  "linkScanOffset": 63943540,
+  "linkScanOffset": 64013357,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -55,6 +55,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-12T06:01:47.104Z",
+  "updatedAt": "2026-07-12T06:04:32.303Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
