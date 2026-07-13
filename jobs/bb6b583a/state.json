@@ -1,10 +1,10 @@
 {
   "state": "working",
-  "detail": "Monitor running; processing in background",
+  "detail": "polling for external change",
   "tempo": "idle",
   "inFlight": {
     "tasks": 2,
-    "queued": 1,
+    "queued": 2,
     "kinds": [
       "monitor",
       "session_cron"
@@ -18,10 +18,10 @@
       "startedAt": 1783916921556
     }
   ],
-  "tokens": 10524167,
+  "tokens": 10524927,
   "output": null,
   "children": null,
-  "linkScanOffset": 83076324,
+  "linkScanOffset": 83100817,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -49,6 +49,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-13T04:29:14.523Z",
+  "updatedAt": "2026-07-13T04:29:50.705Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
