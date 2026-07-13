@@ -1,6 +1,6 @@
 {
   "state": "blocked",
-  "detail": "awaiting user to run command to unblock",
+  "detail": "venv not created; awaiting command execution",
   "tempo": "blocked",
   "inFlight": {
     "tasks": 2,
@@ -18,11 +18,11 @@
       "startedAt": 1783923540520
     }
   ],
-  "tokens": 10654579,
-  "needs": "run the command provided in the previous message",
+  "tokens": 10654911,
+  "needs": "paste the command into PowerShell/Command Prompt and run it",
   "output": null,
   "children": null,
-  "linkScanOffset": 87329943,
+  "linkScanOffset": 87378360,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -50,6 +50,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-13T07:37:24.229Z",
+  "updatedAt": "2026-07-13T07:39:05.676Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
