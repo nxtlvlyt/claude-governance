@@ -1,19 +1,27 @@
 {
-  "state": "blocked",
-  "detail": "watchdog script ready; confirm you want scheduled task built",
-  "tempo": "blocked",
+  "state": "working",
+  "detail": "task registered & manual run success; monitoring S4U behavior",
+  "tempo": "idle",
   "inFlight": {
-    "tasks": 1,
+    "tasks": 2,
     "queued": 0,
     "kinds": [
+      "monitor",
       "session_cron"
     ]
   },
-  "tokens": 10521102,
-  "needs": "confirm you want the watchdog scheduled task built",
+  "fan": [
+    {
+      "id": "bmj8q9q94",
+      "kind": "monitor",
+      "label": "Poll SearXNG for 2 minutes to see if the watchdog's relaunch actually brings the engine up",
+      "startedAt": 1783916921556
+    }
+  ],
+  "tokens": 10524125,
   "output": null,
   "children": null,
-  "linkScanOffset": 82982428,
+  "linkScanOffset": 83064285,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -41,6 +49,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-13T04:21:00.470Z",
+  "updatedAt": "2026-07-13T04:28:49.110Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
