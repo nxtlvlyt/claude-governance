@@ -1,13 +1,12 @@
 {
-  "state": "working",
-  "detail": "building venv in WSL Ubuntu; pip install in progress",
-  "tempo": "idle",
+  "state": "blocked",
+  "detail": "awaiting WSL command execution on user's machine",
+  "tempo": "blocked",
   "inFlight": {
-    "tasks": 3,
-    "queued": 1,
+    "tasks": 2,
+    "queued": 0,
     "kinds": [
       "local_bash",
-      "monitor",
       "session_cron"
     ]
   },
@@ -17,18 +16,13 @@
       "kind": "shell",
       "label": "ssh -N -L 8080:localhost:8080 nxtbeast",
       "startedAt": 1783923540520
-    },
-    {
-      "id": "blundt73s",
-      "kind": "monitor",
-      "label": "Poll for the venv appearing over the next 90 seconds",
-      "startedAt": 1783928412759
     }
   ],
-  "tokens": 10655843,
+  "tokens": 10656106,
+  "needs": "run the WSL command in your terminal",
   "output": null,
   "children": null,
-  "linkScanOffset": 87473834,
+  "linkScanOffset": 87500525,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -56,6 +50,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-13T07:41:40.909Z",
+  "updatedAt": "2026-07-13T07:42:31.704Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
