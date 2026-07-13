@@ -1,20 +1,27 @@
 {
-  "state": "done",
-  "detail": "both daemons healthy; diagnoses & audit verified current",
+  "state": "working",
+  "detail": "Docker Desktop booting on nxtbeast; monitoring SearXNG",
   "tempo": "idle",
   "inFlight": {
-    "tasks": 1,
+    "tasks": 2,
     "queued": 0,
     "kinds": [
+      "monitor",
       "session_cron"
     ]
   },
-  "tokens": 10451610,
-  "output": {
-    "result": "status cron: mt/agy alive, diagnoses & warroom audit complete, no action needed"
-  },
+  "fan": [
+    {
+      "id": "bhuu5p4x9",
+      "kind": "monitor",
+      "label": "Poll SearXNG until it responds or timeout, reporting each attempt",
+      "startedAt": 1783910477130
+    }
+  ],
+  "tokens": 10468903,
+  "output": null,
   "children": null,
-  "linkScanOffset": 81647173,
+  "linkScanOffset": 81836597,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -42,6 +49,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-13T02:29:25.901Z",
+  "updatedAt": "2026-07-13T02:41:26.481Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
