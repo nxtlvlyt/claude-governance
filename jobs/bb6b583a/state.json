@@ -1,7 +1,7 @@
 {
-  "state": "blocked",
-  "detail": "conductor gaps unfixed; awaiting strategy decision",
-  "tempo": "blocked",
+  "state": "working",
+  "detail": "saving non-obvious lessons to memory index for future sessions",
+  "tempo": "idle",
   "inFlight": {
     "tasks": 1,
     "queued": 0,
@@ -9,11 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 11045057,
-  "needs": "decide: force conductor retry logic, or work around gaps in mission firing?",
+  "tokens": 11051306,
   "output": null,
   "children": null,
-  "linkScanOffset": 94536401,
+  "linkScanOffset": 94768113,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -41,6 +40,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-13T19:29:20.568Z",
+  "updatedAt": "2026-07-13T19:46:01.015Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
