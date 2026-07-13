@@ -1029,3 +1029,4 @@
 {"at":"2026-07-13T04:29:08.546Z","state":"working","detail":"yes do it","text":""}
 {"at":"2026-07-13T04:29:14.523Z","state":"working","detail":"Monitor running; processing in background","text":"No question posed — just noting a background Monitor is running, exactly per its own instructions. Nothing to dispatch or classify."}
 {"at":"2026-07-13T04:29:50.705Z","state":"working","detail":"polling for external change","text":"(still polling — no change yet)"}
+{"at":"2026-07-13T04:30:26.009Z","state":"working","detail":"waiting for service recovery (t+60s)","text":"(still down at t+60s — waiting)"}

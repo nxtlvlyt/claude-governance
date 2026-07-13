@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "polling for external change",
+  "detail": "waiting for service recovery (t+60s)",
   "tempo": "idle",
   "inFlight": {
     "tasks": 2,
@@ -18,10 +18,10 @@
       "startedAt": 1783916921556
     }
   ],
-  "tokens": 10524927,
+  "tokens": 10524942,
   "output": null,
   "children": null,
-  "linkScanOffset": 83100817,
+  "linkScanOffset": 83117453,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -49,6 +49,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-13T04:29:50.705Z",
+  "updatedAt": "2026-07-13T04:30:26.009Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
