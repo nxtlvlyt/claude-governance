@@ -1,7 +1,7 @@
 {
-  "state": "blocked",
-  "detail": "waiting on user: what gaps need fixing?",
-  "tempo": "blocked",
+  "state": "working",
+  "detail": "polling Gap fix PIDs; idle cycle detected",
+  "tempo": "idle",
   "inFlight": {
     "tasks": 1,
     "queued": 0,
@@ -9,11 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 11118999,
-  "needs": "clarify which Gap fixes to prioritize",
+  "tokens": 11119178,
   "output": null,
   "children": null,
-  "linkScanOffset": 96216475,
+  "linkScanOffset": 96231418,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -41,6 +40,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-13T21:44:15.116Z",
+  "updatedAt": "2026-07-13T21:59:15.838Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }

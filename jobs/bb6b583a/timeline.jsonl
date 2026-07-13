@@ -1257,3 +1257,5 @@
 {"at":"2026-07-13T21:29:18.344Z","state":"blocked","detail":"engine-reset-allowfiles-staged-fix held; awaiting go-ahead","text":"Both daemons idle, unchanged. `engine-reset-allowfiles-staged-fix` remains held on your word from last turn — nothing else material this cycle."}
 {"at":"2026-07-13T21:43:48.554Z","state":"blocked","detail":"what are we going to get all the Gap fixes done","text":""}
 {"at":"2026-07-13T21:44:15.116Z","state":"blocked","detail":"waiting on user: what gaps need fixing?","text":"Same PIDs, idle, unchanged. Quiet cycle — nothing material."}
+{"at":"2026-07-13T21:58:48.167Z","state":"blocked","detail":"what are we going to get all the Gap fixes done","text":""}
+{"at":"2026-07-13T21:59:15.838Z","state":"working","detail":"polling Gap fix PIDs; idle cycle detected","text":"Same PIDs, idle, unchanged. Quiet cycle — nothing material."}
