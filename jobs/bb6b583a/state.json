@@ -1,6 +1,6 @@
 {
   "state": "blocked",
-  "detail": "awaiting user decision on real-cost vs operator values",
+  "detail": "watchdog script ready; confirm you want scheduled task built",
   "tempo": "blocked",
   "inFlight": {
     "tasks": 1,
@@ -9,11 +9,11 @@
       "session_cron"
     ]
   },
-  "tokens": 10514802,
-  "needs": "clarify which approach: real-cost or encode operator values in canon?",
+  "tokens": 10521102,
+  "needs": "confirm you want the watchdog scheduled task built",
   "output": null,
   "children": null,
-  "linkScanOffset": 82906776,
+  "linkScanOffset": 82982428,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -41,6 +41,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-13T04:18:19.365Z",
+  "updatedAt": "2026-07-13T04:21:00.470Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
