@@ -169,3 +169,6 @@
 [2026-07-13T07:38:02.404Z] [supervisor] auth: proactive refresh starting
 [2026-07-13T07:38:02.407Z] [supervisor] auth: scheduling proactive refresh in 28513s
 [2026-07-13T07:38:02.407Z] [supervisor] auth: token still valid (cross-process refresh or not yet due)
+[2026-07-13T15:33:15.043Z] [supervisor] auth: proactive refresh starting
+[2026-07-13T15:33:15.052Z] [supervisor] auth: scheduling proactive refresh in 28517s
+[2026-07-13T15:33:15.052Z] [supervisor] auth: token still valid (cross-process refresh or not yet due)

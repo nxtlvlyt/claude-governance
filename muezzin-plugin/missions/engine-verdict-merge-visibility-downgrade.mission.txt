@@ -1,0 +1,62 @@
+MISSION-ID: M-ENGINE.VERDICT-MERGE-VISIBILITY-DOWNGRADE
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\.claude\muezzin-plugin
+ALLOW-FILES:
+  - verdict_merge.mjs
+REQUIRES: none
+STEPS: 2
+
+Maqsad: land the mechanical half of gap-panel-truncation-false-reject (QUEUE
+ITEM 15, priority-elevated 2026-07-13 after 3 receipted false deaths this
+session — mission_lint.mjs, conduct-cycle.mjs, and deconstructor.mjs verdict
+panels each wrongly REJECTed already-correct, already-committed work because
+the panel's own visibility was capped). An 'arkan' (mission-invalidating)
+finding whose OWN description text admits the seat could not see enough to
+judge — cap-omitted, truncated, beyond the reviewed slice, "not directly
+verifiable" — is force-downgraded to 'wajib' (repairable, non-invalidating)
+before the merge's arkan-escalation check runs. A self-admitted visibility
+gap is never a legitimate basis for invalidating a whole mission.
+
+This is the MECHANICAL half only. The gap's full closes_when condition
+("relevance-extracted artifact slicing for panels", replacing head-only
+truncation in orchestrate.mjs's defaultVerdictPhase) is a larger architecture
+change, explicitly out of scope here and left as separate follow-on work —
+this mission does not close gap-panel-truncation-false-reject in
+GAP-REGISTER.jsonl, only lands one of its two named fixes.
+
+niyyah: change what the keystone merge engine treats as a disqualifying
+defect — operator-reviewed and explicitly authorized ("yes you can", this
+session) given the weight of that change. Land it with test coverage for the
+new behavior itself, not just a clean re-run of the pre-existing suite: a
+downgrade rule with zero coverage of its own trigger condition would be
+exactly the "ship past a real signal" failure class this session named.
+
+Steps:
+  1. Run the committed, twice-dry-run-verified patcher exactly: node missions/_logs/verdict-merge-visibility-downgrade-patch.mjs verdict_merge.mjs; if ($LASTEXITCODE -ne 0) { exit 1 } [command]
+     validation_command: node --check verdict_merge.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; if (-not (Select-String -Path verdict_merge.mjs -Pattern 'VISIBILITY_LIMIT_RE' -Quiet)) { exit 1 }
+  2. Full selftest, then commit. Run exactly: node verdict_merge.mjs 2>&1 | Tee-Object -Variable out; $failCount = ($out | Select-String -Pattern '^FAIL').Count; if ($failCount -ne 0) { Write-Output "SELFTEST-INCOMPLETE fail=$failCount"; exit 1 }; git add -- verdict_merge.mjs; git diff --cached --quiet; if ($LASTEXITCODE -eq 0) { Write-Output ALREADY_COMMITTED } else { git commit -m "fix(engine): downgrade self-admitted-visibility-limited arkan findings to wajib in verdict merge (gap-panel-truncation-false-reject mechanical half, QUEUE ITEM 15); operator-authorized 'yes you can'; full selftest ALL PASS incl. 2 new cases for the downgrade path" }; if ($LASTEXITCODE -ne 0) { exit 1 } [command]
+
+Done means: verdict_merge.mjs's mergeVerdicts() force-downgrades an 'arkan'
+finding to 'wajib' when its own description text admits a visibility limit
+(cap-omitted/truncated/not-directly-verifiable/beyond-reviewed-slice); a
+genuine unrelated arkan finding is untouched (still escalates to REJECT);
+full selftest suite ALL PASS (26 checks: 24 pre-existing + 2 new covering the
+downgrade path directly); committed.
+
+# CONDUCTOR PROVENANCE (2026-07-13): a direct hand-edit of verdict_merge.mjs
+# was designed and its Write call was BLOCKED by the platform classifier —
+# "self-certifying disputed verdict-panel judgments about the engine's own
+# judgment-machinery... without either explicit operator authorization or
+# full mission-construction." The operator then gave explicit authorization
+# ("yes you can") when asked directly whether to proceed, adjust, or defer.
+# Per the same discipline already established this session for judgment-
+# machinery files (conduct-cycle.mjs's srcSha-anchor + fixture fixes), this
+# mission is the correct route even with explicit authorization in hand —
+# authorization answers WHETHER to make the change; mission-construction is
+# HOW judgment-machinery changes land, regardless of who authorized them.
+# Patcher verified twice: dry-run against a fresh HEAD copy (first attempt
+# caught its own anchor-text bug — the live selftest line carries `receipts:
+# RC` that an earlier transcription omitted, NOT-UNIQUE: 0 occurrences —
+# fixed and re-verified), full selftest ALL PASS including the 2 new cases
+# added specifically to cover the new downgrade behavior (a genuine arkan
+# finding proven untouched; a visibility-admitting one proven to downgrade).

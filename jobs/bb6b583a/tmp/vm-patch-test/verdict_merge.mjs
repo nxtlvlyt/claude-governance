@@ -171,9 +171,6 @@ if (import.meta.url === `file://${process.argv[1]}` || process.argv[1]?.endsWith
   check(mergeVerdicts([{ seat: 'v', verdict: 'REVISE', findings: [W('gap')], receipts: RC }]).damm.length, 1, 'damm queue carries the wajib finding');
   check(mergeVerdicts([{ seat: 'v', verdict: 'REVISE', findings: [{ id: 'S1', class: 'sunnah' }], receipts: RC }]).consensus, 'APPROVE', 'sunnah-only REVISE -> APPROVE (no penalty)');
   check(mergeVerdicts([{ seat: 'v', verdict: 'REVISE', findings: [{ id: 'A1', class: 'arkan' }, W('gap')], receipts: RC }]).consensus, 'REJECT', 'any arkan finding -> >= REJECT (a missed pillar invalidates; no expiation)');
-  // VISIBILITY-LIMIT DOWNGRADE (gap-panel-truncation-false-reject, priority-elevated 2026-07-13)
-  check(mergeVerdicts([{ seat: 'v', verdict: 'REJECT', findings: [{ id: 'A1', class: 'arkan', description: 'content was omitted beyond the reviewed slice — could not directly verify this section' }], receipts: RC }]).consensus, 'APPROVE_WITH_DAMM', 'arkan finding admitting its own visibility limit -> downgraded to wajib -> APPROVE_WITH_DAMM (self-admitted incomplete review cannot invalidate a mission)');
-  check(mergeVerdicts([{ seat: 'v', verdict: 'REJECT', findings: [{ id: 'A1', class: 'arkan', description: 'the function returns the wrong value for negative inputs' }], receipts: RC }]).consensus, 'REJECT', 'a genuine arkan finding unrelated to visibility is NOT downgraded — still REJECT');
   check(mergeVerdicts([{ seat: 'v', verdict: 'REVISE', findings: [{ id: 'U1', description: 'ungraded' }], receipts: RC }]).consensus, 'REVISE', 'UNCLASSIFIED finding -> full severity (graduation never weakens ungraded findings)');
   check(mergeVerdicts([{ seat: 'v', verdict: 'REVISE', findings: [W('gap')] }]).consensus, 'REVISE', 'unwitnessed seat -> no downgrade (damm rides only on witnessed deeds)');
   // BLOCK NEVER DOWNGRADES (laguna witness REJECT 2026-06-11 upheld the original rule;
