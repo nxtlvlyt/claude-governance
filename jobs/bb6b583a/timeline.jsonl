@@ -1234,3 +1234,4 @@
 {"at":"2026-07-13T18:29:17.337Z","state":"blocked","detail":"conductor not retrying gaps; need guidance on retry strategy","text":"Same PIDs, idle, unchanged. Quiet cycle."}
 {"at":"2026-07-13T18:44:14.607Z","state":"blocked","detail":"conductor not retrying gaps; needs strategy to force retry logic","text":"Same PIDs, idle, unchanged. Quiet cycle."}
 {"at":"2026-07-13T18:59:14.067Z","state":"blocked","detail":"conductor idle, gaps unfixed; need reproduction steps","text":"Same PIDs, idle, unchanged. Quiet cycle."}
+{"at":"2026-07-13T19:14:16.831Z","state":"blocked","detail":"conductor PIDs idle 15m; awaiting user direction on fix approach","text":"Same PIDs, idle, unchanged since last check ~15 min ago. Quiet cycle — nothing material."}
