@@ -1,7 +1,7 @@
 {
-  "state": "done",
-  "detail": "status check: no changes since last ask",
-  "tempo": "idle",
+  "state": "blocked",
+  "detail": "nxtbeast Docker Desktop VM down; tunnel configured but target unreachable",
+  "tempo": "blocked",
   "inFlight": {
     "tasks": 2,
     "queued": 0,
@@ -12,18 +12,17 @@
   },
   "fan": [
     {
-      "id": "bk827nlz1",
+      "id": "bne4j8hwi",
       "kind": "shell",
       "label": "ssh -N -L 8080:localhost:8080 nxtbeast",
-      "startedAt": 1783921142492
+      "startedAt": 1783923540520
     }
   ],
-  "tokens": 10602471,
-  "output": {
-    "result": "system status unchanged"
-  },
+  "tokens": 10605488,
+  "needs": "restart Docker Desktop on nxtbeast or advise if we should try a different deployment target",
+  "output": null,
   "children": null,
-  "linkScanOffset": 85507679,
+  "linkScanOffset": 85600198,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -51,6 +50,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-13T06:15:20.267Z",
+  "updatedAt": "2026-07-13T06:20:10.906Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
