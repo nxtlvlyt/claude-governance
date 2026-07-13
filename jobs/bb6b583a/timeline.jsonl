@@ -1031,3 +1031,4 @@
 {"at":"2026-07-13T04:29:50.705Z","state":"working","detail":"polling for external change","text":"(still polling — no change yet)"}
 {"at":"2026-07-13T04:30:26.009Z","state":"working","detail":"waiting for service recovery (t+60s)","text":"(still down at t+60s — waiting)"}
 {"at":"2026-07-13T04:30:56.233Z","state":"working","detail":"waiting on service recovery (~90s elapsed)","text":"(t+90s, still down)"}
+{"at":"2026-07-13T04:31:51.502Z","state":"working","detail":"Docker Desktop started; monitoring VM init (2 min)","text":"Progress — Docker Desktop.exe is now running (5 processes), unlike my earlier plain-SSH attempt. It's in Session 0 (services session, no desktop) though, which may or may not fully initialize the VM. Giving it more time before judging.\n\nWatching for another 2 min."}

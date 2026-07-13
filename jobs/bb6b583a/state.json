@@ -1,10 +1,10 @@
 {
   "state": "working",
-  "detail": "waiting on service recovery (~90s elapsed)",
+  "detail": "Docker Desktop started; monitoring VM init (2 min)",
   "tempo": "idle",
   "inFlight": {
     "tasks": 2,
-    "queued": 2,
+    "queued": 1,
     "kinds": [
       "monitor",
       "session_cron"
@@ -12,16 +12,16 @@
   },
   "fan": [
     {
-      "id": "bmj8q9q94",
+      "id": "bmv0ama21",
       "kind": "monitor",
-      "label": "Poll SearXNG for 2 minutes to see if the watchdog's relaunch actually brings the engine up",
-      "startedAt": 1783916921556
+      "label": "Give Docker Desktop more time to finish cold-starting in Session 0, poll SearXNG",
+      "startedAt": 1783917106676
     }
   ],
-  "tokens": 10524953,
+  "tokens": 10526280,
   "output": null,
   "children": null,
-  "linkScanOffset": 83134638,
+  "linkScanOffset": 83171399,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -49,6 +49,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-13T04:30:56.233Z",
+  "updatedAt": "2026-07-13T04:31:51.502Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
