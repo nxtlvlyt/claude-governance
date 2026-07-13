@@ -207,6 +207,35 @@ export function lintMission(text) {
     add('design-pass-without-contract', 'mission carries design-pass semantics (design system/pass, restyle, or stylesheet-rewrite language) AND writes a .css target, but binds to NO design contract file — no DESIGN.md mention, no "design contract". Improvised per-mission taste shipped atv-11 straight to the operator\'s "why is it so visually bad?" phone verdict (2026-07-11); the shape that passed is atv-12-design-to-contract: author the contract file first, then implement it with the contract named as the spec that WINS over the mission text.');
   }
 
+  // RULE 14 — CONTENT PASS WITHOUT CONTRACT (QUEUE item 26 / gap-seo-cro-copy-contract,
+  // operator-shared SEO & CRO Voice playbook 2026-07-12: the atv homepage h1 and hub
+  // headings are exactly the "clean but invisible" class the playbook names — readable,
+  // on-brand, and SEO-dead. mt-copy-clarity already proved the readability half of this
+  // problem (Flesch-Kincaid <=8 grading) but PROVABLY did not reach SEO semantics — no
+  // page carries geo/intent modifiers, FAQ blocks, or the H1 formula, because nothing
+  // mechanical ever asked. The DESIGN.md arc already answered the shape: prose taste
+  // fails, a CONTRACT with mechanical gates works — CONTENT-CONTRACT.md is the copy-side
+  // twin of DESIGN.md, same "where this mission text and X disagree, X wins" binding.
+  // THE SCOPING IS THE RULE, mirroring RULE 13 exactly: the trigger is copy-pass
+  // SEMANTICS in the mission text AND an .html target in ALLOW-FILES/steps, NEVER a bare
+  // tag. Two false-positive classes this must NOT trip, both already living in this
+  // file's own RULE 13 fixtures: mt-integrate-testimonials (a cherry-pick/integration
+  // mission that touches .html but carries zero copy/content/heading/meta rewrite
+  // language — RULE 13's own comment names this exact class) and mt-copy-clarity (a
+  // READABILITY pass — "rewrite the offending strings to plain language" — is not an
+  // SEO/heading/meta semantics pass; the gap receipt itself names the two as provably
+  // distinct concerns). A mission that says "content contract" in prose both triggers
+  // and binds by construction (the phrase IS the binding, same as RULE 13's "design
+  // contract"); the hyphenated pattern name "content-to-contract" alone triggers but
+  // does NOT bind (naming the pattern is not naming the contract file).
+  const copyPassLanguage = /\b(copy|content)\s+(pass|contract)\b|\bheading\s*(rewrite|formula|injection)\b|\bmeta\s*(description|title)?\s*rewrite\b|rewrite the [^\n]{0,40}(headings?|h1s?|meta\b)|\bSEO\s+(copy|semantics|headings?)\b|content-to-contract/i.test(t);
+  const htmlInAllowFiles = /^[ \t]*-[ \t]+\S+\.html\s*$/im.test(t);
+  const htmlInSteps = t.split(/\r?\n/).filter((l) => /^\s*\d+\.\s/.test(l)).some((l) => /\.html\b/i.test(l));
+  const bindsContentContract = /\bCONTENT-CONTRACT\.md\b|content contract/i.test(t);
+  if (copyPassLanguage && (htmlInAllowFiles || htmlInSteps) && !bindsContentContract) {
+    add('content-pass-without-contract', 'mission carries copy-pass semantics (copy/content pass-or-contract language, heading rewrite/formula/injection, meta description/title rewrite, or SEO copy/semantics/headings language) AND touches an .html target, but binds to NO content contract file — no CONTENT-CONTRACT.md mention, no "content contract". The atv homepage h1 and hub headings are exactly this "clean but invisible" class the operator-shared SEO & CRO Voice playbook named (QUEUE item 26, 2026-07-12); mt-copy-clarity already proved readability grading alone does not reach SEO semantics. The shape that should pass mirrors atv-12-design-to-contract: author CONTENT-CONTRACT.md first (the playbook\'s anti-fluff bans, H1 formula, heading keyword injection, trust architecture, high-intent FAQs, adapted per site), then implement it with the contract named as the spec that WINS over the mission text.');
+  }
+
   return { ok: problems.length === 0, problems };
 }
 
@@ -368,6 +397,27 @@ if (process.argv[1] && process.argv[1].endsWith('mission_lint.mjs')) {
   // strings" is not design-pass language and no .css is targeted.
   const copyClarity = 'MISSION-CLASS: code-repo\nMISSION-ID: mt-copy-clarity.S1\nREPO-ROOT: C:\\proj\\x\nALLOW-FILES:\n  - index.html\n  - map.html\nVISUAL-QC-REQUIRED\nMaqsad: run every user-facing string through a reading-grade check; rewrite the offending strings to plain language at grade 6 or below without weakening the trust claims.\nSteps:\n  1. Rewrite the offending strings in index.html and map.html to plain language. [edit] index.html\n  2. In ONE command: write scratch-copy-grade.mjs (grade every extracted string), node scratch-copy-grade.mjs, require COPY_CLARITY_OK, then Remove-Item it. [verify]\nDone means: every user-facing copy string at grade <=8 proven by the grader AND the headless-browser render of the landing page shows the rewritten hero copy intact.';
   ck(lintMission(copyClarity).ok, 'RULE 13: copy-clarity rewrite (html targets, no stylesheet rewrite) passes (mt-copy-clarity.S1 class — a copy pass is not a design pass)');
+
+  // ---- RULE 14: CONTENT PASS WITHOUT CONTRACT (QUEUE item 26 / gap-seo-cro-copy-contract;
+  // operator-shared SEO & CRO Voice playbook 2026-07-12 — atv's "clean but invisible"
+  // headings vs the CONTENT-CONTRACT.md cure, same trigger discipline as RULE 13) ----
+  // (a) the atv-14 shape: SEO/heading/meta rewrite language + .html targets, no contract -> refused.
+  const contentPass = 'MISSION-CLASS: code-repo\nMISSION-ID: ATV-14-HEADING-SEO-PASS\nREPO-ROOT: C:/proj/x\nALLOW-FILES:\n  - index.html\n  - map.html\nMaqsad: the SEO copy pass — rewrite the homepage and hub headings with keyword-injected H1s and fresh meta descriptions.\nSteps:\n  1. Rewrite the h1/h2 headings on index.html and map.html per the heading formula; rewrite the meta description tags. [edit] index.html\nDone means: headings read with intent modifiers and meta descriptions are present, not the clean-but-invisible defaults.';
+  const cp = lintMission(contentPass);
+  ck(!cp.ok && cp.problems.some((p) => p.rule === 'content-pass-without-contract'), 'RULE 14: SEO/heading/meta copy-pass language + .html targets bound to NO contract REFUSED (the atv "clean but invisible" shape)');
+
+  // (b) the atv-15 shape: same copy pass but names CONTENT-CONTRACT.md as the binding spec -> passes.
+  const contentToContract = 'MISSION-CLASS: code-repo\nMISSION-ID: ATV-15-CONTENT-TO-CONTRACT\nREPO-ROOT: C:/proj/x\nALLOW-FILES:\n  - index.html\n  - map.html\nMaqsad: implement CONTENT-CONTRACT.md — the BINDING content contract; where this mission text and CONTENT-CONTRACT.md disagree, CONTENT-CONTRACT.md wins.\nSteps:\n  1. Rewrite the h1/h2 headings and meta description tags on index.html and map.html to the contract\'s H1 formula and niche modifiers. [edit] index.html\n  2. In ONE command: write scratch-copy-witness.mjs (grep for generic headings/brand-only H1, title<=60, meta<=160), node scratch-copy-witness.mjs, require COPY_WITNESS_OK, then remove it. [command]\nDone means: the homepage and hub headings match the CONTENT-CONTRACT.md formula, proven by the copy witness script\'s COPY_WITNESS_OK receipt.';
+  ck(lintMission(contentToContract).ok, 'RULE 14: copy pass bound to CONTENT-CONTRACT.md passes (the atv-15-content-to-contract shape)');
+
+  // (c) the integrate class (reusing RULE 13's own fixture): zero copy/content/heading/meta
+  // rewrite language — the flag never trips it even though it touches index.html.
+  ck(!lintMission(integrateVisual).problems.some((p) => p.rule === 'content-pass-without-contract'), 'RULE 14: integrate mission (mt-integrate-testimonials class) with no copy-pass language never triggers content-pass-without-contract');
+
+  // (d) the mt-copy-clarity class (reusing RULE 13's own fixture): a READABILITY rewrite
+  // is not an SEO/heading/meta semantics pass — the gap this rule closes is a provably
+  // distinct concern (mt-copy-clarity grades reading level; it never touched SEO).
+  ck(!lintMission(copyClarity).problems.some((p) => p.rule === 'content-pass-without-contract'), 'RULE 14: readability-only copy-clarity rewrite (mt-copy-clarity class) never triggers content-pass-without-contract — a readability pass is not an SEO semantics pass');
 
   console.log(`\n${fail ? fail + ' FAIL' : 'ALL PASS — mission miqat: flawed work orders refused at the boundary, zero cycles burned'}`);
   process.exit(fail ? 1 : 0);
