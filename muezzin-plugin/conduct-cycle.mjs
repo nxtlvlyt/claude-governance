@@ -178,7 +178,14 @@ export function missionLandedState(mtext, gitFn) {
   const allowBlock = (mtext.match(/^ALLOW-FILES:[ \t]*\r?\n((?:[ \t]{2}-[ \t]+\S+.*\r?\n?)*)/mi) || [])[1] || '';
   const allow = [...allowBlock.matchAll(/^\s{2}-\s+(\S+)/gm)].map((m) => m[1]).filter((p2) => p2 !== '.');
   if (!allow.length) return null;
-  const srcSha = (mtext.match(/\b([a-f0-9]{7,40})\b/) || [])[1];
+  // BASELINE-SHA anchor (gap-conduct-cycle-srcsha-anchor, 2026-07-13): the old bare-token
+  // regex grabbed the FIRST 7+ char hex string ANYWHERE in mission prose, including a
+  // hash mentioned as unrelated context -- receipted false PRE-SATISFIED (lighthouse-ci-
+  // manifest-fix cited a prior commit equal to current HEAD, verdicting FULL on unstarted
+  // work). Require an explicit labeled field; missions without it fall back to the
+  // existing nosha path (present-nosha, capped PARTIAL) -- same as missions with no hash
+  // at all already get, so this is non-breaking for every mission not yet using the field.
+  const srcSha = (mtext.match(/^BASELINE-SHA:\s*([a-f0-9]{7,40})/mi) || [])[1];
   const files = {};
   let present = 0, identical = 0;
   for (const ap of allow) {

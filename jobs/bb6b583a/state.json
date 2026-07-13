@@ -1,7 +1,7 @@
 {
-  "state": "blocked",
-  "detail": "user decision: merge 2-3 verdict-quality gaps into priority or defer?",
-  "tempo": "blocked",
+  "state": "done",
+  "detail": "expanded gap-priority-hold: +2 bite-class gaps for quality",
+  "tempo": "idle",
   "inFlight": {
     "tasks": 2,
     "queued": 0,
@@ -18,11 +18,12 @@
       "startedAt": 1783923540520
     }
   ],
-  "tokens": 10729952,
-  "needs": "approve merging 2-3 verdict gaps into priority track, or defer them",
-  "output": null,
+  "tokens": 10734973,
+  "output": {
+    "result": "identified gap-panel-truncation-false-reject & gap-witness-revise-on-refire as bite-class; 5 bite-class gaps now in hold"
+  },
   "children": null,
-  "linkScanOffset": 89572193,
+  "linkScanOffset": 89642385,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -50,6 +51,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-13T08:57:58.188Z",
+  "updatedAt": "2026-07-13T09:02:12.871Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
