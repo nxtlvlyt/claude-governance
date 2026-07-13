@@ -1,6 +1,6 @@
 {
-  "state": "working",
-  "detail": "verified 2 stale duplicates retired; queue 31→29; cron confirmed real",
+  "state": "done",
+  "detail": "gap fixes landed; selftest-race pending stamp; daemons idle & healthy",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,12 @@
       "session_cron"
     ]
   },
-  "tokens": 9957366,
-  "output": null,
+  "tokens": 9959688,
+  "output": {
+    "result": "gap-reset-allowfiles-data-loss closed on both muezzin systems; selftest-race live but awaiting safety stamp; srcSha fix queued; two other bugs (items 27/28) tracked with owners"
+  },
   "children": null,
-  "linkScanOffset": 79227751,
+  "linkScanOffset": 79257490,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -40,6 +42,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-13T00:34:32.430Z",
+  "updatedAt": "2026-07-13T00:36:10.181Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
