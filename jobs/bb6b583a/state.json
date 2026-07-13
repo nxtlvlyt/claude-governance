@@ -1,6 +1,6 @@
 {
   "state": "blocked",
-  "detail": "cloned searxng to /opt/searxng; awaiting go-ahead to pip install",
+  "detail": "real-cost boundary: external code download needs explicit permission",
   "tempo": "blocked",
   "inFlight": {
     "tasks": 2,
@@ -18,11 +18,11 @@
       "startedAt": 1783923540520
     }
   ],
-  "tokens": 10623551,
-  "needs": "confirm: proceed with `pip install -e .` from /opt/searxng?",
+  "tokens": 10623621,
+  "needs": "confirm you want to proceed with downloading/executing external code",
   "output": null,
   "children": null,
-  "linkScanOffset": 86030057,
+  "linkScanOffset": 86040259,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -50,6 +50,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-13T06:46:50.358Z",
+  "updatedAt": "2026-07-13T06:47:19.553Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
