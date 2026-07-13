@@ -1078,3 +1078,5 @@
 {"at":"2026-07-13T05:30:34.615Z","state":"blocked","detail":"SearXNG firewall rule needed; one-liner command ready","text":"When you run the firewall command — that's the only thing SearXNG actually needs, and it's a one-liner. No fix on my end will land it; it's blocked purely on that one action from you."}
 {"at":"2026-07-13T05:30:36.405Z","state":"blocked","detail":"when will it be fixed","text":""}
 {"at":"2026-07-13T05:30:43.444Z","state":"done","detail":"answered timeline question; no dispatch needed","text":"False positive — \"will land\" wasn't a question to the operator, it was a direct factual answer to his \"when will it be fixed\" question. No dispatch needed."}
+{"at":"2026-07-13T05:30:45.323Z","state":"done","detail":"when will it be fixed","text":""}
+{"at":"2026-07-13T05:30:52.974Z","state":"done","detail":"confirmed: no open question, answer delivered","text":"Confirmed — no question present, answer already given."}
