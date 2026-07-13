@@ -1152,3 +1152,4 @@
 {"at":"2026-07-13T07:40:36.501Z","state":"working","detail":"!wsl -d Ubuntu -- bash -c \"cd /root/searxng && python3 -m venv .venv && ./.venv/bin/pip install -U pip setuptools wheel && ./.venv/bin/pip install -e .\"","text":""}
 {"at":"2026-07-13T07:40:44.744Z","state":"working","detail":"venv setup + pip install in progress","text":"False positive — no question, just noting a background monitor is running per its own instructions."}
 {"at":"2026-07-13T07:41:10.344Z","state":"working","detail":"venv creation in progress (~30s elapsed)","text":"(t+30s, still no venv — waiting on the monitor)"}
+{"at":"2026-07-13T07:41:40.909Z","state":"working","detail":"building venv in WSL Ubuntu; pip install in progress","text":"(t+45s, still no venv)"}
