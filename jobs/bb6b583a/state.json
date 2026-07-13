@@ -1,7 +1,7 @@
 {
-  "state": "working",
-  "detail": "both daemons idle; mt holding 29 queued (GAP-PRIORITY-HOLD correct), stitcher blocked on Docker",
-  "tempo": "idle",
+  "state": "blocked",
+  "detail": "LightingService confirmed crashing; awaiting PowerShell run",
+  "tempo": "blocked",
   "inFlight": {
     "tasks": 1,
     "queued": 0,
@@ -9,10 +9,13 @@
       "session_cron"
     ]
   },
-  "tokens": 10501116,
-  "output": null,
+  "tokens": 10503627,
+  "needs": "Run the Stop-Service + Set-Service commands on nxtbeast (elevated PowerShell)",
+  "output": {
+    "result": "ASUS AURA SYNC LightingService identified as crash-looping; disable with provided PowerShell commands"
+  },
   "children": null,
-  "linkScanOffset": 82337955,
+  "linkScanOffset": 82392848,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -40,6 +43,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-13T03:44:19.440Z",
+  "updatedAt": "2026-07-13T03:59:06.344Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
