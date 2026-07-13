@@ -1,0 +1,62 @@
+MISSION-ID: M-ENGINE.WITNESS-REFIRE-HOLD-DAEMON-WIRE
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\.claude\muezzin-plugin
+ALLOW-FILES:
+  - muezzin-daemon.mjs
+REQUIRES: none
+STEPS: 2
+
+Maqsad: complete gap-witness-revise-on-refire's second, final half — engine-
+witness-refire-hold.mission.txt (DONE this session) landed the mechanism
+(witnessRefireHold/ackPlanRead/latestBeforeWitness/latestAck in
+self_witness.mjs, committed dce7c95) but deliberately left the daemon's own
+fire loop unwired, to keep blast radius on the live daemon process minimal
+per mission. This mission wires witnessRefireHold into muezzin-daemon.mjs's
+fire loop, mirroring the existing searchReadinessGate hold/fire pattern
+exactly (same file, same function, same shape) — a same-stem REFIRE whose
+BEFORE-pass witness flagged a REVISE/REJECT is now HELD until the conductor
+acknowledges reading the flagged plan via `node self_witness.mjs
+--ack-plan-read <stem> [note]`.
+
+niyyah: mechanize the fourth law for refires all the way through — landing
+only the mechanism without wiring it into the actual fire path would be
+theater: correct-looking code that never governs a real decision. The gap
+does not close on the mechanism landing; it closes on the daemon actually
+holding a flagged refire.
+
+REQUIRES A DAEMON RESTART to take effect — Node does not hot-reload an
+already-running process's own source file. The daemon is live right now
+(pid tracked in missions/_logs/daemon-status.json); restart per the
+receipted launch shape after this mission lands, at the next safe lane
+boundary (zero lanes active), not mid-fire.
+
+Steps:
+  1. Run the committed, dry-run-verified patcher exactly: node missions/_logs/witness-refire-hold-daemon-wire-patch.mjs muezzin-daemon.mjs; if ($LASTEXITCODE -ne 0) { exit 1 } [command]
+     validation_command: node --check muezzin-daemon.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; if (-not (Select-String -Path muezzin-daemon.mjs -Pattern 'witnessRefireHold' -Quiet)) { exit 1 }
+  2. Full selftest, then commit. Run exactly: node muezzin-daemon.mjs --selftest 2>&1 | Tee-Object -Variable out; $failCount = ($out | Select-String -Pattern '^FAIL').Count; if ($failCount -ne 0) { Write-Output "SELFTEST-INCOMPLETE fail=$failCount"; exit 1 }; git add -- muezzin-daemon.mjs; git diff --cached --quiet; if ($LASTEXITCODE -eq 0) { Write-Output ALREADY_COMMITTED } else { git commit -m "feat(engine): wire witnessRefireHold into the daemon fire loop, closing gap-witness-revise-on-refire (part 2/2 — mechanism landed dce7c95); mirrors searchReadinessGate's hold/fire pattern exactly; full selftest ALL PASS, zero regressions" }; if ($LASTEXITCODE -ne 0) { exit 1 } [command]
+
+Done means: muezzin-daemon.mjs imports witnessRefireHold from self_witness.mjs
+and calls it in the fire loop (between the search-readiness gate and the
+attempt-counter increment), holding a same-stem refire whose before-witness
+flagged a concern until acknowledged; full existing selftest suite ALL PASS
+(zero regressions — the daemon's queue-mechanics tests are extensive and
+must stay green); committed. Gap-witness-revise-on-refire closes when this
+lands AND the daemon is restarted to pick it up.
+
+# CONDUCTOR PROVENANCE (2026-07-13): patcher dry-run against a fresh HEAD
+# copy of muezzin-daemon.mjs (which already carries the self_witness.mjs
+# mechanism via commit dce7c95): node --check clean, full existing daemon
+# selftest suite re-run against the patched scratch copy — ALL PASS, zero
+# regressions. Import binding verified correct (path module confirmed
+# already imported as default; witnessRefireHold confirmed exported from
+# self_witness.mjs at HEAD). Insertion point matches the exact pattern
+# already proven for searchReadinessGate (same file, same shape, same
+# no-attempts-spent-on-hold guarantee) — not a novel mechanism, a mirrored
+# one. Deeper end-to-end daemon-loop simulation was not attempted (the
+# daemon's own fire loop has heavy live-process side effects unsafe to
+# invoke from a scratch copy); the underlying gate function itself already
+# carries 9 dedicated selftest cases in self_witness.mjs covering every
+# branch (first-attempt, no-receipt, clean-witness, flagged-no-ack,
+# stale-ack, fresh-ack, different-stem) — this mission's own risk surface
+# is limited to correct wiring, which node --check + the full existing
+# daemon selftest suite (unaffected) together verify.
