@@ -1,6 +1,6 @@
 {
   "state": "done",
-  "detail": "tunnel opened once; multiple ssh.exe entries are routine checks",
+  "detail": "SSH tunnel persistent as designed; safe to leave open",
   "tempo": "idle",
   "inFlight": {
     "tasks": 2,
@@ -18,12 +18,12 @@
       "startedAt": 1783923540520
     }
   ],
-  "tokens": 10626133,
+  "tokens": 10627158,
   "output": {
-    "result": "tunnel stable; ssh processes are independent short-lived checks, not a re-open loop"
+    "result": "persistent SSH tunnel at 23+ min is normal behavior; no action needed"
   },
   "children": null,
-  "linkScanOffset": 86152504,
+  "linkScanOffset": 86788272,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -51,6 +51,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-13T07:02:04.582Z",
+  "updatedAt": "2026-07-13T07:10:24.000Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
