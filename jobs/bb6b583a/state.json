@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "authored & committed CONTENT-CONTRACT.md for Android TV tips; searching for muddytires repo",
+  "detail": "both site contracts committed; updating gap register, continuing on copy-witness grep",
   "tempo": "idle",
   "inFlight": {
     "tasks": 2,
@@ -18,10 +18,10 @@
       "startedAt": 1783923540520
     }
   ],
-  "tokens": 10676467,
+  "tokens": 10681952,
   "output": null,
   "children": null,
-  "linkScanOffset": 88038008,
+  "linkScanOffset": 88157201,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -49,6 +49,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-13T08:15:26.317Z",
+  "updatedAt": "2026-07-13T08:19:44.002Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
