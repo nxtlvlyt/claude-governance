@@ -1,6 +1,6 @@
 {
   "state": "blocked",
-  "detail": "verdict_merge.mjs patch ready; needs go-ahead on regex-based auto-downgrade logic",
+  "detail": "kernel-security verdict change; needs user review",
   "tempo": "blocked",
   "inFlight": {
     "tasks": 2,
@@ -18,11 +18,11 @@
       "startedAt": 1783923540520
     }
   ],
-  "tokens": 10763044,
-  "needs": "proceed as designed, adjust the approach, or leave for later review?",
+  "tokens": 10763113,
+  "needs": "review kernel-security verdict system change",
   "output": null,
   "children": null,
-  "linkScanOffset": 90116836,
+  "linkScanOffset": 90135526,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -50,6 +50,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-13T09:25:13.294Z",
+  "updatedAt": "2026-07-13T09:25:39.540Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
