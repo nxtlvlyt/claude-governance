@@ -1,6 +1,6 @@
 {
   "state": "done",
-  "detail": "confirmed: no local SearXNG; only remote nxtbeast instance",
+  "detail": "SearXNG running in Docker VM; Docker Desktop GUI crashed; missing Tailscale firewall rule is the blocker",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,12 +9,12 @@
       "session_cron"
     ]
   },
-  "tokens": 10584375,
+  "tokens": 10590632,
   "output": {
-    "result": "SearXNG only runs on nxtbeast, not locally"
+    "result": "SearXNG containers running fine in docker-desktop VM; Docker Desktop GUI layer crashed; Tailscale firewall rule removed — likely during Docker Desktop crash-loop"
   },
   "children": null,
-  "linkScanOffset": 85119683,
+  "linkScanOffset": 85200235,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -42,6 +42,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-13T05:33:50.570Z",
+  "updatedAt": "2026-07-13T05:36:47.209Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
