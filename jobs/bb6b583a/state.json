@@ -1,6 +1,6 @@
 {
-  "state": "done",
-  "detail": "both daemons alive, idle, no failures; no action needed",
+  "state": "working",
+  "detail": "daemons idle, queues stable; next check in cycle",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,12 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 10500249,
-  "output": {
-    "result": "daemons stable, no changes required"
-  },
+  "tokens": 10500585,
+  "output": null,
   "children": null,
-  "linkScanOffset": 82296586,
+  "linkScanOffset": 82316400,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -42,6 +40,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-13T03:14:13.332Z",
+  "updatedAt": "2026-07-13T03:29:15.016Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
