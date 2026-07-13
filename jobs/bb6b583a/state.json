@@ -1,7 +1,7 @@
 {
-  "state": "working",
-  "detail": "reset-allowfiles fix queued; verifying staged-file handling",
-  "tempo": "idle",
+  "state": "blocked",
+  "detail": "engine fix verified (tests pass); awaiting go-ahead to push or harden ack mechanism first",
+  "tempo": "blocked",
   "inFlight": {
     "tasks": 1,
     "queued": 0,
@@ -9,10 +9,11 @@
       "session_cron"
     ]
   },
-  "tokens": 11107535,
+  "tokens": 11118095,
+  "needs": "push engine-reset-allowfiles-staged-fix as-is, or harden ack mechanism first?",
   "output": null,
   "children": null,
-  "linkScanOffset": 96028617,
+  "linkScanOffset": 96159459,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -40,6 +41,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-13T21:13:25.005Z",
+  "updatedAt": "2026-07-13T21:20:33.863Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
