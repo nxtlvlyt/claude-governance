@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "RULE 15 bare-commit patch queued; daemon landing on next beat",
+  "detail": "RULE 15 mission running; awaiting settlement",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 11088215,
+  "tokens": 11088426,
   "output": null,
   "children": null,
-  "linkScanOffset": 95574316,
+  "linkScanOffset": 95592959,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -40,6 +40,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-13T20:50:23.862Z",
+  "updatedAt": "2026-07-13T20:51:05.775Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
