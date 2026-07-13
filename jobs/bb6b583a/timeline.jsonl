@@ -1098,3 +1098,5 @@
 {"at":"2026-07-13T05:59:21.870Z","state":"blocked","detail":"searxng config unchanged on nxtbeast; awaiting decision","text":"Both unchanged, nothing material this cycle."}
 {"at":"2026-07-13T06:13:49.034Z","state":"blocked","detail":"wouldnt it make it easier to installed searxng on the laptop and use it here? can we copy it from nxtbeast as it's got a custom setup?","text":""}
 {"at":"2026-07-13T06:14:17.604Z","state":"blocked","detail":"searxng setup on nxtbeast; awaiting copy instruction","text":"Both unchanged, nothing material this cycle."}
+{"at":"2026-07-13T06:15:12.947Z","state":"blocked","detail":"are we ok","text":""}
+{"at":"2026-07-13T06:15:20.267Z","state":"done","detail":"status check: no changes since last ask","text":"Yeah, still good. Nothing's changed on that front since you last asked."}
