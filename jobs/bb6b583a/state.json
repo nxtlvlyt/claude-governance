@@ -1,7 +1,7 @@
 {
-  "state": "blocked",
-  "detail": "awaiting WSL command execution on user's machine",
-  "tempo": "blocked",
+  "state": "done",
+  "detail": "SearXNG cloned, venv built, dependencies installed, importable",
+  "tempo": "idle",
   "inFlight": {
     "tasks": 2,
     "queued": 0,
@@ -18,11 +18,12 @@
       "startedAt": 1783923540520
     }
   ],
-  "tokens": 10656106,
-  "needs": "run the WSL command in your terminal",
-  "output": null,
+  "tokens": 10659365,
+  "output": {
+    "result": "SearXNG installation complete; venv built with all deps, package importable"
+  },
   "children": null,
-  "linkScanOffset": 87500525,
+  "linkScanOffset": 87590582,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -50,6 +51,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-13T07:42:31.704Z",
+  "updatedAt": "2026-07-13T07:47:01.880Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
