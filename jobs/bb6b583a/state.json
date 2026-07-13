@@ -1,7 +1,7 @@
 {
-  "state": "working",
-  "detail": "daemon fix running (4m in); 1 genuine repair, 13 backlog items annotated",
-  "tempo": "idle",
+  "state": "blocked",
+  "detail": "5 gaps remain; 3 converge on item awaiting your decision",
+  "tempo": "blocked",
   "inFlight": {
     "tasks": 1,
     "queued": 0,
@@ -9,10 +9,13 @@
       "session_cron"
     ]
   },
-  "tokens": 11039309,
-  "output": null,
+  "tokens": 11043139,
+  "needs": "decision on the dirty-tree/commit-scoping item the 3 gaps depend on",
+  "output": {
+    "result": "gap-witness-revise-on-refire closed; daemon restarted (PID 38296 healthy); 5 gaps remain"
+  },
   "children": null,
-  "linkScanOffset": 94341786,
+  "linkScanOffset": 94416406,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -40,6 +43,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-13T17:53:12.371Z",
+  "updatedAt": "2026-07-13T17:57:11.480Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
