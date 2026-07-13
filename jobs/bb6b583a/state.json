@@ -1,6 +1,6 @@
 {
   "state": "blocked",
-  "detail": "fixture patch blocked by dirty conduct-cycle.mjs; awaiting commit auth",
+  "detail": "classifier blocks direct write to conduct-cycle.mjs; awaiting operator call",
   "tempo": "blocked",
   "inFlight": {
     "tasks": 1,
@@ -9,11 +9,11 @@
       "session_cron"
     ]
   },
-  "tokens": 10838385,
-  "needs": "want me to commit the fixture patch directly on top of the staged anchor fix?",
+  "tokens": 10841120,
+  "needs": "proceed with option (1) — direct patch+commit — or hold behind gap-mission-chain-inherited-dirty-tree?",
   "output": null,
   "children": null,
-  "linkScanOffset": 91213064,
+  "linkScanOffset": 91242504,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -41,6 +41,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-13T15:41:00.741Z",
+  "updatedAt": "2026-07-13T15:41:52.654Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
