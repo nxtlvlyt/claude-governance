@@ -1,6 +1,6 @@
 {
   "state": "blocked",
-  "detail": "verdict_merge shipped (commit 7e0a011); awaiting decision on fixture patch (QUEUE ITEM 29)",
+  "detail": "kernel-security classification pending (re-escalated from 4 prior attempts)",
   "tempo": "blocked",
   "inFlight": {
     "tasks": 1,
@@ -9,11 +9,11 @@
       "session_cron"
     ]
   },
-  "tokens": 10906516,
-  "needs": "decision on engine-srcsha-fixture-update fixture patch (QUEUE ITEM 29)",
+  "tokens": 10907713,
+  "needs": "operator approval for kernel-security kernel-srcsha-fixture-update.mission.txt classification",
   "output": null,
   "children": null,
-  "linkScanOffset": 91973777,
+  "linkScanOffset": 91983979,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -41,6 +41,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-13T16:04:30.996Z",
+  "updatedAt": "2026-07-13T16:05:05.340Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
