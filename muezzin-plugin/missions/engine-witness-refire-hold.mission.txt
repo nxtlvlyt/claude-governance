@@ -1,0 +1,53 @@
+MISSION-ID: M-ENGINE.WITNESS-REFIRE-HOLD
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\.claude\muezzin-plugin
+ALLOW-FILES:
+  - self_witness.mjs
+REQUIRES: none
+STEPS: 2
+
+Maqsad: land the read/write helpers, the gate function, and a conductor CLI ack
+verb for gap-witness-revise-on-refire (priority-elevated 2026-07-13: a witness
+REVISE/REJECT on a mission's BEFORE pass is currently pure advisory — self_witness.mjs's
+own header says it "NEVER gates, delays, or halts" — live receipt 2026-07-13T15:37:43Z:
+engine-verdict-merge-visibility-downgrade got a REJECT from ornith:9b before it ran,
+logged, and the daemon proceeded unaffected regardless). Adds latestBeforeWitness(),
+ackPlanRead(), latestAck(), and witnessRefireHold(stem, priorAttempts, opts) — the
+gate itself, mirroring searchReadinessGate's {action:'fire'|'hold', reason} shape —
+plus a `node self_witness.mjs --ack-plan-read <stem> [note]` CLI verb.
+
+SCOPE NOTE: this mission lands the MECHANISM only. Wiring witnessRefireHold into the
+daemon's own fire loop (muezzin-daemon.mjs) — the part that actually HOLDS a refire —
+is deliberately a separate, smaller follow-up mission, to keep blast radius on the
+live daemon process (pid running right now) minimal per mission. This mission's own
+gap does not close until that follow-up lands too.
+
+niyyah: mechanize the fourth law for refires rather than leave it advisory-only
+forever — a REVISE that gets logged and ignored on retry is the same failure shape
+as the panel-truncation false-rejects (a real signal not acted on), which is why the
+operator elevated this gap to bite-class alongside that one.
+
+Steps:
+  1. Run the committed, four-times-dry-run-verified patcher exactly: node missions/_logs/witness-refire-hold-patch.mjs self_witness.mjs; if ($LASTEXITCODE -ne 0) { exit 1 } [command]
+     validation_command: node --check self_witness.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; if (-not (Select-String -Path self_witness.mjs -Pattern 'export function witnessRefireHold' -Quiet)) { exit 1 }
+  2. Full selftest, then commit. Run exactly: node self_witness.mjs 2>&1 | Tee-Object -Variable out; $failCount = ($out | Select-String -Pattern '^FAIL').Count; if ($failCount -ne 0) { Write-Output "SELFTEST-INCOMPLETE fail=$failCount"; exit 1 }; git add -- self_witness.mjs; git diff --cached --quiet; if ($LASTEXITCODE -eq 0) { Write-Output ALREADY_COMMITTED } else { git commit -m "feat(engine): witnessRefireHold gate + ackPlanRead CLI verb for gap-witness-revise-on-refire (mechanism only; daemon fire-loop wiring is a separate follow-up); full selftest ALL PASS incl. 9 new cases for the gate + ack helpers" }; if ($LASTEXITCODE -ne 0) { exit 1 } [command]
+
+Done means: self_witness.mjs exports witnessRefireHold/ackPlanRead/latestBeforeWitness/
+latestAck; `node self_witness.mjs --ack-plan-read <stem> [note]` writes a real,
+readable ack entry; full selftest suite ALL PASS (9 new checks covering: first-attempt
+always fires, no-receipt fires, clean-witness fires, flagged-witness-no-ack holds with
+the actual concern text in the reason, a stale (pre-flag) ack does NOT lift the hold,
+a fresh ack lifts it, a different stem is unaffected); committed.
+
+# CONDUCTOR PROVENANCE (2026-07-13): patcher dry-run FOUR times against a fresh HEAD
+# copy before this mission was constructed — attempt 1 caught readFileSync never being
+# imported in self_witness.mjs (only appendFileSync/mkdirSync existed), causing every
+# new read helper to silently return null via its own fail-open catch block; attempt 2
+# fixed the import but caught the bare-selftest trigger not excluding --ack-plan-read
+# (so the offline selftest ran and exited before the CLI verb was ever reached); attempt
+# 3 added selftest coverage with genuinely broken code (a stray require() call in an ESM
+# file, wrong path.join usage against a module that only imports named join/dirname, not
+# a default path namespace) — caught by actually running it, not by inspection; attempt
+# 4 is the clean version, full selftest ALL PASS including all 9 new cases, CLI verb
+# tested end-to-end. Each bug was a real, would-have-shipped defect — none were caught by
+# node --check alone (all four were valid syntax); only actually running the code found them.
