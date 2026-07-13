@@ -1,0 +1,59 @@
+MISSION-ID: M-ENGINE.RESET-ALLOWFILES-STAGED-FIX
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\.claude\muezzin-plugin
+ALLOW-FILES:
+  - git_steps.mjs
+REQUIRES: none
+STEPS: 2
+
+Maqsad: fix the real, general root cause behind TWO recurring live incidents
+this session — engine-srcsha-fixture-update FAILED x2 on conduct-cycle.mjs,
+then engine-mission-lint-rule15-bare-commit FAILED on mission_lint.mjs,
+same mechanism both times. resetAllowFiles's tracked-file branch runs ONLY
+`git checkout -- <file>`, which restores the WORKING TREE from the INDEX —
+a no-op when the file is STAGED (git add'ed) but not yet committed, since
+the working tree already matches the index in that case. The file stays
+dirty forever and preflightAllowlistClean keeps refusing every retry with
+no way out except the exact blocked-classifier dance both incidents hit
+tonight. This mission adds `git reset -- <file>` BEFORE the existing
+`git checkout -- <file>`, unstaging first so the checkout has something
+real to restore from — handles staged, working-tree-modified, and
+both-at-once uniformly.
+
+This is filed as the REAL closure of gap-mission-chain-inherited-dirty-tree
+— the earlier framing ("adopting dirt from a DIFFERENT interrupted
+mission") was accurate for the conduct-cycle.mjs instance but incomplete:
+the SAME mechanism just recurred on mission_lint.mjs from THIS mission's
+OWN retry, no other mission involved at all. The real bug was always in
+resetAllowFiles's incomplete tracked-file handling, not in preflight's
+inability to distinguish dirt sources.
+
+niyyah: two live incidents in one session hitting the identical mechanism
+is a pattern, not a coincidence — fix the root, not the second symptom.
+
+Steps:
+  1. Run the committed, twice-dry-run-verified patcher exactly: node missions/_logs/reset-allowfiles-staged-fix-patch.mjs git_steps.mjs; if ($LASTEXITCODE -ne 0) { exit 1 } [command]
+     validation_command: node --check git_steps.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; if (-not (Select-String -Path git_steps.mjs -Pattern 'STAGED-FILE FIX' -Quiet)) { exit 1 }
+  2. Selftest, then commit. Run exactly: node git_steps.mjs 2>&1 | Tee-Object -Variable out; $failCount = ($out | Select-String -Pattern '^\s*FAIL').Count; if ($failCount -ne 0) { Write-Output "SELFTEST-INCOMPLETE fail=$failCount"; exit 1 }; if (-not ($out | Select-String -Pattern 'own-reset\(staged\)')) { Write-Output "NEW-CHECK-MISSING"; exit 1 }; git add -- git_steps.mjs; git diff --cached --quiet; if ($LASTEXITCODE -eq 0) { Write-Output ALREADY_COMMITTED } else { git commit -- git_steps.mjs -m "fix(engine): resetAllowFiles unstages a tracked allow-file (git reset) before checkout, fixing the real root cause behind two recurring live incidents this session (srcsha-fixture-update + mission-lint-rule15, same mechanism both times) -- git checkout alone is a no-op on staged-but-uncommitted content; full selftest ALL PASS incl. the exact staged-file regression case" }; if ($LASTEXITCODE -ne 0) { exit 1 } [command]
+
+Done means: resetAllowFiles fully cleans a tracked allow-file regardless of
+whether it was staged, working-tree-modified, or both — a mission retry
+whose prior attempt left the file staged-but-uncommitted no longer gets
+permanently stuck at the containment pre-flight; full selftest suite ALL
+PASS (including the existing working-tree-modified case AND the new
+staged case); committed with an explicit pathspec (this mission's own
+commit step, eating the RULE 15 dog food once that lands).
+
+# CONDUCTOR PROVENANCE (2026-07-13): dry-run verified twice against
+# LF-faithful Copy-Item scratch copies (git_steps.mjs confirmed LF, not
+# CRLF — checked directly, not assumed from a different file's convention).
+# First dry-run + functional standalone script confirmed the exact
+# real-world bug reproduces (git status shows "M  tracked.mjs" persisting
+# after resetAllowFiles, pre-fix) and that the fix resolves it (empty git
+# status, correct restored content, post-fix). Second dry-run added the
+# permanent selftest case matching that exact reproduction, full suite
+# ALL PASS. This mission itself was constructed DURING active diagnosis of
+# engine-mission-lint-rule15-bare-commit's FAILED mark — that mission's own
+# work (RULE 15) is still correctly staged and undisturbed; once this fix
+# lands and the daemon restarts, RULE 15's own retry will succeed cleanly
+# instead of needing another manual preflight-receipt intervention.

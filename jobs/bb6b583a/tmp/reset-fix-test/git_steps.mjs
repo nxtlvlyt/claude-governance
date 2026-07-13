@@ -780,22 +780,6 @@ function selfTest() {
         fs.readFileSync(path.join(rstRepo, "tracked.mjs"), "utf8").includes("const v = 0"),
         "own-reset: a TRACKED own allow-file is RESTORED to committed HEAD (not deleted)");
 
-      // (2b) a TRACKED own allow-file modified AND STAGED (git add\'ed) by a prior
-      // interrupted attempt -- never committed -- is ALSO restored (2026-07-13 recurring
-      // live receipt: engine-srcsha-fixture-update FAILED x2 on conduct-cycle.mjs, then
-      // engine-mission-lint-rule15-bare-commit FAILED on mission_lint.mjs, same mechanism
-      // both times -- `git checkout --` alone is a no-op on staged content since the
-      // working tree already matches the index).
-      fs.writeFileSync(path.join(rstRepo, "tracked.mjs"), "export const v = 999;\n");
-      execSync(`git -C ${quote(rstRepo)} add -- tracked.mjs`);
-      const stagedStatusBefore = execSync(`git -C ${quote(rstRepo)} status --porcelain -- tracked.mjs`).toString().trim();
-      assert(stagedStatusBefore.startsWith("M"), "own-reset(staged) setup: tracked.mjs is genuinely STAGED before reset (M, not ' M')");
-      const rst2b = resetAllowFiles(rstRepo, ["tracked.mjs"]);
-      assert(rst2b.ok === true && rst2b.reset.includes("tracked.mjs"), "own-reset(staged): a STAGED tracked own allow-file is acted on");
-      const stagedStatusAfter = execSync(`git -C ${quote(rstRepo)} status --porcelain -- tracked.mjs`).toString().trim();
-      assert(stagedStatusAfter === "", "own-reset(staged): AFTER reset the file is FULLY clean (both index and working tree) — the exact bug this fix closes");
-      assert(fs.readFileSync(path.join(rstRepo, "tracked.mjs"), "utf8").includes("const v = 0"), "own-reset(staged): content is restored to committed HEAD, not left at the staged v=999");
-
       // (3) CONTAINMENT NOT REOPENED: reset touches ONLY the declared allowlist. Genuinely-
       // FOREIGN dirt on a NON-allowlisted file survives reset AND the pre-flight refuses it
       // when it is itself listed; a foreign file off the allowlist is left for the drift guard.
