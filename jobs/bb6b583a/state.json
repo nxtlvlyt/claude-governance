@@ -1,9 +1,9 @@
 {
-  "state": "working",
-  "detail": "4 gaps diagnosed; 3 investigations dispatched in parallel",
+  "state": "blocked",
+  "detail": "found blind spot in user-prompt-submit.mjs hook; awaiting go-ahead to edit",
   "tempo": "active",
   "inFlight": {
-    "tasks": 5,
+    "tasks": 3,
     "queued": 0,
     "kinds": [
       "local_agent",
@@ -12,28 +12,16 @@
   },
   "fan": [
     {
-      "id": "a7ce4485f7ba88076",
-      "kind": "agent",
-      "label": "Diagnose attempt-2 validation-replay engine bug",
-      "startedAt": 1783903874883
-    },
-    {
-      "id": "a5abdbd8b08ce45a6",
-      "kind": "agent",
-      "label": "Design real seat health round-trip check",
-      "startedAt": 1783904025343
-    },
-    {
       "id": "a59aab81c0609751a",
       "kind": "agent",
       "label": "Build mission_lint RULE 14 content-contract gate",
       "startedAt": 1783904183433
     }
   ],
-  "tokens": 10014667,
+  "tokens": 10066662,
   "output": null,
   "children": null,
-  "linkScanOffset": 79597847,
+  "linkScanOffset": 79773263,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -61,6 +49,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-13T00:57:50.460Z",
+  "updatedAt": "2026-07-13T01:02:14.978Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
