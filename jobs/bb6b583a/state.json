@@ -1,7 +1,7 @@
 {
-  "state": "done",
-  "detail": "3 bite-class gaps block work; 1 running, 2 ready for flip, 1 awaits nxtbeast Docker",
-  "tempo": "idle",
+  "state": "blocked",
+  "detail": "user decision: merge 2-3 verdict-quality gaps into priority or defer?",
+  "tempo": "blocked",
   "inFlight": {
     "tasks": 2,
     "queued": 0,
@@ -18,12 +18,11 @@
       "startedAt": 1783923540520
     }
   ],
-  "tokens": 10728309,
-  "output": {
-    "result": "Only 3 of 21 gaps gate the 29 held missions: srcsha-anchor fix running, 2 ready for bookkeeping, 1 waiting on nxtbeast Docker Desktop"
-  },
+  "tokens": 10729952,
+  "needs": "approve merging 2-3 verdict gaps into priority track, or defer them",
+  "output": null,
   "children": null,
-  "linkScanOffset": 89516259,
+  "linkScanOffset": 89572193,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -51,6 +50,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-13T08:57:01.231Z",
+  "updatedAt": "2026-07-13T08:57:58.188Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
