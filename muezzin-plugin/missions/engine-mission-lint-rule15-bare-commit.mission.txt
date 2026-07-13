@@ -1,0 +1,60 @@
+MISSION-ID: M-ENGINE.MISSION-LINT-RULE15-BARE-COMMIT
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\.claude\muezzin-plugin
+ALLOW-FILES:
+  - mission_lint.mjs
+REQUIRES: none
+STEPS: 2
+
+Maqsad: close gap-bare-commit-sweeps-preexisting-stage — add mission_lint.mjs
+RULE 15, refusing any code-repo mission whose commit step is a bare `git
+commit -m ...` with no explicit pathspec. Live receipt this session: commit
+7e0a011 (engine-verdict-merge-visibility-downgrade's own commit step,
+ALLOW-FILES: verdict_merge.mjs only) ran `git add -- verdict_merge.mjs`
+then a bare `git commit -m ...`, which commits the WHOLE INDEX regardless
+of what else is staged — it silently absorbed an unrelated, already-staged
+conduct-cycle.mjs change from a completely different, interrupted mission.
+20 sibling missions built the same session carried the identical pattern —
+this closes the class mechanically, at the miqat, cost zero, before any
+future mission with the same defect ever fires.
+
+Scoped to MISSION-CLASS: code-repo specifically (the risk is a property of
+the git_steps.mjs sandbox/ALLOW-FILES containment model those missions run
+in) — an ops-deploy mission's own existing RULE 8 fixture legitimately uses
+a bare commit and must stay unaffected; verified directly.
+
+niyyah: turn tonight's own real, live-receipted mistake into a mechanical
+guarantee that no future mission — mine or anyone else's — can repeat it.
+The fix is not "remember to scope commits" (a promise); it is "the miqat
+refuses the mission if it doesn't" (a condition).
+
+Steps:
+  1. Run the committed, four-times-dry-run-verified patcher exactly: node missions/_logs/mission-lint-rule15-bare-commit-patch.mjs mission_lint.mjs; if ($LASTEXITCODE -ne 0) { exit 1 } [command]
+     validation_command: node --check mission_lint.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; if (-not (Select-String -Path mission_lint.mjs -Pattern 'bare-commit-no-pathspec' -Quiet)) { exit 1 }
+  2. Selftest, then commit. Run exactly: node mission_lint.mjs 2>&1 | Tee-Object -Variable out; $failCount = ($out | Select-String -Pattern '^FAIL').Count; if ($failCount -ne 0) { Write-Output "SELFTEST-INCOMPLETE fail=$failCount"; exit 1 }; git add -- mission_lint.mjs; git diff --cached --quiet; if ($LASTEXITCODE -eq 0) { Write-Output ALREADY_COMMITTED } else { git commit -- mission_lint.mjs -m "feat(engine): mission_lint RULE 15 refuses a code-repo mission's bare git commit -m with no pathspec (gap-bare-commit-sweeps-preexisting-stage; live receipt commit 7e0a011 silently swept an unrelated staged change into an unrelated commit); scoped to code-repo class only, RULE 8's ops-deploy fixture unaffected; full selftest ALL PASS incl. 4 new cases" }; if ($LASTEXITCODE -ne 0) { exit 1 } [command]
+
+Done means: mission_lint.mjs refuses a code-repo mission whose commit step
+is a bare `git commit -m` with no `--` pathspec; an ops-deploy mission with
+a bare commit is unaffected; a code-repo mission with an explicitly scoped
+`git commit -- <files> -m` passes; a code-repo mission with no commit step
+at all is unaffected; full selftest suite ALL PASS (4 new checks, zero
+regressions); committed WITH an explicit pathspec on the commit itself
+(this mission's own commit step practices what RULE 15 requires).
+
+# CONDUCTOR PROVENANCE (2026-07-13): patcher dry-run FOUR times against a
+# CRLF-faithful Copy-Item scratch copy (per this session's own recorded
+# lesson) before construction. First dry-run failed NOT-UNIQUE — caught
+# and corrected a wrong line-ending assumption: mission_lint.mjs actually
+# uses LF, not CRLF like conduct-cycle.mjs (files in this repo do not share
+# one convention; each patcher must verify its own target, not generalize
+# from a prior file). Second dry-run passed but caused a real regression
+# (RULE 8's own deploy-with-commit fixture, which legitimately uses a bare
+# commit, started failing) — caught by running the FULL selftest suite, not
+# just the new rule in isolation; fixed by scoping RULE 15 to MISSION-CLASS:
+# code-repo specifically, matching the actual risk model. Third dry-run:
+# zero regressions, functionally verified via a standalone script exercising
+# all 4 trigger/non-trigger combinations directly. Fourth dry-run: same
+# result with the permanent selftest cases added in place of the standalone
+# script. This mission's own commit step deliberately uses `git commit --
+# mission_lint.mjs -m ...` (scoped), not the bare form RULE 15 itself
+# refuses — eating its own dog food.

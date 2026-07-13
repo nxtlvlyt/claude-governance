@@ -1,27 +1,18 @@
 {
   "state": "working",
-  "detail": "gap #3 running; gap #5 scoped; waiting on active lane to clear",
+  "detail": "RULE 15 bare-commit patch queued; daemon landing on next beat",
   "tempo": "idle",
   "inFlight": {
-    "tasks": 3,
+    "tasks": 1,
     "queued": 0,
     "kinds": [
-      "monitor",
       "session_cron"
     ]
   },
-  "fan": [
-    {
-      "id": "b8xru7nxo",
-      "kind": "monitor",
-      "label": "Wait for the active lane to clear before writing to the repo",
-      "startedAt": 1783974685595
-    }
-  ],
-  "tokens": 11068146,
+  "tokens": 11088215,
   "output": null,
   "children": null,
-  "linkScanOffset": 95168634,
+  "linkScanOffset": 95574316,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -49,6 +40,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-13T20:32:09.768Z",
+  "updatedAt": "2026-07-13T20:50:23.862Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
