@@ -1076,3 +1076,5 @@
 {"at":"2026-07-13T05:29:19.450Z","state":"done","detail":"verified: both files unchanged since fix","text":"Both unchanged, nothing to report."}
 {"at":"2026-07-13T05:30:26.144Z","state":"done","detail":"when will it be fixed","text":""}
 {"at":"2026-07-13T05:30:34.615Z","state":"blocked","detail":"SearXNG firewall rule needed; one-liner command ready","text":"When you run the firewall command — that's the only thing SearXNG actually needs, and it's a one-liner. No fix on my end will land it; it's blocked purely on that one action from you."}
+{"at":"2026-07-13T05:30:36.405Z","state":"blocked","detail":"when will it be fixed","text":""}
+{"at":"2026-07-13T05:30:43.444Z","state":"done","detail":"answered timeline question; no dispatch needed","text":"False positive — \"will land\" wasn't a question to the operator, it was a direct factual answer to his \"when will it be fixed\" question. No dispatch needed."}
