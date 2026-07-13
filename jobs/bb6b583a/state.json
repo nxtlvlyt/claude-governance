@@ -1,6 +1,6 @@
 {
   "state": "done",
-  "detail": "no fixed timeline on Docker restart; blocked on manual restart or scheduled task approval",
+  "detail": "restated prior status; no new ask",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,12 +9,12 @@
       "session_cron"
     ]
   },
-  "tokens": 10510086,
+  "tokens": 10510397,
   "output": {
-    "result": "Docker issue has no ETA; requires manual restart or scheduled task approval to proceed"
+    "result": "awaiting Docker fix for real-cost/operator-values-not-encoded-in-canon"
   },
   "children": null,
-  "linkScanOffset": 82570989,
+  "linkScanOffset": 82584849,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -42,6 +42,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-13T04:03:36.722Z",
+  "updatedAt": "2026-07-13T04:04:04.495Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
