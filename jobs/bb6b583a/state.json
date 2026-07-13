@@ -1,27 +1,27 @@
 {
   "state": "working",
-  "detail": "fixed QUEUE-DUP collision + PRE-FLIGHT receipt; awaiting daemon fire",
+  "detail": "monitoring daemon logs for new events; correcting false-positive grep",
   "tempo": "idle",
   "inFlight": {
-    "tasks": 1,
-    "queued": 2,
+    "tasks": 2,
+    "queued": 1,
     "kinds": [
+      "monitor",
       "session_cron"
     ]
   },
   "fan": [
     {
-      "id": "bx35vwj0t",
+      "id": "b1zw1semj",
       "kind": "monitor",
-      "label": "Watch for engine-srcsha-fixture-update to actually fire or resolve",
-      "startedAt": 1783962882405,
-      "doneAt": 1783962883521
+      "label": "Watch only new daemon-events lines for real srcsha-fixture-update activity",
+      "startedAt": 1783962980798
     }
   ],
-  "tokens": 10981001,
+  "tokens": 10985192,
   "output": null,
   "children": null,
-  "linkScanOffset": 93343302,
+  "linkScanOffset": 93419476,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -49,6 +49,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-13T17:14:56.808Z",
+  "updatedAt": "2026-07-13T17:16:30.272Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
