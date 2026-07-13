@@ -1,7 +1,7 @@
 {
-  "state": "blocked",
-  "detail": "Docker Desktop killed by system (exit 0x40010004); AURA SYNC loop-crashing",
-  "tempo": "blocked",
+  "state": "working",
+  "detail": "both daemons alive, diagnosis-debt stale; next cron cycle check",
+  "tempo": "idle",
   "inFlight": {
     "tasks": 1,
     "queued": 0,
@@ -9,13 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 10498112,
-  "needs": "disable ASUS AURA SYNC lighting service (command provided if needed)",
-  "output": {
-    "result": "Root cause identified: LightingService.exe crash-looping 8,238+ times since June 18; Docker Desktop unable to auto-restart over SSH. Recommend disabling AURA SYNC RGB service + adding scheduled auto-restart task for Docker Desktop.exe"
-  },
+  "tokens": 10498927,
+  "output": null,
   "children": null,
-  "linkScanOffset": 82205627,
+  "linkScanOffset": 82242857,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -43,6 +40,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-13T02:51:47.527Z",
+  "updatedAt": "2026-07-13T02:59:26.825Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
