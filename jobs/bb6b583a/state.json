@@ -1,18 +1,39 @@
 {
   "state": "working",
-  "detail": "6 bite-class gaps confirmed; priority hold flag set",
-  "tempo": "idle",
+  "detail": "4 gaps diagnosed; 3 investigations dispatched in parallel",
+  "tempo": "active",
   "inFlight": {
-    "tasks": 1,
+    "tasks": 5,
     "queued": 0,
     "kinds": [
+      "local_agent",
       "session_cron"
     ]
   },
-  "tokens": 9964210,
+  "fan": [
+    {
+      "id": "a7ce4485f7ba88076",
+      "kind": "agent",
+      "label": "Diagnose attempt-2 validation-replay engine bug",
+      "startedAt": 1783903874883
+    },
+    {
+      "id": "a5abdbd8b08ce45a6",
+      "kind": "agent",
+      "label": "Design real seat health round-trip check",
+      "startedAt": 1783904025343
+    },
+    {
+      "id": "a59aab81c0609751a",
+      "kind": "agent",
+      "label": "Build mission_lint RULE 14 content-contract gate",
+      "startedAt": 1783904183433
+    }
+  ],
+  "tokens": 10014667,
   "output": null,
   "children": null,
-  "linkScanOffset": 79371735,
+  "linkScanOffset": 79597847,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -40,6 +61,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-13T00:41:18.258Z",
+  "updatedAt": "2026-07-13T00:57:50.460Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
