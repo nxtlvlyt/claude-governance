@@ -1,6 +1,6 @@
 {
   "state": "blocked",
-  "detail": "fixture patch blocked by dirty tree; awaiting commit decision",
+  "detail": "hook-safety conflict: dispatch already denied; awaiting user decision on fixture patch",
   "tempo": "blocked",
   "inFlight": {
     "tasks": 1,
@@ -9,11 +9,11 @@
       "session_cron"
     ]
   },
-  "tokens": 10850399,
-  "needs": "commit the fixture patch directly, or leave it parked until engine fix for inherited dirty state?",
+  "tokens": 10853784,
+  "needs": "commit the 2-line fixture patch directly, or leave engine-srcsha-fixture-update parked?",
   "output": null,
   "children": null,
-  "linkScanOffset": 91324752,
+  "linkScanOffset": 91344020,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -41,6 +41,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-13T15:44:47.097Z",
+  "updatedAt": "2026-07-13T15:45:47.653Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
