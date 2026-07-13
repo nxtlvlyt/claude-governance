@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "saving non-obvious lessons to memory index for future sessions",
+  "detail": "conductor gaps persist; investigating retry logic",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 11051306,
+  "tokens": 11051509,
   "output": null,
   "children": null,
-  "linkScanOffset": 94768113,
+  "linkScanOffset": 94784096,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -40,6 +40,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-13T19:46:01.015Z",
+  "updatedAt": "2026-07-13T19:59:33.997Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
