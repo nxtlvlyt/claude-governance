@@ -113,7 +113,12 @@ if (process.argv[1]?.endsWith('copy_witness.mjs') && !process.argv.includes('--s
 }
 
 // -------------------------------------------------------------- OFFLINE selftest
-if (process.argv[1]?.endsWith('copy_witness.mjs') && process.argv.includes('--selftest')) {
+// Triggers on explicit --selftest OR bare invocation (no file argument) -- the latter
+// is what the repo's muezzin-gate pre-commit hook runs against every new/modified
+// top-level .mjs file, so a bare `node copy_witness.mjs` must self-test, not silently
+// no-op (a silent exit 0 would be indistinguishable from a broken/empty check to the
+// gate, and a silent exit with no output at all is worse than a clear PASS/FAIL).
+if (process.argv[1]?.endsWith('copy_witness.mjs') && (process.argv.includes('--selftest') || process.argv.length <= 2)) {
   let pass = 0, fail = 0;
   const check = (name, got, want) => {
     const ok = JSON.stringify(got) === JSON.stringify(want);
