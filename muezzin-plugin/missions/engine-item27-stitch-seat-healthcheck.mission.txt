@@ -1,0 +1,64 @@
+MISSION-ID: M-ENGINE.ITEM27.STITCH-SEAT-HEALTHCHECK
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\.claude\muezzin-plugin
+ALLOW-FILES:
+  - stitch_dispatch.mjs
+  - doctor.mjs
+REQUIRES: none
+STEPS: 3
+
+Maqsad: close the Stitch leg of gap-seat-health-is-roundtrip (GAP-REGISTER.jsonl,
+arrived 2026-07-12) — the Stitch seat sat "Connected" for a MONTH while
+stitch.googleapis.com 403d on every real call, because no check anywhere in this
+engine ever exercised the actual API path; connection/tool-enumeration alone is not
+health. Adds stitch_dispatch.mjs (exports stitchRoundTripHealthy(): mints an ADC
+token, calls initialize then tools/call(list_projects) against the real Stitch MCP
+endpoint, with the x-goog-user-project header whose historical absence is the
+receipted 403 root cause) and wires a WARN-only checkStitch() into doctor.mjs's
+board, modeled on agy_dispatch.mjs's sentinelProbe() idiom. Two pre-staged,
+dry-run-verified artifacts already exist on disk (missions/_logs/stitch_dispatch.mjs
+= the final file content to place at repo root; missions/_logs/
+doctor-stitch-healthcheck-patch.mjs = an idempotent old-string/new-string patcher for
+doctor.mjs) — this mission places the former and runs the latter rather than
+hand-editing. Ollama/Claude/agy round-trip probes are a separate follow-on gap,
+explicitly out of scope here.
+
+niyyah: land a real per-seat round-trip check without smuggling in a design decision
+that belongs to the conductor — checkStitch() is WARN-only (renderCheck with
+crit=false, the same default checkGit already uses), never folded into
+conduct-critical or fire-readiness gates. Whether a dead Stitch seat should ever
+block firing is a separate, deliberate call this mission does not make.
+
+Steps:
+  1. Baseline. Run exactly: git rev-parse --abbrev-ref HEAD; git rev-parse HEAD; node --check doctor.mjs; if ($LASTEXITCODE -ne 0) { Write-Output PRE-CHECK-FAIL; exit 1 }; Write-Output PRE-CHECK-PASS [command]
+     validation_command: node --check doctor.mjs
+  2. Place the new file and patch doctor.mjs. Run exactly: Copy-Item -Force missions/_logs/stitch_dispatch.mjs stitch_dispatch.mjs; node missions/_logs/doctor-stitch-healthcheck-patch.mjs; if ($LASTEXITCODE -ne 0) { exit 1 } [command]
+     validation_command: node --check stitch_dispatch.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; node --check doctor.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; if (-not (Select-String -Path doctor.mjs -Pattern 'checkStitch' -Quiet)) { exit 1 }
+  3. Offline selftest, then commit. Run exactly: node stitch_dispatch.mjs --selftest 2>&1 | Tee-Object -Variable out; $failCount = ($out | Select-String -Pattern '^\s*FAIL').Count; if ($failCount -ne 0) { Write-Output "SELFTEST-INCOMPLETE fail=$failCount"; exit 1 }; git add -- stitch_dispatch.mjs doctor.mjs; git diff --cached --quiet; if ($LASTEXITCODE -eq 0) { Write-Output ALREADY_COMMITTED } else { git commit -m "feat(engine): Stitch MCP round-trip health probe (gap-seat-health-is-roundtrip, Stitch leg); stitch_dispatch.mjs selftest ALL PASS offline, doctor.mjs board wired WARN-only" }; if ($LASTEXITCODE -ne 0) { exit 1 } [command]
+
+Done means: stitch_dispatch.mjs exists at repo root, exporting
+stitchRoundTripHealthy() with every I/O boundary (ADC file read, fetch) injectable;
+`node stitch_dispatch.mjs --selftest` passes fully offline with zero real network
+calls; doctor.mjs imports it, defines checkStitch(), runs it alongside the other
+PREFLIGHT-adjacent checks, and renders a WARN-only "Stitch MCP round-trip" board row
+right after the Claude CLI ping; both files committed. NOTE FOR THE CONDUCTOR (not a
+step): the check goes live per-daemon at next restart; it will report unhealthy
+until the operator's real ADC credentials are exercised for the first time by this
+code path — that live call is explicitly out of scope for this mission per the
+build agent's original instruction not to make it.
+
+# CONDUCTOR PROVENANCE (2026-07-12, this wake): constructed per the five-verb law
+# and the conductor-direct exception conditions — CLASS is arguable (doctor.mjs is a
+# diagnostic board, not judgment/gating machinery) but SIZE clearly fails (~400-line
+# new file + 4-hunk doctor.mjs patch, far past the ~15-line ceiling), mandating
+# mission construction over direct application. Built by a background agent
+# (task a623aaa3ed0007ad2) per explicit prior instruction to PREPARE only, never
+# construct/queue; conductor independently re-verified before writing this mission:
+# node --check on both files, `node stitch_dispatch.mjs --selftest` 23/23 PASS
+# (re-run personally, not trusted from the agent's report), the patcher dry-run
+# against a FRESH scratch copy of the real doctor.mjs (PATCHED then idempotent
+# ALREADY-PATCHED on a second run), and a personal diff read confirming the change
+# shape matches the description exactly (WARN-only, non-critical, minimal). The
+# agent's own selftest code was inspected directly: every fetchFn/readFileFn call
+# site in the selftest block passes an injected stub, and the stub throws on any
+# unmatched URL — no real network call is reachable from --selftest.

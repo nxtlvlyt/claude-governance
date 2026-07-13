@@ -17,6 +17,10 @@ import path from 'node:path';
 // is guarded by `argv endsWith <module>.mjs`).
 import { activeSeats, readMode, resolveMode, MODES } from './seat_modes.mjs';
 import { searxngPreflight } from './searxng_preflight.mjs';
+// STITCH HEALTHCHECK (gap-seat-health-is-roundtrip, GAP-REGISTER.jsonl 2026-07-12): a real
+// list_projects round-trip, not a connection/tool-enumeration check -- the Stitch seat sat
+// "Connected" for a MONTH while every real call 403d, because nothing here ever made one.
+import { stitchRoundTripHealthy } from './stitch_dispatch.mjs';
 
 const ENV_KEYS = ['OLLAMA_API_KEY', 'OLLAMA_CLOUD_API_KEY', 'GOOGLE_PLACES_API_KEY', 'AIMLAPI_KEY'];   // informational only: the OLLAMA_* keys serve agy/antigravity, not any doctor check
 // OPERATOR RULING 2026-06-26: local models live on nxtbeast only, never the laptop.
@@ -71,6 +75,16 @@ function checkClaudeCLI() {
     const code = e.status ?? 1;
     return { ok: false, detail: `claude --version exit ${code} (unavailable or not installed)` };
   }
+}
+
+// checkStitch -- REAL round-trip (initialize + list_projects), not a connection check. See
+// stitch_dispatch.mjs for the full transport/auth (copied verbatim from the proven-live
+// mechanism in STITCH-KNOWLEDGE.md). Non-critical (WARN, not FAIL) here deliberately: whether
+// a dead Stitch seat should block firing is a conduct-critical/fire-readiness design decision
+// left for the conductor, not smuggled into this patch.
+async function checkStitch() {
+  const r = await stitchRoundTripHealthy();
+  return { ok: r.ok, detail: r.ok ? `list_projects round-trip OK (${r.latencyMs}ms, checked ${r.checkedAt})` : `${r.detail} (kind=${r.error?.kind || '?'})` };
 }
 
 function checkGit() {
@@ -234,6 +248,8 @@ const ollamaLocal = await checkOllamaLocal();
 const claudePing = checkClaudeCLI();
 checks.localOllama = ollamaLocal;
 checks.claude = claudePing;
+const stitch = await checkStitch();
+checks.stitch = stitch;
 
 checks.git = checkGit();
 
@@ -273,6 +289,7 @@ for (const e of checks.env) renderEnv(e.name, e.present);
 renderCheck('Wrangler auth', checks.wrangler);
 renderCheck('Ollama local (nxtbeast)', checks.localOllama, true);
 renderCheck('Claude CLI ping', checks.claude, true);
+renderCheck('Stitch MCP round-trip', checks.stitch);
 renderCheck('Git health', checks.git);
 for (const g of checks.gov) renderCheck(`Governance ${path.basename(g.file)}`, { ok: g.present, detail: g.present ? 'found' : 'missing' }, true);
 

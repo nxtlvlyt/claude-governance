@@ -1,29 +1,19 @@
 {
   "state": "blocked",
-  "detail": "3 engine fixes verified live but tracker rejects them; awaiting stamp",
-  "tempo": "active",
+  "detail": "2 FALSE DEATH diagnoses logged; gate-attempt2 status flip needs your go",
+  "tempo": "blocked",
   "inFlight": {
-    "tasks": 3,
+    "tasks": 1,
     "queued": 0,
     "kinds": [
-      "local_agent",
       "session_cron"
     ]
   },
-  "fan": [
-    {
-      "id": "a623aaa3ed0007ad2",
-      "kind": "agent",
-      "label": "Build Stitch health round-trip probe",
-      "startedAt": 1783906746870
-    }
-  ],
-  "tokens": 10354762,
-  "output": {
-    "result": "3 engine fixes validated live: selftest race (874dc39), rule14 content (3c2987d), validation replay (f111ec1)"
-  },
+  "tokens": 10439135,
+  "needs": "flip gate-attempt2-validation-replay's status from 'owned' to 'closed' (one-line override)",
+  "output": null,
   "children": null,
-  "linkScanOffset": 80433084,
+  "linkScanOffset": 81460097,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -51,6 +41,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-13T01:56:00.768Z",
+  "updatedAt": "2026-07-13T02:23:21.381Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
