@@ -1,6 +1,6 @@
 {
   "state": "blocked",
-  "detail": "STATUS CRON complete; awaiting go on engine-srcsha fixture commit",
+  "detail": "verdict_merge shipped (commit 7e0a011); awaiting decision on fixture patch (QUEUE ITEM 29)",
   "tempo": "blocked",
   "inFlight": {
     "tasks": 1,
@@ -9,13 +9,11 @@
       "session_cron"
     ]
   },
-  "tokens": 10904885,
-  "needs": "commit engine-srcsha-fixture-update directly or hold it?",
-  "output": {
-    "result": "diagnosis debt fixed (7 unstuck, 13 pre-existing mt-* debt flagged); gap hygiene repaired (QUEUE ITEM 29)"
-  },
+  "tokens": 10906516,
+  "needs": "decision on engine-srcsha-fixture-update fixture patch (QUEUE ITEM 29)",
+  "output": null,
   "children": null,
-  "linkScanOffset": 91936301,
+  "linkScanOffset": 91973777,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -43,6 +41,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-13T16:02:36.504Z",
+  "updatedAt": "2026-07-13T16:04:30.996Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
