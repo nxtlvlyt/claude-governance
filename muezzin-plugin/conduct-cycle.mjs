@@ -1790,6 +1790,22 @@ function selftest() {
       const stFd3 = missionLandedState(proseText, fdGitStub);
       ck(Object.keys(stFd3.files).length === 1 && !!stFd3.files['pledge.html'], 'ALLOW-FILES extraction stops at the first non-bullet line -- "Done means" prose never pollutes the file list');
       ck(!('The' in stFd3.files) && !('`git' in stFd3.files) && !('No' in stFd3.files), 'prose bullet fragments (The/`git/No) are never treated as pseudo-files');
+
+      // BARE-HEX-EQUALS-HEAD REGRESSION (gap-conduct-cycle-srcsha-anchor's own closes_when,
+      // 2026-07-13 -- the exact lighthouse-ci-manifest-fix false PRE-SATISFIED: a mission's
+      // Maqsad cites a prior commit hash as narrative color, that hash happens to equal
+      // current HEAD, and the OLD bare-token regex read it as a declared baseline -> every
+      // ALLOW-FILE trivially diffs identical against itself -> false verdict:'FULL' on work
+      // that was never actually done. The fix requires an explicit BASELINE-SHA: label; a
+      // bare mention must fall back to the nosha path and cap at PARTIAL, never FULL.
+      const bareHexText = 'MISSION-CLASS: code-repo\nREPO-ROOT: C:/r\nALLOW-FILES:\n  - js/a.js\n  - css/b.css\nMaqsad: land abc1234 feature';
+      const stBareHex = missionLandedState(bareHexText, fdGitStub);
+      ck(stBareHex.verdict !== 'FULL', 'srcSha anchor: a BARE hex mention (no BASELINE-SHA: label) equal to current HEAD must NEVER verdict FULL (the exact lighthouse-ci-manifest-fix false PRE-SATISFIED)');
+      ck(stBareHex.verdict === 'PARTIAL', 'srcSha anchor: bare hex mention falls back to the nosha path -> PARTIAL (presence-only evidence)');
+      ck(stBareHex.srcSha === null, 'srcSha anchor: bare hex mention extracts NO srcSha at all -- the anchor requires an explicit BASELINE-SHA: label');
+      const labeledText = 'MISSION-CLASS: code-repo\nREPO-ROOT: C:/r\nBASELINE-SHA: abc1234\nALLOW-FILES:\n  - js/a.js\n  - css/b.css\nMaqsad: land the feature';
+      const stLabeled = missionLandedState(labeledText, fdGitStub);
+      ck(stLabeled.verdict === 'FULL', 'srcSha anchor: a genuinely LABELED BASELINE-SHA: still verdicts FULL when files are byte-identical -- the fix narrows the trigger, it does not break the legitimate case');
     }
     const auSplit = parseAutorun('SPLIT missions/parent.mission.txt  <!-- ts -->\nmissions/live.mission.txt\n');
     ck(auSplit.split.length === 1 && auSplit.pending.length === 1, 'parser: SPLIT is first-class; live line still pending');
