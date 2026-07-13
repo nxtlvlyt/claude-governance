@@ -49,7 +49,7 @@
 // Pure parsing + INJECTED dispatchers (lagunaDispatch / guardianDispatch / psProbe) =
 // unit-testable without a live model. The selftests below run with fake dispatchers.
 
-import { appendFileSync, mkdirSync } from 'fs';
+import { appendFileSync, mkdirSync, readFileSync, unlinkSync } from 'fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { checkGroundedness, guardianDispatch, GUARDIAN_SYSTEM } from './guardian_guard.mjs';
@@ -86,6 +86,9 @@ const ORNITH_9B_MODEL = 'ornith:9b';
 export const ORNITH_NEED_BYTES = 22 * 1024 * 1024 * 1024;   // ornith:35b — ~21.4GB measured resident + margin
 export const ORNITH_9B_NEED_BYTES = 6 * 1024 * 1024 * 1024;   // ornith:9b — ~5.6GB measured resident + margin
 const SELF_WITNESS_LOG = join(HERE, 'missions', '_logs', 'self-witness.jsonl');
+// gap-witness-revise-on-refire (priority-elevated 2026-07-13): the conductor's explicit
+// "I read the flagged plan" acknowledgment log -- the ONLY thing that lifts a refire hold.
+const WITNESS_ACK_LOG = join(HERE, 'missions', '_logs', 'witness-plan-read-ack.jsonl');
 
 // VRAM ceiling: a 24GB RTX 4090 by default (nxtbeast). laguna (33B q4) ≈ 22GB resident. We
 // must not dispatch a load that would push total resident VRAM over this — that is the real
@@ -426,6 +429,68 @@ export function emitReceipt(receipt, { logPath = SELF_WITNESS_LOG } = {}) {
   return receipt;
 }
 
+// ---- REFIRE HOLD on witness REVISE (gap-witness-revise-on-refire, priority-elevated
+// 2026-07-13) -----------------------------------------------------------------------------
+//
+// PURE reader: the most recent 'before'-pass self-witness receipt for a given artifact stem,
+// or null if none exists / the log is unreadable (fail-open -- a missing log never holds).
+export function latestBeforeWitness(stem, { logPath = SELF_WITNESS_LOG } = {}) {
+  let lines;
+  try { lines = readFileSync(logPath, 'utf8').split(/\r?\n/).filter(Boolean); }
+  catch { return null; }
+  let latest = null;
+  for (const line of lines) {
+    let e; try { e = JSON.parse(line); } catch { continue; }
+    if (e?.kind === 'self-witness' && e?.pass === 'before' && e?.artifact === stem) latest = e;
+  }
+  return latest;
+}
+
+// writer: the conductor's deliberate "I read the flagged plan" acknowledgment. Unlike
+// emitReceipt this is NOT fail-silent -- an ack the conductor believes landed but didn't
+// would silently leave a mission held forever, which is worse than a loud failure here.
+export function ackPlanRead(stem, note = '', { logPath = WITNESS_ACK_LOG } = {}) {
+  const entry = { ts: new Date().toISOString(), stem, note: String(note || '').slice(0, 500) };
+  mkdirSync(dirname(logPath), { recursive: true });
+  appendFileSync(logPath, JSON.stringify(entry) + '\n');
+  return entry;
+}
+
+// PURE reader: the most recent ack for a given stem, or null.
+export function latestAck(stem, { logPath = WITNESS_ACK_LOG } = {}) {
+  let lines;
+  try { lines = readFileSync(logPath, 'utf8').split(/\r?\n/).filter(Boolean); }
+  catch { return null; }
+  let latest = null;
+  for (const line of lines) {
+    let e; try { e = JSON.parse(line); } catch { continue; }
+    if (e?.stem === stem) latest = e;
+  }
+  return latest;
+}
+
+// THE GATE. Mirrors searchReadinessGate's { action: 'fire'|'hold', reason } shape so the
+// daemon's fire loop can handle both the same way. priorAttempts = the attempt count
+// BEFORE this fire would increment it (0 on a mission's very first fire) -- only a REFIRE
+// (priorAttempts >= 1) can be held; a first attempt always fires (nothing to have read yet).
+// Fail-open throughout: any read error, missing log, or unrecognized shape resolves to fire
+// -- this hold exists to make a real flag actionable, never to become a new failure mode of
+// its own that blocks missions no witness ever actually flagged.
+export function witnessRefireHold(stem, priorAttempts, { logPath = SELF_WITNESS_LOG, ackLogPath = WITNESS_ACK_LOG } = {}) {
+  try {
+    if (!(priorAttempts >= 1)) return { action: 'fire', reason: 'first attempt — nothing to have read yet' };
+    const w = latestBeforeWitness(stem, { logPath });
+    if (!w) return { action: 'fire', reason: 'no before-witness receipt on record' };
+    if (w.ok !== false) return { action: 'fire', reason: 'before-witness raised no concern' };
+    const ack = latestAck(stem, { logPath: ackLogPath });
+    if (ack && Date.parse(ack.ts) >= Date.parse(w.ts)) return { action: 'fire', reason: `conductor acknowledged the flag at ${ack.ts}` };
+    const concern = (w.reasons || []).join(' | ').slice(0, 240);
+    return { action: 'hold', reason: `witness flagged this plan before a prior attempt (${w.laguna?.verdict ?? 'REVISE'} at ${w.ts}) and no conductor plan-read ack exists since — ${concern}` };
+  } catch (e) {
+    return { action: 'fire', reason: `witness-refire-hold internal error (fail-open to fire): ${e.message}` };
+  }
+}
+
 // ---- AFTER pass: did the produced RESULT satisfy the mission's own "Done means"? ---------
 //
 // The BEFORE pass (witnessArtifact on the mission TEXT at fire) checks the DESIGN. The AFTER
@@ -592,7 +657,7 @@ export async function witnessArtifact(text, context = {}, opts = {}) {
 }
 
 // ============================================================ selftests (no live model) ====
-if (process.argv[1] && process.argv[1].endsWith('self_witness.mjs') && !process.argv.includes('--check-commit')) {
+if (process.argv[1] && process.argv[1].endsWith('self_witness.mjs') && !process.argv.includes('--check-commit') && !process.argv.includes('--ack-plan-read')) {
   let pass = 0, fail = 0;
   const ck = (c, m) => { console.log(`${c ? 'PASS' : 'FAIL'}  ${m}`); c ? pass++ : fail++; };
   const GB = 1024 * 1024 * 1024;
@@ -875,6 +940,38 @@ if (process.argv[1] && process.argv[1].endsWith('self_witness.mjs') && !process.
   const beforeRcpt = buildReceipt({ context: { artifact: 'M-BEFORE' }, laguna: { verdict: 'APPROVE', ran: true }, guardian: { grounded: true, ran: true } });
   ck(beforeRcpt.pass === 'before', 'receipt: default pass is "before" (the original v1 mission-text pass)');
 
+  // ---- witnessRefireHold / ackPlanRead / latestBeforeWitness / latestAck
+  // (gap-witness-revise-on-refire, priority-elevated 2026-07-13) ----
+  {
+    const wlog = join('.', `_selftest-witness-${process.pid}.jsonl`);
+    const alog = join('.', `_selftest-ack-${process.pid}.jsonl`);
+    try { unlinkSync(wlog); } catch {}
+    try { unlinkSync(alog); } catch {}
+    const opts = { logPath: wlog, ackLogPath: alog };
+
+    ck(witnessRefireHold('s', 0, opts).action === 'fire', 'witnessRefireHold: first attempt (priorAttempts=0) always fires, nothing to have read yet');
+    ck(witnessRefireHold('s', 1, opts).action === 'fire', 'witnessRefireHold: refire with no witness receipt on record fires (nothing flagged)');
+
+    emitReceipt({ ts: '2026-07-13T10:00:00.000Z', kind: 'self-witness', pass: 'before', artifact: 's', ok: true, laguna: { verdict: 'APPROVE' }, reasons: [] }, { logPath: wlog });
+    ck(witnessRefireHold('s', 1, opts).action === 'fire', 'witnessRefireHold: refire with a CLEAN (ok:true) before-witness fires');
+
+    emitReceipt({ ts: '2026-07-13T11:00:00.000Z', kind: 'self-witness', pass: 'before', artifact: 's', ok: false, laguna: { verdict: 'REVISE' }, reasons: ['ornith:9b(structural): REVISE — scope gap'] }, { logPath: wlog });
+    const held = witnessRefireHold('s', 1, opts);
+    ck(held.action === 'hold', 'witnessRefireHold: refire with a FLAGGED (ok:false) before-witness and no ack HOLDS (the mechanism this gap exists for)');
+    ck(/scope gap/.test(held.reason), 'witnessRefireHold: the hold reason names the actual flagged concern, not a generic message');
+
+    appendFileSync(alog, JSON.stringify({ ts: '2026-07-13T10:30:00.000Z', stem: 's', note: 'stale — before the flag' }) + '\n');
+    ck(witnessRefireHold('s', 1, opts).action === 'hold', 'witnessRefireHold: an ack that PRE-DATES the flagged receipt does NOT lift the hold (stale ack)');
+
+    ackPlanRead('s', 'read the plan, scope gap is intentional', { logPath: alog });
+    ck(witnessRefireHold('s', 1, opts).action === 'fire', 'witnessRefireHold: a FRESH ack (after the flag) lifts the hold');
+
+    ck(witnessRefireHold('other-stem', 1, opts).action === 'fire', 'witnessRefireHold: a DIFFERENT stem is entirely unaffected by another stem\'s flag');
+
+    try { unlinkSync(wlog); } catch {}
+    try { unlinkSync(alog); } catch {}
+  }
+
   console.log(`\n${fail ? fail + ' FAIL' : 'ALL PASS — self_witness: laguna+guardian BOTH-witness, GR10-serial, non-blocking, fail-soft, BEFORE+AFTER passes'}`);
   process.exit(fail ? 1 : 0);
 }
@@ -893,6 +990,17 @@ if (process.argv[1] && process.argv[1].endsWith('self_witness.mjs') && !process.
 // alternative check. Default sha is HEAD (the most recent commit) — exactly what "did I check
 // my own last commit" means in practice. Always exits 0 (informational/non-blocking, matching
 // this whole file's design — a flag is printed clearly, never a hard failure).
+if (process.argv.includes('--ack-plan-read')) {
+  const argv = process.argv;
+  const i = argv.indexOf('--ack-plan-read');
+  const stem = argv[i + 1];
+  const note = argv.slice(i + 2).join(' ');
+  if (!stem) { console.error('usage: node self_witness.mjs --ack-plan-read <mission-stem> [note...]'); process.exit(1); }
+  const entry = ackPlanRead(stem, note);
+  console.log(`ACK-RECORDED ${entry.stem} at ${entry.ts}${note ? ` — ${note}` : ''}`);
+  process.exit(0);
+}
+
 if (process.argv.includes('--check-commit')) {
   (async () => {
     const argv = process.argv;

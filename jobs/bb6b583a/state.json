@@ -1,18 +1,27 @@
 {
   "state": "working",
-  "detail": "mission queued after finding + fixing silent commit-sweep bug",
+  "detail": "fixed QUEUE-DUP collision + PRE-FLIGHT receipt; awaiting daemon fire",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
-    "queued": 0,
+    "queued": 2,
     "kinds": [
       "session_cron"
     ]
   },
-  "tokens": 10970354,
+  "fan": [
+    {
+      "id": "bx35vwj0t",
+      "kind": "monitor",
+      "label": "Watch for engine-srcsha-fixture-update to actually fire or resolve",
+      "startedAt": 1783962882405,
+      "doneAt": 1783962883521
+    }
+  ],
+  "tokens": 10981001,
   "output": null,
   "children": null,
-  "linkScanOffset": 93120852,
+  "linkScanOffset": 93343302,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -40,6 +49,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-13T17:06:05.309Z",
+  "updatedAt": "2026-07-13T17:14:56.808Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
