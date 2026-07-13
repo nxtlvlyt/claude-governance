@@ -1,0 +1,55 @@
+MISSION-ID: M-ENGINE.SRCSHA-ANCHOR-FIX-V2
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\.claude\muezzin-plugin
+ALLOW-FILES:
+  - conduct-cycle.mjs
+REQUIRES: none
+STEPS: 3
+
+Maqsad: close gap-conduct-cycle-srcsha-anchor — missionLandedState's srcSha
+extraction (conduct-cycle.mjs line 181) grabs the FIRST bare 7+ char hex token
+anywhere in a mission's prose, with no anchor requiring it to be a declared
+baseline. Receipted false PRE-SATISFIED: lighthouse-ci-manifest-fix's Maqsad
+cited a prior commit (666f889, mentioned as context, not baseline) that
+happened to equal current HEAD — `git diff <sha>:file HEAD:file` against
+itself trivially reports identical, verdicting FULL on unstarted work. Fix:
+require an explicit `BASELINE-SHA: <hash>` labeled field; missions without it
+fall back to the existing nosha path (present-nosha, capped PARTIAL) — the
+same safe behavior missions with no hash at all already get, so this is
+non-breaking for every currently-queued mission that doesn't use the field.
+This is the SECOND attempt at this gap — the original srcsha-anchor-patch.mjs
+(committed missions/_logs/, referenced by the now-superseded
+engine-srcsha-anchor-fix.mission.txt) went stale after the heal-selftest-
+race-fix commit (874dc39) shifted surrounding code; this mission runs a fresh
+patcher (missions/_logs/srcsha-anchor-patch-v2.mjs) verified against the
+CURRENT file.
+
+niyyah: close a genuinely stale gap without breaking any currently-queued
+mission's verdict behavior — the fallback-to-nosha path for missions without
+BASELINE-SHA: is the load-bearing safety property here, verified by running
+the full existing selftest suite against the patched file (not just checking
+the new behavior in isolation).
+
+Steps:
+  1. Baseline. Run exactly: git rev-parse --abbrev-ref HEAD; git rev-parse HEAD; node --check conduct-cycle.mjs; if ($LASTEXITCODE -ne 0) { Write-Output PRE-CHECK-FAIL; exit 1 }; Write-Output PRE-CHECK-PASS [command]
+     validation_command: node --check conduct-cycle.mjs
+  2. Run the committed patcher exactly: node missions/_logs/srcsha-anchor-patch-v2.mjs conduct-cycle.mjs; if ($LASTEXITCODE -ne 0) { exit 1 } [command]
+     validation_command: node --check conduct-cycle.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; if (-not (Select-String -Path conduct-cycle.mjs -Pattern 'BASELINE-SHA anchor \(gap-conduct-cycle-srcsha-anchor' -Quiet)) { exit 1 }
+  3. Full selftest, then commit. Run exactly: node conduct-cycle.mjs --selftest 2>&1 | Tee-Object -Variable out; $failCount = ($out | Select-String -Pattern '^FAIL').Count; if ($failCount -ne 0) { Write-Output "SELFTEST-INCOMPLETE fail=$failCount"; exit 1 }; git add -- conduct-cycle.mjs; git diff --cached --quiet; if ($LASTEXITCODE -eq 0) { Write-Output ALREADY_COMMITTED } else { git commit -m "fix(engine): srcSha extraction requires an explicit BASELINE-SHA: anchor (gap-conduct-cycle-srcsha-anchor); missions without the field fall back to the existing safe nosha path, non-breaking; full selftest ALL PASS" }; if ($LASTEXITCODE -ne 0) { exit 1 } [command]
+
+Done means: conduct-cycle.mjs's missionLandedState no longer verdicts FULL off
+a bare, unlabeled hex token anywhere in mission prose; a mission must declare
+`BASELINE-SHA: <hash>` explicitly for srcSha-based verification, otherwise it
+gets the existing nosha/PARTIAL treatment; full existing selftest suite ALL
+PASS (verifies zero regression, not just the new behavior); committed.
+
+# CONDUCTOR PROVENANCE (2026-07-13): the original patcher (srcsha-anchor-
+# patch.mjs) went stale after commit 874dc39 shifted surrounding code — this
+# mission uses a fresh patcher (srcsha-anchor-patch-v2.mjs) verified against
+# the CURRENT file in a fresh scratch copy this session: dry-run PATCHED,
+# node --check clean, idempotent (ALREADY-PATCHED on retry after fixing an
+# idempotency-guard string bug caught during verification), full selftest
+# re-run against the patched copy — ALL PASS, zero regressions. Constructed
+# per the five-verb law: CLASS fails (conduct-cycle.mjs is the daemon's own
+# judgment-machinery engine file) and this touches core verdict logic,
+# mandating mission construction over direct application.
