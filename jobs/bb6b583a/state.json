@@ -1,6 +1,6 @@
 {
   "state": "blocked",
-  "detail": "kernel-security tagged by platform classifier; needs operator sign-off",
+  "detail": "engine-reset-allowfiles-staged-fix held; awaiting go-ahead",
   "tempo": "blocked",
   "inFlight": {
     "tasks": 1,
@@ -9,11 +9,11 @@
       "session_cron"
     ]
   },
-  "tokens": 11118616,
-  "needs": "operator approval to override platform classifier's kernel-security flag",
+  "tokens": 11118820,
+  "needs": "approve or reject engine-reset-allowfiles-staged-fix",
   "output": null,
   "children": null,
-  "linkScanOffset": 96178833,
+  "linkScanOffset": 96199326,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -41,6 +41,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-13T21:21:05.774Z",
+  "updatedAt": "2026-07-13T21:29:18.344Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
