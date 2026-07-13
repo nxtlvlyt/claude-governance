@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "daemons idle, queues stable; next check in cycle",
+  "detail": "both daemons idle; mt holding 29 queued (GAP-PRIORITY-HOLD correct), stitcher blocked on Docker",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 10500585,
+  "tokens": 10501116,
   "output": null,
   "children": null,
-  "linkScanOffset": 82316400,
+  "linkScanOffset": 82337955,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -40,6 +40,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-13T03:29:15.016Z",
+  "updatedAt": "2026-07-13T03:44:19.440Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
