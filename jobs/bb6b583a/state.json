@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "both daemons alive, diagnosis-debt stale; next cron cycle check",
+  "detail": "conductor duty active; monitoring for material changes",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 10498927,
+  "tokens": 10499614,
   "output": null,
   "children": null,
-  "linkScanOffset": 82242857,
+  "linkScanOffset": 82254723,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -40,6 +40,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-13T02:59:26.825Z",
+  "updatedAt": "2026-07-13T02:59:56.057Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
