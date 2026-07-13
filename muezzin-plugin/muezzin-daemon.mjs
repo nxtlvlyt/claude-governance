@@ -28,7 +28,7 @@
 import { readFileSync, writeFileSync, existsSync, appendFileSync, mkdirSync, rmSync, mkdtempSync, readdirSync, statSync } from 'fs';
 import { lintMission } from './mission_lint.mjs';
 import { parseMissionClass } from './mission_class.mjs';
-import { witnessArtifact, buildAfterContext } from './self_witness.mjs';
+import { witnessArtifact, buildAfterContext, witnessRefireHold } from './self_witness.mjs';
 import { heal as conductCycleHeal, missionLandedState } from './conduct-cycle.mjs';
 import { searxngPreflight } from './searxng_preflight.mjs';
 import { execSync, execFile } from 'child_process';
@@ -1260,6 +1260,17 @@ async function mainLoop() {
       if (gate.action === 'block') { evt(`BLOCKED (search backend down x3): ${raw} — ${gate.reason}`); setMark(raw, 'FAILED'); notify(`⛔ BLOCKED ${path.basename(raw).replace(/\.mission\.txt$/, '')}\nsearch backend down after heal+recheck — ${gate.reason}\n${nextUpLine()}\n${scoreLine()}`); return; }
       // gate.action === 'fire' -> fall through unchanged
     } catch (e) { evt(`readiness-gate error (continuing to fire, fail-open): ${raw} — ${e.message}`); }
+    // WITNESS-REFIRE HOLD (gap-witness-revise-on-refire, priority-elevated 2026-07-13):
+    // a same-stem REFIRE (priorAttempts >= 1) whose BEFORE-pass witness flagged a REVISE/
+    // REJECT is held until the conductor has explicitly acknowledged reading the flagged
+    // plan (node self_witness.mjs --ack-plan-read <stem> [note]). Mirrors the search-
+    // readiness gate exactly: a HOLD spends no attempt, the line stays pending, re-checked
+    // next poll. Fail-open by construction (witnessRefireHold itself never throws outward).
+    try {
+      const wStem = path.basename(raw).replace(/\.mission\.txt$/, '');
+      const wGate = witnessRefireHold(wStem, attempts.get(raw) || 0);
+      if (wGate.action === 'hold') { evt(`HELD (witness flag unacknowledged): ${raw} — ${wGate.reason}`); return; }   // NO attempts++, line stays pending
+    } catch (e) { evt(`witness-refire-hold error (continuing to fire, fail-open): ${raw} — ${e.message}`); }
     const n = (attempts.get(raw) || 0) + 1; attempts.set(raw, n);
     setMark(raw, 'RUNNING');
     evt(`firing lane ${lanes.size + 1}/${MAX_LANES} (attempt ${n}/${MAX_ATTEMPTS}): ${raw}`);
