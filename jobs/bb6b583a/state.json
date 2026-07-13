@@ -1,6 +1,6 @@
 {
   "state": "blocked",
-  "detail": "user questions laptop install fix; needs clarification",
+  "detail": "laptop install didn't resolve issue; root cause unclear",
   "tempo": "blocked",
   "inFlight": {
     "tasks": 2,
@@ -18,11 +18,11 @@
       "startedAt": 1783923540520
     }
   ],
-  "tokens": 10624980,
-  "needs": "clarify: did laptop install resolve the issue, or is there still a problem?",
+  "tokens": 10625159,
+  "needs": "clarify: what behavior were you expecting after laptop install vs. what you're seeing now?",
   "output": null,
   "children": null,
-  "linkScanOffset": 86087330,
+  "linkScanOffset": 86105829,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -50,6 +50,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-13T06:49:16.865Z",
+  "updatedAt": "2026-07-13T06:59:25.284Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
