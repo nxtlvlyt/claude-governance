@@ -1074,3 +1074,5 @@
 {"at":"2026-07-13T05:26:55.288Z","state":"blocked","detail":"SearXNG unreachable; firewall rule awaiting application","text":"No — SearXNG's still unreachable (just checked, HTTP 000). The firewall rule I gave you hasn't been applied yet. Nothing else got fixed either: AURA's still Running/Automatic, Docker Desktop still can't init in Session 0, and the hook false-positive is blocked pending your explicit word. Only real fix tonight was diagnosing all of it correctly — none of the actual remediations have landed yet."}
 {"at":"2026-07-13T05:28:50.133Z","state":"blocked","detail":"but did we fix it","text":""}
 {"at":"2026-07-13T05:29:19.450Z","state":"done","detail":"verified: both files unchanged since fix","text":"Both unchanged, nothing to report."}
+{"at":"2026-07-13T05:30:26.144Z","state":"done","detail":"when will it be fixed","text":""}
+{"at":"2026-07-13T05:30:34.615Z","state":"blocked","detail":"SearXNG firewall rule needed; one-liner command ready","text":"When you run the firewall command — that's the only thing SearXNG actually needs, and it's a one-liner. No fix on my end will land it; it's blocked purely on that one action from you."}

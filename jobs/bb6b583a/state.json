@@ -1,7 +1,7 @@
 {
-  "state": "done",
-  "detail": "verified: both files unchanged since fix",
-  "tempo": "idle",
+  "state": "blocked",
+  "detail": "SearXNG firewall rule needed; one-liner command ready",
+  "tempo": "blocked",
   "inFlight": {
     "tasks": 1,
     "queued": 0,
@@ -9,12 +9,11 @@
       "session_cron"
     ]
   },
-  "tokens": 10580498,
-  "output": {
-    "result": "fix confirmed stable; both files unchanged"
-  },
+  "tokens": 10580558,
+  "needs": "run the firewall command to unblock SearXNG",
+  "output": null,
   "children": null,
-  "linkScanOffset": 84935826,
+  "linkScanOffset": 84977691,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -42,6 +41,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-13T05:29:19.450Z",
+  "updatedAt": "2026-07-13T05:30:34.615Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
