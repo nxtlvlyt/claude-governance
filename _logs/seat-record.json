@@ -23,7 +23,7 @@
     },
     "qwen3.6:27b": {
       "verdict": {
-        "pass": 6,
+        "pass": 7,
         "miss": 0,
         "fabrication": 0
       }
