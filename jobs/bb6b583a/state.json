@@ -1,9 +1,9 @@
 {
   "state": "working",
-  "detail": "VM networking flaky; diagnosing Hyper-V/WSL2 layer",
+  "detail": "WSL2 + SearXNG setup underway; cloning repo",
   "tempo": "idle",
   "inFlight": {
-    "tasks": 2,
+    "tasks": 4,
     "queued": 0,
     "kinds": [
       "local_bash",
@@ -16,12 +16,24 @@
       "kind": "shell",
       "label": "ssh -N -L 8080:localhost:8080 nxtbeast",
       "startedAt": 1783923540520
+    },
+    {
+      "id": "b5ng0vn3z",
+      "kind": "shell",
+      "label": "wsl -d Ubuntu -- git clone https://github.com/searxng/searxng.git /opt/searxng 2>&1 | tail -10",
+      "startedAt": 1783924321409
+    },
+    {
+      "id": "bnxcuwptv",
+      "kind": "shell",
+      "label": "until wsl -d Ubuntu -- test -f /opt/searxng/requirements.txt; do sleep 2; done; echo \"CLONE-DONE\"",
+      "startedAt": 1783924448019
     }
   ],
-  "tokens": 10609548,
+  "tokens": 10611758,
   "output": null,
   "children": null,
-  "linkScanOffset": 85774857,
+  "linkScanOffset": 85862702,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -49,6 +61,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-13T06:23:38.908Z",
+  "updatedAt": "2026-07-13T06:35:14.076Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
