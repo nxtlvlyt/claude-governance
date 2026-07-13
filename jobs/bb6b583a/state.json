@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "agy-muezzin landed (c5bd219); mt-side + RULE 14 in flight; recheck 10m",
+  "detail": "RULE 14 mission live; warroom daemon gated on agy 100% + N5",
   "tempo": "active",
   "inFlight": {
     "tasks": 3,
@@ -18,10 +18,12 @@
       "startedAt": 1783906746870
     }
   ],
-  "tokens": 10279791,
-  "output": null,
+  "tokens": 10310263,
+  "output": {
+    "result": "warroom daemon not started; blocked on agy completion + N5 spec. Tonight's work (engine gaps in muezzin-plugin + agy-muezzin) doesn't unblock warroom timeline."
+  },
   "children": null,
-  "linkScanOffset": 80260057,
+  "linkScanOffset": 80348564,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -49,6 +51,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-13T01:46:03.187Z",
+  "updatedAt": "2026-07-13T01:49:40.033Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
