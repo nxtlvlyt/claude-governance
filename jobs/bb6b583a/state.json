@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "scanning for remaining gaps in coverage",
+  "detail": "3 bite-class gaps blocking; srcsha-anchor fix running now",
   "tempo": "idle",
   "inFlight": {
     "tasks": 2,
@@ -18,10 +18,10 @@
       "startedAt": 1783923540520
     }
   ],
-  "tokens": 10725871,
+  "tokens": 10727577,
   "output": null,
   "children": null,
-  "linkScanOffset": 89439462,
+  "linkScanOffset": 89468362,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -49,6 +49,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-13T08:54:17.340Z",
+  "updatedAt": "2026-07-13T08:55:43.226Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
