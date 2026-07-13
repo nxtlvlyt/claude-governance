@@ -1,7 +1,7 @@
 {
-  "state": "blocked",
-  "detail": "WSL2 platform gate blocks pip install build code; needs user approval",
-  "tempo": "blocked",
+  "state": "done",
+  "detail": "path-mangling root cause fixed; repo cloned cleanly (27 files)",
+  "tempo": "idle",
   "inFlight": {
     "tasks": 2,
     "queued": 0,
@@ -18,11 +18,12 @@
       "startedAt": 1783923540520
     }
   ],
-  "tokens": 10647605,
-  "needs": "approve running externally-sourced Python build code in WSL2 (pip install -e .)",
-  "output": null,
+  "tokens": 10652415,
+  "output": {
+    "result": "MSYS2_ARG_CONV_EXCL='*' fixes path mangling; repo cloned to /opt with 27 files verified"
+  },
   "children": null,
-  "linkScanOffset": 87148658,
+  "linkScanOffset": 87247445,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -50,6 +51,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-13T07:27:25.024Z",
+  "updatedAt": "2026-07-13T07:32:45.461Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
