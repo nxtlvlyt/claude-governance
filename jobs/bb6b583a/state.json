@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "last gap queued; 2 waiting on daemon, 1 on external (nxtbeast Docker)",
+  "detail": "scanning for remaining gaps in coverage",
   "tempo": "idle",
   "inFlight": {
     "tasks": 2,
@@ -18,10 +18,10 @@
       "startedAt": 1783923540520
     }
   ],
-  "tokens": 10725853,
+  "tokens": 10725871,
   "output": null,
   "children": null,
-  "linkScanOffset": 89427515,
+  "linkScanOffset": 89439462,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -49,6 +49,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-13T08:53:51.601Z",
+  "updatedAt": "2026-07-13T08:54:17.340Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
