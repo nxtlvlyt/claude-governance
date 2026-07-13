@@ -1,6 +1,6 @@
 {
   "state": "blocked",
-  "detail": "setup ready; awaiting user venv install",
+  "detail": "awaiting user to run command to unblock",
   "tempo": "blocked",
   "inFlight": {
     "tasks": 2,
@@ -18,11 +18,11 @@
       "startedAt": 1783923540520
     }
   ],
-  "tokens": 10654551,
-  "needs": "run the wsl venv install command, then tell me when it finishes",
+  "tokens": 10654579,
+  "needs": "run the command provided in the previous message",
   "output": null,
   "children": null,
-  "linkScanOffset": 87315150,
+  "linkScanOffset": 87329943,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -50,6 +50,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-13T07:36:57.814Z",
+  "updatedAt": "2026-07-13T07:37:24.229Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
