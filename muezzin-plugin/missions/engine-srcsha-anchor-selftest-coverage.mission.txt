@@ -1,0 +1,46 @@
+MISSION-ID: M-ENGINE.SRCSHA-ANCHOR-SELFTEST-COVERAGE
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\.claude\muezzin-plugin
+ALLOW-FILES:
+  - conduct-cycle.mjs
+REQUIRES: none
+STEPS: 2
+
+Maqsad: close gap-conduct-cycle-srcsha-anchor's own closes_when condition —
+"srcSha extraction requires an explicit anchor; selftest covers a mission
+whose prose cites an unrelated commit hash equal to current HEAD and
+confirms it does NOT verdict FULL". The anchor fix (requiring an explicit
+BASELINE-SHA: label) already landed as code earlier this session (commit
+7e0a011), but no selftest exercised the exact regression class the gap was
+originally filed for — the lighthouse-ci-manifest-fix false PRE-SATISFIED,
+where a bare hex mention equal to current HEAD verdicted FULL on genuinely
+unstarted work. Adds 4 new checks: bare hex mention never verdicts FULL,
+falls back to PARTIAL, extracts no srcSha at all, AND confirms a genuinely
+LABELED BASELINE-SHA: still correctly verdicts FULL when files are
+byte-identical (the fix narrows the trigger, it does not break the
+legitimate case).
+
+niyyah: a fix without a regression test is a claim, not a receipt — this
+mission turns the already-landed code fix into a permanently-enforced
+guarantee, closing the gap for real rather than leaving it "probably fine."
+
+Steps:
+  1. Run the committed, dry-run-verified patcher exactly: node missions/_logs/srcsha-anchor-selftest-coverage-patch.mjs conduct-cycle.mjs; if ($LASTEXITCODE -ne 0) { exit 1 } [command]
+     validation_command: node --check conduct-cycle.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; if (-not (Select-String -Path conduct-cycle.mjs -Pattern 'BARE-HEX-EQUALS-HEAD REGRESSION' -Quiet)) { exit 1 }
+  2. Selftest, then commit. Run exactly: node conduct-cycle.mjs --selftest 2>&1 | Tee-Object -Variable out; $newFails = ($out | Select-String -Pattern '^FAIL' | Where-Object { $_ -notmatch 'false-death: all files byte-identical at HEAD -> FULL candidate' }).Count; if ($newFails -ne 0) { Write-Output "SELFTEST-REGRESSION count=$newFails"; exit 1 }; if (-not ($out | Select-String -Pattern 'srcSha anchor: a BARE hex mention')) { Write-Output "NEW-CHECK-MISSING"; exit 1 }; git add -- conduct-cycle.mjs; git diff --cached --quiet; if ($LASTEXITCODE -eq 0) { Write-Output ALREADY_COMMITTED } else { git commit -m "test(engine): add the srcSha-anchor regression selftest gap-conduct-cycle-srcsha-anchor's own closes_when demanded (bare hex mention equal to HEAD never verdicts FULL, falls back to PARTIAL, extracts no srcSha; a genuinely labeled BASELINE-SHA: still verdicts FULL when identical) -- 4 new checks, zero NEW regressions (the one known pre-existing fixture-convention FAIL is separately owned by engine-srcsha-fixture-update)"; if ($LASTEXITCODE -ne 0) { exit 1 } }; if ($LASTEXITCODE -ne 0) { exit 1 } [command]
+
+Done means: conduct-cycle.mjs's selftest suite includes 4 new checks
+proving the srcSha anchor fix's exact target regression is closed (bare
+hex mention equal to HEAD never verdicts FULL) without breaking the
+legitimate labeled case; zero NEW regressions (the one pre-existing FAIL
+from the still-parked fixture-update mission is explicitly excluded from
+the pass/fail gate here, named and owned elsewhere, not silently ignored);
+committed.
+
+# CONDUCTOR PROVENANCE (2026-07-13): dry-run verified against a
+# CRLF-faithful Copy-Item scratch copy (not git show, per this session's
+# own recorded lesson about git show normalizing line endings to LF and
+# masking real mismatches) — PATCHED, node --check clean, full selftest
+# run: all 4 new checks PASS, zero regressions beyond the one pre-existing,
+# already-owned, already-diagnosed FAIL this mission's own validation
+# step explicitly excludes by name rather than silently swallowing.
