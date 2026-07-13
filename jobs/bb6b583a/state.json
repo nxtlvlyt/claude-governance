@@ -1,7 +1,7 @@
 {
-  "state": "done",
-  "detail": "tailscale vs ssh: tailscale adds NAT traversal, device auth, encrypted mesh; ssh alone requires static IPs or jump hosts",
-  "tempo": "idle",
+  "state": "blocked",
+  "detail": "WSL2/Docker needed for local SearXNG; SSH tunnel alternative ready",
+  "tempo": "blocked",
   "inFlight": {
     "tasks": 2,
     "queued": 0,
@@ -18,12 +18,11 @@
       "startedAt": 1783921142492
     }
   ],
-  "tokens": 10598079,
-  "output": {
-    "result": "tailscale provides NAT traversal + device-level auth + encrypted mesh; ssh alone needs static IPs or jump hosts"
-  },
+  "tokens": 10602027,
+  "needs": "decide: pursue full local install (WSL2 setup) now, or defer to fresh session and use SSH tunnel tonight?",
+  "output": null,
   "children": null,
-  "linkScanOffset": 85344363,
+  "linkScanOffset": 85416188,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -51,6 +50,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-13T05:44:17.184Z",
+  "updatedAt": "2026-07-13T05:46:44.988Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
