@@ -1,6 +1,6 @@
 {
   "state": "blocked",
-  "detail": "5 gaps remain; 3 converge on item awaiting your decision",
+  "detail": "conductor gaps persist; needs user direction on fix approach",
   "tempo": "blocked",
   "inFlight": {
     "tasks": 1,
@@ -9,13 +9,11 @@
       "session_cron"
     ]
   },
-  "tokens": 11043139,
-  "needs": "decision on the dirty-tree/commit-scoping item the 3 gaps depend on",
-  "output": {
-    "result": "gap-witness-revise-on-refire closed; daemon restarted (PID 38296 healthy); 5 gaps remain"
-  },
+  "tokens": 11043613,
+  "needs": "which approach: force conductor retry logic, adjust gap thresholds, or escalate to warroom?",
+  "output": null,
   "children": null,
-  "linkScanOffset": 94416406,
+  "linkScanOffset": 94433070,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -43,6 +41,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-13T17:57:11.480Z",
+  "updatedAt": "2026-07-13T18:00:02.804Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
