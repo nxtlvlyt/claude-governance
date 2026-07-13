@@ -1232,3 +1232,4 @@
 {"at":"2026-07-13T18:00:02.804Z","state":"blocked","detail":"conductor gaps persist; needs user direction on fix approach","text":"Both daemons healthy, mt on the new PID (38296), diagnosis debt flat at 13 (the pre-existing `mt-*` backlog, no new failures). agy diagnosis and warroom items remain settled from earlier. Nothing material this cycle."}
 {"at":"2026-07-13T18:14:14.993Z","state":"blocked","detail":"conductor idle 15m, queue counts unchanged; needs debug direction","text":"Same PIDs, idle, unchanged queue counts, ~15 min since last check. Nothing material."}
 {"at":"2026-07-13T18:29:17.337Z","state":"blocked","detail":"conductor not retrying gaps; need guidance on retry strategy","text":"Same PIDs, idle, unchanged. Quiet cycle."}
+{"at":"2026-07-13T18:44:14.607Z","state":"blocked","detail":"conductor not retrying gaps; needs strategy to force retry logic","text":"Same PIDs, idle, unchanged. Quiet cycle."}
