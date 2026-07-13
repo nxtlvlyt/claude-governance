@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "waiting on service recovery (~80s downtime)",
+  "detail": "waiting on metric recovery (t+100s, still down)",
   "tempo": "idle",
   "inFlight": {
     "tasks": 2,
@@ -18,10 +18,10 @@
       "startedAt": 1783917106676
     }
   ],
-  "tokens": 10526538,
+  "tokens": 10526549,
   "output": null,
   "children": null,
-  "linkScanOffset": 83219746,
+  "linkScanOffset": 83230752,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -49,6 +49,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-13T04:33:34.398Z",
+  "updatedAt": "2026-07-13T04:33:59.092Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
