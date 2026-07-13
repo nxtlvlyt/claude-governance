@@ -1,6 +1,6 @@
 {
   "state": "blocked",
-  "detail": "Docker restart task proposal; awaiting go-ahead to deploy",
+  "detail": "ASUS sync task disable requires your explicit confirmation",
   "tempo": "blocked",
   "inFlight": {
     "tasks": 1,
@@ -9,11 +9,11 @@
       "session_cron"
     ]
   },
-  "tokens": 10507296,
-  "needs": "go-ahead to create Windows Scheduled Task for Docker auto-recovery",
+  "tokens": 10508336,
+  "needs": "confirm: disable the ASUS Sync scheduled task",
   "output": null,
   "children": null,
-  "linkScanOffset": 82437841,
+  "linkScanOffset": 82455908,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -41,6 +41,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-13T04:00:33.619Z",
+  "updatedAt": "2026-07-13T04:01:07.946Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
