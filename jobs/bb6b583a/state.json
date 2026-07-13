@@ -1,6 +1,6 @@
 {
-  "state": "working",
-  "detail": "Continuing status crons in this style.",
+  "state": "done",
+  "detail": "no fixed timeline on Docker restart; blocked on manual restart or scheduled task approval",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,12 @@
       "session_cron"
     ]
   },
-  "tokens": 10509884,
-  "output": null,
+  "tokens": 10510086,
+  "output": {
+    "result": "Docker issue has no ETA; requires manual restart or scheduled task approval to proceed"
+  },
   "children": null,
-  "linkScanOffset": 82529726,
+  "linkScanOffset": 82570989,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -40,6 +42,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-13T04:03:03.218Z",
+  "updatedAt": "2026-07-13T04:03:36.722Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
