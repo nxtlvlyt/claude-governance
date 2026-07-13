@@ -1,27 +1,21 @@
 {
-  "state": "working",
-  "detail": "Docker Desktop booting on nxtbeast; monitoring SearXNG",
-  "tempo": "idle",
+  "state": "blocked",
+  "detail": "SearXNG down on nxtbeast (Docker Desktop not running); cannot proceed with commit gate",
+  "tempo": "blocked",
   "inFlight": {
-    "tasks": 2,
+    "tasks": 1,
     "queued": 0,
     "kinds": [
-      "monitor",
       "session_cron"
     ]
   },
-  "fan": [
-    {
-      "id": "bhuu5p4x9",
-      "kind": "monitor",
-      "label": "Poll SearXNG until it responds or timeout, reporting each attempt",
-      "startedAt": 1783910477130
-    }
-  ],
-  "tokens": 10468903,
-  "output": null,
+  "tokens": 10474828,
+  "needs": "restart Docker Desktop on nxtbeast via RDP or local console to bring SearXNG back online",
+  "output": {
+    "result": "diagnosed SearXNG outage: Docker Desktop.exe not running on nxtbeast; pre-commit healthcheck staged, awaiting SearXNG restart"
+  },
   "children": null,
-  "linkScanOffset": 81836597,
+  "linkScanOffset": 81894447,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -49,6 +43,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-13T02:41:26.481Z",
+  "updatedAt": "2026-07-13T02:43:52.852Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
