@@ -1,6 +1,6 @@
 {
   "state": "blocked",
-  "detail": "user reports production blocked across 3 projects; awaiting direction",
+  "detail": "WSL2 platform gate blocks pip install build code; needs user approval",
   "tempo": "blocked",
   "inFlight": {
     "tasks": 2,
@@ -18,11 +18,11 @@
       "startedAt": 1783923540520
     }
   ],
-  "tokens": 10631406,
-  "needs": "clarify what operator changes you want applied now",
+  "tokens": 10647605,
+  "needs": "approve running externally-sourced Python build code in WSL2 (pip install -e .)",
   "output": null,
   "children": null,
-  "linkScanOffset": 86977349,
+  "linkScanOffset": 87148658,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -50,6 +50,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-13T07:14:58.936Z",
+  "updatedAt": "2026-07-13T07:27:25.024Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
