@@ -1,27 +1,18 @@
 {
-  "state": "blocked",
-  "detail": "found blind spot in user-prompt-submit.mjs hook; awaiting go-ahead to edit",
-  "tempo": "active",
+  "state": "working",
+  "detail": "3 engine fixes queued + running; 1 gap closed; 1 gap unstarted (needs design call)",
+  "tempo": "idle",
   "inFlight": {
-    "tasks": 3,
+    "tasks": 2,
     "queued": 0,
     "kinds": [
-      "local_agent",
       "session_cron"
     ]
   },
-  "fan": [
-    {
-      "id": "a59aab81c0609751a",
-      "kind": "agent",
-      "label": "Build mission_lint RULE 14 content-contract gate",
-      "startedAt": 1783904183433
-    }
-  ],
-  "tokens": 10066662,
+  "tokens": 10227822,
   "output": null,
   "children": null,
-  "linkScanOffset": 79773263,
+  "linkScanOffset": 80171774,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -49,6 +40,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-13T01:02:14.978Z",
+  "updatedAt": "2026-07-13T01:36:58.618Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
