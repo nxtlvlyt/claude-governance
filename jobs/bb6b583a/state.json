@@ -1,6 +1,6 @@
 {
-  "state": "done",
-  "detail": "expanded gap-priority-hold: +2 bite-class gaps for quality",
+  "state": "working",
+  "detail": "fixture test now passing; queued srcSha + fixture-format missions",
   "tempo": "idle",
   "inFlight": {
     "tasks": 2,
@@ -18,12 +18,10 @@
       "startedAt": 1783923540520
     }
   ],
-  "tokens": 10734973,
-  "output": {
-    "result": "identified gap-panel-truncation-false-reject & gap-witness-revise-on-refire as bite-class; 5 bite-class gaps now in hold"
-  },
+  "tokens": 10752014,
+  "output": null,
   "children": null,
-  "linkScanOffset": 89642385,
+  "linkScanOffset": 89915042,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -51,6 +49,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-13T09:02:12.871Z",
+  "updatedAt": "2026-07-13T09:18:27.064Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }

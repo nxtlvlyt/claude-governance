@@ -1,0 +1,44 @@
+MISSION-ID: M-ENGINE.SRCSHA-FIXTURE-UPDATE
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\.claude\muezzin-plugin
+ALLOW-FILES:
+  - conduct-cycle.mjs
+REQUIRES: none
+STEPS: 2
+
+Maqsad: complete gap-conduct-cycle-srcsha-anchor. engine-srcsha-anchor-fix-v2's
+step 2 already applied the BASELINE-SHA: anchor fix to the live conduct-cycle.mjs
+(currently staged, uncommitted — its own step 3 never ran because the daemon's
+second attempt correctly refused to fire into the resulting dirty tree). Direct
+re-verification this session found the applied fix is correct (node --check
+clean, the regex extraction works in isolation) but ALSO found a genuine
+regression: the false-death-scan selftest fixture at line ~1761 used the OLD
+bare-hex-mention convention ("Maqsad: land abc1234 feature"), which the NEW
+anchor requirement no longer recognizes, breaking one existing test
+("false-death: all files byte-identical at HEAD -> FULL candidate"). This
+mission applies the fixture fix on top of the already-staged srcSha fix and
+completes the interrupted commit.
+
+niyyah: land the fix WITH its own regression caught and corrected in the same
+commit — shipping the anchor fix while its own test suite silently broke would
+repeat the exact "ship past a real signal" failure class gap-witness-revise-
+on-refire was just elevated to priority for tonight.
+
+Steps:
+  1. Run the committed patcher exactly: node missions/_logs/srcsha-fixture-update-patch.mjs conduct-cycle.mjs; if ($LASTEXITCODE -ne 0) { exit 1 } [command]
+     validation_command: node --check conduct-cycle.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; if (-not (Select-String -Path conduct-cycle.mjs -Pattern 'BASELINE-SHA: abc1234' -Quiet)) { exit 1 }
+  2. Full selftest, then commit. Run exactly: node conduct-cycle.mjs --selftest 2>&1 | Tee-Object -Variable out; $failCount = ($out | Select-String -Pattern '^FAIL').Count; if ($failCount -ne 0) { Write-Output "SELFTEST-INCOMPLETE fail=$failCount"; exit 1 }; git add -- conduct-cycle.mjs; git diff --cached --quiet; if ($LASTEXITCODE -eq 0) { Write-Output ALREADY_COMMITTED } else { git commit -m "fix(engine): srcSha extraction requires an explicit BASELINE-SHA: anchor + update false-death-scan fixture to match (gap-conduct-cycle-srcsha-anchor); full selftest ALL PASS, catches and fixes its own regression in the same commit" }; if ($LASTEXITCODE -ne 0) { exit 1 } [command]
+
+Done means: the false-death-scan selftest fixture uses BASELINE-SHA: labeled
+syntax instead of a bare hex mention; full existing selftest suite ALL PASS
+(zero regressions, including the one this mission itself fixes); both the
+srcSha anchor fix and the fixture correction land in one commit; committed.
+
+# CONDUCTOR PROVENANCE (2026-07-13): direct hand-edit of this fixture was
+# attempted and correctly blocked by the platform classifier (self-referential
+# judgment-machinery, mandatory mission-construction process) — this mission
+# is the correct route. Patcher verified twice: dry-run against a fresh HEAD
+# copy with the srcSha fix pre-applied (matching the live file's actual
+# staged state), full selftest ALL PASS after a first attempt was caught
+# clobbering the patched file with an unpatched sibling-copy (own procedural
+# mistake, corrected before constructing this mission).
