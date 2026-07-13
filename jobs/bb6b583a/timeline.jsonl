@@ -1034,3 +1034,4 @@
 {"at":"2026-07-13T04:31:51.502Z","state":"working","detail":"Docker Desktop started; monitoring VM init (2 min)","text":"Progress — Docker Desktop.exe is now running (5 processes), unlike my earlier plain-SSH attempt. It's in Session 0 (services session, no desktop) though, which may or may not fully initialize the VM. Giving it more time before judging.\n\nWatching for another 2 min."}
 {"at":"2026-07-13T04:32:37.727Z","state":"working","detail":"Docker monitor waiting; daemons stable","text":"Both daemons unchanged. Docker still down at t+20s — waiting on the monitor."}
 {"at":"2026-07-13T04:33:06.600Z","state":"working","detail":"checking service recovery (~40s down)","text":"(t+40s, still down)"}
+{"at":"2026-07-13T04:33:34.398Z","state":"working","detail":"waiting on service recovery (~80s downtime)","text":"(t+80s, still down)"}
