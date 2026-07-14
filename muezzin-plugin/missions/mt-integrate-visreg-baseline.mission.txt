@@ -65,9 +65,15 @@ Steps:
      50223f7 exists and capture its patch (e.g. `git show 50223f7` or
      `git format-patch -1 50223f7`) without modifying that worktree. [command] capture-patch
   2. In the target repo C:\Users\marka\code\mt-integration-2026-06-22, at whatever
-     branch/HEAD is currently checked out (no branch switch), apply the captured commit
-     via `git cherry-pick 50223f7` (adding the source worktree as a remote/reachable
-     object source if needed) or an equivalent merge of that single commit.
+     branch/HEAD is currently checked out (no branch switch), apply the captured commit.
+     NOTE (2026-07-14, root-caused after two prior FAILED attempts): C:\Users\marka\code\
+     mt-feat-visreg-baseline is a LINKED GIT WORKTREE of this SAME repository (confirm with
+     `git worktree list` if unsure) — commit 50223f7 is therefore ALREADY present in this
+     repo's local object database. Do NOT add a remote and do NOT run `git fetch <remote>
+     50223f7`; fetching an arbitrary commit SHA by name fails with "fatal: couldn't find
+     remote ref 50223f7" unless the remote explicitly advertises that SHA as a named ref —
+     this exact command shape killed a prior attempt. Apply the commit directly and only
+     this way: `git cherry-pick 50223f7`.
      [command] integrate-commit
   3. If cherry-pick reports conflicts on mt-audit/visreg-baseline.mjs (not expected,
      since it is a pure new add) or on any other file, resolve each conflicted hunk by
