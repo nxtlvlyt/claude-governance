@@ -1,29 +1,20 @@
 {
   "state": "done",
-  "detail": "autosplit gap closed; hold lifted; 27 missions queued",
+  "detail": "queue flowing; amended child running (pid 33900), down to 26",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
-    "queued": 1,
+    "queued": 0,
     "kinds": [
       "session_cron"
     ]
   },
-  "fan": [
-    {
-      "id": "bnhd9cd10",
-      "kind": "shell",
-      "label": "until grep -q '\"state\": \"running\"' \"/c/Users/marka/.claude/muezzin-plugin/missions/_logs/daemon-status.json\"; do sleep 10; done; echo \"QUEUE-FLOWING\"; cat \"/c/Users/marka/.claude/muezzin-plugin/missi…",
-      "startedAt": 1784051261152,
-      "doneAt": 1784051285903
-    }
-  ],
-  "tokens": 11977534,
+  "tokens": 11977764,
   "output": {
-    "result": "autosplit fixed (6088ed1); witness loop validated; 27 product missions ready"
+    "result": "mt-integrate-near-me-discovery.S1.S1 launched on fresh daemon (pid 33900); queue autonomous from here"
   },
   "children": null,
-  "linkScanOffset": 106552647,
+  "linkScanOffset": 106566274,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -51,6 +42,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-14T17:48:12.714Z",
+  "updatedAt": "2026-07-14T17:49:17.333Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
