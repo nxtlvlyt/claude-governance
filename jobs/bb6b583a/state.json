@@ -1,27 +1,21 @@
 {
-  "state": "working",
-  "detail": "diagnosing mt-money-affiliate-programs.S1 2nd failure; will report",
-  "tempo": "active",
+  "state": "blocked",
+  "detail": "6 of 8 priority-hold gaps closed; 2 remain: nxtbeast unreachable + git_steps deadlock",
+  "tempo": "blocked",
   "inFlight": {
-    "tasks": 2,
+    "tasks": 1,
     "queued": 0,
     "kinds": [
-      "local_agent",
       "session_cron"
     ]
   },
-  "fan": [
-    {
-      "id": "a38a240c5a6ee1ae7",
-      "kind": "agent",
-      "label": "Diagnose mt-money-affiliate-programs.S1 second failure",
-      "startedAt": 1784002938618
-    }
-  ],
-  "tokens": 11305241,
-  "output": null,
+  "tokens": 11316472,
+  "needs": "resolve nxtbeast hardware access OR decide on git_steps/orchestrate.mjs deadlock fix",
+  "output": {
+    "result": "diagnosed mt-money-affiliate-programs.S1 engine defect (file permission mid-resume); GAP-PRIORITY-HOLD down to 2 blockers"
+  },
   "children": null,
-  "linkScanOffset": 99559447,
+  "linkScanOffset": 99661060,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -49,6 +43,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-14T04:23:23.835Z",
+  "updatedAt": "2026-07-14T04:26:21.443Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
