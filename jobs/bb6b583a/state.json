@@ -1,7 +1,7 @@
 {
-  "state": "blocked",
-  "detail": "2 staged engine fixes (git_steps.mjs, orchestrate.mjs) stuck on self-commit gate; 29 product missions queued",
-  "tempo": "blocked",
+  "state": "done",
+  "detail": "STATUS CRON: 2 diagnosis debts folded into comments; daemons healthy",
+  "tempo": "idle",
   "inFlight": {
     "tasks": 1,
     "queued": 0,
@@ -9,11 +9,12 @@
       "session_cron"
     ]
   },
-  "tokens": 11243626,
-  "needs": "authorize direct commit of staged diffs on git_steps.mjs + orchestrate.mjs, or add Bash rule for verified staged commits on engine files",
-  "output": null,
+  "tokens": 11273733,
+  "output": {
+    "result": "Closed 2 diagnosis-debt items (engine-srcsha-anchor-fix-v2, engine-reset-allowfiles-staged-fix); engine fixes parked pending go-ahead"
+  },
   "children": null,
-  "linkScanOffset": 98976066,
+  "linkScanOffset": 99318455,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -41,6 +42,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-14T04:06:22.277Z",
+  "updatedAt": "2026-07-14T04:16:30.398Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
