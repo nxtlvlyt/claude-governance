@@ -1,6 +1,6 @@
 {
   "state": "done",
-  "detail": "knowledge-base retention pipeline + BC camping rules (no pass needed)",
+  "detail": "both daemons healthy; mt camping-pass + agy witness missions active",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,12 +9,12 @@
       "session_cron"
     ]
   },
-  "tokens": 12152346,
+  "tokens": 12153251,
   "output": {
-    "result": "agy → engine gates/standing specs/playbooks (automatic); BC: no equiv pass, 14-day limit per spot, 72h reset, small fires only"
+    "result": "mt camping-pass mission running; agy production-witness queued for next sweep"
   },
   "children": null,
-  "linkScanOffset": 110780369,
+  "linkScanOffset": 110803556,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -42,6 +42,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-14T21:23:26.618Z",
+  "updatedAt": "2026-07-14T21:29:55.363Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
