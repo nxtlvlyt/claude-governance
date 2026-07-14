@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "babysitting PR #4821; awaiting CI results",
+  "detail": "status cron check; reviewing changes from prior session",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 11392896,
+  "tokens": 11393149,
   "output": null,
   "children": null,
-  "linkScanOffset": 100345003,
+  "linkScanOffset": 100366043,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -40,6 +40,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-14T06:59:10.667Z",
+  "updatedAt": "2026-07-14T07:14:21.807Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
