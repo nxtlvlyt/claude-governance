@@ -1,15 +1,170 @@
 {
-  "state": "blocked",
-  "detail": "awaiting decision: rebase main or leave history",
-  "tempo": "blocked",
+  "state": "working",
+  "detail": "Waiting on the workflow",
+  "tempo": "active",
   "inFlight": {
-    "tasks": 1,
+    "tasks": 2,
     "queued": 0,
     "kinds": [
+      "local_workflow",
       "session_cron"
     ]
   },
   "fan": [
+    {
+      "id": "ae0ff9840874ac326",
+      "kind": "workflow",
+      "label": "investigate:mt-integrate-poi-tags-2026-06-23.S2",
+      "group": "Investigate",
+      "startedAt": 1784036300230
+    },
+    {
+      "id": "adb3e45dd8a6b48f5",
+      "kind": "workflow",
+      "label": "investigate:mt-mobile-qc-hardening.S1.S2",
+      "group": "Investigate",
+      "startedAt": 1784036300237
+    },
+    {
+      "id": "a2879af1baa75d005",
+      "kind": "workflow",
+      "label": "investigate:mt-e2e-reachability.S1",
+      "group": "Investigate",
+      "startedAt": 1784036299756
+    },
+    {
+      "id": "a7b755c13d7264e8a",
+      "kind": "workflow",
+      "label": "investigate:mt-integrate-geocode-2026-06-23.S2",
+      "group": "Investigate",
+      "startedAt": 1784036301951
+    },
+    {
+      "id": "ab74367ec78a66244",
+      "kind": "workflow",
+      "label": "investigate:mt-integrate-wikipedia-link-2026-06-23.S1.S2",
+      "group": "Investigate",
+      "startedAt": 1784036299630
+    },
+    {
+      "id": "a4ab31e5dfa23b7cf",
+      "kind": "workflow",
+      "label": "investigate:mt-integrate-wikipedia-link-2026-06-23.S2",
+      "group": "Investigate",
+      "startedAt": 1784036292731
+    },
+    {
+      "id": "a66424833ed097d7d",
+      "kind": "workflow",
+      "label": "investigate:mt-integrate-near-me-discovery.S2",
+      "group": "Investigate",
+      "startedAt": 1784036300575
+    },
+    {
+      "id": "af36ca1b56bde1d67",
+      "kind": "workflow",
+      "label": "investigate:mt-integrate-region-heatmap-2026-06-23.S2",
+      "group": "Investigate",
+      "startedAt": 1784036297692
+    },
+    {
+      "id": "a21f75445e5734025",
+      "kind": "workflow",
+      "label": "investigate:mt-integrate-wildlife-advisory.S2",
+      "group": "Investigate",
+      "startedAt": 1784036298361
+    },
+    {
+      "id": "a6f55e4d1b9f9dad4",
+      "kind": "workflow",
+      "label": "investigate:mt-integrate-poi-services-nearby.S2",
+      "group": "Investigate",
+      "startedAt": 1784036299763
+    },
+    {
+      "id": "aec936f49a4ac229a",
+      "kind": "workflow",
+      "label": "investigate:mt-integrate-poi-hover-preview-cards.S2",
+      "group": "Investigate",
+      "startedAt": 1784036299826
+    },
+    {
+      "id": "a43e878406a7f8ee5",
+      "kind": "workflow",
+      "label": "investigate:mt-integrate-spot-share-card.S2",
+      "group": "Investigate",
+      "startedAt": 1784036299770
+    },
+    {
+      "id": "af9acee1216c1f0df",
+      "kind": "workflow",
+      "label": "investigate:mt-integrate-dynamic-favicon-fire-ban.S2",
+      "group": "Investigate",
+      "startedAt": 1784036299776
+    },
+    {
+      "id": "a4788b167b1494880",
+      "kind": "workflow",
+      "label": "investigate:mt-integrate-testimonials.S1.S2",
+      "group": "Investigate",
+      "startedAt": 1784036304183
+    },
+    {
+      "id": "a8ee44627c2fad0e6",
+      "kind": "workflow",
+      "label": "investigate:mt-integrate-testimonials.S2",
+      "group": "Investigate",
+      "startedAt": 1784036298298
+    },
+    {
+      "id": "add68a01b9a8f5823",
+      "kind": "workflow",
+      "label": "investigate:mt-integrate-partner-embed-iframe-verification.S2",
+      "group": "Investigate",
+      "startedAt": 1784036301271
+    },
+    {
+      "id": "wdpzkbncb:17",
+      "kind": "workflow",
+      "label": "investigate:mt-integrate-partner-widget.S2",
+      "group": "Investigate",
+      "startedAt": 1784036288674
+    },
+    {
+      "id": "wdpzkbncb:18",
+      "kind": "workflow",
+      "label": "investigate:mt-integrate-lighthouse-ci.S2",
+      "group": "Investigate",
+      "startedAt": 1784036288674
+    },
+    {
+      "id": "wdpzkbncb:19",
+      "kind": "workflow",
+      "label": "investigate:mt-integrate-lighthouse-fix1-extensionless-verification-docs.S2",
+      "group": "Investigate",
+      "startedAt": 1784036288674
+    },
+    {
+      "id": "wdpzkbncb:20",
+      "kind": "workflow",
+      "label": "investigate:mt-integrate-contributor-leaderboard.S2.S2",
+      "group": "Investigate",
+      "startedAt": 1784036288675
+    },
+    {
+      "id": "wdpzkbncb:21",
+      "kind": "workflow",
+      "label": "investigate:mt-copy-clarity.S1.S2",
+      "group": "Investigate",
+      "startedAt": 1784036288675
+    },
+    {
+      "id": "wdpzkbncb:22",
+      "kind": "workflow",
+      "label": "investigate:mt-feedback-capture.S1.S2",
+      "group": "Investigate",
+      "startedAt": 1784036288676
+    },
     {
       "id": "todo:1",
       "kind": "todo",
@@ -64,11 +219,10 @@
       "doneAt": 0
     }
   ],
-  "tokens": 11545295,
-  "needs": "confirm: rebase shared main branch or leave history as-is?",
+  "tokens": 11552460,
   "output": null,
   "children": null,
-  "linkScanOffset": 103722395,
+  "linkScanOffset": 103767418,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -96,6 +250,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-14T13:36:35.715Z",
+  "updatedAt": "2026-07-14T13:38:31.577Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
