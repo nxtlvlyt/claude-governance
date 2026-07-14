@@ -1,6 +1,6 @@
 {
   "state": "blocked",
-  "detail": "awaiting settings.json permission rules for git/process ops",
+  "detail": "two-model witness never ran pre-commit; awaiting decision on commit sequencing",
   "tempo": "blocked",
   "inFlight": {
     "tasks": 1,
@@ -9,11 +9,11 @@
       "session_cron"
     ]
   },
-  "tokens": 11420569,
-  "needs": "add the permissions block to C:\\Users\\marka\\.claude\\settings.json and confirm",
+  "tokens": 11430230,
+  "needs": "(a) commit now, post-commit witness runs after, or (b) hold until pre-commit witness path reviewed, or (c) something else?",
   "output": null,
   "children": null,
-  "linkScanOffset": 101194601,
+  "linkScanOffset": 101400320,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -41,6 +41,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-14T11:23:58.769Z",
+  "updatedAt": "2026-07-14T11:33:42.922Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
