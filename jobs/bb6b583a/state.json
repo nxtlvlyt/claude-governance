@@ -1,6 +1,6 @@
 {
-  "state": "working",
-  "detail": "both product features shipped (near-me + visreg); manifest fix queued",
+  "state": "done",
+  "detail": "Lighthouse CI green on 751018e; workflow fixed end-to-end",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,12 @@
       "session_cron"
     ]
   },
-  "tokens": 12100007,
-  "output": null,
+  "tokens": 12103478,
+  "output": {
+    "result": "Lighthouse CI passing (first fully-clean run since June 23rd); YAML parse + manifest handoff fixed; daemons healthy, queue draining"
+  },
   "children": null,
-  "linkScanOffset": 109312868,
+  "linkScanOffset": 109370955,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -40,6 +42,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-14T20:16:12.046Z",
+  "updatedAt": "2026-07-14T20:32:04.026Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
