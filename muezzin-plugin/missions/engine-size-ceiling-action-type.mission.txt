@@ -1,0 +1,49 @@
+MISSION-ID: M-ENGINE.SIZE-CEILING-ACTION-TYPE
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\.claude\muezzin-plugin
+ALLOW-FILES:
+  - deconstructor.mjs
+REQUIRES: none
+STEPS: 2
+
+Maqsad: close gap-size-ceiling-blind-to-action-type (QUEUE ITEM 31, the only open
+bite-class gap, holding the product queue). validateMicroAction's size-ceiling
+`else if (implTargets.length > 1)` branch fires on ANY action_type — but the ceiling's
+own rationale is AUTHORING capacity, and command/verify steps author nothing via a
+model (the engine executes their validation_command itself). A RULE-15 scoped
+`git commit -- a b c` of three already-authored files honestly declares its pathspecs
+and gets refused as an "oversized micro-action" whenever the planner lists them (pure
+planner variance: near-me S1.S1's attempt-1 plan passed, attempt-2 refused, identical
+text). NARROW fix, bypass surface closed: the exemption requires action_type
+'command'/'verify' AND a non-empty validation_command (a mis-tagged step without the
+engine-executed command it claims keeps the strict ceiling); edit steps stay capped at
+exactly 1; write confinement was never this metadata count — it is and remains the
+ALLOW-FILES boundary (preflightAllowlistClean, assertCleanOutsideAllowlist,
+scratch-residue, PICK-CONTAINMENT, shrinkage, one-writer).
+
+niyyah: a gate that punishes the honest declaration it exists to encourage trains
+planners to under-declare — narrowing it to what it actually protects (authoring
+capacity) makes honesty free again; the loosening ships in the same beat as the
+regression cases that prove the bypass stays closed.
+
+Steps:
+  1. Run the committed, adversarially-executed-and-verified patcher exactly: node missions/_logs/deconstructor-size-ceiling-action-type-patch.mjs deconstructor.mjs; if ($LASTEXITCODE -ne 0) { exit 1 } [command]
+     validation_command: node --check deconstructor.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; if (-not (Select-String -Path deconstructor.mjs -Pattern 'COMMAND/VERIFY EXEMPTION' -Quiet)) { exit 1 }
+  2. Full selftest, then commit with an explicit pathspec. Run exactly: node deconstructor.mjs 2>&1 | Tee-Object -Variable out; $failCount = ($out | Select-String -Pattern '^FAIL').Count; if ($failCount -ne 0) { Write-Output "SELFTEST-INCOMPLETE fail=$failCount"; exit 1 }; if (-not ($out | Select-String -Pattern 'SIZE-SCOPE')) { Write-Output "NEW-CHECK-MISSING"; exit 1 }; git add -- deconstructor.mjs; git diff --cached --quiet -- deconstructor.mjs; if ($LASTEXITCODE -eq 0) { Write-Output ALREADY_COMMITTED } else { git commit -m "fix(engine): size ceiling exempts engine-executed command/verify steps with a real validation_command, closing gap-size-ceiling-blind-to-action-type / QUEUE ITEM 31 -- the ceiling is an authoring-capacity rule and a RULE-15 scoped pathspec commit honestly declares its files (live receipt: near-me S1.S1 FAILED(plan) on a 3-file commit); edit steps stay capped at 1, mis-tag bypass closed (empty validation_command keeps the strict ceiling), write confinement remains the ALLOW-FILES boundary; selftest ALL PASS incl. 5 new SIZE-SCOPE cases proven to gate pre-patch" -- deconstructor.mjs }; if ($LASTEXITCODE -ne 0) { exit 1 } [command]
+
+Done means: a command/verify step with >1 implementation target and a non-empty
+validation_command passes validateMicroAction; an edit step with >1 still fails; a
+command-tagged step with an empty validation_command and >1 targets still fails; full
+deconstructor.mjs selftest ALL PASS including the new SIZE-SCOPE cases; committed.
+
+# CONDUCTOR PROVENANCE (2026-07-14): prepared by read-only workflow wf_2ca80134-161
+# (study/draft/adversarial-verify at max effort — this LOOSENS a gate, so the verify
+# pass hunted the bypass specifically). Verdict SAFE-TO-APPLY 0.93, empirically: anchors
+# byte-verified unique in BOTH jurisdictions (agy port is a named follow-up, its gate
+# region byte-identical), 5 bypass vectors enumerated and each shown closed or
+# pre-existing (the ceiling only ever counted DECLARED metadata; under-declaration was
+# always possible — this removes an honesty penalty, not a protection), gating proven
+# live (baseline 117 PASS; selftest-only build shows exactly the 3 claimed cases FAIL;
+# full patch 122 PASS, zero flips). Conductor independently re-ran the extracted patcher
+# on a fresh scratch with full sibling set: PATCHED, idempotent (both markers), ALL PASS.
+# Daemon restart required after landing (static-import staleness).
