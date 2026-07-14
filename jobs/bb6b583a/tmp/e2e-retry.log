@@ -1,0 +1,23 @@
+[e2e-runner] target=https://7a178562.muddytires.pages.dev
+[e2e-runner] parsed 5 features from catalog
+[e2e-runner] === viewport: desktop (1440x900) ===
+[e2e-runner] feature: <name> [desktop]
+[e2e-runner]   name [desktop]: VERDICT=concern
+[e2e-runner] feature: Vehicle profile picker [desktop]
+[e2e-runner]   vehicle-profile-picker [desktop]: VERDICT=concern
+[e2e-runner] feature: Fuel-cost chip in status bar [desktop]
+[e2e-runner]   fuel-cost-chip-in-status-bar [desktop]: VERDICT=concern
+[e2e-runner] feature: Carbon-footprint chip (CURRENTLY MISSING FROM BUILD) [desktop]
+[e2e-runner]   carbon-footprint-chip-currently-missing-from-build [desktop]: VERDICT=concern
+[e2e-runner] feature: Share spot [desktop]
+[e2e-runner]   share-spot [desktop]: VERDICT=concern
+[e2e-runner] overlap sweep [desktop]
+[e2e-runner]   DETECTOR_ERROR: page.goto: Timeout 30000ms exceeded.
+Call log:
+[2m  - navigating to "https://7a178562.muddytires.pages.dev/map.html", waiting until "networkidle"[22m
+
+[e2e-runner]   overlap [desktop]: controls=0 pairs=0 violations=1 ok=false
+[e2e-runner] === viewport: mobile (375x812) ===
+[e2e-runner] feature: <name> [mobile]
+[e2e-runner]   name [mobile]: VERDICT=concern
+[e2e-runner] feature: Vehicle profile picker [mobile]
