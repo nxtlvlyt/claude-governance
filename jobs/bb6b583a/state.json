@@ -1,7 +1,7 @@
 {
-  "state": "blocked",
-  "detail": "awaiting choice among 3 approaches: commit-then-test, hold for pre-commit, or other",
-  "tempo": "blocked",
+  "state": "done",
+  "detail": "QUEUE ITEM 23 scoped but unbuilt; current pre-compact hook runs single model only",
+  "tempo": "idle",
   "inFlight": {
     "tasks": 1,
     "queued": 0,
@@ -9,11 +9,12 @@
       "session_cron"
     ]
   },
-  "tokens": 11430366,
-  "needs": "choose: (a) commit-then-witness-post-hoc, (b) hold for proper pre-commit path, or (c) something else",
-  "output": null,
+  "tokens": 11433333,
+  "output": {
+    "result": "Pre-compaction witness pair (ornith+guardian) was queued but never implemented; today's hook uses laguna-xs-2.1:q8_0 only, fires at compaction boundaries, not continuously"
+  },
   "children": null,
-  "linkScanOffset": 101420141,
+  "linkScanOffset": 101490497,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -41,6 +42,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-14T11:34:09.533Z",
+  "updatedAt": "2026-07-14T11:36:06.568Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
