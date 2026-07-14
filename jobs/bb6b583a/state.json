@@ -1,30 +1,31 @@
 {
   "state": "working",
-  "detail": "Continuing to monitor the workflow.",
+  "detail": "2 workflows running in parallel: cleanup plan + queue sweep",
   "tempo": "active",
   "inFlight": {
-    "tasks": 2,
+    "tasks": 3,
     "queued": 0,
     "kinds": [
       "local_workflow",
       "session_cron"
     ]
   },
-  "selfWake": true,
   "fan": [
     {
       "id": "ae0ff9840874ac326",
       "kind": "workflow",
       "label": "investigate:mt-integrate-poi-tags-2026-06-23.S2",
       "group": "Investigate",
-      "startedAt": 1784036300230
+      "startedAt": 1784036300230,
+      "doneAt": 1784036431217
     },
     {
       "id": "adb3e45dd8a6b48f5",
       "kind": "workflow",
       "label": "investigate:mt-mobile-qc-hardening.S1.S2",
       "group": "Investigate",
-      "startedAt": 1784036300237
+      "startedAt": 1784036300237,
+      "doneAt": 1784036420400
     },
     {
       "id": "a2879af1baa75d005",
@@ -38,14 +39,16 @@
       "kind": "workflow",
       "label": "investigate:mt-integrate-geocode-2026-06-23.S2",
       "group": "Investigate",
-      "startedAt": 1784036301951
+      "startedAt": 1784036301951,
+      "doneAt": 1784036384118
     },
     {
       "id": "ab74367ec78a66244",
       "kind": "workflow",
       "label": "investigate:mt-integrate-wikipedia-link-2026-06-23.S1.S2",
       "group": "Investigate",
-      "startedAt": 1784036299630
+      "startedAt": 1784036299630,
+      "doneAt": 1784036418170
     },
     {
       "id": "a4ab31e5dfa23b7cf",
@@ -87,28 +90,32 @@
       "kind": "workflow",
       "label": "investigate:mt-integrate-poi-hover-preview-cards.S2",
       "group": "Investigate",
-      "startedAt": 1784036299826
+      "startedAt": 1784036299826,
+      "doneAt": 1784036407304
     },
     {
       "id": "a43e878406a7f8ee5",
       "kind": "workflow",
       "label": "investigate:mt-integrate-spot-share-card.S2",
       "group": "Investigate",
-      "startedAt": 1784036299770
+      "startedAt": 1784036299770,
+      "doneAt": 1784036425246
     },
     {
       "id": "af9acee1216c1f0df",
       "kind": "workflow",
       "label": "investigate:mt-integrate-dynamic-favicon-fire-ban.S2",
       "group": "Investigate",
-      "startedAt": 1784036299776
+      "startedAt": 1784036299776,
+      "doneAt": 1784036422528
     },
     {
       "id": "a4788b167b1494880",
       "kind": "workflow",
       "label": "investigate:mt-integrate-testimonials.S1.S2",
       "group": "Investigate",
-      "startedAt": 1784036304183
+      "startedAt": 1784036304183,
+      "doneAt": 1784036423748
     },
     {
       "id": "a8ee44627c2fad0e6",
@@ -122,21 +129,22 @@
       "kind": "workflow",
       "label": "investigate:mt-integrate-partner-embed-iframe-verification.S2",
       "group": "Investigate",
-      "startedAt": 1784036301271
+      "startedAt": 1784036301271,
+      "doneAt": 1784036426653
     },
     {
-      "id": "wdpzkbncb:17",
+      "id": "a50f57d796ded1112",
       "kind": "workflow",
       "label": "investigate:mt-integrate-partner-widget.S2",
       "group": "Investigate",
-      "startedAt": 1784036288674
+      "startedAt": 1784036398754
     },
     {
-      "id": "wdpzkbncb:18",
+      "id": "ade5ab2f9a6d60f1c",
       "kind": "workflow",
       "label": "investigate:mt-integrate-lighthouse-ci.S2",
       "group": "Investigate",
-      "startedAt": 1784036288674
+      "startedAt": 1784036427409
     },
     {
       "id": "wdpzkbncb:19",
@@ -165,6 +173,13 @@
       "label": "investigate:mt-feedback-capture.S1.S2",
       "group": "Investigate",
       "startedAt": 1784036288676
+    },
+    {
+      "id": "a742602ac8e9ab555",
+      "kind": "workflow",
+      "label": "inventory",
+      "group": "Analyze",
+      "startedAt": 1784036429782
     },
     {
       "id": "todo:1",
@@ -220,12 +235,13 @@
       "doneAt": 0
     }
   ],
-  "tokens": 11559049,
+  "tokens": 11594500,
   "output": null,
   "children": null,
-  "linkScanOffset": 103776805,
+  "linkScanOffset": 103851755,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
+  "selfWake": true,
   "respawnFlags": [
     "--reply-on-resume",
     "--effort",
@@ -235,8 +251,6 @@
     "--permission-mode",
     "auto"
   ],
-  "bgIsolation": "none",
-  "providerEnv": {},
   "intent": "but we had 30 gaps mission we were fixing first before we did anything else and a big project to que when they were done",
   "name": "daemon-restart-mission-triage",
   "nameSource": "auto",
@@ -245,11 +259,13 @@
   "daemonShort": "bb6b583a",
   "cliVersion": "2.1.206",
   "cwd": "C:\\Users\\marka",
-  "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-14T13:38:57.289Z",
-  "firstTerminalAt": "2026-07-07T15:47:23.132Z",
   "bridgeSessionId": "cse_015z5n4qQqp9BZ8kKSCkvtzT",
   "bridgeOutboundOnly": false,
   "bridgeSessionSeq": 8904,
-  "backend": "daemon"
+  "bgIsolation": "none",
+  "providerEnv": {},
+  "backend": "daemon",
+  "createdAt": "2026-07-07T14:31:31.695Z",
+  "updatedAt": "2026-07-14T13:40:31.947Z",
+  "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
