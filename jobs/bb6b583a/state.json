@@ -1,27 +1,18 @@
 {
   "state": "working",
-  "detail": "Running — this closes out the last known undiagnosed FAILED mark from the original sweep of 4.",
-  "tempo": "active",
+  "detail": "diagnosed 4 FAILED marks; 3 fixable defects + 1 engine bug; folding into AUTORUN",
+  "tempo": "idle",
   "inFlight": {
-    "tasks": 2,
+    "tasks": 1,
     "queued": 0,
     "kinds": [
-      "local_agent",
       "session_cron"
     ]
   },
-  "fan": [
-    {
-      "id": "ad8d6f5bb495f95af",
-      "kind": "agent",
-      "label": "Diagnose mt-integrate-near-me-discovery attempt-3 failure",
-      "startedAt": 1784006967311
-    }
-  ],
-  "tokens": 11369111,
+  "tokens": 11378460,
   "output": null,
   "children": null,
-  "linkScanOffset": 100005355,
+  "linkScanOffset": 100078376,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -49,6 +40,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-14T05:29:31.281Z",
+  "updatedAt": "2026-07-14T05:33:27.379Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
