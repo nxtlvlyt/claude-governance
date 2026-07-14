@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "agy-100% gate (d) CLOSED; camping-pass redesigned; awaiting prep agent",
+  "detail": "both daemons live, agy queue clean; prep agent 23 in flight",
   "tempo": "active",
   "inFlight": {
     "tasks": 2,
@@ -18,10 +18,10 @@
       "startedAt": 1784069666266
     }
   ],
-  "tokens": 12258496,
+  "tokens": 12263763,
   "output": null,
   "children": null,
-  "linkScanOffset": 112352675,
+  "linkScanOffset": 112372227,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -49,6 +49,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-14T22:56:17.622Z",
+  "updatedAt": "2026-07-14T22:59:20.240Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
