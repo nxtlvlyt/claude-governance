@@ -2930,3 +2930,35 @@ the specific already-verified fixture patch directly (asked, not yet answered as
 this update). lighthouse-ci-manifest-fix.mission.txt is a second, independent mission
 blocked on the SAME underlying srcSha-anchor gap landing (see its own AUTORUN note),
 so this item's resolution unblocks two missions, not one.
+
+## 2026-07-14 ITEM 30 — MISSION_LINT RULE 15 FLAGS THE CORRECT GIT-COMMIT ORDERING
+(unpark owner for gap-mission-lint-rule15-wrong-pathspec-order)
+
+RULE 15 (mission_lint.mjs, added this session, not yet committed) exists to stop a bare
+`git commit -m ...` from silently committing the whole index (real incident: commit
+7e0a011 absorbed an unrelated staged change from a different mission this exact way).
+But its `scopedCommit` regex (line 254) only recognizes ONE of the two valid orderings:
+`git commit -- <files> -m "..."` (pathspec-then-flags). That ordering is itself a real
+runtime bug — `--` marks end-of-options, so `-m` and the message get swallowed as
+pathspecs, producing `error: pathspec '-m' did not match any file(s) known to git` (hit
+and fixed live twice this session, on git_steps.mjs and again). The syntactically
+CORRECT ordering, `git commit -m "..." -- <files>` (flags-then-pathspec), is what every
+mission constructed this session actually uses — and RULE 15 flags it as unscoped.
+
+Root receipt: gap-bare-commit-sweeps-preexisting-stage's own closes_when text (filed
+2026-07-13) specified the pathspec-then-flags ordering as "the fix," which is where
+RULE 15 inherited the wrong pattern from. Discovered linting
+mt-integrate-near-me-discovery.S1.mission.txt directly (node -e importing mission_lint.mjs
+and calling lintMission(text) on the real file — not the bare `node mission_lint.mjs`
+selftest invocation, a mistake a prior instance already owned making once on this same
+mission per its own AUTORUN annotation).
+
+FIX (small, mechanical): widen the `scopedCommit` regex to accept both orderings, or
+better, accept ONLY the flags-then-pathspec ordering (the one that actually works) and
+have RULE 15 flag pathspec-then-flags as a DIFFERENT, more specific problem
+(runtime-broken syntax) rather than reward it as "properly scoped."
+
+STATUS: RULE 15 itself is not yet committed to mission_lint.mjs (same class as
+git_steps.mjs/orchestrate.mjs this session — likely not loaded by the live daemon
+process either), so nothing is being live-blocked by this yet. Not urgent, but will
+misfire on every correctly-written mission commit the moment RULE 15 lands as-is.
