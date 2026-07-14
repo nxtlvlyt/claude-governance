@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "status check cycle; monitoring for changes",
+  "detail": "conductor duty: 64 reads, 33 bash, 12 edits; polling status",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 11394261,
+  "tokens": 11394535,
   "output": null,
   "children": null,
-  "linkScanOffset": 100443084,
+  "linkScanOffset": 100464374,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -40,6 +40,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-14T08:14:15.511Z",
+  "updatedAt": "2026-07-14T08:29:21.364Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
