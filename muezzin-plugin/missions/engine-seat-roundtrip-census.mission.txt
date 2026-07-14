@@ -1,0 +1,49 @@
+MISSION-ID: M-ENGINE.SEAT-ROUNDTRIP-CENSUS
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\.claude\muezzin-plugin
+ALLOW-FILES:
+  - seat_roundtrip.mjs
+  - doctor.mjs
+REQUIRES: none
+STEPS: 3
+
+Maqsad: land the local-Ollama leg of gap-seat-health-is-roundtrip (the LAST open
+bite-class gap on the register — the one holding 26 product missions). The Stitch leg
+already landed (stitch_dispatch.mjs, 23/23 selftest, doctor-wired). This mission lands
+seat_roundtrip.mjs — one REAL 1-token /api/generate round-trip per resident local
+Ollama seat, GR10-safe (checks /api/ps first, YIELDS on not-resident/busy/saturated
+rather than forcing loads or reporting false deaths, never sends keep_alive) — plus the
+doctor.mjs wiring (checkSeatRoundTrips, WARN-only board row, fires no gates). Closes
+the "sat Connected for a month while every real call failed" class for the local seats:
+/api/tags proves the server answers; only a real generated token proves a seat works.
+
+niyyah: a heartbeat that never exercises the path it vouches for is a claim, not a
+deed — the census earns its board row by producing one real token per seat, and
+honestly yields where producing one would collide with live chain inference.
+
+Steps:
+  1. Place the staged, twice-verified module. Run exactly: Copy-Item missions/_logs/seat_roundtrip.mjs.staged seat_roundtrip.mjs -Force; node --check seat_roundtrip.mjs; if ($LASTEXITCODE -ne 0) { exit 1 } [command] seat_roundtrip.mjs
+     validation_command: node seat_roundtrip.mjs --selftest 2>&1 | Select-String -Pattern '27 passed, 0 failed' -Quiet; if (-not $?) { exit 1 }
+  2. Wire doctor.mjs via the committed, dry-run-verified patcher. Run exactly: node missions/_logs/doctor-seat-roundtrip-patch.mjs doctor.mjs; if ($LASTEXITCODE -ne 0) { exit 1 } [command] doctor.mjs
+     validation_command: node --check doctor.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; if (-not (Select-String -Path doctor.mjs -Pattern 'checkSeatRoundTrips' -Quiet)) { exit 1 }
+  3. Selftest both, then commit with an explicit pathspec. Run exactly: node seat_roundtrip.mjs --selftest 2>&1 | Tee-Object -Variable out; if (-not ($out | Select-String -Pattern '27 passed, 0 failed')) { Write-Output SELFTEST-INCOMPLETE; exit 1 }; node --check doctor.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; git add -- seat_roundtrip.mjs doctor.mjs; git diff --cached --quiet -- seat_roundtrip.mjs doctor.mjs; if ($LASTEXITCODE -eq 0) { Write-Output ALREADY_COMMITTED } else { git commit -m "feat(engine): per-seat REAL round-trip census for local Ollama seats (seat_roundtrip.mjs + doctor checkSeatRoundTrips WARN-only row), closing gap-seat-health-is-roundtrip's local leg -- GR10-safe (ps-first, yield-not-fail on busy/not-resident, no keep_alive, 1 token per resident seat); 27/27 offline selftest; adversarially verified prep (wf_ce2523fe-1e9, both required corrections applied)" -- seat_roundtrip.mjs doctor.mjs }; if ($LASTEXITCODE -ne 0) { exit 1 } [command]
+
+Done means: seat_roundtrip.mjs exists at repo root exporting ollamaSeatRoundTrip /
+gatherOllamaSeatModels / seatCensus with the offline selftest printing "27 passed, 0
+failed"; doctor.mjs carries checkSeatRoundTrips as a WARN-only board row (node --check
+clean, conductPass/firePass gates untouched); both committed with an explicit pathspec.
+
+# CONDUCTOR PROVENANCE (2026-07-14): prepared by a 3-phase read-only workflow
+# (study -> draft -> adversarial verify, wf_ce2523fe-1e9). Verifier verdict
+# SAFE-WITH-CORRECTIONS: anchors byte-verified against the real doctor.mjs (LF,
+# unique, ordering-safe), GR10 discipline traced line-by-line, selftest confirmed
+# offline; ONE real crash-path defect found (res.text() outside try/catch could
+# throw past the never-throws contract and kill doctor's board) — both required
+# corrections applied to the staged module BEFORE this mission was constructed,
+# then re-verified: node --check clean, selftest 27/27 PASS offline (scratch dir
+# with full sibling-import set). Patcher dry-run against an LF-faithful scratch
+# doctor.mjs: PATCHED, node --check clean, idempotent (ALREADY-PATCHED), wiring
+# grep = 5 hits. NOTE: an accidental no-arg patcher invocation briefly patched the
+# LIVE doctor.mjs during dry-run (the relative-path default, stitch-precedent
+# shape); it was git-restored to clean immediately and verified — the tree this
+# mission fires into is clean.
