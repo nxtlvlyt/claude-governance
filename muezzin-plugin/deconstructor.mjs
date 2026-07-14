@@ -221,7 +221,21 @@ export function validateMicroAction(step, i, opts = {}) {
   const deliverables = opts.research ? (step.target_files || []).filter(isResearchDeliverable) : [];
   if (step.action_type === 'edit' && implTargets.length !== 1 && !(opts.research && implTargets.length === 0 && deliverables.length === 1))
     errs.push(`step ${i}: an 'edit' micro-action must touch EXACTLY 1 ${opts.research ? 'implementation-or-deliverable' : 'implementation'} file (found impl:${implTargets.length}${opts.research ? `, deliverable:${deliverables.length}` : ''}) — split it`);
-  else if (implTargets.length > 1)
+  // COMMAND/VERIFY EXEMPTION (gap-size-ceiling-blind-to-action-type, 2026-07-14; receipt:
+  // mt-integrate-near-me-discovery.S1.S1 FAILED(plan) on a scoped RULE 15 pathspec commit of
+  // 3 already-authored files: map.html, functions/api/spots/near.js, js/near-me.js). The
+  // ceiling is an AUTHORING-capacity rule; a command/verify step authors nothing via a model —
+  // the engine runs its validation_command itself, and a `git commit -- a b c` legitimately
+  // DECLARES every committed file. Write confinement for command/verify steps is the
+  // ALLOW-FILES boundary (assertCleanOutsideAllowlist + preflightAllowlistClean +
+  // scratch-residue + PICK-CONTAINMENT + shrinkage-on-commit + one-writer), not this
+  // declared-metadata count. NARROW: only action_type 'command'/'verify' WITH a non-empty
+  // validation_command qualifies — a command-tagged step without the engine-executed command
+  // it claims keeps the strict ceiling (mis-tag bypass closed). 'edit' steps untouched:
+  // the branch above already caps them at exactly 1.
+  else if (implTargets.length > 1
+        && !((step.action_type === 'command' || step.action_type === 'verify')
+             && typeof step.validation_command === 'string' && step.validation_command.trim() !== ''))
     errs.push(`step ${i}: size ceiling — at most 1 implementation file per micro-action (found ${implTargets.length}: ${implTargets.join(', ')})`);
   return errs;
 }
@@ -716,6 +730,22 @@ Context: Node + TypeScript project; DB schema in prisma/schema.prisma; tests run
   ck(!validateMicroQueue({ mission_id: 'M-X', steps: [
     { step_index: 1, description: 'edit two files', action_type: 'edit', target_files: ['a.ts', 'b.ts'], context_dependencies: [], validation_command: 'node -c a.ts' },
   ] }).ok, 'size ceiling: a step touching 2 impl files is REJECTED (split it)');
+
+  // SIZE-SCOPE regression (gap-size-ceiling-blind-to-action-type, near-me receipt 2026-07-14):
+  // the ceiling is action_type-aware — engine-executed command/verify steps may declare
+  // multiple impl files (pathspec commits, multi-file witnesses); edit steps stay capped at 1;
+  // a command-tagged step WITHOUT a validation_command keeps the strict ceiling (no mis-tag bypass).
+  {
+    const commit3 = { step_index: 1, description: 'commit the three near-me files (scoped pathspec)', action_type: 'command', target_files: ['map.html', 'functions/api/spots/near.js', 'js/near-me.js'], context_dependencies: [], validation_command: "git commit -m 'feat(near-me): map + api + client' -- map.html functions/api/spots/near.js js/near-me.js" };
+    ck(!validateMicroAction(commit3, 1, {}).some((e) => e.includes('size ceiling')), 'SIZE-SCOPE: command step committing 3 impl files via pathspec -> ceiling does NOT fire (near-me receipt)');
+    ck(validateMicroQueue({ mission_id: 'M-X', steps: [commit3] }).ok, 'SIZE-SCOPE: whole queue with the 3-file pathspec commit step -> PASSES');
+    const verify3 = { step_index: 1, description: 'witness all three files present', action_type: 'verify', target_files: ['map.html', 'functions/api/spots/near.js', 'js/near-me.js'], context_dependencies: [], validation_command: 'if (-not (Test-Path map.html) -or -not (Test-Path functions/api/spots/near.js) -or -not (Test-Path js/near-me.js)) { exit 1 }' };
+    ck(!validateMicroAction(verify3, 1, {}).some((e) => e.includes('size ceiling')), 'SIZE-SCOPE: verify step listing 3 witnessed impl files -> ceiling does NOT fire');
+    const misTag = { step_index: 1, description: 'command-tagged step with no engine-executed command', action_type: 'command', target_files: ['a.ts', 'b.ts', 'c.ts'], context_dependencies: [], validation_command: '' };
+    ck(validateMicroAction(misTag, 1, {}).some((e) => e.includes('size ceiling')), 'SIZE-SCOPE: command-tagged step with EMPTY validation_command + 3 impl targets -> ceiling STILL fires (mis-tag bypass closed)');
+    const edit3 = { step_index: 1, description: 'edit three files at once', action_type: 'edit', target_files: ['a.ts', 'b.ts', 'c.ts'], context_dependencies: [], validation_command: 'node -c a.ts' };
+    ck(validateMicroAction(edit3, 1, {}).some((e) => e.includes('must touch EXACTLY 1')), 'SIZE-SCOPE: edit step authoring 3 impl files -> still REJECTED');
+  }
 
   ck(!validateMicroQueue({ mission_id: 'M-X', steps: [
     { step_index: 1, description: 'edit', action_type: 'edit', target_files: ['a.ts'], context_dependencies: [], validation_command: '' },
