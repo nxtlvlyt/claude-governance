@@ -1,18 +1,29 @@
 {
-  "state": "working",
-  "detail": "split-fix mission running; APPROVE at 17:25, verify phase",
+  "state": "done",
+  "detail": "autosplit gap closed; hold lifted; 27 missions queued",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
-    "queued": 0,
+    "queued": 1,
     "kinds": [
       "session_cron"
     ]
   },
-  "tokens": 11973597,
-  "output": null,
+  "fan": [
+    {
+      "id": "bnhd9cd10",
+      "kind": "shell",
+      "label": "until grep -q '\"state\": \"running\"' \"/c/Users/marka/.claude/muezzin-plugin/missions/_logs/daemon-status.json\"; do sleep 10; done; echo \"QUEUE-FLOWING\"; cat \"/c/Users/marka/.claude/muezzin-plugin/missi…",
+      "startedAt": 1784051261152,
+      "doneAt": 1784051285903
+    }
+  ],
+  "tokens": 11977534,
+  "output": {
+    "result": "autosplit fixed (6088ed1); witness loop validated; 27 product missions ready"
+  },
   "children": null,
-  "linkScanOffset": 106487320,
+  "linkScanOffset": 106552647,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -40,6 +51,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-14T17:29:21.581Z",
+  "updatedAt": "2026-07-14T17:48:12.714Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }

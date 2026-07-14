@@ -184,9 +184,40 @@ export function emitSubMissions(plan, ctx = {}, io = {}) {
     const rel = `missions/${filename}`;
 
     // Build the child mission text.
-    const stepList = group.steps.map((s, i) =>
-      `  ${s.step_index}. ${s.description} [${s.action_type}] ${(s.target_files || []).join(', ')}`
-    ).join('\n');
+    // STEP-CARRIAGE FIX (2026-07-14, mt-integrate-near-me-discovery.S1.S1 receipt; the
+    // same loss shape agy-muezzin closed 2026-07-08 as its DEP-LOSS + VALIDATION-LOSS
+    // fixes): this serializer used to emit ONLY "desc [action] targets" and silently
+    // DROPPED every step's validation_command and context_dependencies. The child is
+    // RE-PLANNED from its own text when it fires, and deconstructor.mjs's
+    // QUEUE_INSTRUCTION mandates the COMPLETE literal command live in validation_command
+    // for command/verify steps ("the validation_command IS the step") — so the one field
+    // guaranteed to carry the runnable command was the one field never emitted, and the
+    // child's architect improvised commands from prose (the observed executor
+    // ParserError class). Serialization convention is agy-muezzin's, byte-compatible, so
+    // its parseDeclaredDeps/parseDeclaredValidations backstops can be ported against the
+    // SAME shapes:
+    //   ... [action] targets ; context_dependencies: a, b     (same-line deps)
+    //       validation_command: <command line 1, verbatim>
+    //         <command lines 2..n of a multi-line command, verbatim, indented deeper>
+    // (Extends agy's single-line-only carriage: multi-line commands are carried too —
+    // never dropped, never first-line-only.)
+    // Continuation lines are deliberately NON-NUMBERED: mission_lint RULE 11 and
+    // buildDoneMeans (above) both key on numbered step lines only — buildDoneMeans's own
+    // comment pins this contract. The numbered line's "desc [action] targets" prefix is
+    // byte-identical to before, so VISUAL-QC forwarding and every step-line predicate
+    // (RULE 10/11/13/14) see what they always saw. Known conservative consequence, kept
+    // deliberately: a render command living ONLY in validation_command does not forward
+    // VISUAL-QC-REQUIRED — forwarder and gate must move in lockstep, and extending BOTH
+    // to read validation_command lines is a separate coupled change.
+    const stepList = group.steps.map((s) => {
+      const deps = (s.context_dependencies || []).filter(Boolean);
+      const head = `  ${s.step_index}. ${s.description} [${s.action_type}] ${(s.target_files || []).join(', ')}`
+        + (deps.length ? ` ; context_dependencies: ${deps.join(', ')}` : '');
+      const vc = typeof s.validation_command === 'string' ? s.validation_command : '';
+      if (!vc.trim()) return head;
+      const [vcFirst, ...vcRest] = vc.split(/\r?\n/);
+      return [head, `     validation_command: ${vcFirst}`, ...vcRest.map((l) => `       ${l}`)].join('\n');
+    }).join('\n');
 
     const requiresClause = predecessorId
       ? `REQUIRES: ${predecessorId} (tartib — this sub-mission may not start until ${predecessorId}'s receipt exists)`
@@ -586,6 +617,103 @@ if (process.argv[1]?.endsWith('mission_split.mjs')) {
     ck(s2Lint.ok === true && s2Lint.problems.length === 0, 'code-repo fixture: S2 (a group with an untargeted verify step) still gets a non-empty ALLOW-FILES via fallback and passes lintMission');
 
     fsEmit3.rmSync(tmp3, { recursive: true, force: true });
+  }
+
+  // ---- FULL-FIDELITY STEP CARRIAGE (2026-07-14, mt-integrate-near-me-discovery.S1.S1
+  // receipt): every fixture above uses throwaway one-line prose descriptions and trivial
+  // validation_commands, and NO assertion ever checked that literal command text
+  // survives into the child files — the exact gap that let emitSubMissions drop
+  // validation_command (and context_dependencies) from every split child. Fixture: a
+  // >ceiling parent whose steps carry MULTI-LINE literal commands. The children must
+  // BYTE-CONTAIN every command line, the commands must land on NON-numbered lines (the
+  // RULE 11 / buildDoneMeans contract), and the children must still pass the REAL
+  // lintMission gate.
+  {
+    const osF = await import('os');
+    const fsF = await import('fs');
+    const { lintMission: lintMissionF } = await import('./mission_lint.mjs');
+    const tmpF = fsF.mkdtempSync(path.join(osF.tmpdir(), 'msplit_ffc_'));
+    const missionsDirF = path.join(tmpF, 'missions');
+    fsF.mkdirSync(missionsDirF, { recursive: true });
+
+    const CMD1 = 'git -C C:\\fake\\repo rev-parse --abbrev-ref HEAD; git -C C:\\fake\\repo rev-parse HEAD';
+    const CMD2_L1 = "if (Test-Path functions/api/spots/near.js) { throw 'near.js already exists' }";
+    const CMD2_L2 = "if (Test-Path js/near-me.js) { throw 'near-me.js already exists' }";
+    const CMD4 = 'node -c js/near-me.js';
+    const parentTextFfc = [
+      'MISSION-ID: M-FFC1',
+      'MISSION-CLASS: code-repo',
+      'REPO-ROOT: C:\\fake\\repo',
+      'ALLOW-FILES:',
+      '  - functions/api/spots/near.js',
+      '  - js/near-me.js',
+      'Maqsad: land the near-me feature with literal command carriage.',
+    ].join('\n');
+    const ffcQueue = {
+      mission_id: 'M-FFC1',
+      steps: [
+        { step_index: 1, description: 'baseline capture: record current branch and HEAD sha', action_type: 'command', target_files: [], context_dependencies: [], validation_command: CMD1 },
+        { step_index: 2, description: 'assert neither target file exists yet', action_type: 'verify', target_files: [], context_dependencies: [], validation_command: CMD2_L1 + '\n' + CMD2_L2 },
+        { step_index: 3, description: 'author the api function', action_type: 'edit', target_files: ['functions/api/spots/near.js'], context_dependencies: ['js/near-me.js'], validation_command: 'node -c functions/api/spots/near.js' },
+        { step_index: 4, description: 'author the client script', action_type: 'edit', target_files: ['js/near-me.js'], context_dependencies: [], validation_command: CMD4 },
+      ],
+    };
+    const planFfc = splitOversizedPlan(parentTextFfc, ffcQueue, { sizeCeiling: 2 });
+    ck(planFfc.split === true && planFfc.groupCount === 2, 'STEP-CARRIAGE: 4 steps / ceiling 2 = 2 groups');
+
+    const outFfc = emitSubMissions(planFfc, {
+      missionsDir: missionsDirF,
+      parentMissionFile: 'ffc-1.mission.txt',
+      parentId: planFfc.parentId,
+    }, {
+      writeFile: (p, c) => { fsF.mkdirSync(path.dirname(p), { recursive: true }); fsF.writeFileSync(p, c); },
+    });
+    ck(outFfc.ok === true && outFfc.files.length === 2, 'STEP-CARRIAGE: emitSubMissions wrote 2 children');
+
+    const ffcS1 = fsF.readFileSync(path.join(missionsDirF, 'ffc-1.S1.mission.txt'), 'utf8');
+    const ffcS2 = fsF.readFileSync(path.join(missionsDirF, 'ffc-1.S2.mission.txt'), 'utf8');
+
+    ck(ffcS1.includes('validation_command: ' + CMD1), "STEP-CARRIAGE: S1 byte-contains step 1's literal command on a validation_command line");
+    ck(ffcS1.includes('validation_command: ' + CMD2_L1) && ffcS1.includes(CMD2_L2), 'STEP-CARRIAGE: S1 byte-contains EVERY line of the multi-line step-2 command (never first-line-only)');
+    ck(ffcS2.includes('validation_command: ' + CMD4), "STEP-CARRIAGE: S2 byte-contains step 4's literal command");
+    ck(ffcS2.includes('; context_dependencies: js/near-me.js'), "STEP-CARRIAGE: S2 carries step 3's context_dependencies in the same-line convention");
+
+    const numberedS1 = ffcS1.split(/\r?\n/).filter((l) => /^\s*\d+\.\s/.test(l));
+    const numberedS2 = ffcS2.split(/\r?\n/).filter((l) => /^\s*\d+\.\s/.test(l));
+    ck(numberedS1.length === 2 && numberedS2.length === 2, 'STEP-CARRIAGE: command carriage added ZERO numbered lines (RULE 11 / buildDoneMeans keep keying on the same step lines)');
+    ck(!numberedS1.some((l) => l.includes('validation_command:')) && !numberedS2.some((l) => l.includes('validation_command:')), 'STEP-CARRIAGE: validation_command always lands on NON-numbered continuation lines');
+    ck(numberedS2.some((l) => l.includes('context_dependencies: js/near-me.js')), 'STEP-CARRIAGE: context_dependencies rides the numbered step line itself (the agy parseDeclaredDeps shape)');
+
+    const ffcS1Lint = lintMissionF(ffcS1);
+    const ffcS2Lint = lintMissionF(ffcS2);
+    ck(ffcS1Lint.ok === true && ffcS1Lint.problems.length === 0, 'STEP-CARRIAGE: S1 (multi-line command carried) still passes the REAL lintMission gate');
+    ck(ffcS2Lint.ok === true && ffcS2Lint.problems.length === 0, 'STEP-CARRIAGE: S2 (commands + deps carried) still passes the REAL lintMission gate');
+
+    // FORWARDER/GATE AGREEMENT PIN: a VISUAL-QC parent whose render execution lives ONLY
+    // in validation_command (never on a numbered line) must NOT forward the header — the
+    // forwarder (buildDoneMeans) and the gate (mission_lint RULE 11) both ignore
+    // validation_command lines, and they must keep agreeing or a forwarded header is a
+    // refusal scheduled at emit time (the 2026-07-11 MIQAT-refusal class).
+    const parentVq = 'MISSION-ID: M-FFC2\nMISSION-CLASS: research\nVISUAL-QC-REQUIRED\nMaqsad: ui tweak with a command-only render witness.';
+    const vqQueue = {
+      mission_id: 'M-FFC2',
+      steps: [
+        { step_index: 1, description: 'adjust the widget markup', action_type: 'edit', target_files: ['web/w.html'], context_dependencies: [], validation_command: 'node scratch-render-check.mjs' },
+        { step_index: 2, description: 'adjust the widget style', action_type: 'edit', target_files: ['web/w.css'], context_dependencies: [], validation_command: 'true' },
+        { step_index: 3, description: 'adjust the widget copy', action_type: 'edit', target_files: ['web/w.html'], context_dependencies: [], validation_command: 'true' },
+      ],
+    };
+    const planVq = splitOversizedPlan(parentVq, vqQueue, { sizeCeiling: 2 });
+    const outVq = emitSubMissions(planVq, { missionsDir: missionsDirF, parentMissionFile: 'ffc-2.mission.txt', parentId: planVq.parentId }, {
+      writeFile: (p, c) => { fsF.mkdirSync(path.dirname(p), { recursive: true }); fsF.writeFileSync(p, c); },
+    });
+    ck(outVq.ok === true, 'STEP-CARRIAGE agreement: emit succeeded');
+    const vqS1 = fsF.readFileSync(path.join(missionsDirF, 'ffc-2.S1.mission.txt'), 'utf8');
+    ck(!/VISUAL-QC-REQUIRED/.test(vqS1), 'STEP-CARRIAGE agreement: a node-invocation ONLY in validation_command does NOT forward VISUAL-QC-REQUIRED (forwarder and RULE 11 still agree)');
+    const vqS1Lint = lintMissionF(vqS1);
+    ck(vqS1Lint.ok === true && vqS1Lint.problems.length === 0, 'STEP-CARRIAGE agreement: the untagged child passes lintMission (no refusal scheduled at emit time)');
+
+    fsF.rmSync(tmpF, { recursive: true, force: true });
   }
 
   console.log(fails === 0 ? '\nALL PASS — mission_split: splitOversizedPlan + emitSubMissions sound' : `\n${fails} FAIL`);
