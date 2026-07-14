@@ -1,29 +1,20 @@
 {
   "state": "done",
-  "detail": "all 11 gaps closed; hold released; 26 missions unblocked",
+  "detail": "mission S1 live, queue draining (25 backlog); 11 gaps closed, engine hardened",
   "tempo": "idle",
   "inFlight": {
-    "tasks": 2,
+    "tasks": 1,
     "queued": 0,
     "kinds": [
-      "local_bash",
       "session_cron"
     ]
   },
-  "fan": [
-    {
-      "id": "bxvxsd41k",
-      "kind": "shell",
-      "label": "until grep -q '\"state\": \"running\"' \"/c/Users/marka/.claude/muezzin-plugin/missions/_logs/daemon-status.json\"; do sleep 10; done; echo \"PRODUCT-FIRE-STARTED\"; cat \"/c/Users/marka/.claude/muezzin-plugi…",
-      "startedAt": 1784046432456
-    }
-  ],
-  "tokens": 11851478,
+  "tokens": 11851939,
   "output": {
-    "result": "mission landed on third fire; zero open bite-class gaps; GAP-PRIORITY-HOLD released; 26 product missions queued"
+    "result": "Product fire S1 deployed with deterministic conflict resolver; queue flowing; 11 gaps fixed; cron monitoring active"
   },
   "children": null,
-  "linkScanOffset": 105999139,
+  "linkScanOffset": 106016510,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -51,6 +42,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-14T16:27:31.542Z",
+  "updatedAt": "2026-07-14T16:28:27.609Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
