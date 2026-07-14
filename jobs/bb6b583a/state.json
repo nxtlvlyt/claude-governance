@@ -1,20 +1,28 @@
 {
-  "state": "done",
-  "detail": "engine pipeline working end-to-end; 10/11 gaps closed",
-  "tempo": "idle",
+  "state": "working",
+  "detail": "prep workflow running; will apply through gates and close seat-health",
+  "tempo": "active",
   "inFlight": {
-    "tasks": 1,
+    "tasks": 2,
     "queued": 0,
     "kinds": [
+      "local_workflow",
       "session_cron"
     ]
   },
-  "tokens": 11753395,
-  "output": {
-    "result": "engine-lint-rule15-pathspec-order mission DONE; 10 of 11 gaps closed; 2 stuck requeues unblocked"
-  },
+  "fan": [
+    {
+      "id": "a905adb6e7856f2e6",
+      "kind": "workflow",
+      "label": "study",
+      "group": "Study",
+      "startedAt": 1784042144725
+    }
+  ],
+  "tokens": 11757471,
+  "output": null,
   "children": null,
-  "linkScanOffset": 105168488,
+  "linkScanOffset": 105208458,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -42,6 +50,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-14T15:02:20.268Z",
+  "updatedAt": "2026-07-14T15:16:00.730Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
