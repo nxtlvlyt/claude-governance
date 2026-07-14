@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "monitoring idle PIDs; checking for Gap fixes activity",
+  "detail": "polling Gap fix PIDs; idle cycle, no change",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 11121273,
+  "tokens": 11121452,
   "output": null,
   "children": null,
-  "linkScanOffset": 96412400,
+  "linkScanOffset": 96428103,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -40,6 +40,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-14T00:44:23.358Z",
+  "updatedAt": "2026-07-14T01:01:36.831Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
