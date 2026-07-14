@@ -1,6 +1,6 @@
 {
   "state": "blocked",
-  "detail": "two-model witness never ran pre-commit; awaiting decision on commit sequencing",
+  "detail": "awaiting choice among 3 approaches: commit-then-test, hold for pre-commit, or other",
   "tempo": "blocked",
   "inFlight": {
     "tasks": 1,
@@ -9,11 +9,11 @@
       "session_cron"
     ]
   },
-  "tokens": 11430230,
-  "needs": "(a) commit now, post-commit witness runs after, or (b) hold until pre-commit witness path reviewed, or (c) something else?",
+  "tokens": 11430366,
+  "needs": "choose: (a) commit-then-witness-post-hoc, (b) hold for proper pre-commit path, or (c) something else",
   "output": null,
   "children": null,
-  "linkScanOffset": 101400320,
+  "linkScanOffset": 101420141,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -41,6 +41,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-14T11:33:42.922Z",
+  "updatedAt": "2026-07-14T11:34:09.533Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
