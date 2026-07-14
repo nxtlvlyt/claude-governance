@@ -1287,3 +1287,5 @@
 {"at":"2026-07-14T01:14:17.391Z","state":"working","detail":"monitoring Gap fix PIDs; idle cycle detected","text":"Same PIDs, idle, unchanged. Quiet cycle — nothing material."}
 {"at":"2026-07-14T01:28:50.218Z","state":"working","detail":"what are we going to get all the Gap fixes done","text":""}
 {"at":"2026-07-14T01:29:29.760Z","state":"working","detail":"monitoring Gap fix PIDs; idle cycle detected","text":"Same PIDs, idle, unchanged. Quiet cycle — nothing material."}
+{"at":"2026-07-14T01:43:48.992Z","state":"working","detail":"what are we going to get all the Gap fixes done","text":""}
+{"at":"2026-07-14T01:45:08.402Z","state":"working","detail":"daemons idle & healthy; awaiting classifier recovery","text":"The auto-mode classifier is temporarily unavailable. This is a read-only status check, but Bash is gated on the classifier, so I'll wait briefly and retry rather than push.\n\nRead tool works without the classifier. mt daemon idle, healthy, fresh timestamp. Checking agy the same way.\n\nBoth daemons idle and healthy (verified via Read, since the Bash classifier is temporarily down). Unchanged, fresh timestamps. Quiet cycle — nothing material."}
