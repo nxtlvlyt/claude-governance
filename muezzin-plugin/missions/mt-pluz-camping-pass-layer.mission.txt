@@ -38,7 +38,10 @@ for inside/outside checks; the popup text is static guidance, not per-zone.
 
 Steps:
   1. Verify the PINNED endpoint answers live (no discovery — the URL above is the
-     receipt). Run exactly: $r = Invoke-WebRequest -Uri 'https://geospatial.alberta.ca/mimas/rest/services/boundaries/land_public_land_camping_pass_public/FeatureServer/0/query?where=1%3D1&outFields=*&resultRecordCount=1&f=geojson' -UseBasicParsing -TimeoutSec 30; $j = ConvertFrom-Json $r.Content; if (-not $j.features -or $j.features.Count -lt 1) { Write-Output NO-FEATURES; exit 1 }; Set-Content -Path pluz-discovery-receipt.md -Value "# Camping Pass layer live probe 2026-07-14`nEndpoint: geospatial.alberta.ca/mimas/.../land_public_land_camping_pass_public/FeatureServer/0`nFeatures returned: $($j.features.Count)`nGeometry type: $($j.features[0].geometry.type)"; Write-Output ENDPOINT-LIVE [command] pluz-discovery-receipt.md
+     receipt). NOTE: Invoke-RestMethod, NOT Invoke-WebRequest — PS 7.4 returns .Content
+     as byte[] for this server's geojson content-type and ConvertFrom-Json chokes
+     (attempt-2 receipt); Invoke-RestMethod parses directly (conductor dry-run PASS
+     2026-07-14: FEATURES=1 GEOM=Polygon). Run exactly: $j = Invoke-RestMethod -Uri 'https://geospatial.alberta.ca/mimas/rest/services/boundaries/land_public_land_camping_pass_public/FeatureServer/0/query?where=1%3D1&outFields=*&resultRecordCount=1&f=geojson' -TimeoutSec 30; if (-not $j.features -or $j.features.Count -lt 1) { Write-Output NO-FEATURES; exit 1 }; Set-Content -Path pluz-discovery-receipt.md -Value "# Camping Pass layer live probe 2026-07-14`nEndpoint: geospatial.alberta.ca/mimas/.../land_public_land_camping_pass_public/FeatureServer/0`nFeatures returned: $($j.features.Count)`nGeometry type: $($j.features[0].geometry.type)"; Write-Output ENDPOINT-LIVE [command] pluz-discovery-receipt.md
   2. Add the layer entry to the tenure API following the existing table pattern exactly
      (functions/api/land-tenure.js ~94-106: key, upstream, api, source_name, source_url,
      license fields; mirror the crownland_reservation entry's shape and its VERIFIED
