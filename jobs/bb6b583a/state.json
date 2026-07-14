@@ -1,6 +1,6 @@
 {
-  "state": "done",
-  "detail": "both daemons healthy, ceiling fix loaded, 25 queued",
+  "state": "working",
+  "detail": "stale FAILED lines retired; queue ready for next sweep",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,12 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 12083630,
-  "output": {
-    "result": "daemons operational post-restart; mt (pid 38356) running ceiling fix; hold released, queue ready"
-  },
+  "tokens": 12085477,
+  "output": null,
   "children": null,
-  "linkScanOffset": 107171415,
+  "linkScanOffset": 107224130,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -42,6 +40,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-14T19:15:00.326Z",
+  "updatedAt": "2026-07-14T19:30:47.801Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
