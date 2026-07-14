@@ -1,18 +1,27 @@
 {
   "state": "working",
-  "detail": "lanes empty, 4 known deferred items unchanged; monitoring",
-  "tempo": "idle",
+  "detail": "Agent dispatch running: verify no-material cron silence compliance",
+  "tempo": "active",
   "inFlight": {
-    "tasks": 1,
+    "tasks": 2,
     "queued": 0,
     "kinds": [
+      "local_agent",
       "session_cron"
     ]
   },
-  "tokens": 11275790,
+  "fan": [
+    {
+      "id": "a8535c9fb137603c3",
+      "kind": "agent",
+      "label": "Independent check on stop-language framing",
+      "startedAt": 1784002739944
+    }
+  ],
+  "tokens": 11282231,
   "output": null,
   "children": null,
-  "linkScanOffset": 99357675,
+  "linkScanOffset": 99443291,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -40,6 +49,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-14T04:17:31.782Z",
+  "updatedAt": "2026-07-14T04:19:24.064Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
