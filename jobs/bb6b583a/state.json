@@ -1,18 +1,27 @@
 {
   "state": "working",
-  "detail": "both daemons live; mt:17min into camping-pass; agy:mid-attempt-2; next wake judges outcomes",
-  "tempo": "idle",
+  "detail": "agy-100% gate (d) CLOSED; camping-pass redesigned; awaiting prep agent",
+  "tempo": "active",
   "inFlight": {
-    "tasks": 1,
+    "tasks": 2,
     "queued": 0,
     "kinds": [
+      "local_agent",
       "session_cron"
     ]
   },
-  "tokens": 12226136,
+  "fan": [
+    {
+      "id": "a40a75c7041b98a0e",
+      "kind": "agent",
+      "label": "Design camping-pass patch anchors",
+      "startedAt": 1784069666266
+    }
+  ],
+  "tokens": 12258496,
   "output": null,
   "children": null,
-  "linkScanOffset": 111999379,
+  "linkScanOffset": 112352675,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -40,6 +49,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-14T22:29:24.660Z",
+  "updatedAt": "2026-07-14T22:56:17.622Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }

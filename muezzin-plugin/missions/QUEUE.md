@@ -2986,3 +2986,29 @@ from the >1 branch; keep edit steps strictly capped at 1; regression selftest pr
 (a) a command step committing 3 files passes, (b) an edit step authoring 3 still
 fails, (c) an edit step disguised with a command tag but no literal command still
 fails (no bypass surface). Owner: prep workflow launched 2026-07-14 + engine mission.
+
+ITEM 23 — CAMPING-PASS CLIENT WIRING (filed 2026-07-14 ~22:4xZ; owner of the
+mt-pluz-camping-pass-layer SUPERSEDED mark; the operator's LIVE field request —
+standing at Preacher's/Abraham Lake inside the pass area, popup said UNVERIFIED).
+DIAGNOSIS RECEIPTS (AUTORUN line ~1118): three attempts, three classes
+(placeholder-URL improvise; PS7.4 byte[] Content; dead-helper wire). Net repo state:
+ab_pluz layer EXISTED since 2026-06-23 (land-tenure.js, same mimas endpoint) — the
+mission re-added it as duplicate key 'ab-camping-pass-area' (commit a05ae0a) and wrote
+window.mtPassBadge as a dead helper (commit 114879a, called nowhere). No user-visible
+change shipped; no production harm.
+THE WORK (conductor applies through gates per the 2026-07-11 Sonnet-workflow ruling;
+prep agent designs exact anchors read-only first):
+  a. REVERT the duplicate 'ab-camping-pass-area' entry from land-tenure.js (keep
+     ab_pluz canonical).
+  b. REMOVE the dead mtPassBadge helper block from map.html (~lines 111-124).
+  c. WIRE the real badge: in popup(p)'s campsite chain (map.html:171-177), BEFORE the
+     else-UNVERIFIED fallback, a branch that point-in-polygon checks the clicked spot
+     against the ab_pluz layer (fetch /api/land-tenure?layer=ab_pluz once, cache
+     module-level, ray-cast PIP ~15 lines vanilla) and renders the PASS REQUIRED badge
+     + albertarelm.com guidance; UNVERIFIED fallback retained when outside or when the
+     layer fetch fails (fail-honest, never fail-open).
+  d. Verify: node --check equivalents, headless render witness, preview deploy; then
+     production per the deploys-conductor-called ruling IF all guards pass.
+DONE WHEN: a spot inside the pass corridor renders PASS REQUIRED with the pass
+guidance on the live map; outside spots and fetch-failures still render UNVERIFIED;
+duplicate layer entry gone; commits pushed with flags-first pathspec.
