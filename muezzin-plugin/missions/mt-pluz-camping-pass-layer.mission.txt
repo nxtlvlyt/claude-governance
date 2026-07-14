@@ -26,19 +26,19 @@ niyyah: the map already refuses to lie (the UNVERIFIED fallback is fail-honest b
 design) — this mission gives it something true to say instead, sourced from the
 province's own boundary data, for the exact corridor a real user is standing in today.
 
+DISCOVERY ALREADY DONE (conductor, 2026-07-14, WebFetch chain: alberta.ca page -> app
+config e5651574de1342d7ae8277ef415864be -> webmap 0f8bd6262f5e411d922f73b791012264 ->
+operational layers; live geojson probe returned a valid Polygon feature). THE PINNED
+AUTHORITATIVE ENDPOINTS — use these VERBATIM, never invent or substitute item ids (the
+first attempt died improvising a placeholder id into a URL):
+- Camping Pass area (the layer this mission wires): https://geospatial.alberta.ca/mimas/rest/services/boundaries/land_public_land_camping_pass_public/FeatureServer/0
+- PLUZ zones (reference, optional future layer): https://services.arcgis.com/Eb8P5h4CJk8utIBz/arcgis/rest/services/Pluz_web/FeatureServer/0
+Note: the pass-area layer's features carry minimal attributes (id only) — sufficient
+for inside/outside checks; the popup text is static guidance, not per-zone.
+
 Steps:
-  1. DISCOVERY (read-only, network): locate the authoritative Public Lands Camping Pass
-     area / PLUZ boundary layer endpoint. Start from the esrd.maps.arcgis.com
-     interactive map referenced by alberta.ca/public-lands-camping-pass — fetch the
-     webmap item JSON (arcgis.com sharing/rest content item, f=json, public) and
-     extract its operational layer URL(s); alternatively probe
-     geospatial.alberta.ca/titan/rest/services folders (parks, recaccess were partially
-     probed 2026-07-14; PLUZ not in recaccess/lands_management/lus). PROVE the endpoint
-     live: one bounded query with f=geojson returning >=1 feature with a zone-name
-     attribute. Write the endpoint + item id + license + a 3-line sample of attributes
-     to pluz-discovery-receipt.md. A pass-AREA polygon layer (the whole Eastern Slopes
-     boundary) is acceptable if no per-PLUZ layer is queryable — name which one you
-     found. [command] pluz-discovery-receipt.md
+  1. Verify the PINNED endpoint answers live (no discovery — the URL above is the
+     receipt). Run exactly: $r = Invoke-WebRequest -Uri 'https://geospatial.alberta.ca/mimas/rest/services/boundaries/land_public_land_camping_pass_public/FeatureServer/0/query?where=1%3D1&outFields=*&resultRecordCount=1&f=geojson' -UseBasicParsing -TimeoutSec 30; $j = ConvertFrom-Json $r.Content; if (-not $j.features -or $j.features.Count -lt 1) { Write-Output NO-FEATURES; exit 1 }; Set-Content -Path pluz-discovery-receipt.md -Value "# Camping Pass layer live probe 2026-07-14`nEndpoint: geospatial.alberta.ca/mimas/.../land_public_land_camping_pass_public/FeatureServer/0`nFeatures returned: $($j.features.Count)`nGeometry type: $($j.features[0].geometry.type)"; Write-Output ENDPOINT-LIVE [command] pluz-discovery-receipt.md
   2. Add the layer entry to the tenure API following the existing table pattern exactly
      (functions/api/land-tenure.js ~94-106: key, upstream, api, source_name, source_url,
      license fields; mirror the crownland_reservation entry's shape and its VERIFIED
