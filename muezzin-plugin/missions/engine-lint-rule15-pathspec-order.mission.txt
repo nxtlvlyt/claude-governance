@@ -1,0 +1,40 @@
+MISSION-ID: M-ENGINE.LINT-RULE15-PATHSPEC-ORDER
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\.claude\muezzin-plugin
+ALLOW-FILES:
+  - mission_lint.mjs
+REQUIRES: none
+STEPS: 2
+
+Maqsad: fix RULE 15's scopedCommit regex for gap-mission-lint-rule15-wrong-pathspec-order
+(QUEUE ITEM 30, the last non-seat-health bite-class gap on the register). The regex as
+landed only recognizes `git commit -- <files> -m "..."` (pathspec-then-flags) as properly
+scoped -- but that ordering is RUNTIME-BROKEN: `--` ends git's option parsing, so `-m` and
+the message get swallowed as pathspecs ("error: pathspec '-m' did not match any file(s)"),
+reproduced live twice this session. The syntactically CORRECT ordering,
+`git commit -m "..." -- <files>`, is what every mission constructed this session actually
+uses -- and RULE 15 flags it as bare. Left as-is, the rule misfires on every correctly
+written mission commit. Fix: widen the regex to accept a standalone ` -- <pathspec>`
+anywhere on the git-commit line (`\s--\s+\S` keeps `--no-verify`-class flags unmatched and
+genuinely bare commits still refused), plus a new selftest fixture covering the correct
+ordering.
+
+niyyah: a lint gate that rewards the broken syntax and flags the working one inverts its
+own purpose the moment anyone trusts it -- fix the detector before it trains missions
+into the runtime bug it was built to prevent.
+
+Steps:
+  1. Run the committed, dry-run-verified patcher exactly: node missions/_logs/mission-lint-rule15-pathspec-order-patch.mjs mission_lint.mjs; if ($LASTEXITCODE -ne 0) { exit 1 } [command]
+     validation_command: node --check mission_lint.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; if (-not (Select-String -Path mission_lint.mjs -Pattern 'gap-mission-lint-rule15-wrong-pathspec-order' -Quiet)) { exit 1 }
+  2. Full selftest, then commit with an explicit pathspec in the CORRECT order. Run exactly: node mission_lint.mjs 2>&1 | Tee-Object -Variable out; $failCount = ($out | Select-String -Pattern '^FAIL').Count; if ($failCount -ne 0) { Write-Output "SELFTEST-INCOMPLETE fail=$failCount"; exit 1 }; if (-not ($out | Select-String -Pattern 'flags-then-pathspec')) { Write-Output "NEW-CHECK-MISSING"; exit 1 }; git add -- mission_lint.mjs; git diff --cached --quiet -- mission_lint.mjs; if ($LASTEXITCODE -eq 0) { Write-Output ALREADY_COMMITTED } else { git commit -m "fix(lint): RULE 15 scopedCommit accepts the flags-then-pathspec ordering (git commit -m ... -- files), the syntactically correct order every mission actually uses -- closing gap-mission-lint-rule15-wrong-pathspec-order / QUEUE ITEM 30; bare commits still refused, --no-verify-class flags still unmatched; full selftest ALL PASS incl. the new ordering fixture" -- mission_lint.mjs }; if ($LASTEXITCODE -ne 0) { exit 1 } [command]
+
+Done means: mission_lint.mjs's scopedCommit regex recognizes both `git commit -m "..."
+-- <files>` and the legacy `git commit -- <files> -m "..."` shapes as scoped; a genuinely
+bare `git commit -m "..."` (no pathspec anywhere) is still refused for code-repo missions;
+full selftest suite ALL PASS including the new flags-then-pathspec fixture; committed.
+
+# CONDUCTOR PROVENANCE (2026-07-14): patcher dry-run verified on an LF-faithful scratch
+# copy (mission_lint.mjs confirmed LF this session, sibling mission_class.mjs copied
+# alongside for the import): PATCHED, node --check clean, idempotent (second run
+# ALREADY-PATCHED), full selftest ALL PASS with 0 FAILs including the new fixture
+# proving the correct ordering now passes while the bare-commit refusal still holds.
