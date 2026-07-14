@@ -1,6 +1,6 @@
 {
-  "state": "done",
-  "detail": "all critical gaps closed; 1 mission live, 3 shipped today",
+  "state": "working",
+  "detail": "camping-pass mission 13m in, clean witnesses; daemons healthy",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,12 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 12117232,
-  "output": {
-    "result": "Queue unblocked: 21/37 register gaps closed with commits; camping-pass mission running; near-me + visual-regression + Lighthouse CI shipped; 16 dormant items tracked with owners"
-  },
+  "tokens": 12117526,
+  "output": null,
   "children": null,
-  "linkScanOffset": 110365697,
+  "linkScanOffset": 110385121,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -42,6 +40,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-14T20:55:38.009Z",
+  "updatedAt": "2026-07-14T20:59:29.606Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
