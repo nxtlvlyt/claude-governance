@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "5 agents auditing agy-100% gate items (a–e); will drive actionable items on return",
+  "detail": "camping-pass mission mid-run, dependency snag; engine self-healing",
   "tempo": "active",
   "inFlight": {
     "tasks": 2,
@@ -16,6 +16,7 @@
       "kind": "workflow",
       "label": "audit:a-hook-plugin",
       "startedAt": 1784063598564,
+      "doneAt": 1784063703959,
       "group": "Audit"
     },
     {
@@ -30,6 +31,7 @@
       "kind": "workflow",
       "label": "audit:c-unsupervised-streak",
       "startedAt": 1784063598531,
+      "doneAt": 1784063626358,
       "group": "Audit"
     },
     {
@@ -44,13 +46,14 @@
       "kind": "workflow",
       "label": "audit:e-deploy-parity",
       "startedAt": 1784063599802,
+      "doneAt": 1784063673031,
       "group": "Audit"
     }
   ],
-  "tokens": 12123412,
+  "tokens": 12137019,
   "output": null,
   "children": null,
-  "linkScanOffset": 110512623,
+  "linkScanOffset": 110537846,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -78,6 +81,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-14T21:13:36.812Z",
+  "updatedAt": "2026-07-14T21:15:12.127Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
