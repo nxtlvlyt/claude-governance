@@ -1,27 +1,18 @@
 {
   "state": "working",
-  "detail": "two-stage loss diagnosed + fix verified; constructing mission",
+  "detail": "mission running (17:24); daemon autonomous, cron check pending",
   "tempo": "idle",
   "inFlight": {
-    "tasks": 2,
+    "tasks": 1,
     "queued": 0,
     "kinds": [
-      "local_bash",
       "session_cron"
     ]
   },
-  "fan": [
-    {
-      "id": "blkb8xy13",
-      "kind": "shell",
-      "label": "until grep -qE \"DONE: missions/engine-split-step-carriage|FAILED \\(x2\\): missions/engine-split-step-carriage|MIQAT-REFUSED: missions/engine-split-step-carriage|HELD.*engine-split-step-carriage\" <(tai…",
-      "startedAt": 1784049866711
-    }
-  ],
-  "tokens": 11973018,
+  "tokens": 11973299,
   "output": null,
   "children": null,
-  "linkScanOffset": 106453447,
+  "linkScanOffset": 106470364,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -49,6 +40,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-14T17:24:41.564Z",
+  "updatedAt": "2026-07-14T17:25:43.193Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
