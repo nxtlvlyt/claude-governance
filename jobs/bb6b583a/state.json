@@ -1,59 +1,20 @@
 {
-  "state": "working",
-  "detail": "camping-pass mission mid-run, dependency snag; engine self-healing",
-  "tempo": "active",
+  "state": "done",
+  "detail": "agy-100% audit: 2/6 items done, mission queued for (d)",
+  "tempo": "idle",
   "inFlight": {
-    "tasks": 2,
+    "tasks": 1,
     "queued": 0,
     "kinds": [
-      "local_workflow",
       "session_cron"
     ]
   },
-  "fan": [
-    {
-      "id": "a92ac11f20613bae4",
-      "kind": "workflow",
-      "label": "audit:a-hook-plugin",
-      "startedAt": 1784063598564,
-      "doneAt": 1784063703959,
-      "group": "Audit"
-    },
-    {
-      "id": "a7e2dced0fbf85bad",
-      "kind": "workflow",
-      "label": "audit:b-self-waking-beats",
-      "startedAt": 1784063598779,
-      "group": "Audit"
-    },
-    {
-      "id": "a00f12c343adc5ec4",
-      "kind": "workflow",
-      "label": "audit:c-unsupervised-streak",
-      "startedAt": 1784063598531,
-      "doneAt": 1784063626358,
-      "group": "Audit"
-    },
-    {
-      "id": "a4919781e71f7f0fa",
-      "kind": "workflow",
-      "label": "audit:d-atv-visitor-chain",
-      "startedAt": 1784063599118,
-      "group": "Audit"
-    },
-    {
-      "id": "a06c38bec38a4dcb8",
-      "kind": "workflow",
-      "label": "audit:e-deploy-parity",
-      "startedAt": 1784063599802,
-      "doneAt": 1784063673031,
-      "group": "Audit"
-    }
-  ],
-  "tokens": 12137019,
-  "output": null,
+  "tokens": 12148048,
+  "output": {
+    "result": "agy-100% gate audit complete: atv production witness queued; (a) hook slices, (e) deploy parity, (b) beat scheduling next; (c) requires time accumulation"
+  },
   "children": null,
-  "linkScanOffset": 110537846,
+  "linkScanOffset": 110683959,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -81,6 +42,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-14T21:15:12.127Z",
+  "updatedAt": "2026-07-14T21:20:02.280Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
