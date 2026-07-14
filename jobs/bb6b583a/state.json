@@ -1,18 +1,34 @@
 {
   "state": "working",
-  "detail": "daemons idle & healthy; awaiting classifier recovery",
+  "detail": "orchestrate selftest running (~minutes); waiting on result",
   "tempo": "idle",
   "inFlight": {
-    "tasks": 1,
+    "tasks": 3,
     "queued": 0,
     "kinds": [
+      "local_bash",
+      "monitor",
       "session_cron"
     ]
   },
-  "tokens": 11122282,
+  "fan": [
+    {
+      "id": "bxqftvwwt",
+      "kind": "shell",
+      "label": "Set-Location \"$env:CLAUDE_JOB_DIR\\tmp\\relslice-test\" Get-ChildItem 'C:\\Users\\marka\\.claude\\muezzin-plugin\\*.mjs' | Where-Object { $_.Name -ne 'orchestrate.mjs' -and $_.Name -ne 'orchestrate-relevance…",
+      "startedAt": 1783994405026
+    },
+    {
+      "id": "bdssbpijq",
+      "kind": "monitor",
+      "label": "Wait for the background selftest to finish and surface the relevance-slice + pass/fail lines",
+      "startedAt": 1783994539849
+    }
+  ],
+  "tokens": 11148031,
   "output": null,
   "children": null,
-  "linkScanOffset": 96487338,
+  "linkScanOffset": 96815889,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -40,6 +56,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-14T01:45:08.402Z",
+  "updatedAt": "2026-07-14T02:02:32.751Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
