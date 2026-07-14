@@ -1,0 +1,34 @@
+MISSION-ID: MT-INTEGRATE-NEAR-ME-DISCOVERY.S1.S1
+MISSION-CLASS: code-repo
+PARENT: MT-INTEGRATE-NEAR-ME-DISCOVERY.S1
+TARTIB-INDEX: 1 of 2
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - functions/api/spots/near.js
+  - map.html
+  - js/near-me.js
+REQUIRES: none (first in tartib order)
+STEPS: 8
+
+PARENT MAQSAD: sub-mission 1 of 2 — Record the current branch and latest commit, and assert neither functions/api/spots/near.js nor js/near-me.js already exist on disk (fails if either is unexpectedly present). through Start (or confirm running) a local preview server for the target repo at the PREVIEW-BASE-URL host:port so the render witness in the next step has something to reach.
+
+Maqsad: sub-mission 1 of 2 — Baseline capture (idempotent): record current branch and HEAD sha, and assert neither functions/api/spots/near.js nor js/near-me.js already exist on disk. through Commit the three target files if pending (idempotent), then assert scoped cleanliness against the allow-file paths only.
+
+STEP-SHAPE DISCIPLINE (conductor amendment 2026-07-14, after attempt 1 FAILED(plan) and the
+before-witness correctly flagged this child as a degraded copy: the autosplit stripped the
+parent's literal "Run exactly:" command bodies, leaving prose the seat had to improvise
+from — the receipted mt-addspot kill-class. The parent's own literal, dry-run-proven
+commands are restored verbatim below; the planner must use them, not improvise):
+
+Steps:
+  1. Baseline, stdout only, IDEMPOTENT. Run exactly: git rev-parse --abbrev-ref HEAD; git rev-parse HEAD; if ((Test-Path functions/api/spots/near.js) -or (Test-Path js/near-me.js)) { Write-Output ALREADY_PRESENT } else { Write-Output CLEAN_BASELINE } [command]
+  2. Preconditions + ancestry, IDEMPOTENT. Run exactly: if (Test-Path (git rev-parse --git-path CHERRY_PICK_HEAD)) { exit 1 }; git merge-base --is-ancestor ca83ba4 HEAD; if ($LASTEXITCODE -eq 0) { Write-Output ALREADY_INTEGRATED } else { Write-Output NOT_YET_INTEGRATED }; exit 0 [command]
+  3. Land ca83ba4; a conflict exit is TOLERATED — the assertion is the artifacts. Run exactly: git merge-base --is-ancestor ca83ba4 HEAD; if ($LASTEXITCODE -eq 0) { Write-Output SKIP_ALREADY_INTEGRATED; exit 0 }; git cherry-pick -x ca83ba4; if (Test-Path (git rev-parse --git-path CHERRY_PICK_HEAD)) { git cherry-pick --continue --no-edit }; if (-not ((Test-Path functions/api/spots/near.js) -and (Test-Path js/near-me.js))) { exit 1 } [command] functions/api/spots/near.js
+  4. Resolve the map.html conflict deterministically (idempotent — no-op if step 3 left no conflict markers). Run exactly: if (-not (Select-String -Path map.html -Pattern '^<{7}' -Quiet)) { Write-Output NO-CONFLICT-SKIP; exit 0 }; node "C:\Users\marka\.claude\muezzin-plugin\missions\_logs\near-me-conflict-resolve.mjs" map.html; if ($LASTEXITCODE -ne 0) { exit 1 } [command] map.html
+     validation_command: if (Select-String -Path map.html -Pattern '^<{7}|^={7}|^>{7}' -Quiet) { exit 1 }; if (-not (Select-String -Path map.html -Pattern 'near-me.js' -Quiet)) { exit 1 }
+  5. Verify the newly integrated API handler is syntactically valid JavaScript. [verify] functions/api/spots/near.js
+  6. Verify the newly integrated client script is syntactically valid JavaScript. [verify] js/near-me.js
+  7. Artifact witness for the wiring. Run exactly: if (-not (Select-String -Path map.html -Pattern 'near-me.js' -Quiet)) { exit 1 }; if (-not ((Select-String -Path map.html -Pattern '<script' -AllMatches).Matches.Count -ge 44)) { exit 1 } [verify] map.html
+  8. Commit if pending (idempotent) then scoped cleanliness. Run exactly: git add -- map.html functions/api/spots/near.js js/near-me.js; git diff --cached --quiet -- map.html functions/api/spots/near.js js/near-me.js; if ($LASTEXITCODE -ne 0) { git commit -m "feat(near-me): GET /api/spots/near + Spots-near-me control (integrate ca83ba4)" -- map.html functions/api/spots/near.js js/near-me.js; if ($LASTEXITCODE -ne 0) { exit 1 } }; if ((git status --porcelain -- map.html functions/api/spots/near.js js/near-me.js).Length -gt 0) { exit 1 }; Write-Output SCOPE_CLEAN [verify]
+
+Done means: functions/api/spots/near.js, map.html, js/near-me.js exist/are updated as specified

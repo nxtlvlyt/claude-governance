@@ -1,0 +1,20 @@
+MISSION-ID: MT-INTEGRATE-NEAR-ME-DISCOVERY.S1.S2
+MISSION-CLASS: code-repo
+PARENT: MT-INTEGRATE-NEAR-ME-DISCOVERY.S1
+TARTIB-INDEX: 2 of 2
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - map.html
+  - functions/api/spots/near.js
+  - js/near-me.js
+REQUIRES: MT-INTEGRATE-NEAR-ME-DISCOVERY.S1.S1 (tartib — this sub-mission may not start until MT-INTEGRATE-NEAR-ME-DISCOVERY.S1.S1's receipt exists)
+STEPS: 1
+
+PARENT MAQSAD: sub-mission 1 of 2 — Record the current branch and latest commit, and assert neither functions/api/spots/near.js nor js/near-me.js already exist on disk (fails if either is unexpectedly present). through Start (or confirm running) a local preview server for the target repo at the PREVIEW-BASE-URL host:port so the render witness in the next step has something to reach.
+
+Maqsad: sub-mission 2 of 2 — Real render witness in one self-contained command: confirm clean allow-file tree, deploy the current tree via wrangler pages preview, capture the emitted *.pages.dev URL, write a scratch Playwright script asserting /map.html loads with no fatal error and no near-me.js console error and the near-me.js tag is present, run it, clean up, and propagate its exit code. through Real render witness in one self-contained command: confirm clean allow-file tree, deploy the current tree via wrangler pages preview, capture the emitted *.pages.dev URL, write a scratch Playwright script asserting /map.html loads with no fatal error and no near-me.js console error and the near-me.js tag is present, run it, clean up, and propagate its exit code.
+
+Steps:
+  9. Real render witness in one self-contained command: confirm clean allow-file tree, deploy the current tree via wrangler pages preview, capture the emitted *.pages.dev URL, write a scratch Playwright script asserting /map.html loads with no fatal error and no near-me.js console error and the near-me.js tag is present, run it, clean up, and propagate its exit code. [command] 
+
+Done means:  exist/are updated as specified

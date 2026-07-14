@@ -1,0 +1,21 @@
+{
+  "parentId": "MT-INTEGRATE-NEAR-ME-DISCOVERY.S1",
+  "ceiling": 8,
+  "originalStepCount": 9,
+  "groupCount": 2,
+  "children": [
+    {
+      "id": "MT-INTEGRATE-NEAR-ME-DISCOVERY.S1.S1",
+      "file": "missions/mt-integrate-near-me-discovery.S1.S1.mission.txt",
+      "steps": 8,
+      "requires": null
+    },
+    {
+      "id": "MT-INTEGRATE-NEAR-ME-DISCOVERY.S1.S2",
+      "file": "missions/mt-integrate-near-me-discovery.S1.S2.mission.txt",
+      "steps": 1,
+      "requires": "MT-INTEGRATE-NEAR-ME-DISCOVERY.S1.S1"
+    }
+  ],
+  "ts": "2026-07-14T16:35:45.185Z"
+}
