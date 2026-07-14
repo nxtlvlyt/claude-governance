@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "conductor babysitting; checking status across 5 agents",
+  "detail": "Bash tool stuck on stale denial; switching to Read/Edit; resuming ITEM 19 poller",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 11395626,
+  "tokens": 11398623,
   "output": null,
   "children": null,
-  "linkScanOffset": 100559748,
+  "linkScanOffset": 100613961,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -40,6 +40,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-14T09:44:20.250Z",
+  "updatedAt": "2026-07-14T10:01:19.447Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
