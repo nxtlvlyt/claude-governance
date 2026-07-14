@@ -1,6 +1,6 @@
 {
   "state": "blocked",
-  "detail": "platform safety classifier blocking commits; needs Bash permission rule or user go-ahead",
+  "detail": "classifier rule change ready; awaiting commit decision or permission rule",
   "tempo": "blocked",
   "inFlight": {
     "tasks": 1,
@@ -9,11 +9,11 @@
       "session_cron"
     ]
   },
-  "tokens": 11199170,
-  "needs": "either say \"commit it\" to land both files now, or authorize the Bash permission rule in Claude Code settings",
+  "tokens": 11200827,
+  "needs": "say 'commit it' for this pair, or add Bash permission rule to skip future asks",
   "output": null,
   "children": null,
-  "linkScanOffset": 98071697,
+  "linkScanOffset": 98119187,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -41,6 +41,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-14T02:56:16.564Z",
+  "updatedAt": "2026-07-14T02:57:19.642Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
