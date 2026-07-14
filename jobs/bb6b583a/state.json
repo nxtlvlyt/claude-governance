@@ -1,6 +1,6 @@
 {
-  "state": "working",
-  "detail": "I'll report the moment it lands.",
+  "state": "done",
+  "detail": "all 11 gaps closed; hold released; 26 missions unblocked",
   "tempo": "idle",
   "inFlight": {
     "tasks": 2,
@@ -12,16 +12,18 @@
   },
   "fan": [
     {
-      "id": "be3s4uo3z",
+      "id": "bxvxsd41k",
       "kind": "shell",
-      "label": "until grep -qE \"DONE: missions/engine-seat-roundtrip-census|FAILED \\(x2\\): missions/engine-seat-roundtrip-census|MIQAT-REFUSED: missions/engine-seat-roundtrip-census\" <(tail -40 \"/c/Users/marka/.clau…",
-      "startedAt": 1784045834087
+      "label": "until grep -q '\"state\": \"running\"' \"/c/Users/marka/.claude/muezzin-plugin/missions/_logs/daemon-status.json\"; do sleep 10; done; echo \"PRODUCT-FIRE-STARTED\"; cat \"/c/Users/marka/.claude/muezzin-plugi…",
+      "startedAt": 1784046432456
     }
   ],
-  "tokens": 11847637,
-  "output": null,
+  "tokens": 11851478,
+  "output": {
+    "result": "mission landed on third fire; zero open bite-class gaps; GAP-PRIORITY-HOLD released; 26 product missions queued"
+  },
   "children": null,
-  "linkScanOffset": 105939752,
+  "linkScanOffset": 105999139,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -49,6 +51,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-14T16:17:25.922Z",
+  "updatedAt": "2026-07-14T16:27:31.542Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }

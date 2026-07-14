@@ -21,6 +21,11 @@ import { searxngPreflight } from './searxng_preflight.mjs';
 // list_projects round-trip, not a connection/tool-enumeration check -- the Stitch seat sat
 // "Connected" for a MONTH while every real call 403d, because nothing here ever made one.
 import { stitchRoundTripHealthy } from './stitch_dispatch.mjs';
+// SEAT ROUND-TRIPS (gap-seat-health-is-roundtrip, remaining scope): a real 1-token
+// /api/generate per resident local-ollama seat model -- checkOllamaLocal's /api/tags proves
+// the server answers, not that any seat can produce a token. GR10-safe: never loads, never
+// evicts; busy/saturated/not-resident YIELD instead of reading as dead (see seat_roundtrip.mjs).
+import { seatCensus } from './seat_roundtrip.mjs';
 
 const ENV_KEYS = ['OLLAMA_API_KEY', 'OLLAMA_CLOUD_API_KEY', 'GOOGLE_PLACES_API_KEY', 'AIMLAPI_KEY'];   // informational only: the OLLAMA_* keys serve agy/antigravity, not any doctor check
 // OPERATOR RULING 2026-06-26: local models live on nxtbeast only, never the laptop.
@@ -85,6 +90,19 @@ function checkClaudeCLI() {
 async function checkStitch() {
   const r = await stitchRoundTripHealthy();
   return { ok: r.ok, detail: r.ok ? `list_projects round-trip OK (${r.latencyMs}ms, checked ${r.checkedAt})` : `${r.detail} (kind=${r.error?.kind || '?'})` };
+}
+
+// checkSeatRoundTrips -- REAL per-seat round-trips for the local-ollama seat models. WARN-only
+// (crit=false) deliberately, same reasoning as checkStitch: whether a dead seat blocks firing
+// is a conduct-critical/fire-readiness design decision left for the conductor, not smuggled
+// into this patch. Fail-open: yielded seats (not resident / busy / saturated) never flip the
+// row -- only a PROVEN-dead round-trip (ok===false) does.
+async function checkSeatRoundTrips() {
+  const c = await seatCensus();
+  const { seats, healthy, unhealthy, yielded } = c.summary;
+  const dead = c.rows.filter((r) => r.ok === false).map((r) => `${r.model} (${r.error?.kind || '?'})`);
+  const detail = `${healthy} healthy, ${unhealthy} unhealthy, ${yielded} deferred of ${seats} ollama seat models (${c.latencyMs}ms, checked ${c.checkedAt})${dead.length ? ` -- DEAD: ${dead.join(', ')}` : ''}`;
+  return { ok: unhealthy === 0, detail };
 }
 
 function checkGit() {
@@ -250,6 +268,8 @@ checks.localOllama = ollamaLocal;
 checks.claude = claudePing;
 const stitch = await checkStitch();
 checks.stitch = stitch;
+const seatRt = await checkSeatRoundTrips();
+checks.seatRoundTrips = seatRt;
 
 checks.git = checkGit();
 
@@ -290,6 +310,7 @@ renderCheck('Wrangler auth', checks.wrangler);
 renderCheck('Ollama local (nxtbeast)', checks.localOllama, true);
 renderCheck('Claude CLI ping', checks.claude, true);
 renderCheck('Stitch MCP round-trip', checks.stitch);
+renderCheck('Ollama seat round-trips', checks.seatRoundTrips);
 renderCheck('Git health', checks.git);
 for (const g of checks.gov) renderCheck(`Governance ${path.basename(g.file)}`, { ok: g.present, detail: g.present ? 'found' : 'missing' }, true);
 
