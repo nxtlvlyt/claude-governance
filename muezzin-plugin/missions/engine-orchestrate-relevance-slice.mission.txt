@@ -1,0 +1,53 @@
+MISSION-ID: M-ENGINE.ORCHESTRATE-RELEVANCE-SLICE
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\.claude\muezzin-plugin
+ALLOW-FILES:
+  - orchestrate.mjs
+REQUIRES: none
+STEPS: 2
+
+Maqsad: close gap-panel-truncation-false-reject's remaining half (the
+mechanical downgrade half landed earlier this session, commit 7e0a011).
+defaultVerdictPhase fed the verdict panel `full.slice(0, ARTIFACT_CAP)` —
+the first 10,000 characters of each artifact file. Live receipt: a
+398,166-char map.html was judged on ~2.5% of its content and wrongly
+REJECTed. Since Phase-2 commits each step before Phase-3 verdict runs, the
+relevant content for a code-repo mission is the diff the mission itself
+made vs the pre-mission baseline HEAD (already captured as `baselineHead`
+in orchestrate.mjs), not the file's head. This threads baselineHead into
+defaultVerdictPhase and replaces head-only truncation with: prefer the
+mission's own diff (relevance-extracted) -> head+tail of the diff if it
+still exceeds the cap -> head+tail of the file (no baseline / git error /
+unchanged file) — every fallback is strictly better than today's head-only
+cut (both ends of the content visible, never just the first N chars), so
+this cannot regress below current behavior even in the worst case.
+
+niyyah: land the half of this gap that was genuinely unblocked rather than
+leave it as "mechanism landed, root cause still live" — a panel that still
+can't see 97.5% of a large artifact will keep producing false REJECTs
+regardless of how gracefully the downgrade rule handles them afterward.
+
+Steps:
+  1. Run the committed, dry-run-verified patcher exactly: node missions/_logs/orchestrate-relevance-slice-patch.mjs orchestrate.mjs; if ($LASTEXITCODE -ne 0) { exit 1 } [command]
+     validation_command: node --check orchestrate.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; if (-not (Select-String -Path orchestrate.mjs -Pattern 'relevantArtifactSlice' -Quiet)) { exit 1 }
+  2. Selftest, then commit. Run exactly: node orchestrate.mjs 2>&1 | Tee-Object -Variable out; $failCount = ($out | Select-String -Pattern '^FAIL').Count; if ($failCount -ne 0) { Write-Output "SELFTEST-INCOMPLETE fail=$failCount"; exit 1 }; if (-not ($out | Select-String -Pattern 'relevance-slice')) { Write-Output "NEW-CHECK-MISSING"; exit 1 }; git add -- orchestrate.mjs; git diff --cached --quiet; if ($LASTEXITCODE -eq 0) { Write-Output ALREADY_COMMITTED } else { git commit -- orchestrate.mjs -m "feat(engine): relevance-extracted artifact slicing for the verdict panel, closing gap-panel-truncation-false-reject's remaining half (mechanical downgrade landed 7e0a011 earlier this session) -- prefers the mission's own diff vs baseline over head-only truncation (398166-char map.html false-REJECT receipt); every fallback strictly better than today's head-only cut; full selftest ALL PASS incl. 6 new cases, zero regressions" }; if ($LASTEXITCODE -ne 0) { exit 1 } [command]
+
+Done means: defaultVerdictPhase's artifact slicing prefers the mission's
+own diff (baselineHead..HEAD) over a raw file-head cut when a baseline is
+available and the file was actually changed by this mission; falls back to
+head+tail (both ends visible) of the diff or the file otherwise; full
+selftest suite ALL PASS (6 new relevance-slice cases: diff-preferred,
+unchanged-file fallback, no-baseline fallback, git-error fallback,
+under-cap full-file, over-cap diff head+tail); committed with an explicit
+pathspec.
+
+# CONDUCTOR PROVENANCE (2026-07-14): dry-run verified against an LF-faithful
+# Copy-Item scratch copy (orchestrate.mjs confirmed LF via direct byte
+# check, not assumed). Design constraint verified before writing the patch:
+# Phase-2 commits each step BEFORE Phase-3 verdict runs (line ~1485 commits,
+# verdict call at line ~1588), so a live git diff against a captured
+# pre-mission baselineHead (already threaded through orchestrate.mjs,
+# line ~750) is the correct relevance signal — confirmed by reading the
+# actual call order, not assumed. Full orchestrate.mjs selftest (heavy,
+# end-to-end mission simulation) run to completion in background: ALL PASS,
+# all 6 new checks green, zero regressions on the full existing suite.
