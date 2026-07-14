@@ -1,6 +1,6 @@
 {
-  "state": "working",
-  "detail": "camping-pass mission 13m in, clean witnesses; daemons healthy",
+  "state": "done",
+  "detail": "warroom missions: S9/10 spec written, agy 100% pending 6 gate items, N5 harness next lever",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,12 @@
       "session_cron"
     ]
   },
-  "tokens": 12117526,
-  "output": null,
+  "tokens": 12119935,
+  "output": {
+    "result": "warroom at S9/10 (13 evenings build remaining); agy graduation ladder complete but 6 receipt items open (hook plugin, conductor beats, deploy parity); N5 harness is highest-leverage next build"
+  },
   "children": null,
-  "linkScanOffset": 110385121,
+  "linkScanOffset": 110436196,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -40,6 +42,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-14T20:59:29.606Z",
+  "updatedAt": "2026-07-14T21:11:50.093Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
