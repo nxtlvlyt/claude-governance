@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "2 workflows running in parallel: cleanup plan + queue sweep",
+  "detail": "2 workflows running; checking status",
   "tempo": "active",
   "inFlight": {
     "tasks": 3,
@@ -15,171 +15,190 @@
       "id": "ae0ff9840874ac326",
       "kind": "workflow",
       "label": "investigate:mt-integrate-poi-tags-2026-06-23.S2",
-      "group": "Investigate",
       "startedAt": 1784036300230,
-      "doneAt": 1784036431217
+      "doneAt": 1784036431217,
+      "group": "Investigate"
     },
     {
       "id": "adb3e45dd8a6b48f5",
       "kind": "workflow",
       "label": "investigate:mt-mobile-qc-hardening.S1.S2",
-      "group": "Investigate",
       "startedAt": 1784036300237,
-      "doneAt": 1784036420400
+      "doneAt": 1784036420400,
+      "group": "Investigate"
     },
     {
       "id": "a2879af1baa75d005",
       "kind": "workflow",
       "label": "investigate:mt-e2e-reachability.S1",
-      "group": "Investigate",
-      "startedAt": 1784036299756
+      "startedAt": 1784036299756,
+      "doneAt": 1784036462903,
+      "group": "Investigate"
     },
     {
       "id": "a7b755c13d7264e8a",
       "kind": "workflow",
       "label": "investigate:mt-integrate-geocode-2026-06-23.S2",
-      "group": "Investigate",
       "startedAt": 1784036301951,
-      "doneAt": 1784036384118
+      "doneAt": 1784036384118,
+      "group": "Investigate"
     },
     {
       "id": "ab74367ec78a66244",
       "kind": "workflow",
       "label": "investigate:mt-integrate-wikipedia-link-2026-06-23.S1.S2",
-      "group": "Investigate",
       "startedAt": 1784036299630,
-      "doneAt": 1784036418170
+      "doneAt": 1784036418170,
+      "group": "Investigate"
     },
     {
       "id": "a4ab31e5dfa23b7cf",
       "kind": "workflow",
       "label": "investigate:mt-integrate-wikipedia-link-2026-06-23.S2",
-      "group": "Investigate",
-      "startedAt": 1784036292731
+      "startedAt": 1784036292731,
+      "doneAt": 1784036574730,
+      "group": "Investigate"
     },
     {
       "id": "a66424833ed097d7d",
       "kind": "workflow",
       "label": "investigate:mt-integrate-near-me-discovery.S2",
-      "group": "Investigate",
-      "startedAt": 1784036300575
+      "startedAt": 1784036300575,
+      "doneAt": 1784036515412,
+      "group": "Investigate"
     },
     {
       "id": "af36ca1b56bde1d67",
       "kind": "workflow",
       "label": "investigate:mt-integrate-region-heatmap-2026-06-23.S2",
-      "group": "Investigate",
-      "startedAt": 1784036297692
+      "startedAt": 1784036297692,
+      "group": "Investigate"
     },
     {
       "id": "a21f75445e5734025",
       "kind": "workflow",
       "label": "investigate:mt-integrate-wildlife-advisory.S2",
-      "group": "Investigate",
-      "startedAt": 1784036298361
+      "startedAt": 1784036298361,
+      "doneAt": 1784036478392,
+      "group": "Investigate"
     },
     {
       "id": "a6f55e4d1b9f9dad4",
       "kind": "workflow",
       "label": "investigate:mt-integrate-poi-services-nearby.S2",
-      "group": "Investigate",
-      "startedAt": 1784036299763
+      "startedAt": 1784036299763,
+      "doneAt": 1784036482710,
+      "group": "Investigate"
     },
     {
       "id": "aec936f49a4ac229a",
       "kind": "workflow",
       "label": "investigate:mt-integrate-poi-hover-preview-cards.S2",
-      "group": "Investigate",
       "startedAt": 1784036299826,
-      "doneAt": 1784036407304
+      "doneAt": 1784036407304,
+      "group": "Investigate"
     },
     {
       "id": "a43e878406a7f8ee5",
       "kind": "workflow",
       "label": "investigate:mt-integrate-spot-share-card.S2",
-      "group": "Investigate",
       "startedAt": 1784036299770,
-      "doneAt": 1784036425246
+      "doneAt": 1784036425246,
+      "group": "Investigate"
     },
     {
       "id": "af9acee1216c1f0df",
       "kind": "workflow",
       "label": "investigate:mt-integrate-dynamic-favicon-fire-ban.S2",
-      "group": "Investigate",
       "startedAt": 1784036299776,
-      "doneAt": 1784036422528
+      "doneAt": 1784036422528,
+      "group": "Investigate"
     },
     {
       "id": "a4788b167b1494880",
       "kind": "workflow",
       "label": "investigate:mt-integrate-testimonials.S1.S2",
-      "group": "Investigate",
       "startedAt": 1784036304183,
-      "doneAt": 1784036423748
+      "doneAt": 1784036423748,
+      "group": "Investigate"
     },
     {
       "id": "a8ee44627c2fad0e6",
       "kind": "workflow",
       "label": "investigate:mt-integrate-testimonials.S2",
-      "group": "Investigate",
-      "startedAt": 1784036298298
+      "startedAt": 1784036298298,
+      "doneAt": 1784036531399,
+      "group": "Investigate"
     },
     {
       "id": "add68a01b9a8f5823",
       "kind": "workflow",
       "label": "investigate:mt-integrate-partner-embed-iframe-verification.S2",
-      "group": "Investigate",
       "startedAt": 1784036301271,
-      "doneAt": 1784036426653
+      "doneAt": 1784036426653,
+      "group": "Investigate"
     },
     {
       "id": "a50f57d796ded1112",
       "kind": "workflow",
       "label": "investigate:mt-integrate-partner-widget.S2",
-      "group": "Investigate",
-      "startedAt": 1784036398754
+      "startedAt": 1784036398754,
+      "doneAt": 1784036532958,
+      "group": "Investigate"
     },
     {
       "id": "ade5ab2f9a6d60f1c",
       "kind": "workflow",
       "label": "investigate:mt-integrate-lighthouse-ci.S2",
-      "group": "Investigate",
-      "startedAt": 1784036427409
+      "startedAt": 1784036427409,
+      "doneAt": 1784036567000,
+      "group": "Investigate"
     },
     {
-      "id": "wdpzkbncb:19",
+      "id": "a6bb44ac32b7f4859",
       "kind": "workflow",
       "label": "investigate:mt-integrate-lighthouse-fix1-extensionless-verification-docs.S2",
-      "group": "Investigate",
-      "startedAt": 1784036288674
+      "startedAt": 1784036439084,
+      "doneAt": 1784036543306,
+      "group": "Investigate"
     },
     {
-      "id": "wdpzkbncb:20",
+      "id": "afe67004d4520ea63",
       "kind": "workflow",
       "label": "investigate:mt-integrate-contributor-leaderboard.S2.S2",
-      "group": "Investigate",
-      "startedAt": 1784036288675
+      "startedAt": 1784036435436,
+      "doneAt": 1784036618376,
+      "group": "Investigate"
     },
     {
-      "id": "wdpzkbncb:21",
+      "id": "afa602f9b9326fb13",
       "kind": "workflow",
       "label": "investigate:mt-copy-clarity.S1.S2",
-      "group": "Investigate",
-      "startedAt": 1784036288675
+      "startedAt": 1784036433814,
+      "group": "Investigate"
     },
     {
-      "id": "wdpzkbncb:22",
+      "id": "afea5f94fff9f0289",
       "kind": "workflow",
       "label": "investigate:mt-feedback-capture.S1.S2",
-      "group": "Investigate",
-      "startedAt": 1784036288676
+      "startedAt": 1784036435298,
+      "doneAt": 1784036545003,
+      "group": "Investigate"
     },
     {
       "id": "a742602ac8e9ab555",
       "kind": "workflow",
       "label": "inventory",
-      "group": "Analyze",
-      "startedAt": 1784036429782
+      "startedAt": 1784036429782,
+      "doneAt": 1784036587656,
+      "group": "Analyze"
+    },
+    {
+      "id": "ac3266115705d8145",
+      "kind": "workflow",
+      "label": "plan",
+      "startedAt": 1784036604758,
+      "group": "Plan"
     },
     {
       "id": "todo:1",
@@ -235,10 +254,10 @@
       "doneAt": 0
     }
   ],
-  "tokens": 11594500,
+  "tokens": 11659537,
   "output": null,
   "children": null,
-  "linkScanOffset": 103851755,
+  "linkScanOffset": 103871906,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -266,6 +285,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-14T13:40:31.947Z",
+  "updatedAt": "2026-07-14T13:44:16.617Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
