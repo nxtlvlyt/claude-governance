@@ -15,6 +15,12 @@ PARENT MAQSAD: sub-mission 1 of 2 — Record the current branch and latest commi
 Maqsad: sub-mission 2 of 2 — Real render witness in one self-contained command: confirm clean allow-file tree, deploy the current tree via wrangler pages preview, capture the emitted *.pages.dev URL, write a scratch Playwright script asserting /map.html loads with no fatal error and no near-me.js console error and the near-me.js tag is present, run it, clean up, and propagate its exit code. through Real render witness in one self-contained command: confirm clean allow-file tree, deploy the current tree via wrangler pages preview, capture the emitted *.pages.dev URL, write a scratch Playwright script asserting /map.html loads with no fatal error and no near-me.js console error and the near-me.js tag is present, run it, clean up, and propagate its exit code.
 
 Steps:
-  9. Real render witness in one self-contained command: confirm clean allow-file tree, deploy the current tree via wrangler pages preview, capture the emitted *.pages.dev URL, write a scratch Playwright script asserting /map.html loads with no fatal error and no near-me.js console error and the near-me.js tag is present, run it, clean up, and propagate its exit code. [command] 
+  9. Real render witness in one self-contained command (LITERAL — carried after the
+     attempt-1 ParserError receipt: the prose-only step made the seat improvise broken
+     PowerShell, the receipted mt-addspot class; NOTE waitUntil 'load' not 'networkidle'
+     — map.html has continuous tile traffic and never goes network-quiet from this
+     machine, QUEUE ITEM 24 receipts). Run exactly: $deployOutput = wrangler pages deploy . --project-name=muddytires --branch=preview 2>&1 | Out-String; if ($LASTEXITCODE -ne 0) { Write-Output $deployOutput; exit 1 }; $m = [regex]::Match($deployOutput, 'https://[a-zA-Z0-9.-]+\.pages\.dev'); if (-not $m.Success) { Write-Output NO-DEPLOY-URL; exit 1 }; $url = $m.Value; Set-Content -Path scratch-nearme-qc.mjs -Value "import { chromium } from 'playwright'; const browser = await chromium.launch(); const page = await browser.newPage(); let fatal = false; page.on('pageerror', () => { fatal = true; }); page.on('console', (msg) => { if (msg.type() === 'error' && /near-me/i.test(msg.text())) { fatal = true; } }); await page.goto('$url/map.html', { waitUntil: 'load', timeout: 45000 }); const tag = await page.evaluate(() => !!document.querySelector('script[src*=near-me]')); await browser.close(); process.exit((fatal || !tag) ? 1 : 0);"; node scratch-nearme-qc.mjs; $rc = $LASTEXITCODE; Remove-Item scratch-nearme-qc.mjs -ErrorAction SilentlyContinue; exit $rc [command]
 
-Done means:  exist/are updated as specified
+Done means: the preview deploy witness ran and exited 0 — /map.html rendered with no
+fatal page error, no console error naming near-me, and the near-me.js script tag
+present in the served page.

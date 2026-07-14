@@ -1,18 +1,18 @@
 {
   "state": "working",
-  "detail": "preview live + passing; prod deploy gated on e2e fix (QUEUE ITEM 24)",
+  "detail": "mission FAILED diagnosed; mt-addspot parser error fixed, re-queued",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
-    "queued": 0,
+    "queued": 1,
     "kinds": [
       "session_cron"
     ]
   },
-  "tokens": 12325685,
+  "tokens": 12333613,
   "output": null,
   "children": null,
-  "linkScanOffset": 112898141,
+  "linkScanOffset": 113070267,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -40,6 +40,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-14T23:34:13.921Z",
+  "updatedAt": "2026-07-14T23:48:05.334Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
