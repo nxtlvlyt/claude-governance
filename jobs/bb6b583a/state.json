@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "API preview verified (1-feature Polygon FeatureCollection); armed for commit on material change",
+  "detail": "e2e retry running against preview; guards block deploy pending result",
   "tempo": "idle",
   "inFlight": {
     "tasks": 2,
@@ -12,16 +12,16 @@
   },
   "fan": [
     {
-      "id": "b86on5491",
+      "id": "bqohmu17c",
       "kind": "shell",
-      "label": "cd \"/c/Users/marka/code/mt-integration-2026-06-22\" && node \"/c/Users/marka/.claude/jobs/bb6b583a/tmp/pluz-wire-witness.mjs\" \"https://7a178562.muddytires.pages.dev\"",
-      "startedAt": 1784070761341
+      "label": "cd \"/c/Users/marka/code/mt-integration-2026-06-22\" && node scripts/e2e-runner.mjs --target https://7a178562.muddytires.pages.dev --out docs/e2e-report-preview-pluz-retry.json > \"/c/Users/marka/.claud…",
+      "startedAt": 1784071697020
     }
   ],
-  "tokens": 12312169,
+  "tokens": 12318471,
   "output": null,
   "children": null,
-  "linkScanOffset": 112695643,
+  "linkScanOffset": 112799191,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -49,6 +49,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-14T23:15:31.952Z",
+  "updatedAt": "2026-07-14T23:28:30.154Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
