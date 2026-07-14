@@ -1,6 +1,6 @@
 {
   "state": "blocked",
-  "detail": "task #7 resolved; awaiting your settings change for #2–#4",
+  "detail": "awaiting explicit self-certification confirmation to proceed with commits",
   "tempo": "blocked",
   "inFlight": {
     "tasks": 1,
@@ -50,13 +50,11 @@
       "doneAt": 0
     }
   ],
-  "tokens": 11479370,
-  "needs": "apply your settings change to unblock #1–#4",
-  "output": {
-    "result": "tasks #6–#7 complete: #6 record corrected, #7 cherry-pick conflict fixed and requeued"
-  },
+  "tokens": 11480475,
+  "needs": "reply with explicit confirmation that self-certification concern is dismissed (e.g., 'Yes — the self-certification concern is a false positive here, the fixes are verified, commit them')",
+  "output": null,
   "children": null,
-  "linkScanOffset": 102221550,
+  "linkScanOffset": 102246609,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -84,6 +82,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-14T12:03:43.691Z",
+  "updatedAt": "2026-07-14T12:04:55.801Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
