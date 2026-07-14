@@ -3012,3 +3012,31 @@ prep agent designs exact anchors read-only first):
 DONE WHEN: a spot inside the pass corridor renders PASS REQUIRED with the pass
 guidance on the live map; outside spots and fetch-failures still render UNVERIFIED;
 duplicate layer entry gone; commits pushed with flags-first pathspec.
+
+ITEM 24 — E2E OVERLAP DETECTOR: networkidle WAIT UNFIT FOR map.html (filed 2026-07-14
+~23:3xZ; BLOCKS the camping-pass production deploy — ITEM 23's work is committed
+283e836, pushed, preview-witnessed functionally, but the deploys ruling holds
+production while any guard is red).
+RECEIPTS (three consistent, same signature): overlap sweep DETECTOR_ERROR
+"page.goto: Timeout 30000ms exceeded ... networkidle" with controls=0 pairs=0
+violations=1 on (a) production baseline mobile, (b) preview 7a178562 mobile,
+(c) preview retry desktop — identical on unchanged production, so NOT a change
+regression; map.html has continuous tile/API traffic and may never reach networkidle
+over the van Starlink. e2e-runner.mjs line 427 (goto networkidle 30s) is the unfit
+wait; line 687 exits 2 on overlapFail, which reds the suite regardless of the 10
+advisory concerns (block=0 error=0 both runs).
+FIX SHAPE (careful — this LOOSENS a gate, so per drift-and-ratchet it needs narrow
+scope + adversarial verification before landing): replace the overlap sweep's
+networkidle wait with load/domcontentloaded + waitForSelector of the map container +
+short settle, preserving the detector's intent (page rendered, controls measurable);
+regression evidence must show the detector still CATCHES a real overlap (synthetic
+fixture) and no longer times out on map.html. Verify pass: adversarial agent tries to
+show the new wait can pass on a broken page; only lands if it fails to.
+THEN: re-run the guard chain (e2e exit 0, deploy_gate render verification vs
+production URL, --record-deploy marker) and ship the camping-pass production deploy
+per the standing conductor-called ruling.
+INTERIM: the operator can see the working feature NOW at
+https://preview.muddytires.pages.dev/map.html (or the pinned
+https://7a178562.muddytires.pages.dev/map.html) — tap a campsite popup inside the
+Eastern Slopes corridor; PASS REQUIRED renders in #b0203a with albertarelm.com
+guidance; outside spots keep UNVERIFIED.

@@ -1,27 +1,18 @@
 {
   "state": "working",
-  "detail": "mt queue unstuck (witness flag ack'd); e2e retry running",
+  "detail": "preview live + passing; prod deploy gated on e2e fix (QUEUE ITEM 24)",
   "tempo": "idle",
   "inFlight": {
-    "tasks": 2,
+    "tasks": 1,
     "queued": 0,
     "kinds": [
-      "local_bash",
       "session_cron"
     ]
   },
-  "fan": [
-    {
-      "id": "bqohmu17c",
-      "kind": "shell",
-      "label": "cd \"/c/Users/marka/code/mt-integration-2026-06-22\" && node scripts/e2e-runner.mjs --target https://7a178562.muddytires.pages.dev --out docs/e2e-report-preview-pluz-retry.json > \"/c/Users/marka/.claud…",
-      "startedAt": 1784071697020
-    }
-  ],
-  "tokens": 12321847,
+  "tokens": 12325685,
   "output": null,
   "children": null,
-  "linkScanOffset": 112861921,
+  "linkScanOffset": 112898141,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -49,6 +40,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-14T23:31:33.582Z",
+  "updatedAt": "2026-07-14T23:34:13.921Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
