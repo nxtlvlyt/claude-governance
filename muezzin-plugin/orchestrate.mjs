@@ -276,23 +276,53 @@ export function unreachableBrowserAssets(cwd, files) {
   return assets.filter((a) => !html.includes(a.split('/').pop()));
 }
 
+// RELEVANCE-EXTRACTED ARTIFACT SLICE (gap-panel-truncation-false-reject, QUEUE ITEM 15):
+// head-only truncation fed the panel the first ARTIFACT_CAP chars of a file, so a large
+// artifact (receipt: a 398,166-char map.html sliced to 10,000) was judged on ~2.5% of its
+// content and wrongly REJECTed. Phase-2 commits each step BEFORE Phase-3 verdict runs, so
+// the RELEVANT content for a code-repo mission is the diff the mission itself made vs the
+// pre-mission baseline HEAD -- not the file head. Prefer that diff; fall back to head+tail
+// (opening AND closing structure visible, unlike head-only); fall back again to the file
+// head+tail on any git error or missing baseline. gitFn injectable for offline selftests.
+export function relevantArtifactSlice(cwd, f, full, cap, baselineHead, gitFn) {
+  const headTail = (s, kind) => {
+    if (s.length <= cap) return { text: s, mode: kind === 'diff' ? 'diff' : 'full' };
+    const head = Math.floor(cap * 0.6), tail = cap - head;
+    const note = kind === 'diff' ? `diff ${s.length - cap} chars omitted` : `${s.length - cap} chars omitted — file on disk is complete`;
+    return { text: `${s.slice(0, head)}\n…[${note}]…\n${s.slice(-tail)}`, mode: kind === 'diff' ? 'diff-head+tail' : 'head+tail' };
+  };
+  if (!baselineHead) return headTail(full, 'file');
+  try {
+    const run = gitFn || ((args) => execSync(`git -C "${cwd}" ${args}`, { stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 16 * 1024 * 1024 }).toString());
+    const diff = String(run(`diff ${baselineHead}..HEAD -- "${f}"`) || '');
+    if (diff.trim()) return headTail(diff, 'diff');   // the mission changed this file -> show the change
+    return headTail(full, 'file');                    // unchanged by this mission (e.g. a read-only context file)
+  } catch {
+    return headTail(full, 'file');                    // git error -> never worse than head-only
+  }
+}
+
 export async function defaultVerdictPhase(mission, cwd, steps, opts = {}) {
   // VISUAL WITNESS (advisory only — NOT a Phase-3 voting seat; see visual_witness.mjs's own
   // pending-sign-off note on MUEZZIN-SEAT-PLAN-LOCKED.md. Gated behind BOTH a VISUAL-QC-REQUIRED
   // header and a PREVIEW-BASE-URL: <url> header; injectable via opts for offline self-tests so
   // no real puppeteer/Ollama call ever fires in a selftest. Never mutates merged.consensus.
+  const baselineHead = opts.baselineHead || null;
   const files = artifactFilesFor(steps, cwd);
   let total = 0, omitted = 0;
   const artifacts = files.map((f) => {
     const full = readMaybe(cwd, f);
-    const body = full.slice(0, ARTIFACT_CAP);
+    // RELEVANCE-EXTRACTED SLICE (gap-panel-truncation-false-reject, QUEUE ITEM 15): prefer the
+    // diff THIS mission made vs the pre-mission baseline over the file head — head-only slicing
+    // judged a 398,166-char map.html on its first 10,000 chars and wrongly REJECTed. Fail-soft.
+    const sliced = relevantArtifactSlice(cwd, f, full, ARTIFACT_CAP, baselineHead);
+    const body = sliced.text;
     total += body.length;
     if (total > ARTIFACT_TOTAL_CAP) { omitted++; return `--- ARTIFACT ${f} (omitted: total cap) ---`; }
-    // SLICE MARKER (card-merge 10:57 receipt: a complete 16,954-byte artifact was
-    // silently sliced at the cap; the panel saw a mid-word cut and honestly flagged
-    // "Content Truncation at Arafat" — the contract must own its own truncation).
-    const sliceNote = full.length > body.length
-      ? ` (CONTRACT SLICE: first ${body.length} of ${full.length} chars — the FILE ON DISK IS COMPLETE and passed its validation command; the cut below is the contract's, NOT the artifact's; never flag truncation at or beyond it)`
+    const sliceNote =
+      sliced.mode === 'diff' ? ` (RELEVANCE SLICE — the ${body.length}-char DIFF this mission made to ${f} vs baseline ${String(baselineHead).slice(0, 8)}; the FILE ON DISK IS COMPLETE and passed its validation command; judge the CHANGE, never flag file-level truncation)`
+      : sliced.mode === 'diff-head+tail' ? ` (RELEVANCE SLICE, head+tail — this mission's diff to ${f} exceeded ${ARTIFACT_CAP} chars; opening and closing of the diff shown, middle omitted; the file on disk is complete)`
+      : sliced.mode === 'head+tail' ? ` (CONTRACT SLICE, head+tail — first and last of ${full.length} chars; the FILE ON DISK IS COMPLETE and passed its validation command; the cut is the contract's, NOT the artifact's; never flag truncation)`
       : '';
     return `--- ARTIFACT ${f}${sliceNote} ---\n${body}\n--- END ${f} ---`;
   }).join('\n\n');
@@ -1585,7 +1615,7 @@ export async function orchestrate(mission, cwd, {
   let verdict;
   try {
     // code-repo: the artifacts the panel judges live in the REAL repo (writeRoot).
-    verdict = await verdictFn(mission, writeRoot, steps);
+    verdict = await verdictFn(mission, writeRoot, steps, { baselineHead });
   } catch (e) {
     // fail SAFE: a crashed verdict phase is not an APPROVE (absence is not agreement)
     emit({ phase: 'verdict', event: 'threw', error: String(e?.message || e).slice(0, 150) });
@@ -1658,6 +1688,29 @@ if (process.argv[1]?.endsWith('orchestrate.mjs')) {
   ck(hasConflictMarkers('<!doctype html><html><body><div id="map"></div></body></html>') === false, 'CONFLICT-GATE: clean HTML -> not flagged');
   ck(hasConflictMarkers('# Heading\n=======\nsome body text\n') === false, 'CONFLICT-GATE: markdown `=======` underline (no `<<<<<<< ` opener) -> NOT a false positive');
   ck(hasConflictMarkers('') === false && hasConflictMarkers(null) === false, 'CONFLICT-GATE: empty/null -> false (never throws)');
+
+  // RELEVANCE-EXTRACTED ARTIFACT SLICE (gap-panel-truncation-false-reject, QUEUE ITEM 15)
+  {
+    const bigFile = "x".repeat(50000);   // far over ARTIFACT_CAP (10000)
+    const fakeDiff = "diff --git a/f.mjs b/f.mjs\n@@ -1,3 +1,4 @@\n+the one line this mission changed\n context\n";
+    const gitDiff = () => fakeDiff;
+    const rDiff = relevantArtifactSlice("/r", "f.mjs", bigFile, 10000, "abc1234", gitDiff);
+    ck(rDiff.mode === 'diff' && rDiff.text === fakeDiff, 'relevance-slice: a mission that CHANGED the file -> the panel sees the DIFF, not the 50k-char file head');
+    const gitEmpty = () => "";
+    const rUnchanged = relevantArtifactSlice("/r", "f.mjs", bigFile, 10000, "abc1234", gitEmpty);
+    ck(rUnchanged.mode === 'head+tail' && rUnchanged.text.includes('chars omitted') && rUnchanged.text.startsWith('xxxx'), 'relevance-slice: a file the mission did NOT change (empty diff) -> head+tail of the file, both ends visible');
+    const rNoBaseline = relevantArtifactSlice("/r", "f.mjs", bigFile, 10000, null, gitDiff);
+    ck(rNoBaseline.mode === 'head+tail', 'relevance-slice: NO baseline -> head+tail fallback (never calls git)');
+    const gitThrow = () => { throw new Error("git boom"); };
+    const rErr = relevantArtifactSlice("/r", "f.mjs", bigFile, 10000, "abc1234", gitThrow);
+    ck(rErr.mode === 'head+tail' && rErr.text.length < bigFile.length, 'relevance-slice: git ERROR -> head+tail fallback, never throws, never worse than head-only');
+    const small = "tiny complete file";
+    const rSmall = relevantArtifactSlice("/r", "f.mjs", small, 10000, null, gitDiff);
+    ck(rSmall.mode === 'full' && rSmall.text === small, 'relevance-slice: a file under cap is shown in full (no slicing)');
+    const hugeDiff = "d".repeat(50000);
+    const rHugeDiff = relevantArtifactSlice("/r", "f.mjs", bigFile, 10000, "abc1234", () => hugeDiff);
+    ck(rHugeDiff.mode === 'diff-head+tail' && rHugeDiff.text.includes('diff') && rHugeDiff.text.length < hugeDiff.length, 'relevance-slice: a diff OVER cap -> head+tail of the DIFF (still the change, not the file head)');
+  }
 
   // STRUCTURAL FALSE-BLOCK REGRESSION (2026-06-16): a command/verify step that the engine ran
   // (ok + engineExec, no commit sha) MUST yield a witnessed receipt — else the deeds-not-claims
