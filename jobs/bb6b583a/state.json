@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "conductor duty: monitoring session state across context",
+  "detail": "waiting on STATUS CRON; reviewing session state",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 11399025,
+  "tokens": 11399194,
   "output": null,
   "children": null,
-  "linkScanOffset": 100652057,
+  "linkScanOffset": 100671276,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -40,6 +40,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-14T10:29:14.606Z",
+  "updatedAt": "2026-07-14T10:44:17.998Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
