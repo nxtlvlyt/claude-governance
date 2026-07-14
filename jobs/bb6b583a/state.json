@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "prep workflow running; will apply through gates and close seat-health",
+  "detail": "daemons healthy; seat-health workflow running",
   "tempo": "active",
   "inFlight": {
     "tasks": 2,
@@ -16,13 +16,30 @@
       "kind": "workflow",
       "label": "study",
       "group": "Study",
-      "startedAt": 1784042144725
+      "startedAt": 1784042144725,
+      "doneAt": 1784042443029
+    },
+    {
+      "id": "ac26b067082dcee4b",
+      "kind": "workflow",
+      "label": "draft",
+      "group": "Draft",
+      "startedAt": 1784042450455,
+      "doneAt": 1784042808363
+    },
+    {
+      "id": "aa3c578c412501108",
+      "kind": "workflow",
+      "label": "verify",
+      "group": "Verify",
+      "startedAt": 1784042814876,
+      "doneAt": 1784042966512
     }
   ],
-  "tokens": 11757471,
+  "tokens": 11808553,
   "output": null,
   "children": null,
-  "linkScanOffset": 105208458,
+  "linkScanOffset": 105226719,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -50,6 +67,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-14T15:16:00.730Z",
+  "updatedAt": "2026-07-14T15:29:27.541Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
