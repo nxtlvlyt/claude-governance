@@ -251,7 +251,13 @@ export function lintMission(text) {
   // legitimately and is a different class entirely.
   const isCodeRepoClass = /MISSION-CLASS:\s*code-repo/i.test(t);
   const bareCommit = isCodeRepoClass && /\bgit\s+commit\s+-m\b/i.test(t);
-  const scopedCommit = /\bgit\s+commit\s+--\s+\S/i.test(t);
+  // ORDERING FIX (gap-mission-lint-rule15-wrong-pathspec-order, 2026-07-14): accept a
+  // standalone ` -- <pathspec>` ANYWHERE on the git-commit line, not only immediately after
+  // `commit`. The flags-then-pathspec ordering (`git commit -m "..." -- <files>`) is the
+  // syntactically CORRECT one (`--` ends option parsing; putting it before -m swallows the
+  // message as a pathspec -- reproduced live twice this session). `\s--\s+\S` requires
+  // whitespace after the double-dash, so `--no-verify`-class flags never match.
+  const scopedCommit = /\bgit\s+commit\b[^\n]*\s--\s+\S/i.test(t);
   if (bareCommit && !scopedCommit) {
     add('bare-commit-no-pathspec', 'mission runs `git commit -m ...` with NO pathspec on the commit itself -- a bare commit commits the WHOLE INDEX, not just what this mission\'s own `git add` staged (confirmed live: commit 7e0a011 silently absorbed an unrelated, already-staged change from a different interrupted mission this exact way). Scope the commit explicitly: `git commit -- <the mission\'s own ALLOW-FILES> -m "..."` so only this mission\'s own declared files ever land in the commit, regardless of what else happens to be staged.');
   }
@@ -444,6 +450,8 @@ if (process.argv[1] && process.argv[1].endsWith('mission_lint.mjs')) {
   ck(!lintMission(bareCommitCodeRepo).ok && lintMission(bareCommitCodeRepo).problems.some((p) => p.rule === 'bare-commit-no-pathspec'), 'RULE 15: a code-repo mission with a BARE `git commit -m` (no pathspec) is REFUSED (the exact commit-7e0a011 failure shape)');
   const scopedCommitCodeRepo = 'MISSION-CLASS: code-repo\nREPO-ROOT: C:\\proj\\x\nALLOW-FILES:\n  - a.mjs\nMaqsad: fix a. Done means: node -c passes.\n```pwsh\ngit add -- a.mjs\ngit commit -- a.mjs -m "fix a"\n```';
   ck(lintMission(scopedCommitCodeRepo).ok, 'RULE 15: a code-repo mission with an EXPLICITLY SCOPED `git commit -- <files> -m` passes — the fix this rule asks for');
+  const scopedCommitFlagsFirst = 'MISSION-CLASS: code-repo\nREPO-ROOT: C:\\proj\\x\nALLOW-FILES:\n  - a.mjs\nMaqsad: fix a. Done means: node -c passes.\n```pwsh\ngit add -- a.mjs\ngit commit -m "fix a" -- a.mjs\n```';
+  ck(lintMission(scopedCommitFlagsFirst).ok, 'RULE 15: the flags-then-pathspec ordering (git commit -m "..." -- <files>) — the syntactically CORRECT one — also passes (gap-mission-lint-rule15-wrong-pathspec-order)');
   ck(lintMission(deployWithCommit).ok, 'RULE 15: an ops-deploy mission with a bare commit is UNAFFECTED — the rule is scoped to code-repo\'s git_steps.mjs sandbox risk model, not a blanket ban on bare commits everywhere');
   const noCommitCodeRepo = 'MISSION-CLASS: code-repo\nREPO-ROOT: C:\\proj\\x\nALLOW-FILES:\n  - a.mjs\nMaqsad: check a. Done means: node -c passes.\n```pwsh\nnode -c a.mjs\n```';
   ck(lintMission(noCommitCodeRepo).ok, 'RULE 15: a code-repo mission with NO commit step at all is unaffected — the rule only fires on a bare commit, never on the absence of one');
