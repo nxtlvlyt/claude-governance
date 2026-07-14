@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "visreg run 2 ~8min in; near-me S1 done; queue draining",
+  "detail": "both product features shipped (near-me + visreg); manifest fix queued",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 12097619,
+  "tokens": 12100007,
   "output": null,
   "children": null,
-  "linkScanOffset": 109262288,
+  "linkScanOffset": 109312868,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -40,6 +40,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-14T19:59:41.417Z",
+  "updatedAt": "2026-07-14T20:16:12.046Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
