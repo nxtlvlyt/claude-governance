@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "diagnosing mt-integrate-rss-new-spots-2026-06-23.S1 failure #2",
+  "detail": "diagnosing mt-integrate-rss-new-spots-2026-06-23.S1; agent job running",
   "tempo": "active",
   "inFlight": {
     "tasks": 2,
@@ -18,10 +18,10 @@
       "startedAt": 1784005182273
     }
   ],
-  "tokens": 11321671,
+  "tokens": 11326525,
   "output": null,
   "children": null,
-  "linkScanOffset": 99756892,
+  "linkScanOffset": 99780262,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -49,6 +49,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-14T04:59:47.591Z",
+  "updatedAt": "2026-07-14T05:00:38.886Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
