@@ -2962,3 +2962,27 @@ STATUS: RULE 15 itself is not yet committed to mission_lint.mjs (same class as
 git_steps.mjs/orchestrate.mjs this session — likely not loaded by the live daemon
 process either), so nothing is being live-blocked by this yet. Not urgent, but will
 misfire on every correctly-written mission commit the moment RULE 15 lands as-is.
+
+## 2026-07-14 ITEM 31 — SIZE CEILING IS BLIND TO ACTION TYPE (unpark owner for
+gap-size-ceiling-blind-to-action-type)
+
+deconstructor.mjs's size-ceiling check (~line 224): the `implTargets.length > 1` branch
+fires on ANY action type. Its own comment scopes the rule to authoring capacity ("a
+micro-action touches AT MOST ONE implementation file") — correct for edit steps, wrong
+for engine-executed command/verify steps whose target_files are git-commit PATHSPECS or
+read-only witnesses. A scoped `git commit -- a b c` of three already-authored files is
+the RULE-15-mandated correct shape, yet the ceiling refuses it whenever the planner
+happens to list the files as targets (planner variance: near-me S1.S1's attempt-1 plan
+passed, attempt-2 plan refused, identical mission text).
+
+LIVE RECEIPT: mt-integrate-near-me-discovery.S1.S1 FAILED(plan) 2026-07-14T18:02 —
+"step 7: size ceiling — at most 1 implementation file per micro-action (found 3:
+map.html, functions/api/spots/near.js, js/near-me.js)". Exposure: every integrate
+mission committing a map.html + js + functions triple (dozens queued).
+
+FIX SHAPE (careful — this LOOSENS a gate, so the fix must be narrow + adversarially
+verified per the drift-and-ratchet bypass lesson): exempt ONLY command/verify steps
+from the >1 branch; keep edit steps strictly capped at 1; regression selftest proves
+(a) a command step committing 3 files passes, (b) an edit step authoring 3 still
+fails, (c) an edit step disguised with a command tag but no literal command still
+fails (no bypass surface). Owner: prep workflow launched 2026-07-14 + engine mission.
