@@ -1,6 +1,6 @@
 {
   "state": "done",
-  "detail": "agy-100% audit: 2/6 items done, mission queued for (d)",
+  "detail": "knowledge-base retention pipeline + BC camping rules (no pass needed)",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,12 +9,12 @@
       "session_cron"
     ]
   },
-  "tokens": 12148048,
+  "tokens": 12152346,
   "output": {
-    "result": "agy-100% gate audit complete: atv production witness queued; (a) hook slices, (e) deploy parity, (b) beat scheduling next; (c) requires time accumulation"
+    "result": "agy → engine gates/standing specs/playbooks (automatic); BC: no equiv pass, 14-day limit per spot, 72h reset, small fires only"
   },
   "children": null,
-  "linkScanOffset": 110683959,
+  "linkScanOffset": 110780369,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -42,6 +42,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-14T21:20:02.280Z",
+  "updatedAt": "2026-07-14T21:23:26.618Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
