@@ -1,18 +1,27 @@
 {
   "state": "working",
-  "detail": "monitoring queue; no changes since last cycle",
-  "tempo": "idle",
+  "detail": "diagnosing mt-integrate-rss-new-spots-2026-06-23.S1 failure #2",
+  "tempo": "active",
   "inFlight": {
-    "tasks": 1,
+    "tasks": 2,
     "queued": 0,
     "kinds": [
+      "local_agent",
       "session_cron"
     ]
   },
-  "tokens": 11318617,
+  "fan": [
+    {
+      "id": "a488a5e1aa78ab7f6",
+      "kind": "agent",
+      "label": "Diagnose mt-integrate-rss-new-spots second failure",
+      "startedAt": 1784005182273
+    }
+  ],
+  "tokens": 11321671,
   "output": null,
   "children": null,
-  "linkScanOffset": 99721155,
+  "linkScanOffset": 99756892,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -40,6 +49,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-14T04:44:21.723Z",
+  "updatedAt": "2026-07-14T04:59:47.591Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
