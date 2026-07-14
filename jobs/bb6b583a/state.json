@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "witnessRefireHold caught live defect in autosplit; gap filed, fix prep running",
+  "detail": "daemons healthy; hold working correctly; deconstructor-fix workflow running",
   "tempo": "active",
   "inFlight": {
     "tasks": 2,
@@ -15,14 +15,22 @@
       "id": "aaed6e4cca1d11e34",
       "kind": "workflow",
       "label": "study",
-      "group": "Study",
-      "startedAt": 1784047758243
+      "startedAt": 1784047758243,
+      "doneAt": 1784047960530,
+      "group": "Study"
+    },
+    {
+      "id": "aeb6dd14b74cc076e",
+      "kind": "workflow",
+      "label": "draft",
+      "startedAt": 1784047963261,
+      "group": "Draft"
     }
   ],
-  "tokens": 11864905,
+  "tokens": 11894766,
   "output": null,
   "children": null,
-  "linkScanOffset": 106196313,
+  "linkScanOffset": 106251179,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -50,6 +58,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-14T16:49:31.899Z",
+  "updatedAt": "2026-07-14T17:01:17.411Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
