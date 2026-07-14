@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "Alberta permit map feature queued; daemon refresh in progress",
+  "detail": "camping-pass mission running (started 20:45); monitoring outcome",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 12116036,
+  "tokens": 12116375,
   "output": null,
   "children": null,
-  "linkScanOffset": 110291163,
+  "linkScanOffset": 110308951,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -40,6 +40,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-14T20:45:42.198Z",
+  "updatedAt": "2026-07-14T20:46:46.341Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
