@@ -1,27 +1,19 @@
 {
-  "state": "working",
-  "detail": "Agent dispatch running: verify no-material cron silence compliance",
-  "tempo": "active",
+  "state": "blocked",
+  "detail": "payload gate unsatisfiable: no foreign-frontier dispatch tool connected",
+  "tempo": "blocked",
   "inFlight": {
-    "tasks": 2,
+    "tasks": 1,
     "queued": 0,
     "kinds": [
-      "local_agent",
       "session_cron"
     ]
   },
-  "fan": [
-    {
-      "id": "a8535c9fb137603c3",
-      "kind": "agent",
-      "label": "Independent check on stop-language framing",
-      "startedAt": 1784002739944
-    }
-  ],
-  "tokens": 11282231,
+  "tokens": 11291846,
+  "needs": "clarify hook requirement or connect dispatch tool (mcp__ollama-*, gemini, gpt, grok, glm)",
   "output": null,
   "children": null,
-  "linkScanOffset": 99443291,
+  "linkScanOffset": 99508449,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -49,6 +41,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-14T04:19:24.064Z",
+  "updatedAt": "2026-07-14T04:20:54.263Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
