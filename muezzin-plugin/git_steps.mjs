@@ -17,6 +17,26 @@ import path from "node:path";
 // GIT_TERMINAL_PROMPT=0 makes git fail fast instead of hanging on a credential/auth prompt. Without these,
 // commitStep — which runs on every passing step of every mission — could still freeze an autonomous run.
 const GIT_TIMEOUT_MS = 60000;
+
+// ENV LEAKAGE FIX (root-caused 2026-07-14, live receipt: this file's OWN pre-commit hook
+// invokes `node git_steps.mjs`, which runs this module's selftest -- a sandbox-heavy suite
+// that spawns MANY of its own nested `git` calls. git sets GIT_DIR/GIT_INDEX_FILE/
+// GIT_WORK_TREE for every hook subprocess it invokes; without stripping them, every nested
+// git call this module makes (production code via gitOpts, AND the selftest's own raw
+// execSync git calls that pass no env at all) silently resolves against the OUTER repo's
+// index/dir instead of the intended cwd/sandbox path -- reproduced directly: running this
+// selftest with those three vars set to the real repo's values turns a clean ALL-PASS run
+// into dozens of FAILs (commitStep, rollbackStep, assertRepoRoot, containment checks, all
+// broken the same way). Stripped process-wide at module load since every git call this
+// module makes must resolve repo context from an explicit path argument, never from
+// ambient environment -- there is no legitimate case where inheriting the caller's git
+// context is correct for a module whose whole job is operating on OTHER repos/sandboxes.
+delete process.env.GIT_DIR;
+delete process.env.GIT_INDEX_FILE;
+delete process.env.GIT_WORK_TREE;
+delete process.env.GIT_OBJECT_DIRECTORY;
+delete process.env.GIT_COMMON_DIR;
+
 const gitOpts = (cwd) => ({ cwd, stdio: "pipe", timeout: GIT_TIMEOUT_MS, env: { ...process.env, GIT_TERMINAL_PROMPT: "0" } });
 
 /**

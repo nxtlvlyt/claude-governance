@@ -1,6 +1,6 @@
 {
   "state": "blocked",
-  "detail": "PowerShell script ready; awaiting execution",
+  "detail": "commit 8224b54 swept junk into repo; awaiting cleanup decision",
   "tempo": "blocked",
   "inFlight": {
     "tasks": 1,
@@ -13,17 +13,22 @@
     {
       "id": "todo:1",
       "kind": "todo",
-      "label": "Add settings.json permission rule"
+      "label": "Add settings.json permission rule",
+      "startedAt": 0,
+      "doneAt": 0
     },
     {
       "id": "todo:2",
       "kind": "todo",
-      "label": "Commit git_steps.mjs resetAllowFiles fix"
+      "label": "Commit git_steps.mjs resetAllowFiles fix",
+      "startedAt": 0,
+      "doneAt": 0
     },
     {
       "id": "todo:3",
       "kind": "todo",
-      "label": "Commit orchestrate.mjs relevance-slice fix"
+      "label": "Committing orchestrate.mjs",
+      "startedAt": 0
     },
     {
       "id": "todo:4",
@@ -59,11 +64,11 @@
       "doneAt": 0
     }
   ],
-  "tokens": 11512409,
-  "needs": "run the PowerShell script, then reply \"done\"",
+  "tokens": 11545188,
+  "needs": "clean up with follow-up commit, or review first?",
   "output": null,
   "children": null,
-  "linkScanOffset": 103235336,
+  "linkScanOffset": 103712190,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -91,6 +96,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-14T13:00:11.518Z",
+  "updatedAt": "2026-07-14T13:36:05.483Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
