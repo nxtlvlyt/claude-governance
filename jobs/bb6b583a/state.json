@@ -1,27 +1,18 @@
 {
   "state": "working",
-  "detail": "diagnosing mt-integrate-weather-aware-planning-2026-06-23.S1 attempt-6",
-  "tempo": "active",
+  "detail": "1 diagnosis-debt item remains: mt-integrate-near-me S1 line 1002 (step 4 conflict resolution)",
+  "tempo": "idle",
   "inFlight": {
-    "tasks": 2,
+    "tasks": 1,
     "queued": 0,
     "kinds": [
-      "local_agent",
       "session_cron"
     ]
   },
-  "fan": [
-    {
-      "id": "ae88eb65dce31421b",
-      "kind": "agent",
-      "label": "Diagnose mt-integrate-weather-aware-planning second failure",
-      "startedAt": 1784006081817
-    }
-  ],
-  "tokens": 11355725,
+  "tokens": 11367620,
   "output": null,
   "children": null,
-  "linkScanOffset": 99924155,
+  "linkScanOffset": 99974780,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -49,6 +40,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-14T05:14:47.710Z",
+  "updatedAt": "2026-07-14T05:17:59.517Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
