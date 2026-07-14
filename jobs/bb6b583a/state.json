@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "diagnosing mt-money-affiliate-programs.S1 second failure; awaiting agent result",
+  "detail": "diagnosing mt-money-affiliate-programs.S1 2nd failure; will report",
   "tempo": "active",
   "inFlight": {
     "tasks": 2,
@@ -18,10 +18,10 @@
       "startedAt": 1784002938618
     }
   ],
-  "tokens": 11298225,
+  "tokens": 11305241,
   "output": null,
   "children": null,
-  "linkScanOffset": 99550919,
+  "linkScanOffset": 99559447,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -49,6 +49,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-14T04:22:26.069Z",
+  "updatedAt": "2026-07-14T04:23:23.835Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
