@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "status check: no changes since last cycle",
+  "detail": "status check: same PIDs, no new failures",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 11391988,
+  "tokens": 11392706,
   "output": null,
   "children": null,
-  "linkScanOffset": 100299834,
+  "linkScanOffset": 100323413,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -40,6 +40,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-14T06:29:16.569Z",
+  "updatedAt": "2026-07-14T06:45:16.022Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
