@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "doc fixes committed (2), S2 FAILED annotated, re-verifying",
+  "detail": "gap analysis: 1/2 parts fixed (loader + docs); poller dual-project still pending",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 11208261,
+  "tokens": 11210383,
   "output": null,
   "children": null,
-  "linkScanOffset": 98341903,
+  "linkScanOffset": 98392348,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -40,6 +40,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-14T03:21:05.516Z",
+  "updatedAt": "2026-07-14T03:31:18.236Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
