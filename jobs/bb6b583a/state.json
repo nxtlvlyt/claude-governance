@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "deconstructor-fix prep workflow running; false-positive class isolated",
+  "detail": "both daemons healthy; prep workflow running; gap fix pending",
   "tempo": "active",
   "inFlight": {
     "tasks": 2,
@@ -15,22 +15,36 @@
       "id": "aaed6e4cca1d11e34",
       "kind": "workflow",
       "label": "study",
+      "group": "Study",
       "startedAt": 1784047758243,
-      "doneAt": 1784047960530,
-      "group": "Study"
+      "doneAt": 1784047960530
     },
     {
       "id": "aeb6dd14b74cc076e",
       "kind": "workflow",
       "label": "draft",
+      "group": "Draft",
       "startedAt": 1784047963261,
-      "group": "Draft"
+      "doneAt": 1784048632931
+    },
+    {
+      "id": "a7dcd2e63e13d2bb3",
+      "kind": "workflow",
+      "label": "verify",
+      "group": "Verify",
+      "startedAt": 1784048639241
+    },
+    {
+      "id": "bj4l96hqh",
+      "kind": "shell",
+      "label": "cd /tmp/msplit-verify-BH5Z && timeout 120 node orchestrate.mjs 2>&1 | grep -E \"SPLIT|[0-9]+ FAIL|ALL PASS\" | tail -25",
+      "startedAt": 1784049262876
     }
   ],
-  "tokens": 11894900,
+  "tokens": 11964728,
   "output": null,
   "children": null,
-  "linkScanOffset": 106264843,
+  "linkScanOffset": 106281960,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -58,6 +72,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-14T17:01:47.981Z",
+  "updatedAt": "2026-07-14T17:14:26.464Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
