@@ -1,7 +1,7 @@
 {
-  "state": "working",
-  "detail": "280m elapsed; conductor monitoring active",
-  "tempo": "idle",
+  "state": "blocked",
+  "detail": "2 gaps closed, diagnosis sweep done; awaiting user approval to commit + restart daemon",
+  "tempo": "blocked",
   "inFlight": {
     "tasks": 1,
     "queued": 0,
@@ -9,10 +9,13 @@
       "session_cron"
     ]
   },
-  "tokens": 11399363,
-  "output": null,
+  "tokens": 11401103,
+  "needs": "say \"do all three\" (commit git_steps.mjs, commit orchestrate.mjs, restart mt daemon) or name which ones",
+  "output": {
+    "result": "GAP-PRIORITY-HOLD: 8→2 gaps closed (6 fixed); 4→0 undiagnosed missions (all root-caused); lighthouse-ci.yml bug traced to committed fix"
+  },
   "children": null,
-  "linkScanOffset": 100688471,
+  "linkScanOffset": 100738530,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -40,6 +43,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-14T10:59:13.091Z",
+  "updatedAt": "2026-07-14T11:05:52.023Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
