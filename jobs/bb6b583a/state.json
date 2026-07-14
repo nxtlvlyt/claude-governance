@@ -1,6 +1,6 @@
 {
-  "state": "working",
-  "detail": "stale FAILED lines retired; queue ready for next sweep",
+  "state": "done",
+  "detail": "visreg healthy (fixed text, 19:40); agy idle; queue flowing",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,12 @@
       "session_cron"
     ]
   },
-  "tokens": 12085477,
-  "output": null,
+  "tokens": 12085687,
+  "output": {
+    "result": "system status: visreg firing, agy idle, queue flowing — on track"
+  },
   "children": null,
-  "linkScanOffset": 107224130,
+  "linkScanOffset": 107241044,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -40,6 +42,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-14T19:30:47.801Z",
+  "updatedAt": "2026-07-14T19:44:27.400Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
