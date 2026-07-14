@@ -19,7 +19,11 @@ staged=$(git diff --cached --name-only --diff-filter=ACM -- '*.mjs')
 # Modules whose self-test dispatches to cloud/Ollama or the network — syntax-check only, never run in-hook.
 # run-mission.mjs / orchestrate-cli.mjs are LAUNCHERS: bare invocation is a usage error (exit 2) by design,
 # and any real invocation dispatches live seats — exactly what a pre-commit must never do.
-NETWORK="deconstructor.mjs executor.mjs repair.mjs seat_dispatch.mjs run-mission.mjs orchestrate-cli.mjs"
+# doctor.mjs added 2026-07-14 (live receipt: engine-seat-roundtrip-census step 3 failed 3x because this
+# hook ran the FULL LIVE doctor — nxtbeast/SearXNG/Stitch probes — as if it were an offline selftest;
+# doctor legitimately exits 1 whenever the ENVIRONMENT is degraded, e.g. SearXNG unreachable from the
+# van, which says nothing about the staged code. It is a live diagnostic CLI, not a selftest surface.)
+NETWORK="deconstructor.mjs executor.mjs repair.mjs seat_dispatch.mjs run-mission.mjs orchestrate-cli.mjs doctor.mjs"
 fail=0
 
 for f in $staged; do

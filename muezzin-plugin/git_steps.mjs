@@ -338,6 +338,23 @@ export function resetAllowFiles(repoRoot, allowFiles = []) {
       let tracked = false;
       try { execSync(`git ls-files --error-unmatch ${quote(rel)}`, gitOpts(repoRoot)); tracked = true; }
       catch { tracked = false; }
+      // RESET-QUARANTINE (engine-item25-reset-quarantine, 2026-07-12 — two bite receipts:
+      // the untracked branch used fs.rmSync to PERMANENTLY destroy a mission's own
+      // prior-attempt output with no recovery path, and the same night's ownerless-park
+      // audit (eighth law) found deletion-as-cleanup silently erasing evidence a conductor
+      // later needed to diagnose a failure. Directive 6: prefer a reversible move over a
+      // destructive delete. Untracked allow-files are MOVED to a quarantine directory
+      // OUTSIDE the repo (never deleted), so a retry's own-output reset stays idempotent —
+      // the pre-flight sees the allow-file clean — while the content remains recoverable.
+      const quarantineUntracked = () => {
+        const quarantineDir = path.join(os.tmpdir(), "muezzin-reset-quarantine", path.basename(repoRoot));
+        try {
+          fs.mkdirSync(quarantineDir, { recursive: true });
+          const dest = path.join(quarantineDir, `${rel.replace(/[\\/]/g, "__")}.${Date.now()}`);
+          try { fs.renameSync(abs, dest); }
+          catch { fs.copyFileSync(abs, dest); fs.rmSync(abs, { force: true }); }
+        } catch { /* quarantine dir unwritable — leave the untracked file in place rather than lose it */ }
+      };
       if (tracked) {
         // STAGED-FILE FIX (2026-07-13, recurring live receipt: engine-srcsha-fixture-update
         // FAILED x2 on conduct-cycle.mjs, then engine-mission-lint-rule15-bare-commit FAILED
@@ -348,23 +365,22 @@ export function resetAllowFiles(repoRoot, allowFiles = []) {
         // index entry to HEAD, so the subsequent checkout has something real to restore from
         // -- this handles staged, working-tree-modified, and both-at-once uniformly.
         try { execSync(`git reset -- ${quote(rel)}`, gitOpts(repoRoot)); } catch { /* not staged -- fine, checkout alone still handles working-tree dirt */ }
-        execSync(`git checkout -- ${quote(rel)}`, gitOpts(repoRoot));   // restore committed version
+        // STAGED-NEW FIX (2026-07-14, live receipt: engine-seat-roundtrip-census attempt 2,
+        // "own-output reset failed: error: pathspec 'seat_roundtrip.mjs' did not match any
+        // file(s) known to git"): a NEW file staged by a prior attempt passes the ls-files
+        // tracked check (it is in the INDEX) but has NO HEAD version — after the reset
+        // unstages it, checkout has nothing to restore from and THROWS, crashing the whole
+        // reset and wedging every retry. If HEAD does not know the path, the file is
+        // prior-attempt output: quarantine it exactly like any untracked allow-file.
+        let inHead = true;
+        try { execSync(`git cat-file -e ${quote(`HEAD:${rel}`)}`, gitOpts(repoRoot)); } catch { inHead = false; }
+        if (inHead) {
+          execSync(`git checkout -- ${quote(rel)}`, gitOpts(repoRoot));   // restore committed version
+        } else {
+          quarantineUntracked();
+        }
       } else {
-        // RESET-QUARANTINE (engine-item25-reset-quarantine, 2026-07-12 — two bite receipts:
-        // this branch used fs.rmSync to PERMANENTLY destroy a mission's own prior-attempt
-        // output with no recovery path, and the same night's ownerless-park audit (eighth
-        // law) found deletion-as-cleanup silently erasing evidence a conductor later needed
-        // to diagnose a failure. Directive 6: prefer a reversible move over a destructive
-        // delete. Untracked allow-files are MOVED to a quarantine directory OUTSIDE the repo
-        // (never deleted), so a retry's own-output reset stays idempotent — the pre-flight
-        // sees the allow-file clean — while the discarded content remains recoverable.
-        const quarantineDir = path.join(os.tmpdir(), "muezzin-reset-quarantine", path.basename(repoRoot));
-        try {
-          fs.mkdirSync(quarantineDir, { recursive: true });
-          const dest = path.join(quarantineDir, `${rel.replace(/[\\/]/g, "__")}.${Date.now()}`);
-          try { fs.renameSync(abs, dest); }
-          catch { fs.copyFileSync(abs, dest); fs.rmSync(abs, { force: true }); }
-        } catch { /* quarantine dir unwritable — leave the untracked file in place rather than lose it */ }
+        quarantineUntracked();
       }
       reset.push(rel);
     }
@@ -815,6 +831,21 @@ function selfTest() {
       const stagedStatusAfter = execSync(`git -C ${quote(rstRepo)} status --porcelain -- tracked.mjs`).toString().trim();
       assert(stagedStatusAfter === "", "own-reset(staged): AFTER reset the file is FULLY clean (both index and working tree) — the exact bug this fix closes");
       assert(fs.readFileSync(path.join(rstRepo, "tracked.mjs"), "utf8").includes("const v = 0"), "own-reset(staged): content is restored to committed HEAD, not left at the staged v=999");
+
+      // (2c) a STAGED-NEW allow-file -- git add'ed by a prior attempt but with NO HEAD
+      // version (2026-07-14 live receipt: engine-seat-roundtrip-census attempt 2 crashed the
+      // whole reset with "pathspec ... did not match any file(s) known to git" because
+      // ls-files reports index membership as tracked, and post-reset checkout has nothing to
+      // restore). Must quarantine like untracked output, never throw.
+      fs.writeFileSync(path.join(rstRepo, "brand-new.mjs"), "export const fresh = 1;\n");
+      execSync(`git -C ${quote(rstRepo)} add -- brand-new.mjs`);
+      const stagedNewBefore = execSync(`git -C ${quote(rstRepo)} status --porcelain -- brand-new.mjs`).toString().trim();
+      assert(stagedNewBefore.startsWith("A"), "own-reset(staged-new) setup: brand-new.mjs is a genuinely STAGED-NEW file (A status)");
+      const rst2c = resetAllowFiles(rstRepo, ["brand-new.mjs"]);
+      assert(rst2c.ok === true && rst2c.reset.includes("brand-new.mjs"), "own-reset(staged-new): a STAGED-NEW allow-file is handled WITHOUT throwing (the exact live crash this fix closes)");
+      const stagedNewAfter = execSync(`git -C ${quote(rstRepo)} status --porcelain -- brand-new.mjs`).toString().trim();
+      assert(stagedNewAfter === "", "own-reset(staged-new): AFTER reset the path is fully clean (unstaged AND off disk)");
+      assert(!fs.existsSync(path.join(rstRepo, "brand-new.mjs")), "own-reset(staged-new): the file is quarantined away from the worktree, not left as untracked dirt");
 
       // (3) CONTAINMENT NOT REOPENED: reset touches ONLY the declared allowlist. Genuinely-
       // FOREIGN dirt on a NON-allowlisted file survives reset AND the pre-flight refuses it

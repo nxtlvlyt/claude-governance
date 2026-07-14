@@ -1,18 +1,27 @@
 {
   "state": "working",
-  "detail": "daemon restarted (pid 41492); mission running now, awaiting completion",
+  "detail": "2 engine bugs fixed; daemon restarted, watching for retry",
   "tempo": "idle",
   "inFlight": {
-    "tasks": 1,
+    "tasks": 2,
     "queued": 0,
     "kinds": [
+      "local_bash",
       "session_cron"
     ]
   },
-  "tokens": 11824890,
+  "fan": [
+    {
+      "id": "bm1p54k04",
+      "kind": "shell",
+      "label": "until grep -q \"engine-seat-roundtrip-census\" <(node -e \"const s=require('C:/Users/marka/.claude/muezzin-plugin/missions/_logs/daemon-status.json'); console.log(JSON.stringify(s.lanes))\" 2>/dev/null) …",
+      "startedAt": 1784045408148
+    }
+  ],
+  "tokens": 11843334,
   "output": null,
   "children": null,
-  "linkScanOffset": 105594303,
+  "linkScanOffset": 105824066,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -40,6 +49,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-14T15:47:00.719Z",
+  "updatedAt": "2026-07-14T16:10:25.188Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
