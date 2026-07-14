@@ -1,20 +1,56 @@
 {
-  "state": "done",
-  "detail": "warroom missions: S9/10 spec written, agy 100% pending 6 gate items, N5 harness next lever",
-  "tempo": "idle",
+  "state": "working",
+  "detail": "5 agents auditing agy-100% gate items (a–e); will drive actionable items on return",
+  "tempo": "active",
   "inFlight": {
-    "tasks": 1,
+    "tasks": 2,
     "queued": 0,
     "kinds": [
+      "local_workflow",
       "session_cron"
     ]
   },
-  "tokens": 12119935,
-  "output": {
-    "result": "warroom at S9/10 (13 evenings build remaining); agy graduation ladder complete but 6 receipt items open (hook plugin, conductor beats, deploy parity); N5 harness is highest-leverage next build"
-  },
+  "fan": [
+    {
+      "id": "a92ac11f20613bae4",
+      "kind": "workflow",
+      "label": "audit:a-hook-plugin",
+      "startedAt": 1784063598564,
+      "group": "Audit"
+    },
+    {
+      "id": "a7e2dced0fbf85bad",
+      "kind": "workflow",
+      "label": "audit:b-self-waking-beats",
+      "startedAt": 1784063598779,
+      "group": "Audit"
+    },
+    {
+      "id": "a00f12c343adc5ec4",
+      "kind": "workflow",
+      "label": "audit:c-unsupervised-streak",
+      "startedAt": 1784063598531,
+      "group": "Audit"
+    },
+    {
+      "id": "a4919781e71f7f0fa",
+      "kind": "workflow",
+      "label": "audit:d-atv-visitor-chain",
+      "startedAt": 1784063599118,
+      "group": "Audit"
+    },
+    {
+      "id": "a06c38bec38a4dcb8",
+      "kind": "workflow",
+      "label": "audit:e-deploy-parity",
+      "startedAt": 1784063599802,
+      "group": "Audit"
+    }
+  ],
+  "tokens": 12123412,
+  "output": null,
   "children": null,
-  "linkScanOffset": 110436196,
+  "linkScanOffset": 110512623,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -42,6 +78,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-14T21:11:50.093Z",
+  "updatedAt": "2026-07-14T21:13:36.812Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
