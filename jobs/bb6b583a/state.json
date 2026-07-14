@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "monitoring lane state; no changes since last check",
+  "detail": "conductor duty: monitoring session state across context",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 11398856,
+  "tokens": 11399025,
   "output": null,
   "children": null,
-  "linkScanOffset": 100634862,
+  "linkScanOffset": 100652057,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -40,6 +40,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-14T10:14:18.366Z",
+  "updatedAt": "2026-07-14T10:29:14.606Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
