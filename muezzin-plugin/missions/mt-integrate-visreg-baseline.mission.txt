@@ -75,18 +75,16 @@ Steps:
      this exact command shape killed a prior attempt. Apply the commit directly and only
      this way: `git cherry-pick 50223f7`.
      [command] integrate-commit
-  3. If cherry-pick reports conflicts on mt-audit/visreg-baseline.mjs (not expected,
-     since it is a pure new add) or on any other file, resolve each conflicted hunk by
-     hand so the resolved content contains BOTH the target's pre-existing content AND
-     the visreg-baseline feature's content — never `--ours` / `--theirs` and never a
-     resolution that deletes either side's lines. [edit] resolve-conflicts
-  4. Run `node --check mt-audit/visreg-baseline.mjs`, and `node --check` on every other
-     .js/.mjs file the merge touched or conflict resolution modified, confirming each
-     exits 0. [command] node-check-all
-  5. Stage and commit the integrated result in the target repo with a clear message
-     identifying the integrated feature and its origin commit (e.g. referencing
-     "mt-feat-visreg-baseline" and "50223f7"). Confirm `git status` afterward shows a
-     clean working tree. [command] commit-and-verify-clean
+  3. Finalize the pick if anything is pending (idempotent contingency — the pick is a
+     pure new add and is NOT expected to conflict; this step only exists so a surprise
+     mid-pick state can never wedge later pathspec commits, the 2026-07-14 near-me
+     lesson). Run exactly: if (Test-Path (git rev-parse --git-path CHERRY_PICK_HEAD)) { git add -- mt-audit/visreg-baseline.mjs; git -c core.editor=true cherry-pick --continue; if ($LASTEXITCODE -ne 0) { exit 1 } }; Write-Output PICK-FINALIZED-OR-CLEAN [command] mt-audit/visreg-baseline.mjs
+     validation_command: if (Test-Path (git rev-parse --git-path CHERRY_PICK_HEAD)) { exit 1 }; if (-not (Test-Path mt-audit/visreg-baseline.mjs)) { exit 1 }
+  4. Read-only syntax witness (this step authors NOTHING — the file's single authoring
+     step is the pick itself). Run exactly: node --check mt-audit/visreg-baseline.mjs; if ($LASTEXITCODE -ne 0) { exit 1 } [verify] ; context_dependencies: mt-audit/visreg-baseline.mjs
+  5. Repo-state bookkeeping (no file authored — the finalized pick already committed in
+     any conflict path; this is the idempotent no-op-or-commit tail plus cleanliness).
+     Run exactly: git add -- mt-audit/visreg-baseline.mjs; git diff --cached --quiet -- mt-audit/visreg-baseline.mjs; if ($LASTEXITCODE -ne 0) { git commit -m "feat(visreg): integrate mt-feat-visreg-baseline (cherry-pick 50223f7) -- visual regression baseline + diff harness" -- mt-audit/visreg-baseline.mjs; if ($LASTEXITCODE -ne 0) { exit 1 } }; if ((git status --porcelain -- mt-audit/visreg-baseline.mjs).Length -gt 0) { exit 1 }; Write-Output SCOPE_CLEAN [verify] ; context_dependencies: mt-audit/visreg-baseline.mjs
 
 Done means:
   - `git log` in C:\Users\marka\code\mt-integration-2026-06-22 shows a commit containing

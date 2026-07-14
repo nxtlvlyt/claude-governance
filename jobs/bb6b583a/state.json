@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "ITEM 31 filed, hold set; prep/verify/mission workflow running",
+  "detail": "2 visreg failures fixed (prose→literal); size-ceiling prep running",
   "tempo": "active",
   "inFlight": {
     "tasks": 2,
@@ -16,13 +16,29 @@
       "kind": "workflow",
       "label": "study",
       "startedAt": 1784053886325,
+      "doneAt": 1784054192607,
       "group": "Study"
+    },
+    {
+      "id": "a6b09188fbf73edc9",
+      "kind": "workflow",
+      "label": "draft",
+      "startedAt": 1784054198043,
+      "doneAt": 1784054535974,
+      "group": "Draft"
+    },
+    {
+      "id": "a5ad343d0714f8c94",
+      "kind": "workflow",
+      "label": "verify",
+      "startedAt": 1784054540367,
+      "group": "Verify"
     }
   ],
-  "tokens": 12000986,
+  "tokens": 12065427,
   "output": null,
   "children": null,
-  "linkScanOffset": 106864921,
+  "linkScanOffset": 106941317,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -50,6 +66,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-14T18:31:34.241Z",
+  "updatedAt": "2026-07-14T18:46:59.676Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
