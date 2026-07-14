@@ -1,0 +1,82 @@
+MISSION-ID: M-MT.PLUZ-CAMPING-PASS-LAYER
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - functions/api/land-tenure.js
+  - map.html
+REQUIRES: none
+STEPS: 6
+
+Maqsad: turn the map's honest-but-unhelpful "UNVERIFIED — Park-boundary data not yet
+loaded" fallback (map.html ~line 164) into real Alberta Public Lands Camping Pass
+guidance. LIVE OPERATOR RECEIPT (2026-07-14): the operator, physically at Preacher's
+North Rustic Camping Area (Abraham Lake / Bighorn corridor), got the UNVERIFIED popup
+for a spot that is squarely inside the pass area. GROUNDED FACTS (WebFetch,
+alberta.ca/public-lands-camping-pass, 2026-07-14): the pass is required YEAR-ROUND for
+random camping on the Eastern Slopes from Grande Prairie to Waterton (plus Porcupine
+Hills PLUZ and Willmore Wilderness); $20/3-day or $30/annual per person + fees; sold at
+albertarelm.com; under-18 and several groups exempt; established fee campgrounds
+exempt. Alberta publishes the authoritative boundary layer (their own interactive map
+at esrd.maps.arcgis.com runs on it; GeoDiscover/titan REST serves this class of layer
+and the tenure API already consumes crownland_reservation from the same host with
+f=geojson). The land-tenure API's layer-table pattern (functions/api/land-tenure.js
+~lines 94-106) is exactly the shape to extend.
+
+niyyah: the map already refuses to lie (the UNVERIFIED fallback is fail-honest by
+design) — this mission gives it something true to say instead, sourced from the
+province's own boundary data, for the exact corridor a real user is standing in today.
+
+Steps:
+  1. DISCOVERY (read-only, network): locate the authoritative Public Lands Camping Pass
+     area / PLUZ boundary layer endpoint. Start from the esrd.maps.arcgis.com
+     interactive map referenced by alberta.ca/public-lands-camping-pass — fetch the
+     webmap item JSON (arcgis.com sharing/rest content item, f=json, public) and
+     extract its operational layer URL(s); alternatively probe
+     geospatial.alberta.ca/titan/rest/services folders (parks, recaccess were partially
+     probed 2026-07-14; PLUZ not in recaccess/lands_management/lus). PROVE the endpoint
+     live: one bounded query with f=geojson returning >=1 feature with a zone-name
+     attribute. Write the endpoint + item id + license + a 3-line sample of attributes
+     to pluz-discovery-receipt.md. A pass-AREA polygon layer (the whole Eastern Slopes
+     boundary) is acceptable if no per-PLUZ layer is queryable — name which one you
+     found. [command] pluz-discovery-receipt.md
+  2. Add the layer entry to the tenure API following the existing table pattern exactly
+     (functions/api/land-tenure.js ~94-106: key, upstream, api, source_name, source_url,
+     license fields; mirror the crownland_reservation entry's shape and its VERIFIED
+     comment convention, citing step 1's receipt). Key: 'ab-camping-pass-area'. Single
+     file, no other entries touched. [edit] functions/api/land-tenure.js ; context_dependencies: pluz-discovery-receipt.md
+     validation_command: node --check functions/api/land-tenure.js; if ($LASTEXITCODE -ne 0) { exit 1 }; if (-not (Select-String -Path functions/api/land-tenure.js -Pattern 'ab-camping-pass-area' -Quiet)) { exit 1 }
+  3. Wire the popup: in map.html's badge/detail logic (the ~line-164 region carrying
+     the UNVERIFIED fallback), add a branch BEFORE the fallback: when the spot lies
+     inside the ab-camping-pass-area layer (fetched via the same TENURE_API layer
+     mechanism the page already uses), badge 'PASS REQUIRED' with detail text exactly:
+     'Alberta Public Lands Camping Pass required for random camping here (year-round).
+     $30/yr or $20/3-day per person at albertarelm.com. Established fee campgrounds are
+     separate — check on-site signage. Verify locally before you camp.' Keep the
+     existing UNVERIFIED fallback for everywhere the layer does not cover — never
+     widen a claim past the data. [edit] map.html ; context_dependencies: functions/api/land-tenure.js
+     validation_command: if (-not (Select-String -Path map.html -Pattern 'PASS REQUIRED' -Quiet)) { exit 1 }; if (-not (Select-String -Path map.html -Pattern 'albertarelm.com' -Quiet)) { exit 1 }; if (-not (Select-String -Path map.html -Pattern 'Park-boundary data not yet loaded' -Quiet)) { exit 1 }
+  4. Read-only syntax witnesses. Run exactly: node --check functions/api/land-tenure.js; if ($LASTEXITCODE -ne 0) { exit 1 } [verify] ; context_dependencies: functions/api/land-tenure.js, map.html
+  5. Commit (flags-first explicit pathspec) and push. Run exactly: git add -- functions/api/land-tenure.js map.html; git diff --cached --quiet -- functions/api/land-tenure.js map.html; if ($LASTEXITCODE -eq 0) { Write-Output ALREADY_COMMITTED } else { git commit -m "feat(tenure): Alberta Public Lands Camping Pass area layer + PASS REQUIRED popup badge -- replaces the bare UNVERIFIED fallback inside the pass area with grounded guidance (alberta.ca verified 2026-07-14; live operator receipt at Preacher's/Abraham Lake); UNVERIFIED fallback retained everywhere the layer does not cover" -- functions/api/land-tenure.js map.html; if ($LASTEXITCODE -ne 0) { exit 1 }; git fetch github main; git push github main; if ($LASTEXITCODE -ne 0) { exit 1 } }; Write-Output PUSHED [command]
+  6. Run wrangler preview deploy + node playwright render witness in ONE self-contained
+     command (the RULE-9-compliant shape): wrangler pages deploy . --project-name=muddytires
+     --branch=preview, capture the emitted *.pages.dev URL, write scratch-pluz-qc.mjs
+     (playwright render of /map.html from that URL; exit non-zero on any fatal page
+     error or console error naming land-tenure or camping-pass), then run-and-clean
+     with the exit code preserved — the command MUST literally end with:
+     node scratch-pluz-qc.mjs; $rc = $LASTEXITCODE; Remove-Item scratch-pluz-qc.mjs -ErrorAction SilentlyContinue; exit $rc [command]
+
+Done means: the tenure API serves an 'ab-camping-pass-area' layer backed by a
+live-proven provincial endpoint (discovery receipt committed alongside); a spot inside
+the pass area renders the PASS REQUIRED badge with the albertarelm.com guidance instead
+of UNVERIFIED; spots outside the layer's coverage keep the honest UNVERIFIED fallback;
+both files committed with an explicit pathspec and pushed; a real headless render of
+the preview deploy loads /map.html without fatal errors.
+
+# CONDUCTOR PROVENANCE (2026-07-14): constructed same-hour as the operator's live
+# field report (standing at the exact spot, popup screenshot attached). Pass facts
+# grounded via WebFetch against alberta.ca (EXECUTED, not recalled); GeoDiscover REST
+# reachability proven the same hour (titan/rest/services answered; three folders
+# enumerated — PLUZ layer not in them, hence the discovery step with a live-probe
+# requirement rather than a hardcoded guess). open.alberta.ca was 520ing at authoring
+# time — the mission's own discovery step retries at fire time. Steps follow the
+# session's literal-command discipline; one writer per file; flags-first pathspec.

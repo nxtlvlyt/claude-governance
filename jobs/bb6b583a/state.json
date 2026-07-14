@@ -1,6 +1,6 @@
 {
-  "state": "done",
-  "detail": "Lighthouse CI green on 751018e; workflow fixed end-to-end",
+  "state": "working",
+  "detail": "Alberta permit map feature queued; daemon refresh in progress",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,12 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 12103478,
-  "output": {
-    "result": "Lighthouse CI passing (first fully-clean run since June 23rd); YAML parse + manifest handoff fixed; daemons healthy, queue draining"
-  },
+  "tokens": 12116036,
+  "output": null,
   "children": null,
-  "linkScanOffset": 109370955,
+  "linkScanOffset": 110291163,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -42,6 +40,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-14T20:32:04.026Z",
+  "updatedAt": "2026-07-14T20:45:42.198Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
