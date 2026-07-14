@@ -1,0 +1,50 @@
+MISSION-ID: M-ENGINE.SPLIT-STEP-CARRIAGE
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\.claude\muezzin-plugin
+ALLOW-FILES:
+  - mission_split.mjs
+REQUIRES: none
+STEPS: 2
+
+Maqsad: close gap-autosplit-strips-literal-step-bodies (the ONLY open bite-class gap,
+holding the product queue). Two-stage loss, root-caused by a read-only prep workflow:
+the autosplit operates on the PHASE-1 micro_queue JSON — whose schema deliberately puts
+the COMPLETE literal command in validation_command ("the validation_command IS the
+step" for command/verify steps) — and emitSubMissions then serialized ONLY
+description + [action_type] + targets into each child step line, dropping
+validation_command and context_dependencies entirely. The child re-plans from its own
+prose-only text at fire time and the seat improvises the commands (live receipt:
+mt-integrate-near-me-discovery.S1.S1 FAILED(plan), the mt-addspot ParserError class,
+caught by the before-witness + witnessRefireHold's first live hold). Fix ports
+agy-muezzin's already-shipped 2026-07-08 carriage convention (byte-compatible
+serialization: `; context_dependencies:` same-line, `validation_command:` next-line
+non-numbered) EXTENDED to carry multi-line commands verbatim as deeper-indented
+continuation lines — non-numbered, so mission_lint RULE 11 and buildDoneMeans keep
+agreeing.
+
+niyyah: a split that summarizes is a split that lies — the child inherits the parent's
+obligations, so it must inherit the parent's exact words; ports a fix the sibling
+jurisdiction already paid for rather than re-deriving it.
+
+Steps:
+  1. Run the committed, independently-executed-and-verified patcher exactly: node missions/_logs/mission-split-full-step-carriage-patch.mjs mission_split.mjs; if ($LASTEXITCODE -ne 0) { exit 1 } [command]
+     validation_command: node --check mission_split.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; if (-not (Select-String -Path mission_split.mjs -Pattern 'STEP-CARRIAGE FIX' -Quiet)) { exit 1 }
+  2. Full selftest, then commit with an explicit pathspec. Run exactly: node mission_split.mjs 2>&1 | Tee-Object -Variable out; $failCount = ($out | Select-String -Pattern '^FAIL').Count; if ($failCount -ne 0) { Write-Output "SELFTEST-INCOMPLETE fail=$failCount"; exit 1 }; if (-not ($out | Select-String -Pattern 'STEP-CARRIAGE')) { Write-Output "NEW-CHECK-MISSING"; exit 1 }; git add -- mission_split.mjs; git diff --cached --quiet -- mission_split.mjs; if ($LASTEXITCODE -eq 0) { Write-Output ALREADY_COMMITTED } else { git commit -m "fix(engine): autosplit children carry each step's FULL literal text (validation_command bodies incl. multi-line, context_dependencies) instead of prose-only summaries, closing gap-autosplit-strips-literal-step-bodies -- ports agy-muezzin's 2026-07-08 carriage convention byte-compatibly, extended for multi-line verbatim carry on non-numbered continuation lines (RULE 11 + buildDoneMeans agreement preserved); live receipt near-me-discovery.S1.S1 FAILED(plan) improvise class; full selftest ALL PASS incl. 13 new STEP-CARRIAGE assertions that genuinely fail pre-patch" -- mission_split.mjs }; if ($LASTEXITCODE -ne 0) { exit 1 } [command]
+
+Done means: emitSubMissions serializes every child step with its validation_command
+(multi-line verbatim on non-numbered continuation lines) and context_dependencies;
+full mission_split.mjs selftest ALL PASS including the new STEP-CARRIAGE byte-containment
+assertions; committed with an explicit pathspec.
+
+# CONDUCTOR PROVENANCE (2026-07-14): prepared by read-only workflow wf_b0c850e0-918
+# (study/draft/adversarial-verify). Verifier verdict SAFE-TO-APPLY at 0.93 — and it
+# EXECUTED the patcher against a real cp copy (not simulated): PATCHED x2, node --check
+# clean, idempotent rerun, selftest ALL PASS (6 pre-existing fixture groups + 13 new
+# STEP-CARRIAGE assertions), orchestrate SPLIT(1) 7/7 PASS, and confirmed the new
+# assertions genuinely FAIL pre-patch (the test gates). Conductor then independently
+# re-ran the extracted patcher on a fresh cp scratch copy with the full sibling-import
+# set: PATCHED, SYNTAX-OK, ALREADY-PATCHED on rerun, ALL PASS. Verifier's refire-time
+# note, carried for future diagnosis: carried commands are now VISIBLE to whole-text
+# lint rules — a child whose carried commands trip RULE 8/9 pairing is a correct refusal
+# of a genuinely unpairable child, not an emitter bug. Daemon restart required after
+# landing (static-import staleness).

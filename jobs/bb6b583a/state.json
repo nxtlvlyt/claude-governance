@@ -1,50 +1,27 @@
 {
   "state": "working",
-  "detail": "both daemons healthy; prep workflow running; gap fix pending",
-  "tempo": "active",
+  "detail": "two-stage loss diagnosed + fix verified; constructing mission",
+  "tempo": "idle",
   "inFlight": {
     "tasks": 2,
     "queued": 0,
     "kinds": [
-      "local_workflow",
+      "local_bash",
       "session_cron"
     ]
   },
   "fan": [
     {
-      "id": "aaed6e4cca1d11e34",
-      "kind": "workflow",
-      "label": "study",
-      "group": "Study",
-      "startedAt": 1784047758243,
-      "doneAt": 1784047960530
-    },
-    {
-      "id": "aeb6dd14b74cc076e",
-      "kind": "workflow",
-      "label": "draft",
-      "group": "Draft",
-      "startedAt": 1784047963261,
-      "doneAt": 1784048632931
-    },
-    {
-      "id": "a7dcd2e63e13d2bb3",
-      "kind": "workflow",
-      "label": "verify",
-      "group": "Verify",
-      "startedAt": 1784048639241
-    },
-    {
-      "id": "bj4l96hqh",
+      "id": "blkb8xy13",
       "kind": "shell",
-      "label": "cd /tmp/msplit-verify-BH5Z && timeout 120 node orchestrate.mjs 2>&1 | grep -E \"SPLIT|[0-9]+ FAIL|ALL PASS\" | tail -25",
-      "startedAt": 1784049262876
+      "label": "until grep -qE \"DONE: missions/engine-split-step-carriage|FAILED \\(x2\\): missions/engine-split-step-carriage|MIQAT-REFUSED: missions/engine-split-step-carriage|HELD.*engine-split-step-carriage\" <(tai…",
+      "startedAt": 1784049866711
     }
   ],
-  "tokens": 11964728,
+  "tokens": 11973018,
   "output": null,
   "children": null,
-  "linkScanOffset": 106281960,
+  "linkScanOffset": 106453447,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -72,6 +49,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-14T17:14:26.464Z",
+  "updatedAt": "2026-07-14T17:24:41.564Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
