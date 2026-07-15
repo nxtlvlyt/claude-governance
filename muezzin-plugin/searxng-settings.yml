@@ -1,0 +1,16 @@
+# SearXNG settings for the laptop-local muezzin search backend (localhost:8080).
+# RECONSTRUCTED 2026-07-15 (conductor): the original untracked file vanished during
+# the 2026-07-14 sandbox-baseline cleanup and Docker's bind-mount left an empty
+# directory placeholder in its place, killing the container (Exited 255,
+# "not a directory" mount error). Minimal contract, per searxng_preflight.mjs:
+# /search?format=json must answer — the json format below is the load-bearing line
+# (SearXNG denies format=json entirely on defaults). limiter stays off because the
+# engine's search-grounding loop issues rapid automated queries from localhost.
+use_default_settings: true
+server:
+  secret_key: "muezzin-local-2f8a1c4e9b7d6053a2e4f8c1b9d70612"
+  limiter: false
+search:
+  formats:
+    - html
+    - json
