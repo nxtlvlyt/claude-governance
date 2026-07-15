@@ -1,6 +1,6 @@
 {
   "state": "blocked",
-  "detail": "SearXNG down; awaiting nxtbeast Docker one-liner from user",
+  "detail": "Docker wedged on nxtbeast; SearXNG down, missions idle",
   "tempo": "blocked",
   "inFlight": {
     "tasks": 1,
@@ -9,11 +9,11 @@
       "session_cron"
     ]
   },
-  "tokens": 12424673,
-  "needs": "run the nxtbeast Docker one-liner to bring SearXNG up",
+  "tokens": 12425272,
+  "needs": "ssh nxtbeast \"powershell -NoProfile -Command \\\"Stop-Process -Name 'Docker Desktop','com.docker.backend','com.docker.build' -Force -ErrorAction SilentlyContinue; wsl --shutdown; Start-Sleep -Seconds 5; Start-Process 'C:\\Program Files\\Docker\\Docker\\Docker Desktop.exe'\\\"\"",
   "output": null,
   "children": null,
-  "linkScanOffset": 115626406,
+  "linkScanOffset": 115680621,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -41,6 +41,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-15T02:59:32.220Z",
+  "updatedAt": "2026-07-15T03:00:38.834Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
