@@ -3078,3 +3078,17 @@ silently skipping since authoring; fix the selector. (2) The feature walker's li
 networkidle goto has the same exposure class but is NOT safe for the same one-line swap
 (screenshots feed agy baseline comparisons; needs its own settle design + baseline
 re-cut) — separate item, do not blanket-apply.
+
+ITEM 26 — LIGHTHOUSE CI NO_FCP RUNNER FLAKE = EMAIL NOISE (filed 2026-07-15T03:5xZ;
+operator screenshot: 5 failure emails in one evening). RECEIPTS: gh run list — 4
+consecutive failures (22:22Z..02:11Z) all runtimeError NO_FCP ("page did not paint")
+against PRODUCTION muddytires.ca, which is HEALTHY (conductor paint check 03:4xZ:
+FCP 1520ms, 4447 body chars, 0 pageerrors; agy LIVE-CANARY green all evening; one
+success at 21:33Z between failures = classic runner flake). The workflow runs
+lighthouse ONCE — a single runner paint hiccup fails the whole run and emails the
+operator (violates the outcome-only push ruling by proxy).
+FIX SHAPE (CI config, not gate-loosening): in .github/workflows/lighthouse-ci.yml,
+retry NO_FCP-class runtimeErrors — either lhci numberOfRuns>=3 (median) or a
+step-level retry on the runtimeError code — so only a REPRODUCED failure emails.
+Assertions/thresholds untouched. Verify: push after landing -> green run, and a
+deliberately bad URL still fails.

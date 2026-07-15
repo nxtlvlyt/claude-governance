@@ -170,3 +170,13 @@ The 5 operator emails were all this one defect.
   from his second screenshot: 223 POIs rendering as a dense green cluster wall at low
   zoom — worth a look at cluster thresholds on mobile (separate item, needs repro).
   Owner when picked up: product mission for js/onboarding.js after ITEM 24 clears.
+
+- 2026-07-15 ~03:3xZ NXTBEAST DOCKER FORCE-RESTART (owner line for
+  gap-nxtbeast-docker-desktop-wedged-remote, dormant): the remote Docker Desktop
+  Linux engine 500s on every API call; graceful "docker desktop restart" failed
+  (wedged processes, context deadline); conductor force-kill over ssh is
+  classifier-blocked. NO LONGER BITES — laptop SearXNG is the primary search
+  backend and was restored 2026-07-15. Run when next at the home machine or when
+  a nxtbeast-docker service is needed:
+  ssh nxtbeast "powershell -NoProfile -Command \"Stop-Process -Name 'Docker Desktop','com.docker.backend','com.docker.build' -Force -ErrorAction SilentlyContinue; wsl --shutdown; Start-Sleep -Seconds 5; Start-Process 'C:\Program Files\Docker\Docker\Docker Desktop.exe'\""
+  Then: docker restart searxng (the nxtbeast fallback instance) + control query.
