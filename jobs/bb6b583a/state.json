@@ -1,27 +1,18 @@
 {
   "state": "working",
-  "detail": "mt daemon running first mission (1m in); queue 23; awaiting terminal mark",
+  "detail": "monitoring queue drain; e2e-runner changes benign",
   "tempo": "idle",
   "inFlight": {
-    "tasks": 2,
+    "tasks": 1,
     "queued": 0,
     "kinds": [
-      "local_bash",
       "session_cron"
     ]
   },
-  "fan": [
-    {
-      "id": "b9uet6seb",
-      "kind": "shell",
-      "label": "until grep -q \"2026-07-15T03:3[7-9].*firing\\|2026-07-15T03:4.*firing\" \"/c/Users/marka/.claude/muezzin-plugin/missions/_logs/daemon-events.log\" 2>/dev/null; do sleep 5; done; grep \"firing\" \"/c/Users/m…",
-      "startedAt": 1784086685105
-    }
-  ],
-  "tokens": 12507995,
+  "tokens": 12508834,
   "output": null,
   "children": null,
-  "linkScanOffset": 117367092,
+  "linkScanOffset": 117392391,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -49,6 +40,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-15T04:01:27.160Z",
+  "updatedAt": "2026-07-15T04:11:39.912Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
