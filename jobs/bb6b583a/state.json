@@ -1,7 +1,7 @@
 {
-  "state": "blocked",
-  "detail": "system gaps diagnosed; awaiting validation on real load",
-  "tempo": "blocked",
+  "state": "working",
+  "detail": "mt daemon running first mission (1m in); queue 23; awaiting terminal mark",
+  "tempo": "idle",
   "inFlight": {
     "tasks": 2,
     "queued": 0,
@@ -18,11 +18,10 @@
       "startedAt": 1784086685105
     }
   ],
-  "tokens": 12507534,
-  "needs": "confirm whether the daemon-readable stamps (5 landed) are reading correctly and the queue is actually moving under load",
+  "tokens": 12507995,
   "output": null,
   "children": null,
-  "linkScanOffset": 117349666,
+  "linkScanOffset": 117367092,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -50,6 +49,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-15T04:00:21.120Z",
+  "updatedAt": "2026-07-15T04:01:27.160Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
