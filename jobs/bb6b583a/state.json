@@ -1,7 +1,7 @@
 {
-  "state": "blocked",
-  "detail": "tour UX blocking map access; 3 orange-button taps needed",
-  "tempo": "blocked",
+  "state": "done",
+  "detail": "near-me.js deployed to preview (abec3a76); witness exit clean",
+  "tempo": "idle",
   "inFlight": {
     "tasks": 1,
     "queued": 0,
@@ -9,11 +9,12 @@
       "session_cron"
     ]
   },
-  "tokens": 12345473,
-  "needs": "tap the three orange buttons to proceed past the tour modal",
-  "output": null,
+  "tokens": 12353348,
+  "output": {
+    "result": "near-me.js script tag present, WITNESS_EXIT=0; preview deployed abec3a76"
+  },
   "children": null,
-  "linkScanOffset": 114746088,
+  "linkScanOffset": 114840361,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -41,6 +42,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-15T00:02:59.811Z",
+  "updatedAt": "2026-07-15T00:08:16.710Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }

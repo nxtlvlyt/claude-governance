@@ -3040,3 +3040,19 @@ https://preview.muddytires.pages.dev/map.html (or the pinned
 https://7a178562.muddytires.pages.dev/map.html) — tap a campsite popup inside the
 Eastern Slopes corridor; PASS REQUIRED renders in #b0203a with albertarelm.com
 guidance; outside spots keep UNVERIFIED.
+
+ITEM 25 — RULE 8 (deploy-without-commit) FALSE-POSITIVE ON WITNESS-ONLY PREVIEW
+DEPLOYS (filed 2026-07-15T00:1xZ). RECEIPTS: mt-integrate-near-me-discovery.S1.S2
+MIQAT-REFUSED twice (23:48, 00:06) — its single step deploys --branch=preview purely
+as render-witness infrastructure and has NOTHING to commit (parent chain committed);
+the conductor banked its deliverable via ninth-law dry-run (WITNESS_EXIT=0,
+abec3a76.muddytires.pages.dev). The gate's intent (production must never go live
+uncommitted) is untouched by preview-branch deploys.
+FIX SHAPE (gate-LOOSENING — narrow + adversarially verified per drift-and-ratchet,
+same bar as ITEM 24): exempt a deploy step from RULE 8 ONLY when the wrangler command
+carries an explicit --branch=<non-production> flag (literal match, never inferred);
+a deploy with --branch=main or no branch flag still requires the commit pairing.
+Regression selftests: (a) preview-branch witness mission passes; (b) main-branch
+deploy without commit still refused; (c) branch flag via variable/expansion (not
+literal) still refused (no bypass surface). Adversarial pass: agent tries to author
+a production deploy that slips the exemption; lands only if it fails.
