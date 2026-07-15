@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "running 3-reader workflow to extract Luminous Dark values; deploy+fidelity check pending",
+  "detail": "requeueing gap fixes with corrected gate; Luminous workflow redesigning Stitch",
   "tempo": "active",
   "inFlight": {
     "tasks": 2,
@@ -16,6 +16,7 @@
       "kind": "workflow",
       "label": "read:reference",
       "startedAt": 1784095770524,
+      "doneAt": 1784095835016,
       "group": "Read"
     },
     {
@@ -23,6 +24,7 @@
       "kind": "workflow",
       "label": "read:live-css",
       "startedAt": 1784095772299,
+      "doneAt": 1784095889251,
       "group": "Read"
     },
     {
@@ -30,13 +32,29 @@
       "kind": "workflow",
       "label": "read:contract",
       "startedAt": 1784095768456,
+      "doneAt": 1784095813765,
       "group": "Read"
+    },
+    {
+      "id": "aa8b76af26321c8f1",
+      "kind": "workflow",
+      "label": "design:edits",
+      "startedAt": 1784095891492,
+      "doneAt": 1784096248629,
+      "group": "Design"
+    },
+    {
+      "id": "a01ba553c17a866fb",
+      "kind": "workflow",
+      "label": "verify:adversarial",
+      "startedAt": 1784096252887,
+      "group": "Verify"
     }
   ],
-  "tokens": 12653088,
+  "tokens": 12710966,
   "output": null,
   "children": null,
-  "linkScanOffset": 118614945,
+  "linkScanOffset": 118730209,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -64,6 +82,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-15T06:09:44.332Z",
+  "updatedAt": "2026-07-15T06:20:39.968Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
