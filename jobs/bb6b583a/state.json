@@ -1,6 +1,6 @@
 {
   "state": "blocked",
-  "detail": "SearXNG down; awaiting Docker restart on nxtbeast",
+  "detail": "SearXNG down; Docker engine wedged; awaiting one-liner fix",
   "tempo": "blocked",
   "inFlight": {
     "tasks": 1,
@@ -9,11 +9,11 @@
       "session_cron"
     ]
   },
-  "tokens": 12422268,
-  "needs": "run the Docker one-liner on nxtbeast to restart SearXNG",
+  "tokens": 12422828,
+  "needs": "apply the one-liner Docker engine fix",
   "output": null,
   "children": null,
-  "linkScanOffset": 115555722,
+  "linkScanOffset": 115573158,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -41,6 +41,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-15T02:13:42.275Z",
+  "updatedAt": "2026-07-15T02:29:34.284Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
