@@ -1,20 +1,42 @@
 {
-  "state": "done",
-  "detail": "mapped 6 QC layers + 2 owned gaps (fidelity check, atv-13 restructure)",
-  "tempo": "idle",
+  "state": "working",
+  "detail": "running 3-reader workflow to extract Luminous Dark values; deploy+fidelity check pending",
+  "tempo": "active",
   "inFlight": {
-    "tasks": 1,
+    "tasks": 2,
     "queued": 0,
     "kinds": [
+      "local_workflow",
       "session_cron"
     ]
   },
-  "tokens": 12649553,
-  "output": {
-    "result": "QC process misses design-authority alignment; fidelity check + atv-13 redesign needed"
-  },
+  "fan": [
+    {
+      "id": "ae56b2e9b044e9b8b",
+      "kind": "workflow",
+      "label": "read:reference",
+      "startedAt": 1784095770524,
+      "group": "Read"
+    },
+    {
+      "id": "a32003cbb573b66d5",
+      "kind": "workflow",
+      "label": "read:live-css",
+      "startedAt": 1784095772299,
+      "group": "Read"
+    },
+    {
+      "id": "a225f2b982ac91e95",
+      "kind": "workflow",
+      "label": "read:contract",
+      "startedAt": 1784095768456,
+      "group": "Read"
+    }
+  ],
+  "tokens": 12653088,
+  "output": null,
   "children": null,
-  "linkScanOffset": 118534757,
+  "linkScanOffset": 118614945,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -42,6 +64,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-15T06:08:03.490Z",
+  "updatedAt": "2026-07-15T06:09:44.332Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
