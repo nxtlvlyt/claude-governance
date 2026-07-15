@@ -1,6 +1,6 @@
 {
-  "state": "working",
-  "detail": "preflight gate fixed; lane-fix refire ready for daemon",
+  "state": "done",
+  "detail": "agy stitch integration verified end-to-end: d036719 committed, design-contract lint enforced, live stylesheet witnessed",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,12 @@
       "session_cron"
     ]
   },
-  "tokens": 12634483,
-  "output": null,
+  "tokens": 12637143,
+  "output": {
+    "result": "Stitch integration fixed: 288-line homepage + design system in d036719; DESIGN.md V3 is visual authority; design-contract lint (RULE 13) gates missions; atv-12/.card-desc witnessed in production stylesheet"
+  },
   "children": null,
-  "linkScanOffset": 118175239,
+  "linkScanOffset": 118252556,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -40,6 +42,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-15T05:49:02.088Z",
+  "updatedAt": "2026-07-15T05:52:13.195Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
