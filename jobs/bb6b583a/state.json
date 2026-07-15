@@ -1,19 +1,35 @@
 {
-  "state": "blocked",
-  "detail": "SearXNG daemon dead; Docker engine wedged on nxtbeast",
-  "tempo": "blocked",
+  "state": "working",
+  "detail": "tour escape hatches deployed; verification running on 2 phone contexts",
+  "tempo": "idle",
   "inFlight": {
-    "tasks": 1,
+    "tasks": 3,
     "queued": 0,
     "kinds": [
+      "local_bash",
       "session_cron"
     ]
   },
-  "tokens": 12365698,
-  "needs": "run the ssh one-liner from last report or apply permissions rule so agent can restart Docker",
-  "output": null,
+  "fan": [
+    {
+      "id": "b4kvuiiyd",
+      "kind": "shell",
+      "label": "cd \"/c/Users/marka/code/mt-integration-2026-06-22\" && node \"/c/Users/marka/.claude/jobs/bb6b583a/tmp/onboard-hatch-verify.mjs\" \"https://5e7380d8.muddytires.pages.dev\" > \"/c/Users/marka/.claude/jobs/b…",
+      "startedAt": 1784077411940
+    },
+    {
+      "id": "bjblkf4g8",
+      "kind": "shell",
+      "label": "until grep -q \"EXIT=\" \"/c/Users/marka/.claude/jobs/bb6b583a/tmp/hatch-verify.log\" 2>/dev/null; do sleep 3; done; cat \"/c/Users/marka/.claude/jobs/bb6b583a/tmp/hatch-verify.log\"",
+      "startedAt": 1784077607766
+    }
+  ],
+  "tokens": 12374882,
+  "output": {
+    "result": "interim link: https://5e7380d8.muddytires.pages.dev/map.html?tour=0"
+  },
   "children": null,
-  "linkScanOffset": 115014224,
+  "linkScanOffset": 115235331,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -41,6 +57,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-15T00:44:31.220Z",
+  "updatedAt": "2026-07-15T01:10:23.653Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
