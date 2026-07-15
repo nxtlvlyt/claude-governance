@@ -1,18 +1,49 @@
 {
   "state": "working",
-  "detail": "queue draining (24→19); S2 fixes landed; re-bared lane-fix running",
-  "tempo": "idle",
+  "detail": "sonnet workflow synthesizing N5 roadmap from spec, laws, lessons, substrate",
+  "tempo": "active",
   "inFlight": {
-    "tasks": 1,
+    "tasks": 2,
     "queued": 0,
     "kinds": [
+      "local_workflow",
       "session_cron"
     ]
   },
-  "tokens": 12532750,
+  "fan": [
+    {
+      "id": "a58a7d2131634e5c4",
+      "kind": "workflow",
+      "label": "read:spec",
+      "startedAt": 1784091788244,
+      "group": "Read"
+    },
+    {
+      "id": "a76ba51a4af79bafc",
+      "kind": "workflow",
+      "label": "read:laws",
+      "startedAt": 1784091790330,
+      "group": "Read"
+    },
+    {
+      "id": "a497584505e22bec7",
+      "kind": "workflow",
+      "label": "read:receipts",
+      "startedAt": 1784091788114,
+      "group": "Read"
+    },
+    {
+      "id": "a66565ebd8eb0d1ca",
+      "kind": "workflow",
+      "label": "read:substrate",
+      "startedAt": 1784091788268,
+      "group": "Read"
+    }
+  ],
+  "tokens": 12538393,
   "output": null,
   "children": null,
-  "linkScanOffset": 117865792,
+  "linkScanOffset": 117939483,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -40,6 +71,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-15T05:01:41.883Z",
+  "updatedAt": "2026-07-15T05:03:23.474Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
