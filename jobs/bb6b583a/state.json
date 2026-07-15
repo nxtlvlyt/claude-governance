@@ -1,19 +1,27 @@
 {
-  "state": "blocked",
-  "detail": "waiting on you.",
-  "tempo": "blocked",
+  "state": "working",
+  "detail": "checking for SearXNG in Docker Desktop; auto-starting if found",
+  "tempo": "idle",
   "inFlight": {
-    "tasks": 1,
+    "tasks": 2,
     "queued": 0,
     "kinds": [
+      "local_bash",
       "session_cron"
     ]
   },
-  "tokens": 12425939,
-  "needs": "waiting on you.",
+  "fan": [
+    {
+      "id": "bu917nosg",
+      "kind": "shell",
+      "label": "until docker ps --format \"{{.Names}} {{.Status}}\" 2>/dev/null | grep -q .; do sleep 5; done; docker ps -a --format \"{{.Names}} {{.Status}} {{.Ports}}\" | head -8",
+      "startedAt": 1784084658044
+    }
+  ],
+  "tokens": 12428723,
   "output": null,
   "children": null,
-  "linkScanOffset": 115702233,
+  "linkScanOffset": 115781726,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -41,6 +49,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-15T03:01:34.827Z",
+  "updatedAt": "2026-07-15T03:07:38.468Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
