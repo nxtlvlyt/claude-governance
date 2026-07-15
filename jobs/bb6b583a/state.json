@@ -1,18 +1,27 @@
 {
   "state": "working",
-  "detail": "CI failure root-cause analysis; fixing register + memory layer; daemon check pending",
+  "detail": "daemon restarted (pid 6476); monitoring first fire; diagnostics queued",
   "tempo": "idle",
   "inFlight": {
-    "tasks": 1,
+    "tasks": 2,
     "queued": 0,
     "kinds": [
+      "local_bash",
       "session_cron"
     ]
   },
-  "tokens": 12453997,
+  "fan": [
+    {
+      "id": "b9uet6seb",
+      "kind": "shell",
+      "label": "until grep -q \"2026-07-15T03:3[7-9].*firing\\|2026-07-15T03:4.*firing\" \"/c/Users/marka/.claude/muezzin-plugin/missions/_logs/daemon-events.log\" 2>/dev/null; do sleep 5; done; grep \"firing\" \"/c/Users/m…",
+      "startedAt": 1784086685105
+    }
+  ],
+  "tokens": 12468493,
   "output": null,
   "children": null,
-  "linkScanOffset": 116987073,
+  "linkScanOffset": 117164018,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -40,6 +49,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-15T03:34:34.561Z",
+  "updatedAt": "2026-07-15T03:48:27.176Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }

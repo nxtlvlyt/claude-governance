@@ -3092,3 +3092,18 @@ retry NO_FCP-class runtimeErrors — either lhci numberOfRuns>=3 (median) or a
 step-level retry on the runtimeError code — so only a REPRODUCED failure emails.
 Assertions/thresholds untouched. Verify: push after landing -> green run, and a
 deliberately bad URL still fails.
+
+ITEM 27 — MT QUEUE ZOMBIE-STALL: ZERO FIRES SINCE 00:06Z DESPITE 24 PENDING (filed
+2026-07-15T04:2xZ; NEXT-WAKE FIRST ITEM). NARROWED same-wake: NOT SearXNG-current
+(restored 03:15Z, HTTP 200, searchReadinessGate would log HELD — none logged); NOT
+stale daemon memory (fresh restart pid 6476 at 03:37Z, receipted launch shape, still
+zero fires). Remaining hypothesis (UNTESTED): all 24 bare lines are silently
+dep-blocked — heads like poi-tags.S2 / mobile-qc-hardening.S1.S2 REQUIRE parents that
+sit FAILED, a REAL unmet dep (silent skip; only phantom-token deps get the
+queuedDepsHold advisory), and the sweep may end at the first pending line rather than
+scanning past it. DIAGNOSE: read muezzin-daemon.mjs candidate loop (does an unmet
+REQUIRES return-from-poll or continue?); count how many of the 24 have unmet real
+deps; then either (a) fix loop to continue past dep-blocked lines, or (b) drain the
+FAILED parents per the seventh law so deps unblock, or both. The queue being 100%
+non-fireable while showing "24 queued" is itself a board-truth gap — the status file
+should distinguish fireable from dep-waiting.
