@@ -184,8 +184,8 @@
     "skipWorkflowUsageWarning":  true,
     "permissions":  {
                         "allow":  [
-                                      "Bash(git commit -m*:*git_steps.mjs*)",
-                                      "Bash(git commit -m*:*orchestrate.mjs*)",
+                                      "Bash(git commit -m*git_steps.mjs*)",
+                                      "Bash(git commit -m*orchestrate.mjs*)",
                                       "Bash(Stop-Process -Id *)"
                                   ]
                     }
