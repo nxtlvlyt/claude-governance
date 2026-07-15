@@ -1,6 +1,6 @@
 {
   "state": "done",
-  "detail": "agy stitch integration verified end-to-end: d036719 committed, design-contract lint enforced, live stylesheet witnessed",
+  "detail": "preview live at androidtv-tips.pages.dev; full iteration pending restructure",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,12 +9,12 @@
       "session_cron"
     ]
   },
-  "tokens": 12637143,
+  "tokens": 12642072,
   "output": {
-    "result": "Stitch integration fixed: 288-line homepage + design system in d036719; DESIGN.md V3 is visual authority; design-contract lint (RULE 13) gates missions; atv-12/.card-desc witnessed in production stylesheet"
+    "result": "Current: androidtv-tips.pages.dev live with atv-11b+12 design. Full Stitch iteration (atv-13) ready after stylesheet restructure on mission cadence (days-scale)."
   },
   "children": null,
-  "linkScanOffset": 118252556,
+  "linkScanOffset": 118348241,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -42,6 +42,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-15T05:52:13.195Z",
+  "updatedAt": "2026-07-15T05:58:49.219Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
