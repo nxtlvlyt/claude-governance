@@ -1,0 +1,45 @@
+MISSION-ID: engine-external-signals-poller
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\.claude\muezzin-plugin
+ALLOW-FILES:
+  - conduct-cycle.mjs
+  - signals.json
+REQUIRES: none
+STEPS: 5
+
+Maqsad: land the FIRST SLICE of gap-external-signals-poller (QUEUE ITEM 19 + its
+2026-07-12 extension; elevated dormant->bite 2026-07-15 by the operator's process
+instruction "does our process automatically handle what I am getting email
+notifications for or must I send a screenshot everytime"). Deliverable: conduct-cycle's
+sweep polls GitHub Actions conclusions (gh CLI, authenticated as nxtlvlyt) and Sentry
+unresolved issues (SENTRY_AUTH_TOKEN User env var — the operator's identity-bound piece
+was done 2026-07-12, receipted in ~/.claude/state/sentry-poll.env) for the repos and
+projects in signals.json, diffs against a last-seen cursor
+(missions/_logs/external-signals-state.json, cursor advances only AFTER a successful
+append), and lands NEW failures on the diagnosis-debt surface (dated INBOX.md entry +
+GAP-REGISTER.jsonl line) that the user-prompt-submit hook already injects into every
+conductor turn. The patch is PRE-AUTHORED and TWICE-VERIFIED (agent scratch: applied
+clean, full selftest 93 PASS with only the pre-existing unrelated false-death fixture
+FAIL, all 9 new EXTERNAL SIGNALS asserts PASS, idempotent; conductor independent fresh
+scratch: PATCHED, node --check exit 0, ALREADY-PATCHED on rerun). This mission runs the
+staged patcher and banks the result — the seat transcribes literal commands, designs
+nothing.
+
+niyyah: the operator was the sensor for every CI failure until tonight; this slice makes
+the board the sensor. Gap-class work — fires through the GAP-PRIORITY-HOLD by design.
+
+Steps:
+  1. Idempotent baseline. Run exactly: $head = git rev-parse HEAD; if (Select-String -Path conduct-cycle.mjs -Pattern 'checkGithubCiSignals' -Quiet) { Write-Output "POLLER_PRESENT HEAD=$head" } else { Write-Output "POLLER_ABSENT HEAD=$head" }. Never exit 1 on either outcome. [command]
+  2. Apply the staged patcher (idempotent — prints ALREADY-PATCHED/SKIP on a re-run). Run exactly: node missions/_logs/external-signals-poller-patch.mjs; if ($LASTEXITCODE -ne 0) { Write-Output PATCHER-FAILED; exit 1 }; Write-Output PATCH-STEP-OK [command]
+  3. Selftest gate (the full suite carries ONE pre-existing unrelated FAIL — the false-death byte-identical fixture, confirmed failing on the UNPATCHED file too; the gate therefore requires the new asserts present and no NEW failures, not a blanket exit 0). Run exactly: $out = node conduct-cycle.mjs --selftest 2>&1 | Out-String; $fails = ([regex]::Matches($out, 'FAIL')).Count; $extPass = ([regex]::Matches($out, 'PASS\s+EXTERNAL SIGNALS')).Count; Write-Output "selftest: extSignalsPass=$extPass totalFailLines=$fails"; if ($extPass -lt 5) { Write-Output EXTERNAL-ASSERTS-MISSING; exit 1 }; if ($fails -gt 1) { Write-Output NEW-FAILURES-INTRODUCED; exit 1 }; if ($fails -eq 1 -and ($out -notmatch 'false-death')) { Write-Output UNEXPECTED-FAIL-CLASS; exit 1 }; Write-Output SELFTEST-GATE-OK [verify]
+  4. Scoped commit, idempotent. Run exactly: $dirty = git status --porcelain -- conduct-cycle.mjs signals.json; $atHead = (git show HEAD:conduct-cycle.mjs) -match 'checkGithubCiSignals'; if (-not $dirty -and $atHead) { Write-Output ALREADY_COMMITTED; exit 0 }; git add -- conduct-cycle.mjs signals.json; git commit -m "feat(engine): external-signals poller first slice — gh Actions conclusions + Sentry unresolved into the diagnosis-debt surface, cursor-deduped (gap-external-signals-poller / ITEM 19; patcher receipts in mission text)" -- conduct-cycle.mjs signals.json; if ((git show HEAD:conduct-cycle.mjs) -match 'checkGithubCiSignals') { Write-Output COMMITTED_AT_HEAD } else { Write-Output COMMIT_VERIFY_FAIL; exit 1 } [command]
+  5. LIVE-BEAT OUTCOME. Run exactly: node conduct-cycle.mjs 2>&1 | Select-Object -Last 5 | Out-String | Write-Output; if (-not (Test-Path missions/_logs/external-signals-state.json)) { Write-Output CURSOR-STATE-MISSING; exit 1 }; $st = Get-Content missions/_logs/external-signals-state.json -Raw; Write-Output "CURSOR-STATE: $($st.Substring(0, [Math]::Min(300, $st.Length)))"; Write-Output LIVE-BEAT-OK [command]
+
+Done means: conduct-cycle.mjs at HEAD carrying checkGithubCiSignals + checkSentrySignals
+wired into sweep() and heal(), signals.json committed beside it, the selftest's EXTERNAL
+SIGNALS asserts green with zero new failures, and one LIVE beat executed that created
+the cursor state file — from this point CI failures and Sentry issues reach the
+conductor's injected diagnosis-debt surface without the operator forwarding anything.
+CONDUCTOR POST-LANDING DUTY (not a mission step): restart the mt daemon at an idle
+boundary — the daemon statically imports conduct-cycle.mjs and will not see this code
+until respawned (receipted staleness class).
