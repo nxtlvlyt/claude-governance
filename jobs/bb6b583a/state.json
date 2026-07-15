@@ -1,60 +1,20 @@
 {
-  "state": "working",
-  "detail": "lane-fix refire running (20min), N5 roadmap workflow reading",
-  "tempo": "active",
+  "state": "done",
+  "detail": "N5 roadmap prepped: 14 spec items sketched, sourced, critic review complete",
+  "tempo": "idle",
   "inFlight": {
-    "tasks": 2,
+    "tasks": 1,
     "queued": 0,
     "kinds": [
-      "local_workflow",
       "session_cron"
     ]
   },
-  "fan": [
-    {
-      "id": "a58a7d2131634e5c4",
-      "kind": "workflow",
-      "label": "read:spec",
-      "startedAt": 1784091788244,
-      "doneAt": 1784091880863,
-      "group": "Read"
-    },
-    {
-      "id": "a76ba51a4af79bafc",
-      "kind": "workflow",
-      "label": "read:laws",
-      "startedAt": 1784091790330,
-      "doneAt": 1784091861167,
-      "group": "Read"
-    },
-    {
-      "id": "a497584505e22bec7",
-      "kind": "workflow",
-      "label": "read:receipts",
-      "startedAt": 1784091788114,
-      "doneAt": 1784092306827,
-      "group": "Read"
-    },
-    {
-      "id": "a66565ebd8eb0d1ca",
-      "kind": "workflow",
-      "label": "read:substrate",
-      "startedAt": 1784091788268,
-      "doneAt": 1784091900088,
-      "group": "Read"
-    },
-    {
-      "id": "a9139cca4a6c2b87e",
-      "kind": "workflow",
-      "label": "synthesize",
-      "startedAt": 1784092311611,
-      "group": "Synthesize"
-    }
-  ],
-  "tokens": 12575774,
-  "output": null,
+  "tokens": 12625100,
+  "output": {
+    "result": "N5-ROADMAP-PREP-2026-07-15.md committed; 14 items ready; one decision: sweep items 1-6 before agy graduation or wait behind gate?"
+  },
   "children": null,
-  "linkScanOffset": 117957239,
+  "linkScanOffset": 118033939,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -82,6 +42,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-15T05:14:28.581Z",
+  "updatedAt": "2026-07-15T05:25:05.120Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
