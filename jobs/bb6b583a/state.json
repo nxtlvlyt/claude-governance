@@ -1,7 +1,7 @@
 {
-  "state": "done",
-  "detail": "orange buttons fixed; tour-free link deployed",
-  "tempo": "idle",
+  "state": "blocked",
+  "detail": "wedged Docker engine on nxtbeast; needs terminal restart",
+  "tempo": "blocked",
   "inFlight": {
     "tasks": 2,
     "queued": 0,
@@ -18,12 +18,13 @@
       "startedAt": 1784077897761
     }
   ],
-  "tokens": 12376731,
+  "tokens": 12377334,
+  "needs": "run the restart command on nxtbeast (see earlier report)",
   "output": {
-    "result": "fixes shipped (e003f2b); tour-free link: https://5e7380d8.muddytires.pages.dev/map.html?tour=0"
+    "result": "deploy live at https://5e7380d8.muddytires.pages.dev/map.html?tour=0; Docker engine on nxtbeast wedged"
   },
   "children": null,
-  "linkScanOffset": 115280631,
+  "linkScanOffset": 115300807,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -51,6 +52,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-15T01:16:37.988Z",
+  "updatedAt": "2026-07-15T01:17:19.210Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
