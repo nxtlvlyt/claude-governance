@@ -3056,3 +3056,25 @@ Regression selftests: (a) preview-branch witness mission passes; (b) main-branch
 deploy without commit still refused; (c) branch flag via variable/expansion (not
 literal) still refused (no bypass surface). Adversarial pass: agent tries to author
 a production deploy that slips the exemption; lands only if it fails.
+
+ITEM 24 STATUS UPDATE (2026-07-15T02:0xZ): DETECTOR FIX LANDED — commit 80d4c0e
+(mt-integration), adversarial-verify bar met: prep agent designed + self-adversarial
+pass; regression (a) patched sweep vs preview 7a178562 ran BOTH viewports (8 controls,
+28 pairs — first-ever completed mobile sweep) and CAUGHT 4 real overlaps; regression
+(b) broken page still DETECTOR_ERRORs (waitForSelector timeout) exit 2. THE GATE IS
+NOW HONEST — and honestly RED. Remaining path to "e2e exit 0" (the deploys-ruling
+condition for the camping-pass production deploy):
+  a. 4 REAL overlaps, product UI work: desktop #mt-search-icon x .leaflet-control-zoom
+     + x .mt-locate; mobile #filtbtn x .leaflet-control-zoom + #mt-search-icon x
+     .mt-locate. Mission candidate: reposition/pad these controls; sweep is the verify.
+  b. Catalog junk = standing exit-1 floor: docs/FEATURE-CATALOG-2026-06-23.md carries a
+     template entry ("name" / placeholder URL) + parenthetical page values that
+     guarantee 2+ FEATURE_FAILED concerns every run. Data hygiene fix, not gate work.
+  c. Remaining agy-graded visual concerns after (b) — judge individually.
+SIDE-FINDINGS from the ITEM-24 prep (filed here so they're owned): (1) DEAD PROTECTION:
+the aurora coverage check guards #mt-aurora-chip which does not exist anywhere (only
+.mt-aurora-chip class + #mt-aurora-chip-legend) — the protected-region check has been
+silently skipping since authoring; fix the selector. (2) The feature walker's line-334
+networkidle goto has the same exposure class but is NOT safe for the same one-line swap
+(screenshots feed agy baseline comparisons; needs its own settle design + baseline
+re-cut) — separate item, do not blanket-apply.

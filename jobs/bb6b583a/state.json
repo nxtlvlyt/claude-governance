@@ -1,27 +1,18 @@
 {
   "state": "working",
-  "detail": "ITEM 24 prep agent designing overlap-detector fix; awaiting subagent",
-  "tempo": "active",
+  "detail": "overlap detector fixed (4 UI bugs found); cataloging deployment blockers",
+  "tempo": "idle",
   "inFlight": {
-    "tasks": 2,
+    "tasks": 1,
     "queued": 0,
     "kinds": [
-      "local_agent",
       "session_cron"
     ]
   },
-  "fan": [
-    {
-      "id": "ae8bb54fe3819cdb6",
-      "kind": "agent",
-      "label": "Design ITEM-24 detector fix",
-      "startedAt": 1784079894898
-    }
-  ],
-  "tokens": 12381981,
+  "tokens": 12421159,
   "output": null,
   "children": null,
-  "linkScanOffset": 115390366,
+  "linkScanOffset": 115534650,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -49,6 +40,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-15T01:45:15.988Z",
+  "updatedAt": "2026-07-15T02:12:26.304Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
