@@ -1,7 +1,7 @@
 {
-  "state": "blocked",
-  "detail": "Luminous Dark palette deployed to preview; awaiting your visual sign-off",
-  "tempo": "blocked",
+  "state": "done",
+  "detail": "lane-fix attempt 2 running (10m in); awaiting daemon cadence",
+  "tempo": "idle",
   "inFlight": {
     "tasks": 1,
     "queued": 0,
@@ -9,13 +9,12 @@
       "session_cron"
     ]
   },
-  "tokens": 12750553,
-  "needs": "review the preview and confirm if the deploy should go to production",
+  "tokens": 12751003,
   "output": {
-    "result": "Luminous Dark palette live on preview (https://0be3d5a6.androidtv-tips.pages.dev); body token binding fixed; fidelity gate passed"
+    "result": "both daemons alive, lane-fix on attempt 2 past plan gate, Luminous Dark preview committed"
   },
   "children": null,
-  "linkScanOffset": 118928916,
+  "linkScanOffset": 118949137,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -43,6 +42,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-15T06:37:29.139Z",
+  "updatedAt": "2026-07-15T06:38:13.052Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
