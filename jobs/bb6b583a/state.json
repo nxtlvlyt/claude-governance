@@ -1,6 +1,6 @@
 {
   "state": "blocked",
-  "detail": "Docker engine wedged on nxtbeast; force-kill denied",
+  "detail": "SearXNG daemon dead; Docker engine wedged on nxtbeast",
   "tempo": "blocked",
   "inFlight": {
     "tasks": 1,
@@ -9,13 +9,11 @@
       "session_cron"
     ]
   },
-  "tokens": 12365110,
-  "needs": "run force-kill command or type `! <command>` to restart Docker Desktop",
-  "output": {
-    "result": "gap-nxtbeast-docker-engine-wedged filed; SearXNG offline, mt daemon idle pending Docker restart"
-  },
+  "tokens": 12365698,
+  "needs": "run the ssh one-liner from last report or apply permissions rule so agent can restart Docker",
+  "output": null,
   "children": null,
-  "linkScanOffset": 114993967,
+  "linkScanOffset": 115014224,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -43,6 +41,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-15T00:43:00.222Z",
+  "updatedAt": "2026-07-15T00:44:31.220Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
