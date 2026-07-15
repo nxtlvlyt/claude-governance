@@ -1,28 +1,18 @@
 {
-  "state": "blocked",
-  "detail": "SearXNG down on nxtbeast; awaiting operator restart",
-  "tempo": "blocked",
+  "state": "working",
+  "detail": "hatch verified (e003f2b committed); awaiting ITEM 24/25 search + Docker setup",
+  "tempo": "idle",
   "inFlight": {
-    "tasks": 2,
+    "tasks": 1,
     "queued": 0,
     "kinds": [
-      "local_bash",
       "session_cron"
     ]
   },
-  "fan": [
-    {
-      "id": "bxu88jo13",
-      "kind": "shell",
-      "label": "cd \"/c/Users/marka/code/mt-integration-2026-06-22\" && node \"/c/Users/marka/.claude/jobs/bb6b583a/tmp/onboard-hatch-verify.mjs\" \"https://5e7380d8.muddytires.pages.dev\" 2>&1 | tail -4",
-      "startedAt": 1784077897761
-    }
-  ],
-  "tokens": 12377800,
-  "needs": "run the operator one-liner to restart Docker engine on nxtbeast",
+  "tokens": 12378079,
   "output": null,
   "children": null,
-  "linkScanOffset": 115317918,
+  "linkScanOffset": 115332478,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -50,6 +40,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-15T01:18:18.431Z",
+  "updatedAt": "2026-07-15T01:22:22.864Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
