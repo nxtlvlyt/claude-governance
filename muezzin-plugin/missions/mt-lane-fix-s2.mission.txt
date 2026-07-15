@@ -1,0 +1,43 @@
+MISSION-ID: mt-lane-fix-s2
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - map.html
+VISUAL-QC-REQUIRED
+REQUIRES: none
+STEPS: 5
+
+Maqsad: clear the REMAINING real control-lane violations the production-deploy guard
+chain surfaced 2026-07-15 (e2e-runner exit 2 against preview 0220f15b — receipts in
+missions/_logs/ INBOX note ~19:2x and the conductor's e2e-lanefix-prod-gate.json):
+(a) DESKTOP #mt-search-icon (y716-752 at 1440x900) intersects BOTH .leaflet-control-zoom
+(674-740) and .mt-locate (748-776) — the S1 fix was mobile-scoped (max-width:480px),
+desktop never got one; (b) MOBILE #stamp (y636-654) intersects .mt-locate (644-688);
+(c) MOBILE tap-target floor: #filtbtn 132x33, #mt-pd-gear 30x30, .leaflet-control-zoom
+34x66 all under the 40px rule. ALL PRE-EXISTING on production. The fix CSS below was
+VALIDATED LIVE by the conductor via injected-style dry-run at BOTH e2e viewports
+(receipt: S2-CANDIDATE-PASS — zero overlaps all pairs, all real mobile tap targets
+>=40px; desktop search lands y614-650, clear of the lane; mobile stamp lands y598-616,
+clear of locate). HONEST SCOPE NOTE: landing this does NOT yet green the deploy gate —
+the detector-calibration mission (next construct: #stamp non-interactive + hidden #add
+enumerated as tap targets, plan-mode DETECTOR_ERROR) must also land; this mission
+clears every REAL rendering defect.
+
+niyyah: the measure-validate-pin shape that closed S1 — every value below came from a
+live render measurement, none from memory; the seat transcribes, never designs.
+Scope every assertion to map.html only.
+
+Steps:
+  1. Idempotent content-aware baseline (the S1 resume-bank lesson: presence of the id is NOT presence of the fix). Run exactly: $head = git rev-parse HEAD; if (Select-String -Path map.html -Pattern 'min-width: 481px' -Quiet) { Write-Output "S2_PRESENT HEAD=$head" } else { Write-Output "S2_ABSENT HEAD=$head" }. Never exit 1 on either outcome. [command]
+  2. Deterministic insert (NOT a freeform edit — the receipted sentry-atv fix-shape). Run exactly: $p = 'map.html'; $html = Get-Content $p -Raw; if ($html -match 'min-width: 481px') { Write-Output S2-ALREADY-INSERTED; exit 0 }; $anchor = '            body .mt-locate { min-width: 44px !important; min-height: 44px !important; padding: 11px 10px !important; box-sizing: border-box !important; z-index: 1002 !important; }'; if ($html.IndexOf($anchor) -lt 0) { Write-Output ANCHOR-MISSING; exit 1 }; $mobileAdd = "`n            /* S2: stamp out of the locate band + tap-target floors (e2e 40x40 rule; conductor-validated S2-CANDIDATE-PASS 2026-07-15) */`n            body #stamp { bottom: 196px !important; }`n            body #filtbtn { min-height: 40px !important; }`n            body #mt-pd-gear { min-width: 44px !important; min-height: 44px !important; }`n            body .leaflet-control-zoom a { width: 44px !important; height: 44px !important; line-height: 44px !important; }"; $desktopBlock = "`n        @media (min-width: 481px) {`n            /* S2 desktop: lift the search FAB clear of the lane column (measured: lane y666-776 at 1440x900, search was y716-752 inside it) */`n            body #mt-search-icon { bottom: 250px !important; left: 10px !important; }`n        }"; $html = $html.Replace($anchor, $anchor + $mobileAdd); $closeAnchor = $anchor + $mobileAdd; $mediaClose = $html.IndexOf('        }', $html.IndexOf($closeAnchor)); if ($mediaClose -lt 0) { Write-Output MEDIA-CLOSE-MISSING; exit 1 }; $html = $html.Insert($mediaClose + 9, $desktopBlock); Set-Content $p -Value $html -NoNewline; if ((Get-Content $p -Raw) -notmatch 'min-width: 481px') { Write-Output INSERT-VERIFY-FAIL; exit 1 }; Write-Output S2-INSERTED [command]
+  3. Scoped cleanliness (S1's pinned literal, unchanged invariant: only foreign tracked dirt fails; map.html dirty or clean are BOTH correct). Run exactly: $foreign = @(git status --porcelain -uno -- ':!map.html'); if ($foreign.Count -gt 0) { Write-Output "FOREIGN-TRACKED-DIRT: $($foreign -join '; ')"; exit 1 }; Write-Output SCOPED_CLEAN [verify]
+  4. Scoped commit, idempotent (S1 step-5 shape). Run exactly: $dirty = git status --porcelain -- map.html; $atHead = (git show HEAD:map.html) -match 'min-width: 481px'; if (-not $dirty -and $atHead) { Write-Output ALREADY_COMMITTED; exit 0 }; git add -- map.html; git commit -m "fix(map): S2 control-lane — desktop search-FAB clear of lane, mobile stamp/locate separation, tap-target floors (mt-lane-fix-s2; conductor-validated S2-CANDIDATE-PASS; prod-deploy guard receipts 2026-07-15)" -- map.html; if ((git show HEAD:map.html) -match 'min-width: 481px') { Write-Output COMMITTED_AT_HEAD } else { Write-Output COMMIT_VERIFY_FAIL; exit 1 } [command]
+  5. OUTCOME CHECK — live render witness at BOTH e2e viewports (block-presence alone is a hollow pass; the S1 lesson). In ONE self-contained command: confirm git status --porcelain -- map.html is empty; run wrangler pages deploy . --project-name=muddytires --branch=preview; capture the emitted https://<subdomain>.muddytires.pages.dev URL; poll "$url/map" until HTTP 200 (up to 10x5s); write scratch-lanes2-qc.mjs via here-string (playwright; for EACH of desktop 1440x900 isMobile:false and mobile 375x812 isMobile:true: page.goto($env:MT_PREVIEW_URL + '/map', {waitUntil:'domcontentloaded', timeout:45000}), page.waitForSelector('#map, .leaflet-container', {state:'visible', timeout:60000}), waitForSelector('#mt-search-icon', {state:'attached', timeout:15000}) best-effort, waitForTimeout 2500, read boundingBoxes of #mt-search-icon, .mt-locate, #filtbtn, .leaflet-control-zoom, #stamp, #mt-pd-gear, print an OVERLAP line for every intersecting pair among those present, and on mobile print a TAP line for each of #mt-search-icon/.mt-locate/#filtbtn/#mt-pd-gear/.leaflet-control-zoom smaller than 40x40, then print LANES2_QC_PASS only when zero OVERLAP and zero TAP lines across both viewports — expected geometry from the conductor's validation: desktop search y~614-650 clear of zoom 674-740; mobile stamp y~598-616 clear of locate 644-688), run it with $env:MT_PREVIEW_URL = $url; node scratch-lanes2-qc.mjs, then Remove-Item the scratch. The printed lines ARE the render receipt. [command]
+
+Done means: map.html committed at HEAD carrying the S2 rules inside the existing
+mt-mobile-lane-fix style block (mobile additions inside the max-width:480px media,
+plus a new min-width:481px media for the desktop search-FAB lift), AND the live
+preview render at BOTH e2e viewports shows zero overlaps among the six lane controls
+and every real mobile control at or above the 40px tap floor (LANES2_QC_PASS printed
+from live fetches). The production deploy chain re-runs only after the sibling
+detector-calibration mission also lands.
