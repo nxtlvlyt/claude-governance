@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "lane-fix witness-HELD since 04:54; humble-validated flag, ack recorded 05:31; awaiting conductor retry",
+  "detail": "preflight gate fixed; lane-fix refire ready for daemon",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 12628374,
+  "tokens": 12634483,
   "output": null,
   "children": null,
-  "linkScanOffset": 118087767,
+  "linkScanOffset": 118175239,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -40,6 +40,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-15T05:31:35.758Z",
+  "updatedAt": "2026-07-15T05:49:02.088Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
