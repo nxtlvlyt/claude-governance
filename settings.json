@@ -1,192 +1,192 @@
-﻿{
-    "model":  "claude-fable-5[1m]",
-    "fallbackModel":  [
-                          "claude-opus-4-8",
-                          "claude-sonnet-5"
-                      ],
-    "hooks":  {
-                  "SessionStart":  [
-                                       {
-                                           "hooks":  [
-                                                         {
-                                                             "type":  "command",
-                                                             "command":  "node \"C:\\Users\\marka\\.claude\\hooks\\session-start.mjs\"",
-                                                             "timeout":  30
-                                                         }
-                                                     ]
-                                       }
-                                   ],
-                  "UserPromptSubmit":  [
-                                           {
-                                               "hooks":  [
-                                                             {
-                                                                 "type":  "command",
-                                                                 "command":  "node \"C:\\Users\\marka\\.claude\\hooks\\user-prompt-submit.mjs\"",
-                                                                 "timeout":  10
-                                                             }
-                                                         ]
-                                           }
-                                       ],
-                  "Stop":  [
-                               {
-                                   "hooks":  [
-                                                 {
-                                                     "type":  "command",
-                                                     "command":  "node \"C:\\Users\\marka\\.claude\\hooks\\stop-validation.mjs\"",
-                                                     "timeout":  15
-                                                 },
-                                                 {
-                                                     "type":  "command",
-                                                     "command":  "node \"C:\\Users\\marka\\.claude\\hooks\\perform-fix-gate.mjs\"",
-                                                     "timeout":  20
-                                                 },
-                                                 {
-                                                     "type":  "command",
-                                                     "command":  "node \"C:\\Users\\marka\\.claude\\hooks\\steps-zero-stall-gate.mjs\"",
-                                                     "timeout":  10
-                                                 },
-                                                 {
-                                                     "type":  "command",
-                                                     "command":  "node \"C:\\Users\\marka\\.claude\\hooks\\session-hash-chain.mjs\"",
-                                                     "timeout":  90
-                                                 },
-                                                 {
-                                                     "type":  "command",
-                                                     "command":  "node \"C:\\Users\\marka\\.claude\\hooks\\git-anchor.mjs\"",
-                                                     "timeout":  120
-                                                 }
-                                             ]
-                               }
-                           ],
-                  "SubagentStart":  [
-                                        {
-                                            "hooks":  [
-                                                          {
-                                                              "type":  "command",
-                                                              "command":  "node \"C:\\Users\\marka\\.claude\\hooks\\subagent-start.mjs\"",
-                                                              "timeout":  30
-                                                          }
-                                                      ]
-                                        }
-                                    ],
-                  "PreCompact":  [
-                                     {
-                                         "hooks":  [
-                                                       {
-                                                           "type":  "command",
-                                                           "command":  "node \"C:\\Users\\marka\\.claude\\hooks\\pre-compact.mjs\"",
-                                                           "timeout":  10
-                                                       }
-                                                   ]
-                                     }
-                                 ],
-                  "PreToolUse":  [
-                                     {
-                                         "matcher":  "Read",
-                                         "hooks":  [
-                                                       {
-                                                           "type":  "command",
-                                                           "command":  "node \"C:\\Users\\marka\\.claude\\hooks\\bootstrap-gate.mjs\"",
-                                                           "timeout":  10
-                                                       }
-                                                   ]
-                                     },
-                                     {
-                                         "matcher":  "Bash|PowerShell",
-                                         "hooks":  [
-                                                       {
-                                                           "type":  "command",
-                                                           "command":  "node \"C:\\Users\\marka\\.claude\\hooks\\tool-first-lint.mjs\"",
-                                                           "timeout":  10
-                                                       }
-                                                   ]
-                                     },
-                                     {
-                                         "matcher":  "Edit|Write|NotebookEdit",
-                                         "hooks":  [
-                                                       {
-                                                           "type":  "command",
-                                                           "command":  "node \"C:\\Users\\marka\\.claude\\hooks\\bootstrap-gate.mjs\"",
-                                                           "timeout":  10
-                                                       },
-                                                       {
-                                                           "type":  "command",
-                                                           "command":  "node \"C:\\Users\\marka\\.claude\\hooks\\pre-tool-use-substrate.mjs\"",
-                                                           "timeout":  10
-                                                       },
-                                                       {
-                                                           "type":  "command",
-                                                           "command":  "node \"C:\\Users\\marka\\.claude\\hooks\\niyyah-gate.mjs\"",
-                                                           "timeout":  10
-                                                       },
-                                                       {
-                                                           "type":  "command",
-                                                           "command":  "node \"C:\\Users\\marka\\.claude\\hooks\\surrender-check.mjs\"",
-                                                           "timeout":  10
-                                                       },
-                                                       {
-                                                           "type":  "command",
-                                                           "command":  "node \"C:\\Users\\marka\\.claude\\hooks\\pre-tool-use-seat3-phase.mjs\"",
-                                                           "timeout":  10
-                                                       },
-                                                       {
-                                                           "type":  "command",
-                                                           "command":  "node \"C:\\Users\\marka\\.claude\\hooks\\autorun-verdict-gate.mjs\"",
-                                                           "timeout":  10
-                                                       },
-                                                       {
-                                                           "type":  "command",
-                                                           "command":  "node \"C:\\Users\\marka\\.claude\\hooks\\lane-exclusion-gate.mjs\"",
-                                                           "timeout":  10
-                                                       }
-                                                   ]
-                                     },
-                                     {
-                                         "matcher":  "Bash|PowerShell",
-                                         "hooks":  [
-                                                       {
-                                                           "type":  "command",
-                                                           "command":  "pwsh -NoProfile -ExecutionPolicy Bypass -File \"C:\\Users\\marka\\.claude\\hooks\\pre-tool-use-chain-timing.ps1\"",
-                                                           "timeout":  10
-                                                       },
-                                                       {
-                                                           "type":  "command",
-                                                           "command":  "node \"C:\\Users\\marka\\.claude\\hooks\\conduct-cycle-first-call-gate.mjs\"",
-                                                           "timeout":  10
-                                                       },
-                                                       {
-                                                           "type":  "command",
-                                                           "command":  "node \"C:\\Users\\marka\\.claude\\hooks\\ollama-dispatch-gpops-gate.mjs\"",
-                                                           "timeout":  10
-                                                       },
-                                                       {
-                                                           "type":  "command",
-                                                           "command":  "node \"C:\\Users\\marka\\.claude\\hooks\\lane-exclusion-gate.mjs\"",
-                                                           "timeout":  10
-                                                       }
-                                                   ]
-                                     },
-                                     {
-                                         "matcher":  "TaskCreate|TaskUpdate|TaskStop|ScheduleWakeup",
-                                         "hooks":  [
-                                                       {
-                                                           "type":  "command",
-                                                           "command":  "node \"C:\\Users\\marka\\.claude\\hooks\\pre-tool-use-task-watcher.mjs\"",
-                                                           "timeout":  5
-                                                       }
-                                                   ]
-                                     }
-                                 ]
-              },
-    "skipDangerousModePermissionPrompt":  true,
-    "theme":  "dark",
-    "skipAutoPermissionPrompt":  true,
-    "skipWorkflowUsageWarning":  true,
-    "permissions":  {
-                        "allow":  [
-                                      "Bash(git commit -m*git_steps.mjs*)",
-                                      "Bash(git commit -m*orchestrate.mjs*)",
-                                      "Bash(Stop-Process -Id *)"
-                                  ]
-                    }
+{
+  "permissions": {
+    "allow": [
+      "Bash(git commit -m*git_steps.mjs*)",
+      "Bash(git commit -m*orchestrate.mjs*)",
+      "Bash(Stop-Process -Id *)"
+    ]
+  },
+  "model": "claude-fable-5[1m]",
+  "fallbackModel": [
+    "claude-opus-4-8",
+    "claude-sonnet-5"
+  ],
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"C:\\Users\\marka\\.claude\\hooks\\session-start.mjs\"",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"C:\\Users\\marka\\.claude\\hooks\\user-prompt-submit.mjs\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"C:\\Users\\marka\\.claude\\hooks\\stop-validation.mjs\"",
+            "timeout": 15
+          },
+          {
+            "type": "command",
+            "command": "node \"C:\\Users\\marka\\.claude\\hooks\\perform-fix-gate.mjs\"",
+            "timeout": 20
+          },
+          {
+            "type": "command",
+            "command": "node \"C:\\Users\\marka\\.claude\\hooks\\steps-zero-stall-gate.mjs\"",
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "node \"C:\\Users\\marka\\.claude\\hooks\\session-hash-chain.mjs\"",
+            "timeout": 90
+          },
+          {
+            "type": "command",
+            "command": "node \"C:\\Users\\marka\\.claude\\hooks\\git-anchor.mjs\"",
+            "timeout": 120
+          }
+        ]
+      }
+    ],
+    "SubagentStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"C:\\Users\\marka\\.claude\\hooks\\subagent-start.mjs\"",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"C:\\Users\\marka\\.claude\\hooks\\pre-compact.mjs\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Read",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"C:\\Users\\marka\\.claude\\hooks\\bootstrap-gate.mjs\"",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"C:\\Users\\marka\\.claude\\hooks\\tool-first-lint.mjs\"",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"C:\\Users\\marka\\.claude\\hooks\\bootstrap-gate.mjs\"",
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "node \"C:\\Users\\marka\\.claude\\hooks\\pre-tool-use-substrate.mjs\"",
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "node \"C:\\Users\\marka\\.claude\\hooks\\niyyah-gate.mjs\"",
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "node \"C:\\Users\\marka\\.claude\\hooks\\surrender-check.mjs\"",
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "node \"C:\\Users\\marka\\.claude\\hooks\\pre-tool-use-seat3-phase.mjs\"",
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "node \"C:\\Users\\marka\\.claude\\hooks\\autorun-verdict-gate.mjs\"",
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "node \"C:\\Users\\marka\\.claude\\hooks\\lane-exclusion-gate.mjs\"",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File \"C:\\Users\\marka\\.claude\\hooks\\pre-tool-use-chain-timing.ps1\"",
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "node \"C:\\Users\\marka\\.claude\\hooks\\conduct-cycle-first-call-gate.mjs\"",
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "node \"C:\\Users\\marka\\.claude\\hooks\\ollama-dispatch-gpops-gate.mjs\"",
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "node \"C:\\Users\\marka\\.claude\\hooks\\lane-exclusion-gate.mjs\"",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "TaskCreate|TaskUpdate|TaskStop|ScheduleWakeup",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"C:\\Users\\marka\\.claude\\hooks\\pre-tool-use-task-watcher.mjs\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  },
+  "skipDangerousModePermissionPrompt": true,
+  "skipWorkflowUsageWarning": true,
+  "theme": "dark",
+  "skipAutoPermissionPrompt": true
 }
