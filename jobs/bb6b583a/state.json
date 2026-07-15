@@ -1,13 +1,12 @@
 {
-  "state": "working",
-  "detail": "confirmed ITEM 19 design complete, filed but unbuilt; gap injected into conductor turns",
-  "tempo": "active",
+  "state": "blocked",
+  "detail": "system gaps diagnosed; awaiting validation on real load",
+  "tempo": "blocked",
   "inFlight": {
-    "tasks": 3,
+    "tasks": 2,
     "queued": 0,
     "kinds": [
       "local_bash",
-      "local_agent",
       "session_cron"
     ]
   },
@@ -17,20 +16,13 @@
       "kind": "shell",
       "label": "until grep -q \"2026-07-15T03:3[7-9].*firing\\|2026-07-15T03:4.*firing\" \"/c/Users/marka/.claude/muezzin-plugin/missions/_logs/daemon-events.log\" 2>/dev/null; do sleep 5; done; grep \"firing\" \"/c/Users/m…",
       "startedAt": 1784086685105
-    },
-    {
-      "id": "abb8a761902f0d17a",
-      "kind": "agent",
-      "label": "Verify queue zombie-stall hypothesis",
-      "startedAt": 1784087353828
     }
   ],
-  "tokens": 12489962,
-  "output": {
-    "result": "ITEM 19: GitHub Actions polling designed (July 12), awaiting build; mechanical check now surfaced in conductor loop"
-  },
+  "tokens": 12507534,
+  "needs": "confirm whether the daemon-readable stamps (5 landed) are reading correctly and the queue is actually moving under load",
+  "output": null,
   "children": null,
-  "linkScanOffset": 117275341,
+  "linkScanOffset": 117349666,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -58,6 +50,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-15T03:54:21.611Z",
+  "updatedAt": "2026-07-15T04:00:21.120Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
