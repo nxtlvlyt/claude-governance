@@ -1,6 +1,6 @@
 {
-  "state": "working",
-  "detail": "monitoring queue drain; e2e-runner changes benign",
+  "state": "done",
+  "detail": "production map.html live and healthy; status cron armed",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,12 @@
       "session_cron"
     ]
   },
-  "tokens": 12508834,
-  "output": null,
+  "tokens": 12509232,
+  "output": {
+    "result": "Production deployment live: map.html renders, lane running, queue draining; monitoring armed"
+  },
   "children": null,
-  "linkScanOffset": 117392391,
+  "linkScanOffset": 117409671,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -40,6 +42,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-15T04:11:39.912Z",
+  "updatedAt": "2026-07-15T04:12:31.080Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
