@@ -1,6 +1,6 @@
 {
-  "state": "done",
-  "detail": "N5 roadmap prepped: 14 spec items sketched, sourced, critic review complete",
+  "state": "working",
+  "detail": "lane-fix witness-HELD since 04:54; humble-validated flag, ack recorded 05:31; awaiting conductor retry",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,12 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 12625100,
-  "output": {
-    "result": "N5-ROADMAP-PREP-2026-07-15.md committed; 14 items ready; one decision: sweep items 1-6 before agy graduation or wait behind gate?"
-  },
+  "tokens": 12628374,
+  "output": null,
   "children": null,
-  "linkScanOffset": 118033939,
+  "linkScanOffset": 118087767,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -42,6 +40,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-15T05:25:05.120Z",
+  "updatedAt": "2026-07-15T05:31:35.758Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
