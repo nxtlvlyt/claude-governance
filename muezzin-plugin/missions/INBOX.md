@@ -158,3 +158,15 @@ from this file. FIX (staged, applies at the copy-clarity lane boundary — the r
 mission's scoped-cleanliness check forbids editing its repo mid-lane): merge the two
 env blocks in the step, commit, push; the next push then fires the FIRST real audit.
 The 5 operator emails were all this one defect.
+
+- 2026-07-14 ~23:5xZ FIELD-UX (operator, live at Abraham Lake, two screenshots): the
+  4-step onboarding tour (js/onboarding.js) blocked him from the map on a fresh
+  origin — he reported "can't get passed this" TWICE (step 1, then step 2). Headless
+  repro on fresh Pixel-7 profile: both Skip and Next-x4/Finish dismiss cleanly, flag
+  written, zero pageerrors — so the mechanism works; the FRICTION is the design: a
+  modal 4-step tour gating a map someone urgently needs, with a small text-link skip.
+  Proposed fix-shape (product pass, not urgent surgery): backdrop-tap dismisses;
+  bigger Skip target; or collapse tour to a single dismissible tip card. Also noted
+  from his second screenshot: 223 POIs rendering as a dense green cluster wall at low
+  zoom — worth a look at cluster thresholds on mobile (separate item, needs repro).
+  Owner when picked up: product mission for js/onboarding.js after ITEM 24 clears.

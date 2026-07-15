@@ -1,7 +1,7 @@
 {
-  "state": "working",
-  "detail": "reproduced tutorial dismiss; checking API errors on preview",
-  "tempo": "idle",
+  "state": "blocked",
+  "detail": "tour UX blocking map access; 3 orange-button taps needed",
+  "tempo": "blocked",
   "inFlight": {
     "tasks": 1,
     "queued": 0,
@@ -9,10 +9,11 @@
       "session_cron"
     ]
   },
-  "tokens": 12339970,
+  "tokens": 12345473,
+  "needs": "tap the three orange buttons to proceed past the tour modal",
   "output": null,
   "children": null,
-  "linkScanOffset": 113852492,
+  "linkScanOffset": 114746088,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -40,6 +41,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-07-07T14:31:31.695Z",
-  "updatedAt": "2026-07-14T23:55:04.328Z",
+  "updatedAt": "2026-07-15T00:02:59.811Z",
   "firstTerminalAt": "2026-07-07T15:47:23.132Z"
 }
