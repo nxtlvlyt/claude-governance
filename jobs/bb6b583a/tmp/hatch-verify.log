@@ -1,1 +1,4 @@
 tour=0: overlay visible = [33mfalse[39m (want false) | flag = 1 (want 1)
+backdrop-tap: before = [33mtrue[39m (want true) | after = [33mfalse[39m (want false) | flag = 1 (want 1)
+BOTH-HATCHES-VERIFIED
+EXIT=0
