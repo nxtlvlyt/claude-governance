@@ -105,6 +105,14 @@ rulings. This file is the loudness fix.)
   CONDUCTOR BEAT CAPACITY goes to system fixes/upgrades before new product work; the
   daemons' product lanes keep running in parallel (keep-busy coexists — the priority
   governs where the conductor's attention goes, exactly how the 2026-07-10/11 drain ran).
+  AMENDMENT (operator word 2026-07-15: "'pull them forward' and start items 8/12/13/14
+  we need to get everything done and be sota"): N5 spec items 8 (hook-semantics port),
+  12 (explicit-validation mission format), 13 (agy guaranteed-delivery injection), and
+  14 (per-project deploy parity) are PULLED AHEAD of agy graduation — they start now,
+  because they are agy-completion aids (same-day receipts: the atv missions failed on
+  exactly the classes items 12/13 close). Items 1-7 and 9-11 keep the original
+  after-graduation sequencing; the agy-100% gate, the N5-then-local-conductor order,
+  and "the qwen test format awaits the operator's spec" all stand unchanged.
 
 - **SONNET WORKFLOWS: STANDING AUTHORIZATION (operator word 2026-07-11: "run sonnet
   workflows for whatever you need").** The conductor fires Sonnet workflows without
