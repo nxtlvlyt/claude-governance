@@ -3107,3 +3107,9 @@ deps; then either (a) fix loop to continue past dep-blocked lines, or (b) drain 
 FAILED parents per the seventh law so deps unblock, or both. The queue being 100%
 non-fireable while showing "24 queued" is itself a board-truth gap — the status file
 should distinguish fireable from dep-waiting.
+
+## 2026-07-16 ENGINE ITEMS (conductor, operator queue-discipline word: nothing dies in text)
+- ITEM 32 — N5 ITEM 8 PREP: hook-surface inventory (the item-8 prerequisite named in N5-ROADMAP-PREP-2026-07-15.md). Owner: next Sonnet prep agent; deliverable = every hook across both jurisdictions with its semantics, feeding the item-8 port patcher.
+- ITEM 33 — WEBSITE-PACKAGE SPEC + MONETIZATION CONTRACT TEMPLATE: per WEBSITE-PACKAGE-INTAKE-2026-07-16.md (operator charter, words verbatim there). FIRST STEP IS MANDATORY: inventory the site-factory repo before designing anything (first law — it may already carry parts). Monetization is the only package artifact with no template today.
+- ITEM 34 — FIRECRAWL TRYOUT MISSIONS (operator-approved deploy, live receipt: scrape HTTP 200): (a) competitor visual sweep — screenshot 3 competitor homepages via firecrawl, vision-seat imagery notes, upgrade IMAGERY-CONTRACT v2 from DERIVED to competitor-grounded; (b) research A/B — one research question answered snippets-only vs firecrawl-markdown, groundedness judged by the deliberation seats. On-demand container pattern (up for the sweep, down after — van power).
+- ITEM 35 — ATV-17: first live deploy-guards --record-deploy run (deploy-guards.mjs LANDED 323ccb6, 19-assert selftest; fidelity gate LANDED 4902840) — fires AFTER the operator's preview look ships production; closes the receipt loop on agy-100% gate item (e).
