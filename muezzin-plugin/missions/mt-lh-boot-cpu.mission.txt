@@ -1,0 +1,47 @@
+MISSION-ID: mt-lh-boot-cpu
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - js/filter-stack.js
+  - scripts/diag-lh-hang-probe.mjs
+REQUIRES: none
+STEPS: 6
+
+Maqsad: the Lighthouse CI workflow has failed on map.html for its ENTIRE life
+(run-list receipt 2026-07-16: every run since 2026-06-23 red except two greens on
+07-14) with runtimeError NO_FCP. Root cause is receipted, not narrated: a
+four-condition Playwright probe shows the live map page's main thread goes
+UNRESPONSIVE >10s under Lighthouse's exact config (moto-g emulation + 4x CPU
+throttle) while passing unthrottled; a CDP CPU profile under that condition names
+the JS culprit -- filter-stack.js's updateBadge/readOverlays/normaliseName frames
+repeating throughout the window, driven by map.on('layeradd layerremove') firing
+updateBadge once PER MARKER (~539 at boot, again per pull() refresh), each call
+re-scanning every layer-control row with map.hasLayer() -- O(N^2) boot work. This
+also burns ~10s of real CPU on real mid-range phones, so it is a live-site defect,
+not a CI quirk. Fix: one 150ms trailing debounce on that handler, pinned in a
+staged fail-closed patcher. Refuted along the way (receipts in INBOX 2026-07-16):
+aurora ticker (predates window, no animation loop), upstream version bump (no
+releases in window), page-weight jump (~1KB deltas), onboarding overlay (paints
+content, no loops).
+
+niyyah: transcribe the staged patcher and pinned commands exactly -- the seat
+designs nothing; the probe (a real headless render under the failing condition)
+and the calibrated e2e gate are the outcome checks, never code-reading.
+
+Steps:
+  1. Baseline + stage the diag probe into the repo (content-aware, never exits 1 on either outcome). Run exactly: Copy-Item 'C:\Users\marka\.claude\muezzin-plugin\missions\_logs\staged-lh-bootcpu-2026-07-16\diag-lh-hang-probe.mjs' 'scripts\diag-lh-hang-probe.mjs' -Force; $head = git rev-parse HEAD; if (Select-String -Path js\filter-stack.js -Pattern 'var badgeTimer' -Quiet) { Write-Output "DEBOUNCE_PRESENT HEAD=$head" } else { Write-Output "DEBOUNCE_ABSENT HEAD=$head" } [command]
+  2. Apply the staged patcher (anchored, fail-closed, idempotent, majority-EOL aware; dry-run receipt 2026-07-16: PATCHED then SYNTAX-OK then ALREADY-PATCHED on a Copy-Item copy of the real file). Run exactly: node 'C:\Users\marka\.claude\muezzin-plugin\missions\_logs\staged-lh-bootcpu-2026-07-16\patch-filter-stack-debounce.mjs' .; if ($LASTEXITCODE -ne 0) { exit 1 }; node --check js\filter-stack.js; if ($LASTEXITCODE -ne 0) { Write-Output SYNTAX-FAIL; exit 1 }; Write-Output PATCH-OK [command]
+  3. Scoped cleanliness. Run exactly: $foreign = @(git status --porcelain -uno -- ':!js/filter-stack.js' ':!scripts/diag-lh-hang-probe.mjs'); if ($foreign.Count -gt 0) { Write-Output "FOREIGN-TRACKED-DIRT: $($foreign -join '; ')"; exit 1 }; Write-Output SCOPED_CLEAN [verify]
+  4. Scoped commit, idempotent. Run exactly: $dirty = git status --porcelain -- js/filter-stack.js scripts/diag-lh-hang-probe.mjs; $atHead = (git show HEAD:js/filter-stack.js) -match 'var badgeTimer'; if (-not $dirty -and $atHead) { Write-Output ALREADY_COMMITTED; exit 0 }; git add -- js/filter-stack.js scripts/diag-lh-hang-probe.mjs; git commit -m "perf(map): debounce filter-stack badge rescan -- layeradd fired updateBadge per marker, O(N^2) boot main-thread work; fixes chronic Lighthouse NO_FCP on map.html (CPU-profile + 4-condition probe receipts; mt-lh-boot-cpu)" -- js/filter-stack.js scripts/diag-lh-hang-probe.mjs; if ((git show HEAD:js/filter-stack.js) -match 'var badgeTimer') { Write-Output COMMITTED_AT_HEAD } else { Write-Output COMMIT_VERIFY_FAIL; exit 1 } [command]
+  5. OUTCOME CHECK A -- the failing condition itself, against a fresh preview deploy. Run exactly: $out = npx wrangler pages deploy . --project-name=muddytires --branch=preview 2>&1 | Out-String; $m = [regex]::Match($out, 'https://[a-z0-9-]+\.muddytires\.pages\.dev'); if (-not $m.Success) { Write-Output DEPLOY-NO-URL; exit 1 }; $url = $m.Value; Write-Output "DEPLOYED: $url"; $ok = $false; for ($i=0; $i -lt 10; $i++) { try { $r = Invoke-WebRequest -Uri "$url/map.html" -UseBasicParsing -TimeoutSec 10; if ($r.StatusCode -eq 200) { $ok = $true; break } } catch {}; Start-Sleep -Seconds 5 }; if (-not $ok) { Write-Output POLL-FAILED; exit 1 }; $probe = node scripts\diag-lh-hang-probe.mjs "$url/map.html" 2>&1 | Out-String; Write-Output $probe; if ($probe -match '"name":"D-mobile\+cpu4x"[^\r\n]*"readyState":"complete') { Write-Output D-CONDITION-RESPONSIVE } else { Write-Output "D-STILL-UNRESPONSIVE: the debounce alone is insufficient -- next diagnosis cycle targets Leaflet _setPosition marker churn (second-largest profile entry, 8s self time); report this probe output verbatim"; exit 1 } [command]
+  6. OUTCOME CHECK B -- no functional regression, calibrated e2e gate on the same preview. Run exactly: $url = (npx wrangler pages deployment list --project-name muddytires 2>&1 | Select-String -Pattern 'https://[a-z0-9-]+\.muddytires\.pages\.dev' | Select-Object -First 1).Matches[0].Value; node scripts/e2e-runner.mjs --target $url --out missions-lhfix-gate.json; $rc = $LASTEXITCODE; $j = Get-Content missions-lhfix-gate.json -Raw | ConvertFrom-Json; Write-Output "GATE-EXIT=$rc overlap-pass=$($j.overlap.pass)"; Remove-Item missions-lhfix-gate.json -ErrorAction SilentlyContinue; if ($rc -ne 0) { Write-Output E2E-REGRESSION; exit 1 }; Write-Output E2E-GATE-GREEN [command]
+
+Done means: js/filter-stack.js at HEAD carrying the debounced handler (anchored
+replacement only), scripts/diag-lh-hang-probe.mjs committed as the permanent
+diagnostic for this failure class, AND both outcome checks green against a fresh
+preview deploy: the D-condition probe (the exact Lighthouse config that has failed
+since 2026-06-23) shows the main thread RESPONSIVE, and the calibrated e2e gate
+shows zero regressions. When this lands green, the conductor calls the standing
+five-guard production deploy the same beat; the closing receipt for the whole gap
+is the Lighthouse CI workflow going green on that push -- the first honest green
+in its life beyond the two 07-14 flukes.
