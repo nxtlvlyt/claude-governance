@@ -7,10 +7,19 @@ REQUIRES: missions/mt-money-competitor-landscape.S1.mission.txt, missions/mt-mon
 STEPS: 6
 
 Maqsad: The single largest hole between raw material and plan (audit 2026-07-02): nothing
-anywhere proposes muddytires' OWN revenue mix. Synthesize MT-MONETIZATION-PLAN-v1.md from
-the now-complete fuel: competitor-landscape-2026.md + affiliate-programs-canada-2026.md
-(sibling mission sandboxes), docs/competitor-feature-matrix-2026-06-23.md +
-docs/competitor-directionrv-2026-06-23.md (mt repo), and the four corpus briefs at
+anywhere proposes muddytires' OWN revenue mix. SITE IDENTITY, PINNED (2026-07-16 amendment
+after attempt-1 banked a plan for the WRONG BUSINESS by inferring identity from the "mt"
+naming): the target is https://muddytires.ca — the Canadian free-camping / boondocking map
+PWA this engine builds — NEVER muddytires.com (an unrelated OHV dealer). Any plan output
+that names muddytires.com or "OHV SuperCenter" is a hard FAIL. Do not WebFetch the .com
+site; the .ca site plus the inputs below are the only grounding. Synthesize
+MT-MONETIZATION-PLAN-v1.md from the now-complete fuel, at these ABSOLUTE paths (attempt-1
+also failed on sandbox-relative paths; all four verified on disk 2026-07-16):
+C:\Users\marka\.claude\muezzin-plugin\missions\mt-money-competitor-landscape.S1\competitor-landscape-2026.md
+C:\Users\marka\.claude\muezzin-plugin\missions\mt-money-affiliate-programs.S1\affiliate-programs-canada-2026.md
+C:\Users\marka\code\mt-integration-2026-06-22\docs\competitor-feature-matrix-2026-06-23.md
+C:\Users\marka\code\mt-integration-2026-06-22\docs\competitor-directionrv-2026-06-23.md
+and the four corpus briefs at
 C:\Users\marka\.claude\state\business-context\anythingllm-corpus-2026-06-23\custom-documents
 (affiliate benchmarks, POI network effects, vanlife audience, PWA/SEO playbook). The plan
 must contain: (1) proposed revenue MIX with a recommendation — affiliate vs $19/yr PRO vs
