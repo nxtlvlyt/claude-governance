@@ -1,0 +1,38 @@
+MISSION-ID: mt-lane-fix-s3
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - map.html
+VISUAL-QC-REQUIRED
+REQUIRES: none
+STEPS: 5
+
+Maqsad: the calibrated deploy gate's first genuinely-new finding (2026-07-15, the
+newly-unblinded panel-open checks): when the filter panel opens, the map FABs are
+supposed to hide underneath it — the mechanism EXISTS (map.html line-1 CSS:
+body.mt-fpopen #planbtn,#gpsadd,#mtsearch{display:none}; the panel toggle sets the
+class at map.html:424) — but every control added SINCE that rule was written was never
+added to it. Gate receipts: #filtpanel intersects #mt-search-icon/.mt-locate/
+.leaflet-control-zoom/#mt-pd-gear/#stamp with the panel open (both viewports), and
+.mt-locate covers 22.7% / #mt-pd-gear 11.7% of the open Apply bar — a user aiming at
+Apply can hit "My location" instead. Fix: extend the SAME mechanism to the newer
+controls, additive-only, inside the existing mt-mobile-lane-fix style block.
+
+niyyah: one selector-list extension of a rule the site already trusts — the seat
+transcribes the pinned literal, designs nothing; the calibrated gate that found the
+defect is the outcome check that proves it gone.
+
+Steps:
+  1. Idempotent content-aware baseline. Run exactly: $head = git rev-parse HEAD; if (Select-String -Path map.html -Pattern 'mt-fpopen \.mt-locate' -Quiet) { Write-Output "S3_PRESENT HEAD=$head" } else { Write-Output "S3_ABSENT HEAD=$head" }. Never exit 1 on either outcome. [command]
+  2. Deterministic insert (the S2 fix-shape: anchored, additive, inside the existing block). Run exactly: $p = 'map.html'; $html = Get-Content $p -Raw; if ($html -match 'mt-fpopen \.mt-locate') { Write-Output S3-ALREADY-INSERTED; exit 0 }; $anchor = '        @media (max-width: 480px) {'; $idx = $html.IndexOf($anchor); if ($idx -lt 0) { Write-Output ANCHOR-MISSING; exit 1 }; $rule = "        /* S3: hide the post-2026-06 controls under the open filter panel, same mechanism as the original body.mt-fpopen rule (gate receipts 2026-07-15: filtpanel intersections + Apply-bar coverage 22.7%/11.7%) */`n        body.mt-fpopen #mt-search-icon, body.mt-fpopen .mt-locate, body.mt-fpopen #mt-pd-gear, body.mt-fpopen .leaflet-top.leaflet-left, body.mt-fpopen #stamp { display: none !important; }`n"; $html = $html.Insert($idx, $rule); Set-Content $p -Value $html -NoNewline; if ((Get-Content $p -Raw) -notmatch 'mt-fpopen \.mt-locate') { Write-Output INSERT-VERIFY-FAIL; exit 1 }; Write-Output S3-INSERTED [command]
+  3. Scoped cleanliness. Run exactly: $foreign = @(git status --porcelain -uno -- ':!map.html'); if ($foreign.Count -gt 0) { Write-Output "FOREIGN-TRACKED-DIRT: $($foreign -join '; ')"; exit 1 }; Write-Output SCOPED_CLEAN [verify]
+  4. Scoped commit, idempotent. Run exactly: $dirty = git status --porcelain -- map.html; $atHead = (git show HEAD:map.html) -match 'mt-fpopen \.mt-locate'; if (-not $dirty -and $atHead) { Write-Output ALREADY_COMMITTED; exit 0 }; git add -- map.html; git commit -m "fix(map): S3 — hide post-2026-06 controls under the open filter panel (extends the existing body.mt-fpopen rule; calibrated-gate receipts: filtpanel intersections + Apply-bar coverage; mt-lane-fix-s3)" -- map.html; if ((git show HEAD:map.html) -match 'mt-fpopen \.mt-locate') { Write-Output COMMITTED_AT_HEAD } else { Write-Output COMMIT_VERIFY_FAIL; exit 1 } [command]
+  5. OUTCOME CHECK — the calibrated gate itself is the witness. Run exactly: $out = npx wrangler pages deploy . --project-name=muddytires --branch=preview 2>&1 | Out-String; $m = [regex]::Match($out, 'https://[a-z0-9-]+\.muddytires\.pages\.dev'); if (-not $m.Success) { Write-Output DEPLOY-NO-URL; exit 1 }; $url = $m.Value; Write-Output "DEPLOYED: $url"; $ok = $false; for ($i=0; $i -lt 10; $i++) { try { $r = Invoke-WebRequest -Uri "$url/map" -UseBasicParsing -TimeoutSec 10; if ($r.StatusCode -eq 200) { $ok = $true; break } } catch {}; Start-Sleep -Seconds 5 }; if (-not $ok) { Write-Output POLL-FAILED; exit 1 }; node scripts/e2e-runner.mjs --target $url --out missions-s3-gate.json; $rc = $LASTEXITCODE; $j = Get-Content missions-s3-gate.json -Raw | ConvertFrom-Json; Write-Output "GATE-EXIT=$rc overlap-pass=$($j.overlap.pass)"; Remove-Item missions-s3-gate.json -ErrorAction SilentlyContinue; if ($rc -ne 0) { Write-Output "S3-GATE-STILL-FAILING: report the remaining violations verbatim for the next diagnosis cycle"; exit 1 }; Write-Output E2E-GATE-GREEN [command]
+
+Done means: map.html at HEAD carrying the extended mt-fpopen hide rule (additions-only),
+AND the calibrated e2e gate — a real headless-browser render sweep (Playwright, both
+viewports, both states, panel-open coverage checks) — runs GREEN against a fresh
+preview deploy: zero overlap/coverage/tap violations, verified by headless render
+evidence, never by reading the code. E2E-GATE-GREEN is the last mechanical condition
+before the conductor-called muddytires production deploy (standing ruling): when this
+mission lands green, production ships the same beat.
