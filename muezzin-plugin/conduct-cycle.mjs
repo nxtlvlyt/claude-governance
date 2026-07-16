@@ -409,8 +409,69 @@ export function checkSearxngSight({ probe } = {}) {
   }
 }
 
-// mt-model-audit-fn reachability: fetch the live Ollama tag list from nxtbeast, same
-// sync-curl/host-fallback/bounded-timeout shape as checkSearxngSight above (reused, not
+// EXTERNAL SIGNALS POLLER (gap-external-signals-poller, QUEUE ITEM 19 + 2026-07-12
+// extension): GitHub Actions CI conclusions + Sentry unresolved issues, same injectable-
+// probe/bounded-timeout/never-throw SHAPE as checkSearxngSight above (one outer try/catch
+// for a catastrophic fallback) -- adapted for a LIST of independent targets instead of a
+// single fallback chain: each repo/project gets its OWN try/catch, so one wedged item
+// degrades to { ok: false, reason } without taking the others down or crashing the sweep.
+// probe, when supplied, REPLACES the execSync/curl call and is invoked PER ITEM as
+// probe(repo) / probe(project) -- never once for the whole list -- so a selftest can fail
+// a single item without faking output for every item.
+export function checkGithubCiSignals({ probe, repos } = {}) {
+  try {
+    const results = {};
+    for (const repo of (repos || [])) {
+      try {
+        const body = probe ? probe(repo) : _execSyncSight(
+          `gh run list -R ${repo} --json conclusion,workflowName,headBranch,createdAt,databaseId -L 20`,
+          { timeout: 15000, stdio: ['ignore', 'pipe', 'pipe'] }).toString();
+        if (body && body.trim()) {
+          const runs = JSON.parse(body);
+          results[repo] = { ok: true, runs: Array.isArray(runs) ? runs : [] };
+        } else {
+          results[repo] = { ok: false, reason: 'empty response' };
+        }
+      } catch (e) {
+        results[repo] = { ok: false, reason: `probe failed: ${String(e?.message || e).slice(0, 80)}` };
+      }
+    }
+    return { ok: true, repos: results };
+  } catch (e) {
+    return { ok: false, reason: `probe failed: ${String(e?.message || e).slice(0, 80)}` };
+  }
+}
+
+// Sentry unresolved-issues poll, same shape as checkGithubCiSignals immediately above.
+// SENTRY_AUTH_TOKEN is read from the environment at call time (operator piece, identity-
+// bound, per QUEUE ITEM 19: "create a Sentry auth token ... and provide it"); a missing
+// token still produces a normal ok:false-per-project result (curl gets a 401 body), never
+// a crash. statsPeriod=24h + is:unresolved matches the ITEM 19 spec exactly.
+export function checkSentrySignals({ probe, projects } = {}) {
+  try {
+    const results = {};
+    for (const p of (projects || [])) {
+      try {
+        const url = `https://sentry.io/api/0/projects/${p.org}/${p.slug}/issues/?query=is:unresolved&statsPeriod=24h`;
+        const body = probe ? probe(p) : _execSyncSight(
+          `curl -s -m 10 -H "Authorization: Bearer ${process.env.SENTRY_AUTH_TOKEN || ''}" "${url}"`,
+          { timeout: 15000, stdio: ['ignore', 'pipe', 'pipe'] }).toString();
+        if (body && body.trim()) {
+          const issues = JSON.parse(body);
+          results[p.slug] = { ok: true, issues: Array.isArray(issues) ? issues : [] };
+        } else {
+          results[p.slug] = { ok: false, reason: 'empty response' };
+        }
+      } catch (e) {
+        results[p.slug] = { ok: false, reason: `probe failed: ${String(e?.message || e).slice(0, 80)}` };
+      }
+    }
+    return { ok: true, projects: results };
+  } catch (e) {
+    return { ok: false, reason: `probe failed: ${String(e?.message || e).slice(0, 80)}` };
+  }
+}
+
 // reinvented). On any fetch failure, callers skip the audit silently — never crash the sweep.
 export function fetchOllamaTags({ probe } = {}) {
   try {
@@ -716,7 +777,7 @@ export function computeDoneness(base, autorun, {
   return { ts: new Date(now).toISOString(), barMet, counts, blocking: blocking.slice(0, 60), frontierClean };
 }
 
-export function sweep(base = HERE, now = Date.now(), routeFile = path.join(process.env.USERPROFILE || 'C:/Users/marka', '.claude', 'state', 'muezzin-route.json'), { sightFn = checkSearxngSight, cgAgeFn = () => checkCgFreshness(now), worktreeReposFn = () => WORKTREE_REPOS, gitFn = null, modelTagsFn = fetchOllamaTags } = {}) {
+export function sweep(base = HERE, now = Date.now(), routeFile = path.join(process.env.USERPROFILE || 'C:/Users/marka', '.claude', 'state', 'muezzin-route.json'), { sightFn = checkSearxngSight, cgAgeFn = () => checkCgFreshness(now), worktreeReposFn = () => WORKTREE_REPOS, gitFn = null, modelTagsFn = fetchOllamaTags, githubFn = checkGithubCiSignals, sentryFn = checkSentrySignals } = {}) {
   const logs = path.join(base, 'missions', '_logs');
   const status = readJson(path.join(logs, 'daemon-status.json'));
   const pidfile = parseInt(readText(path.join(logs, 'daemon.pid')).trim(), 10);
@@ -1095,8 +1156,76 @@ export function sweep(base = HERE, now = Date.now(), routeFile = path.join(proce
     });
   }
 
-  // mt-model-audit-fn wiring: a shared-digest, textually-unrelated model group is an
-  // identity-fraud candidate — verify against model_rijal.mjs before trusting any name in
+  // EXTERNAL SIGNALS POLLER body (gap-external-signals-poller, QUEUE ITEM 19 +
+  // 2026-07-12 extension; priority_elevated 2026-07-15 by operator process instruction:
+  // "does our process automatically handle what I am getting email notifications for or
+  // must I send a screenshot everytime"). Read-only here: diff the live poll against the
+  // on-disk cursor (missions/_logs/external-signals-state.json) and surface NEW items
+  // only. heal() performs the actual append + cursor advance (once-only, mirroring
+  // CHAIN-ON-DONE's discipline). signals.json missing/empty is a quiet, report-only
+  // skip -- the poller is opt-in until the operator's token + repo list exist on this
+  // machine (ITEM 19's operator piece is identity-bound).
+  {
+    const signalsCfg = readJson(path.join(base, 'signals.json'));
+    const cursor = readJson(path.join(logs, 'external-signals-state.json')) || { github: {}, sentry: {} };
+    if (!signalsCfg) {
+      report.push('EXTERNAL SIGNALS: signals.json not found at plugin root — poller idle (run the patcher to seed it)');
+    } else {
+      const repos = signalsCfg.github_repos || [];
+      if (repos.length) {
+        const gh = githubFn({ repos });
+        if (gh.ok) {
+          for (const repo of repos) {
+            const entry = gh.repos?.[repo];
+            if (!entry || !entry.ok) {
+              if (entry) report.push(`EXTERNAL SIGNALS: github ${repo} probe failed (${entry.reason})`);
+              continue;
+            }
+            const lastSeen = cursor.github?.[repo] || 0;
+            const failures = (entry.runs || []).filter((rn) => rn.conclusion === 'failure' && Number(rn.databaseId) > lastSeen);
+            if (failures.length) {
+              report.push(`NEW CI FAILURE: ${repo} — ${failures.length} new failed run(s) (latest: ${failures[0].workflowName || '?'} on ${failures[0].headBranch || '?'})`);
+              actions.push({
+                id: `NEW-CI-FAILURE-${repo}`, class: 'mechanical', approved_by_faith: true,
+                why: `gh run list -R ${repo} shows ${failures.length} new failed run(s) not yet in the diagnosis-debt surface (gap-external-signals-poller)`,
+                repo, failures,
+                rule: 'heal() appends a dated INBOX.md entry + GAP-REGISTER.jsonl line, then advances the cursor past these databaseIds (once-only)',
+              });
+            }
+          }
+        } else {
+          report.push(`EXTERNAL SIGNALS: github poll failed (${gh.reason})`);
+        }
+      }
+      const projects = signalsCfg.sentry_projects || [];
+      if (projects.length) {
+        const sn = sentryFn({ projects });
+        if (sn.ok) {
+          for (const p of projects) {
+            const entry = sn.projects?.[p.slug];
+            if (!entry || !entry.ok) {
+              if (entry) report.push(`EXTERNAL SIGNALS: sentry ${p.slug} probe failed (${entry.reason})`);
+              continue;
+            }
+            const seen = new Set(cursor.sentry?.[p.slug] || []);
+            const newIssues = (entry.issues || []).filter((is) => is && is.id != null && !seen.has(String(is.id)));
+            if (newIssues.length) {
+              report.push(`NEW SENTRY ISSUE: ${p.slug} — ${newIssues.length} new unresolved issue(s)`);
+              actions.push({
+                id: `NEW-SENTRY-ISSUE-${p.slug}`, class: 'mechanical', approved_by_faith: true,
+                why: `Sentry project ${p.org}/${p.slug} shows ${newIssues.length} new unresolved issue(s) not yet in the diagnosis-debt surface (gap-external-signals-poller)`,
+                org: p.org, slug: p.slug, issues: newIssues,
+                rule: 'heal() appends a dated INBOX.md entry + GAP-REGISTER.jsonl line, then advances the cursor with these issue ids (once-only)',
+              });
+            }
+          }
+        } else {
+          report.push(`EXTERNAL SIGNALS: sentry poll failed (${sn.reason})`);
+        }
+      }
+    }
+  }
+
   // it; per STATE.md's promoted rule, do not assert a model's lab, size, or history from a
   // tag name without this receipt. Skip silently on fetch failure — never crash the sweep.
   const modelTags = modelTagsFn();
@@ -1211,13 +1340,15 @@ export function sweep(base = HERE, now = Date.now(), routeFile = path.join(proce
 // 'ignore' throws away the real reason on failure, leaving only Node's generic
 // "Command failed: <cmd>" with nothing to diagnose (2026-07-01 real incident: every
 // STUCK-TASK taskkill today failed silently, zero detail captured).
-export function heal(base = HERE, now = Date.now(), { exec = (cmd) => execSync(cmd, { stdio: ['ignore', 'ignore', 'pipe'] }), sightFn, worktreeReposFn, gitFn } = {}) {
+export function heal(base = HERE, now = Date.now(), { exec = (cmd) => execSync(cmd, { stdio: ['ignore', 'ignore', 'pipe'] }), sightFn, worktreeReposFn, gitFn, githubFn, sentryFn } = {}) {
   // forward sight + worktree opts to the internal sweep; each defaults inside sweep() to the
   // real probe/repo when omitted (production), and is injectable for the offline selftest.
   const sweepOpts = {};
   if (sightFn) sweepOpts.sightFn = sightFn;
   if (worktreeReposFn) sweepOpts.worktreeReposFn = worktreeReposFn;
   if (gitFn) sweepOpts.gitFn = gitFn;
+  if (githubFn) sweepOpts.githubFn = githubFn;
+  if (sentryFn) sweepOpts.sentryFn = sentryFn;
   const r = sweep(base, now, undefined, Object.keys(sweepOpts).length ? sweepOpts : undefined);
   const performed = [];
 
@@ -1273,6 +1404,50 @@ export function heal(base = HERE, now = Date.now(), { exec = (cmd) => execSync(c
   }
 
   const logs = path.join(base, 'missions', '_logs');
+
+  // EXTERNAL SIGNALS performer (gap-external-signals-poller): each NEW-CI-FAILURE-*/
+  // NEW-SENTRY-ISSUE-* action becomes a dated missions/INBOX.md entry + a
+  // missions/_logs/GAP-REGISTER.jsonl line, mirroring the CHAIN-ON-DONE performer
+  // above. Placed AFTER heal()'s own `const logs` declaration (v1 of this block sat
+  // before it and crashed the selftest with a TDZ ReferenceError — 2026-07-15 receipt).
+  // The cursor is re-read and re-written PER ACTION, immediately after that
+  // action's own two appends succeed -- never batched to the end -- so it advances
+  // AFTER a successful append and never before (a mid-loop write failure leaves only
+  // the unwritten item unseen for next beat; already-filed items are never re-filed).
+  {
+    const signalActions = r.actions.filter((a) => String(a.id).startsWith('NEW-CI-FAILURE-') || String(a.id).startsWith('NEW-SENTRY-ISSUE-'));
+    if (signalActions.length) {
+      const inboxPath = path.join(base, 'missions', 'INBOX.md');
+      const registerPath = path.join(logs, 'GAP-REGISTER.jsonl');
+      const cursorPath = path.join(logs, 'external-signals-state.json');
+      for (const a of signalActions) {
+        const cur2 = readJson(cursorPath) || { github: {}, sentry: {} };
+        const ts = new Date(now).toISOString();
+        let inboxLine, gapLine, updatedCursor = false;
+        if (a.repo) {
+          const maxId = Math.max(0, ...(a.failures || []).map((f) => Number(f.databaseId) || 0));
+          inboxLine = `\n- ${ts} EXTERNAL SIGNAL: NEW CI FAILURE on ${a.repo} — ${a.failures.length} new failed run(s) (${a.failures.map((f) => `${f.workflowName || '?'}@${f.headBranch || '?'}#${f.databaseId}`).join(', ')}). Auto-filed by external-signals-poller (gap-external-signals-poller); verify with: gh run list -R ${a.repo} --json conclusion,workflowName,headBranch,createdAt,databaseId -L 20\n`;
+          gapLine = JSON.stringify({ id: `gap-ci-failure-${a.repo.replace(/[^a-zA-Z0-9]+/g, '-')}-${maxId}`, filed: ts, class: 'bite', status: 'owned', jurisdiction: 'mt', summary: `Auto-filed by external-signals-poller: ${a.failures.length} new failed CI run(s) on ${a.repo} (gap-external-signals-poller, QUEUE ITEM 19).`, owner: 'missions/INBOX.md entry ' + ts.slice(0, 10) + ' (external-signals-poller)' }) + '\n';
+          cur2.github = cur2.github || {};
+          if (maxId > (cur2.github[a.repo] || 0)) { cur2.github[a.repo] = maxId; updatedCursor = true; }
+        } else if (a.slug) {
+          inboxLine = `\n- ${ts} EXTERNAL SIGNAL: NEW SENTRY ISSUE(S) on ${a.slug} — ${a.issues.length} new unresolved issue(s) (${a.issues.map((is) => is.id).join(', ')}). Auto-filed by external-signals-poller (gap-external-signals-poller); verify at https://sentry.io/organizations/${a.org}/issues/?project=&query=is%3Aunresolved\n`;
+          gapLine = JSON.stringify({ id: `gap-sentry-issue-${a.slug}-${now}`, filed: ts, class: 'bite', status: 'owned', jurisdiction: 'mt', summary: `Auto-filed by external-signals-poller: ${a.issues.length} new unresolved Sentry issue(s) on ${a.org}/${a.slug} (gap-external-signals-poller, QUEUE ITEM 19).`, owner: 'missions/INBOX.md entry ' + ts.slice(0, 10) + ' (external-signals-poller)' }) + '\n';
+          cur2.sentry = cur2.sentry || {};
+          const seen = new Set(cur2.sentry[a.slug] || []);
+          for (const is of a.issues) seen.add(String(is.id));
+          cur2.sentry[a.slug] = [...seen];
+          updatedCursor = true;
+        } else {
+          continue;
+        }
+        appendFileSync(inboxPath, inboxLine);
+        appendFileSync(registerPath, gapLine);
+        performed.push({ action: 'external-signal-filed', id: a.id });
+        if (updatedCursor) writeFileSync(cursorPath, JSON.stringify(cur2, null, 2));
+      }
+    }
+  }
 
   // DEAD-STEM RETIREMENT (frontier-reconciliation, 2026-07-02): a FAILED line whose mission.txt no
   // longer exists on disk is a GHOST — it inflates the frontier + unresolvedFailed forever (the
@@ -1979,6 +2154,48 @@ function selftest() {
     const blind = sweep(tmp, now, noRoute, { sightFn: () => ({ ok: false, reason: 'zero results on control query' }), modelTagsFn: sightOk.modelTagsFn });
     ck(blind.actions.some((a) => a.id === 'RESTART-SEARXNG' && a.class === 'mechanical'), 'blind searxng -> RESTART-SEARXNG mechanical action (the wedge can never again pass unwitnessed)');
     ck(blind.report.some((l) => /SEARXNG BLIND/.test(l)), 'blind searxng surfaces on the report');
+  }
+
+  // fixture 1f2: EXTERNAL SIGNALS POLLER (gap-external-signals-poller, QUEUE ITEM 19 +
+  // 2026-07-12 extension) — canned github/sentry probes surface exactly the new items;
+  // heal() files them + advances the cursor; the SAME probes replayed against the now-
+  // advanced cursor produce ZERO re-fires (dedup proof); a throwing probe degrades the
+  // affected item to ok:false without crashing the check or the sweep. Config + cursor
+  // are REMOVED at fixture end so later fixtures (which inject no githubFn/sentryFn)
+  // never fall through to the real gh/curl defaults mid-selftest.
+  {
+    writeFileSync(path.join(tmp, 'signals.json'), JSON.stringify({
+      github_repos: ['nxtlvlyt/muddytires-pages'],
+      sentry_projects: [{ org: 'abass-inc', slug: 'muddytires', id: '4511612938551296' }],
+    }));
+    rmSync(path.join(logs, 'external-signals-state.json'), { force: true });
+    const ghProbe = () => JSON.stringify([
+      { conclusion: 'success', workflowName: 'CI', headBranch: 'main', createdAt: '2026-07-15T00:00:00Z', databaseId: 100 },
+      { conclusion: 'failure', workflowName: 'CI', headBranch: 'main', createdAt: '2026-07-15T01:00:00Z', databaseId: 101 },
+    ]);
+    const snProbe = () => JSON.stringify([{ id: '9001', title: 'TypeError: x is not a function' }]);
+    const sigOpts = { ...sightOk, githubFn: (o) => checkGithubCiSignals({ ...o, probe: ghProbe }), sentryFn: (o) => checkSentrySignals({ ...o, probe: snProbe }) };
+    const sig = sweep(tmp, now, noRoute, sigOpts);
+    ck(sig.actions.some((a) => a.id === 'NEW-CI-FAILURE-nxtlvlyt/muddytires-pages' && a.class === 'mechanical' && a.approved_by_faith), 'EXTERNAL SIGNALS: a new failed CI run -> NEW-CI-FAILURE mechanical action');
+    ck(sig.actions.some((a) => a.id === 'NEW-SENTRY-ISSUE-muddytires' && a.class === 'mechanical' && a.approved_by_faith), 'EXTERNAL SIGNALS: a new unresolved Sentry issue -> NEW-SENTRY-ISSUE mechanical action');
+    const inboxBefore = readText(path.join(tmp, 'missions', 'INBOX.md'));
+    const h1f2 = heal(tmp, now, { exec: () => { throw new Error('no restart expected'); }, sightFn: sightOk.sightFn, worktreeReposFn: () => [], gitFn: stubGit, githubFn: sigOpts.githubFn, sentryFn: sigOpts.sentryFn });
+    ck(h1f2.performed.filter((p) => p.action === 'external-signal-filed').length === 2, 'EXTERNAL SIGNALS: heal() files both new signals (CI failure + Sentry issue)');
+    const inboxAfter = readText(path.join(tmp, 'missions', 'INBOX.md'));
+    ck(inboxAfter.length > inboxBefore.length && /EXTERNAL SIGNAL: NEW CI FAILURE/.test(inboxAfter) && /EXTERNAL SIGNAL: NEW SENTRY ISSUE/.test(inboxAfter), 'EXTERNAL SIGNALS: heal() appends dated INBOX.md entries for both signal classes');
+    const registerText = readText(path.join(logs, 'GAP-REGISTER.jsonl'));
+    ck(/gap-ci-failure-/.test(registerText) && /gap-sentry-issue-/.test(registerText), 'EXTERNAL SIGNALS: heal() appends GAP-REGISTER.jsonl lines for both signal classes');
+    const sig2 = sweep(tmp, now, noRoute, sigOpts);
+    ck(!sig2.actions.some((a) => String(a.id).startsWith('NEW-CI-FAILURE-') || String(a.id).startsWith('NEW-SENTRY-ISSUE-')), 'EXTERNAL SIGNALS: dedup — the SAME probes replayed against the now-advanced cursor produce ZERO re-fires');
+    const throwProbe = () => { throw new Error('probe wedged'); };
+    const ghThrown = checkGithubCiSignals({ probe: throwProbe, repos: ['nxtlvlyt/muddytires-pages'] });
+    ck(ghThrown.ok === true && ghThrown.repos['nxtlvlyt/muddytires-pages'].ok === false, 'EXTERNAL SIGNALS: a throwing github probe degrades that repo to ok:false without crashing');
+    const snThrown = checkSentrySignals({ probe: throwProbe, projects: [{ org: 'abass-inc', slug: 'muddytires', id: '4511612938551296' }] });
+    ck(snThrown.ok === true && snThrown.projects['muddytires'].ok === false, 'EXTERNAL SIGNALS: a throwing sentry probe degrades that project to ok:false without crashing');
+    const sig3 = sweep(tmp, now, noRoute, { ...sightOk, githubFn: () => ({ ok: false, reason: 'probe wedged' }), sentryFn: () => ({ ok: false, reason: 'probe wedged' }) });
+    ck(!sig3.actions.some((a) => String(a.id).startsWith('NEW-CI-FAILURE-') || String(a.id).startsWith('NEW-SENTRY-ISSUE-')), 'EXTERNAL SIGNALS: a wholly failed poll produces zero actions and never crashes the sweep');
+    rmSync(path.join(tmp, 'signals.json'), { force: true });
+    rmSync(path.join(logs, 'external-signals-state.json'), { force: true });
   }
 
   // fixture 1g: CG-INCREMENT GATE — stale v3 repo demands an increment; fresh stays silent.
