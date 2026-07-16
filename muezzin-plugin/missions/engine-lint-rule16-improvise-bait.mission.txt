@@ -1,0 +1,39 @@
+MISSION-ID: engine-lint-rule16-improvise-bait
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\.claude\muezzin-plugin
+ALLOW-FILES:
+  - mission_lint.mjs
+REQUIRES: none
+STEPS: 4
+
+Maqsad: land N5 item 12 (explicit-validation mission format, PULLED FORWARD by the
+operator's 2026-07-15 word) as lint RULE 16 — IMPROVISE-BAIT: a [command]/[verify] step
+in a code-repo mission that DESCRIBES scripted/witness work without carrying a literal
+executable payload is refused at the boundary. The day's five receipts across both
+engines share the shape: a scratch playwright script hand-written with require() inside
+an .mjs; an og-meta witness checking one substring instead of the tag set; three verify
+polarity inversions. Literal payload = any of: "Run exactly:", a fenced shell block, a
+node invocation of an ALLOW-FILES-declared script, or the RULE-10 scratch
+create-run-delete idiom; [edit] steps and LITERAL...PINNED declarations exempt. The
+patch is PRE-AUTHORED and TWICE-VERIFIED (author agent: dry-run against the live
+60-assertion suite, zero regressions, both mt-lane-fix-s2 and atv-16 lint clean under
+it; conductor independent fresh scratch: PATCHED, node --check 0, selftest ALL PASS
+61 asserts, ALREADY-PATCHED idempotent rerun). This mission runs the staged patcher and
+banks the result.
+
+niyyah: the seat that improvises mechanical steps is not fixed by better prose — it is
+fixed by a gate that refuses prose where a literal payload belongs. Gap-adjacent
+system fix; engine- stem fires through the GAP-PRIORITY-HOLD.
+
+Steps:
+  1. Idempotent baseline. Run exactly: $head = git rev-parse HEAD; if (Select-String -Path mission_lint.mjs -Pattern 'improvise-bait' -Quiet) { Write-Output "R16_PRESENT HEAD=$head" } else { Write-Output "R16_ABSENT HEAD=$head" }. Never exit 1 on either outcome. [command]
+  2. Apply the staged patcher (idempotent — ALREADY-PATCHED on rerun). Run exactly: node missions/_logs/mission-lint-rule16-improvise-bait-patch.mjs mission_lint.mjs; if ($LASTEXITCODE -ne 0) { Write-Output PATCHER-FAILED; exit 1 }; node --check mission_lint.mjs; if ($LASTEXITCODE -ne 0) { Write-Output SYNTAX-FAIL; exit 1 }; Write-Output PATCH-STEP-OK [command]
+  3. Selftest gate. Run exactly: $out = node mission_lint.mjs 2>&1 | Out-String; if ($out -notmatch 'ALL PASS') { Write-Output SELFTEST-FAIL; Write-Output $out.Substring([Math]::Max(0,$out.Length-500)); exit 1 }; if ($out -notmatch 'improvise-bait') { Write-Output RULE16-ASSERTS-MISSING; exit 1 }; Write-Output SELFTEST-GATE-OK [verify]
+  4. Scoped commit, idempotent. Run exactly: $dirty = git status --porcelain -- mission_lint.mjs; $atHead = (git show HEAD:mission_lint.mjs) -match 'improvise-bait'; if (-not $dirty -and $atHead) { Write-Output ALREADY_COMMITTED; exit 0 }; git add -- mission_lint.mjs; git commit -m "feat(lint): RULE 16 improvise-bait — command/verify steps describing scripted work must carry a literal payload (N5 item 12, operator pulled-forward 2026-07-15; five same-day improvise receipts; patcher receipts in mission text)" -- mission_lint.mjs; if ((git show HEAD:mission_lint.mjs) -match 'improvise-bait') { Write-Output COMMITTED_AT_HEAD } else { Write-Output COMMIT_VERIFY_FAIL; exit 1 } [command]
+
+Done means: mission_lint.mjs at HEAD carrying RULE 16 with its nine selftest fixtures
+green (61 asserts ALL PASS), zero regressions on the prior 15 rules — from this point a
+newly-authored code-repo mission whose command/verify steps describe scripted work
+without a pinned payload is refused at lint time, both jurisdictions inheriting via the
+agy fork's next lint sync. CONDUCTOR POST-LANDING DUTY: daemon respawn at idle
+(static-import staleness) — shared with the poller mission's identical duty.
