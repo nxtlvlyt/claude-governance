@@ -1,0 +1,17 @@
+{
+  "github_repos": [
+    "nxtlvlyt/muddytires-pages"
+  ],
+  "sentry_projects": [
+    {
+      "org": "abass-inc",
+      "slug": "muddytires",
+      "id": "4511612938551296"
+    },
+    {
+      "org": "abass-inc",
+      "slug": "androidtv-tips",
+      "id": "4511720612036608"
+    }
+  ]
+}
