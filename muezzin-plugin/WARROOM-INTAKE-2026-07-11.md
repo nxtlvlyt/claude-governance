@@ -177,3 +177,7 @@ warroom's own debt surface so its conducting seat sees them every turn. Provenan
 operator asks 2026-07-12 ("pulled into the conductor for verification" + "universal
 amongst Claude agy and warroom"); the five hand-forwarded lighthouse emails are the
 receipt for why this is REQUIRED, not optional.
+
+## ADDENDUM 2026-07-16 (operator word, recorded same-hour): PLAYBOOKS ARE THE PRODUCT SHELF
+His words: "inside the war room it might have 'playbooks' for projects, with all the phases and automations for the category from websites, apps, to video editing to whatever else we might work on."
+Conductor grading: ENDORSED as the warroom's content architecture. A playbook = a per-category package spec (contracts + phases) + mission-chain templates with pinned literal steps + tool wiring (SearXNG/Firecrawl/Stitch/HyperFrames/ffmpeg/vision-seat) + mechanical gates. WEBSITE-PACKAGE-INTAKE-2026-07-16.md is playbook #1 and the template for the shape. Local-holdable by construction (pinned steps + gates run at any seat tier — the 2026-07-15/16 receipts). Sequencing unchanged: warroom build still rides agy-100% + N5; this addendum shapes WHAT gets built, not WHEN.
