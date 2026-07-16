@@ -1,0 +1,47 @@
+MISSION-ID: mt-lh-boot-cpu-s2
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - map.html
+  - data/park-boundaries.json
+  - data/reserve-boundaries.json
+REQUIRES: none
+STEPS: 6
+
+Maqsad: S1 (filter-stack debounce, 717c3b0, shipped) made the map main thread
+responsive but Lighthouse CI rerun 29500574636 stayed RED: NO_FCP persists on
+map.html. Receipted remaining cause (INBOX 2026-07-16 ~15:1xZ): map.html line 93
+is a single 293KB statement — var PARK={156KB GeoJSON},RES={137KB GeoJSON},GM="...";
+— executed PARSER-BLOCKING before </body>, so first paint waits on the parse plus
+both L.geoJSON SVG polygon renders. Fix (dry-run receipted): externalize both blobs
+to data/*.json fetched async post-init, stub both vars as empty FeatureCollections
+so every consumer (boot renders at ~line 97/98, legality() loops at ~line 329-330)
+stays safe pre-load — the same async boundary the site's other layers already use.
+Dry-run receipts: PATCHED park-features=76 res-features=79, idempotent rerun
+ALREADY-PATCHED, map.html 402KB -> 110KB, line 93 -> 156 chars, both extracted
+files JSON.parse-clean.
+
+niyyah: transcribe the staged fail-closed patcher and pinned commands exactly —
+the seat designs nothing; the outcome checks are real renders: local Lighthouse
+must COMPLETE WITH A SCORE (the exact error class that has been red since
+2026-06-23), the D-condition probe must stay responsive, and the calibrated e2e
+gate must stay green.
+
+Steps:
+  1. Content-aware baseline (never exits 1 on either outcome). Run exactly: $head = git rev-parse HEAD; if (Select-String -Path map.html -Pattern 'park-boundaries\.json' -Quiet) { Write-Output "S2_PRESENT HEAD=$head" } else { Write-Output "S2_ABSENT HEAD=$head" } [command]
+  2. Apply the staged patcher (anchored, fail-closed, idempotent; dry-run receipt 2026-07-16: PATCHED park-features=76 res-features=79 then ALREADY-PATCHED). Run exactly: node 'C:\Users\marka\.claude\muezzin-plugin\missions\_logs\staged-lh-bootcpu-2026-07-16\patch-park-extract.mjs' .; if ($LASTEXITCODE -ne 0) { exit 1 }; if (-not (Test-Path data\park-boundaries.json) -or -not (Test-Path data\reserve-boundaries.json)) { Write-Output DATA-FILES-MISSING; exit 1 }; Write-Output PATCH-OK [command]
+  3. Scoped cleanliness. Run exactly: $foreign = @(git status --porcelain -uno -- ':!map.html' ':!data/park-boundaries.json' ':!data/reserve-boundaries.json'); if ($foreign.Count -gt 0) { Write-Output "FOREIGN-TRACKED-DIRT: $($foreign -join '; ')"; exit 1 }; Write-Output SCOPED_CLEAN [verify]
+  4. Scoped commit, idempotent. Run exactly: $dirty = git status --porcelain -- map.html data/park-boundaries.json data/reserve-boundaries.json; $atHead = (git show HEAD:map.html) -match 'park-boundaries\.json'; if (-not $dirty -and $atHead) { Write-Output ALREADY_COMMITTED; exit 0 }; git add -- map.html data/park-boundaries.json data/reserve-boundaries.json; git commit -m "perf(map): externalize 293KB parser-blocking PARK+RES inline GeoJSON to async data/ fetches -- first paint no longer waits on the parse+polygon render; second half of the chronic Lighthouse NO_FCP fix (mt-lh-boot-cpu-s2; S1=717c3b0)" -- map.html data/park-boundaries.json data/reserve-boundaries.json; if ((git show HEAD:map.html) -match 'park-boundaries\.json') { Write-Output COMMITTED_AT_HEAD } else { Write-Output COMMIT_VERIFY_FAIL; exit 1 } [command]
+  5. OUTCOME CHECK A — Lighthouse completes with a score on a fresh preview (the exact chronic error class). Run exactly: $out = npx wrangler pages deploy . --project-name=muddytires --branch=preview 2>&1 | Out-String; $m = [regex]::Match($out, 'https://[a-z0-9-]+\.muddytires\.pages\.dev'); if (-not $m.Success) { Write-Output DEPLOY-NO-URL; exit 1 }; $url = $m.Value; Write-Output "DEPLOYED: $url"; $ok = $false; for ($i=0; $i -lt 10; $i++) { try { $r = Invoke-WebRequest -Uri "$url/map.html" -UseBasicParsing -TimeoutSec 10; if ($r.StatusCode -eq 200) { $ok = $true; break } } catch {}; Start-Sleep -Seconds 5 }; if (-not $ok) { Write-Output POLL-FAILED; exit 1 }; npx --yes lighthouse "$url/map.html" --only-categories=performance --output=json --output-path=lh-s2-check.json --max-wait-for-load=60000 --chrome-flags="--headless=new" --quiet; if (-not (Test-Path lh-s2-check.json)) { Write-Output "LH-NO-REPORT: lighthouse produced no report (hang class persists) — next diagnosis target is the ~539-marker synchronous add churn (_setPosition, 8s in the 2026-07-16 profile); report verbatim"; exit 1 }; $lh = Get-Content lh-s2-check.json -Raw | ConvertFrom-Json; Remove-Item lh-s2-check.json -ErrorAction SilentlyContinue; if ($lh.runtimeError) { Write-Output "LH-RUNTIME-ERROR: $($lh.runtimeError.code) — hang class persists; next target is marker-add churn; report verbatim"; exit 1 }; Write-Output "LH-SCORED: perf=$($lh.categories.performance.score) FCP=$($lh.audits.'first-contentful-paint'.displayValue)"; node scripts\diag-lh-hang-probe.mjs "$url/map.html" 2>&1 | Out-String | ForEach-Object { Write-Output $_ } [command]
+  6. OUTCOME CHECK B — no functional regression, calibrated e2e gate on the same preview; parks/reserves still render post-load (async layer arrives). Run exactly: $url = (npx wrangler pages deployment list --project-name muddytires 2>&1 | Select-String -Pattern 'https://[a-z0-9-]+\.muddytires\.pages\.dev' | Select-Object -First 1).Matches[0].Value; node scripts/e2e-runner.mjs --target $url --out missions-s2-gate.json; $rc = $LASTEXITCODE; $j = Get-Content missions-s2-gate.json -Raw | ConvertFrom-Json; Write-Output "GATE-EXIT=$rc overlap-pass=$($j.overlap.pass)"; Remove-Item missions-s2-gate.json -ErrorAction SilentlyContinue; if ($rc -ne 0) { Write-Output E2E-REGRESSION; exit 1 }; Write-Output E2E-GATE-GREEN [command]
+
+Done means: map.html at HEAD with both blobs externalized (line-93 statement
+reduced to empty-stub declarations; async loaders render identical layers),
+data/park-boundaries.json + data/reserve-boundaries.json committed and
+JSON-valid, AND the outcome checks green against a fresh preview: local
+Lighthouse COMPLETES WITH A SCORE (no NO_FCP / no report-absent hang), the
+D-condition probe stays responsive, and the calibrated e2e gate shows zero
+regressions. When this lands green, the conductor calls the standing five-guard
+production deploy the same beat; the closing receipt for the whole gap family is
+the Lighthouse CI workflow rerun going green against that production — its first
+honest green since the workflow was born 2026-06-23.
