@@ -262,6 +262,80 @@ export function lintMission(text) {
     add('bare-commit-no-pathspec', 'mission runs `git commit -m ...` with NO pathspec on the commit itself -- a bare commit commits the WHOLE INDEX, not just what this mission\'s own `git add` staged (confirmed live: commit 7e0a011 silently absorbed an unrelated, already-staged change from a different interrupted mission this exact way). Scope the commit explicitly: `git commit -- <the mission\'s own ALLOW-FILES> -m "..."` so only this mission\'s own declared files ever land in the commit, regardless of what else happens to be staged.');
   }
 
+  // RULE 16 -- IMPROVISE-BAIT: [command]/[verify] STEP WITHOUT A LITERAL PAYLOAD
+  // (N5 item 12 prep, 2026-07-15 receipts -- five same-day failures where a seat
+  // improvised the MECHANICAL part of a step because the mission text only DESCRIBED
+  // the work instead of carrying it verbatim: a scratch playwright script hand-written
+  // with require() inside an .mjs file (ESM/CJS mismatch); an og-meta witness that
+  // checked ONE substring instead of the full tag set; three separate polarity
+  // inversions on a verify command. Steps that carry LITERAL commands/scripts get
+  // transcribed faithfully (mt-lane-fix-s2's "Run exactly:" convention;
+  // atv-16-og-card-wire's fenced command_queue.mjs block); steps that only describe
+  // work get improvised wrong -- every time, in a different way, which is why this is
+  // a lint rule and not a wording reminder.
+  // SCOPE: code-repo missions only (reuses isCodeRepoClass from RULE 15 above), AND
+  // only step lines that carry SCRIPT/WITNESS intent (script|witness|playwright|
+  // puppeteer|node|scratch-) -- a bare .mjs/.js filename MENTION is deliberately NOT
+  // a trigger (dry-run false-positive: a cherry-pick step naming a file it touches,
+  // e.g. "introducing build-testimonials.mjs", has zero scripted-witness intent). A
+  // plain one-line command with no scripting signal at all (RULE 12's own "add the
+  // nav link on index.html; evidence NAV_LINK=present" fixture) is out of this rule's
+  // scope: nothing to improvise, no receipt names that class. EXEMPT even inside the
+  // gate: [edit]-class steps, and any step whose own
+  // line carries both "LITERAL" and "PINNED" (case-insensitive) -- an explicit author
+  // declaration that the values are pinned, not seat-derived (mirrors RULE 12's
+  // UNLINKED-OK escape hatch: the author checked, so trust the check).
+  // LITERAL-PAYLOAD PROOF, mechanical, any ONE of:
+  //   (a) the step's own line contains "Run exactly:" (the mt-lane-fix-s2 convention);
+  //   (b) the mission carries a fenced shell/pwsh/bash block anywhere (```pwsh/```sh/
+  //       ```bash/```powershell) -- the atv command_queue.mjs jurisdiction convention,
+  //       where literal commands live in the fence, not inline per numbered step;
+  //   (c) the step's own line invokes `node <path>` where <path> matches an entry in
+  //       this mission's own ALLOW-FILES -- a COMMITTED path this mission itself
+  //       declares, the pure-text proxy for "a file that exists" (this module is pure
+  //       text by contract, header line 10: no fs -- ALLOW-FILES is the only
+  //       committed-file list available as text, so it stands in for "exists");
+  //   (d) the step's own line authors-and-runs a scratch script in one step -- a
+  //       `scratch-*` token (RULE 10's own \bscratch-[\w.-]+\.\w+ token regex, reused
+  //       verbatim rather than re-invented) that is also `node`-invoked on the SAME
+  //       line. This is RULE 10's own create-use-delete-in-one-step idiom -- already
+  //       governed and made safe by RULE 10 (single-step, self-contained, immediately
+  //       deleted); RULE 16 does not re-litigate it.
+  // None of the four -> the step is prose describing scripted work with no pinned
+  // payload, which is exactly the improvise-bait shape the day's five receipts share.
+  if (isCodeRepoClass) {
+    const mc16 = parseMissionClass(t);
+    const allowFiles16 = mc16.allowFiles || [];
+    const fencedShellBlock16 = /```(pwsh|powershell|sh|bash)\b/i.test(t);
+    // NOTE: bare ".mjs"/".js" filename mentions are deliberately NOT gate triggers
+    // (dry-run false-positive: RULE 13c's step 1 "Cherry-pick the commit introducing
+    // build-testimonials.mjs..." merely NAMES a file being cherry-picked, a pure git
+    // op with no scripted-witness intent -- the same class RULE 12's nav-link step is
+    // exempt from). The five real receipts all name script/witness/node/scratch- work
+    // explicitly; a bare extension mention never does on its own.
+    const scriptIntentGate16 = /\b(script|witness|playwright|puppeteer|node)\b|scratch-/i;
+    const stepLines16 = t.split(/\r?\n/).filter((l) => /^\s*\d+\.\s/.test(l));
+    for (const line of stepLines16) {
+      const tagMatch = line.match(/\[(command|verify|edit)\]/i);
+      if (!tagMatch) continue;
+      const tag = tagMatch[1].toLowerCase();
+      if (tag === 'edit') continue;
+      const hasLiteralPinned = /\bLITERAL\b/i.test(line) && /\bPINNED\b/i.test(line);
+      if (hasLiteralPinned) continue;
+      if (!scriptIntentGate16.test(line)) continue;
+      const hasRunExactly = /run exactly:/i.test(line);
+      const nodeMatch = line.match(/\bnode\s+(\S+)/i);
+      const hasCommittedScript = !!(nodeMatch && allowFiles16.some((af) => nodeMatch[1].includes(af) || af.includes(nodeMatch[1])));
+      const scratchTokens = [...line.matchAll(/\bscratch-[\w.-]+\.\w+/g)].map((m) => m[0]);
+      const hasScratchIdiom = scratchTokens.some((tok) => line.includes('node ' + tok));
+      if (!hasRunExactly && !fencedShellBlock16 && !hasCommittedScript && !hasScratchIdiom) {
+        const snippet = line.trim().slice(0, 120) + (line.trim().length > 120 ? '...' : '');
+        add('improvise-bait', `[${tag}] step describes scripted/witness work but carries no literal executable payload ("${snippet}") -- no "Run exactly:", no fenced shell block, no node <committed-ALLOW-FILES-script>, no scratch-create-run-delete-in-one-step idiom. Today's receipts (2026-07-15, five instances across both engines): a scratch playwright script hand-written with require() inside an .mjs (ESM/CJS mismatch); an og-meta witness checking ONE substring instead of the full tag set; three separate polarity inversions on a verify command. Steps that carry the literal command/script get transcribed faithfully; steps that describe work get improvised wrong. Rewrite the step to carry "Run exactly: <literal command>", a fenced shell block, a node invocation of a script already declared in ALLOW-FILES, or the write-scratch-X/node-scratch-X-in-one-step idiom.`);
+        break; // one finding names the class per mission (RULE 10's own convention)
+      }
+    }
+  }
+
   return { ok: problems.length === 0, problems };
 }
 
@@ -455,6 +529,54 @@ if (process.argv[1] && process.argv[1].endsWith('mission_lint.mjs')) {
   ck(lintMission(deployWithCommit).ok, 'RULE 15: an ops-deploy mission with a bare commit is UNAFFECTED — the rule is scoped to code-repo\'s git_steps.mjs sandbox risk model, not a blanket ban on bare commits everywhere');
   const noCommitCodeRepo = 'MISSION-CLASS: code-repo\nREPO-ROOT: C:\\proj\\x\nALLOW-FILES:\n  - a.mjs\nMaqsad: check a. Done means: node -c passes.\n```pwsh\nnode -c a.mjs\n```';
   ck(lintMission(noCommitCodeRepo).ok, 'RULE 15: a code-repo mission with NO commit step at all is unaffected — the rule only fires on a bare commit, never on the absence of one');
+
+  // ---- RULE 16: IMPROVISE-BAIT -- [command]/[verify] script/witness step with no
+  // literal payload (N5 item 12 prep, 2026-07-15 receipts: playwright require()-in-
+  // .mjs, og-meta single-substring witness, 3x verify-polarity inversions) ----
+  // (a) a Run-exactly step (script-intent-gated via the node/.mjs mention) passes.
+  const runExactlyStep = 'MISSION-CLASS: code-repo\nREPO-ROOT: C:\\proj\\x\nALLOW-FILES:\n  - a.mjs\nMaqsad: fix a. Done means: node -c passes.\nSteps:\n  1. Run exactly: node scratch-checks.mjs to verify og:image tag set is complete. [verify]\n';
+  ck(lintMission(runExactlyStep).ok, 'RULE 16: a [verify] step carrying "Run exactly:" passes (the mt-lane-fix-s2 convention)');
+
+  // (b) a committed-script step (node <ALLOW-FILES entry>, non-scratch path) passes.
+  const committedScriptStep = 'MISSION-CLASS: code-repo\nREPO-ROOT: C:\\proj\\x\nALLOW-FILES:\n  - tools/og-check.mjs\nMaqsad: witness it. Done means: node -c passes.\nSteps:\n  1. Execute the committed witness: node tools/og-check.mjs and require QC_OK. [command]\n';
+  ck(lintMission(committedScriptStep).ok, 'RULE 16: a [command] step invoking node on a script already declared in ALLOW-FILES passes (the pure-text "file exists" proxy)');
+
+  // (c) a prose-only script-intent step (describes work, carries no literal payload,
+  // no scratch-idiom either) fails -- the exact og-meta single-substring-witness shape.
+  const proseOnlyStep = 'MISSION-CLASS: code-repo\nREPO-ROOT: C:\\proj\\x\nALLOW-FILES:\n  - index.html\nMaqsad: wire the OG tags. Done means: og:image present.\nSteps:\n  1. Write a small script that checks the page has the right og meta tags and run it. [verify]\n';
+  const pos = lintMission(proseOnlyStep);
+  ck(!pos.ok && pos.problems.some((p) => p.rule === 'improvise-bait'), 'RULE 16: a prose-only script-intent [verify] step ("write a small script that checks...") REFUSED — the og-meta single-substring-witness receipt shape');
+
+  // (d) an [edit] step is exempt even with zero literal-payload markers.
+  const editStepOnly = 'MISSION-CLASS: code-repo\nREPO-ROOT: C:\\proj\\x\nALLOW-FILES:\n  - index.html\nMaqsad: restyle it. Done means: index.html updated.\nSteps:\n  1. Rewrite the hero section copy to match the new brand voice. [edit] index.html\n';
+  ck(lintMission(editStepOnly).ok, 'RULE 16: an [edit] step is exempt from the literal-payload requirement (never mechanical in this sense)');
+
+  // (e) out-of-gate plain command: no script/witness/node/.mjs signal at all -- RULE
+  // 12's own nav-link fixture shape -- is out of RULE 16's scope entirely (nothing to
+  // improvise; no receipt names this class). Proves the gate, not just the proofs.
+  const plainCommandStep = 'MISSION-CLASS: code-repo\nREPO-ROOT: C:\\proj\\x\nUNLINKED-OK: rule-16 fixture, reachability out of scope\nALLOW-FILES:\n  - index.html\nMaqsad: link the page. Done means: page is reachable.\nSteps:\n  1. add the nav link on index.html; evidence NAV_LINK=present [command]\n';
+  ck(lintMission(plainCommandStep).ok, 'RULE 16: a plain command step with no script/witness/node signal is out of scope entirely (RULE 12 nav-link-step shape) — never flagged improvise-bait');
+
+  // (f) RULE 10's own scratch create-use-delete-in-one-step idiom passes (proof d) —
+  // the exact shape RULE 13b/13c/13d, RULE 14b, and mt-lane-fix-s2 step 5 all use in
+  // production; RULE 16 must not re-litigate what RULE 10 already governs.
+  const scratchIdiomStep = 'MISSION-CLASS: code-repo\nREPO-ROOT: C:\\proj\\x\nUNLINKED-OK: rule-16 fixture, reachability out of scope\nALLOW-FILES:\n  - a.html\nMaqsad: witness it.\nSteps:\n  1. In ONE command: write scratch-witness.mjs (render check), node scratch-witness.mjs, then Remove-Item it. [command]\nDone means: rendered headless via playwright.\n';
+  ck(lintMission(scratchIdiomStep).ok, 'RULE 16: the write-scratch-X/node-scratch-X-in-one-step idiom passes (RULE 10\'s own blessed create-use-delete shape, proof d)');
+
+  // (g) the atv fenced command_queue.mjs jurisdiction: a gated [verify] step with no
+  // inline literal marker still passes because the mission carries a fenced pwsh block
+  // elsewhere (the literal payload lives in the fence, not inline).
+  const fencedJurisdictionStep = 'MISSION-CLASS: code-repo\nREPO-ROOT: C:\\proj\\x\nALLOW-FILES:\n  - index.html\nMaqsad: wire it. Done means: og:image present.\nSteps:\n  1. Confirm the witness script printed OG-WIRED as specified above. [verify]\n\n```pwsh\n$p = \'index.html\'; Write-Output OG-WIRED\n```\n';
+  ck(lintMission(fencedJurisdictionStep).ok, 'RULE 16: a gated step with no inline literal marker passes when the mission carries a fenced shell block (atv command_queue.mjs jurisdiction convention)');
+
+  // (h) an explicit LITERAL ... PINNED declaration on a gated step line is a manual
+  // escape hatch (mirrors RULE 12's UNLINKED-OK) even with none of the four proofs.
+  const literalPinnedStep = 'MISSION-CLASS: code-repo\nREPO-ROOT: C:\\proj\\x\nALLOW-FILES:\n  - index.html\nMaqsad: wire it. Done means: og:image present.\nSteps:\n  1. Write scratch-og.mjs setting the meta content to the LITERAL value PINNED in the mission provenance note above; run it. [command]\n';
+  ck(lintMission(literalPinnedStep).ok, 'RULE 16: a step declaring LITERAL ... PINNED is exempt (explicit author declaration, RULE 12 UNLINKED-OK precedent)');
+
+  // (i) non-code-repo missions are never checked (the class this rule is scoped to).
+  const nonCodeRepoProse = 'Maqsad: research. Done means: report.md exists.\nSteps:\n  1. Write a small script that checks the report is complete. [verify]\n';
+  ck(!lintMission(nonCodeRepoProse).problems.some((p) => p.rule === 'improvise-bait'), 'RULE 16: a non-code-repo (research-class) mission never triggers improvise-bait, regardless of step wording');
 
   console.log(`\n${fail ? fail + ' FAIL' : 'ALL PASS — mission miqat: flawed work orders refused at the boundary, zero cycles burned'}`);
   process.exit(fail ? 1 : 0);
