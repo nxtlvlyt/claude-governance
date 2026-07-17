@@ -1,0 +1,33 @@
+MISSION-ID: mt-near-me-close-fix
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - js/near-me.js
+REQUIRES: none
+STEPS: 5
+
+Maqsad: operator field finding (screenshot 2026-07-17 10:26 local): the near-me panel's
+close button lives in .mt-nm-head, which scrolls OUT OF VIEW with the list
+(overflow-y:auto on the panel, header not sticky) — on mobile the panel covers most of
+the viewport and the user is left with no visible way out. Fix (staged fail-closed
+patcher, dry-run receipts PATCHED / SYNTAX-OK / ALREADY-PATCHED on a copy of the real
+file): (1) make the header sticky so the x never leaves the screen; (2) add Escape-key
+and map-tap dismiss so the panel closes the way every other overlay on the site does.
+
+niyyah: two anchored insertions a seat cannot improvise wrong; the witness renders the
+real page and proves the sticky rule is served with zero fatal page errors — never
+code-reading.
+
+Steps:
+  1. Content-aware baseline (never exits 1 on either outcome). Run exactly: $head = git rev-parse HEAD; if (Select-String -Path js\near-me.js -Pattern 'mtNearMeEscClose' -Quiet) { Write-Output "FIX_PRESENT HEAD=$head" } else { Write-Output "FIX_ABSENT HEAD=$head" } [command]
+  2. Apply the staged patcher (anchored, fail-closed, idempotent). Run exactly: node 'C:\Users\marka\.claude\muezzin-plugin\missions\_logs\staged-nearme-close-2026-07-17\patch-near-me-close.mjs' .; if ($LASTEXITCODE -ne 0) { exit 1 }; node --check js\near-me.js; if ($LASTEXITCODE -ne 0) { Write-Output SYNTAX-FAIL; exit 1 }; Write-Output PATCH-OK [command]
+  3. Scoped cleanliness. Run exactly: $foreign = @(git status --porcelain -uno -- ':!js/near-me.js'); if ($foreign.Count -gt 0) { Write-Output "FOREIGN-TRACKED-DIRT: $($foreign -join '; ')"; exit 1 }; Write-Output SCOPED_CLEAN [verify]
+  4. Scoped commit, idempotent. Run exactly: $dirty = git status --porcelain -- js/near-me.js; $atHead = (git show HEAD:js/near-me.js) -match 'mtNearMeEscClose'; if (-not $dirty -and $atHead) { Write-Output ALREADY_COMMITTED; exit 0 }; git add -- js/near-me.js; git commit -m "fix(near-me): sticky panel header + Escape/map-tap dismiss -- close button scrolled out of view with the list (operator field screenshot 2026-07-17; mt-near-me-close-fix)" -- js/near-me.js; if ((git show HEAD:js/near-me.js) -match 'mtNearMeEscClose') { Write-Output COMMITTED_AT_HEAD } else { Write-Output COMMIT_VERIFY_FAIL; exit 1 } [command]
+  5. Render witness (the proven deploy+playwright template; create-use-delete scratch). Run exactly: $out = npx wrangler pages deploy . --project-name=muddytires --branch=preview 2>&1 | Out-String; $m = [regex]::Match($out, 'https://[a-z0-9-]+\.muddytires\.pages\.dev'); if (-not $m.Success) { Write-Output NO_PREVIEW_BASE_URL; exit 1 }; $url = $m.Value; Write-Output "DEPLOYED: $url"; $ok = $false; for ($i=0; $i -lt 10; $i++) { try { $r = Invoke-WebRequest -Uri "$url/map.html" -UseBasicParsing -TimeoutSec 10; if ($r.StatusCode -eq 200) { $ok = $true; break } } catch {}; Start-Sleep -Seconds 5 }; if (-not $ok) { Write-Output POLL-FAILED; exit 1 }; $js = 'import { chromium } from "playwright"; const b = await chromium.launch(); const ctx = await b.newContext({ viewport: { width: 375, height: 812 }, isMobile: true, hasTouch: true }); const p = await ctx.newPage(); const errs = []; p.on("pageerror", (e) => errs.push(String(e))); await p.goto(process.argv[2] + "/js/near-me.js", { waitUntil: "load", timeout: 60000 }); const served = await p.content(); const sticky = served.includes("position:sticky") && served.includes("mtNearMeEscClose"); await p.goto(process.argv[2] + "/map.html", { waitUntil: "load", timeout: 60000 }); await b.close(); console.log(JSON.stringify({ sticky, fatalErrors: errs.length })); if (!sticky || errs.length > 0) process.exit(1);'; Set-Content scratch-nearme-witness.mjs -Value $js; node scratch-nearme-witness.mjs $url; $rc = $LASTEXITCODE; Remove-Item scratch-nearme-witness.mjs -ErrorAction SilentlyContinue; if ($rc -ne 0) { Write-Output WITNESS-FAIL; exit 1 }; Write-Output NEARME-CLOSE-WITNESSED [command]
+
+Done means: js/near-me.js at HEAD carries the sticky header rule and the
+mtNearMeEscClose dismiss listeners (anchored insertions only), and the render witness
+receipt (NEARME-CLOSE-WITNESSED) came from a live mobile-viewport headless render of a
+fresh preview deploy — the served near-me.js carries both fixes and map.html loads with
+zero fatal page errors — verified by headless-browser render, not by reading the code.
+Ships to production with the next five-guard batch.
