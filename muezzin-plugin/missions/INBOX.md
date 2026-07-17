@@ -251,3 +251,7 @@ Receipts: daemon pid 38124 ALIVE and sweeping every ~60s (daemon-events.log 20:0
 CONCLUSION: nxtbeast returning does NOT drain this queue. Draining needs a focused S1-CHAIN DIAGNOSIS session: per S2, resolve its S1 (land the FAILED S1, or if S1 split+DONE, repoint/retire the S2 REQUIRES to the child that satisfies it). Owner: this entry -> a dedicated backlog-drain session (not loop ticks). Not urgent — no bite-class gap, production healthy (S1+S2 Lighthouse fixes shipped).
 
 - 2026-07-16T23:54:25.319Z EXTERNAL SIGNAL: NEW CI FAILURE on nxtlvlyt/muddytires-pages — 1 new failed run(s) (.github/workflows/lighthouse-ci.yml@main#29542768210). Auto-filed by external-signals-poller (gap-external-signals-poller); verify with: gh run list -R nxtlvlyt/muddytires-pages --json conclusion,workflowName,headBranch,createdAt,databaseId -L 20
+
+## 2026-07-17 ~01:2xZ — drain progress + production batching intent
+Landed today via the drain plan: rss-new-spots RETIRED (was already live), revenue-synthesis DONE (plan awaiting operator taste-veto), spot-share-card S1+S2 DONE (code landed + render-witnessed on preview 24eafea8: tag=true fatalErrors=0). Backlog 19 -> 16 with real DONEs.
+PRODUCTION BATCHING: share-card touches map.html but production ships via the standing five-guard chain (incl. full e2e) — one deploy per drain-batch, not per-feature. OWNER: conductor calls the five-guard production deploy at the next batch boundary (>=2 more integrate DONEs or 12h, whichever first), carrying share-card + whatever else lands.
