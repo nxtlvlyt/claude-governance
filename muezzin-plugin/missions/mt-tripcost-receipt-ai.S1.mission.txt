@@ -6,7 +6,7 @@ ALLOW-FILES:
   - js/trip-cost-split.js
   - functions/api/trip-cost/extract.js
 UNLINKED-OK: this adds capability to the already-live /trip-cost page; reachability is owned by mt-tripcost-nav-link.S1 (queued ahead)
-REQUIRES: mt-copy-clarity.S1 (tartib — the page's copy is being rewritten for clarity first; this feature's UI strings must be authored against the POST-rewrite page, and the operator's keep/kill verdict on the splitter should precede new capability landing on it)
+REQUIRES: none (tartib SATISFIED 2026-07-17: mt-copy-clarity.S1 split into S1.S1+S1.S2, both RESOLVED-LANDED — the plain-language rewrites are ancestors of HEAD (a7b72ec index.html, 136eecd map.html, merge-base receipts), so this feature's UI strings are authored against the POST-rewrite page as the tartib intended)
 STEPS: 6
 
 Maqsad: Operator word 2026-07-03 ("it should exist... Gemma 4 helping them"): on the
