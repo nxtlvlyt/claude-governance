@@ -5,25 +5,45 @@ TARTIB-INDEX: 1 of 2
 REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
 ALLOW-FILES:
   - map.html
-  - .
   - functions/api/heatmap-points.js
   - js/region-heatmap-layer.js
-VISUAL-QC-REQUIRED
 REQUIRES: none (first in tartib order)
 STEPS: 8
 
 PARENT MAQSAD: Land commit 9a29244 ("feat(map): toggleable region heatmap overlay (POI
 
-Maqsad: sub-mission 1 of 2 — Snapshot target-repo baseline: record current branch and HEAD, confirm functions/api/heatmap-points.js and js/region-heatmap-layer.js do not already exist on disk. through Spot-check map.html on disk: confirm the new region-heatmap-layer.js script tag is present alongside the pre-existing ev-charging-layer.js and free-camping-filter.js tags, and no leftover conflict markers remain.
+Maqsad: sub-mission 1 of 2 — Baseline capture (idempotent): record current branch and HEAD sha, and assert neither functions/api/heatmap-points.js nor js/region-heatmap-layer.js already exist on disk. through Commit the three target files if pending (idempotent), then assert scoped cleanliness against the allow-file paths only.
+
+STEP-SHAPE DISCIPLINE (conductor amendment 2026-07-17, after the 2026-07-09 fire died at the
+miqat boundary with ZERO runs — MIQAT-REFUSED: "visual-QC-flagged mission has no step that
+executes anything" (AUTORUN diagnosis 2026-07-10) — the identical class the near-me chain
+already paid for and fixed. This amendment applies the receipted near-me S1.S1 recipe
+verbatim: (a) every executing step below carries its LITERAL "Run exactly:" command body —
+no prose the seat improvises from (the receipted mt-addspot kill-class); (b) the
+visual-QC header is carried ONLY by sibling S2 (already flagged; its render-witness
+step 9 REQUIRES this mission), so this code-landing child drops the flag exactly as
+near-me S1.S1 did; (c) ALLOW-FILES drops the autosplit-era bare "." entry in favor of the
+three real deliverable files, matching the template's scope discipline. Conflict forecast
+receipted 2026-07-16: git merge-tree --write-tree --merge-base=9a29244~1 HEAD 9a29244 →
+CONFLICT (content) in map.html ONLY, one region; both new files land clean. Step 3
+therefore tolerates the conflict exit, and step 4 resolves it with the anchored
+fail-closed resolver at
+C:\Users\marka\.claude\muezzin-plugin\missions\_logs\region-heatmap-conflict-resolve.mjs
+(anchor: the ev-charging-layer.js script tag — verified exactly 1 occurrence in CURRENT
+map.html, line 89) and FINALIZES the pick (the 2026-07-14 near-me attempt-1 lesson:
+resolving the FILE without `cherry-pick --continue` leaves CHERRY_PICK_HEAD alive, and
+git then refuses any pathspec commit with "fatal: cannot do a partial commit during a
+cherry-pick"). The planner must use these commands, not improvise.
 
 Steps:
-  1. Snapshot target-repo baseline: record current branch and HEAD, confirm functions/api/heatmap-points.js and js/region-heatmap-layer.js do not already exist on disk. [verify] map.html
-  2. Ancestry gate: confirm commit 9a29244 is NOT already an ancestor of HEAD (not yet landed) before attempting the cherry-pick. [verify] map.html
-  3. Cherry-pick commit 9a29244 onto the target repo's current HEAD with -x for traceability (the whole-repo git operation that lands all three feature files at once). A nonzero exit (conflict) is a legitimate blocking receipt per mission guidance, not something to paper over. [command] .
-  4. Verify functions/api/heatmap-points.js (landed by the cherry-pick) parses as valid JS. [verify] functions/api/heatmap-points.js
-  5. Verify js/region-heatmap-layer.js (landed by the cherry-pick) parses as valid JS. [verify] js/region-heatmap-layer.js
-  6. Confirm the landed commit's message cites source commit 9a29244 (via the -x trailer) so the integration is traceable. [verify] map.html
-  7. Confirm the target repo's working tree has no uncommitted changes to any ALLOW-FILES entry after the cherry-pick. [verify] map.html
-  8. Spot-check map.html on disk: confirm the new region-heatmap-layer.js script tag is present alongside the pre-existing ev-charging-layer.js and free-camping-filter.js tags, and no leftover conflict markers remain. [verify] map.html
+  1. Baseline, stdout only, IDEMPOTENT. Run exactly: git rev-parse --abbrev-ref HEAD; git rev-parse HEAD; if ((Test-Path functions/api/heatmap-points.js) -or (Test-Path js/region-heatmap-layer.js)) { Write-Output ALREADY_PRESENT } else { Write-Output CLEAN_BASELINE } [command]
+  2. Preconditions + ancestry, IDEMPOTENT. Run exactly: if (Test-Path (git rev-parse --git-path CHERRY_PICK_HEAD)) { exit 1 }; git merge-base --is-ancestor 9a29244 HEAD; if ($LASTEXITCODE -eq 0) { Write-Output ALREADY_INTEGRATED } else { Write-Output NOT_YET_INTEGRATED }; exit 0 [command]
+  3. Land 9a29244; a conflict exit is TOLERATED — the assertion is the artifacts. Run exactly: git merge-base --is-ancestor 9a29244 HEAD; if ($LASTEXITCODE -eq 0) { Write-Output SKIP_ALREADY_INTEGRATED; exit 0 }; git cherry-pick -x 9a29244; if (Test-Path (git rev-parse --git-path CHERRY_PICK_HEAD)) { git cherry-pick --continue --no-edit }; if (-not ((Test-Path functions/api/heatmap-points.js) -and (Test-Path js/region-heatmap-layer.js))) { exit 1 } [command] functions/api/heatmap-points.js
+  4. Resolve the map.html conflict deterministically AND FINALIZE THE PICK (idempotent — no-op if step 3 left no conflict; the finalize is the 2026-07-14 near-me attempt-1 lesson: resolving the FILE without `cherry-pick --continue` leaves CHERRY_PICK_HEAD alive, and git then refuses any pathspec commit with "fatal: cannot do a partial commit during a cherry-pick"). Run exactly: if (Select-String -Path map.html -Pattern '^<{7}' -Quiet) { node "C:\Users\marka\.claude\muezzin-plugin\missions\_logs\region-heatmap-conflict-resolve.mjs" map.html; if ($LASTEXITCODE -ne 0) { exit 1 } }; if (Test-Path (git rev-parse --git-path CHERRY_PICK_HEAD)) { git add -- map.html; git -c core.editor=true cherry-pick --continue; if ($LASTEXITCODE -ne 0) { exit 1 } }; Write-Output PICK-FINALIZED-OR-CLEAN [command] map.html
+     validation_command: if (Select-String -Path map.html -Pattern '^<{7}|^={7}|^>{7}' -Quiet) { exit 1 }; if (-not (Select-String -Path map.html -Pattern 'region-heatmap-layer.js' -Quiet)) { exit 1 }; if (Test-Path (git rev-parse --git-path CHERRY_PICK_HEAD)) { exit 1 }
+  5. Verify the newly integrated API handler is syntactically valid JavaScript. [verify] functions/api/heatmap-points.js
+  6. Verify the newly integrated client layer module is syntactically valid JavaScript. [verify] js/region-heatmap-layer.js
+  7. Artifact witness for the wiring. Run exactly: if (-not (Select-String -Path map.html -Pattern 'region-heatmap-layer.js' -Quiet)) { exit 1 }; if (-not ((Select-String -Path map.html -Pattern '<script' -AllMatches).Matches.Count -ge 49)) { exit 1 } [verify] map.html
+  8. Repo-state bookkeeping check, NO file authored by this step (step 4's finalized pick already committed the deliverables in the conflict path; this step is the idempotent no-op-or-commit tail plus scoped cleanliness — a single engine-executed command whose file mentions are READS of git status, not edit targets). Run exactly: git add -- map.html functions/api/heatmap-points.js js/region-heatmap-layer.js; git diff --cached --quiet -- map.html functions/api/heatmap-points.js js/region-heatmap-layer.js; if ($LASTEXITCODE -ne 0) { git commit -m "feat(map): toggleable region heatmap overlay, POI density (integrate 9a29244)" -- map.html functions/api/heatmap-points.js js/region-heatmap-layer.js; if ($LASTEXITCODE -ne 0) { exit 1 } }; if ((git status --porcelain -- map.html functions/api/heatmap-points.js js/region-heatmap-layer.js).Length -gt 0) { exit 1 }; Write-Output SCOPE_CLEAN [verify] ; context_dependencies: map.html, functions/api/heatmap-points.js, js/region-heatmap-layer.js
 
-Done means: map.html, ., functions/api/heatmap-points.js, js/region-heatmap-layer.js exist/are updated as specified — verify by headless-browser render, not by reading the code
+Done means: functions/api/heatmap-points.js, map.html, js/region-heatmap-layer.js exist/are updated as specified

@@ -7,22 +7,37 @@ ALLOW-FILES:
   - functions/api/wildlife-advisory.js
   - js/wildlife-advisory-layer.js
   - map.html
-VISUAL-QC-REQUIRED
 REQUIRES: none (first in tartib order)
 STEPS: 8
 
 PARENT MAQSAD: Land the three commits — 623a4785214503389055e56fd137a2b78753e2ab
 
-Maqsad: sub-mission 1 of 2 — Confirm the target repo's actually-checked-out branch; the repo was observed volatile/shared this session (found on a different branch mid-session with no action by this session causing it), so check out main explicitly and confirm HEAD before touching any file. through Verify functions/api/wildlife-advisory.js is syntactically valid JavaScript after cherry-pick.
+Maqsad: sub-mission 1 of 2 — Baseline capture and branch pin (idempotent): confirm main is the checked-out branch (repo observed volatile/shared), record HEAD, and assert neither functions/api/wildlife-advisory.js nor js/wildlife-advisory-layer.js already exists on disk. through Commit the three target files if pending (idempotent), then assert scoped cleanliness against the allow-file paths only.
+
+STEP-SHAPE DISCIPLINE (conductor amendment 2026-07-17, modeled verbatim on the receipted
+mt-integrate-near-me-discovery.S1.S1 shape: the autosplit had left this child with prose-only
+step bodies the seat would have to improvise from — the receipted mt-addspot kill-class, the
+same degradation the near-me child was amended for on 2026-07-14. The literal commands below
+were forecast against live substrate on 2026-07-16 from REPO-ROOT: `git merge-tree
+--write-tree --messages --merge-base=<sha>^ HEAD <sha>` receipts 623a478 and d575bce as CLEAN
+picks (exit 0; neither target file exists at HEAD d6655f4) and b450f7d as "CONFLICT (content):
+Merge conflict in map.html" (exit 1) — map.html's single physical script-tag line (line 89 of
+432) has grown many tags since the feature branched (fire-ban-layer.js, oracle-quick-actions.js,
+aurora-overlay.js, near-me.js, share-card.js, ...). The resolver at
+C:\Users\marka\.claude\muezzin-plugin\missions\_logs\wildlife-advisory-conflict-resolve.mjs is
+anchored on the CURRENT map.html's unique `<script src="js/crown-land-overlay.js"
+defer></script>` tag (1 occurrence, verified 2026-07-16) and fails closed. The planner must use
+these commands, not improvise):
 
 Steps:
-  1. Confirm the target repo's actually-checked-out branch; the repo was observed volatile/shared this session (found on a different branch mid-session with no action by this session causing it), so check out main explicitly and confirm HEAD before touching any file. [command] 
-  2. Confirm pre-state: neither functions/api/wildlife-advisory.js nor js/wildlife-advisory-layer.js exists yet in the target repo, and map.html's script-tag line has no wildlife-advisory-layer.js reference yet. [command] 
-  3. Confirm all three feature commits (623a478 proxy, d575bce overlay, b450f7d map.html wiring) resolve as valid commit objects in the target repo's shared object store before touching the target tree. [command] 
-  4. Cherry-pick commit 623a478 onto the target repo's current HEAD without committing, staging the new proxy file functions/api/wildlife-advisory.js. [command] functions/api/wildlife-advisory.js
-  5. Cherry-pick commit d575bce onto the target repo without committing, staging the new overlay file js/wildlife-advisory-layer.js. [command] js/wildlife-advisory-layer.js
-  6. Cherry-pick commit b450f7d (map.html wiring) onto the target repo, expecting the documented structural conflict on map.html's single script-tag line; assert the conflict actually occurred (map.html shows unmerged 'UU' status) rather than silently succeeding or silently failing. [command] 
-  7. Resolve the map.html merge conflict by hand: keep the target's fuller script-tag line as base and insert exactly one new tag, <script src="js/wildlife-advisory-layer.js" defer></script>, immediately after the existing crown-land-overlay.js tag, preserving every other script tag already on that line untouched and removing all conflict markers. [edit] map.html
-  8. Verify functions/api/wildlife-advisory.js is syntactically valid JavaScript after cherry-pick. [verify] functions/api/wildlife-advisory.js
+  1. Baseline + branch pin, stdout only, IDEMPOTENT (repo observed volatile/shared in a prior session — pin main explicitly before touching anything). Run exactly: $b = git branch --show-current; if ($b -ne 'main') { git checkout main; if ($LASTEXITCODE -ne 0) { exit 1 } }; git rev-parse --abbrev-ref HEAD; git rev-parse HEAD; if ((Test-Path functions/api/wildlife-advisory.js) -or (Test-Path js/wildlife-advisory-layer.js)) { Write-Output ALREADY_PRESENT } else { Write-Output CLEAN_BASELINE } [command]
+  2. Preconditions + ancestry, IDEMPOTENT. Run exactly: if (Test-Path (git rev-parse --git-path CHERRY_PICK_HEAD)) { exit 1 }; git merge-base --is-ancestor b450f7d7ed86f18b4fdab28a4e90160d96f87606 HEAD; if ($LASTEXITCODE -eq 0) { Write-Output ALREADY_INTEGRATED } else { Write-Output NOT_YET_INTEGRATED }; exit 0 [command]
+  3. Land the two clean-forecast commits (623a478 proxy, d575bce overlay) — merge-tree forecast 2026-07-16: both CLEAN (pure new-file adds, neither path exists at HEAD); any conflict here is unforecast, FAIL CLOSED. Run exactly: git merge-base --is-ancestor b450f7d7ed86f18b4fdab28a4e90160d96f87606 HEAD; if ($LASTEXITCODE -eq 0) { Write-Output SKIP_ALREADY_INTEGRATED; exit 0 }; git merge-base --is-ancestor 623a4785214503389055e56fd137a2b78753e2ab HEAD; if ($LASTEXITCODE -ne 0) { git cherry-pick -x 623a4785214503389055e56fd137a2b78753e2ab; if ($LASTEXITCODE -ne 0) { exit 1 } }; git merge-base --is-ancestor d575bcefa7b7f6f09fe1035d30f97f2c9d284e56 HEAD; if ($LASTEXITCODE -ne 0) { git cherry-pick -x d575bcefa7b7f6f09fe1035d30f97f2c9d284e56; if ($LASTEXITCODE -ne 0) { exit 1 } }; if (-not ((Test-Path functions/api/wildlife-advisory.js) -and (Test-Path js/wildlife-advisory-layer.js))) { exit 1 } [command] functions/api/wildlife-advisory.js
+  4. Land b450f7d (map.html wiring); a conflict exit is TOLERATED — the merge-tree forecast receipts CONFLICT (content) in map.html; the assertion is the artifacts. Run exactly: git merge-base --is-ancestor b450f7d7ed86f18b4fdab28a4e90160d96f87606 HEAD; if ($LASTEXITCODE -eq 0) { Write-Output SKIP_ALREADY_INTEGRATED; exit 0 }; git cherry-pick -x b450f7d7ed86f18b4fdab28a4e90160d96f87606; if (-not (Test-Path map.html)) { exit 1 }; if (-not ((Select-String -Path map.html -Pattern 'wildlife-advisory-layer.js' -Quiet) -or (Test-Path (git rev-parse --git-path CHERRY_PICK_HEAD)))) { exit 1 } [command] map.html
+  5. Resolve the map.html conflict deterministically AND FINALIZE THE PICK (idempotent — no-op if step 4 left no conflict; the finalize is the near-me 2026-07-14 attempt-1 lesson: resolving the FILE without `cherry-pick --continue` leaves CHERRY_PICK_HEAD alive, and git then refuses any pathspec commit with "fatal: cannot do a partial commit during a cherry-pick"). Run exactly: if (Select-String -Path map.html -Pattern '^<{7}' -Quiet) { node "C:\Users\marka\.claude\muezzin-plugin\missions\_logs\wildlife-advisory-conflict-resolve.mjs" map.html; if ($LASTEXITCODE -ne 0) { exit 1 } }; if (Test-Path (git rev-parse --git-path CHERRY_PICK_HEAD)) { git add -- map.html; git -c core.editor=true cherry-pick --continue; if ($LASTEXITCODE -ne 0) { exit 1 } }; Write-Output PICK-FINALIZED-OR-CLEAN [command] map.html
+     validation_command: if (Select-String -Path map.html -Pattern '^<{7}|^={7}|^>{7}' -Quiet) { exit 1 }; if (-not (Select-String -Path map.html -Pattern 'wildlife-advisory-layer.js' -Quiet)) { exit 1 }; if (Test-Path (git rev-parse --git-path CHERRY_PICK_HEAD)) { exit 1 }
+  6. Verify the newly integrated API proxy is syntactically valid JavaScript. [verify] functions/api/wildlife-advisory.js
+  7. Artifact witness for the wiring: the new tag sits immediately after crown-land-overlay.js (the feature commit's own stated intent) and no pre-existing tag was lost (current map.html carries 48 `<script` occurrences; the insert makes 49). Run exactly: if (-not (Select-String -Path map.html -Pattern 'crown-land-overlay\.js" defer></script><script src="js/wildlife-advisory-layer\.js" defer></script>' -Quiet)) { exit 1 }; if (-not ((Select-String -Path map.html -Pattern '<script' -AllMatches).Matches.Count -ge 49)) { exit 1 } [verify] map.html
+  8. Repo-state bookkeeping check, NO file authored by this step (step 5's finalized pick already committed the deliverables in the conflict path; this step is the idempotent no-op-or-commit tail plus scoped cleanliness — a single engine-executed command whose file mentions are READS of git status, not edit targets). Run exactly: git add -- map.html functions/api/wildlife-advisory.js js/wildlife-advisory-layer.js; git diff --cached --quiet -- map.html functions/api/wildlife-advisory.js js/wildlife-advisory-layer.js; if ($LASTEXITCODE -ne 0) { git commit -m "feat(wildlife-advisory): /api/wildlife-advisory proxy + Leaflet overlay + map.html wiring (integrate 623a478, d575bce, b450f7d)" -- map.html functions/api/wildlife-advisory.js js/wildlife-advisory-layer.js; if ($LASTEXITCODE -ne 0) { exit 1 } }; if ((git status --porcelain -- map.html functions/api/wildlife-advisory.js js/wildlife-advisory-layer.js).Length -gt 0) { exit 1 }; Write-Output SCOPE_CLEAN [verify] ; context_dependencies: map.html, functions/api/wildlife-advisory.js, js/wildlife-advisory-layer.js
 
-Done means: functions/api/wildlife-advisory.js, js/wildlife-advisory-layer.js, map.html exist/are updated as specified — verify by headless-browser render, not by reading the code
+Done means: functions/api/wildlife-advisory.js, js/wildlife-advisory-layer.js, map.html exist/are updated as specified
