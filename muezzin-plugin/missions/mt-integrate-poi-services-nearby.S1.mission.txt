@@ -6,22 +6,47 @@ REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
 ALLOW-FILES:
   - map.html
   - js/poi-services-nearby.js
-VISUAL-QC-REQUIRED
 REQUIRES: none (first in tartib order)
-STEPS: 8
+STEPS: 7
 
 PARENT MAQSAD: The commit "58e7560 feat(poi): nearby services chips in POI popup" is
 
-Maqsad: sub-mission 1 of 2 — Confirm the currently checked-out branch/HEAD in the target repo (HEAD is volatile per mission context) and confirm js/poi-services-nearby.js does not already exist on disk before any integration action. through Confirm the working tree shows no uncommitted changes to the two ALLOW-FILES entries specifically (pre-existing unrelated untracked debris elsewhere in the repo is out of scope per mission context).
+Maqsad: sub-mission 1 of 2 — Baseline capture (idempotent): record current branch and HEAD sha, and branch on whether js/poi-services-nearby.js already exists on disk. through Commit the two target files if pending (idempotent), then assert scoped cleanliness against the allow-file paths only.
+
+STEP-SHAPE DISCIPLINE (conductor amendment 2026-07-17, after FAILED(plan) x2 — attempt-2
+result.json receipted both defects verbatim: a non-idempotent absence-preflight the planner
+improvised from step 1's prose (bare exit-1 on Test-Path, the d1-backup.S1 fails-forever
+class), and a step-7 size-ceiling refusal (2 implementation files in one micro-action,
+the receipted gap-size-ceiling-blind-to-action-type class from near-me S1.S1). This
+amendment applies the receipted near-me/region-heatmap/wildlife-advisory recipe verbatim:
+(a) every executing step below carries its LITERAL "Run exactly:" command body — no prose
+the seat improvises from (the receipted mt-addspot kill-class); (b) the visual-QC header
+is carried ONLY by sibling S2 (already flagged; its deploy+playwright render-witness step 9
+REQUIRES this mission), so this code-landing child drops the flag exactly as near-me S1.S1
+did; (c) the commit tail is repo-state bookkeeping with context_dependencies, never a
+multi-file authoring micro-action. Conflict forecast receipted 2026-07-17: git merge-tree
+--write-tree --merge-base=58e7560~1 HEAD 58e7560 → CONFLICT (content) in map.html ONLY
+(stages base 81ef8fcd / ours 2f318083 / theirs 3cba48c2); js/poi-services-nearby.js lands
+clean. 58e7560's sole map.html contribution is one script tag it placed immediately after
+the poi-photos.js tag (its commit message names the poi-photos ordering contract as the
+placement intent); on CURRENT HEAD that adjacency has evolved (poi-affiliate-cards.js now
+follows poi-photos.js), so step 3 tolerates the conflict exit and step 4 resolves it with
+the anchored fail-closed resolver at
+C:\Users\marka\.claude\muezzin-plugin\missions\_logs\poi-services-nearby-conflict-resolve.mjs
+(anchor: the poi-photos.js script tag — verified exactly 1 occurrence in CURRENT map.html,
+line 89) and FINALIZES the pick (the 2026-07-14 near-me attempt-1 lesson: resolving the
+FILE without `cherry-pick --continue` leaves CHERRY_PICK_HEAD alive, and git then refuses
+any pathspec commit with "fatal: cannot do a partial commit during a cherry-pick"). The
+planner must use these commands, not improvise.
 
 Steps:
-  1. Confirm the currently checked-out branch/HEAD in the target repo (HEAD is volatile per mission context) and confirm js/poi-services-nearby.js does not already exist on disk before any integration action. [command] 
-  2. Confirm commit 58e756084409afc496c98ffd244e873fca85b430 is reachable as a commit object in this repo (worktrees under C:\Users\marka\code share object storage) without touching the source worktree, before attempting to apply it. [command] 
-  3. Check whether 58e7560 is already an ancestor of HEAD before attempting to cherry-pick, to avoid double-landing or a mistaken --allow-empty. [command] 
-  4. Cherry-pick commit 58e7560 onto whatever branch is actually checked out as HEAD (no hardcoded branch name, per the mission's branch-race note). [command] 
-  5. If the cherry-pick reported a conflict on map.html, resolve it by hand so the file keeps BOTH the pre-existing script tags AND the new <script src="js/poi-services-nearby.js" defer> line inserted between the poi-photos.js and crown-land-overlay.js tags — never --ours/--theirs. If step 4 applied cleanly, no conflict markers exist and the tag is already present, satisfying this step's witness as a no-op. [edit] map.html
-  6. Syntax-check the integrated js/poi-services-nearby.js by running: node --check js/poi-services-nearby.js — this must exit 0 with no output; any non-zero exit fails this step. [verify] js/poi-services-nearby.js
-  7. If the cherry-pick left the tree mid-conflict (git add + cherry-pick --continue still pending), complete the commit using the pick's own message, which already names the feature and cites 58e7560; if step 4 already auto-committed cleanly, this is a no-op. Confirms a commit naming the feature/SHA exists at or near HEAD. [command] 
-  8. Confirm the working tree shows no uncommitted changes to the two ALLOW-FILES entries specifically (pre-existing unrelated untracked debris elsewhere in the repo is out of scope per mission context). [verify] 
+  1. Baseline, stdout only, IDEMPOTENT. Run exactly: git rev-parse --abbrev-ref HEAD; git rev-parse HEAD; if (Test-Path js/poi-services-nearby.js) { Write-Output ALREADY_PRESENT } else { Write-Output CLEAN_BASELINE } [command]
+  2. Preconditions + ancestry, IDEMPOTENT. Run exactly: if (Test-Path (git rev-parse --git-path CHERRY_PICK_HEAD)) { exit 1 }; git merge-base --is-ancestor 58e7560 HEAD; if ($LASTEXITCODE -eq 0) { Write-Output ALREADY_INTEGRATED } else { Write-Output NOT_YET_INTEGRATED }; exit 0 [command]
+  3. Land 58e7560; a conflict exit is TOLERATED — the assertion is the artifacts. Run exactly: git merge-base --is-ancestor 58e7560 HEAD; if ($LASTEXITCODE -eq 0) { Write-Output SKIP_ALREADY_INTEGRATED; exit 0 }; git cherry-pick -x 58e7560; if (Test-Path (git rev-parse --git-path CHERRY_PICK_HEAD)) { git cherry-pick --continue --no-edit }; if (-not (Test-Path js/poi-services-nearby.js)) { exit 1 } [command] js/poi-services-nearby.js
+  4. Resolve the map.html conflict deterministically AND FINALIZE THE PICK (idempotent — no-op if step 3 left no conflict; the finalize is the 2026-07-14 near-me attempt-1 lesson: resolving the FILE without `cherry-pick --continue` leaves CHERRY_PICK_HEAD alive, and git then refuses any pathspec commit with "fatal: cannot do a partial commit during a cherry-pick"). Run exactly: if (Select-String -Path map.html -Pattern '^<{7}' -Quiet) { node "C:\Users\marka\.claude\muezzin-plugin\missions\_logs\poi-services-nearby-conflict-resolve.mjs" map.html; if ($LASTEXITCODE -ne 0) { exit 1 } }; if (Test-Path (git rev-parse --git-path CHERRY_PICK_HEAD)) { git add -- map.html; git -c core.editor=true cherry-pick --continue; if ($LASTEXITCODE -ne 0) { exit 1 } }; Write-Output PICK-FINALIZED-OR-CLEAN [command] map.html
+     validation_command: if (Select-String -Path map.html -Pattern '^<{7}|^={7}|^>{7}' -Quiet) { exit 1 }; if (-not (Select-String -Path map.html -Pattern 'poi-services-nearby.js' -Quiet)) { exit 1 }; if (Test-Path (git rev-parse --git-path CHERRY_PICK_HEAD)) { exit 1 }
+  5. Verify the newly integrated popup services module is syntactically valid JavaScript. [verify] js/poi-services-nearby.js
+  6. Artifact witness for the wiring. Run exactly: if (-not (Select-String -Path map.html -Pattern 'poi-services-nearby.js' -Quiet)) { exit 1 }; if (-not ((Select-String -Path map.html -Pattern '<script' -AllMatches).Matches.Count -ge 51)) { exit 1 } [verify] map.html
+  7. Repo-state bookkeeping check, NO file authored by this step (step 4's finalized pick already committed the deliverables in the conflict path; this step is the idempotent no-op-or-commit tail plus scoped cleanliness — a single engine-executed command whose file mentions are READS of git status, not edit targets). Run exactly: git add -- map.html js/poi-services-nearby.js; git diff --cached --quiet -- map.html js/poi-services-nearby.js; if ($LASTEXITCODE -ne 0) { git commit -m "feat(poi): nearby services chips in POI popup (integrate 58e7560)" -- map.html js/poi-services-nearby.js; if ($LASTEXITCODE -ne 0) { exit 1 } }; if ((git status --porcelain -- map.html js/poi-services-nearby.js).Length -gt 0) { exit 1 }; Write-Output SCOPE_CLEAN [verify] ; context_dependencies: map.html, js/poi-services-nearby.js
 
-Done means: map.html, js/poi-services-nearby.js exist/are updated as specified — verify by headless-browser render, not by reading the code
+Done means: map.html, js/poi-services-nearby.js exist/are updated as specified

@@ -10,18 +10,31 @@ ALLOW-FILES:
 REQUIRES: none (first in tartib order)
 STEPS: 8
 
-PARENT MAQSAD: Land commit 94e0263 ("feat(partner-widget): embeddable widget loader + iframe
+PARENT MAQSAD: Land commit 94e0263 (feat(partner-widget): embeddable widget loader + iframe UI) — partners drop one script tag with data-mt-widget attributes and get a same-origin iframe backed by /pois.json, /api/fire-bans, and /api/search.
 
-Maqsad: sub-mission 1 of 2 — Record the target repo's current branch and HEAD/log, and confirm none of the three ALLOW-FILES already exist on disk (positive-assertion: fails if any collision is found). through Confirm on-disk content of widget/v1/embed.js parses data-mt-* attributes and injects a same-origin iframe.
+Maqsad: sub-mission 1 of 2 — Baseline capture (idempotent): record current branch and HEAD sha and report whether the three deliverables already exist on disk. through Confirm on-disk content of widget/v1/embed.js parses data-mt-* attributes and injects a same-origin iframe.
+
+STEP-SHAPE DISCIPLINE (conductor amendment 2026-07-17, after attempt 2 FAILED(plan): the plan
+linter rejected an improvised step-2 witness that grepped for the source sha inside a
+git log -30 window — a witness class that FALSE-FAILs on real landings because a cherry-picked
+commit lands under a NEW sha and older commits scroll out of the window. Per the linter's own
+prescription, every witness below asserts the ARTIFACT: Test-Path the deliverable plus
+Select-String its expected content, never a commit id in a log window. The literal commands
+below were dry-run-verified against the live repo 2026-07-17: git merge-tree --write-tree
+--merge-base=94e0263^ HEAD 94e0263 exited 0 (tree 010290b) = conflict-free pure-add pick of
+exactly the 3 ALLOW-FILES; all three deliverables absent at HEAD 0449664; content anchors read
+from the 94e0263 blobs (embed.js line 87 attribute parse, line 159 iframe creation, doc lines
+19-24 embed snippet). The planner must use these commands verbatim, not improvise):
 
 Steps:
-  1. Record the target repo's current branch and HEAD/log, and confirm none of the three ALLOW-FILES already exist on disk (positive-assertion: fails if any collision is found). [command] 
-  2. Check whether 94e0263 is already an ancestor of the target repo's current HEAD before attempting a cherry-pick. [command] 
-  3. Cherry-pick 94e0263 (-x to record the source hash in the commit trailer) onto the target repo's current HEAD. All three ALLOW-FILES are pure adds per the confirmed dry run. If a real conflict occurs because the branch moved, resolve every conflicted file by keeping BOTH the target's existing content and the feature's added content (never --ours/--theirs, never dropping either side); if already-applied, use --skip, never --allow-empty. [command] widget/v1/embed.js
-  4. Syntax-check the one .js file this commit adds. [verify] 
-  5. Finalize the cherry-pick if it was left mid-flight (conflict resolution required a manual commit); no-op maintenance if it already auto-committed cleanly. [command] 
-  6. Confirm the ALLOW-FILES working tree is clean and the landed commit near HEAD cites 94e0263/partner-widget (fails if either check does not hold). [verify] 
-  7. Confirm on-disk content of docs/PARTNERS-WIDGET.md documents the embed snippet and data-mt-* attributes (not just that the cherry-pick exited 0). [verify] 
-  8. Confirm on-disk content of widget/v1/embed.js parses data-mt-* attributes and injects a same-origin iframe. [verify] 
+  1. Baseline, stdout only, IDEMPOTENT. Run exactly: git rev-parse --abbrev-ref HEAD; git rev-parse HEAD; if ((Test-Path docs/PARTNERS-WIDGET.md) -or (Test-Path widget/v1/embed.js) -or (Test-Path widget/v1/index.html)) { Write-Output ALREADY_PRESENT } else { Write-Output CLEAN_BASELINE } [command]
+  2. Preconditions + ancestry, IDEMPOTENT — artifact-first witness, no log-window sha grep. Run exactly: if (Test-Path (git rev-parse --git-path CHERRY_PICK_HEAD)) { exit 1 }; git merge-base --is-ancestor 94e0263 HEAD; if ($LASTEXITCODE -eq 0) { Write-Output ALREADY_INTEGRATED } else { Write-Output NOT_YET_INTEGRATED }; exit 0 [command]
+  3. Land 94e0263 (-x records the source hash in the commit trailer); a conflict exit is TOLERATED — the assertion is the artifacts. All three ALLOW-FILES are pure adds (merge-tree dry run 2026-07-17 exited 0). Run exactly: git merge-base --is-ancestor 94e0263 HEAD; if ($LASTEXITCODE -eq 0) { Write-Output SKIP_ALREADY_INTEGRATED; exit 0 }; git cherry-pick -x 94e0263; if (Test-Path (git rev-parse --git-path CHERRY_PICK_HEAD)) { git add -- docs/PARTNERS-WIDGET.md widget/v1/embed.js widget/v1/index.html; git -c core.editor=true cherry-pick --continue }; if (-not ((Test-Path docs/PARTNERS-WIDGET.md) -and (Test-Path widget/v1/embed.js) -and (Test-Path widget/v1/index.html))) { exit 1 } [command] widget/v1/embed.js
+     validation_command: if (Select-String -Path widget/v1/embed.js -Pattern '^<{7}|^={7}|^>{7}' -Quiet) { exit 1 }; if (Select-String -Path widget/v1/index.html -Pattern '^<{7}|^={7}|^>{7}' -Quiet) { exit 1 }; if (Select-String -Path docs/PARTNERS-WIDGET.md -Pattern '^<{7}|^={7}|^>{7}' -Quiet) { exit 1 }; if (Test-Path (git rev-parse --git-path CHERRY_PICK_HEAD)) { exit 1 }
+  4. Verify the newly integrated loader is syntactically valid JavaScript. Run exactly: node --check widget/v1/embed.js [verify] widget/v1/embed.js
+  5. Repo-state bookkeeping, RULE 15 scoped commit, NO file authored by this step (idempotent no-op if step 3's pick auto-committed cleanly; the file mentions are READS of git status, not edit targets). Run exactly: git add -- docs/PARTNERS-WIDGET.md widget/v1/embed.js widget/v1/index.html; git diff --cached --quiet -- docs/PARTNERS-WIDGET.md widget/v1/embed.js widget/v1/index.html; if ($LASTEXITCODE -ne 0) { git commit -m "feat(partner-widget): embeddable widget loader + iframe UI (integrate 94e0263)" -- docs/PARTNERS-WIDGET.md widget/v1/embed.js widget/v1/index.html; if ($LASTEXITCODE -ne 0) { exit 1 } }; Write-Output PICK_COMMITTED_OR_CLEAN [command] ; context_dependencies: docs/PARTNERS-WIDGET.md, widget/v1/embed.js, widget/v1/index.html
+  6. Artifact witness + scoped cleanliness (this replaces the rejected sha-in-log-window check with the plan-lint's own prescription: Test-Path the three deliverables, then assert the allow-file scope is clean). Run exactly: if (-not ((Test-Path docs/PARTNERS-WIDGET.md) -and (Test-Path widget/v1/embed.js) -and (Test-Path widget/v1/index.html))) { exit 1 }; if ((git status --porcelain -- docs/PARTNERS-WIDGET.md widget/v1/embed.js widget/v1/index.html).Length -gt 0) { exit 1 }; Write-Output SCOPE_CLEAN [verify]
+  7. Content witness for the doc (anchors read from the 94e0263 blob: the embed-snippet script line and the data-mt-widget attribute usage). Run exactly: if (-not (Select-String -Path docs/PARTNERS-WIDGET.md -SimpleMatch "/widget/v1/embed.js" -Quiet)) { exit 1 }; if (-not (Select-String -Path docs/PARTNERS-WIDGET.md -SimpleMatch "data-mt-widget" -Quiet)) { exit 1 }; Write-Output DOC_CONTENT_OK [verify] docs/PARTNERS-WIDGET.md
+  8. Content witness for the loader (anchors read from the 94e0263 blob: line 87 parses the data-mt- attributes off the script tag, line 159 creates the same-origin iframe). Run exactly: if (-not (Select-String -Path widget/v1/embed.js -SimpleMatch "getAttribute('data-mt-'" -Quiet)) { exit 1 }; if (-not (Select-String -Path widget/v1/embed.js -SimpleMatch "createElement('iframe')" -Quiet)) { exit 1 }; Write-Output LOADER_CONTENT_OK [verify] widget/v1/embed.js
 
-Done means: widget/v1/embed.js lands on disk via the 94e0263 cherry-pick, syntax-checks clean, and its content is grep-confirmed to parse data-mt-* attributes and inject a same-origin iframe (steps 4-8) — headless-browser visual verification is S2's responsibility (step 11), not S1's.
+Done means: docs/PARTNERS-WIDGET.md, widget/v1/embed.js, widget/v1/index.html land on disk via the 94e0263 cherry-pick (-x trailer), widget/v1/embed.js syntax-checks clean under node --check, and on-disk content is Select-String-confirmed — the doc carries the embed snippet plus data-mt-widget attribute usage, and the loader carries the data-mt- attribute parse and same-origin iframe injection (steps 4-8). Headless-browser visual verification is S2's responsibility (its step 11), not S1's.
