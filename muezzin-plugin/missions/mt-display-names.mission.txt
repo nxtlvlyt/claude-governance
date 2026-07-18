@@ -1,0 +1,35 @@
+MISSION mt-display-names
+MAQSAD (the end): contributors have a public display name (chosen in profile,
+unique, changeable) so community surfaces (latest reel, spot popups, reviews,
+public /u profiles) can show WHO shared a spot without ever exposing the
+account email — the identity layer the social direction requires.
+
+NIYYAH (why): operator direction 2026-07-18 (social appeal — "vanlifers are
+always looking for a way to connect"). The reel prep (wf_84a3fdea) confirmed
+community_spot.contributor is the ACCOUNT EMAIL, so every public byline today
+is either absent or a privacy leak. Display names unblock bylines, profile
+links, and follows.
+source: workers/contribute-d1.js (contributor=email posture; new-spots.xml.js
+privacy precedent), js/profile.js, u.html.
+
+REQUIRES: mt-edit-my-spots landed (identity hardening in submitSpot — display
+name resolution rides the same verifyContributor path). LANDED 2026-07-18
+commit 9882537.
+
+STEPS:
+1. [read-only] Map where contributor surfaces today (grep all readers of
+   community_spot.contributor + community_review.contributor + u.html's data
+   source); produce DISPLAY-NAME-DESIGN.md: accounts table column vs mapping
+   table decision, uniqueness rules (case-insensitive, 3-30 chars, reserved
+   list), and the resolution join for each public surface.
+2. Auth-worker/profile: set-display-name endpoint (verified session only,
+   uniqueness enforced, rate-limited) + profile UI field.
+3. Public surfaces: /latest gains display_name (resolved via join, NEVER the
+   email); reel cards + spot popups + reviews show the byline linking to the
+   public /u profile.
+4. Tests: source-scan pins (no public SELECT emits contributor email),
+   uniqueness/validation sims. Five-guard ship.
+
+DONE-MEANS: a spot shared by a named contributor shows their chosen name on
+the homepage reel with a working link to their public profile; zero public
+endpoint emits an account email; tests green; prod receipt.

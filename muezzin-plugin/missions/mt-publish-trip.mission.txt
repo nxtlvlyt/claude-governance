@@ -1,0 +1,37 @@
+MISSION mt-publish-trip
+MAQSAD (the end): a traveller who has analyzed their Google Timeline on
+/timeline.html can PUBLISH the resulting trip as a shareable public page — the
+actual driven tracks + confirmed stops rendered on a MapLibre map at a stable
+URL they can send to anyone. "Share your life on the road" as an artifact no
+competitor has.
+
+NIYYAH (why): operator direction 2026-07-18 ("if we could give the website
+more of a social media appeal users would spend more time on it and share
+their life on it"). The timeline chain (M1-M5, all landed 2026-07-18) already
+produces the map; this mission adds persistence + a public render page.
+source: FEATURE-timeline-ingestion-2026-07-18.md (chain receipts), js/timeline-map.js,
+js/timeline-geojson.js, workers/contribute-d1.js (D1 + auth patterns).
+
+REQUIRES: mt-display-names (a published trip needs a public byline that is not
+an email). Sequence AFTER it.
+
+STEPS:
+1. [read-only] TRIP-PUBLISH-DESIGN.md: trips table DDL (id/slug, owner,
+   title, geojson blob or R2 object, created_at, visibility), size caps (a
+   summer of paths — cap + simplify), the publish flow's SECOND explicit
+   consent screen (publishing is broader than analyzing: state plainly that
+   the trip becomes public), and unpublish (owner delete).
+2. Worker: POST /trip/publish (verified session, size-capped, slug generation),
+   GET /trip/<slug> (public JSON), POST /trip/delete (owner-only — reuse the
+   mt-edit-my-spots ownership pattern verbatim).
+3. Page: /trip.html?slug=... — MapLibre render reusing js/timeline-map.js
+   layer/popup code (read-only variant, no save section), byline + title,
+   OG meta tags so shared links unfurl with a map preview.
+4. timeline.html: "Publish this trip" button post-analysis (signed-in only),
+   with the consent screen from step 1.
+5. Tests + five-guard ship; live witness: publish a trip on preview, open its
+   public URL signed-out, then unpublish and confirm 404.
+
+DONE-MEANS: publish -> stable public URL renders tracks+stops signed-out;
+unpublish removes it; consent screen precedes any publish; email never
+surfaces; tests green; prod receipt.
