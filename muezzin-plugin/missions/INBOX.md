@@ -273,3 +273,5 @@ Video: agency describing a Fable-built custom CMS -> Next.js -> static HTML -> V
 Both are UNPROVEN (video showed nothing working); neither justifies build effort before a receipt exists. The extraction protocol itself is now receipted working — reuse the same 5-section prompt for future video intakes.
 
 - 2026-07-17T06:56:35.377Z EXTERNAL SIGNAL: NEW CI FAILURE on nxtlvlyt/muddytires-pages — 1 new failed run(s) (.github/workflows/lighthouse-ci.yml@main#29561119434). Auto-filed by external-signals-poller (gap-external-signals-poller); verify with: gh run list -R nxtlvlyt/muddytires-pages --json conclusion,workflowName,headBranch,createdAt,databaseId -L 20
+
+- 2026-07-18 Pomelli-borrow pilot (after drain): marketing variant fan-out with operator taste-veto — one mission generating N social-card/OG variants from brand-dna.json, staged for phone pick; fits share-card+OG infra. / Maps-agentic lead: Google Maps Platform ships geospatial agentic LLM integrations — evaluate when trip-planning is next touched (confidence 0.4).
