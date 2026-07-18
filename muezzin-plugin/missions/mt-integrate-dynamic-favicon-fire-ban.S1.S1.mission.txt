@@ -1,0 +1,29 @@
+MISSION-ID: mt-integrate-dynamic-favicon-fire-ban.S1.S1
+MISSION-CLASS: code-repo
+PARENT: mt-integrate-dynamic-favicon-fire-ban.S1
+TARTIB-INDEX: 1 of 2
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - js/dynamic-favicon.js
+  - map.html
+  - icon-fire-ban.svg
+  - index.html
+REQUIRES: none (first in tartib order)
+STEPS: 8
+
+PARENT MAQSAD: sub-mission 1 of 2 — Baseline capture (idempotent): record current branch and HEAD sha and assert the favicon deliverables are not yet on disk, through cherry-picking d48f959 with a deterministic anchored resolution of the known map.html conflict, syntax/artifact witnesses for all four ALLOW-FILES, and a scoped commit tail. The browser render witness is sibling S2's charter.
+
+Maqsad: sub-mission 1 of 2 — Baseline capture (idempotent): record current branch and HEAD sha; report whether the favicon deliverables already exist on disk. through Artifact witness for map.html wiring post-resolve: no conflict markers, mt-favicon and dynamic-favicon.js present, script-tag count grew by exactly one (baseline 50 -> >=51).
+
+Steps:
+  1. Baseline, stdout only, IDEMPOTENT. Run exactly: git rev-parse --abbrev-ref HEAD; git rev-parse HEAD; if ((Test-Path js/dynamic-favicon.js) -or (Test-Path icon-fire-ban.svg)) { Write-Output ALREADY_PRESENT } else { Write-Output CLEAN_BASELINE } [command]
+  2. Preconditions + ancestry, IDEMPOTENT. Run exactly: if (Test-Path (git rev-parse --git-path CHERRY_PICK_HEAD)) { exit 1 }; git merge-base --is-ancestor d48f959 HEAD; if ($LASTEXITCODE -eq 0) { Write-Output ALREADY_INTEGRATED } else { Write-Output NOT_YET_INTEGRATED }; exit 0 [command]
+  3. Land d48f959; a conflict exit is TOLERATED — the assertion is the artifacts. Run exactly: git merge-base --is-ancestor d48f959 HEAD; if ($LASTEXITCODE -eq 0) { Write-Output SKIP_ALREADY_INTEGRATED; exit 0 }; git cherry-pick -x d48f959; if (Test-Path (git rev-parse --git-path CHERRY_PICK_HEAD)) { git cherry-pick --continue --no-edit }; if (-not ((Test-Path js/dynamic-favicon.js) -and (Test-Path icon-fire-ban.svg))) { exit 1 } [command] js/dynamic-favicon.js
+  4. Resolve the map.html conflict deterministically AND FINALIZE THE PICK (idempotent — no-op if step 3 left no conflict). Run exactly: if (Select-String -Path map.html -Pattern '^<{7}' -Quiet) { node "C:\Users\marka\.claude\muezzin-plugin\missions\_logs\dynamic-favicon-conflict-resolve.mjs" map.html; if ($LASTEXITCODE -ne 0) { exit 1 } }; if (Test-Path (git rev-parse --git-path CHERRY_PICK_HEAD)) { git add -- map.html; git -c core.editor=true cherry-pick --continue; if ($LASTEXITCODE -ne 0) { exit 1 } }; Write-Output PICK-FINALIZED-OR-CLEAN [command] map.html
+     validation_command: if (Select-String -Path map.html -Pattern '^<{7}|^={7}|^>{7}' -Quiet) { exit 1 }; if (-not (Select-String -Path map.html -Pattern 'mt-favicon' -Quiet)) { exit 1 }; if (-not (Select-String -Path map.html -Pattern 'dynamic-favicon.js' -Quiet)) { exit 1 }; if (Test-Path (git rev-parse --git-path CHERRY_PICK_HEAD)) { exit 1 }
+  5. Verify the newly integrated favicon module is syntactically valid JavaScript; the literal invocation on this line satisfies RULE 11 while the tag stays [verify] (the poi-services one-writer lesson). Run exactly: node --check js/dynamic-favicon.js [verify] js/dynamic-favicon.js
+  6. Artifact witness for the static fallback icon. Run exactly: if (-not (Test-Path icon-fire-ban.svg)) { exit 1 }; if (Select-String -Path icon-fire-ban.svg -Pattern '^<{7}|^={7}|^>{7}' -Quiet) { exit 1 }; if (-not (Select-String -Path icon-fire-ban.svg -Pattern '<svg' -Quiet)) { exit 1 }; Write-Output SVG_OK [verify] icon-fire-ban.svg
+  7. Artifact witness for the index.html wiring (this file auto-merged clean — receipted in both the 07-11 run output and the 2026-07-17 merge-tree forecast). Run exactly: if (Select-String -Path index.html -Pattern '^<{7}|^={7}|^>{7}' -Quiet) { exit 1 }; if (-not (Select-String -Path index.html -Pattern 'mt-favicon' -Quiet)) { exit 1 }; if (-not (Select-String -Path index.html -Pattern 'dynamic-favicon.js' -Quiet)) { exit 1 }; Write-Output INDEX_WIRED [verify] index.html
+  8. Artifact witness for the map.html wiring (current pre-integration script-tag count is 50; the resolver inserts exactly one). Run exactly: if (Select-String -Path map.html -Pattern '^<{7}|^={7}|^>{7}' -Quiet) { exit 1 }; if (-not (Select-String -Path map.html -Pattern 'mt-favicon' -Quiet)) { exit 1 }; if (-not (Select-String -Path map.html -Pattern 'dynamic-favicon.js' -Quiet)) { exit 1 }; if (-not ((Select-String -Path map.html -Pattern '<script' -AllMatches).Matches.Count -ge 51)) { exit 1 }; Write-Output MAP_WIRED [verify] map.html
+
+Done means: js/dynamic-favicon.js, map.html, icon-fire-ban.svg, index.html exist/are updated as specified

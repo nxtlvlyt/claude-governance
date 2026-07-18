@@ -1,0 +1,22 @@
+MISSION-ID: mt-integrate-dynamic-favicon-fire-ban.S1.S2
+MISSION-CLASS: code-repo
+PARENT: mt-integrate-dynamic-favicon-fire-ban.S1
+TARTIB-INDEX: 2 of 2
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - icon-fire-ban.svg
+  - index.html
+  - js/dynamic-favicon.js
+  - map.html
+REQUIRES: mt-integrate-dynamic-favicon-fire-ban.S1.S1 (tartib — this sub-mission may not start until mt-integrate-dynamic-favicon-fire-ban.S1.S1's receipt exists)
+STEPS: 1
+
+PARENT MAQSAD: sub-mission 1 of 2 — Baseline capture (idempotent): record current branch and HEAD sha and assert the favicon deliverables are not yet on disk, through cherry-picking d48f959 with a deterministic anchored resolution of the known map.html conflict, syntax/artifact witnesses for all four ALLOW-FILES, and a scoped commit tail. The browser render witness is sibling S2's charter.
+
+Maqsad: sub-mission 2 of 2 — Scoped commit tail / cleanliness bookkeeping (idempotent): no new file authored here since step 4's finalized pick already committed the conflict-path deliverables; stage any remaining scoped diffs, commit only if pending, then assert the four ALLOW-FILES are clean in git status. through Scoped commit tail / cleanliness bookkeeping (idempotent): no new file authored here since step 4's finalized pick already committed the conflict-path deliverables; stage any remaining scoped diffs, commit only if pending, then assert the four ALLOW-FILES are clean in git status.
+
+Steps:
+  9. Scoped commit tail / cleanliness bookkeeping (idempotent): no new file authored here since step 4's finalized pick already committed the conflict-path deliverables; stage any remaining scoped diffs, commit only if pending, then assert the four ALLOW-FILES are clean in git status. [verify]  ; context_dependencies: icon-fire-ban.svg, index.html, js/dynamic-favicon.js, map.html
+     validation_command: git add -- icon-fire-ban.svg index.html js/dynamic-favicon.js map.html; git diff --cached --quiet -- icon-fire-ban.svg index.html js/dynamic-favicon.js map.html; if ($LASTEXITCODE -ne 0) { git commit -m "feat(dynamic-favicon): peripheral fire-ban favicon indicator (integrate d48f959)" -- icon-fire-ban.svg index.html js/dynamic-favicon.js map.html; if ($LASTEXITCODE -ne 0) { exit 1 } }; if ((git status --porcelain -- icon-fire-ban.svg index.html js/dynamic-favicon.js map.html).Length -gt 0) { exit 1 }; Write-Output SCOPE_CLEAN
+
+Done means:  exist/are updated as specified
