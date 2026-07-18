@@ -6,7 +6,7 @@ REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
 ALLOW-FILES:
   - map.html
 VISUAL-QC-REQUIRED
-REQUIRES: MT-INTEGRATE-POI-TAGS-2026-06-23.S1 (tartib — this sub-mission may not start until MT-INTEGRATE-POI-TAGS-2026-06-23.S1's receipt exists)
+REQUIRES: missions/mt-integrate-poi-tags-2026-06-23.S1.mission.txt (tartib BLOCKING: S1 chain parked — S1.S1 FAILED with operator-decision park adopt-vs-clear, S1.S2 PARKED same owner; this S2 must not fire until the S1 park resolves and js/poi-tags.js is committed)
 STEPS: 8
 
 PARENT MAQSAD: Land commit a2ecb2a ("feat(poi-tags): free-text user tags on POIs and community
