@@ -1,0 +1,20 @@
+MISSION-ID: mt-display-names.S2
+MISSION-CLASS: research
+PARENT: mt-display-names
+TARTIB-INDEX: 2 of 2
+REQUIRES: mt-display-names.S1 (tartib — this sub-mission may not start until mt-display-names.S1's receipt exists)
+STEPS: 3
+
+PARENT MAQSAD: (see parent mission)
+
+Maqsad: sub-mission 2 of 2 — Update js/spot-popup.js to resolve and display contributor’s display name in spot popups, adhering to WCAG 2.1 AA for accessible bylines and linking. through Run source‑scan pins (no public SELECT emits contributor email) and uniqueness/validation simulations; create tmp/validation-ok.txt on success.
+
+Steps:
+  9. Update js/spot-popup.js to resolve and display contributor’s display name in spot popups, adhering to WCAG 2.1 AA for accessible bylines and linking. [edit] js/spot-popup.js
+     validation_command: Test-Path js/spot-popup.js
+  10. Update js/reviews.js to resolve and display contributor’s display name in reviews bylines, adhering to WCAG 2.1 AA for accessible bylines and linking. [edit] js/reviews.js
+     validation_command: Test-Path js/reviews.js
+  11. Run source‑scan pins (no public SELECT emits contributor email) and uniqueness/validation simulations; create tmp/validation-ok.txt on success. [command] tmp/validation-ok.txt ; context_dependencies: workers/contribute-d1.js, new-spots.xml.js
+     validation_command: Test-Path tmp/validation-ok.txt
+
+Done means: js/spot-popup.js, js/reviews.js, tmp/validation-ok.txt exist/are updated as specified
