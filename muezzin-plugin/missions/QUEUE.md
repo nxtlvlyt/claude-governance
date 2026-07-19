@@ -3297,9 +3297,17 @@ owner fires with hold set; (b) unnamed mt- product still held; (c) stem-substrin
 false-match guarded (mt-fire vs mt-fireban). Engine- stem mission; existing
 GAP-PRIORITY-HOLD selftest contract block (~line 1679) is the surface.
 
-ITEM 50 — PASSKEY DESIGN RE-AUTHOR: PART-FILES BEHIND A SEAT-WRITE-CONTRACT CHECK
-(filed 2026-07-19 ~08:5xZ; owner for the mt-passkey-login FAILED-x2 diagnosis in
-AUTORUN this wake). RECEIPTS: step-1 halts = EMISSION-TRUNCATED 7369B no sentinel
+ITEM 50 — DESIGN-DOC AUTHORING RELIABILITY: SEAT-WRITE-CONTRACT CHECK, THEN
+PART-FILE RE-AUTHORING (WIDENED 2026-07-19 ~11:2xZ from passkey-only to the
+family; now ALSO the unpark owner for mt-publish-trip.S1, PARKED FAILED-x2 —
+receipts: attempt-2 design doc SHRANK 9596B->4818B missing 'CREATE TABLE
+trips'+'geojson' despite an explicit literal-DDL step amendment; 4 validation
+halts, 8 heals, claude-sonnet-5 after opus; publish-trip.S2 tartib-holds behind
+it. Combined family evidence: 2 design-doc missions x 2 attempts x 4 seat
+dispatches failed in ONE DAY with truncation/stub/prose/shrink signatures —
+this is an engine/seat-contract class, not per-mission text defects.)
+(originally filed 2026-07-19 ~08:5xZ; owner for the mt-passkey-login FAILED-x2
+diagnosis in AUTORUN this wake). RECEIPTS: step-1 halts = EMISSION-TRUNCATED 7369B no sentinel
 (4th kill of the single-emission class; engine itself prescribed part-files) PLUS
 twice "The write is pending your approval"/"Write tool call was blocked" — the
 claude-sonnet-5 authoring seat attempted an interactive Write tool instead of
