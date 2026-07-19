@@ -1,0 +1,89 @@
+MISSION-ID: mt-e2e-overlap-retry-on-network-error
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - scripts/e2e-runner.mjs
+REQUIRES: none (sibling of mt-e2e-map-mount-timeout which LANDED e76e93d — that mission is DONE, no concurrent lane edits scripts/e2e-runner.mjs; this builds ON its timeout const, does not touch it)
+STEPS: 2
+
+ONE-WRITER RULE (binding): scripts/e2e-runner.mjs is authored by step 1 ONLY; step 2
+is verify-only (command) and authors nothing.
+
+MAQSAD (the end): make the e2e overlap deploy-gate reliable over van Starlink by
+RETRYING a cell whose failure is purely a network transient, instead of hard-failing
+the whole gate on it. The sweep runs `detectOverlaps(...)` once per viewport×state — FOUR
+independent COLD map.html loads per run (scripts/e2e-runner.mjs main(), the call at
+~line 945 inside `for (const state of STATES)` within `for (const viewport of VIEWPORTS)`).
+Over Starlink, any single cold load has a material chance (~20-25%) of a network-class
+failure — a `page.waitForSelector` "Timeout <n>ms exceeded" (Leaflet never mounted in the
+window) or a `page.goto` "net::ERR_NAME_NOT_RESOLVED"/other net:: error (DNS/conn blip) —
+which detectOverlaps records as a `DETECTOR_ERROR: ...` violation, making that cell
+`ok:false` and the gate exit 2. With 4 independent loads, ~68% of runs fail a RANDOM cell.
+
+FOUR-RUN RECEIPT (conductor, 2026-07-19, mt-levels deploy gate): the failing cell was
+DIFFERENT every run — desktop/default, desktop/plan, mobile/default, mobile/plan EACH
+failed in at least one run and PASSED in at least one other; ZERO geometric violations
+in any cell that could measure. Raising the map-mount timeout (mt-e2e-map-mount-timeout,
+e76e93d: 30s->env-tunable 60s) helped a merely-slow load but does NOT fix a stalled load
+(desktop/default still timed out at 90s one run) or a DNS blip. The remaining defect is
+the absence of per-cell retry.
+
+THE FIX (pin these literals — do NOT choose your own): add a pure helper and wrap the
+call. Helper, exact name and predicate:
+  function isRetryableOverlapFailure(report) {
+    return !report.ok
+      && report.violations.length > 0
+      && report.violations.every((v) => /DETECTOR_ERROR/.test(v) && /(Timeout \d+ms exceeded|net::)/.test(v));
+  }
+Retry loop around the existing `detectOverlaps(...)` call (~L945): attempt up to 3 times
+total; break as soon as `report.ok`; between attempts continue ONLY while
+`isRetryableOverlapFailure(report)`; before each retry, console.log a line
+`[e2e-runner]   RETRY overlap cell [state=${state} viewport=${viewport.name}] attempt ${n}/3 (network-class DETECTOR_ERROR, not a geometric violation)`.
+Push the FINAL report to overlapReports exactly as before. Everything downstream
+(overlapFail = overlapReports.some(o => !o.ok), the summary, the exit code) is unchanged.
+
+SCOPE FENCE (D13, do NOT exceed): (1) A real finding is NEVER retried — a cell with ANY
+geometric violation (OVERLAP / COVERAGE / TAP_TARGET / HARD-FAIL) or the plan-mode-entry
+"DETECTOR_ERROR: failed to enter plan mode" (that string has NO "Timeout <n>ms"/"net::"
+substring, so isRetryableOverlapFailure correctly returns false for it) falls through and
+fails as before. The `.every()` gate is what guarantees this. (2) Do NOT touch
+detectOverlaps' internals, the MAP_MOUNT_TIMEOUT_MS const, or the feature-catalog walk.
+(3) The retry re-CALLS detectOverlaps, which creates and closes its OWN BrowserContext
+each call (line ~812 finally) — so each attempt is a clean fresh context; do NOT
+hand-manage contexts here.
+
+NIYYAH (why): the conductor ran the mt-levels deploy gate 4x over Starlink and receipted
+that the gate cannot produce an all-cells-green run without per-cell retry — a random cell
+network-fails each run. Operator ruling is exit-2 = NO DEPLOY, and fishing for a lucky
+green is the push-through anti-pattern; the honest fix is to make the gate robust. This
+unblocks mt-levels AND every van-season deploy that walks map.html.
+source: scripts/e2e-runner.mjs
+source: missions/INBOX.md
+
+REACHABILITY NOTE (miqat): this mission ships NO page and NO new reachable surface. It
+edits a single Node QC script (scripts/e2e-runner.mjs), a build/test harness — not a web
+page. No orphan-page concern applies.
+
+STEPS:
+1. Edit scripts/e2e-runner.mjs: add the pure helper `isRetryableOverlapFailure(report)`
+   (exact predicate above) near the other module-level helpers, and wrap the existing
+   `const overlap = await detectOverlaps(...)` call in main()'s state loop with the
+   3-attempt retry loop described above (break on ok; continue only while retryable; log
+   a RETRY line per retry; push the final report). Change NOTHING else — detectOverlaps
+   internals, the timeout const, the counts/summary/exit logic all stay byte-identical.
+   [edit] scripts/e2e-runner.mjs
+   validation_command: node --check scripts/e2e-runner.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; $c = Get-Content scripts/e2e-runner.mjs -Raw; if ($c -notmatch 'function isRetryableOverlapFailure' -or $c -notmatch "net::" -or $c -notmatch 'Timeout \\d\+ms exceeded' -or $c -notmatch 'RETRY overlap cell' -or $c -notmatch 'attempt \$\{n\}/3' -or $c -notmatch '\.every\(') { exit 1 } else { Write-Output 'RETRY_HELPER_OK' }
+2. OUTCOME CHECK [command]: confirm syntax + the retry contract is pinned (helper present,
+   both retryable signatures net:: and Timeout, 3-attempt cap, .every gate so real
+   violations are not retried). Run exactly: node --check scripts/e2e-runner.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; $c = Get-Content scripts/e2e-runner.mjs -Raw; if ($c -notmatch 'isRetryableOverlapFailure') { Write-Output 'FAIL: helper missing'; exit 1 }; if ($c -notmatch '\.every\(') { Write-Output 'FAIL: every-gate missing (would retry real violations)'; exit 1 }; if ($c -notmatch 'attempt \$\{n\}/3') { Write-Output 'FAIL: 3-attempt cap missing'; exit 1 }; Write-Output 'ALL_GREEN'
+   Verify-only — authors nothing.
+
+DONE-MEANS: scripts/e2e-runner.mjs carries isRetryableOverlapFailure + a 3-attempt retry
+around the per-cell detectOverlaps call, node --check clean, real geometric violations
+still fail (the .every gate). CONDUCTOR POST-LANDING (ninth-law dry-run): re-run the
+mt-levels overlap gate against a preview — a cell that network-fails should now RETRY and
+recover; on all-cells-green, run the mt-levels five-guard production deploy. This closes
+the van-season deploy-gate reliability gap (with the landed timeout const, the gate is now
+robust to both slow AND transiently-failing cold map loads). FOLLOW-ON (not this mission):
+Class A plan-engage race (line ~689) stays with QUEUE ITEM 36; the WITNESS-SKIPS (no
+visual witness, QUEUE ITEM 37b) are a separate coverage gap, not a gate failure.
