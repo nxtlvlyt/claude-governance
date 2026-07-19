@@ -3371,3 +3371,14 @@ page file passes the miqat; (b) child without the subject file untouched;
 port named (same emitSubMissions shape). Interim convention until landed: any
 conductor re-baring a split child re-checks the parent for mission-level
 declarations and re-inserts them by hand (done for S1 this beat).
+
+ITEM 54 — HEARTBEAT HOOK CLOBBERS model_version IN CURRENT-STATE.md (filed
+2026-07-19 ~10:4xZ, N5 hook-family). RECEIPT: user-prompt-submit.mjs's
+heartbeat rewrote CURRENT-STATE.md at turns 2930/2940/2950 resetting
+model_version to the placeholder each time — the conductor stamped
+claude-fable-5 three times this session and the stamp survived only minutes;
+the Gap-6 session-start check then re-prompts every boot. FIX-SHAPE: the
+heartbeat writer preserves an existing non-placeholder model_version value
+(read-before-write of that one field); placeholder only when the field is
+absent/placeholder already. One-line guard + a fixture (existing value in,
+heartbeat runs, value out unchanged).
