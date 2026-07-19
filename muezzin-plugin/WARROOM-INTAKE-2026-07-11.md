@@ -322,3 +322,15 @@ Two-tier spend measurement, simplest default:
   as an overlay for operators who think in dollars and maintain prices.
 Owner: S5 remaining wiring + S-COVENANT setup interview; the S5-A code is the
 Tier-2 layer and stands as committed.
+
+### S7 TRIGGER RIDER (2026-07-19, operator's own usage model stated verbatim:
+"a standalone application that I go to manually when I run out of the usage on
+the other platforms... it can be used at any time [by] people that do not have
+access to a paid subscription"): failover.py's Claude-absence triggers
+GENERALIZE to USAGE-EXHAUSTION triggers — quota/rate-limit errors from any paid
+platform are first-class cascade events, same handling as absence. The operator
+overflow pattern (paid platforms exhausted -> warroom continues the work) is a
+NAMED use case of the S7 cascade, not an accident of it. Zero-subscription
+users = the cascade's terminal tier running alone (local Ollama only);
+their capability is bounded by their hardware, stated honestly in the
+first-run covenant (S-COVENANT) rather than discovered by disappointment.
