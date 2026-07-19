@@ -3425,3 +3425,21 @@ browser artifact whose own test suite passes. Selftest: a browser-shaped .js
 artifact does not FAIL runtime_verify; a genuine broken node module still does.
 Locate the runtime_verify load site (runtime_verify.mjs) — engine- stem, agy
 fork port named.
+
+ITEM 57 — NO CROSS-FEATURE TABLE-NAME COLLISION CHECK (filed 2026-07-19
+~16:4xZ). RECEIPT: the trip-publish feature created table `trips`, colliding
+with the LIVE trip-cost-split `trips` table (incompatible schema:
+trip_code/base_ccy vs slug/geojson) in muddytires-pois; `CREATE TABLE IF NOT
+EXISTS` silently no-op'd, and POST /trip/publish would have 500'd in production
+on the missing columns. Caught only by the conductor's deploy-time D1 verify —
+the mission's own 70/0 test passed BLIND because it source-scans SQL strings and
+never queries the live schema. IMMEDIATE fix: mission mt-publish-trip-table-rename
+(trips->published_trips), queued. SYSTEMIC fix (this item): a code-repo mission
+whose migration file contains `CREATE TABLE [IF NOT EXISTS] <name>` should have
+that <name> checked against the target D1's existing tables (or against the
+repo's other migration files) at plan/preflight time — a collision with a
+DIFFERENT column set is a hard refuse, not a silent IF-NOT-EXISTS no-op. Cheapest
+form: a mission_lint rule that greps sibling d1/*.sql for the same CREATE TABLE
+name and refuses on a mismatch. Deeper form: a live D1 schema probe in the
+deploy guard chain (a migration that no-ops against an existing incompatible
+table is a deploy blocker). Engine- stem.

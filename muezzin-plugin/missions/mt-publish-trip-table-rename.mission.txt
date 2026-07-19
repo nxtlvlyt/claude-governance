@@ -1,0 +1,60 @@
+MISSION-ID: mt-publish-trip-table-rename
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - d1/migrate-trips-2026-07-19.sql
+  - workers/contribute-d1.js
+  - workers/_test_contribute_d1_trips.mjs
+  - docs/TRIP-PUBLISH-DESIGN.md
+REQUIRES: none
+STEPS: 4
+
+ONE-WRITER RULE (binding): every ALLOW-FILE is authored/edited by exactly ONE
+step; the final step is verify-only (command), authors nothing.
+
+MAQSAD (the end): the trip-publish feature stores its data in a table named
+`published_trips`, eliminating the name collision with the LIVE trip-cost-split
+`trips` table (trip_code/base_ccy) in the muddytires-pois D1 — so the publish
+worker's INSERT/SELECT/UPDATE target a table whose columns actually exist.
+
+NIYYAH (why): conductor caught a production-breaking collision at deploy time
+(gap-publish-trip-table-name-collision): both features named their table `trips`
+with incompatible schemas; `CREATE TABLE IF NOT EXISTS trips` silently no-op'd
+against the existing trip-cost table, and POST /trip/publish would 500 in prod
+on the missing slug/owner_email/geojson columns. The 70/0 test passed blind
+because it source-scans SQL strings, never the live schema. Rename is the fix.
+source: workers/contribute-d1.js
+source: d1/migrate-trips-2026-07-19.sql
+
+STEPS:
+1. Edit d1/migrate-trips-2026-07-19.sql: rename the created table from `trips`
+   to `published_trips` — change `CREATE TABLE IF NOT EXISTS trips (` to
+   `CREATE TABLE IF NOT EXISTS published_trips (`, and update any index name or
+   comment that says `trips` to `published_trips`. The column set is unchanged.
+   [edit] d1/migrate-trips-2026-07-19.sql
+   validation_command: $s = Get-Content d1/migrate-trips-2026-07-19.sql -Raw; if ($s -notmatch 'CREATE TABLE IF NOT EXISTS published_trips' -or $s -match 'CREATE TABLE IF NOT EXISTS trips\b') { exit 1 } else { Write-Output 'MIGRATION_RENAMED' }
+2. Edit workers/contribute-d1.js: in publishTrip/getTrip/deleteTrip, rename the
+   SQL table reference `trips` to `published_trips` in ALL THREE statements —
+   `INSERT INTO trips (...)` -> `INSERT INTO published_trips (...)`,
+   `... FROM trips` -> `... FROM published_trips`,
+   `UPDATE trips SET ...` -> `UPDATE published_trips SET ...`. Column names,
+   bindings (env.DB), and logic are unchanged; only the table name changes.
+   [edit] workers/contribute-d1.js
+   validation_command: node --check workers/contribute-d1.js; if ($LASTEXITCODE -ne 0) { exit 1 }; $c = Get-Content workers/contribute-d1.js -Raw; if ($c -match 'INTO trips \(' -or $c -match 'FROM trips\b' -or $c -match 'UPDATE trips ') { exit 1 } elseif ($c -notmatch 'INTO published_trips' -or $c -notmatch 'FROM published_trips' -or $c -notmatch 'UPDATE published_trips') { exit 1 } else { Write-Output 'WORKER_RENAMED' }
+3. Edit workers/_test_contribute_d1_trips.mjs: update the source-scan regexes and
+   comments that reference the table name `trips` to `published_trips` so the
+   test pins the corrected table (e.g. `INSERT INTO trips \(` becomes
+   `INSERT INTO published_trips \(`; comment strings `trips.slug` etc. become
+   `published_trips.slug`). The assertions' INTENT is unchanged.
+   [edit] workers/_test_contribute_d1_trips.mjs
+   validation_command: node --check workers/_test_contribute_d1_trips.mjs; if ($LASTEXITCODE -ne 0) { exit 1 } else { Write-Output 'TEST_RENAMED' }
+4. OUTCOME CHECK [command]: run the full trip test suites against the renamed
+   table so the rename is witnessed by real test execution. Run exactly:
+   node workers/_test_contribute_d1_trips.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; node tests/trip-view.selftest.js; if ($LASTEXITCODE -ne 0) { exit 1 }; node --check workers/contribute-d1.js; if ($LASTEXITCODE -ne 0) { exit 1 }; Write-Output 'ALL_GREEN'
+   Verify-only — authors nothing.
+
+DONE-MEANS: migration creates `published_trips`, the worker's three SQL
+statements target `published_trips`, the test pins the new name, all suites
+green. Deploy (D1 migration to muddytires-pois + worker + pages) is
+CONDUCTOR-CALLED after landing — the migration now creates a genuinely new table
+with no collision.
