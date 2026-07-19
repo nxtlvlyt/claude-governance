@@ -3236,3 +3236,20 @@ sentences where the SUBJECT is the conductor's own next action (or at minimum
 exempt lines inside quotes/summaries of artifacts). Keep the detector — 11 of
 14 fires were genuine catches, including tonight's reflexive-deferral reroutes
 that found the dup-blocked queue and the S5-A work. Precision, not removal.
+
+ITEM 48 — DETACHED-WORK REGISTER + SWEEP (filed 2026-07-19; operator gap-naming
+verbatim: "you as the conductor allow things to go zombie because there's more
+gaps in our process?" — GAP-CLASS ON ARRIVAL per the classification extension).
+RECEIPT: the atv-rig installer ran ZOMBIED for ~2h (orphaned stdin after ssh
+death, waiting on a prompt that could never arrive) and the conductor reported
+it "running" from memory until the operator's staleness instinct forced the
+probe. Two-part closure:
+(a) CONVENTION (live now): every conductor-launched detached process appends a
+    line to missions/_logs/DETACHED-WORK.jsonl — {id, host, launched, log,
+    expected_minutes, check, status}; status flips DONE/FAILED with a receipt.
+    File created this wake with the rig entry as specimen.
+(b) MECHANISM (next engine beat, owner of this item): conduct-cycle sweep verb
+    walks the register; any open entry whose log mtime is staler than
+    expected_minutes emits a DIAGNOSE line (and, via the storm-watch, a push).
+    Also extend FM-11 explicitly: asserting a detached process's state without
+    a same-turn probe of its log/pid is a memory-assertion.

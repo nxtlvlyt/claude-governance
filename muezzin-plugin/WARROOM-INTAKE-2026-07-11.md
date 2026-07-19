@@ -345,3 +345,29 @@ appear in the watcher's entry gate, enforced by a selftest that round-trips
 each emitted refusal string through the gate (the mt/agy twin fix receipts:
 9644923 / 0969ae5 — same one-line gap, found only because the operator noticed
 hours of silence).
+
+### MT CONTRIBUTION-GROWTH SPEC (2026-07-19, operator ask: "how to encourage
+people to post more spots... leaderboard? follow your fav Vanlifers?" —
+researched via SearXNG: Local Guides mechanics, OSM motivation studies, Waze
+impact model; field consensus: personal levels + visible impact + low friction
+>> competitive all-time leaderboards, which demotivate the long tail):
+1. TIMELINE-AS-FIREHOSE framing (shipped 2026-07-18): market the timeline page
+   as "turn your past trips into spots" — one upload = a trip's worth of
+   contributions. Copy/positioning pass on timeline.html + homepage.
+2. IMPACT VISIBILITY (Waze lesson; cheapest high-value build): per-contributor
+   view/save counts on their spots, surfaced on profile ("your spot helped N
+   travellers this week"). Data exists (beacon + saved-lists).
+3. LEVELS NOT LADDERS (Local Guides model): weighted points (new spot w/photo
+   > review > check-in), named vanlife levels (Pathfinder/Trailblazer/Legend
+   class), badge beside display-name everywhere it renders. Sequences AFTER
+   mt-display-names lands (badge needs the name).
+4. LEADERBOARD REFRAME (page exists, live): monthly reset + regional boards —
+   fresh competition, no all-time ossification; "recent contributors" beats
+   "all-time top" at current scale.
+5. FOLLOWS (operator's instinct, phase 3): after display-names + publish-trip —
+   the shareable trip page is the follow-magnet. Reciprocity copy throughout
+   ("this map is free because travellers add what they find") + post-use
+   check-in prompt ("did this spot work out? confirm it") converts consumers
+   into first-time contributors.
+Sequencing: 1-2 now-class (copy + counts), 3-4 after display-names, 5 after
+publish-trip. Missions constructed from this spec in that order.
