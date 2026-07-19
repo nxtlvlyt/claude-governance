@@ -1,0 +1,16 @@
+{
+  "entries": [
+    {
+      "class": "test-class",
+      "fix": "test fix",
+      "landed_ts": "2026-07-19T22:58:09.846Z",
+      "requeue": [
+        {
+          "stem": "ghost",
+          "requeued": false
+        }
+      ],
+      "requeued": false
+    }
+  ]
+}
