@@ -6,8 +6,6 @@ ALLOW-FILES:
   - workers/_test_contribute_d1_display_names.mjs
   - js/profile.js
   - js/latest-reel.js
-  - profile.html
-  - u.html
   - d1/migrate-display-names-2026-07-19.sql
   - tests/latest-reel.selftest.js
 REQUIRES: none (mt-edit-my-spots identity hardening LANDED 2026-07-18 commit 9882537)
@@ -38,6 +36,11 @@ Its mapping-table-default reasoning is plausible; every claim must be re-checked
 against the real schema (d1/schema-write.sql) before reuse.
 
 STEPS:
+REACHABILITY NOTE (miqat): this mission ships NO new pages — it edits two
+EXISTING, already-nav-linked js modules (js/profile.js serves the existing
+profile page; js/latest-reel.js serves the existing homepage reel). u.html and
+profile.html are read as CONTEXT only, never authored.
+
 1. [read-only] Read workers/contribute-d1.js (contributor=email posture, DB
    bindings incl. muddytires-accounts in wrangler.write.toml), d1/schema-write.sql,
    js/profile.js, u.html, functions/feed/new-spots.xml.js. AUTHOR

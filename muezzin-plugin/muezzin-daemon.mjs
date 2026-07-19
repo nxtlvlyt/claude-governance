@@ -137,7 +137,13 @@ function notify(text) {
 // push IS the outcome ("the engine is storming"); repeats of a known storm are noise — hence
 // per-signature one-shot + a global cap of 5 storm pushes per hour.
 export function stormSig(m) {
-  if (!/FAILED|DISPATCH|ERROR|\berr\b|EMPTY|STUCK|HALT/i.test(String(m))) return null;
+  // REFUSED|BLOCKED|QUEUE-DUP added 2026-07-19 (operator: "I shouldn't have to
+  // be the one catching this"): the cause-class list below already named
+  // MIQAT-REFUSED and RETRO-REPEAT-BLOCKED, but this entry gate excluded their
+  // very tokens — hours of drain-refusal repeats (QUEUE-DUP x20+, one silent
+  // evening) produced ZERO pushes. The watcher's vocabulary must pass its own
+  // front door.
+  if (!/FAILED|DISPATCH|ERROR|\berr\b|EMPTY|STUCK|HALT|REFUSED|BLOCKED|QUEUE-DUP/i.test(String(m))) return null;
   return String(m).replace(/[a-f0-9]{7,40}/gi, 'H').replace(/\d+/g, 'N').slice(0, 120);
 }
 const stormState = { counts: new Map(), pushes: [] };

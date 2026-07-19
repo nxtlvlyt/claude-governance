@@ -334,3 +334,14 @@ NAMED use case of the S7 cascade, not an accident of it. Zero-subscription
 users = the cascade's terminal tier running alone (local Ollama only);
 their capability is bounded by their hardware, stated honestly in the
 first-run covenant (S-COVENANT) rather than discovered by disappointment.
+
+### S-SIGNALS VOCABULARY-GATE RIDER (2026-07-19, operator: "I shouldn't have to
+be the one catching this... this will be fixed universally"): warroom's stall/
+storm watcher is born with the lesson both muezzin forks paid for tonight — a
+watcher whose REFUSAL vocabulary (refused/blocked/skipped/held) cannot pass its
+own entry gate is blind to exactly the silent-stall class it exists for. Rule,
+mechanical: every event class any warroom component can EMIT as a refusal must
+appear in the watcher's entry gate, enforced by a selftest that round-trips
+each emitted refusal string through the gate (the mt/agy twin fix receipts:
+9644923 / 0969ae5 — same one-line gap, found only because the operator noticed
+hours of silence).
