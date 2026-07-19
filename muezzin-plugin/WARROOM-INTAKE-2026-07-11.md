@@ -192,6 +192,65 @@ CROSS-SITE DOC/PROCESS UPDATE (operator ask same turn): atv/androidtv-tips and e
 
 ### PLAYBOOK FACTORY (operator idea 2026-07-18: "workflows to make common playbooks people are agentically building right now in accordance to our framework and governance"): a repeatable WORKFLOW SHAPE that produces governed playbooks, not one-off docs. Per category: (1) research what agentic builders ship RIGHT NOW for that category (SearXNG/WebFetch survey of live patterns, tools, phases); (2) map onto OUR shape — category contract + phases + mission-chain templates with pinned literal steps + tool wiring + mechanical gates + the living-site contract where applicable; (3) emit a playbook spec in the WEBSITE-PACKAGE format. THE DIFFERENTIATOR: a generic AI-built playbook is a checklist; OURS carries the governance wrapper (niyyah-per-seat, receipts, fail-closed gates, damm, living-site freshness guard) — that wrapper is why a shared user trusts it. Candidate categories: website (playbook #1, in progress), app, video-editing (HyperFrames/ffmpeg wiring), SEO-content-site (atv shape), e-commerce, research-report. SEQUENCING (honest): playbook-shelf population is a warroom-BUILD-phase activity, sequenced behind agy-100% + N5 — NOT spawned now (audit wf_20eae942 running, mt-drain has 2 open diagnosis debts). When the shelf build starts, the factory runs one category at a time, each playbook adversarially verified before it joins the shelf. Owner: warroom build phase; seed a single proof-of-shape category on operator go.
 
+### PLAYBOOK-FACTORY TAXONOMY ADDENDUM (2026-07-19 — the operator's 'Top
+Categories of Agentic AI Projects' PDF, READ + FOLDED per his 2026-07-18
+circle-back commitment; full extract at
+missions/_logs/playbooks-pdf-extract-2026-07-19.txt, 9pp, 30 cited sources):
+
+**THE MOAT, NOW QUANTIFIED (fold into S-POSITIONING):** the doc's central
+stats are OUR pitch measured — implementations with standardized evals reach
+production at 6x the rate; robust GOVERNANCE architectures at 12x. The
+governance wrapper (niyyah-per-seat, receipts, fail-closed gates, damm) is not
+overhead — it is the 12x factor, third-party sourced (Databricks/Google Cloud
+/Anthropic 2026 state-of-agents reports in the works-cited). Also: 89% of
+production deployments run dedicated observability (Sentry leads at 29% — we
+already run Sentry; S-SIGNALS is category-standard, not exotic).
+
+**CATEGORY TAXONOMY -> PLAYBOOK SHELF (the doc's top-10 mapped onto our
+candidate list; market share where the doc gives it):**
+1. Customer-experience/transactional agents — 26.5%, the LEADING enterprise
+   use case. NEW SHELF CANDIDATE (high): multi-system orchestration + RBAC +
+   human-in-the-loop triggers is exactly our gate shape.
+2. Deep research intelligence — 24.4%. VALIDATES existing research-report
+   candidate; doc's architecture notes (persistent agents, self-improving
+   skill reuse) match the muezzin retro-corpus pattern.
+3. Autonomous software engineering — our own category; the warroom itself.
+   Playbook = how WE build; the S-BORROWS-CLI adoptions live here.
+4. Enterprise workflow automation (n8n-class event pipelines) — NEW SHELF
+   CANDIDATE (mid): agentic integration with dynamic schema handling.
+5. Prompt-to-app builders — VALIDATES existing app candidate (Lovable 28% /
+   Replit 27% / v0 20% adoption benchmarks recorded).
+6. IT security/ops orchestrators — NEW SHELF CANDIDATE (mid): log-ingest ->
+   detect -> remediate maps onto S-SIGNALS + heal-beat machinery.
+7. Financial ops / receipt+ledger reconciliation — NEW SHELF CANDIDATE
+   (high): we ALREADY run the primitive live (mt trip-cost receipt extractor);
+   rule-bound + spend-limits is BudgetTracker's shape.
+8. Healthcare informatics — EXCLUDED v1 (HIPAA liability incompatible with
+   decision-3 shareability; revisit only with operator word).
+9. Browser operators / computer-use — TOOLING CLASS, not a shelf category for
+   us (feeds S-TOOLS tier-2 as an MCP-server class).
+10. Sovereign location history parsing — WE SHIPPED THIS CATEGORY 2026-07-18
+    (muddytires timeline chain M1-M5, live) BEFORE reading that it is a
+    recognized growth category. Named competitors to watch: Dawarich,
+    MileageWise. Adjacent product idea captured, unscheduled: IRS/CRA-compliant
+    mileage-log export from the same shielded pipeline (the doc names corporate
+    reimbursement as the third output leg).
+
+**TECHNICAL VALIDATIONS BANKED:** (a) Gemma 4 31B thinking-mode (<|think|> ->
+<|channel>thought delimiters), 256K context, param ranges (temp/top_p/freq-
+penalty/reasoning-effort/logit-bias) — operator-doc-sourced with aimlapi docs
+in works-cited #28; upgrades the M2-extractor prep's 0.5-confidence flag to
+SOURCED (the timeline extractor may adopt thinking-mode in a tuning pass).
+(b) MCP + A2A standardization confirmed as the 2026 integration norm ->
+S-TOOLS tier-2 is category-standard. (c) Hierarchical subagent delegation +
+fallback chains named as a dominant pattern — our seat/waterfall architecture
+sits inside the mainstream, differentiated by the governance wrapper.
+
+SEQUENCING UNCHANGED: shelf population stays a warroom-BUILD-phase activity
+behind agy-100% + N5. This addendum sets the shelf's ORDER: customer-
+experience and financial-ops join website/app/video/SEO/research as the
+seven-category v1 shelf.
+
 ## S-TOOLS (2026-07-18, operator word: 'can war room have the tools built directly into it? like searxng firecrawl MCPS ect'): BUILT-IN TOOL LAYER — two tiers. Tier 1 native clients in clients/ for the core loop: SearXNG search (search-grounding ruling becomes warroom-native, SearXNG-first with fallback), fetch/scrape, Ollama local+cloud. Tier 2 MCP CLIENT layer: warroom speaks MCP; tools.yaml declares servers (firecrawl-mcp, stitch, arbitrary) — config not code, which is what makes decision-3 shareability real (a shared user plugs their own MCPs/keys). Inherited constraints, all mechanical: (a) any tool writing files goes through the S1 guardrails door; (b) paid tools register a cost class with BudgetTracker — hard caps trip the drop-to-local waterfall (decision 2); (c) tool seats pass tryouts calibration like model seats (decision 4). Sequencing: after S4/S5, generalizing S-SIGNALS; folds into S9's substrate design. Owner: parity-plan stage, tracked here.
 
 ## S-FANOUT (2026-07-18, operator concerns: 'requires heavy resources' + 'all agents comply with the governance'): PARALLEL FAN-OUT DESIGN RIDER, binds S9. (1) WIDTH IS COMPUTED: fleet size = remaining budget cap / est cost-per-agent (BudgetTracker), bounded by ResourceWatchdog RAM + the serial-lane rules (big local serial, small witnesses parallel); excess queues. Tiered economics: fan-out body on local + cheap-cloud-within-caps, only synthesis/judgment on the strong seat. (2) GOVERNANCE IS STRUCTURAL, 3 layers: (a) fan-out agents READ-ONLY — one conductor-seat applier writes, through the guardrails door + test gates (the proven prep/apply pattern, standing workflow ruling promoted to architecture); (b) any executing subprocess inherits a fail-closed scoped door via WARROOM_PATHS_YAML (built in S1, 41b6cb0) bound to its sandbox root; (c) niyyah-as-contract per seat (practice/core.md pattern) + cheap local witness screening (ornith structural + guardian groundedness) so the verdict panel judges survivors, not all N. Nothing relies on agent behavior; everything is capability shaping.
