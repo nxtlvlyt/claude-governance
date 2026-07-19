@@ -284,3 +284,26 @@ seven-category v1 shelf.
   - Owner: S-FANOUT sandbox stage (executing-agent isolation); the user-space door (S1, done) remains the first layer, this is defense-in-depth below it.
 
 ## S-POSITIONING (2026-07-18, operator thesis, recorded as the product's SOTA claim): what makes warroom SOTA is not the commodity mechanics (repo maps, sandboxes, diff ladders — table stakes within a year, per the CLI research triage) but the 1400-year-tested Islamic governance institutions mapped onto autonomy's actual failure modes: niyyah (per-seat declared intention = delegation integrity; the field's 'system reminders' are its crude echo), isnad/rijal (graded transmission chains + transmitter biographies = our model-rijal and receipts discipline vs the field's benchmark-once trust), wudu nawaqid (drift broken by objective events, not felt states, with tiered re-orientation), damm (unreconciled debt on completed work — repaid 12 on 2026-07-18, surfacing 2 real product defects), muhtasib witnesses, shura panels, amanah privacy gates, substrate-as-truth across instance death (how the tradition itself survived: write, chain, grade the chain). Calibration: the jurisprudence layer needs the commodity mechanics as its body — SOTA = both; the moat is that the fiqh is tested in receipts and cannot be copied from a feature list.
+
+### LONG-FORM-AUTHORING PLAYBOOK SEED + ENGINE BORROWS (2026-07-19, ai-book
+corpus mine wf_02828bd2 — 44 Antigravity Isha summaries, 4 agents, full
+synthesis at missions/_logs/ai-book-mine-2026-07-19/SYNTHESIS.txt):
+- SHELF ADDITION: LONG-FORM-AUTHORING becomes the 8th v1 playbook category —
+  full spec seed in the synthesis: chapter-per-mission contract, salat-named
+  phase skeleton (Fajr bootstrap manifest -> Architect plan-ratify -> Drafter
+  behind a blocking Discovery Gate -> 3-bucket Validator triage -> Maghrib
+  verdict boundary -> Auditor consensus w/ substrate-grounding rule -> revise
+  loops -> Isha compaction w/ round-trip read-back), closure grades
+  (FULL/PARTIAL/CONDITIONAL), 8 mechanical gates each carrying its paid-for
+  receipt from the corpus.
+- RANKED ENGINE BORROWS (adopt via N5-adjacent items, each cited in synthesis):
+  1. Phantom-assertion audit sweep (file_read-verify every board claim);
+  2. Isha round-trip read-back + non-empty schema check on write_state (the
+     corpus's 8/44 EMPTY handoff files = 18% silent death rate is the receipt);
+  3. Ruling IDs w/ finality + invalidate-by-ID (upgrade the AUTORUN-comment
+     diagnosis convention); 4. Assertion ledger WITH cap/expiry (corpus grew
+     12->142 unbounded — adopt the mechanism, not the pathology); 5. Discovery
+     Gate as fm11's blocking escalation once advisory false-positive rate is
+     known; 6. Fajr bootstrap manifest w/ slot budget.
+- CHAPTER SHORTLIST shipped to nxtbeast chapter-sources (7 ranked specimens;
+  #1 "The File That Was Never Destroyed" — the record itself was the liar).
