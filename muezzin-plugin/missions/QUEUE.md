@@ -3201,3 +3201,17 @@ SETUP (map-load wait + plan-mode entry) once with backoff before emitting
 DETECTOR_ERROR; violations still fail hard — this is calibration, not
 looseness. Same operator-approved calibration scope as rounds 1-4 (AUTORUN
 mt-lane-fix-s3 receipts). deploy_gate.mjs gets the same single-retry courtesy.
+
+ITEM 23 NAMING RIDER (2026-07-19, operator insight verbatim: "I feel like
+there's correlation between them and Kiraman Katibin"): the ITEM-23 two-witness
+compaction pair IS the Kiraman Katibin pattern, now named as such — TWO
+independent recorders at the boundary where deeds become record: ornith records
+STRUCTURE (the handoff's form), guardian records GROUNDEDNESS (the handoff vs
+the deeds actually done); neither authors, both flag. Cross-receipt: the
+ai-book corpus (Antigravity project) independently seated a steward NAMED
+Kiraman Katibin for its Isha compaction but implemented it as ONE seat — they
+had the name, we had the two-recorder architecture; the operator connected
+them. Build note for N5: the pair's verdicts are RECORDS (appended to the
+handoff, ruling-ID'd per ITEM 46.3), never blocking authorship — a blocking
+variant would violate the pattern (recorders do not intervene) AND the
+witness-humility law (small models slow you down; they are not right).
