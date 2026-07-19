@@ -3335,3 +3335,20 @@ consecutive green LH CI runs + local trace showing FCP before the burst.
 Product-class mission (map.html) — construct AFTER mt-fireban-click-fix lands
 (same file, no lane overlap). The 13 INBOX signal entries consolidate here; the
 poller keeps appending until this lands (expected noise, not new information).
+
+ITEM 52 — BOOT-FRESHNESS GUARD: STALE daemon-status.json MASQUERADES AS HEALTHY
+AFTER A REBOOT (filed 2026-07-19 ~09:0xZ; operator ask verbatim: "do we need any
+upgrades to our process when a shutdown like this happens? and a cold recovery?"
+— GAP-CLASS ON ARRIVAL per the classification extension). RECEIPT: after the
+01:33 machine restart, daemon-status.json still read pid 40996 / state idle /
+ts 08:29:10Z (four minutes BEFORE boot) — a reader without a pid+boot-time
+cross-check reports a healthy daemon that does not exist; this wake it was only
+caught because the conductor probed Win32_OperatingSystem.LastBootUpTime and
+the process list. TWO CLOSURE HALVES: (a) LANDED this wake — Startup-folder
+launcher muezzin-boot-supervisors.cmd (user Startup dir; schtasks denied
+non-admin) respawns all three supervisors at logon, singleton-safe. (b) ENGINE
+(owner of this item, N5 conductor-lesson class): conduct-cycle sweep + any
+daemon-status reader treats heartbeat ts < OS LastBootUpTime as
+DEAD-BY-RESTART (DIAGNOSE line + storm-watch push), never idle; selftest
+fixture = a status file stamped before a mocked boot time. Port to agy fork
+(same reader shape) — per-project parity, QUEUE item 14 family.
