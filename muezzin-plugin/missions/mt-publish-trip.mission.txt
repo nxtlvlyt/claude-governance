@@ -32,6 +32,16 @@ source: js/timeline-geojson.js
 source: workers/contribute-d1.js
 
 STEPS:
+REACHABILITY NOTE (miqat): trip.html is a SHARE-TARGET page, reached through
+the publish flow on timeline.html — an EXISTING nav-linked page. Step 5
+explicitly renders the returned public URL as a visible, copyable link on
+timeline.html post-publish: that link IS the inbound path (NAV_LINK evidence
+lives in step 5's authored UI). Beyond the publish flow, trip.html is
+UNLINKED-OK BY DESIGN: slugs are unguessable and non-enumerable (step 1), so
+no public nav/index listing may exist — listing published trips anywhere
+public would defeat the unguessability the design mandates; distribution is
+the owner sharing their own link.
+
 1. [read-only] Read js/timeline-map.js, js/timeline-geojson.js,
    workers/contribute-d1.js (ownership pattern from updateSpot/deleteSpot),
    d1/schema-write.sql. AUTHOR docs/TRIP-PUBLISH-DESIGN.md: trips table DDL
@@ -51,7 +61,9 @@ STEPS:
    slug validation, byline rendering inert to markup).
 5. timeline.html + js/timeline-map.js: "Publish this trip" button
    post-analysis (signed-in only) with the step-1 consent screen before any
-   POST.
+   POST; on publish success, render the returned public URL as a visible,
+   copyable link (textContent, copy button) — this authored link is the
+   inbound path satisfying the reachability contract for trip.html.
 6. OUTCOME CHECK [command]: node workers/_test_contribute_d1_trips.mjs exit 0;
    node tests/trip-view.selftest.js exit 0; node --check all authored js.
    Verify-only — authors nothing.
