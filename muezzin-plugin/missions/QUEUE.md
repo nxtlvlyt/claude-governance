@@ -3261,3 +3261,20 @@ screenshot shows the aurora banner colliding with the POI-count chip and
 Spots-near-me/Preview buttons in exactly that state. Force-show the chip via
 its test hook (or injected fixture data) so the sweep exercises the mid-lane
 at its most crowded. The skipped state is where the collision lives.
+
+ITEM 37b RECEIPT + WIRING SPEC (2026-07-19 ~08:1x, operator: "the system has
+the ability to see it headless and at least take a screenshot?" — yes, and the
+missing JUDGE half is now PROVEN): local vision witness demo ran end-to-end —
+puppeteer headless mobile shot of live /map (390x844, dsf1) -> nxtbeast
+gemma4:31b (capabilities receipt: vision+thinking; think:false REQUIRED or the
+model burns num_predict on reasoning and returns empty — that was the
+empty-response trap, receipted twice) -> structured overlap findings. FIRST
+CATCH: the "Add a spot" tutorial modal covers center-map in the first-visit
+state, blocking POIs — a THIRD untested state (with aurora-visible and
+ban-area) where collisions live. WIRING (this item's closure): e2e-runner
+fallback witness = this exact pipeline when agy's multimodal doesn't respond;
+witness-skip becomes a FAIL not a warning; calibration note: the witness
+over-reports floating controls as "overlaps" — its prompt needs the lane-rule
+vocabulary (S1-S3) so it flags violations, not presence. Scripts:
+scratchpad shot-live-map.mjs + vision-witness.mjs (this session) are the
+reference implementation to productionize into scripts/.
