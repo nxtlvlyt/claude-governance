@@ -1,0 +1,45 @@
+MISSION-ID: mt-fireban-click-fix
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - js/fire-ban-layer.js
+  - tests/fire-ban-layer.selftest.js
+REQUIRES: none
+STEPS: 3
+
+ONE-WRITER RULE (binding on the plan): each ALLOW-FILE is authored/edited by
+exactly ONE step; later steps only READ/verify. No integration/rewrite step.
+
+Maqsad: tapping a POI inside a fire-ban area opens the POI — the ban popup
+answers only taps on empty ban ground. The map's core interaction works
+everywhere again.
+
+Niyyah: OPERATOR SCREENSHOT 2026-07-19 ~12:52 local (uploads/...180f5bad),
+verbatim: "I can't click on the poi everywhere I click just brings up the fire
+info." BITE-CLASS: the fire-ban polygon (overlayPane SVG, drawn after the POI
+circleMarkers in the same pane) intercepts every click across the covered
+region — core map function broken wherever a ban exists. GAP-PRIORITY-HOLD set
+per the standing ruling.
+source: js/fire-ban-layer.js
+
+STEPS:
+1. Edit js/fire-ban-layer.js: create a dedicated low pane ONCE before the
+   first layer build — map.createPane('mt-fireban-pane') with
+   style.zIndex='390' (below overlayPane's 400 where POI circleMarkers live;
+   above tiles) — and pass pane:'mt-fireban-pane' in the L.geoJSON layer
+   options so every ban polygon renders there. Keep bindPopup unchanged (bans
+   stay tappable on empty ground). Note: the module's own svg-container logic
+   around line 126-133 queries overlayPane's svg — update that query to the
+   new pane's svg so its behavior follows the polygons.
+2. AUTHOR tests/fire-ban-layer.selftest.js: source-scan pins — (a) createPane
+   with zIndex 390 present; (b) L.geoJSON options carry pane:'mt-fireban-pane';
+   (c) the svg query targets the new pane, not overlayPane; plus a jsdom-free
+   stub-map behavior sim (createPane recorded, layer options captured). Node
+   runnable, exit 0.
+3. OUTCOME CHECK [command]: node tests/fire-ban-layer.selftest.js exit 0 and
+   node --check js/fire-ban-layer.js. Verify-only — authors nothing.
+
+DONE-MEANS: selftest green pinning the pane fix. LIVE WITNESS is the
+conductor's after deploy: on the production map inside a ban area, a tap on a
+POI dot opens the POI popup (the operator's exact repro inverted). Deploy is
+conductor-called via the five-guard chain after landing.

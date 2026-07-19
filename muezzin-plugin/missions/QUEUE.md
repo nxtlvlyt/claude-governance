@@ -3253,3 +3253,11 @@ probe. Two-part closure:
     expected_minutes emits a DIAGNOSE line (and, via the storm-watch, a push).
     Also extend FM-11 explicitly: asserting a detached process's state without
     a same-turn probe of its log/pid is a memory-assertion.
+
+ITEM 47 ADDENDUM (2026-07-19, operator screenshot receipt): add an
+AURORA-VISIBLE state cell to the overlap sweep — every green run tonight
+printed "aurora chip not visible — coverage check skipped" while the operator's
+screenshot shows the aurora banner colliding with the POI-count chip and
+Spots-near-me/Preview buttons in exactly that state. Force-show the chip via
+its test hook (or injected fixture data) so the sweep exercises the mid-lane
+at its most crowded. The skipped state is where the collision lives.
