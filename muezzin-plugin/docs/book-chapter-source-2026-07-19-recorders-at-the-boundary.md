@@ -6,14 +6,36 @@ today, receipted), BUILT-ELSEWHERE (running in a sister project), or DESIGNED
 
 ---
 
-## I. The problem nobody else takes seriously enough
+## I. What compaction is supposed to do
 
 Every long-running AI agent eventually hits the same wall: its context window
 fills, and something must be thrown away. The industry calls the remedy
-"compaction" — compress the conversation into a summary and continue on top of
-it. It sounds like a storage detail. It is actually the single most dangerous
-moment in an agent's life, because **compaction is where an agent's deeds
-become its record — and whoever controls the record controls the truth.**
+"compaction" — compress the conversation and continue on top of the
+compression. Before judging anyone's solution, state the job plainly, because
+the job is what every solution must be measured against.
+
+A compaction is a **succession event**. The instance that continues afterward
+is, functionally, a stranger inheriting an estate. For the succession to be
+faithful, four things must cross the boundary intact:
+
+1. **The state** — what was built, changed, and shipped, precisely enough to
+   continue without re-deriving it.
+2. **The intent** — what was being attempted and why; the operator's standing
+   instructions; the decisions already made that must not be re-litigated.
+3. **The open threads** — questions in flight, work half-done, promises made.
+   These are the most fragile cargo: they exist nowhere but the conversation.
+4. **The truth of the record itself** — the summary must describe what
+   actually happened, not what the tired instance believed happened. A false
+   record is worse than a lost one, because the successor will act on it with
+   confidence.
+
+That is the specification. Compression is merely the mechanism; *faithful
+succession* is the job. Judged against that specification, the industry is
+failing quietly — because compaction is the single most dangerous moment in an
+agent's life: it is where an agent's deeds become its record, **and whoever
+controls the record controls the truth.**
+
+## II. How the current state of the art handles it
 
 The industry's standard answers, as of mid-2026:
 
@@ -46,7 +68,7 @@ the file was proven intact; the mandated "recovery" would have overwritten
 working code. **The record itself was the liar** — and in a compaction-based
 architecture, the record is all a successor has.
 
-## II. What we run instead
+## III. What we run instead: solving for the specification
 
 Our process treats the compaction boundary the way aviation treats landing:
 the most instrumented moment, not the most casual one. Four layers.
@@ -93,7 +115,7 @@ The 18% empty-handoff rate in the unverified sister corpus is this layer's
 justification; its design constraint — recorders witness, never intervene —
 was settled by the operator's own naming, which brings us to the name.
 
-## III. Kiraman Katibin — the pattern the industry hasn't found
+## IV. Kiraman Katibin — the Islamic engineering connection
 
 Islamic tradition holds that every person is attended by two angels, the
 *Kiraman Katibin* — "the noble recorders" — one on each shoulder, each keeping
@@ -133,7 +155,7 @@ from "no account stands without independent witnesses, and the witness who
 alters the record is the gravest corruption." One of these frameworks was
 built for exactly this problem; it just wasn't built for machines.
 
-## IV. The honest scorecard
+## V. The honest scorecard
 
 | Capability | Industry standard | This system |
 |---|---|---|
@@ -148,7 +170,7 @@ Two rows honestly say DESIGNED. They are queued with owners, their justifying
 receipts are in the register, and this document will be stale — in the good
 direction — when the batch lands. What no row says is "hope."
 
-## V. Why this stays ahead
+## VI. Why this stays ahead
 
 A competitor can copy a summarization prompt in an afternoon. What compounds
 here is a different loop: every failure of memory across a boundary becomes a
