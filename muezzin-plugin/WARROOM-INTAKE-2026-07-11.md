@@ -371,3 +371,31 @@ impact model; field consensus: personal levels + visible impact + low friction
    into first-time contributors.
 Sequencing: 1-2 now-class (copy + counts), 3-4 after display-names, 5 after
 publish-trip. Missions constructed from this spec in that order.
+
+### S-COLD-RECOVERY RIDER (2026-07-19, operator: "will these upgrades be done
+universally clde, agy and warroom?" — asked after the 01:33 machine restart
+left both muezzin daemons + the preview server dead with no boot respawn, and
+daemon-status.json still read a pre-boot heartbeat as "idle"). The claude and
+agy legs LANDED same wake (Startup-folder launcher muezzin-boot-supervisors.cmd
+covers both forks' supervisors + preview; mt QUEUE ITEM 52 owns the
+boot-freshness reader guard + agy port). Warroom has no live daemon yet, so its
+leg is a BUILD REQUIREMENT on decision 3's standalone daemon, binding at S5
+wiring:
+1. SELF-RESPAWN AT BOOT: the standalone daemon ships WITH its supervisor, and
+   install/first-run (S-COVENANT) registers per-OS autostart — Windows Startup
+   entry or schtasks, systemd unit, launchd plist. Shareable means no
+   assumption of the operator's machines: the registration is part of the
+   product, not host config someone remembers. Supervisor pattern = the proven
+   muezzin daemon-supervisor.ps1 shape (restart loop; rate-limited halt at 5
+   deaths/10min with a push from OUTSIDE the dead process; singleton exit-code
+   so a redundant supervisor exits quietly instead of restart-looping).
+2. BOOT-FRESHNESS STATUS CONTRACT: the daemon's status heartbeat carries pid
+   AND is judged against OS boot time by EVERY reader — a heartbeat predating
+   the current boot is DEAD-BY-RESTART, never idle (receipt: 2026-07-19
+   daemon-status.json ts 08:29:10Z, boot 08:33:50Z, read as healthy by anything
+   that skips the cross-check). Selftest fixture: status stamped before a
+   mocked boot time must verdict DEAD.
+Closure: this rider closes when the S5 daemon's suite carries both selftests
+(autostart registration probed post-install; stale-heartbeat fixture verdicts
+DEAD) — documented-in-spec alone does not close it (classification extension,
+2026-07-11).
