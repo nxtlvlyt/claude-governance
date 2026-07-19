@@ -307,3 +307,18 @@ synthesis at missions/_logs/ai-book-mine-2026-07-19/SYNTHESIS.txt):
      known; 6. Fajr bootstrap manifest w/ slot budget.
 - CHAPTER SHORTLIST shipped to nxtbeast chapter-sources (7 ranked specimens;
   #1 "The File That Was Never Destroyed" — the record itself was the liar).
+
+### S-BUDGET-SIMPLICITY RIDER (2026-07-19, operator design concern verbatim: "if
+different people uses the war room how would that work, wouldn't a simple
+waterfall be better, I think this is over complicating it"): the waterfall
+(decision 2) is unchanged — this rider governs its GAUGE for shared users.
+Two-tier spend measurement, simplest default:
+- TIER 1 DEFAULT (zero-config, shareable): TOKEN caps measured from the API's
+  own response usage fields — no price table, no maintenance, provider-agnostic.
+  First-run covenant asks a usage tier (light/medium/heavy -> token budgets),
+  never asks a stranger to price-shop. Waterfall trips on token spend.
+- TIER 2 OPTIONAL (power users): the dollar table (S5-A landed 7b1d76a:
+  fail-closed raise on unpriced paid seats, colon-tag local = $0 by rule)
+  as an overlay for operators who think in dollars and maintain prices.
+Owner: S5 remaining wiring + S-COVENANT setup interview; the S5-A code is the
+Tier-2 layer and stands as committed.
