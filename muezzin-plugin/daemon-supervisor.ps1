@@ -1,4 +1,4 @@
-# daemon-supervisor.ps1 — built 2026-07-01 after diagnosing a real, repeating incident:
+﻿# daemon-supervisor.ps1 — built 2026-07-01 after diagnosing a real, repeating incident:
 # conduct-cycle.mjs's STUCK-TASK healer (its own 5-min auto-heal cadence, running inside
 # the daemon's own process) issues `taskkill /PID <daemon's own PID> /F /T` as its remedy
 # for a stuck lane -- there is no separate per-mission subprocess to kill, missions run

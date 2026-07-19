@@ -220,7 +220,21 @@ export function artifactFilesFor(steps, cwd) {
   // only [edit] steps carry `targets` (plural). Collecting only the plural left
   // command-class missions with an empty list, so the *.md-fallback swept random repo-root
   // docs into the panel bundle in code-repo missions (where cwd is the repo root).
-  const fromTargets = [...new Set(steps.filter((s) => s.ok).flatMap((s) => s.targets || (s.target ? [s.target] : [])))];
+  // gap-verdict-reader-dir-target-eisdir fix (2026-07-19, receipt
+  // mt-display-names.S1.mission.result.json): an engine-exec step whose target
+  // is a DIRECTORY (e.g. a mkdir step recording target:"design") crashed the
+  // whole verdict phase with EISDIR when the panel bundle read it as a file —
+  // marking green work FAILED. Stat-guard: only real files reach the bundle;
+  // unstat-able entries drop (the panel judges what exists, never crashes on
+  // what doesn't).
+  const fromTargets = [...new Set(steps.filter((s) => s.ok).flatMap((s) => s.targets || (s.target ? [s.target] : [])))]
+    .filter((t) => {
+      // Drop ONLY targets that exist and are NOT files (directories — the
+      // EISDIR crash shape). Absent targets pass through unchanged (their
+      // reads are already guarded downstream; the panel judges the declared
+      // list) — the selftest pins that semantic.
+      try { return !statSync(path.isAbsolute(t) ? t : path.join(cwd, t)).isDirectory(); } catch { return true; }
+    });
   if (fromTargets.length) return fromTargets;
   try {
     return readdirSync(cwd)
