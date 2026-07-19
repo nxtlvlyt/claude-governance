@@ -3168,3 +3168,36 @@ ITEM 45 ADDENDUM LANDED 2026-07-17T07:0xZ (conductor-direct, all four conditions
 ## 2026-07-18 WARROOM S4 COMPLETE (S4a 3c8c86b + S4b d7be909): repair stage-5 finished per spec §13.2 (commit/verify/revert loop on the hardened guarded_git_commit), 3 new tests, full suite 1025/0/11. S4 catch-of-the-turn: the original stage-5 patcher had a P0 signature-mismatch blocker (assumed a guarded_git_snapshot paths-list arg that doesn't exist); re-drafted against the actual landed primitives (wf_2ad8f2f5) before apply. WARROOM PARITY DONE SO FAR: S0, S1 (sole write door + tripwire), S2 (TZ), S0b (test health), S4 (git ingress + stage-5). REMAINING: S5 (wire-or-discard built-not-running pieces incl the 9-day warroom status; S3 hard-budget-caps folds in), then S8 tryouts, S9 substrate. Defense-in-depth follow-ups tracked: gap-warroom-lifecycle-interceptor, gap-guarded-snapshot-per-path. NEXT: S5 scope+apply via prep-workflow; then the INBOX playbooks PDF.
 
 ## 2026-07-18 SESSION CHECKPOINT (close-short, 70+ turns): full resume state in missions/_logs/SESSION-END-STATE-2026-07-18.md. Warroom S0/S1/S2/S0b/S4 DONE+committed; S5-A budget caps HELD (SOUND-WITH-FIXES P0 pricing-brick — fix-first steps in STATE). Loop STOPPED by discipline, not blockage. Next instance: read SESSION-END-STATE, apply S5-A after the pricing-table fix, then S5-B..F, then the INBOX playbooks PDF.
+
+ITEM 46 — AI-BOOK CORPUS BORROWS, THE SIX (filed 2026-07-19, owner of the
+WARROOM-INTAKE "adopt via N5-adjacent items" prose — promoted here so the eighth
+law's tracked-owner rule is satisfied). Source: ai-book mine wf_02828bd2,
+synthesis at missions/_logs/ai-book-mine-2026-07-19/SYNTHESIS.txt, receipts per
+claim. Ranked, adopt in order:
+46.1 Phantom-assertion audit sweep — conduct-cycle verb that file_read-verifies
+     every board/ledger existence claim, stamps phantoms (specimen
+     STATE-1780896983635.md; muezzin twin class: the card-merge false-death).
+46.2 Round-trip read-back + non-empty schema check on EVERY write_state /
+     board write (corpus receipt: 8/44 empty handoff files = 18% silent death).
+     ALSO upgrades pre-compact.mjs (the ITEM-23 sibling — same principle at the
+     compaction boundary).
+46.3 Ruling IDs with finality + invalidate-by-ID on verdict outputs (upgrade of
+     the AUTORUN-comment diagnosis convention).
+46.4 Assertion ledger WITH cap/expiry (adopt mechanism, not the 12->142
+     unbounded-growth pathology) + mandatory embedded verification receipt.
+46.5 Discovery Gate as fm11's blocking escalation — ONLY after the advisory
+     stream's false-positive rate is measured (the promotion condition fm11's
+     own design anticipates).
+46.6 Fajr bootstrap-handoff manifest with fixed slot budget in write_state.
+Sequencing: N5 batch (engine class), same lane as items 1-7/9-11 unless the
+operator pulls any forward.
+
+ITEM 47 — DETECTOR CALIBRATION ROUND 5: PER-CELL SETUP RETRY (filed 2026-07-19,
+owner of gap-e2e-detector-flake-retry — promoted from gap-register prose to a
+numbered line). Four DETECTOR_ERROR flakes on 2026-07-18 alone (map-load
+timeout, plan-mode entry x2, prod cold-render), each costing a ~10-min full
+rerun before a ship. Fix shape: scripts/e2e-runner.mjs retries the per-cell
+SETUP (map-load wait + plan-mode entry) once with backoff before emitting
+DETECTOR_ERROR; violations still fail hard — this is calibration, not
+looseness. Same operator-approved calibration scope as rounds 1-4 (AUTORUN
+mt-lane-fix-s3 receipts). deploy_gate.mjs gets the same single-retry courtesy.
