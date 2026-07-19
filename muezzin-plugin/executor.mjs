@@ -524,6 +524,12 @@ export async function implementStep(step, cwd, { dispatch = dispatchSeat, model 
   // seat its own tail and asks for the REMAINING bytes, up to maxContinuations rounds.
   let { body, complete } = stripSentinel(content);
   let rounds = 0;
+  // TOOL-BLOCK-PROOF (ITEM 50, 2026-07-19 mt-passkey-login/mt-publish-trip.S1 receipts): a null
+  // continuation extraction is frequently the seat attempting Write/Edit instead of answering in
+  // text — one dead round must not discard 5-9KB of accumulated legitimate progress. Bounded:
+  // two retries of a dead round, then the existing fail-with-receipt path.
+  const NULL_CONTINUATION_RETRY_BUDGET = 2;
+  let nullRetries = 0;
   while (!complete && rounds < maxContinuations) {
     rounds++;
     const tail = body.slice(-800);
@@ -536,7 +542,11 @@ export async function implementStep(step, cwd, { dispatch = dispatchSeat, model 
       `If the file was ALREADY complete, output a code block containing ONLY the line ${SENTINEL}.`;
     const cr = await dispatch(seat, contFraming, { wantVerdict: false, envManifest });
     const cBody = extractCodeBlock(cr?.content);
-    if (cBody == null) break;                       // continuation refused/empty — stop, fail below with receipt
+    if (cBody == null) {
+      if (nullRetries < NULL_CONTINUATION_RETRY_BUDGET) { nullRetries++; continue; }
+      break;                                        // retries exhausted — stop, fail below with receipt
+    }
+    nullRetries = 0;
     const s = stripSentinel(cBody);
     if (s.body.trim()) body = joinContinuation(body, s.body);
     complete = s.complete;

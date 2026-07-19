@@ -76,11 +76,28 @@ export function makeRepairFn(cwd, { dispatch = dispatchSeat, model = 'qwen3-code
     catch { current = ''; missing = true; }
 
     const error = String(receipt?.out ?? '').slice(0, 4000);  // the WITNESSED error (deed), bounded
+    // LITERAL-REQUIREMENT EXTRACTION (ITEM 50, 2026-07-19 mt-publish-trip.S1 receipt: attempt 2
+    // SHRANK the doc across 8 repair rounds losing 'CREATE TABLE trips' + 'geojson' — repair
+    // rounds were fed an opaque validator-crash string, never the missing-marker list). The
+    // validation_command's own quoted literals are ground truth regardless of what the
+    // plan-phase paraphrase of step.description preserved.
+    function extractLiteralRequirements(cmd) {
+      const s = String(cmd || '');
+      const out = new Set();
+      const re = /'([^']{2,80})'|"([^"]{2,80})"/g;
+      let m;
+      while ((m = re.exec(s))) { const v = m[1] || m[2]; if (v && !/^[$@{\[\\]/.test(v) && /[A-Za-z]/.test(v)) out.add(v); }
+      return [...out];
+    }
+    const literalReqs = extractLiteralRequirements(step.validation_command);
     const framing = [
       `A code step failed its validation witness. You are the executor — repair the file.`,
       ``,
       `STEP: ${step.description || '(no description)'}`,
       `VALIDATION COMMAND (the witness that FAILED): ${step.validation_command || '(none)'}`,
+      ...(literalReqs.length ? [
+        `MUST-CONTAIN CHECKLIST (verbatim substrings the witness above checks — every one MUST appear LITERALLY in your output, never paraphrased): ${literalReqs.map((r) => JSON.stringify(r)).join(', ')}`,
+      ] : []),
       `TARGET FILE: ${rel}`,
       ``,
       `THE OBSERVED ERROR (captured by the runner — this is the real failure, not a guess):`,

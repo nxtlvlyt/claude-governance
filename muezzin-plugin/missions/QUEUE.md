@@ -3390,3 +3390,19 @@ heartbeat writer preserves an existing non-placeholder model_version value
 (read-before-write of that one field); placeholder only when the field is
 absent/placeholder already. One-line guard + a fixture (existing value in,
 heartbeat runs, value out unchanged).
+
+ITEM 55 — CONFLICT-GATE FALSE-POSITIVE ON QUOTED MARKERS IN EXEC OUTPUT (filed
+2026-07-19 ~11:5xZ; the quoted-receipt-re-triggers-the-guard family — same
+class as the fm11 tuning note at the top of this file). RECEIPT:
+engine-item50-seat-write-contract FAILED x2 at step 3 whose captured "error" is
+the orchestrate selftest's own PASSING output — the CONFLICT-GATE fixture line
+"PASS  CONFLICT-GATE: content with a git conflict opener -> detected" contains
+a literal opener, and the step-exec output scan flagged it, killing a green
+selftest run. FIX-SHAPE: the conflict-marker scan should apply to ARTIFACT
+content (files being written), never to captured exec stdout of command/verify
+steps — or at minimum exempt lines matching /^(PASS|FAIL)\b/ (selftest receipt
+lines). Locate the scanning site (grep CONFLICT-GATE / conflict opener in
+orchestrate.mjs/executor.mjs), add the scope guard + a fixture where a command
+step's stdout quotes an opener and is NOT flagged while a real conflicted
+artifact still is. Interim: conductor ninth-law dry-runs bank steps 3-4 for the
+ITEM 50 mission (in progress this beat).

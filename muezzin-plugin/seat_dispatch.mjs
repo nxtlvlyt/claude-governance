@@ -436,8 +436,8 @@ function attemptClaude(body, claudeModel, timeoutMs, cwd) {
     const tools = cwd ? 'WebSearch,WebFetch,Read' : 'WebSearch,WebFetch';
     const prompt = body.messages.map((m) => `[${m.role}]\n${m.content}`).join('\n\n') +
       (cwd
-        ? '\n\n[DISPATCH NOTE] You HAVE WebSearch, WebFetch, and Read on this dispatch. Your working directory is the mission sandbox — Read relative paths from it, and Read any absolute paths the instructions name (READ-ONLY). NEVER cite a file you did not actually Read. Answer with your final content only.'
-        : '\n\n[DISPATCH NOTE] You HAVE WebSearch and WebFetch on this dispatch — use them wherever the instructions above demand verification or current/SOTA facts. file_read is unavailable; mark any file-dependent claim you cannot verify as "unverified". Answer with your final content only.');
+        ? '\n\n[DISPATCH NOTE] You HAVE WebSearch, WebFetch, and Read on this dispatch. You do NOT have Write, Edit, or Bash, and this is a non-interactive dispatch — no permission prompt will ever be answered, so a Write/Edit tool call hangs or is denied, never approved (ITEM 50 receipts 2026-07-19: seats narrated "pending your approval" instead of delivering). NEVER call Write or Edit and never wait on a permission approval: your ONLY way to deliver file content is a single fenced code block in your text answer, exactly as the instructions above specify. Your working directory is the mission sandbox — Read relative paths from it, and Read any absolute paths the instructions name (READ-ONLY). NEVER cite a file you did not actually Read. Answer with your final content only.'
+        : '\n\n[DISPATCH NOTE] You HAVE WebSearch and WebFetch on this dispatch — use them wherever the instructions above demand verification or current/SOTA facts. You do NOT have Write, Edit, or Bash, and this is a non-interactive dispatch with no one to approve a permission prompt — NEVER call Write or Edit; deliver your answer as text (a fenced code block when the instructions ask for file content). file_read is unavailable; mark any file-dependent claim you cannot verify as "unverified". Answer with your final content only.');
     // GOVERNANCE ISOLATION (root-cause 2026-06-11 19:30: claude -p inherits the
     // OPERATOR'S global CLAUDE.md + hooks — seats were bathed in niyyah doctrine and
     // performed it INSIDE emissions (4b's three intent-shaped artifacts; the validator
@@ -452,7 +452,10 @@ function attemptClaude(body, claudeModel, timeoutMs, cwd) {
     // empty stdout. The exe launches directly with shell:false — no cmd.exe, no quoting
     // surface, no .cmd grandchild. Probe-verified: EXE LAUNCH OK 2.1.198. The manual
     // taskkill /T timer below still fells the whole tree (exe may still spawn children).
-    const child = execFile(CLAUDE_CMD, ['-p', '--model', claudeModel, '--output-format', 'text', '--allowedTools', tools, '--setting-sources', 'project'],
+    // TOOL-SURFACE REMOVAL (ITEM 50, 2026-07-19): --allowedTools only pre-approves — Write/Edit
+    // stayed VISIBLE in the seat's schema and headless seats attempted them (unapprovable in -p).
+    // --disallowedTools removes them outright. Flag support verified on this claude.exe build.
+    const child = execFile(CLAUDE_CMD, ['-p', '--model', claudeModel, '--output-format', 'text', '--allowedTools', tools, '--disallowedTools', 'Write,Edit,NotebookEdit,Bash', '--setting-sources', 'project'],
       { maxBuffer: 16 * 1024 * 1024, windowsHide: true, ...(cwd ? { cwd } : {}) },
       (err, stdout, stderr) => {
         clearTimeout(killTimer);
