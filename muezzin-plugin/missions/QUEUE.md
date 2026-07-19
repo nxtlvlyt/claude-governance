@@ -3224,3 +3224,15 @@ bite-class for 3 days after Lighthouse went green (live receipt: gh run list
 heal beat: re-probe each open poller-filed gap's source (gh run status /
 Sentry issue state); on healed, close+archive with the receipt automatically.
 One-way valves fill registers with dead bites that mask live ones.
+
+N5 ITEM 8 RIDER — STOP-HOOK PHRASE-LINT PRECISION (filed 2026-07-19, receipts
+from this session's ratchet fires 12-14): the stop-language detector matches
+trigger phrases ("your call", "once the", "next instance is/can") INSIDE quoted
+document content and content descriptions, not just in actual deferral
+sentences. 3 of the session's 14 fires were this false-positive class (fire 12:
+describing a future user's choice; 13-14: describing a written document's own
+text). Fix shape for the item-8 hook-semantics port: scope the phrase match to
+sentences where the SUBJECT is the conductor's own next action (or at minimum
+exempt lines inside quotes/summaries of artifacts). Keep the detector — 11 of
+14 fires were genuine catches, including tonight's reflexive-deferral reroutes
+that found the dup-blocked queue and the S5-A work. Precision, not removal.
