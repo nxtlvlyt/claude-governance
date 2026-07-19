@@ -1,0 +1,82 @@
+MISSION-ID: mt-e2e-map-mount-timeout
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - scripts/e2e-runner.mjs
+REQUIRES: none (single-file isolated change to the QC harness; no product code, no other lane touches scripts/e2e-runner.mjs)
+STEPS: 2
+
+ONE-WRITER RULE (binding): scripts/e2e-runner.mjs is authored by step 1 ONLY; step 2
+is verify-only (command) and authors nothing.
+
+MAQSAD (the end): make the e2e overlap sweep's map-mount wait tolerant of van
+Starlink so a slow-but-working map stops false-failing the five-guard deploy gate.
+The overlap sweep opens map.html in a fresh context per cell and does
+`await page.waitForSelector('#map.leaflet-container', { timeout: 30000 })`
+(scripts/e2e-runner.mjs line ~606). Over Starlink, Leaflet's init routinely exceeds
+30s — the author documented this in the same function (lines ~598-604, QUEUE ITEM 24,
+2026-07-14: "three DETECTOR_ERROR 'Timeout 30000ms' receipts over Starlink, identical
+on unchanged production"). When the wait times out, the catch at line ~808 pushes a
+`DETECTOR_ERROR: ...` string into `violations`, and the cell verdict
+(`ok: violations.length === 0 && ...`, line ~822) hard-fails. Because the verdict cannot
+tell a MEASUREMENT timeout from a real geometric overlap, a network-timing artifact
+false-REDs the deploy gate for EVERY mission — whichever cell happens to exceed 30s that
+run (non-deterministic; observed on desktop/default cold and desktop/plan warm the same
+day). This blocked the mt-levels deploy and forced mt-lh-boot-cpu to re-fish for a green.
+
+THE FIX (pin these literals — do NOT choose your own value): introduce ONE module-level
+constant and apply it to the `#map.leaflet-container` mount-wait ONLY.
+  const MAP_MOUNT_TIMEOUT_MS = Number(process.env.MT_E2E_MAP_TIMEOUT_MS) || 60000;
+Default EXACTLY 60000 (ms). Env var name EXACTLY MT_E2E_MAP_TIMEOUT_MS. Apply it to the
+`page.waitForSelector('#map.leaflet-container', { timeout: ... })` call, replacing its
+literal `30000`. This lets an operator raise the ceiling (90000/120000) on a slow link
+WITHOUT a code change, while a broken map that never mounts within the generous window
+STILL fails loudly — the author's deliberate "never silently passes" semantics (line ~604)
+are preserved, not softened.
+
+SCOPE FENCE (D13, do NOT exceed): change ONLY the `#map.leaflet-container` waitForSelector
+timeout. Do NOT touch the `page.goto(..., { waitUntil: 'domcontentloaded', timeout: 30000 })`
+on the line above — domcontentloaded is a fast DOM-parse wait; 30s is correct there and a
+page that cannot parse DOM in 30s is genuinely dead. Do NOT touch the plan-mode-entry
+DETECTOR_ERROR (line ~687, "failed to enter plan mode") — that is Class A, a SEPARATE
+plan-engage race owned by QUEUE ITEM 36; this mission is Class B (map mount) only. Do NOT
+reclassify DETECTOR_ERROR as inconclusive — the loud-fail-on-broken-map behavior is
+intended; only the timeout is too tight.
+
+NIYYAH (why): the conductor traced the recurring van-season deploy-gate false-RED to this
+exact line while trying to ship mt-levels. QUEUE ITEM 24 landed the networkidle->
+domcontentloaded wait-strategy fix (commit 80d4c0e) but left the 30s mount timeout — this
+mission closes that uncovered remainder so deploys stop re-fishing.
+source: scripts/e2e-runner.mjs
+source: missions/QUEUE.md
+
+REACHABILITY NOTE (miqat): this mission ships NO page and NO new reachable surface. It
+edits a single Node QC script (scripts/e2e-runner.mjs) — a build/test harness, not a
+web page. No orphan-page concern applies.
+
+STEPS:
+1. Edit scripts/e2e-runner.mjs: (a) add a module-level constant near the other
+   module-level thresholds/selectors —
+   `const MAP_MOUNT_TIMEOUT_MS = Number(process.env.MT_E2E_MAP_TIMEOUT_MS) || 60000;`
+   (b) in the overlap-sweep function, change the existing
+   `await page.waitForSelector('#map.leaflet-container', { timeout: 30000 });`
+   to use `{ timeout: MAP_MOUNT_TIMEOUT_MS }`. Change NOTHING else — the goto above it
+   keeps `timeout: 30000`, the catch/violations logic is untouched, the plan-mode-entry
+   path is untouched. Add a one-line comment on the constant noting it exists for van
+   Starlink (QUEUE ITEM 24 remainder).
+   [edit] scripts/e2e-runner.mjs
+   validation_command: node --check scripts/e2e-runner.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; $c = Get-Content scripts/e2e-runner.mjs -Raw; if ($c -notmatch 'MT_E2E_MAP_TIMEOUT_MS' -or $c -notmatch 'MAP_MOUNT_TIMEOUT_MS\s*=\s*Number\(process\.env\.MT_E2E_MAP_TIMEOUT_MS\)\s*\|\|\s*60000' -or $c -notmatch "waitForSelector\('#map\.leaflet-container',\s*\{\s*timeout:\s*MAP_MOUNT_TIMEOUT_MS\s*\}\)" -or $c -match "waitForSelector\('#map\.leaflet-container',\s*\{\s*timeout:\s*30000\s*\}\)") { exit 1 } else { Write-Output 'MAP_TIMEOUT_ENV_OK' }
+2. OUTCOME CHECK [command]: confirm syntax + the numeric contract is pinned (default
+   60000, env-tunable, applied to the leaflet-container wait, old literal gone). Run
+   exactly: node --check scripts/e2e-runner.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; $c = Get-Content scripts/e2e-runner.mjs -Raw; if ($c -match "waitForSelector\('#map\.leaflet-container',\s*\{\s*timeout:\s*30000\s*\}\)") { Write-Output 'FAIL: leaflet-container wait still hardcoded 30000'; exit 1 }; if ($c -notmatch '\|\|\s*60000') { Write-Output 'FAIL: default not 60000'; exit 1 }; Write-Output 'ALL_GREEN'
+   Verify-only — authors nothing.
+
+DONE-MEANS: scripts/e2e-runner.mjs's `#map.leaflet-container` mount-wait is driven by
+MT_E2E_MAP_TIMEOUT_MS (default 60000), node --check clean, the old literal 30000 gone from
+that call. CONDUCTOR POST-LANDING (ninth-law dry-run): re-run the overlap sweep against a
+preview from the van — the map-mount cell should no longer DETECTOR_ERROR at 30s; if a
+cell still times out at 60s, raise MT_E2E_MAP_TIMEOUT_MS rather than re-editing. This
+unblocks the mt-levels five-guard deploy and every van-season deploy that walks map.html.
+FOLLOW-ON (not this mission): Class A plan-engage race (line ~687 "failed to enter plan
+mode") stays with QUEUE ITEM 36 — fix-shape candidate on record (INBOX 2026-07-16): wait on
+a body.mt-plan-active DOM receipt instead of timing.
