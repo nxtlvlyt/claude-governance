@@ -3215,3 +3215,12 @@ them. Build note for N5: the pair's verdicts are RECORDS (appended to the
 handoff, ruling-ID'd per ITEM 46.3), never blocking authorship — a blocking
 variant would violate the pattern (recorders do not intervene) AND the
 witness-humility law (small models slow you down; they are not right).
+
+ITEM 19 RIDER — POLLER RESOLUTION ARM (filed 2026-07-19 during the operator's
+partial-gaps audit): the external-signals poller OPENS a bite gap per CI
+failure / Sentry issue but has NO closing arm — 20 healed CI entries sat
+bite-class for 3 days after Lighthouse went green (live receipt: gh run list
+2026-07-19 success; sweep archived them with closures). Add to the poller's
+heal beat: re-probe each open poller-filed gap's source (gh run status /
+Sentry issue state); on healed, close+archive with the receipt automatically.
+One-way valves fill registers with dead bites that mask live ones.
