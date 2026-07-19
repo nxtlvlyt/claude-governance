@@ -1,0 +1,21 @@
+{
+  "parentId": "mt-publish-trip",
+  "ceiling": 8,
+  "originalStepCount": 10,
+  "groupCount": 2,
+  "children": [
+    {
+      "id": "mt-publish-trip.S1",
+      "file": "missions/mt-publish-trip.S1.mission.txt",
+      "steps": 8,
+      "requires": null
+    },
+    {
+      "id": "mt-publish-trip.S2",
+      "file": "missions/mt-publish-trip.S2.mission.txt",
+      "steps": 2,
+      "requires": "mt-publish-trip.S1"
+    }
+  ],
+  "ts": "2026-07-19T10:34:42.255Z"
+}

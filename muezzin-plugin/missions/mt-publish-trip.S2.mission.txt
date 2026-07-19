@@ -1,0 +1,21 @@
+MISSION-ID: mt-publish-trip.S2
+MISSION-CLASS: code-repo
+PARENT: mt-publish-trip
+TARTIB-INDEX: 2 of 2
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - js/timeline-map.js
+REQUIRES: mt-publish-trip.S1 (tartib — this sub-mission may not start until mt-publish-trip.S1's receipt exists)
+STEPS: 2
+
+PARENT MAQSAD: (see parent mission)
+
+Maqsad: sub-mission 2 of 2 — Edit js/timeline-map.js: wire the publish button — show the step-1 consent screen before any POST, on confirm POST /trip/publish, on success render the returned public URL as a visible copyable link (textContent + copy button), satisfying the reachability contract for trip.html. through Outcome check, verify-only: run the real worker and selftest suites so the mission's DONE-MEANS is witnessed by actual test execution, not just syntax checks. Authors nothing.
+
+Steps:
+  9. Edit js/timeline-map.js: wire the publish button — show the step-1 consent screen before any POST, on confirm POST /trip/publish, on success render the returned public URL as a visible copyable link (textContent + copy button), satisfying the reachability contract for trip.html. [edit] js/timeline-map.js ; context_dependencies: timeline.html, workers/contribute-d1.js, docs/TRIP-PUBLISH-DESIGN.md
+     validation_command: node --check js/timeline-map.js; if ($LASTEXITCODE -ne 0) { exit 1 }; $c = Get-Content js/timeline-map.js -Raw; if ($c -notmatch [regex]::Escape('/trip/publish')) { exit 1 } else { Write-Output 'PUBLISH_WIRED' }
+  10. Outcome check, verify-only: run the real worker and selftest suites so the mission's DONE-MEANS is witnessed by actual test execution, not just syntax checks. Authors nothing. [verify]  ; context_dependencies: workers/contribute-d1.js, workers/_test_contribute_d1_trips.mjs, js/trip-view.js, tests/trip-view.selftest.js, js/timeline-map.js, trip.html, timeline.html
+     validation_command: node workers/_test_contribute_d1_trips.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; node tests/trip-view.selftest.js; if ($LASTEXITCODE -ne 0) { exit 1 }; Write-Output 'ALL_GREEN'
+
+Done means: js/timeline-map.js exist/are updated as specified

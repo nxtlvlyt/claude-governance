@@ -3352,3 +3352,22 @@ daemon-status reader treats heartbeat ts < OS LastBootUpTime as
 DEAD-BY-RESTART (DIAGNOSE line + storm-watch push), never idle; selftest
 fixture = a status file stamped before a mocked boot time. Port to agy fork
 (same reader shape) — per-project parity, QUEUE item 14 family.
+
+ITEM 53 — AUTOSPLIT STRIPS MISSION-LEVEL MIQAT DECLARATIONS (filed 2026-07-19
+~10:4xZ; SECOND same-shape carriage gap — pattern-amortization applies).
+RECEIPT: mt-publish-trip PASSED the miqat at 10:22 (its REACHABILITY NOTE
+satisfied RULE 12), autosplit at 10:34:42 emitted S1 carrying trip.html but
+WITHOUT the note — S1 MIQAT-REFUSED orphan-page-no-reachability at 10:34:50,
+zero execution. The 07-14 engine-split-step-carriage fix carries
+validation_command + context_dependencies verbatim per STEP; nothing carries
+MISSION-LEVEL blocks the miqat reads. FIX-SHAPE (general, not note-specific):
+emitSubMissions carries EVERY mission-level declaration the lint consumes —
+REACHABILITY NOTE / UNLINKED-OK, VISUAL-QC-REQUIRED headers, LITERAL...PINNED
+declarations, MISSION-CLASS riders — verbatim into each child whose ALLOW-FILES
+intersect the declaration's subject (conservative fallback: carry into ALL
+children). Selftests: (a) split parent with REACHABILITY NOTE -> child with the
+page file passes the miqat; (b) child without the subject file untouched;
+(c) existing step-carriage fixtures zero regressions. Engine- stem; agy fork
+port named (same emitSubMissions shape). Interim convention until landed: any
+conductor re-baring a split child re-checks the parent for mission-level
+declarations and re-inserts them by hand (done for S1 this beat).

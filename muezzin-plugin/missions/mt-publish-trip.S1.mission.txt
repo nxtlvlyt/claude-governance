@@ -1,0 +1,51 @@
+MISSION-ID: mt-publish-trip.S1
+MISSION-CLASS: code-repo
+PARENT: mt-publish-trip
+TARTIB-INDEX: 1 of 2
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - docs/TRIP-PUBLISH-DESIGN.md
+  - d1/migrate-trips-2026-07-19.sql
+  - workers/contribute-d1.js
+  - workers/_test_contribute_d1_trips.mjs
+  - trip.html
+  - js/trip-view.js
+  - tests/trip-view.selftest.js
+  - timeline.html
+REQUIRES: none (first in tartib order)
+STEPS: 8
+
+PARENT MAQSAD: (see parent mission)
+
+REACHABILITY NOTE (miqat; carried from the parent — the autosplit dropped it,
+MIQAT-REFUSED 2026-07-19T10:34:50, gap filed as QUEUE ITEM 53): trip.html is a
+SHARE-TARGET page, reached through the publish flow on timeline.html — an
+EXISTING nav-linked page. The inbound-link wiring (returned public URL rendered
+as a visible, copyable link on timeline.html) is authored by sibling
+mt-publish-trip.S2 step 9, which may not be skipped (tartib pair). Beyond the
+publish flow, trip.html is UNLINKED-OK BY DESIGN: slugs are unguessable and
+non-enumerable (step 1), so no public nav/index listing may exist — listing
+published trips publicly would defeat the mandated unguessability; distribution
+is the owner sharing their own link.
+
+Maqsad: sub-mission 1 of 2 — Read js/timeline-map.js, js/timeline-geojson.js, workers/contribute-d1.js (ownership pattern from updateSpot/deleteSpot), and d1/schema-write.sql as context. Author docs/TRIP-PUBLISH-DESIGN.md: trips table DDL (slug TEXT UNIQUE, owner_email TEXT, title TEXT, geojson TEXT capped ~1MB with a simplification rule for over-cap paths, created_at, status live/removed); unguessable non-enumerable slug scheme (e.g. crypto.randomUUID().slice(0,12)); SECOND consent-screen copy stating publishing is broader than analyzing and the trip becomes public; unpublish semantics (status->removed, GET returns 404/not-found). through Edit timeline.html: add a 'Publish this trip' button post-analysis, visible only when signed-in, plus the step-1 consent-screen modal markup shown before any POST fires.
+
+Steps:
+  1. Read js/timeline-map.js, js/timeline-geojson.js, workers/contribute-d1.js (ownership pattern from updateSpot/deleteSpot), and d1/schema-write.sql as context. Author docs/TRIP-PUBLISH-DESIGN.md: trips table DDL (slug TEXT UNIQUE, owner_email TEXT, title TEXT, geojson TEXT capped ~1MB with a simplification rule for over-cap paths, created_at, status live/removed); unguessable non-enumerable slug scheme (e.g. crypto.randomUUID().slice(0,12)); SECOND consent-screen copy stating publishing is broader than analyzing and the trip becomes public; unpublish semantics (status->removed, GET returns 404/not-found). [edit] docs/TRIP-PUBLISH-DESIGN.md ; context_dependencies: js/timeline-map.js, js/timeline-geojson.js, workers/contribute-d1.js, d1/schema-write.sql
+     validation_command: $c = Get-Content docs/TRIP-PUBLISH-DESIGN.md -Raw; $need = @('CREATE TABLE trips','slug','consent','unpublish','geojson'); $missing = $need | Where-Object { $c -notmatch [regex]::Escape($_) }; if ($missing) { exit 1 } else { Write-Output 'DESIGN_OK' }
+  2. Author d1/migrate-trips-2026-07-19.sql per the step-1 design: CREATE TABLE trips with slug (unique, indexed), owner_email, title, geojson TEXT, created_at, status CHECK(live|removed) DEFAULT live, matching SQLite conventions in d1/schema-write.sql. [edit] d1/migrate-trips-2026-07-19.sql ; context_dependencies: docs/TRIP-PUBLISH-DESIGN.md, d1/schema-write.sql
+     validation_command: $s = Get-Content d1/migrate-trips-2026-07-19.sql -Raw; if ($s -notmatch 'CREATE TABLE' -or $s -notmatch 'trips' -or $s -notmatch 'slug') { exit 1 } else { Write-Output 'MIGRATION_OK' }
+  3. Edit workers/contribute-d1.js: add POST /trip/publish (verified session via existing verifyContributor pattern, enforce ~1MB geojson size cap, generate unguessable slug, insert with status='live'); GET /trip/<slug> (public, no auth, returns geojson+title+display_name via LEFT JOIN to the mt-display-names table so a missing display_name never blocks the response, owner email NEVER emitted); POST /trip/delete (owner-only, verbatim the updateSpot/deleteSpot ownership check, sets status='removed'). [edit] workers/contribute-d1.js ; context_dependencies: docs/TRIP-PUBLISH-DESIGN.md, d1/migrate-trips-2026-07-19.sql
+     validation_command: node --check workers/contribute-d1.js; if ($LASTEXITCODE -ne 0) { exit 1 }; $c = Get-Content workers/contribute-d1.js -Raw; if ($c -notmatch [regex]::Escape('/trip/publish') -or $c -notmatch [regex]::Escape('/trip/delete') -or $c -notmatch 'display_name') { exit 1 } else { Write-Output 'ROUTES_OK' }
+  4. Author workers/_test_contribute_d1_trips.mjs: tests for publish success, size-cap rejection, slug uniqueness/unguessability, GET never leaks owner_email and includes display_name byline, delete owner-only enforcement. [edit] workers/_test_contribute_d1_trips.mjs ; context_dependencies: workers/contribute-d1.js, docs/TRIP-PUBLISH-DESIGN.md
+     validation_command: node --check workers/_test_contribute_d1_trips.mjs; if ($LASTEXITCODE -ne 0) { exit 1 } else { Write-Output 'TEST_SYNTAX_OK' }
+  5. Author trip.html: MapLibre CDN include (same version as timeline.html), read-only map container (no save/edit UI), byline slot, static OG meta tags for link unfurls (og:title, og:description, og:image). [edit] trip.html ; context_dependencies: docs/TRIP-PUBLISH-DESIGN.md, js/timeline-map.js
+     validation_command: $c = Get-Content trip.html -Raw; if ($c -notmatch 'maplibre' -or $c -notmatch 'og:title') { exit 1 } else { Write-Output 'TRIP_HTML_OK' }
+  6. Author js/trip-view.js: fetch GET /trip/<slug>, render MapLibre layers/popups reusing js/timeline-map.js's styling constants in read-only mode (no save controls), render the byline from display_name using textContent only (never innerHTML/setHTML) to keep markup injection inert. [edit] js/trip-view.js ; context_dependencies: trip.html, js/timeline-map.js, docs/TRIP-PUBLISH-DESIGN.md
+     validation_command: node --check js/trip-view.js; if ($LASTEXITCODE -ne 0) { exit 1 }; $c = Get-Content js/trip-view.js -Raw; if ($c -match 'innerHTML' -or $c -match '\.setHTML\(') { exit 1 } else { Write-Output 'TRIPVIEW_SAFE' }
+  7. Author tests/trip-view.selftest.js: pure-helper tests for slug format validation (unguessable pattern) and byline rendering being inert to markup injection. [edit] tests/trip-view.selftest.js ; context_dependencies: js/trip-view.js
+     validation_command: node --check tests/trip-view.selftest.js; if ($LASTEXITCODE -ne 0) { exit 1 } else { Write-Output 'SELFTEST_SYNTAX_OK' }
+  8. Edit timeline.html: add a 'Publish this trip' button post-analysis, visible only when signed-in, plus the step-1 consent-screen modal markup shown before any POST fires. [edit] timeline.html ; context_dependencies: docs/TRIP-PUBLISH-DESIGN.md, js/timeline-map.js
+     validation_command: $c = Get-Content timeline.html -Raw; if ($c -notmatch 'Publish this trip') { exit 1 } else { Write-Output 'TIMELINE_HTML_OK' }
+
+Done means: docs/TRIP-PUBLISH-DESIGN.md, d1/migrate-trips-2026-07-19.sql, workers/contribute-d1.js, workers/_test_contribute_d1_trips.mjs, trip.html, js/trip-view.js, tests/trip-view.selftest.js, timeline.html exist/are updated as specified
