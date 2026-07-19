@@ -41,6 +41,13 @@ self-contained const block inside leaderboard.js, each carrying a
 `// canonical: js/levels.js` marker. Do not attempt a cross-file import.
 
 STEPS:
+REACHABILITY NOTE (miqat): this mission ships NO new pages. leaderboard.html is
+an EXISTING, already-nav-linked page (href="leaderboard.html" in index.html,
+also referenced in about.html + ambassadors.html; 13.8KB, live) — step 3 EDITS
+its existing renderRow to add the level badge beside the display-name. js/levels.js
+and tests/levels.selftest.js are a JS module + a test, not pages. No new
+reachable surface is created.
+
 1. AUTHOR js/levels.js: a pure canonical module (factory shape mirroring
    js/latest-reel.js — returns an API object, works under both require and
    window). Exports: POINT_WEIGHTS = { spot: 10, review: 3 }; LEVELS array of
