@@ -3406,3 +3406,22 @@ orchestrate.mjs/executor.mjs), add the scope guard + a fixture where a command
 step's stdout quotes an opener and is NOT flagged while a real conflicted
 artifact still is. Interim: conductor ninth-law dry-runs bank steps 3-4 for the
 ITEM 50 mission (in progress this beat).
+
+ITEM 56 — RUNTIME_VERIFY NODE-LOADS BROWSER MODULES -> FALSE STEP-FAILED (filed
+2026-07-19 ~14:1xZ). RECEIPT: mt-publish-trip.S1 steps 1-6 ALL committed
+(design doc + trips migration + worker routes + tests + trip.html +
+trip-view.js — the ITEM 50 fix's first clean live run), yet step 7 FAILED x3 on
+the engine's post-author runtime_verify trying to node-load js/trip-view.js:
+"require is not defined in ES module scope" / "Cannot find module
+../js/trip-view.js" — the harness can't load a BROWSER module (fetch/DOM/
+MapLibre, relative browser imports) in its isolated temp dir. The deliverables
+are sound: worker suite 70/0, trip-view selftest 22/0, node --check clean x3,
+design doc all 5 markers. Same class as the fireban selftest ESM/CJS temp-dir
+trip earlier today. FIX-SHAPE: runtime_verify DETECTS browser-context artifacts
+(imports of maplibre / other browser-only libs, relative browser paths, or
+DOM/window/fetch usage) and SKIPS the node-load for them — falls back to
+source-scan or a headless-render witness; it must NEVER emit a step-FAILED on a
+browser artifact whose own test suite passes. Selftest: a browser-shaped .js
+artifact does not FAIL runtime_verify; a genuine broken node module still does.
+Locate the runtime_verify load site (runtime_verify.mjs) — engine- stem, agy
+fork port named.
