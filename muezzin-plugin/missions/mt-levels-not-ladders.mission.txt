@@ -1,0 +1,93 @@
+MISSION-ID: mt-levels-not-ladders
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - js/levels.js
+  - functions/api/leaderboard.js
+  - leaderboard.html
+  - tests/levels.selftest.js
+REQUIRES: none (mt-display-names LANDED 2026-07-19 — the byline this badge sits beside is live; community_spot + community_review confirmed live, already queried by leaderboard.js)
+STEPS: 5
+
+ONE-WRITER RULE (binding): every ALLOW-FILE is authored/edited by exactly ONE
+step; the final step is verify-only (command), authors nothing.
+
+MAQSAD (the end): give contributors a visible vanlife LEVEL beside their
+display-name on the leaderboard — progression a reader can see, the Local-Guides
+motivation lever ("levels not ladders": personal progress beats an ossified
+all-time top-list). Points are computed LIVE from the tables leaderboard.js
+already queries — NO new table, NO stored column (a cache would drift from the
+live rows on every moderation status change).
+
+Point weights (grounded in leaderboard.js's own "spots are a scarcer signal
+than reviews" comment): live community_spot = 10 pts, live community_review =
+3 pts. Levels (5, vanlife-named; thresholds re-express the existing 1/3/10/50
+contribution breakpoints as points): 0 = no badge (honest absence, mirrors the
+reel's omit-entirely discipline); 1 Day Tripper (1-24); 2 Weekender (25-74);
+3 Full-Timer (75-199); 4 Overlander (200-499); 5 Trail Boss (500+).
+
+NIYYAH (why): operator 2026-07-19 asked how to get more spots posted
+(leaderboard? follow favourites?); the contribution-growth research says visible
+personal progression + a badge beside the name drives posting. Unblocked by
+mt-display-names landing today (the badge attaches to the display-name).
+source: functions/api/leaderboard.js
+source: leaderboard.html
+
+ARCHITECTURE NOTE (D13, from substrate): this codebase DELIBERATELY duplicates
+shared helpers across the Pages-Functions / worker split rather than importing
+(leaderboard.js's own "Duplicated rather than imported" comment). So the
+weights/thresholds live canonically in js/levels.js AND are duplicated as a
+self-contained const block inside leaderboard.js, each carrying a
+`// canonical: js/levels.js` marker. Do not attempt a cross-file import.
+
+STEPS:
+1. AUTHOR js/levels.js: a pure canonical module (factory shape mirroring
+   js/latest-reel.js — returns an API object, works under both require and
+   window). Exports: POINT_WEIGHTS = { spot: 10, review: 3 }; LEVELS array of
+   { level, name, min } for the 6 bands above (level 0 name null); pointsFor({
+   spot_count, review_count }) -> number; levelFor(points) -> { level, name };
+   buildLevelBadge(doc, points) -> an element (textContent only, no innerHTML)
+   OR null when level 0 (honest absence). Level names EXACT: Day Tripper,
+   Weekender, Full-Timer, Overlander, Trail Boss.
+   [edit] js/levels.js
+   validation_command: node --check js/levels.js; if ($LASTEXITCODE -ne 0) { exit 1 }; $c = Get-Content js/levels.js -Raw; if ($c -notmatch 'Day Tripper' -or $c -notmatch 'Trail Boss' -or $c -notmatch 'buildLevelBadge' -or $c -notmatch 'levelFor' -or $c -notmatch 'canonical') { exit 1 } else { Write-Output 'LEVELS_MODULE_OK' }
+2. Edit functions/api/leaderboard.js: in the existing top-N result map (the
+   block that already produces { rank, handle, username, display_name,
+   spot_count, review_count, total, tier }), add points and level fields using
+   a SELF-CONTAINED const block duplicated from js/levels.js (POINT_WEIGHTS +
+   LEVELS + the two pure fns, marked `// canonical: js/levels.js`). points =
+   10*spot_count + 3*review_count; level = levelFor(points). Every existing
+   field stays; email is never emitted (display_name/username only, unchanged).
+   [edit] functions/api/leaderboard.js
+   validation_command: node --check functions/api/leaderboard.js; if ($LASTEXITCODE -ne 0) { exit 1 }; $c = Get-Content functions/api/leaderboard.js -Raw; if ($c -notmatch 'canonical: js/levels.js' -or $c -notmatch 'points' -or $c -notmatch 'level') { exit 1 } else { Write-Output 'LEADERBOARD_POINTS_OK' }
+3. Edit leaderboard.html: in renderRow (which already renders a tier chip beside
+   display_name), render the LEVEL BADGE beside the name using the row's new
+   level/points fields — textContent only, level 0 renders nothing (no
+   placeholder). Include js/levels.js via a <script> tag so buildLevelBadge is
+   available, OR render the badge inline from the row.level/row.name fields
+   already in the JSON (prefer the JSON fields to avoid a second source of
+   truth). Class/markup mirrors the existing tier-chip shape.
+   [edit] leaderboard.html
+   validation_command: $c = Get-Content leaderboard.html -Raw; if ($c -notmatch 'level' -or ($c -notmatch 'levels\.js' -and $c -notmatch 'row\.name')) { exit 1 } else { Write-Output 'LEADERBOARD_HTML_OK' }
+4. AUTHOR tests/levels.selftest.js: pure-function tests (dual require/import
+   loader mirroring tests/latest-reel.selftest.js). Assert: pointsFor({spot_count:1,review_count:0})===10;
+   pointsFor({spot_count:0,review_count:1})===3; levelFor(0).level===0 (name null);
+   levelFor(1).name==='Day Tripper'; levelFor(24).level===1; levelFor(25).name==='Weekender';
+   levelFor(75).name==='Full-Timer'; levelFor(200).name==='Overlander'; levelFor(500).name==='Trail Boss';
+   buildLevelBadge(stubDoc,0)===null (honest absence); buildLevelBadge(stubDoc,500)
+   sets textContent (never innerHTML) and contains 'Trail Boss'; NaN/undefined
+   points coerce to level 0, never 'NaN'/'undefined' in text.
+   [edit] tests/levels.selftest.js
+   validation_command: node --check tests/levels.selftest.js; if ($LASTEXITCODE -ne 0) { exit 1 } else { Write-Output 'SELFTEST_SYNTAX_OK' }
+5. OUTCOME CHECK [command]: run the levels selftest + the reel selftest (shares
+   the byline surface) + syntax on the edited files. Run exactly: node tests/levels.selftest.js; if ($LASTEXITCODE -ne 0) { exit 1 }; node tests/latest-reel.selftest.js; if ($LASTEXITCODE -ne 0) { exit 1 }; node --check functions/api/leaderboard.js; if ($LASTEXITCODE -ne 0) { exit 1 }; node --check js/levels.js; if ($LASTEXITCODE -ne 0) { exit 1 }; Write-Output 'ALL_GREEN'
+   Verify-only — authors nothing.
+
+DONE-MEANS: js/levels.js canonical module + leaderboard.js points/level fields +
+leaderboard.html level badge beside the display-name + the levels selftest, all
+green. Deploy (pages, the leaderboard is a static page + the leaderboard.json
+Function) is CONDUCTOR-CALLED after landing via the five-guard chain. FOLLOW-ON
+(not this mission): the same level badge on the homepage reel byline
+(latest-reel.js) + trip byline (trip-view.js) needs the worker to attach level
+to /latest and /trip — a bounded sibling; and the u.html / own-profile level
+needs the auth worker (out of the read scope, carved out).
