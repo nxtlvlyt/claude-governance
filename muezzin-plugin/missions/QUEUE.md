@@ -3278,3 +3278,60 @@ over-reports floating controls as "overlaps" — its prompt needs the lane-rule
 vocabulary (S1-S3) so it flags violations, not presence. Scripts:
 scratchpad shot-live-map.mjs + vision-witness.mjs (this session) are the
 reference implementation to productionize into scripts/.
+
+ITEM 49 — GAP-PRIORITY-HOLD SKIPS ITS OWN GAP-OWNER MISSION (filed 2026-07-19
+~08:5xZ, post-restart wake). RECEIPT: daemon event 08:45:17.438Z skipped
+missions/mt-fireban-click-fix.mission.txt under the hold — but fireban IS the
+bite-class gap mission the hold was set FOR (the hold file's own text names it).
+Mechanism: gapHoldSkips classifies purely by stem prefix (GAP_HOLD_PRODUCT_PREFIXES
+includes mt-, muezzin-daemon.mjs ~line 688); a gap owner living in a product
+namespace is held by its own hold — queue self-deadlock (this wake it was masked
+only because every other pending was tartib-held; conductor cleared the hold file
+to release exactly fireban, then re-evaluates on its terminal mark). FIX SHAPE
+(mechanical, no conductor judgment per the 2026-07-11 classification extension):
+gapHoldSkips gains an owner-exemption — a pending mission is NEVER hold-skipped
+when its path/stem appears in the GAP-PRIORITY-HOLD file's text (the conductor
+already names the gap mission there naturally; formalize with optional
+"EXEMPT: missions/x.mission.txt" lines, literal match). Selftests: (a) named
+owner fires with hold set; (b) unnamed mt- product still held; (c) stem-substring
+false-match guarded (mt-fire vs mt-fireban). Engine- stem mission; existing
+GAP-PRIORITY-HOLD selftest contract block (~line 1679) is the surface.
+
+ITEM 50 — PASSKEY DESIGN RE-AUTHOR: PART-FILES BEHIND A SEAT-WRITE-CONTRACT CHECK
+(filed 2026-07-19 ~08:5xZ; owner for the mt-passkey-login FAILED-x2 diagnosis in
+AUTORUN this wake). RECEIPTS: step-1 halts = EMISSION-TRUNCATED 7369B no sentinel
+(4th kill of the single-emission class; engine itself prescribed part-files) PLUS
+twice "The write is pending your approval"/"Write tool call was blocked" — the
+claude-sonnet-5 authoring seat attempted an interactive Write tool instead of
+emitting fenced content (0 fenced blocks; engine correctly refused the empty
+artifact). Committed a5ef99d is a 1168B stub (missing AUTH-SOURCE receipt, DDL,
+all 4 endpoint specs) — supersede it in the re-author. SEQUENCE (binding): (1)
+engine check FIRST — read seat_dispatch.mjs's authoring-seat invocation and
+determine why a claude -p seat believes it has an approval-gated Write tool
+(flag drift? tool allowlist? harness default change?); part-files alone do NOT
+cure this halt class. (2) Then construct mt-passkey-design-parts as part-file
+authoring (one section per step, assembly step, cite-per-claim), superseding the
+stub. Do NOT refire the current mt-passkey-login text (its own line says so).
+
+ITEM 51 — LIGHTHOUSE CI NO_FCP IS A FLAKE OF THE TBT-BURST FAMILY (filed
+2026-07-19 ~09:0xZ; OWNER for the 13-signal CI-failure stream in INBOX 07-18
+19:54 -> 07-19 08:13 and the auto-filed gap-ci-failure-...-29679205360).
+DIAGNOSIS — EXECUTED grade, receipts this wake: run 29679205360 --log-failed
+shows LighthouseError NO_FCP x3 ("page did not paint any content"); the 18-run
+history 07-18/19 is NOT deterministic-red — SUCCESS on da38e6cf (22:53) and
+6675b5a8 (00:01) interleaves failures, and the failing commits (display-names
+worker/js/tests chain ab8b18a..9dcf6ca, passkey doc a5ef99de) do not touch the
+map paint path. So the 07-16 S2 "NO_FCP class dead" receipt was a LUCKY DRAW,
+not a closure: S2 fixed paint-blocking parse (perf 0.28 FCP 3.6s on its run)
+but its own honest note recorded the survivor — post-load async render burst,
+TBT 13.6s, probe-D unresponsive during burst. MECHANISM (HYPOTHESIS grade until
+a trace receipt): under LH mobile throttling the burst races FCP; when the
+burst wins, nothing paints inside the timeout -> NO_FCP; when paint sneaks
+first -> success. ~2/18 success rate matches a race, not a regression.
+FIX-SHAPE: the TBT optimization family S2 already named — defer/chunk the
+post-load render burst (idle-callback/queued microtask batches for layer adds,
+badge updates) so first paint always precedes heavy work; acceptance = 3
+consecutive green LH CI runs + local trace showing FCP before the burst.
+Product-class mission (map.html) — construct AFTER mt-fireban-click-fix lands
+(same file, no lane overlap). The 13 INBOX signal entries consolidate here; the
+poller keeps appending until this lands (expected noise, not new information).
