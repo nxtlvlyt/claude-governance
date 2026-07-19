@@ -1,0 +1,44 @@
+MISSION-ID: engine-item50-seat-write-contract
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\.claude\muezzin-plugin
+ALLOW-FILES:
+  - seat_dispatch.mjs
+  - executor.mjs
+  - repair.mjs
+REQUIRES: none
+STEPS: 4
+
+MAQSAD (the end): claude-tier authoring seats deliver fenced file content
+reliably — no more "The write is pending your approval" dead seats, no more one
+dead continuation round discarding kilobytes of progress, no more repair rounds
+shrinking artifacts blind to the literal markers the validator checks.
+
+NIYYAH (why): QUEUE ITEM 50 — the design-doc authoring failure family: 2
+missions x 2 attempts x 4 seat dispatches failed in one day (2026-07-19,
+mt-passkey-login + mt-publish-trip.S1) with truncation/stub/prose/shrink
+signatures. Investigation (read-only agent, receipts in the AUTORUN diagnosis
+annotations) traced the root: claude -p seats get --allowedTools only, so
+Write/Edit stay VISIBLE in the tool schema; headless seats attempt Write, the
+permission prompt is unanswerable, the seat narrates instead of emitting.
+--disallowedTools flag support verified on this claude.exe build this wake.
+Patcher committed at missions/_logs/item50-seat-write-contract-patch.mjs,
+verified on byte-faithful scratch copies: 6/6 PATCHED, node --check x3 clean,
+idempotent re-run ALREADY-PATCHED x6.
+source: seat_dispatch.mjs
+source: executor.mjs
+source: repair.mjs
+
+STEPS:
+1. Baseline syntax check. Run exactly: node --check seat_dispatch.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; node --check executor.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; node --check repair.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; Write-Output 'BASELINE_OK' [command]
+2. Apply the committed patcher. Run exactly: node missions/_logs/item50-seat-write-contract-patch.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; Write-Output 'PATCH_APPLIED' [command]
+3. Post-patch validation. Run exactly: node --check seat_dispatch.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; node --check executor.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; node --check repair.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; $sd = Get-Content seat_dispatch.mjs -Raw; $ex = Get-Content executor.mjs -Raw; $rp = Get-Content repair.mjs -Raw; if ($sd -notmatch 'disallowedTools' -or $ex -notmatch 'NULL_CONTINUATION_RETRY_BUDGET' -or $rp -notmatch 'extractLiteralRequirements') { exit 1 }; node orchestrate.mjs --selftest; if ($LASTEXITCODE -ne 0) { exit 1 }; Write-Output 'VALIDATION_OK' [command]
+4. Scoped commit. Run exactly: git add -- seat_dispatch.mjs executor.mjs repair.mjs; git commit -m "engine(ITEM 50): seat write-contract fix — disallow Write/Edit on claude -p seats + hardened dispatch notes, bounded null-continuation retry, MUST-CONTAIN literal checklist in repair rounds" -- seat_dispatch.mjs executor.mjs repair.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; Write-Output 'COMMITTED' [command]
+
+DONE-MEANS: all three files at HEAD carry their patch markers (disallowedTools
+in seat_dispatch.mjs, NULL_CONTINUATION_RETRY_BUDGET in executor.mjs,
+extractLiteralRequirements in repair.mjs), node --check clean x3,
+orchestrate.mjs --selftest ALL PASS, scoped commit landed. SHARED POST-LANDING
+DUTY (conductor): daemon restart at next idle — the running daemon holds
+pre-patch code until restarted (static-import staleness); then unpark
+mt-publish-trip.S1 and construct the passkey part-file re-author per ITEM 50's
+sequence. agy fork port is a named follow-up (same attemptClaude shape).
