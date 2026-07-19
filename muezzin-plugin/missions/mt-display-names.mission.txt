@@ -1,35 +1,69 @@
-MISSION mt-display-names
+MISSION-ID: mt-display-names
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - workers/contribute-d1.js
+  - workers/_test_contribute_d1_display_names.mjs
+  - js/profile.js
+  - js/latest-reel.js
+  - profile.html
+  - u.html
+  - d1/migrate-display-names-2026-07-19.sql
+  - tests/latest-reel.selftest.js
+REQUIRES: none (mt-edit-my-spots identity hardening LANDED 2026-07-18 commit 9882537)
+STEPS: 5
+
+ONE-WRITER RULE (binding on the plan): every file above is AUTHORED by exactly
+ONE step; later steps only READ/verify it (context_dependencies, action_type
+'verify'). No final integration/rewrite step — the 2026-07-18 attempt FAILED
+plan lint on exactly this.
+
 MAQSAD (the end): contributors have a public display name (chosen in profile,
 unique, changeable) so community surfaces (latest reel, spot popups, reviews,
-public /u profiles) can show WHO shared a spot without ever exposing the
-account email — the identity layer the social direction requires.
+public /u profiles) show WHO shared a spot without ever exposing the account
+email.
 
 NIYYAH (why): operator direction 2026-07-18 (social appeal — "vanlifers are
 always looking for a way to connect"). The reel prep (wf_84a3fdea) confirmed
 community_spot.contributor is the ACCOUNT EMAIL, so every public byline today
-is either absent or a privacy leak. Display names unblock bylines, profile
-links, and follows.
-source: workers/contribute-d1.js (contributor=email posture; new-spots.xml.js
-privacy precedent), js/profile.js, u.html.
+is either absent or a privacy leak.
+source: workers/contribute-d1.js
+source: js/profile.js
+source: functions/feed/new-spots.xml.js
 
-REQUIRES: mt-edit-my-spots landed (identity hardening in submitSpot — display
-name resolution rides the same verifyContributor path). LANDED 2026-07-18
-commit 9882537.
+PRIOR ART (re-validate, do not trust): an earlier UNGROUNDED design draft
+(sandbox lacked the repo — ENOENT on every context file) sits at
+C:\Users\marka\.claude\muezzin-plugin\missions\mt-display-names.S1\DISPLAY-NAME-DESIGN.md.
+Its mapping-table-default reasoning is plausible; every claim must be re-checked
+against the real schema (d1/schema-write.sql) before reuse.
 
 STEPS:
-1. [read-only] Map where contributor surfaces today (grep all readers of
-   community_spot.contributor + community_review.contributor + u.html's data
-   source); produce DISPLAY-NAME-DESIGN.md: accounts table column vs mapping
-   table decision, uniqueness rules (case-insensitive, 3-30 chars, reserved
-   list), and the resolution join for each public surface.
-2. Auth-worker/profile: set-display-name endpoint (verified session only,
-   uniqueness enforced, rate-limited) + profile UI field.
-3. Public surfaces: /latest gains display_name (resolved via join, NEVER the
-   email); reel cards + spot popups + reviews show the byline linking to the
-   public /u profile.
-4. Tests: source-scan pins (no public SELECT emits contributor email),
-   uniqueness/validation sims. Five-guard ship.
+1. [read-only] Read workers/contribute-d1.js (contributor=email posture, DB
+   bindings incl. muddytires-accounts in wrangler.write.toml), d1/schema-write.sql,
+   js/profile.js, u.html, functions/feed/new-spots.xml.js. AUTHOR
+   d1/migrate-display-names-2026-07-19.sql: display_names mapping table
+   (account email key COLLATE NOCASE, display_name UNIQUE COLLATE NOCASE,
+   3-30 chars enforced app-side, changed_at) — grounded in the ACTUAL schema
+   file, not the prior draft.
+2. workers/contribute-d1.js: (a) POST /profile/display-name — verified session
+   only (verifyContributor, same contract as /spot/update), validation
+   (3-30 chars, [A-Za-z0-9 _.-], case-insensitive uniqueness, reserved list:
+   admin/muddytires/moderator/anonymous), rate-limit 5/day/account; (b) GET
+   /latest gains display_name via LEFT JOIN on the mapping table — the email
+   itself STILL never selected (extend the existing privacy pins).
+3. workers/_test_contribute_d1_display_names.mjs: source-scan pins (no public
+   SELECT emits contributor email; /profile/display-name requires session;
+   uniqueness COLLATE NOCASE) + validation behavior-sim. Run it + the two
+   existing worker tests; all must pass.
+4. js/profile.js: display-name field in the profile card (current name shown,
+   set/change, inline validation errors from the endpoint). js/latest-reel.js:
+   render display_name as the card byline when present (textContent only);
+   tests/latest-reel.selftest.js extended for the byline (absent -> no byline
+   line, markup-shaped name inert).
+5. OUTCOME CHECK [command]: node workers/_test_contribute_d1_display_names.mjs
+   exit 0; node tests/latest-reel.selftest.js exit 0; node --check on both
+   authored js files. Verify-only — authors nothing.
 
-DONE-MEANS: a spot shared by a named contributor shows their chosen name on
-the homepage reel with a working link to their public profile; zero public
-endpoint emits an account email; tests green; prod receipt.
+DONE-MEANS: migration file + endpoint + byline landed with all tests green.
+Deploy (worker + pages + D1 migration) is CONDUCTOR-CALLED after landing, not
+part of this mission.

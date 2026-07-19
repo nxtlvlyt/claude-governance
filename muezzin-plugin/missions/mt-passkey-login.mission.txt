@@ -1,40 +1,55 @@
-MISSION mt-passkey-login
-MAQSAD (the end): muddytires accounts support passkey (WebAuthn) sign-in —
-multiple devices enrolled per account, so the operator and his wife each log in
-with a platform authenticator tap on the SAME shared account, no password typed
-or shared. Password login remains as fallback.
+MISSION-ID: mt-passkey-login
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - docs/PASSKEY-DESIGN.md
+REQUIRES: none
+STEPS: 2
+
+SCOPE NOTE (why this mission is design-only): the auth worker's SOURCE is not
+confirmed present in this repo — the Pages proxy (functions/api/[[path]].js)
+forwards /api/auth/* to an external AUTH base, and workers/ carries no auth
+worker file. Passkey endpoints must land on whatever owns the accounts DB and
+sessions. UNTIL the auth source is located, implementation steps would be
+fired into a wall (the 2026-06-10 dependencies ruling). This mission therefore
+DESIGNS + LOCATES; the implementation mission is constructed from its receipt.
+
+ONE-WRITER RULE (binding on the plan): docs/PASSKEY-DESIGN.md is authored by
+exactly ONE step; the other step only reads/verifies. No integration/rewrite
+step — the 2026-07-18 attempt FAILED plan lint on exactly this.
+
+MAQSAD (the end): a grounded, implementable passkey (WebAuthn) design for
+muddytires accounts — multiple devices enrolled per account so the operator
+and his wife each sign in with a platform-authenticator tap on the SAME shared
+account; password login stays as fallback.
 
 NIYYAH (why): operator ask 2026-07-18 ("share an account with my wife... make
-our login features more SOTA"). Passkeys are the 2026 gold standard: multiple
-credentials per account is exactly the shared-household shape — share the
-account, never a secret.
-source: FEATURE-timeline-ingestion-2026-07-18.md (session context) + js/account.js
-(current email+password auth, mt_session_token) + functions/api/[[path]].js
-(AUTH proxy route).
+our login features more SOTA"). Multi-credential WebAuthn = share the account,
+never a secret.
+source: js/account.js
+source: functions/api/[[path]].js
 
-REQUIRES: read js/account.js + the auth worker source (AUTH base target in
-functions/api/[[path]].js) BEFORE design. The auth worker owns the credential
-store; passkey tables (credential id, public key, counter, user id) land there.
+STEPS:
+1. [read-only for all inputs; authors ONLY docs/PASSKEY-DESIGN.md] Read
+   js/account.js (session model: mt_session_token, /api/auth/me|signup|login|
+   logout) and functions/api/[[path]].js (the AUTH base constant — record its
+   exact value). Grep the repo for any auth-worker source (wrangler configs,
+   workers/, functions/). AUTHOR docs/PASSKEY-DESIGN.md containing: (a)
+   AUTH-SOURCE-LOCATION receipt — where the auth worker source lives, or
+   AUTH-SOURCE-ABSENT with the exact greps run (absence claims carry the
+   search, fifth law); (b) credential table DDL (credential_id, public_key,
+   sign_count, account ref, created_at, label) for the accounts DB; (c) the
+   four endpoints (register-options/register/login-options/login) with
+   challenge single-use + TTL, origin + rpId pinning, sign-count monotonic
+   check; (d) frontend ceremony flow for js/account.js (feature-detect
+   PublicKeyCredential, graceful absence); (e) the enrollment UX (profile
+   "Add a passkey", per-device labels). Self-hosted WebAuthn only — no
+   external auth service.
+2. OUTCOME CHECK [command]: the design file exists, contains an
+   AUTH-SOURCE-LOCATION or AUTH-SOURCE-ABSENT receipt section, all four
+   endpoint specs, and the DDL block (grep for each section header, exit 0).
+   Verify-only — authors nothing.
 
-STEPS (part-file discipline; each step's artifact committed before the next):
-1. [read-only] Map the auth worker's current session/user schema + endpoints;
-   produce PASSKEY-DESIGN.md: registration ceremony (navigator.credentials.create),
-   login ceremony (navigator.credentials.get), challenge storage, credential
-   table DDL, and the exact new endpoints (/auth/passkey/register-options,
-   /auth/passkey/register, /auth/passkey/login-options, /auth/passkey/login).
-   NO external auth service — self-hosted WebAuthn on the existing worker.
-2. Worker: credential table migration + the four endpoints; challenges are
-   single-use + short-TTL; verify sig counter monotonic; store multiple
-   credentials per user.
-3. Frontend: profile page "Add a passkey to this account" enrollment button +
-   login modal "Sign in with passkey" path (js/account.js extension, feature-
-   detect PublicKeyCredential; graceful absence on old browsers).
-4. Tests: worker source-scan + ceremony behavior-sim (challenge reuse rejected,
-   wrong-origin rejected, counter regression rejected). Selftest per repo
-   convention (workers/_test_*.mjs + tests/*.selftest.js).
-5. Live witness: register a passkey on the preview deploy, sign out, sign back
-   in with it. Deploy through the five-guard chain.
-
-DONE-MEANS: a second device can be enrolled on an existing account and sign in
-with no password; all tests green; live-witnessed on preview; five-guard prod
-ship receipt.
+DONE-MEANS: docs/PASSKEY-DESIGN.md landed with the auth-source receipt. The
+conductor constructs the implementation mission from it (target repo per the
+receipt) — implementation is NOT part of this mission.
