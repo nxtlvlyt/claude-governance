@@ -57,6 +57,17 @@ session, context saturated, drift accumulated. The industry verifies code with
 tests and deploys with gates, then lets the agent's memory of the entire
 session pass unexamined into the next instance.
 
+And beneath the trust defect sits a scheduling absurdity the field has not
+named: **the current standard makes the most important document in the entire
+system — the handoff — due at the exact moment its author is failing.** A
+context-full instance is an author at the end of its capacity: attention
+saturated, drift at maximum, sometimes mid-thought when the window slams shut.
+The standard design hands precisely that author a blank page and a deadline of
+*right now*. No other engineering discipline schedules its critical writing
+this way; imagine requiring a pilot to write the aircraft's maintenance log
+during the stall. Sometimes the writing simply does not happen at all — the
+instance dies first, or the write fails silently, and nothing checks.
+
 We have a corpus receipt for what that costs. A sister project (the Antigravity
 book pipeline) ran forty-four sessions with a compaction ritual but no
 verification of the written handoff: **eight of the forty-four handoff files —
@@ -75,7 +86,10 @@ the most instrumented moment, not the most casual one. Four layers.
 
 **Layer 1 — LIVE: the record exists before the boundary.**
 Substrate-first continuous writes: every decision, diagnosis, queue change, and
-receipt is committed to files *as it happens*, not recalled at the end. By the
+receipt is committed to files *as it happens*, not recalled at the end. This
+dissolves the scheduling absurdity directly: the crucial document is finished
+*before* the crisis, written a paragraph at a time by an instance at full
+capacity, so the boundary asks the exhausted author for almost nothing. By the
 time compaction fires, the durable record already exists outside the context
 window; the summary is a courtesy index, not the ark. The founding directive:
 "What is written in files, committed to git, and captured in documentation is
