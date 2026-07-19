@@ -319,3 +319,5 @@ Both are UNPROVEN (video showed nothing working); neither justifies build effort
 - 2026-07-19T10:16:02.027Z EXTERNAL SIGNAL: NEW CI FAILURE on nxtlvlyt/muddytires-pages — 1 new failed run(s) (Lighthouse CI@main#29682814872). Auto-filed by external-signals-poller (gap-external-signals-poller); verify with: gh run list -R nxtlvlyt/muddytires-pages --json conclusion,workflowName,headBranch,createdAt,databaseId -L 20
 
 - 2026-07-19T12:51:45.685Z EXTERNAL SIGNAL: NEW CI FAILURE on nxtlvlyt/muddytires-pages — 1 new failed run(s) (Lighthouse CI@main#29687606858). Auto-filed by external-signals-poller (gap-external-signals-poller); verify with: gh run list -R nxtlvlyt/muddytires-pages --json conclusion,workflowName,headBranch,createdAt,databaseId -L 20
+
+- 2026-07-19T13:06:52.604Z EXTERNAL SIGNAL: NEW CI FAILURE on nxtlvlyt/muddytires-pages — 1 new failed run(s) (Lighthouse CI@main#29688017153). Auto-filed by external-signals-poller (gap-external-signals-poller); verify with: gh run list -R nxtlvlyt/muddytires-pages --json conclusion,workflowName,headBranch,createdAt,databaseId -L 20
