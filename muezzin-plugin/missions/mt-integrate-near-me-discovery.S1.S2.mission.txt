@@ -1,0 +1,1 @@
+page.goto('$url/map', { waitUntil: 'load', timeout: 45000 })
