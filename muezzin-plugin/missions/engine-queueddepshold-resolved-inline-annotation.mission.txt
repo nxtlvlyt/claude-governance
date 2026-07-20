@@ -10,13 +10,15 @@ ONE-WRITER RULE (binding): step 1 authors muezzin-daemon.mjs (both regex changes
 
 MAQSAD (the end): queuedDepsHold()'s dependency-satisfaction check (muezzin-daemon.mjs ~line 881) and its self-resolved check (~line 825) both use `resolvedRe = /^#.*\bRESOLVED\b.*<path>/m` -- requiring a STANDALONE line starting with `#` that contains both the RESOLVED keyword and the mission path. This project's OWN established convention for conductor judgment calls (RESOLVED-LANDED, RESOLVED-BY-BOOTSTRAP-HAND-APPLY, SUPERSEDED) is to append the annotation INSIDE the terminal-status line's own trailing HTML comment -- e.g. `FAILED missions/x.mission.txt  <!-- ... RESOLVED-LANDED 2026-07-15T17:2xZ ... Do NOT refire. -->` -- used dozens of times this session. That shape does not start with `#`, so resolvedRe never matches it. LIVE-CONFIRMED: mt-mobile-lane-fix.S1 carries a full RESOLVED-LANDED judgment inline on its FAILED line (landed 2026-07-15T17:2xZ, "Done-means satisfied end-to-end... Do NOT refire") -- but mt-plan-mode-mobile.S1, which REQUIRES it, has sat TARTIB-HELD every poll since (5+ days as of this filing), because the dependency check only reads the line's leading status token, never the judgment inside its own comment.
 
-THE FIX (pin exact literals):
+ATTEMPT-2 CORRECTION (2026-07-20T17:0xZ, conductor, receipted): a PRIOR attempt landed step 1 by REPLACING the regex entirely with only the new alternative, DELETING the original `^#.*\bRESOLVED\b.*<path>` branch. This broke two pre-existing selftest lines that must never regress: `tartib-gate: conductor-RESOLVED dependency satisfies` and `mt-c1-boundary(dep): an explicit RESOLVED-noted dependency comment satisfies the dependency check` -- both went from PASS to FAIL, live-confirmed via `node muezzin-daemon.mjs --selftest`. THE FIX below is the UNION (a single JS regex using `|` alternation) of the OLD pattern and a NEW pattern -- it is two alternatives joined by one pipe character, NOT a replacement. If your edit does not contain the literal substring `^#.*\bRESOLVED\b.*` immediately followed by a `|` inside the SAME regex template string, you have repeated the exact defect that killed the prior attempt. Re-read this paragraph before writing the edit.
+
+THE FIX (pin exact literals -- UNION of two alternatives, do not drop either):
 
 1. In the SELF-RESOLVED check, replace this exact line:
 ```
   if (new RegExp(`^#.*\\bRESOLVED\\b.*${selfEsc}`, 'm').test(autorunText)) {
 ```
-with exactly:
+with exactly (one regex template string containing BOTH alternatives separated by `|`):
 ```
   if (new RegExp(`^#.*\\bRESOLVED\\b.*${selfEsc}|^[^\\n]*${selfEsc}[^\\n]*\\b(?:RESOLVED(?:-[A-Z]+)*|SUPERSEDED)\\b`, 'm').test(autorunText)) {
 ```
@@ -25,12 +27,14 @@ with exactly:
 ```
     const resolvedRe = new RegExp(`^#.*\\bRESOLVED\\b.*${dep.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'm');
 ```
-with exactly:
+with exactly (one regex template string containing BOTH alternatives separated by `|`):
 ```
     const depEsc = dep.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const resolvedRe = new RegExp(`^#.*\\bRESOLVED\\b.*${depEsc}|^[^\\n]*${depEsc}[^\\n]*\\b(?:RESOLVED(?:-[A-Z]+)*|SUPERSEDED)\\b`, 'm');
 ```
    (this introduces `depEsc` as a named variable used by the new alternative; every OTHER reference to `dep.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')` later in the same loop body -- specifically inside the `doneRe` line two lines above this one -- stays UNCHANGED, byte-identical to today; do not refactor doneRe to use depEsc, that is out of scope.)
+
+SELF-CHECK BEFORE MOVING TO STEP 2 (mandatory): after editing, grep the two changed lines and confirm EACH ONE still contains the exact substring `^#.*\\bRESOLVED\\b.*` immediately followed by `|`. If either line is missing that substring, the edit repeated the prior attempt's defect -- fix it before running step 2.
 
 Both new alternatives read: does ANY single line contain the dep/self path AND, anywhere later on that SAME line, a word-boundaried keyword matching `RESOLVED` optionally followed by one or more `-UPPERCASE` segments (catching RESOLVED-LANDED, RESOLVED-BY-BOOTSTRAP-HAND-APPLY, etc.) or the literal `SUPERSEDED`. The `\b` before the keyword group preserves the existing UNRESOLVED-safety (per mt-c1-boundary's own regression pair, comment lines 2109-2128) -- "UNRESOLVED" has no word boundary between its "N" and "RESOLVED", so it still never matches.
 
@@ -73,7 +77,7 @@ STEPS:
 ```
    [edit] muezzin-daemon.mjs
    validation_command: node --check muezzin-daemon.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; if (-not (Select-String -Path muezzin-daemon.mjs -Pattern 'gap-queueddepshold-resolved-landed-blind' -Quiet)) { exit 1 }; if (-not (Select-String -Path muezzin-daemon.mjs -Pattern 'depEsc' -Quiet)) { exit 1 }; Write-Output 'QUEUEDDEPSHOLD-FIX-CODE-OK'
-2. OUTCOME CHECK [command]: run the daemon's own embedded selftest and confirm the new fixtures pass alongside zero regressions to the existing tartib-gate and mt-c1-boundary blocks. Authors nothing.
-   validation_command: $out = node muezzin-daemon.mjs --selftest 2>&1 | Out-String; $ec = $LASTEXITCODE; if ($ec -ne 0) { exit 1 }; if ($out -notmatch 'gap-queueddepshold: an inline RESOLVED-LANDED judgment on a FAILED dependency line now satisfies') { exit 1 }; if ($out -notmatch 'tartib-gate: conductor-RESOLVED dependency satisfies') { exit 1 }; if ($out -notmatch 'mt-c1-boundary\(dep\): an explicit RESOLVED-noted dependency comment satisfies') { exit 1 }; Write-Output 'QUEUEDDEPSHOLD-SELFTEST-OK'
+2. OUTCOME CHECK [command]: run the daemon's own embedded selftest and confirm the new fixtures pass AND the two ORIGINAL regression-guard lines specifically report PASS (not merely that the message text is present -- a prior attempt's FAIL line for these exact messages would have slipped past a plain -match check). Authors nothing.
+   validation_command: $out = node muezzin-daemon.mjs --selftest 2>&1 | Out-String; $ec = $LASTEXITCODE; if ($ec -ne 0) { exit 1 }; if ($out -notmatch 'PASS\s+gap-queueddepshold: an inline RESOLVED-LANDED judgment on a FAILED dependency line now satisfies') { exit 1 }; if ($out -notmatch 'PASS\s+tartib-gate: conductor-RESOLVED dependency satisfies') { exit 1 }; if ($out -notmatch 'PASS\s+mt-c1-boundary\(dep\): an explicit RESOLVED-noted dependency comment satisfies') { exit 1 }; if ($out -match 'FAIL\s+tartib-gate: conductor-RESOLVED dependency satisfies') { exit 1 }; if ($out -match 'FAIL\s+mt-c1-boundary\(dep\): an explicit RESOLVED-noted dependency comment satisfies') { exit 1 }; Write-Output 'QUEUEDDEPSHOLD-SELFTEST-OK-NO-REGRESSION'
 
 DONE-MEANS: queuedDepsHold() recognizes a RESOLVED-class keyword (RESOLVED, RESOLVED-LANDED, RESOLVED-BY-..., SUPERSEDED) appearing inline in a terminal-status line's own trailing comment as satisfying both the self-resolved check and the dependency-satisfaction check, in addition to the pre-existing standalone-#-line form; the embedded --selftest passes the 4 new fixtures with zero regressions to the pre-existing tartib-gate and mt-c1-boundary selftest blocks.
