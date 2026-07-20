@@ -64,6 +64,31 @@ function staticImportScan(src) {
   return bad;
 }
 
+// ----- nearest-package.json module type: walk up from the artifact's real directory and read the
+// first package.json's "type". Returns 'module' | 'commonjs'; defaults to 'module' (the plugin's
+// all-ESM convention) when no package.json exists or it is unreadable/typeless.
+function findNearestModuleType(startDir) {
+  let dir = path.resolve(String(startDir || '.'));
+  for (let i = 0; i < 24; i++) {
+    const pkg = path.join(dir, 'package.json');
+    try {
+      if (existsSync(pkg)) {
+        const t = JSON.parse(readFileSync(pkg, 'utf8'))?.type;
+        if (t === 'commonjs' || t === 'module') return t;
+        if (typeof t === 'undefined') return 'commonjs';   // node's real default under a package.json
+      }
+    } catch { /* unreadable package.json — keep walking */ }
+    const parent = path.dirname(dir);
+    if (parent === dir) break;
+    dir = parent;
+  }
+  return 'module';
+}
+
+// parent-relative specifiers referenced by the artifact: require('../x') / from '../../y.js' /
+// import('../z.json'). Group 1 = require form, group 2 = import/from form.
+const PARENT_RELATIVE_RE = /require\s*\(\s*['"](\.\.\/[^'"]+)['"]\s*\)|(?:from|import)\s*\(?\s*['"](\.\.\/[^'"]+)['"]/g;
+
 // ----- code verifier: static scan THEN a bounded sandbox subprocess that dynamic-imports the file.
 function verifyCode(targetPath, src) {
   const badBuiltins = staticImportScan(src);
@@ -85,41 +110,21 @@ function verifyCode(targetPath, src) {
   // (.mjs vs .cjs vs .js) matches how the engine will load it.
   const probeDir = mkdtempSync(path.join(tmpdir(), 'rtv_'));
 
-  // findNearestModuleType: walk up from a starting directory looking for the nearest package.json
-  // and read its "type" field, mirroring Node's own real resolution rule (RTV-PARENT-RELATIVE-FIX)
-  // instead of always forcing "type":"module" on the sandbox, which produced a false SyntaxError
-  // for a .js artifact that actually lives under a CommonJS package.json.
-  function findNearestModuleType(startDir) {
-    let dir = startDir;
-    for (let i = 0; i < 20; i++) {
-      const pkgPath = path.join(dir, 'package.json');
-      if (existsSync(pkgPath)) {
-        try {
-          const pkg = JSON.parse(readFileSync(pkgPath, 'utf8'));
-          return pkg.type === 'module' ? 'module' : 'commonjs';
-        } catch { return 'commonjs'; }
-      }
-      const parent = path.dirname(dir);
-      if (parent === dir) break;
-      dir = parent;
-    }
-    return 'commonjs';
-  }
-
-  // PARENT_RELATIVE_RE: matches `require('../x')` / `from '../x'` / `import('../x')` specifiers
-  // that reach OUTSIDE the artifact's own directory, so those files can be mirrored into the
-  // sandbox at the same relative depth instead of flattened alongside the artifact, which broke
-  // every `../` reference (RTV-PARENT-RELATIVE-FIX).
-  const PARENT_RELATIVE_RE = /(?:require\(|from\s|import\()\s*['"](\.\.\/[^'"]+)['"]/g;
-
-  const srcDir = path.dirname(targetPath);
-  // artifactSubDir: the artifact is written one directory DEEPER than probeDir root, so a `../`
-  // specifier in its source has somewhere real to resolve to once mirrored below.
-  const artifactSubDir = path.join(probeDir, 'artifact');
+  // RTV-PARENT-RELATIVE-FIX (2026-07-20): v2 flattened every sibling into probeDir root and
+  // hard-stamped {"type":"module"} there. Two defects followed: (a) an artifact that requires/
+  // imports a PARENT-relative path ('../lib/x.js') resolved above probeDir and threw a false
+  // 'Cannot find module'; (b) a genuinely CommonJS artifact (a .js under a package.json with no
+  // "type", or "type":"commonjs") was forced to ESM and threw a false SyntaxError on `require`.
+  // The fix MIRRORS the directory shape: the artifact lands in a subdir one level below probeDir
+  // root so '..' has somewhere real to resolve to, the module type is READ from the artifact's
+  // nearest real package.json, and parent-relative referenced files are copied to the mirrored
+  // location.
+  const srcDir = path.dirname(path.resolve(String(targetPath)));
+  const moduleType = findNearestModuleType(srcDir);
+  const artifactSubDir = path.join(probeDir, 'pkg');
   mkdirSync(artifactSubDir, { recursive: true });
 
-  // Copy adjacent .mjs/.js/.cjs/.json files alongside the artifact so same-directory relative
-  // imports resolve correctly.
+  // Copy adjacent .mjs/.js/.json files next to the artifact so same-dir relative imports resolve.
   try {
     const files = readdirSync(srcDir, { withFileTypes: true });
     for (const f of files) {
@@ -130,37 +135,31 @@ function verifyCode(targetPath, src) {
     }
   } catch (e) { console.error('[RTV-COPY-ERROR]', e); }
 
-  // Mirror parent-relative (`../`) referenced files into the sandbox at the matching depth so a
-  // require/import that walks up out of the artifact's own directory finds a real file instead of
-  // throwing MODULE_NOT_FOUND against an empty sandbox (RTV-PARENT-RELATIVE-FIX).
-  PARENT_RELATIVE_RE.lastIndex = 0;
-  let prm;
-  while ((prm = PARENT_RELATIVE_RE.exec(src)) !== null) {
-    const rel = prm[1];
-    let resolvedSrcPath = path.resolve(srcDir, rel);
-    let destRel = rel;
-    if (!existsSync(resolvedSrcPath)) {
-      const foundExt = ['.js', '.cjs', '.mjs', '.json'].find((e) => existsSync(resolvedSrcPath + e));
-      if (!foundExt) continue;
-      resolvedSrcPath += foundExt;
-      destRel += foundExt;
+  // Copy PARENT-relative referenced files ('../x.js', '../../lib/y.json') into the mirrored
+  // location under probeDir root, preserving their relative path from the artifact.
+  try {
+    for (const m of src.matchAll(PARENT_RELATIVE_RE)) {
+      const spec = m[1] || m[2];
+      if (!spec) continue;
+      const realRef = path.resolve(srcDir, spec);
+      if (!existsSync(realRef)) continue;
+      const mirrored = path.resolve(artifactSubDir, spec);
+      // never escape probeDir
+      if (!mirrored.startsWith(probeDir + path.sep)) continue;
+      mkdirSync(path.dirname(mirrored), { recursive: true });
+      writeFileSync(mirrored, readFileSync(realRef));
     }
-    const destPath = path.resolve(artifactSubDir, destRel);
-    try {
-      mkdirSync(path.dirname(destPath), { recursive: true });
-      writeFileSync(destPath, readFileSync(resolvedSrcPath));
-    } catch (e) { console.error('[RTV-COPY-ERROR]', e); }
-  }
+  } catch (e) { console.error('[RTV-COPY-ERROR]', e); }
 
   const ext = (path.extname(String(targetPath)) || '.mjs').toLowerCase();
   const artifactPath = path.join(artifactSubDir, 'rtv_artifact' + ext);
   writeFileSync(artifactPath, src, 'utf8');
-  // Detect the REAL module type from the nearest package.json to the artifact's actual location
-  // (RTV-PARENT-RELATIVE-FIX) rather than always forcing "type":"module" — a .js artifact that
-  // lives under a CommonJS package.json must stay CommonJS or a `require(...)` throws a false
-  // SyntaxError against `import`. A .cjs artifact is always CommonJS regardless.
-  const realModuleType = findNearestModuleType(srcDir);
-  writeFileSync(path.join(probeDir, 'package.json'), JSON.stringify({ type: realModuleType }), 'utf8');
+  // Module type comes from the artifact's REAL nearest package.json (module | commonjs), so a
+  // CJS artifact stays CJS and an ESM one stays ESM. Absent any real package.json we keep the
+  // plugin's all-ESM convention. Stamped at BOTH levels so the mirrored parent resolves too.
+  const pkgJson = `{"type":"${moduleType}"}`;
+  writeFileSync(path.join(probeDir, 'package.json'), pkgJson, 'utf8');
+  writeFileSync(path.join(artifactSubDir, 'package.json'), pkgJson, 'utf8');
   const probePath = path.join(probeDir, 'rtv_probe.mjs');
   const targetUrl = 'file://' + artifactPath.replace(/\\/g, '/');
   const probe = `
@@ -310,16 +309,19 @@ if (process.argv[1]?.endsWith('runtime_verify.mjs') && process.argv.includes('--
   // non-browser ReferenceError (a real bug): must STILL fail closed
   const rRef = await runtimeVerify(path.join(tmpBase, 'refbug-mod.js'), `const v = totallyUndefinedIdentifier;\nexport default v;\n`);
   ck(rRef.ok === false && rRef.error === 'load-throw', 'non-browser ReferenceError still fails CLOSED (only DOM globals are exempt)');
-  // parent-relative CJS require (the mirroring fix): artifact lives in a nested dir and requires
-  // a file one level up via `require('../shared-lib.cjs')`; the pre-fix flat copy could not resolve
-  // this and threw MODULE_NOT_FOUND. Set up a real nested dir so the mirror-copy logic has a real
-  // parent file to find (RTV-PARENT-RELATIVE-FIX).
-  const parentReqDir = mkdtempSync(path.join(tmpBase, 'parent-req-'));
-  const nestedDir = path.join(parentReqDir, 'nested');
-  mkdirSync(nestedDir, { recursive: true });
-  writeFileSync(path.join(parentReqDir, 'shared-lib.cjs'), `module.exports = { value: 42 };\n`, 'utf8');
-  const rParentReq = await runtimeVerify(path.join(nestedDir, 'consumer.cjs'), `const shared = require('../shared-lib.cjs');\nmodule.exports = shared.value;\n`);
-  ck(rParentReq.ok === true, 'parent-relative CJS require (../shared-lib.cjs) resolves via mirrored directory copy (RTV-PARENT-RELATIVE-FIX)');
+  // RTV-PARENT-RELATIVE-FIX: a CJS artifact that requires a PARENT-relative sibling must load
+  // clean — v2 flattened the probe dir (so '..' escaped it) and forced type:module (so `require`
+  // threw a false SyntaxError). Real fixture on disk: pkgdir/lib/dep.js required from pkgdir/app/.
+  const cjsRoot = mkdtempSync(path.join(os.tmpdir(), 'rtv-selftest-cjs-'));
+  const cjsLib = path.join(cjsRoot, 'lib');
+  const cjsApp = path.join(cjsRoot, 'app');
+  mkdirSync(cjsLib, { recursive: true });
+  mkdirSync(cjsApp, { recursive: true });
+  writeFileSync(path.join(cjsRoot, 'package.json'), '{"type":"commonjs"}', 'utf8');
+  writeFileSync(path.join(cjsLib, 'dep.js'), 'module.exports = { n: 42 };\n', 'utf8');
+  const rParentReq = await runtimeVerify(path.join(cjsApp, 'main.js'), `const dep = require('../lib/dep.js');\nmodule.exports = dep.n;\n`);
+  ck(rParentReq.ok === true && rParentReq.error === null, 'parent-relative CJS require resolves in the mirrored probe dir (RTV-PARENT-RELATIVE-FIX)');
+  try { rmSync(cjsRoot, { recursive: true, force: true }); } catch { /* best effort */ }
   console.log(`[selftest] ${pass} passed, ${fail} failed`);
   process.exit(fail ? 1 : 0);
 }
