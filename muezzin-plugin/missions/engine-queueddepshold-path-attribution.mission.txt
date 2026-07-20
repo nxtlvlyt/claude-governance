@@ -1,0 +1,124 @@
+MISSION-ID: engine-queueddepshold-path-attribution
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\.claude\muezzin-plugin
+ALLOW-FILES:
+  - muezzin-daemon.mjs
+REQUIRES: none
+STEPS: 2
+
+ONE-WRITER RULE (binding): step 1 authors muezzin-daemon.mjs (new helper functions, both call-site replacements, and new selftest fixtures all live in the same file). Step 2 is verify-only and authors nothing.
+
+MAQSAD (the end): queuedDepsHold()'s inline-RESOLVED matching (landed this same wake via gap-queueddepshold-resolved-landed-blind) checks whether a RESOLVED-class keyword appears ANYWHERE on a line that also contains the target mission path -- it does not verify the keyword is actually ATTRIBUTED to that path versus a DIFFERENT mission mentioned in the same prose. LIVE-CAUGHT this same wake: a conductor RETIRED-HISTORY annotation for mt-plan-mode-mobile.S1 explained that its DEPENDENCY (mt-mobile-lane-fix.S1) "reached RESOLVED-LANDED 2026-07-15" -- both mission paths and the RESOLVED keyword landed on one line, and the self-resolved check falsely concluded mt-plan-mode-mobile.S1 ITSELF was conductor-resolved, silently retiring it from ever firing again. Worked around in the moment by rewording that one annotation; this mission fixes the regex-level root cause so it cannot recur on any future annotation.
+
+THE FIX (pin exact literals -- prototyped and verified live this wake, 10/10 test cases pass including the exact real-world incident):
+
+1. Insert these two new helper functions immediately before the line `export function queuedDepsHold(missionText, missionPath, autorunText, resultOkFn, gitFn = (repo, argstr) => { try { return { ok: true, out: execSync(...` (the export function's own opening line stays completely unchanged, only prepend before it):
+```
+// PATH ATTRIBUTION (gap-queueddepshold-same-line-crossreference-ambiguity, 2026-07-20): a
+// RESOLVED-class keyword on a line only satisfies a mission-path check if that keyword's
+// nearest neighboring "missions/X.mission.txt" mention IS the path being tested -- not some
+// OTHER mission named nearby in the same prose (the exact mt-plan-mode-mobile.S1 false-
+// positive: a RETIRED-HISTORY line explained that a DIFFERENT mission, its dependency,
+// reached RESOLVED-LANDED, and the old same-line-anywhere check misattributed that stamp to
+// the wrong mission). For each occurrence of our own path on the line, the "ownership
+// window" is bounded by the nearest OTHER mission-path mention on either side; a keyword
+// only counts if it falls inside that window.
+function pathOwnsNearbyResolvedStamp(line, escapedPath) {
+  const pathRe = new RegExp(escapedPath, 'g');
+  const anyPathRe = /missions\/[^\s<>"'`]+\.mission\.txt/g;
+  const kwRe = /\b(?:RESOLVED(?:-[A-Z]+)*|SUPERSEDED)\b/g;
+  let m;
+  const ourPositions = [];
+  while ((m = pathRe.exec(line))) ourPositions.push({ start: m.index, end: m.index + m[0].length });
+  if (!ourPositions.length) return false;
+  const otherPositions = [];
+  while ((m = anyPathRe.exec(line))) {
+    const isOurs = ourPositions.some(p => m.index >= p.start && m.index < p.end);
+    if (!isOurs) otherPositions.push(m.index);
+  }
+  const kwPositions = [];
+  while ((m = kwRe.exec(line))) kwPositions.push(m.index);
+  for (const our of ourPositions) {
+    const afterCandidates = otherPositions.filter(p => p > our.start);
+    const afterBoundary = afterCandidates.length ? Math.min(...afterCandidates) : line.length;
+    const beforeCandidates = otherPositions.filter(p => p < our.start);
+    const beforeBoundary = beforeCandidates.length ? Math.max(...beforeCandidates) : 0;
+    for (const kw of kwPositions) {
+      if (kw >= our.end && kw < afterBoundary) return true;
+      if (kw < our.start && kw >= beforeBoundary) return true;
+    }
+  }
+  return false;
+}
+
+// Line-by-line wrapper: does ANY line in autorunText carry a RESOLVED-class stamp that this
+// specific path OWNS (per the attribution rule above)? Replaces the old same-line-anywhere
+// regex at both the self-resolved check and the dependency-satisfaction check below.
+function hasResolvedStampForPath(autorunText, path) {
+  const escaped = String(path).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return String(autorunText).split(/\r?\n/).some((line) => pathOwnsNearbyResolvedStamp(line, escaped));
+}
+
+```
+
+2. Replace this exact line (the self-resolved check's condition):
+```
+  if (new RegExp(`^#.*\\bRESOLVED\\b.*${selfEsc}|^[^\\n]*${selfEsc}[^\\n]*\\b(?:RESOLVED(?:-[A-Z]+)*|SUPERSEDED)\\b`, 'm').test(autorunText)) {
+```
+with exactly:
+```
+  if (hasResolvedStampForPath(autorunText, missionPath)) {
+```
+   (the `selfEsc` variable two lines above stays declared -- do NOT delete the `const selfEsc = ...` line, other code in this function does not reference it further but removing it is out of scope and risks an unrelated diff)
+
+3. Replace this exact line (the dependency-satisfaction check's condition, inside the `for (const dep of deps)` loop):
+```
+    const resolvedRe = new RegExp(`^#.*\\bRESOLVED\\b.*${depEsc}|^[^\\n]*${depEsc}[^\\n]*\\b(?:RESOLVED(?:-[A-Z]+)*|SUPERSEDED)\\b`, 'm');
+    if (resolvedRe.test(autorunText)) continue;                                  // conductor-landed
+```
+with exactly:
+```
+    if (hasResolvedStampForPath(autorunText, dep)) continue;                     // conductor-landed
+```
+   (the `const depEsc = dep.replace(...)` line immediately above stays -- it is still used by the `doneRe` line two lines earlier in the same loop body; do not touch `doneRe` or `depEsc`'s declaration)
+
+SCOPE FENCE (D13, do NOT exceed): touch ONLY the two new helper functions (inserted once, before queuedDepsHold), the two exact line replacements named above, and the new selftest block described in step 1 below. Do NOT modify doneRe, depEsc's declaration, the STAMP-DISPUTED/missionLandedState logic, the unresolvedHyphenated visibility block, the bare-stem/tartib-child resolution logic, or ANY existing selftest block (including "tartib-gate", "mt-c1-boundary", and "gap-queueddepshold-resolved-landed-blind" -- all three must keep passing byte-identical, they are the regression guard).
+
+NIYYAH (why): gap-queueddepshold-same-line-crossreference-ambiguity, filed 2026-07-20T18:0xZ, GAP-REGISTER.jsonl -- a direct side effect of gap-queueddepshold-resolved-landed-blind's own fix, live-caught the same wake it landed.
+source: C:\Users\marka\.claude\muezzin-plugin\missions\_logs\GAP-REGISTER.jsonl
+source: C:\Users\marka\.claude\muezzin-plugin\muezzin-daemon.mjs
+
+REACHABILITY NOTE (miqat): non-page engine change (the mission daemon's own dependency-scheduling logic) -- no new page/surface ships, so no nav-reachability / MIQAT concern applies.
+
+STEPS:
+1. Apply THE FIX exactly as specified above (insert the two helper functions, apply both line replacements), then add this new selftest block immediately after the existing "gap-queueddepshold-resolved-landed-blind" block's closing `}` (the one ending at the line containing `'gap-queueddepshold-resolved-landed-blind: a DIAGNOSED-but-not-RESOLVED stamp does NOT satisfy the dependency check — still holds (negative control)');`) and before the `// ---- mt-c2a-queueddeps` comment. Insert exactly:
+```
+  // ---- gap-queueddepshold-same-line-crossreference-ambiguity (2026-07-20): a RESOLVED-class
+  // keyword on a line only counts for OUR path if it is not closer to a DIFFERENT mission
+  // path mentioned in the same prose -- the exact mt-plan-mode-mobile.S1 false-positive class.
+  // Fixture strings built by runtime concatenation, never typed as a single literal.
+  {
+    const stem4 = ['q', 'attrib', 'stem'].join('-');
+    const ourPath4 = 'missions/' + stem4 + '.mission.txt';
+    const otherPath4 = 'missions/' + stem4 + '.dep.mission.txt';
+    // the real incident shape: our own path mentioned first, then prose naming a DIFFERENT
+    // mission whose OWN status (not ours) reached RESOLVED-LANDED
+    const crossRefNote = '# RETIRED-HISTORY: FAILED ' + ourPath4 + '  <!-- dependency not yet satisfied at that time -- its own done-verdict only landed later, ' + otherPath4 + ' ' + 'RESOLVED-LANDED' + ' 2026-07-15 -->';
+    const crossRefResult = queuedDepsHold('MISSION-ID: x', ourPath4, crossRefNote, () => false);
+    ck(crossRefResult.hold === false, 'gap-queueddepshold-same-line-crossreference-ambiguity: our own path is NOT falsely self-resolved when a DIFFERENT mission mentioned nearby owns the RESOLVED keyword (the mt-plan-mode-mobile.S1 incident, reproduced)');
+
+    const otherOwnsItResult = queuedDepsHold('MISSION-ID: x', otherPath4, crossRefNote, () => false);
+    ck(otherOwnsItResult.hold === true && otherOwnsItResult.resolvedSelf === true, 'gap-queueddepshold-same-line-crossreference-ambiguity: the OTHER mission genuinely named in that same line IS correctly recognized as resolved');
+
+    // regression guard: a real, un-confused inline stamp (only one path on the line) still works
+    const cleanStamp = ourPath4 + '  <!-- ' + 'RESOLVED-LANDED' + ' done -->';
+    ck(queuedDepsHold('MISSION-ID: x', ourPath4, cleanStamp, () => false).hold === true, 'gap-queueddepshold-same-line-crossreference-ambiguity: a clean single-path inline stamp still satisfies (no regression)');
+  }
+
+```
+   [edit] muezzin-daemon.mjs
+   validation_command: node --check muezzin-daemon.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; if (-not (Select-String -Path muezzin-daemon.mjs -Pattern 'pathOwnsNearbyResolvedStamp' -Quiet)) { exit 1 }; if (-not (Select-String -Path muezzin-daemon.mjs -Pattern 'hasResolvedStampForPath' -Quiet)) { exit 1 }; if (-not (Select-String -Path muezzin-daemon.mjs -Pattern 'gap-queueddepshold-same-line-crossreference-ambiguity' -Quiet)) { exit 1 }; Write-Output 'PATH-ATTRIBUTION-CODE-OK'
+2. OUTCOME CHECK [command] (LITERAL PINNED validation_command below, transcribe verbatim): run the daemon's own embedded selftest and confirm the new fixtures pass AND all three prior queuedDepsHold selftest blocks specifically still report PASS status (not merely message-substring presence). Authors nothing.
+   validation_command: $out = node muezzin-daemon.mjs --selftest 2>&1 | Out-String; $ec = $LASTEXITCODE; if ($ec -ne 0) { exit 1 }; if ($out -notmatch 'PASS\s+gap-queueddepshold-same-line-crossreference-ambiguity: our own path is NOT falsely self-resolved') { exit 1 }; if ($out -notmatch 'PASS\s+gap-queueddepshold-same-line-crossreference-ambiguity: the OTHER mission genuinely named') { exit 1 }; if ($out -notmatch 'PASS\s+gap-queueddepshold-same-line-crossreference-ambiguity: a clean single-path inline stamp still satisfies') { exit 1 }; if ($out -notmatch 'PASS\s+tartib-gate: conductor-RESOLVED dependency satisfies') { exit 1 }; if ($out -notmatch 'PASS\s+mt-c1-boundary\(dep\): an explicit RESOLVED-noted dependency comment satisfies') { exit 1 }; if ($out -notmatch 'PASS\s+gap-queueddepshold-resolved-landed-blind: inline RESOLVED-LANDED \(path first, no leading #\) satisfies the self-resolved check') { exit 1 }; if ($out -match 'FAIL\s+tartib-gate') { exit 1 }; if ($out -match 'FAIL\s+mt-c1-boundary') { exit 1 }; if ($out -match 'FAIL\s+gap-queueddepshold') { exit 1 }; Write-Output 'PATH-ATTRIBUTION-SELFTEST-OK-NO-REGRESSION'
+
+DONE-MEANS: queuedDepsHold() attributes a RESOLVED-class keyword to the nearest neighboring mission-path mention on its own line, not merely "any path on the same line" -- a line naming multiple missions in prose (e.g. explaining that a DEPENDENCY reached RESOLVED-LANDED) no longer falsely satisfies the mission actually being tested. The embedded --selftest passes the 3 new fixtures (including a live reproduction of the exact mt-plan-mode-mobile.S1 incident) with zero regressions to the tartib-gate, mt-c1-boundary, and gap-queueddepshold-resolved-landed-blind selftest blocks.
