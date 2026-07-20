@@ -208,6 +208,17 @@ export function execReceipt(cmd, cwd, opts = {}) {
   // stdio[0]='ignore' attaches /dev/null to stdin — any prompt reads EOF and either errors
   // cleanly or defaults, instead of blocking until the 120s timeout.
   const childEnv = { ...process.env, CI: 'true', WRANGLER_SEND_METRICS: 'false', FORCE_COLOR: '0' };
+  // CLOUDFLARE-TOKEN CALL-SITE SCOPING (gap-cloudflare-api-token-shadows-oauth-session,
+  // 2026-07-20): this machine's persistent CLOUDFLARE_API_TOKEN is deliberately narrow-scope
+  // (no d1 access — other tooling depends on it existing globally, confirmed 19-file grep) and
+  // shadows a separate, already-authenticated OAuth session with full scope including d1:write.
+  // Any `wrangler d1` step inherits the narrow token and fails with a Cloudflare 7403 that reads
+  // exactly like an identity-bound credential problem (two independent missions hit this: the
+  // poi-tags D1 migration and this file's m1-1-oracle-ingest crown-land ingest). Null the token
+  // ONLY for this one child process so wrangler falls back to the working OAuth session — never
+  // touch the global env var itself (that was tried and reverted the same night: real tooling
+  // elsewhere needs the token to keep existing).
+  if (/\bwrangler\s+d1\b/.test(cmd)) { delete childEnv.CLOUDFLARE_API_TOKEN; delete childEnv.CLOUDFLARE_ACCOUNT_ID; }
   // HERE-STRING MANGLE FIX (2026-07-03, trip-cost.S2 FAILED x2 receipt: step-5 "Set-Content
   // scratch-*.mjs -Value @'...'@" through -Command died with "[no stdout/stderr captured]" —
   // pwsh's -Command parser chokes on planner-emitted multi-line here-strings; same class as
