@@ -237,6 +237,25 @@ export function execReceipt(cmd, cwd, opts = {}) {
       const tmp = join(tmpdir(), `muezzin-step-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.ps1`);
       const parityTail = `\nif ($LASTEXITCODE -is [int] -and $LASTEXITCODE -ne 0) { exit $LASTEXITCODE } elseif (-not $?) { exit 1 } else { exit 0 }\n`;
       writeFileSync(tmp, cmd + parityTail, 'utf8');
+      // SYNTAX PRE-CHECK (AST-only parse, no execution — 2026-07-2x): a malformed
+      // validation_command (unterminated here-string, unbalanced brace) used to burn a full
+      // script execution + stepTimeoutMs before failing opaquely. Parser.ParseFile parses the
+      // .ps1 WITHOUT running it; a parse error here means the file itself is malformed, not
+      // that the underlying work failed — fail fast with a distinct MALFORMED-VALIDATION-COMMAND
+      // marker instead of burning the real timeout on a script that can never execute.
+      const syntaxCheckCmd = `$tokens=$null; $errs=$null; [System.Management.Automation.Language.Parser]::ParseFile('${tmp.replace(/'/g, "''")}', [ref]$tokens, [ref]$errs) | Out-Null; if ($errs -and $errs.Count -gt 0) { Write-Output 'MALFORMED-VALIDATION-COMMAND'; exit 1 } else { exit 0 }`;
+      let syntaxDiag = null;
+      try {
+        const syntaxOut = execFileSync('pwsh.exe', ['-NoProfile', '-NonInteractive', '-Command', syntaxCheckCmd], { cwd, env: childEnv, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: 30000 });
+        if (String(syntaxOut).includes('MALFORMED-VALIDATION-COMMAND')) syntaxDiag = 'MALFORMED-VALIDATION-COMMAND: script failed AST parse pre-check (syntax error) — not executed';
+      } catch (e) {
+        syntaxDiag = `MALFORMED-VALIDATION-COMMAND: syntax pre-check itself failed to run (${String(e.message).slice(0, 200)})`;
+      }
+      if (syntaxDiag) {
+        hb(`exec-fail elapsed=${Date.now() - tExec0}ms ${syntaxDiag}`);
+        try { unlinkSync(tmp); } catch { /* temp cleanup is best-effort */ }
+        return { type: 'exec', ref: cmd, ok: false, exit: 1, out: syntaxDiag.slice(0, 2000) };
+      }
       try {
         out = execFileSync('pwsh.exe', ['-NoProfile', '-NonInteractive', '-File', tmp], { cwd, env: childEnv, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: stepTimeoutMs });
       } finally {
@@ -1316,6 +1335,32 @@ if (process.argv[1]?.endsWith('seat_dispatch.mjs') && process.argv.includes('--s
       check('execReceipt single-line: unchanged -Command path still works', r3.ok === true && r3.out.includes('42'), true);
     } finally {
       try { rmSync(dir, { recursive: true, force: true }); } catch { /* best-effort */ }
+    }
+  }
+
+  // 12b. MALFORMED VALIDATION COMMAND (syntax pre-check, 2026-07-2x): two malformed here-string
+  //      fixtures proving the AST-only parse pre-check (case-12's converse) catches a broken
+  //      validation_command BEFORE burning a script execution + timeout on it — never silently
+  //      running a .ps1 that cannot parse. Windows-only; guarded.
+  if (process.platform === 'win32') {
+    const { mkdtempSync: mk3, rmSync: rm3, existsSync: ex3 } = await import('node:fs');
+    const { tmpdir: td3 } = await import('node:os');
+    const dir2 = mk3(join(td3(), 'muezzin-hsbad-'));
+    try {
+      // fixture A: unterminated here-string (opener with no closer at all)
+      const badA = `Set-Content -Path scratch-bad-a.mjs -Value @'\nconsole.log('unterminated here-string\n`;
+      const rA = execReceipt(badA, dir2);
+      check('execReceipt syntax pre-check A (unterminated here-string): caught before execution (ok=false)', rA.ok, false);
+      check('execReceipt syntax pre-check A: diagnostic carries MALFORMED-VALIDATION-COMMAND marker', rA.out.includes('MALFORMED-VALIDATION-COMMAND'), true);
+      check('execReceipt syntax pre-check A: malformed script never created its target file (never executed)', ex3(join(dir2, 'scratch-bad-a.mjs')), false);
+      // fixture B: here-string closer not alone on its own line (invalid closer, still unterminated)
+      const badB = `Set-Content -Path scratch-bad-b.mjs -Value @'\nlinewithnoclosingnewline'@`;
+      const rB = execReceipt(badB, dir2);
+      check('execReceipt syntax pre-check B (malformed here-string closer): caught before execution (ok=false)', rB.ok, false);
+      check('execReceipt syntax pre-check B: diagnostic carries MALFORMED-VALIDATION-COMMAND marker', rB.out.includes('MALFORMED-VALIDATION-COMMAND'), true);
+      check('execReceipt syntax pre-check B: malformed script never created its target file (never executed)', ex3(join(dir2, 'scratch-bad-b.mjs')), false);
+    } finally {
+      try { rm3(dir2, { recursive: true, force: true }); } catch { /* best-effort */ }
     }
   }
 
