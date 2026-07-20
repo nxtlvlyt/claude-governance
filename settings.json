@@ -169,6 +169,11 @@
             "type": "command",
             "command": "node \"C:\\Users\\marka\\.claude\\hooks\\lane-exclusion-gate.mjs\"",
             "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "node \"C:\\Users\\marka\\.claude\\hooks\\dispatch-tool-lint.mjs\"",
+            "timeout": 10
           }
         ]
       },
