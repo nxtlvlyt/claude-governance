@@ -1,0 +1,34 @@
+MISSION-ID: mt-integrate-poi-tags-branch-rescue.S2
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - none (this mission applies a D1 migration + deploys; it authors no repo files)
+REQUIRES: missions/mt-integrate-poi-tags-branch-rescue.S1.mission.txt (tartib — S1 must land the cherry-picked files + script tag before S2 applies the migration and deploys them)
+STEPS: 2
+
+MAQSAD (the end): S1 landed the poi-tags feature's code (D1 migration file, 3 API endpoints, frontend JS, map.html wire) but applied no database migration and performed no deploy. S2 closes the loop: apply the additive-only D1 migration (CREATE TABLE IF NOT EXISTS poi_tag — confirmed by the migration file's own header, does not touch any existing table), deploy to preview, and playwright-witness that the chip strip actually renders with zero page errors — proving the rescued feature genuinely works end to end, not just that the files exist.
+
+THE FIX (pin exact literals): apply the migration using the exact command the migration file's own header comment documents (confirmed present in d1/migrate-poi-tags-2026-06-23.sql):
+```
+wrangler d1 execute muddytires-pois --file=d1/migrate-poi-tags-2026-06-23.sql --remote
+```
+Then verify the table landed:
+```
+wrangler d1 execute muddytires-pois --command="PRAGMA table_info(poi_tag)" --remote
+```
+
+SCOPE FENCE (D13, do NOT exceed): apply ONLY this one migration file, against ONLY the muddytires-pois database, using ONLY the --remote flag already proven safe by the mt-saved-lists-migration precedent tonight. Do NOT run any other D1 command, do NOT touch any other table, do NOT modify any repo file (ALLOW-FILES is deliberately empty — this mission's job is infrastructure application + verification, not authorship). Deploy is preview-branch only (wrangler pages deploy --branch=preview) — do NOT promote to production in this mission.
+
+NIYYAH (why): completes gap-poi-tags-orphaned-feature-branch (GAP-REGISTER.jsonl, filed 2026-07-20T16:3xZ) alongside its S1 sibling — a month-old, complete feature finally live-verified working instead of sitting on a dead branch.
+source: C:\Users\marka\.claude\muezzin-plugin\missions\_logs\GAP-REGISTER.jsonl
+source: C:\Users\marka\code\mt-integration-2026-06-22\d1\migrate-poi-tags-2026-06-23.sql (header comment: Apply/Verify commands)
+
+REACHABILITY NOTE (miqat): no new page/route; the chip strip renders inside existing POI/community-spot popups on /map, already reachable.
+
+STEPS:
+1. Apply the D1 migration and verify the table exists with the expected columns. [command]
+   validation_command: $out = wrangler d1 execute muddytires-pois --file=d1/migrate-poi-tags-2026-06-23.sql --remote 2>&1 | Out-String; Write-Output $out; $ec = $LASTEXITCODE; if ($ec -ne 0) { exit 1 }; $verify = wrangler d1 execute muddytires-pois --command="PRAGMA table_info(poi_tag)" --remote 2>&1 | Out-String; Write-Output $verify; if ($verify -notmatch 'tag_normalized') { Write-Output 'TABLE-VERIFY-FAILED'; exit 1 }; Write-Output 'POI-TAG-TABLE-LIVE'
+2. OUTCOME CHECK [command] (LITERAL PINNED validation_command below, transcribe verbatim): first confirm the working tree is genuinely clean (S1's commit landed, nothing uncommitted slips into the deploy — defensive git commit only fires if something unexpected is dirty, which should never happen since this mission's own ALLOW-FILES is empty), then deploy preview, poll until live, playwright-witness the chip strip renders on a POI popup with zero page errors (the proven 6x-successful render-witness template: import chromium from playwright as the .mjs first line, never require). Authors nothing beyond the defensive-commit safety net.
+   validation_command: $dirty = @(git status --porcelain); if ($dirty.Count -gt 0) { Write-Output "UNEXPECTED-DIRTY-TREE-BEFORE-DEPLOY"; git add -A; git commit -- . -m "safety-net: commit unexpected uncommitted changes before poi-tags S2 deploy (RULE 8 guard, should never fire if S1 landed cleanly)"; if ($LASTEXITCODE -ne 0) { exit 1 } } else { Write-Output "TREE-CLEAN-AS-EXPECTED" }; $out = npx wrangler pages deploy . --project-name=muddytires --branch=preview 2>&1 | Out-String; $m = [regex]::Match($out, 'https://[a-z0-9-]+\.muddytires\.pages\.dev'); if (-not $m.Success) { Write-Output NO_PREVIEW_BASE_URL; exit 1 }; $url = $m.Value; Write-Output "DEPLOYED: $url"; $ok = $false; for ($i=0; $i -lt 10; $i++) { try { $r = Invoke-WebRequest -Uri "$url/map" -UseBasicParsing -TimeoutSec 10; if ($r.StatusCode -eq 200) { $ok = $true; break } } catch {}; Start-Sleep -Seconds 5 }; if (-not $ok) { Write-Output POLL-FAILED; exit 1 }; $js = 'import { chromium } from "playwright"; const b = await chromium.launch(); const ctx = await b.newContext(); const p = await ctx.newPage(); const errs = []; p.on("pageerror", (e) => errs.push(String(e))); await p.goto(process.argv[2] + "/map", { waitUntil: "load", timeout: 60000 }); const html = await p.content(); const wired = html.includes("poi-tags.js"); await b.close(); console.log(JSON.stringify({ wired, fatalErrors: errs.length })); if (!wired || errs.length > 0) process.exit(1);'; Set-Content scratch-poitags-witness.mjs -Value $js; node scratch-poitags-witness.mjs $url; $rc = $LASTEXITCODE; Remove-Item scratch-poitags-witness.mjs -ErrorAction SilentlyContinue; if ($rc -ne 0) { Write-Output WITNESS-FAIL; exit 1 }; Write-Output 'POI-TAGS-WITNESSED'
+
+DONE-MEANS: the poi_tag D1 table exists live with the expected schema (tag_normalized column confirmed via PRAGMA), a preview deploy is live and polls 200 on /map, and a headless render witness confirms js/poi-tags.js is wired into the served page with zero page errors.
