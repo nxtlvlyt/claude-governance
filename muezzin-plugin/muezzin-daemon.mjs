@@ -885,6 +885,27 @@ export function queuedDepsHold(missionText, missionPath, autorunText, resultOkFn
   return { hold: false };
 }
 
+// CONDUCTOR-APPLY RECEIPT (conductor-direct exception path, conductor-core.md CONDUCTOR-
+// DIRECT EXCEPTION CONDITIONS): writes a SYNTHETIC result.json for a mission the conductor
+// applied directly instead of firing it through a mission sandbox (bootstrap-class, <=15
+// changed lines, no lane running against the target, diagnosis names the exact fix).
+// CONDUCTOR-APPLY-RECEIPT: queuedDepsHold releases the dependent once only the synthetic
+// receipt exists — the receipt is the SAME shape queuedDepsHold's resOk() reads
+// (missions/<stem>.mission.result.json, ok:true), so a tartib child whose predecessor was
+// conductor-applied (never fired through runMission) still sees its dependency satisfied.
+// Injectable writeFile for selftest; fail-soft is the CALLER's job (the CLI branch reports).
+export function writeConductorApplyReceipt(missionsDir, stem, reason, writeFile = writeFileSync) {
+  const receiptPath = path.join(missionsDir, `${stem}.mission.result.json`);
+  const receipt = {
+    ok: true,
+    phase: 'conductor-apply',
+    reason: String(reason || 'conductor-direct exception applied'),
+    ts: new Date().toISOString(),
+  };
+  writeFile(receiptPath, JSON.stringify(receipt, null, 2));
+  return receiptPath;
+}
+
 function promotionHold(missionText, doneIds, autorunText = '') {
   const txt = String(missionText || '');
   if (/^\s*#?\s*(HELD|BLOCKED|GATED)\b/im.test(txt)) return { hold: true, why: 'mission text marks HELD/BLOCKED/GATED' };
@@ -2172,12 +2193,36 @@ if (process.argv.includes('--selftest')) {
     ck(pendingSameBatch.filter((p) => p.raw === 'missions/baz.S1.mission.txt').length === 1, 'QUEUE-DUP: two SPLIT-CHILD lines for the identical path in one read still dedupe to one pending (marker exempts from status-elsewhere only, not same-batch dedup)');
   }
 
+  // ---- CONDUCTOR-APPLY RECEIPT (conductor-direct exception path) ----
+  {
+    const capDir = path.join(tmp, 'cap-missions'); mkdirSync(capDir, { recursive: true });
+    const capPath = writeConductorApplyReceipt(capDir, 'foo-bar.S1', 'bootstrap-class one-line fix, conductor-direct per conductor-core.md exception conditions');
+    ck(existsSync(capPath), 'conductor-apply-receipt: writes a result.json file');
+    const capReceipt = JSON.parse(readFileSync(capPath, 'utf8'));
+    ck(capReceipt.ok === true, 'conductor-apply-receipt: synthetic receipt is ok:true');
+    ck(capReceipt.phase === 'conductor-apply', "conductor-apply-receipt: synthetic receipt carries phase: 'conductor-apply'");
+    // CONDUCTOR-APPLY-RECEIPT: queuedDepsHold releases the dependent once only the synthetic receipt exists
+    const capAutorun = 'DONE missions/foo-bar.S1.mission.txt  <!-- conductor-applied -->\n';
+    const capResOk = (dep) => { try { return JSON.parse(readFileSync(path.join(capDir, path.basename(dep).replace(/\.mission\.txt$/, '') + '.mission.result.json'), 'utf8')).ok === true; } catch { return false; } };
+    const capGate = queuedDepsHold('MISSION-ID: x', 'missions/foo-bar.S2.mission.txt', capAutorun, capResOk);
+    ck(capGate.hold === false, 'conductor-apply-receipt: a synthetic receipt satisfies queuedDepsHold exactly like a real one — the dependent releases');
+  }
+
   rmSync(tmp, { recursive: true, force: true });
   console.log(fails === 0 ? '\nALL PASS — daemon queue mechanics sound (incl. Hajj SPLIT status + auto-queue-from-substrate + self-witness AFTER gating + crash instrumentation)' : `\n${fails} FAIL`);
   process.exit(fails === 0 ? 0 : 1);
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) {
+  if (process.argv.includes('--conductor-apply-receipt')) {
+    const capIdx = process.argv.indexOf('--conductor-apply-receipt');
+    const capStem = process.argv[capIdx + 1];
+    const capReason = process.argv[capIdx + 2];
+    if (!capStem) { console.error('--conductor-apply-receipt requires a mission stem argument'); process.exit(1); }
+    const capReceiptPath = writeConductorApplyReceipt(path.join(HERE, 'missions'), capStem, capReason);
+    console.log(`wrote synthetic conductor-apply receipt: ${capReceiptPath}`);
+    process.exit(0);
+  }
   installCrashHandlers();
   // Catch a rejection of mainLoop's OWN promise explicitly: the loop is dead, so log the
   // stack and exit(1) for a clean supervisor restart (vs. a zombie process kept alive by the
