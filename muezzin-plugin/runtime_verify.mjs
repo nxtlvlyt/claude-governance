@@ -34,7 +34,7 @@
 // the result of a live network call.
 
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync, rmSync, readdirSync, readFileSync } from 'node:fs';
+import { mkdtempSync, writeFileSync, rmSync, readdirSync, readFileSync, mkdirSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
@@ -85,25 +85,82 @@ function verifyCode(targetPath, src) {
   // (.mjs vs .cjs vs .js) matches how the engine will load it.
   const probeDir = mkdtempSync(path.join(tmpdir(), 'rtv_'));
 
-  // Copy adjacent .mjs/.js/.json files to temp directory so relative imports resolve correctly
+  // findNearestModuleType: walk up from a starting directory looking for the nearest package.json
+  // and read its "type" field, mirroring Node's own real resolution rule (RTV-PARENT-RELATIVE-FIX)
+  // instead of always forcing "type":"module" on the sandbox, which produced a false SyntaxError
+  // for a .js artifact that actually lives under a CommonJS package.json.
+  function findNearestModuleType(startDir) {
+    let dir = startDir;
+    for (let i = 0; i < 20; i++) {
+      const pkgPath = path.join(dir, 'package.json');
+      if (existsSync(pkgPath)) {
+        try {
+          const pkg = JSON.parse(readFileSync(pkgPath, 'utf8'));
+          return pkg.type === 'module' ? 'module' : 'commonjs';
+        } catch { return 'commonjs'; }
+      }
+      const parent = path.dirname(dir);
+      if (parent === dir) break;
+      dir = parent;
+    }
+    return 'commonjs';
+  }
+
+  // PARENT_RELATIVE_RE: matches `require('../x')` / `from '../x'` / `import('../x')` specifiers
+  // that reach OUTSIDE the artifact's own directory, so those files can be mirrored into the
+  // sandbox at the same relative depth instead of flattened alongside the artifact, which broke
+  // every `../` reference (RTV-PARENT-RELATIVE-FIX).
+  const PARENT_RELATIVE_RE = /(?:require\(|from\s|import\()\s*['"](\.\.\/[^'"]+)['"]/g;
+
+  const srcDir = path.dirname(targetPath);
+  // artifactSubDir: the artifact is written one directory DEEPER than probeDir root, so a `../`
+  // specifier in its source has somewhere real to resolve to once mirrored below.
+  const artifactSubDir = path.join(probeDir, 'artifact');
+  mkdirSync(artifactSubDir, { recursive: true });
+
+  // Copy adjacent .mjs/.js/.cjs/.json files alongside the artifact so same-directory relative
+  // imports resolve correctly.
   try {
-    const srcDir = path.dirname(targetPath);
     const files = readdirSync(srcDir, { withFileTypes: true });
     for (const f of files) {
-      if (f.isFile() && (f.name.endsWith('.mjs') || f.name.endsWith('.js') || f.name.endsWith('.json'))) {
+      if (f.isFile() && (f.name.endsWith('.mjs') || f.name.endsWith('.js') || f.name.endsWith('.cjs') || f.name.endsWith('.json'))) {
         if (f.name === path.basename(targetPath)) continue;
-        writeFileSync(path.join(probeDir, f.name), readFileSync(path.join(srcDir, f.name)));
+        writeFileSync(path.join(artifactSubDir, f.name), readFileSync(path.join(srcDir, f.name)));
       }
     }
   } catch (e) { console.error('[RTV-COPY-ERROR]', e); }
 
+  // Mirror parent-relative (`../`) referenced files into the sandbox at the matching depth so a
+  // require/import that walks up out of the artifact's own directory finds a real file instead of
+  // throwing MODULE_NOT_FOUND against an empty sandbox (RTV-PARENT-RELATIVE-FIX).
+  PARENT_RELATIVE_RE.lastIndex = 0;
+  let prm;
+  while ((prm = PARENT_RELATIVE_RE.exec(src)) !== null) {
+    const rel = prm[1];
+    let resolvedSrcPath = path.resolve(srcDir, rel);
+    let destRel = rel;
+    if (!existsSync(resolvedSrcPath)) {
+      const foundExt = ['.js', '.cjs', '.mjs', '.json'].find((e) => existsSync(resolvedSrcPath + e));
+      if (!foundExt) continue;
+      resolvedSrcPath += foundExt;
+      destRel += foundExt;
+    }
+    const destPath = path.resolve(artifactSubDir, destRel);
+    try {
+      mkdirSync(path.dirname(destPath), { recursive: true });
+      writeFileSync(destPath, readFileSync(resolvedSrcPath));
+    } catch (e) { console.error('[RTV-COPY-ERROR]', e); }
+  }
+
   const ext = (path.extname(String(targetPath)) || '.mjs').toLowerCase();
-  const artifactPath = path.join(probeDir, 'rtv_artifact' + ext);
+  const artifactPath = path.join(artifactSubDir, 'rtv_artifact' + ext);
   writeFileSync(artifactPath, src, 'utf8');
-  // The plugin is all-ESM (.mjs and ESM-syntax .js). A bare .js in a temp dir would default to
-  // CommonJS and throw a false SyntaxError on `import`. Mark the probe dir type:module so a .js
-  // artifact is treated as ESM (the engine's convention); a .cjs stays CommonJS regardless.
-  writeFileSync(path.join(probeDir, 'package.json'), '{"type":"module"}', 'utf8');
+  // Detect the REAL module type from the nearest package.json to the artifact's actual location
+  // (RTV-PARENT-RELATIVE-FIX) rather than always forcing "type":"module" — a .js artifact that
+  // lives under a CommonJS package.json must stay CommonJS or a `require(...)` throws a false
+  // SyntaxError against `import`. A .cjs artifact is always CommonJS regardless.
+  const realModuleType = findNearestModuleType(srcDir);
+  writeFileSync(path.join(probeDir, 'package.json'), JSON.stringify({ type: realModuleType }), 'utf8');
   const probePath = path.join(probeDir, 'rtv_probe.mjs');
   const targetUrl = 'file://' + artifactPath.replace(/\\/g, '/');
   const probe = `
@@ -253,6 +310,16 @@ if (process.argv[1]?.endsWith('runtime_verify.mjs') && process.argv.includes('--
   // non-browser ReferenceError (a real bug): must STILL fail closed
   const rRef = await runtimeVerify(path.join(tmpBase, 'refbug-mod.js'), `const v = totallyUndefinedIdentifier;\nexport default v;\n`);
   ck(rRef.ok === false && rRef.error === 'load-throw', 'non-browser ReferenceError still fails CLOSED (only DOM globals are exempt)');
+  // parent-relative CJS require (the mirroring fix): artifact lives in a nested dir and requires
+  // a file one level up via `require('../shared-lib.cjs')`; the pre-fix flat copy could not resolve
+  // this and threw MODULE_NOT_FOUND. Set up a real nested dir so the mirror-copy logic has a real
+  // parent file to find (RTV-PARENT-RELATIVE-FIX).
+  const parentReqDir = mkdtempSync(path.join(tmpBase, 'parent-req-'));
+  const nestedDir = path.join(parentReqDir, 'nested');
+  mkdirSync(nestedDir, { recursive: true });
+  writeFileSync(path.join(parentReqDir, 'shared-lib.cjs'), `module.exports = { value: 42 };\n`, 'utf8');
+  const rParentReq = await runtimeVerify(path.join(nestedDir, 'consumer.cjs'), `const shared = require('../shared-lib.cjs');\nmodule.exports = shared.value;\n`);
+  ck(rParentReq.ok === true, 'parent-relative CJS require (../shared-lib.cjs) resolves via mirrored directory copy (RTV-PARENT-RELATIVE-FIX)');
   console.log(`[selftest] ${pass} passed, ${fail} failed`);
   process.exit(fail ? 1 : 0);
 }
