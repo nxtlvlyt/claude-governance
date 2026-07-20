@@ -3,7 +3,7 @@
 // PreToolUse hook — niyyah gate before first mutating action.
 // Node.js .mjs port of niyyah-gate.ps1 (Phase A migration, C1 deliberation CONDITIONAL_APPROVE 2026-05-14).
 
-import { readFileSync, existsSync } from 'fs';
+import { readFileSync, existsSync, statSync } from 'fs';
 import { basename, join } from 'path';
 import os from 'os';
 
@@ -81,7 +81,7 @@ if (!niyyahFound) {
   if (existsSync(pendingFile)) {
     try {
       const pending = JSON.parse(readFileSync(pendingFile, 'utf8'));
-      const age = Date.now() - (pending.ts || 0);
+      const age = Date.now() - statSync(pendingFile).mtimeMs;
       if (age < 60000 && pending.niyyah_text && /\bniyyah\s*:/i.test(pending.niyyah_text)) {
         niyyahFound = true;
         const m = pending.niyyah_text.match(/^\s*source\s*:\s*(.+)$/im);
