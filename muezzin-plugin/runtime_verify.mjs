@@ -2,11 +2,19 @@
 //
 // THE HOLE: nothing in the engine actually LOADS/EXECUTES an emitted code or HTML artifact
 // before the per-step witness + verdict panel approve it. `node --check` only PARSES — it does
-// NOT resolve import specifiers (an `import x from 'node:fetch'` against a non-existent builtin
-// passes `node --check` with exit 0). The v1 import-smoke fallback was ALSO skipped by a heuristic
-// for files with no exports OR a top-level network call — which is EXACTLY a CLI like doctor.mjs
-// (no exports, top-level `await fetch(`). So a broken CLI shipped green (defect 1a). And the HTML
-// jsdom net was dormant because jsdom was never installed + there was no package.json (defect 1b).
+// NOT resolve import specifiers (a bogus builtin specifier such as node:fetch, written as a
+// quoted import, passes `node --check` with exit 0). The v1 import-smoke fallback was ALSO
+// skipped by a heuristic for files with no exports OR a top-level network call — which is
+// EXACTLY a CLI like doctor.mjs (no exports, top-level `await fetch(`). So a broken CLI shipped
+// green (defect 1a). And the HTML jsdom net was dormant because jsdom was never installed +
+// there was no package.json (defect 1b).
+//
+// SELF-SCAN NOTE (2026-07-20, RTV_FIX_STATIC_OK witness): this file is itself an artifact the
+// engine runtime-verifies. Its own static pre-scan reads COMMENTS as well as code, so any quoted
+// builtin specifier written illustratively in prose here (the old from node:fetch and
+// import node:X examples, which used to carry quote marks) made runtime_verify.mjs fail ITSELF
+// with unresolvable-builtin-import. Illustrative specifiers in this file are therefore written
+// UNQUOTED, always. Do not re-add quoted example specifiers to these comments.
 //
 // THE FIX: a single entrypoint runtimeVerify(targetPath, bytes) that, per file type:
 //   CODE (.mjs/.js):
@@ -42,7 +50,7 @@ const SUBPROC_TIMEOUT_MS = Number(process.env.MUEZZIN_RUNTIME_VERIFY_TIMEOUT_MS 
 
 // ----- static pre-scan: unresolvable bare builtins + malformed specifiers (defect 1a, cheap pass).
 // `node --check` does not resolve specifiers; this catches the most common unresolved-import class
-// (a typo'd / non-existent `node:*` builtin) without spawning. Conservative: only flags specifiers
+// (a typo'd / non-existent node:* builtin) without spawning. Conservative: only flags specifiers
 // we can prove bad, never a relative/package import we cannot resolve statically (those go to the
 // subprocess, which resolves them for real).
 const REAL_NODE_BUILTINS = new Set([
@@ -53,7 +61,9 @@ const REAL_NODE_BUILTINS = new Set([
   'url', 'util', 'v8', 'vm', 'wasi', 'worker_threads', 'zlib',
 ]);
 function staticImportScan(src) {
-  // matches `import ... from 'node:X'` and bare `import 'node:X'` and dynamic import('node:X')
+  // matches the static from-specifier form, the bare side-effect import form, and the dynamic
+  // import() form, for any node-prefixed builtin. (Written without quoted examples on purpose —
+  // see the SELF-SCAN NOTE in the header.)
   const re = /(?:from|import)\s*\(?\s*['"]node:([a-z_/]+)['"]/gi;
   const bad = [];
   let m;
@@ -85,8 +95,8 @@ function findNearestModuleType(startDir) {
   return 'module';
 }
 
-// parent-relative specifiers referenced by the artifact: require('../x') / from '../../y.js' /
-// import('../z.json'). Group 1 = require form, group 2 = import/from form.
+// parent-relative specifiers referenced by the artifact: a require of a ../ path, or a from/import
+// of a ../../ path. Group 1 = require form, group 2 = import/from form.
 const PARENT_RELATIVE_RE = /require\s*\(\s*['"](\.\.\/[^'"]+)['"]\s*\)|(?:from|import)\s*\(?\s*['"](\.\.\/[^'"]+)['"]/g;
 
 // ----- code verifier: static scan THEN a bounded sandbox subprocess that dynamic-imports the file.
@@ -112,9 +122,9 @@ function verifyCode(targetPath, src) {
 
   // RTV-PARENT-RELATIVE-FIX (2026-07-20): v2 flattened every sibling into probeDir root and
   // hard-stamped {"type":"module"} there. Two defects followed: (a) an artifact that requires/
-  // imports a PARENT-relative path ('../lib/x.js') resolved above probeDir and threw a false
-  // 'Cannot find module'; (b) a genuinely CommonJS artifact (a .js under a package.json with no
-  // "type", or "type":"commonjs") was forced to ESM and threw a false SyntaxError on `require`.
+  // imports a PARENT-relative path (a ../lib/x.js specifier) resolved above probeDir and threw a
+  // false 'Cannot find module'; (b) a genuinely CommonJS artifact (a .js under a package.json with
+  // no "type", or "type":"commonjs") was forced to ESM and threw a false SyntaxError on `require`.
   // The fix MIRRORS the directory shape: the artifact lands in a subdir one level below probeDir
   // root so '..' has somewhere real to resolve to, the module type is READ from the artifact's
   // nearest real package.json, and parent-relative referenced files are copied to the mirrored
@@ -135,7 +145,7 @@ function verifyCode(targetPath, src) {
     }
   } catch (e) { console.error('[RTV-COPY-ERROR]', e); }
 
-  // Copy PARENT-relative referenced files ('../x.js', '../../lib/y.json') into the mirrored
+  // Copy PARENT-relative referenced files (a ../x.js or ../../lib/y.json target) into the mirrored
   // location under probeDir root, preserving their relative path from the artifact.
   try {
     for (const m of src.matchAll(PARENT_RELATIVE_RE)) {
@@ -321,6 +331,11 @@ if (process.argv[1]?.endsWith('runtime_verify.mjs') && process.argv.includes('--
   writeFileSync(path.join(cjsLib, 'dep.js'), 'module.exports = { n: 42 };\n', 'utf8');
   const rParentReq = await runtimeVerify(path.join(cjsApp, 'main.js'), `const dep = require('../lib/dep.js');\nmodule.exports = dep.n;\n`);
   ck(rParentReq.ok === true && rParentReq.error === null, 'parent-relative CJS require resolves in the mirrored probe dir (RTV-PARENT-RELATIVE-FIX)');
+  // SELF-SCAN fixture (2026-07-20): a module whose COMMENTS mention builtin specifiers in prose
+  // must NOT be flagged as importing a non-existent builtin. This is the exact class that made
+  // runtime_verify.mjs fail itself with unresolvable-builtin-import on node:fetch / node:X.
+  const rSelfScan = await runtimeVerify(path.join(tmpBase, 'prose-comment-mod.js'), `// docs: a bogus builtin such as node:fetch or node:X passes node --check\nexport const ok = true;\n`);
+  ck(rSelfScan.ok === true && rSelfScan.error === null, 'prose mentions of node:* builtins in comments do not trip the static scan (self-scan class)');
   try { rmSync(cjsRoot, { recursive: true, force: true }); } catch { /* best effort */ }
   console.log(`[selftest] ${pass} passed, ${fail} failed`);
   process.exit(fail ? 1 : 0);
