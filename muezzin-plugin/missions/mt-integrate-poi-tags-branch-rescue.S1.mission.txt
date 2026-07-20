@@ -1,0 +1,50 @@
+MISSION-ID: mt-integrate-poi-tags-branch-rescue.S1
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - d1/migrate-poi-tags-2026-06-23.sql
+  - functions/api/poi-tags.js
+  - functions/api/poi-tags/aggregate.js
+  - functions/api/poi-tags/suggest.js
+  - js/poi-tags.js
+  - map.html
+REQUIRES: none
+STEPS: 3
+
+ONE-WRITER RULE (binding): step 1 authors all six ALLOW-FILES (five cherry-picked new files + one wire edit to map.html). Steps 2-3 are verify/command-only and author nothing further.
+
+MAQSAD (the end): a COMPLETE, working poi-tags feature (free-text user tags on POIs and community spots — D1 table, 3 Pages Functions endpoints, frontend chip-strip IIFE) has sat on an unmerged branch (feat/poi-tags-2026-06-23, commit a2ecb2a, authored 2026-06-23) for nearly a month while a separate mission chain unsuccessfully tried to re-author a SUBSET of the same feature from scratch and got PARKED 2026-07-10 (gap-poi-tags-orphaned-feature-branch, filed 2026-07-20T16:3xZ). Investigation this wake found the ONLY git conflict (map.html) is NOT a real content conflict: `git show a2ecb2a -- map.html` shows exactly 3 insertions / 3 deletions — the commit adds ONE `<script src="js/poi-tags.js" defer></script>` tag next to two sibling tags (poi-photos.js, poi-provenance.js) that ALREADY exist unchanged at current HEAD. The apparent "changed in both" conflict is a git line-granularity artifact (the whole file is one physical line), not a semantic collision. This mission rescues the branch's work via a targeted cherry-pick + one-line wire, not a branch merge.
+
+THE FIX (pin exact literals):
+
+1. Cherry-pick the five NEW files verbatim from commit a2ecb2a (none of these exist in the current working tree — plain adds, no merge, no conflict possible):
+```
+git checkout a2ecb2a -- d1/migrate-poi-tags-2026-06-23.sql functions/api/poi-tags.js functions/api/poi-tags/aggregate.js functions/api/poi-tags/suggest.js js/poi-tags.js
+```
+
+2. Wire ONE script tag into map.html. Find this exact existing substring (confirmed present at HEAD, byte-verified this wake):
+```
+<script src="js/poi-hover-preview.js" defer></script><script src="js/poi-provenance.js" defer></script><script src="js/poi-wikipedia.js" defer></script>
+```
+Replace it with exactly the same string plus one new tag inserted immediately after the poi-provenance.js tag (additive only — do not reorder or touch the hover-preview or wikipedia tags):
+```
+<script src="js/poi-hover-preview.js" defer></script><script src="js/poi-provenance.js" defer></script><script src="js/poi-tags.js" defer></script><script src="js/poi-wikipedia.js" defer></script>
+```
+
+SCOPE FENCE (D13, do NOT exceed): touch ONLY the six ALLOW-FILES named above, and ONLY the one substring replacement in map.html shown above. Do NOT modify js/poi-tags.js, functions/api/poi-tags.js, functions/api/poi-tags/aggregate.js, functions/api/poi-tags/suggest.js, or d1/migrate-poi-tags-2026-06-23.sql content in any way — they are cherry-picked verbatim, already-authored, already-reviewed (co-authored by a prior Opus 4.7 session) work; this mission's only original authorship is the map.html one-line wire. Do NOT run `wrangler d1 execute` (no deploy/migration in this mission — that is S2's job, REQUIRES this S1). Do NOT touch any other `<script src="js/...">` tag in map.html.
+
+NIYYAH (why): gap-poi-tags-orphaned-feature-branch, filed 2026-07-20T16:3xZ, GAP-REGISTER.jsonl — a complete, working feature sitting unmerged for a month while a separate mission chain (mt-integrate-poi-tags-2026-06-23.S1.S1, PARKED 2026-07-10) unsuccessfully tried to rebuild a subset from scratch, itself the direct cause of mt-integrate-poi-tags-2026-06-23.S2 sitting TARTIB-HELD (its dependency, the SPLIT parent .S1, can structurally never reach DONE). This S1/S2 pair supersedes that stuck chain by rescuing the ALREADY-COMPLETE branch work instead of re-authoring it.
+source: C:\Users\marka\.claude\muezzin-plugin\missions\_logs\GAP-REGISTER.jsonl
+source: C:\Users\marka\code\mt-integration-2026-06-22 (git log --all -- poi-tags, git show a2ecb2a)
+
+REACHABILITY NOTE (miqat): map.html ships a new script tag (js/poi-tags.js) that self-registers a popup-attached IIFE — no new navigable page, no route change. The feature surfaces inside existing POI/community-spot popups already reachable from /map.
+
+STEPS:
+1. Apply THE FIX exactly as specified above: cherry-pick the 5 files, wire the one script tag. [edit] d1/migrate-poi-tags-2026-06-23.sql, functions/api/poi-tags.js, functions/api/poi-tags/aggregate.js, functions/api/poi-tags/suggest.js, js/poi-tags.js, map.html
+   validation_command: node --check functions/api/poi-tags.js; if ($LASTEXITCODE -ne 0) { exit 1 }; node --check functions/api/poi-tags/aggregate.js; if ($LASTEXITCODE -ne 0) { exit 1 }; node --check functions/api/poi-tags/suggest.js; if ($LASTEXITCODE -ne 0) { exit 1 }; node --check js/poi-tags.js; if ($LASTEXITCODE -ne 0) { exit 1 }; if (-not (Select-String -Path map.html -Pattern 'js/poi-tags\.js' -Quiet)) { exit 1 }; if (-not (Select-String -Path map.html -Pattern 'js/poi-provenance\.js' -Quiet)) { exit 1 }; if (-not (Select-String -Path map.html -Pattern 'js/poi-hover-preview\.js' -Quiet)) { exit 1 }; if (-not (Test-Path d1/migrate-poi-tags-2026-06-23.sql)) { exit 1 }; Write-Output 'POI-TAGS-CHERRYPICK-OK'
+2. OUTCOME CHECK [command]: confirm map.html grew by exactly the expected script tag (no other line changed) and the 5 cherry-picked files are byte-identical to their source commit (proving nothing was altered in transit). Authors nothing.
+   validation_command: $diff = git diff --stat -- map.html | Out-String; if ($diff -notmatch '1 file changed') { exit 1 }; $identical = $true; foreach ($f in @('d1/migrate-poi-tags-2026-06-23.sql','functions/api/poi-tags.js','functions/api/poi-tags/aggregate.js','functions/api/poi-tags/suggest.js','js/poi-tags.js')) { git diff --quiet a2ecb2a -- $f; if ($LASTEXITCODE -ne 0) { $identical = $false } }; if (-not $identical) { Write-Output 'CHERRYPICK-DRIFTED-FROM-SOURCE'; exit 1 }; Write-Output 'OUTCOME-PASS-POI-TAGS-FILES-INTACT'
+3. Commit all six ALLOW-FILES by explicit name. [command]
+   validation_command: git add -- d1/migrate-poi-tags-2026-06-23.sql functions/api/poi-tags.js functions/api/poi-tags/aggregate.js functions/api/poi-tags/suggest.js js/poi-tags.js map.html; git commit -- d1/migrate-poi-tags-2026-06-23.sql functions/api/poi-tags.js functions/api/poi-tags/aggregate.js functions/api/poi-tags/suggest.js js/poi-tags.js map.html -m "feat(poi-tags): rescue orphaned branch feat/poi-tags-2026-06-23 (commit a2ecb2a) -- cherry-pick + wire script tag, closes gap-poi-tags-orphaned-feature-branch S1 half"; if ($LASTEXITCODE -ne 0) { Write-Output COMMIT-FAIL; exit 1 }; Write-Output 'POI-TAGS-S1-COMMITTED'
+
+DONE-MEANS: the five poi-tags feature files exist at HEAD byte-identical to commit a2ecb2a, map.html carries exactly one new script tag (js/poi-tags.js) alongside its untouched siblings, all four JS files pass `node --check`, and the work is committed. No D1 migration applied and no deploy performed in this S1 — S2 (REQUIRES this mission) does that.
