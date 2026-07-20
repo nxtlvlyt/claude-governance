@@ -3462,3 +3462,28 @@ near-me.S1.S2) — (a) write the playwright witness to a scratch .mjs FILE
 THE DAEMON (not just a conductor dry-run). Unblocks the render-witness class incl.
 bookmark-widget.S2 (the other audit REQUEUE, same render need). Owns
 gap-render-witness-embedded-js-and-maphtml-redirect. Engine/template stem.
+
+ITEM 59 — E2E OVERLAP GATE: THREE FLAKE MODES + GATES UNRELATED SURFACES (filed
+2026-07-20 ~03:2xZ, after an all-night false-alarm that blocked the levels
+deploy). RECEIPT: scripts/e2e-runner.mjs's overlap sweep (guard 2 of the
+five-guard deploy chain) produced exit-2 for HOURS against a change (levels =
+leaderboard.html/leaderboard.js/levels.js) that cannot touch map.html — and every
+cell that actually MEASURED showed violations=0. Root-caused live: (a) COLD-PREVIEW
+HANG — the gate tests a freshly-deployed Cloudflare preview while the edge node is
+cold; cold+Starlink intermittently hangs the ~35 script requests (PRODUCTION is
+8/8 reliable, ~1-8s — proved by direct playwright loop). (b) BROWSER MEMORY-CRASH —
+once the preview is warmed, desktop/plan hits `page.evaluate: Target crashed`: the
+heavy map (mt-lh-boot-cpu class) rendered across ~14 sequential contexts in ONE
+chromium instance exhausts memory. (c) IRRELEVANCE — the sweep tests map.html
+floating-control overlaps; running it as a hard gate for a deploy that changes an
+UNRELATED page provides zero regression signal. The night's band-aids
+(MAP_MOUNT_TIMEOUT_MS bump = e76e93d, per-cell retry = 5f82452) treated (a) and made
+the gate slow (9-min timeouts) without fixing it. FIX (all three): (1) WARM the
+target before the overlap sweep (prime N requests + short wait — proven to clear
+the cold hang); (2) launch a FRESH BROWSER per cell (not just a fresh context) OR
+add chromium mem flags, to stop the Target-crash accumulation; (3) SCOPE the deploy
+e2e to the CHANGED surface — a leaderboard deploy render-verifies the leaderboard
+(deploy_gate --selector=.level-chip, which PASSED live), not the full map.html
+overlap sweep. Owns gap-e2e-overlap-gate-three-flake-modes. NOTE: the levels + map
+SPOF fix shipped live 2026-07-20 (commit 4fb3c39) by using deploy_gate render-verify
+on the actual production surfaces instead of the broken sweep. Engine/harness stem.
