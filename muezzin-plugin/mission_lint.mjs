@@ -336,6 +336,19 @@ export function lintMission(text) {
     }
   }
 
+  // RULE 17 -- NUMERIC-CONTRACT-NOT-PINNED (gap-mission-validation-must-pin-numeric-contract):
+  // a mission's Done-means clause invokes a numeric acceptance bar in words -- a
+  // threshold, a minimum count, a score, a percentage, a pass rate -- without pinning
+  // it to a literal digit. The verdict panel then has no fixed number to judge
+  // against, and every witness argues a different bar was met. Refuse at the miqat,
+  // cost zero, before the mission fires. Verdict rule name: numeric-contract-not-pinned.
+  const numericContractPhrase17 = /\b(threshold|minimum|at least|no fewer than|no more than|score of|grade (?:of|<=|>=)|percent(?:age)?|pass rate)\b/i;
+  const doneMeansMatch17 = t.match(/done\s*(?:means|=)[^\n]*/i);
+  const doneMeansText17 = doneMeansMatch17 ? doneMeansMatch17[0] : '';
+  if (numericContractPhrase17.test(doneMeansText17) && !/\d/.test(doneMeansText17)) {
+    add('numeric-contract-not-pinned', `mission Done-means clause references a numeric acceptance bar (threshold/minimum/score/percentage/pass-rate language) but pins NO literal digit anywhere in that clause ("${doneMeansText17.trim().slice(0, 120)}") -- the verdict panel has no fixed number to judge against and witnesses will each argue a different bar was met (gap-mission-validation-must-pin-numeric-contract). Pin the exact number: "at least 3 matches", "grade <=8", "pass rate >=90%".`);
+  }
+
   return { ok: problems.length === 0, problems };
 }
 
@@ -577,6 +590,25 @@ if (process.argv[1] && process.argv[1].endsWith('mission_lint.mjs')) {
   // (i) non-code-repo missions are never checked (the class this rule is scoped to).
   const nonCodeRepoProse = 'Maqsad: research. Done means: report.md exists.\nSteps:\n  1. Write a small script that checks the report is complete. [verify]\n';
   ck(!lintMission(nonCodeRepoProse).problems.some((p) => p.rule === 'improvise-bait'), 'RULE 16: a non-code-repo (research-class) mission never triggers improvise-bait, regardless of step wording');
+
+  // ---- RULE 17: NUMERIC-CONTRACT-NOT-PINNED (gap-mission-validation-must-pin-numeric-contract) ----
+  // (a) a threshold phrase in Done-means with no literal digit anywhere in that clause -> refused.
+  const vagueThreshold17 = 'Maqsad: run the checks. Done means: at least a sufficient number of checks pass.';
+  const vt17 = lintMission(vagueThreshold17);
+  ck(!vt17.ok && vt17.problems.some((p) => p.rule === 'numeric-contract-not-pinned'), 'RULE 17: Done-means with a threshold phrase ("at least") but no pinned digit REFUSED (numeric-contract-not-pinned)');
+
+  // (b) the same shape but with a literal digit pinned to the bar -> passes.
+  const pinnedThreshold17 = 'Maqsad: run the checks. Done means: at least 3 checks pass.';
+  ck(lintMission(pinnedThreshold17).ok, 'RULE 17: Done-means with the same threshold phrase but a PINNED digit ("at least 3") passes');
+
+  // (c) a percentage/pass-rate phrase with no digit -> refused.
+  const vaguePercent17 = 'Maqsad: grade the copy. Done means: an acceptable percentage of strings pass the grader.';
+  const vp17 = lintMission(vaguePercent17);
+  ck(!vp17.ok && vp17.problems.some((p) => p.rule === 'numeric-contract-not-pinned'), 'RULE 17: Done-means with a percentage phrase but no pinned digit REFUSED (numeric-contract-not-pinned)');
+
+  // (d) a grade cutoff pinned to a literal digit -> passes.
+  const pinnedGrade17 = 'Maqsad: grade the copy. Done means: every string scores grade <=8.';
+  ck(lintMission(pinnedGrade17).ok, 'RULE 17: Done-means with a pinned grade cutoff ("grade <=8") passes');
 
   console.log(`\n${fail ? fail + ' FAIL' : 'ALL PASS — mission miqat: flawed work orders refused at the boundary, zero cycles burned'}`);
   process.exit(fail ? 1 : 0);
