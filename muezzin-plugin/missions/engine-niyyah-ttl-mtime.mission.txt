@@ -1,0 +1,30 @@
+MISSION-ID: engine-niyyah-ttl-mtime
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\.claude
+ALLOW-FILES:
+  - hooks/niyyah-gate.mjs
+REQUIRES: none
+STEPS: 2
+
+ONE-WRITER RULE (binding): Step 1 is the only step that authors a file — it edits hooks/niyyah-gate.mjs. Step 2 is verify-only and authors nothing.
+
+MAQSAD (the end): ~/.claude/hooks/niyyah-gate.mjs's same-turn state-file fallback computes the pending-niyyah TTL age from the file's own JSON content field — line 84: `const age = Date.now() - (pending.ts || 0);` — instead of from the file's actual filesystem mtime. Because `pending.ts` is written by the same content the file holds, it is forgeable: any writer can set an arbitrary `ts` and manufacture whatever age the 60000ms TTL check (line 85) will accept, defeating the TTL as an anti-staleness/anti-forgery control. This is gap-niyyah-ttl-mtime (GAP-REGISTER.jsonl:10, filed 2026-07-11, owner QUEUE ITEM 17), reaffirmed at QUEUE.md:2598 (2026-07-12) as costing "~15 restaging cycles this session, roughly a quarter of conductor turn overhead." Correct: the age check is anchored to the pending-niyyah.json file's real filesystem mtime (unforgeable by content), so staleness is judged by disk fact, not by a value the file's own writer controls.
+
+THE FIX (pin exact literals): In hooks/niyyah-gate.mjs — (1) line 6, change `import { readFileSync, existsSync } from 'fs';` to `import { readFileSync, existsSync, statSync } from 'fs';`. (2) line 84, change `const age = Date.now() - (pending.ts || 0);` to `const age = Date.now() - statSync(pendingFile).mtimeMs;`. Leave the 60000ms TTL threshold on line 85 exactly as-is — the fix is the source of `age`, not the threshold value. Do not remove the `pending.ts` field from being read elsewhere in the file (there is no other reader of it) or alter the `pending.niyyah_text` handling.
+
+SCOPE FENCE (D13, do NOT exceed): Do not touch the JSONL transcript-walk niyyah logic (lines 38-74), the source-read verification block (lines 94-139), the final no-niyyah deny path (lines 141-186), or hooks/niyyah-gate.ps1 (the retired PowerShell twin — git log/status confirm it is untouched and out of scope for this fix). Do not raise or otherwise change the 60000ms TTL constant on line 85 — this mission fixes the age source, not the threshold. Do not touch settings.json's hook wiring (line 125) — the .mjs is already the live-wired hook and needs no rewiring.
+
+NIYYAH (why): This mission exists to close gap-niyyah-ttl-mtime (GAP-REGISTER.jsonl:10, filed 2026-07-11, owner QUEUE ITEM 17, closes_when "hook reads pass-file mtime or TTL raised"), reaffirmed at QUEUE.md:2598 (2026-07-12) as a top conductor-drag gap.
+source: C:\Users\marka\.claude\hooks\niyyah-gate.mjs
+source: C:\Users\marka\.claude\muezzin-plugin\missions\QUEUE.md
+
+REACHABILITY NOTE (miqat): Non-page change — this is a backend PreToolUse hook script, not a UI surface. MIQAT nav-reachability does not apply.
+
+STEPS:
+1. Edit hooks/niyyah-gate.mjs: add statSync to the fs import on line 6, and change the age computation on line 84 to read the pending file's filesystem mtime instead of its content `ts` field. [edit] hooks/niyyah-gate.mjs
+   validation_command: node --check "C:\Users\marka\.claude\hooks\niyyah-gate.mjs"; if ($LASTEXITCODE -ne 0) { Write-Host "FAIL: syntax error"; exit 1 }; $c = Get-Content "C:\Users\marka\.claude\hooks\niyyah-gate.mjs" -Raw; if ($c -notmatch [regex]::Escape("import { readFileSync, existsSync, statSync } from 'fs';")) { Write-Host "FAIL: statSync not imported"; exit 1 }; if ($c -notmatch [regex]::Escape("const age = Date.now() - statSync(pendingFile).mtimeMs;")) { Write-Host "FAIL: age not computed from mtime"; exit 1 }; if ($c -match [regex]::Escape("Date.now() - (pending.ts")) { Write-Host "FAIL: old content-based ts age computation still present"; exit 1 }; Write-Host "PASS"
+
+2. OUTCOME CHECK [command]: prove the gate now judges staleness by real filesystem mtime, not by a forgeable content field — write a pending-niyyah.json fixture with a forged/stale ts:0 but a freshly-written (real) mtime, invoke the hook against it, and assert it is ACCEPTED.
+   validation_command: $tmpDir = Join-Path $env:TEMP 'niyyah-ttl-test'; New-Item -ItemType Directory -Force -Path $tmpDir | Out-Null; $transcript = Join-Path $tmpDir 'fake-transcript.jsonl'; Set-Content -Path $transcript -Value '{"type":"user"}'; $pendingFile = Join-Path $env:USERPROFILE '.claude\state\pending-niyyah.json'; $hadBackup = Test-Path $pendingFile; if ($hadBackup) { $backup = Get-Content $pendingFile -Raw }; Set-Content -Path $pendingFile -Value '{"ts":0,"niyyah_text":"niyyah: ttl mtime fixture test"}'; $stdinJson = (@{ tool_name = 'Edit'; transcript_path = $transcript } | ConvertTo-Json -Compress); $stdinJson | node "C:\Users\marka\.claude\hooks\niyyah-gate.mjs" | Out-Null; $exitCode = $LASTEXITCODE; if ($hadBackup) { Set-Content -Path $pendingFile -Value $backup } else { Remove-Item $pendingFile -Force -ErrorAction SilentlyContinue }; Remove-Item -Recurse -Force $tmpDir -ErrorAction SilentlyContinue; if ($exitCode -ne 0) { Write-Host "FAIL: gate blocked (exit=$exitCode) a fixture with fresh real mtime but forged ts=0 -- age is still content-based, fix not applied"; exit 1 } else { Write-Host "PASS: gate allowed fresh-mtime fixture despite forged ts=0 -- age is now mtime-based" }
+
+DONE-MEANS: hooks/niyyah-gate.mjs imports statSync from 'fs' and computes the pending-niyyah age via `statSync(pendingFile).mtimeMs` rather than `pending.ts`; node --check passes; a pending-niyyah.json fixture with a forged/stale ts:0 field but a freshly-written (real) mtime is ACCEPTED by the gate (exit 0), proving age is judged by disk fact rather than forgeable content — closing gap-niyyah-ttl-mtime per its closes_when condition.

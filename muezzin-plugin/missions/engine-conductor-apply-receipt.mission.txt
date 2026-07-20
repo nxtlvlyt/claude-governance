@@ -1,0 +1,89 @@
+MISSION-ID: engine-conductor-apply-receipt
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\.claude\muezzin-plugin
+ALLOW-FILES:
+  - muezzin-daemon.mjs
+REQUIRES: none
+STEPS: 2
+
+ONE-WRITER RULE (binding): Step 1 authors muezzin-daemon.mjs (adds the exported helper, its CLI entry point, and selftest fixtures — the ONLY writer in this mission). Step 2 is verify-only and authors nothing.
+
+MAQSAD (the end): When the conductor lands a mission via the ninth-law in-turn apply path (committed + witnessed, DONE AUTORUN line written by hand), no result.json receipt is ever produced — only orchestrate()'s own fire-time wrapper writes one, at muezzin-daemon.mjs:1132. queuedDepsHold (muezzin-daemon.mjs:814-886) only releases a downstream tartib dependency when the AUTORUN carries a `# ...RESOLVED...` comment (line 881) OR the DONE line is paired with `resultOkFn(dep)===true` reading `<mission-stem>.mission.result.json` (line 882, path convention pinned at line 1497) — so a conductor-direct landing produces neither, and line 883 returns `{hold:true, why:'dependency <dep> is DONE but its result.json is not ok:true (hollow receipt)'}` forever. Live receipt: daemon-events.log recorded this exact TARTIB-HOLD message for missions/mt-feedback-capture.S1.S2.mission.txt against dependency missions/mt-feedback-capture.S1.S1.mission.txt six times across 2026-07-18T11:41:25Z to 2026-07-19T11:48:44Z (~30 hours), and missions/mt-feedback-capture.S1.S1.mission.result.json does not exist on disk today. The only thing that ever unblocked it was a conductor hand-writing a RESOLVED comment in AUTORUN.md — a one-off workaround, not a fix. Correct looks like: the conductor calls one exported helper (or its CLI wrapper) immediately after a ninth-law apply, it writes a receipt at the exact path/shape the daemon's own resOk() already reads, and queuedDepsHold releases the dependent with zero AUTORUN-comment workaround and zero orchestrate() run.
+
+THE FIX (pin exact literals — do not let the executor choose its own values):
+
+(1) Add this exported function immediately after the closing `}` of `queuedDepsHold` and before the blank line that precedes `function promotionHold(missionText, doneIds, autorunText = '') {` (i.e. insert between the current line `  return { hold: false };\n}` and the blank line + `function promotionHold` that follow it):
+
+```
+// CONDUCTOR-APPLY RECEIPT (gap-conductor-apply-lacks-daemon-receipt, filed 2026-07-18): a
+// ninth-law in-turn conductor apply lands a mission (committed + witnessed) with a DONE
+// AUTORUN line but writes no result.json -- only orchestrate()'s own fire-time write (line
+// ~1132) ever produces one, so queuedDepsHold's dependency-satisfier check (line 882: DONE +
+// resultOkFn(dep)===true) can never pass for a conductor-direct landing, and every downstream
+// tartib sibling holds forever (live receipt: mt-feedback-capture.S1.S2 TARTIB-HELD ~30h
+// behind S1.S1 for exactly this reason). This writes the SAME receipt shape at the SAME path
+// convention resOk() reads (line ~1497: <mission stem>.mission.result.json), so the daemon's
+// own gate accepts a conductor-applied mission identically to an orchestrate()-run one -- no
+// daemon code path changes, no RESOLVED-comment workaround needed.
+export function writeConductorApplyReceipt(missionFilePath, { commit, witness, note } = {}) {
+  const receiptPath = String(missionFilePath).replace(/\.[^.]+$/, '') + '.result.json';
+  const body = { ok: true, phase: 'conductor-apply', receipt: { commit, witness, note }, ts: new Date().toISOString() };
+  writeFileSync(receiptPath, JSON.stringify(body, null, 2));
+  return receiptPath;
+}
+```
+
+(2) Add a CLI branch inside the existing main-invocation guard at the end of the file, as the FIRST statement inside the `if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) {` block, before `installCrashHandlers();`:
+
+```
+  if (process.argv.includes('--conductor-apply-receipt')) {
+    const argv = process.argv;
+    const flag = (name) => { const i = argv.indexOf(name); return i >= 0 ? argv[i + 1] : undefined; };
+    const missionArg = flag('--mission');
+    if (!missionArg) { console.error('--conductor-apply-receipt requires --mission <path>'); process.exit(1); }
+    const receiptPath = writeConductorApplyReceipt(missionArg, { commit: flag('--commit'), witness: flag('--witness'), note: flag('--note') });
+    console.log(`CONDUCTOR-APPLY-RECEIPT written: ${receiptPath}`);
+    process.exit(0);
+  }
+```
+
+(3) Add selftest fixtures inside the existing `--selftest` block, reusing its already-open `tmp` sandbox, inserted immediately after the closing `}` of the QUEUE-DUP SPLIT-CHILD section (the block ending `ck(pendingSameBatch.filter(...).length === 1, 'QUEUE-DUP: two SPLIT-CHILD lines ...');\n  }`) and before the blank line + `rmSync(tmp, { recursive: true, force: true });` that follows:
+
+```
+  // ──────────────────────────────────────────────────────────────────────────
+  // CONDUCTOR-APPLY RECEIPT (gap-conductor-apply-lacks-daemon-receipt, filed 2026-07-18):
+  // proves queuedDepsHold releases a dependent once ONLY this synthetic receipt exists --
+  // no orchestrate() run, no RESOLVED comment.
+  {
+    const capParent = path.join(tmp, 'cap-recv.S1.mission.txt');
+    const capMissionPath = path.join(tmp, 'cap-recv.S2.mission.txt').replace(/\\/g, '/');
+    const capAutorun = `DONE ${path.join(tmp, 'cap-recv.S1.mission.txt').replace(/\\/g, '/')}\n`;
+    const capResOk = (dep) => { try { return JSON.parse(readFileSync(path.join(tmp, path.basename(dep).replace(/\.mission\.txt$/, '') + '.mission.result.json'), 'utf8')).ok === true; } catch { return false; } };
+    const before = queuedDepsHold('', capMissionPath, capAutorun, capResOk);
+    ck(before.hold === true, 'CONDUCTOR-APPLY-RECEIPT: queuedDepsHold holds the dependent before any receipt exists (baseline)');
+    const receiptPath = writeConductorApplyReceipt(capParent, { commit: 'eab55bc', witness: 'render-witnessed', note: 'ninth-law in-turn apply' });
+    ck(receiptPath === path.join(tmp, 'cap-recv.S1.mission.result.json'), 'CONDUCTOR-APPLY-RECEIPT: writes at the exact daemon receipt-path convention (mission stem + .result.json)');
+    const written = JSON.parse(readFileSync(receiptPath, 'utf8'));
+    ck(written.ok === true && written.phase === 'conductor-apply' && written.receipt.commit === 'eab55bc' && typeof written.ts === 'string', 'CONDUCTOR-APPLY-RECEIPT: receipt shape is {ok:true, phase:"conductor-apply", receipt:{commit,witness,note}, ts}');
+    const after = queuedDepsHold('', capMissionPath, capAutorun, capResOk);
+    ck(after.hold === false, 'CONDUCTOR-APPLY-RECEIPT: queuedDepsHold releases the dependent once only the synthetic receipt exists (no orchestrate() run, no RESOLVED comment)');
+  }
+```
+
+SCOPE FENCE (D13, do NOT exceed): Touch ONLY muezzin-daemon.mjs, and ONLY the three additions above. Do NOT touch conduct-cycle.mjs, mission_lint.mjs, self_witness.mjs, AUTORUN.md, GAP-REGISTER.jsonl, or any file under missions/ (including the live-held mt-feedback-capture.S1.S1/S1.S2 mission files — unblocking that specific live hold is a follow-on conductor action after this engine fix lands, not part of this mission). Do NOT modify the existing write at line 1132 or the existing resOk closure at line 1497 — the new helper must reuse their convention, not alter their call sites. Do NOT build the "AUTO-RECONCILER" or "MACHINE-CHECKABLE Done-means" pieces named in gap-failed-mark-reconciliation-loop (GAP-REGISTER.jsonl:62) — those are separate, larger N5 cross-jurisdiction items; this mission closes only the "CONDUCTOR-APPLY WRITES A RECEIPT" piece of that gap's fix_shape. Do NOT port this change to agy-muezzin or warroom — this is muezzin-plugin engine only.
+
+NIYYAH (why): gap-conductor-apply-lacks-daemon-receipt (GAP-REGISTER.jsonl:18, opened 2026-07-18, status "owned") names this exact defect and its exact fix shape ("write a minimal synthetic receipt ... at the mission receipt path so downstream tartib resolves"). gap-failed-mark-reconciliation-loop (GAP-REGISTER.jsonl:62) independently lists closing this gap as one of its own three required pieces. QUEUE.md:3164 (2026-07-18 DAEMON-RESTART note) names this gap as the live cause of the feedback.S1.S2 hold. Per the operator's GAP-PRIORITY ruling (operator-rulings.md), an open bite-class gap outranks product missions; per the ninth law (conductor-core.md), a PARKED/undiagnosed gap is a handoff, not a grave, and this fix has a named, buildable shape already — it does not belong parked.
+source: C:\Users\marka\.claude\muezzin-plugin\missions\_logs\GAP-REGISTER.jsonl
+source: C:\Users\marka\.claude\muezzin-plugin\muezzin-daemon.mjs
+source: C:\Users\marka\.claude\muezzin-plugin\missions\_logs\daemon-events.log
+source: C:\Users\marka\.claude\muezzin-plugin\missions\QUEUE.md
+
+REACHABILITY NOTE (miqat): Non-page engine/script change (an exported daemon helper + CLI flag + selftest fixtures) — no new user-facing page or surface ships, so MIQAT nav-reachability does not apply and no orphan-page refusal is at risk.
+
+STEPS:
+1. Add writeConductorApplyReceipt() + its CLI branch + its selftest fixtures to muezzin-daemon.mjs exactly as specified in THE FIX. [edit] muezzin-daemon.mjs
+   validation_command: node --check "C:\Users\marka\.claude\muezzin-plugin\muezzin-daemon.mjs"; if ($LASTEXITCODE -ne 0) { Write-Host "SYNTAX FAIL"; exit 1 }; $c = Get-Content "C:\Users\marka\.claude\muezzin-plugin\muezzin-daemon.mjs" -Raw; $need = @('export function writeConductorApplyReceipt', "phase: 'conductor-apply'", '--conductor-apply-receipt', 'CONDUCTOR-APPLY-RECEIPT: queuedDepsHold releases the dependent once only the synthetic receipt exists'); $missing = $need | Where-Object { $c -notmatch [regex]::Escape($_) }; if ($missing.Count -gt 0) { Write-Host "MISSING: $missing"; exit 1 } else { exit 0 }
+2. OUTCOME CHECK [command]: run the daemon's own --selftest suite (must stay ALL PASS, including the new CONDUCTOR-APPLY-RECEIPT fixtures) AND smoke-test the CLI flag end-to-end against a disposable scratch mission path outside the repo.
+   validation_command: $out = node "C:\Users\marka\.claude\muezzin-plugin\muezzin-daemon.mjs" --selftest 2>&1 | Out-String; if ($LASTEXITCODE -ne 0) { Write-Host $out; exit 1 }; if ($out -notmatch [regex]::Escape('ALL PASS') -or $out -notmatch [regex]::Escape('PASS  CONDUCTOR-APPLY-RECEIPT: queuedDepsHold releases the dependent once only the synthetic receipt exists (no orchestrate() run, no RESOLVED comment)')) { Write-Host $out; exit 1 }; $tmpMission = Join-Path $env:TEMP "cap-recv-cli-test.S1.mission.txt"; "STUB" | Set-Content -Path $tmpMission; node "C:\Users\marka\.claude\muezzin-plugin\muezzin-daemon.mjs" --conductor-apply-receipt --mission $tmpMission --commit deadbeef --witness cli-smoke --note "cli smoke test" | Out-Null; $receipt = Join-Path $env:TEMP "cap-recv-cli-test.S1.mission.result.json"; $ok2 = $false; if (Test-Path $receipt) { $j = Get-Content $receipt -Raw | ConvertFrom-Json; $ok2 = ($j.ok -eq $true) -and ($j.phase -eq 'conductor-apply') -and ($j.receipt.commit -eq 'deadbeef') }; Remove-Item -Force $tmpMission,$receipt -ErrorAction SilentlyContinue; if ($ok2) { exit 0 } else { exit 1 }
+
+DONE-MEANS: muezzin-daemon.mjs exports writeConductorApplyReceipt(missionFilePath, {commit,witness,note}) which writes `<mission-stem>.mission.result.json` (sibling to the mission file, same path convention as line 1132/1497) containing `{ok:true, phase:'conductor-apply', receipt:{commit,witness,note}, ts:<iso>}`; a `--conductor-apply-receipt --mission <path> [--commit --witness --note]` CLI flag on the daemon script invokes it directly (no orchestrate() run required); and `node muezzin-daemon.mjs --selftest` exits 0 with "ALL PASS", including new fixtures proving queuedDepsHold holds a dependent before any receipt exists and releases it once only this synthetic receipt is written — with no RESOLVED AUTORUN comment and no orchestrate() run.

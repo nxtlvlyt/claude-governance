@@ -1,0 +1,63 @@
+MISSION-ID: engine-gap-hold-owner-exemption
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\.claude\muezzin-plugin
+ALLOW-FILES:
+  - muezzin-daemon.mjs
+REQUIRES: none
+STEPS: 2
+
+ONE-WRITER RULE (binding): Step 1 is the sole author of muezzin-daemon.mjs (all three hunks: the gapHoldSkips signature/body, the fire() call site, and the 3 new selftest checks land together in one edit). Step 2 is verify-only — it authors nothing, it only runs the selftest and commits the file Step 1 already wrote.
+
+MAQSAD (the end): GAP-REGISTER.jsonl:31 (gap-hold-skips-own-owner, filed 2026-07-19T08:5xZ) records that GAP-PRIORITY-HOLD held its own gap-owner mission — daemon event 08:45:17.438Z skipped missions/mt-fireban-click-fix.mission.txt under the hold that was set FOR it. Confirmed live: gapHoldSkips(raw) (muezzin-daemon.mjs:699-702) classifies purely by stem prefix against GAP_HOLD_PRODUCT_PREFIXES, and the fire() call site (line 1190) only checks existsSync(GAP-PRIORITY-HOLD) — neither ever reads what the hold file actually names. Any future gap whose owner mission lives in a product namespace (mt-/muddytires-/b13-/card-/cgsports-/quirky-/qc-concern-/qc-fix-/m1-) deadlocks the same way: the hold blocks the very fix filed to close it. Correct: a pending mission literally named in the hold file's own text is never hold-skipped, so the gap owner can fire while the hold otherwise still defers ordinary product work.
+
+THE FIX (pin exact literals): In muezzin-daemon.mjs, replace the gapHoldSkips function (currently lines 699-702):
+  export function gapHoldSkips(raw) {
+    const stem = path.basename(String(raw)).replace(/\.mission\.txt$/i, '');
+    return GAP_HOLD_PRODUCT_PREFIXES.some((p) => stem.toLowerCase().startsWith(p));
+  }
+with:
+  export function gapHoldSkips(raw, holdText) {
+    const stem = path.basename(String(raw)).replace(/\.mission\.txt$/i, '');
+    if (holdText != null && String(holdText).includes(`EXEMPT: missions/${stem}.mission.txt`)) return false;
+    return GAP_HOLD_PRODUCT_PREFIXES.some((p) => stem.toLowerCase().startsWith(p));
+  }
+Then rewire the fire() call site (currently lines 1190-1193):
+    if (existsSync(path.join(LOGDIR, 'GAP-PRIORITY-HOLD')) && gapHoldSkips(raw)) {
+      if (!gapHoldLogged.has(raw)) { gapHoldLogged.add(raw); evt(`GAP-PRIORITY-HOLD: ${raw} — product fire deferred while bite-class gap work is open (operator ruling 2026-07-03); skipping to next pending`); }
+      return;
+    }
+with:
+    {
+      const gapHoldPath = path.join(LOGDIR, 'GAP-PRIORITY-HOLD');
+      if (existsSync(gapHoldPath)) {
+        let gapHoldText = null;
+        try { gapHoldText = readFileSync(gapHoldPath, 'utf8'); } catch { /* unreadable -> treat as no exemptions named */ }
+        if (gapHoldSkips(raw, gapHoldText)) {
+          if (!gapHoldLogged.has(raw)) { gapHoldLogged.add(raw); evt(`GAP-PRIORITY-HOLD: ${raw} — product fire deferred while bite-class gap work is open (operator ruling 2026-07-03); skipping to next pending`); }
+          return;
+        }
+      }
+    }
+(readFileSync is already imported and already used this way at line 1177 for CONDUCTOR-BATON — no new import needed.)
+Then add 3 new selftest checks immediately after the existing gap-hold block ends (after the m1-* check, currently the line reading `ck(gapHoldSkips('missions/m1-1-oracle-ingest-ontario-crownland-v6.mission.txt') === true, 'gap-hold: m1-* held (oracle-ingest is muddytires product)');` and before the `// CONDUCTOR-BATON (plan step 5)` comment):
+  ck(gapHoldSkips('missions/mt-fireban-click-fix.mission.txt', 'EXEMPT: missions/mt-fireban-click-fix.mission.txt') === false, 'gap-hold: named owner (EXEMPT line matches its own path) fires WITH hold set');
+  ck(gapHoldSkips('missions/mt-integrate-anything.S1.mission.txt', 'EXEMPT: missions/mt-fireban-click-fix.mission.txt') === true, 'gap-hold: unnamed mt-* product mission still HELD even though an unrelated EXEMPT line exists');
+  ck(gapHoldSkips('missions/mt-fire.mission.txt', 'EXEMPT: missions/mt-fireban-click-fix.mission.txt') === true, 'gap-hold: stem-substring false-match guarded -- mt-fire is not exempted just because it prefixes mt-fireban-click-fix in the hold text');
+These are exactly QUEUE ITEM 49's three named selftests: (a) named owner fires with hold set, (b) unnamed mt- product still held, (c) stem-substring false-match guard (mt-fire vs mt-fireban).
+
+SCOPE FENCE (D13, do NOT exceed): do not touch GAP_HOLD_PRODUCT_PREFIXES (widening/narrowing the prefix list is a separate, already-closed class of change — hunt-item #17 and the 2026-07-07 qc-*/m1- widening); do not touch the CONDUCTOR-BATON logic (batonAllows, batonHeldLogged, the block at lines 1171-1182) even though it sits adjacent to the edited call site; do not touch the RETRO-REPEAT GATE block that immediately follows (lines 1194+); do not create, write, or seed any live missions/_logs/GAP-PRIORITY-HOLD file or add EXEMPT lines to it — populating that file with real EXEMPT entries is the conductor's runtime job, not this mission's; this mission lands the mechanism only.
+
+NIYYAH (why): closes gap-hold-skips-own-owner (filed 2026-07-19, GAP-REGISTER.jsonl:31), owned by QUEUE ITEM 49. Without this, a future bite-class gap whose owner mission lives in a product-prefixed namespace deadlocks the queue exactly as mt-fireban-click-fix did — the hold blocks the fix filed to close it, and only manual conductor intervention (clearing the hold file to release one mission) unblocks it, which does not scale and re-creates the same failure the operator's "gap issues is always priority" ruling exists to prevent.
+source: muezzin-daemon.mjs
+source: missions/QUEUE.md
+source: missions/_logs/GAP-REGISTER.jsonl
+
+REACHABILITY NOTE (miqat): non-page change — this is daemon fire-loop/engine logic (muezzin-daemon.mjs), not a new page or user-facing surface. MIQAT nav-reachability does not apply.
+
+STEPS:
+1. Implement the gapHoldSkips owner-exemption (second holdText param + literal EXEMPT check), rewire the fire() GAP-PRIORITY-HOLD call site to read the hold file's text and pass it through, and add the 3 named selftest checks (named-owner-fires / unnamed-product-still-held / stem-substring-guard) immediately after the existing gap-hold selftest block. [edit] muezzin-daemon.mjs
+   validation_command: node --check muezzin-daemon.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; $c = Get-Content muezzin-daemon.mjs -Raw; $ok = $c.Contains('export function gapHoldSkips(raw, holdText)') -and $c.Contains('EXEMPT: missions/${stem}.mission.txt') -and $c.Contains('gapHoldSkips(raw, gapHoldText)') -and $c.Contains("gapHoldSkips('missions/mt-fireban-click-fix.mission.txt', 'EXEMPT: missions/mt-fireban-click-fix.mission.txt') === false") -and $c.Contains("gapHoldSkips('missions/mt-fire.mission.txt', 'EXEMPT: missions/mt-fireban-click-fix.mission.txt') === true"); if (-not $ok) { exit 1 }; Write-Output 'OWNER_EXEMPTION_EDIT_OK'
+2. OUTCOME CHECK [command]: run the full daemon selftest, confirm zero FAIL lines and all 3 new owner-exemption checks report PASS, then commit muezzin-daemon.mjs.
+   validation_command: node muezzin-daemon.mjs --selftest 2>&1 | Tee-Object -Variable out; $failCount = ($out | Select-String -Pattern '^FAIL').Count; if ($failCount -ne 0) { Write-Output "SELFTEST-FAIL count=$failCount"; exit 1 }; $named = ($out | Select-String -SimpleMatch 'named owner (EXEMPT line matches its own path) fires WITH hold set').Count; $unnamed = ($out | Select-String -SimpleMatch 'unnamed mt-* product mission still HELD even though an unrelated EXEMPT line exists').Count; $guard = ($out | Select-String -SimpleMatch 'stem-substring false-match guarded -- mt-fire is not exempted').Count; if ($named -lt 1 -or $unnamed -lt 1 -or $guard -lt 1) { Write-Output 'MISSING_NEW_SELFTEST_LINES'; exit 1 }; git add -- muezzin-daemon.mjs; git diff --cached --quiet; if ($LASTEXITCODE -eq 0) { Write-Output ALREADY_COMMITTED } else { git commit -m "engine(ITEM 49): gapHoldSkips owner-exemption -- a pending mission literal-named in GAP-PRIORITY-HOLD via EXEMPT: missions/x.mission.txt is never hold-skipped, closing gap-hold-skips-own-owner (fireban deadlock class); 3 new selftests all PASS" -- muezzin-daemon.mjs }; if ($LASTEXITCODE -ne 0) { exit 1 }; Write-Output 'COMMITTED_OR_NOOP'
+
+DONE-MEANS: gapHoldSkips(raw, holdText) exists with the literal EXEMPT: missions/${stem}.mission.txt check; the fire() call site reads GAP-PRIORITY-HOLD's text via readFileSync and passes it into gapHoldSkips instead of only checking existsSync; the 3 QUEUE-ITEM-49-named selftests (named owner fires, unnamed product still held, stem-substring guard) exist and all report PASS; `node muezzin-daemon.mjs --selftest` exits 0 with zero FAIL lines; muezzin-daemon.mjs is committed. Gap-owner missions in product namespaces can now be exempted from GAP-PRIORITY-HOLD by a literal EXEMPT line, closing gap-hold-skips-own-owner's mechanism (QUEUE ITEM 49) — the daemon still needs restarting to pick this up live (static-import staleness), which is a conductor post-landing duty, not part of this mission.

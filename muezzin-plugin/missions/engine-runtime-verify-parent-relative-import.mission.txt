@@ -1,0 +1,134 @@
+MISSION-ID: engine-runtime-verify-parent-relative-import
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\.claude\muezzin-plugin
+ALLOW-FILES:
+  - runtime_verify.mjs
+REQUIRES: none
+STEPS: 3
+
+ONE-WRITER RULE (binding): step 1 authors runtime_verify.mjs (both the sandbox-copy fix and the new --selftest fixture, since they live in the same file). Steps 2 and 3 are verify-only and author nothing.
+
+MAQSAD (the end): runtime_verify.mjs's verifyCode() sandbox (lines 86-106) falsely FAILS sound artifacts whose source contains a parent-relative import/require (the extremely common tests/x.js -> ../src/y.js layout), and separately force-declares every probed .js file "type":"module" regardless of the real target repo's own package.json. Receipt: mt-publish-trip.S1 step 7 FAILED x3 on tests/trip-view.selftest.js (result.json:60-89) — attempt 1 "Cannot find module 'C:\...\Temp\js\trip-view.js'", attempt 2 "Cannot find module '../js/trip-view.js'\nRequire stack", attempt 3 "require is not defined in ES module scope ... because ... package.json contains \"type\": \"module\"" — while all 6 real authoring steps passed and js/trip-view.js itself (the actual DOM-touching file) verified clean at step 6 (ok:true). The GAP-REGISTER/QUEUE-56 fix_shape ("detect browser-context modules and skip node-load") is WRONG for this failure: tests/trip-view.selftest.js is a plain CJS Node test with zero DOM globals, and js/trip-view.js already passes. The real defect is structural: the probe places the artifact in a flat temp dir with no parent directory to resolve into, and hardcodes ESM regardless of the real repo's module convention (mt-integration-2026-06-22's package.json has no "type" field, i.e. CommonJS by Node's own default). Correct looks like: a tests/x.js requiring ../js/y.js resolves inside the sandbox exactly as it would in the real repo, using the real repo's actual module type.
+
+THE FIX (pin exact literals):
+1. In the import statement at line 37, add `mkdirSync, existsSync` so it reads exactly:
+   `import { mkdtempSync, writeFileSync, rmSync, readdirSync, readFileSync, mkdirSync, existsSync } from 'node:fs';`
+
+2. Replace the ENTIRE block from `const probeDir = mkdtempSync(path.join(tmpdir(), 'rtv_'));` (line 86) through `writeFileSync(path.join(probeDir, 'package.json'), '{"type":"module"}', 'utf8');` (line 106) with:
+
+```
+  const probeDir = mkdtempSync(path.join(tmpdir(), 'rtv_'));
+  const srcDir = path.dirname(targetPath);
+
+  // Determine the REAL module type governing this artifact by walking up from srcDir to the
+  // nearest package.json (Node's own resolution algorithm) instead of assuming ESM. A target
+  // repo whose package.json has no "type" field (mt-integration-2026-06-22's package.json,
+  // confirmed to contain only {"dependencies":...}, no "type" key) is CommonJS by Node's own
+  // default -- forcing "type":"module" broke every CJS test file that uses require() (the
+  // 'require is not defined in ES module scope' class, mt-publish-trip.S1 step 7 attempt 3).
+  function findNearestModuleType(startDir) {
+    let dir = startDir;
+    for (let i = 0; i < 40; i++) {
+      const pkgPath = path.join(dir, 'package.json');
+      if (existsSync(pkgPath)) {
+        try {
+          const pkg = JSON.parse(readFileSync(pkgPath, 'utf8'));
+          return pkg.type === 'module' ? 'module' : 'commonjs';
+        } catch { return 'commonjs'; }
+      }
+      const parent = path.dirname(dir);
+      if (parent === dir) break;
+      dir = parent;
+    }
+    // No package.json anywhere in the ancestry (detached/synthetic probe target, or a project
+    // with no package.json at all -- e.g. the muezzin-plugin engine itself, confirmed to have
+    // no package.json): preserve the v1 assumption (module) rather than guessing.
+    return 'module';
+  }
+  const moduleType = findNearestModuleType(srcDir);
+
+  // Mirror the target's own containing-directory name one level under probeDir (instead of
+  // flattening everything into probeDir directly) so a `../sibling-dir/file.js` specifier one
+  // level up from the target -- the tests/->../js/ pattern -- resolves INSIDE the sandbox
+  // instead of escaping to the bare OS temp root (the exact 'Cannot find module
+  // ...Temp\js\trip-view.js' / 'Cannot find module ../js/trip-view.js\nRequire stack' failures).
+  const artifactSubDir = path.join(probeDir, path.basename(srcDir) || 'src');
+  mkdirSync(artifactSubDir, { recursive: true });
+
+  // Copy adjacent .mjs/.js/.json files (same directory as the target) into the mirrored subdir.
+  try {
+    const files = readdirSync(srcDir, { withFileTypes: true });
+    for (const f of files) {
+      if (f.isFile() && (f.name.endsWith('.mjs') || f.name.endsWith('.js') || f.name.endsWith('.json'))) {
+        if (f.name === path.basename(targetPath)) continue;
+        writeFileSync(path.join(artifactSubDir, f.name), readFileSync(path.join(srcDir, f.name)));
+      }
+    }
+  } catch (e) { console.error('[RTV-COPY-ERROR]', e); }
+
+  // Statically detect parent-relative import/require specifiers ('../...') and copy the exact
+  // referenced files into the mirrored location so they resolve from artifactSubDir exactly as
+  // they would from the real srcDir.
+  const PARENT_RELATIVE_RE = /(?:require\(|from\s+|import\()\s*['"](\.\.\/[^'"]+)['"]/g;
+  let prm;
+  while ((prm = PARENT_RELATIVE_RE.exec(src)) !== null) {
+    const spec = prm[1];
+    const absSrc = path.resolve(srcDir, spec);
+    if (existsSync(absSrc)) {
+      const dest = path.resolve(artifactSubDir, spec);
+      try {
+        mkdirSync(path.dirname(dest), { recursive: true });
+        writeFileSync(dest, readFileSync(absSrc));
+      } catch (e) { console.error('[RTV-PARENT-COPY-ERROR]', e); }
+    }
+  }
+
+  const ext = (path.extname(String(targetPath)) || '.mjs').toLowerCase();
+  const artifactPath = path.join(artifactSubDir, 'rtv_artifact' + ext);
+  writeFileSync(artifactPath, src, 'utf8');
+  // Declare the probe's module type from the REAL target repo (findNearestModuleType above),
+  // not a hardcoded assumption -- a .js artifact is ESM only when its own project says so.
+  writeFileSync(path.join(probeDir, 'package.json'), JSON.stringify({ type: moduleType }), 'utf8');
+```
+
+   Nothing else in verifyCode() (the spawnSync call, targetUrl construction, probePath, the RTV_THROW/browser-global handling, the finally-block rmSync cleanup) changes — they already reference `artifactPath`/`probeDir` by variable, not by the old flat layout, so they keep working unmodified.
+
+3. In the `--selftest` block (originally lines 241-258), insert this new fixture immediately after the `rRef` ck() call (originally line 255) and before the final `console.log(`[selftest] ...`)` line:
+
+```
+  // parent-relative CJS require (tests/x.js -> ../js/y.js pattern, mt-publish-trip.S1 step 7 class:
+  // 'Cannot find module ...Temp\js\trip-view.js' / 'Cannot find module ../js/trip-view.js\nRequire
+  // stack' / 'require is not defined in ES module scope'): must resolve AND use the real repo's
+  // module type (no "type" field in package.json = CommonJS, matching mt-integration-2026-06-22).
+  const tmpBase2 = mkdtempSync(path.join(os.tmpdir(), 'rtv-selftest-parentreq-'));
+  const testsDir2 = path.join(tmpBase2, 'tests');
+  const jsDir2 = path.join(tmpBase2, 'js');
+  mkdirSync(testsDir2, { recursive: true });
+  mkdirSync(jsDir2, { recursive: true });
+  writeFileSync(path.join(tmpBase2, 'package.json'), '{}', 'utf8');
+  writeFileSync(path.join(jsDir2, 'dep.js'), `module.exports = { hello: function () { return 'hi'; } };\n`, 'utf8');
+  const rParentReq = await runtimeVerify(path.join(testsDir2, 'uses-parent.js'), `var dep = require('../js/dep.js');\nmodule.exports = dep.hello();\n`);
+  ck(rParentReq.ok === true, 'RTV-PARENT-RELATIVE-FIX: tests/x.js requiring ../js/y.js resolves via mirrored sandbox + real-package.json module-type detection (mt-publish-trip.S1 step 7 class)');
+```
+
+   This is fixture #4; the closing summary line will read `[selftest] 4 passed, 0 failed` on success (baseline today, confirmed by running it, is `3 passed, 0 failed`).
+
+SCOPE FENCE (D13, do NOT exceed): touch ONLY runtime_verify.mjs. Do NOT modify verifyHtml/jsdom (lines 176-208), verifyJson (210-213), the static bare-builtin pre-scan (48-65), the browser-global-ReferenceError fail-open exemption added by fe3f3b0 (lines 157-168 in the original numbering — it is correct and unrelated to this bug), or the outer runtimeVerify() dispatcher (219-237). Do NOT edit any file in the mt-integration-2026-06-22 repo (tests/trip-view.selftest.js, js/trip-view.js) — they are read-only reference fixtures for step 3's outcome check, proving the real reported case, not targets of this mission. Do NOT implement the GAP-REGISTER's literal "detect browser modules and skip" fix_shape — it is superseded by this corrected root cause and would not have fixed the actual reported failure.
+
+NIYYAH (why): gap-runtime-verify-loads-browser-js, filed 2026-07-19T14:1xZ, GAP-REGISTER.jsonl:44 — a genuine, still-unfixed, single-repo engine defect (git log/status/diff confirm runtime_verify.mjs is unchanged since fe3f3b0 2026-07-03, which fixed a different, unrelated failure class). The gap's own stated owner (QUEUE ITEM 56) and fix_shape are corrected here per this mission's triage: the failure is not a browser-module problem (js/trip-view.js already verifies clean) but a sandbox structural defect on parent-relative CJS requires plus an incorrect hardcoded ESM assumption.
+source: C:\Users\marka\.claude\muezzin-plugin\missions\_logs\GAP-REGISTER.jsonl
+source: C:\Users\marka\.claude\muezzin-plugin\missions\QUEUE.md
+source: C:\Users\marka\.claude\muezzin-plugin\missions\mt-publish-trip.S1.mission.result.json
+source: C:\Users\marka\.claude\muezzin-plugin\runtime_verify.mjs
+
+REACHABILITY NOTE (miqat): non-page engine change (a verification script used by the mission executor's internal pipeline) — no new page/surface ships, so no nav-reachability / MIQAT concern applies.
+
+STEPS:
+1. Apply THE FIX exactly as specified above: the import-line addition, the full verifyCode() sandbox-block replacement, and the new --selftest fixture. [edit] runtime_verify.mjs
+   validation_command: node --check runtime_verify.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; $c = Get-Content runtime_verify.mjs -Raw; $need = @('findNearestModuleType','PARENT_RELATIVE_RE','artifactSubDir','mkdirSync','existsSync','RTV-PARENT-RELATIVE-FIX'); $missing = $need | Where-Object { $c -notmatch [regex]::Escape($_) }; if ($missing) { exit 1 } else { Write-Output 'RTV_FIX_STATIC_OK' }
+2. OUTCOME CHECK [command]: run the file's own embedded selftest and confirm all 4 fixtures pass, including the new parent-relative-require fixture. Authors nothing.
+   validation_command: $out = node runtime_verify.mjs --selftest | Out-String; $ec = $LASTEXITCODE; if ($ec -ne 0) { exit 1 }; if ($out -notmatch 'PASS\s+RTV-PARENT-RELATIVE-FIX' -or $out -notmatch '\[selftest\] 4 passed, 0 failed') { exit 1 } else { Write-Output 'RTV_SELFTEST_OK' }
+3. OUTCOME CHECK [command]: reproduce the ORIGINAL reported failure end-to-end against the real mt-integration-2026-06-22 file and confirm it now verifies clean (this exact command, run against today's un-fixed file, returns ok:false / exit 1 with the recorded attempt-3 error — confirmed live). Authors nothing.
+   validation_command: node -e 'import("./runtime_verify.mjs").then(m => import("node:fs").then(fs => { const p = "C:\\Users\\marka\\code\\mt-integration-2026-06-22\\tests\\trip-view.selftest.js"; const src = fs.readFileSync(p, "utf8"); return m.runtimeVerify(p, src); })).then(r => { console.log(JSON.stringify(r)); process.exit(r.ok ? 0 : 1); })'; if ($LASTEXITCODE -ne 0) { exit 1 } else { Write-Output 'RTV_REAL_REPO_OK' }
+
+DONE-MEANS: runtime_verify.mjs's verifyCode() resolves parent-relative (`../...`) import/require specifiers inside its sandbox by mirroring the target's containing directory and copying the exact referenced files, and derives the probe's module type from the real target repo's nearest package.json instead of hardcoding "module" — the embedded --selftest reports 4/4 passing (including the new RTV-PARENT-RELATIVE-FIX check), and a direct call to runtimeVerify() against the real mt-integration-2026-06-22 tests/trip-view.selftest.js bytes returns ok:true, closing the exact mt-publish-trip.S1 step 7 failure on record.

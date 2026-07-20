@@ -1,0 +1,148 @@
+MISSION-ID: mt-midlane-chip-declutter
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - map.html
+  - scripts/e2e-runner.mjs
+REQUIRES: none
+STEPS: 3
+
+ONE-WRITER RULE (binding on the plan): Step 1 authors map.html only. Step 2
+authors scripts/e2e-runner.mjs only. Step 3 is verify-only — authors nothing.
+
+MAQSAD (the end): On mobile (<=600px), four floating chips — the aurora
+legend (#mt-aurora-chip-legend, bottom:200px), the POI Preview toggle
+(#mt-hp-toggle, bottom:158px), the Spots-near-me button (#mt-near-me-btn,
+bottom:170px) and its results panel (#mt-near-me-panel, bottom:220px) — sit
+in the same right:8px column with heights that make hp-toggle/near-me-btn
+and near-me-btn/aurora-legend genuinely intersect (verified from each
+control's own padding/font-size math). They collide because none of them
+were ever assigned a lane. Separately, e2e-runner.mjs's own QC registry has
+been structurally blind to this: FLOATING_CONTROL_SELECTORS (line 78) never
+lists #mt-hp-toggle, #mt-near-me-btn, or #mt-near-me-panel, and its aurora
+entry ('#mt-aurora-chip', lines 78 and 105) targets an id that no element on
+the page ever has — the real persistent chip is '#mt-aurora-chip-legend'
+(aurora-overlay.js:420); '#mt-aurora-chip' only exists as a per-popup CSS
+*class* (aurora-overlay.js:263). This is why every green e2e run prints
+"[e2e-runner]   [<viewport>] aurora chip not visible — coverage check
+skipped" (line 792, confirmed present verbatim) — the coverage check has
+never once actually measured the real chip. Correct looks like: the 4
+controls occupy non-intersecting vertical slots, and the detector actually
+enumerates and measures all 4 so a future regression gets caught instead of
+shipping silently, exactly like this one did.
+
+THE FIX (pin exact literals):
+(1) map.html — insert a new, separate `<style id="mt-midlane-chip-fix">`
+block immediately after the existing `<style id="mt-mobile-lane-fix">`
+block's closing `</style>` (that block ends at line 44; `<style
+id="mt-plan-mode-mobile">` begins at line 45 — insert between them). Do NOT
+edit the existing mt-mobile-lane-fix block itself. New block body:
+  @media (max-width: 600px) {
+      #mt-near-me-btn { bottom: 220px !important; }
+      #mt-aurora-chip-legend { bottom: 280px !important; }
+      #mt-near-me-panel { bottom: 340px !important; }
+  }
+(#mt-hp-toggle stays untouched at its existing bottom:158px anchor —
+poi-hover-preview.js:433 — it does not need to move.) Use `!important` on
+every declaration: near-me-btn/panel are set by an externally-injected
+`<style>` tag with no !important (near-me.js:162) and aurora-legend by an
+inline `.style.cssText` with no !important (aurora-overlay.js:423-434) —
+!important is what the file's own precedent (S1-S3, same block, all
+!important) uses to reliably win against both mechanisms regardless of
+injection order.
+
+(2) scripts/e2e-runner.mjs — four pinned edits:
+  (a) Line 105: change `const AURORA_SELECTOR = '#mt-aurora-chip';` to
+      `const AURORA_SELECTOR = '#mt-aurora-chip-legend';` (correct id).
+  (b) In FLOATING_CONTROL_SELECTORS (lines 69-87): change line 78's entry
+      `'#mt-aurora-chip',       // aurora / northern-lights chip` to
+      `'#mt-aurora-chip-legend', // aurora / northern-lights legend chip`,
+      and add three new entries to the same array (e.g. immediately after
+      it, before the '#mt-freecamp-chip' line): `'#mt-hp-toggle',`,
+      `'#mt-near-me-btn',`, `'#mt-near-me-panel',` (each with a short
+      identifying comment, matching the array's existing comment style).
+  (c) In TAP_TARGET_EXEMPT_SELECTORS (lines 121-128): add
+      `'#mt-aurora-chip-legend'` to the array — it is an informational
+      role="note" chip, not a tap target, the same precedent already
+      applied to '#stamp' and '#mt-planday-bar' in that array.
+  (d) Insert a force-show test hook immediately before the "// Pass 1
+      (filter panel CLOSED)" comment (currently ~line 715), i.e. right
+      after the `if (state === 'plan') { ... }` block closes (~line 713)
+      and before `const controlsPass1 = await enumerateControls(...)`
+      (~line 720), inside detectOverlaps()'s try block:
+        await page.evaluate((sel) => {
+          const el = document.querySelector(sel);
+          if (el) el.style.setProperty('display', 'block', 'important');
+        }, AURORA_SELECTOR);
+      Tag the comment above it `MT_AURORA_FORCE_SHOW` so it's greppable.
+      This must NOT touch js/aurora-overlay.js — it forces visibility of
+      the already-existing (if hidden) DOM node from the test harness only;
+      aurora-overlay.js's own state.visible/updateLegendChip logic is
+      untouched, so production behavior (chip hidden until real NOAA/dusk
+      conditions warrant it) is unchanged.
+
+SCOPE FENCE (D13, do NOT exceed): Do NOT touch #mt-bottom-dock or its
+CSS/JS in js/ui-chrome.js — verified DEAD: ensurePass5CSS()
+(js/ui-chrome.js:713, `#mt-bottom-dock{display:none!important}`) always
+runs after the dock-builder and permanently hides it; it does not
+participate in the live collision and is out of scope. Do NOT touch
+anything inside the existing `<style id="mt-mobile-lane-fix">` block
+(#stamp, #mt-search-icon, .leaflet-control-zoom, .mt-locate, #filtbtn,
+#mt-pd-gear, body.mt-fpopen rules) — that is the separate, already-shipped
+S1-S3 lane system; this mission adds a new sibling block, it does not
+extend or edit that one. Do NOT touch js/aurora-overlay.js, STATES, or
+PLAN_MODE_ONLY_CONTROL_SELECTORS — no new detector STATE cell is added; the
+force-show hook reuses the existing default/plan per-cell flow. Do NOT
+change MIN_CONTROLS_PER_VIEWPORT or PLAN_MIN_CONTROLS — the registry
+additions only grow the discovered-control count, never shrink it, so the
+existing floors remain valid.
+
+NIYYAH (why): gap-midlane-chip-clutter, filed 2026-07-19, status "owned":
+"aurora banner + POI-count chip + Spots-near-me + Preview collide mid-map on
+mobile (same screenshot); e2e overlap sweep SKIPS the aurora-visible state
+('aurora chip not visible — coverage check skipped' in every green run) —
+the collision lives exactly in the untested cell." Its owner condition
+("declutter mission constructed after mt-fireban-click-fix lands") is now
+satisfied: AUTORUN.md:1158 shows mt-fireban-click-fix DONE-marked
+2026-07-19T09:39:58.875Z and PRODUCTION-SHIPPED (deploy 3c1d685e). This
+mission is the declutter half; both the CSS collision and the detector
+blind spot that let it ship are fixed together so the same clutter can't
+silently reappear.
+source: map.html
+source: scripts/e2e-runner.mjs
+
+REACHABILITY NOTE (miqat): Non-page change. Both files are on the existing,
+already-reachable production map surface (map.html) and its offline QC
+harness (scripts/e2e-runner.mjs) — no new page/route is created, so the
+MIQAT orphan-page check does not apply.
+
+STEPS:
+1. Edit map.html: insert the new `<style id="mt-midlane-chip-fix">` block
+   (exact content above) immediately after the mt-mobile-lane-fix block's
+   closing `</style>` (~line 44), before `<style id="mt-plan-mode-mobile">`
+   (~line 45). [edit] map.html
+   validation_command: node -e "const fs=require('fs');const s=fs.readFileSync('map.html','utf8');const checks=[[/id=.mt-midlane-chip-fix./,'block-id'],[/#mt-near-me-btn\s*\{\s*bottom:\s*220px\s*!important/,'near-me-btn-220'],[/#mt-aurora-chip-legend\s*\{\s*bottom:\s*280px\s*!important/,'aurora-legend-280'],[/#mt-near-me-panel\s*\{\s*bottom:\s*340px\s*!important/,'near-me-panel-340']];const bad=checks.filter(c=>!c[0].test(s)).map(c=>c[1]);if(bad.length){console.error('FAIL',bad);process.exit(1);}console.log('OK');"
+
+2. Edit scripts/e2e-runner.mjs: apply all four pinned edits (a)-(d) from THE
+   FIX section — AURORA_SELECTOR correction, FLOATING_CONTROL_SELECTORS
+   registry additions/correction, TAP_TARGET_EXEMPT_SELECTORS addition, and
+   the MT_AURORA_FORCE_SHOW page.evaluate() hook before Pass 1 enumeration.
+   [edit] scripts/e2e-runner.mjs
+   validation_command: node --check scripts/e2e-runner.mjs && node -e "const fs=require('fs');const s=fs.readFileSync('scripts/e2e-runner.mjs','utf8');const checks=[[/const AURORA_SELECTOR = '#mt-aurora-chip-legend'/,'AURORA_SELECTOR'],[/'#mt-aurora-chip-legend',/,'legend-in-registry'],[/'#mt-hp-toggle',/,'hp-toggle-in-registry'],[/'#mt-near-me-btn',/,'near-me-btn-in-registry'],[/'#mt-near-me-panel',/,'near-me-panel-in-registry'],[/TAP_TARGET_EXEMPT_SELECTORS = \[[\s\S]*?'#mt-aurora-chip-legend'/,'legend-tap-exempt'],[/MT_AURORA_FORCE_SHOW/,'force-show-hook'],[/setProperty\('display', 'block', 'important'\)/,'force-show-sets-display']];const bad=checks.filter(c=>!c[0].test(s)).map(c=>c[1]);const stale=/const AURORA_SELECTOR = '#mt-aurora-chip';/.test(s);if(bad.length||stale){console.error('FAIL',bad,'stale='+stale);process.exit(1);}console.log('OK');"
+
+3. OUTCOME CHECK [command]: re-verify both files together in one pass.
+   Verify-only — authors nothing.
+   validation_command: node --check scripts/e2e-runner.mjs && node -e "const fs=require('fs');const m=fs.readFileSync('map.html','utf8');const e=fs.readFileSync('scripts/e2e-runner.mjs','utf8');const ok=/id=.mt-midlane-chip-fix./.test(m)&&/#mt-near-me-btn\s*\{\s*bottom:\s*220px\s*!important/.test(m)&&/#mt-aurora-chip-legend\s*\{\s*bottom:\s*280px\s*!important/.test(m)&&/#mt-near-me-panel\s*\{\s*bottom:\s*340px\s*!important/.test(m)&&/const AURORA_SELECTOR = '#mt-aurora-chip-legend'/.test(e)&&/'#mt-hp-toggle',/.test(e)&&/'#mt-near-me-btn',/.test(e)&&/'#mt-near-me-panel',/.test(e)&&/MT_AURORA_FORCE_SHOW/.test(e)&&!/const AURORA_SELECTOR = '#mt-aurora-chip';/.test(e);if(!ok){console.error('OUTCOME CHECK FAIL');process.exit(1);}console.log('OUTCOME CHECK OK: mid-lane chip cluster restaggered and detector registry corrected');"
+
+DONE-MEANS: All three validation_commands pass — the CSS re-stagger has
+landed in map.html with the pinned !important values, and e2e-runner.mjs's
+detector registers the real aurora-legend id plus all three previously
+unregistered controls, exempts the legend from the tap-floor check, and
+force-shows the legend before every overlap/coverage measurement (no stale
+'#mt-aurora-chip' reference left behind). LIVE WITNESS is the conductor's
+after deploy: run `node scripts/e2e-runner.mjs --target <deployed-url>` and
+confirm (a) no more "aurora chip not visible — coverage check skipped"
+line, and (b) zero OVERLAP/COVERAGE violations naming #mt-hp-toggle,
+#mt-near-me-btn, #mt-near-me-panel, or #mt-aurora-chip-legend in the mobile
+default-state sweep. Deploy is conductor-called via the five-guard chain
+after landing, per the standing deploy ruling.

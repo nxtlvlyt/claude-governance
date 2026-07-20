@@ -1,0 +1,80 @@
+MISSION-ID: mt-fireban-restore-visibility
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - js/fire-ban-layer.js
+  - tests/fire-ban-layer.selftest.js
+REQUIRES: none
+STEPS: 3
+
+ONE-WRITER RULE (binding): Step 1 authors js/fire-ban-layer.js only. Step 2 authors tests/fire-ban-layer.selftest.js only. Step 3 is verify-only and authors nothing.
+
+MAQSAD (the end): The fire-ban click-shield fix landed (commits 5ba2549 + 50e247b, marked DONE per daemon-events.log:965348) — the dedicated `mt-fireban-pane` / zIndex 390 pane is correctly wired at js/fire-ban-layer.js:291 and 416-423. But the SAME commit (5ba2549) that landed it deleted `state.parentGroup.addTo(map);` from init() — confirmed absent at HEAD (`grep -n "addTo(map)" js/fire-ban-layer.js` returns no matches). The safety-critical fire-ban overlay — "DEFAULT VISIBILITY: ON" per the file's own header comment (lines 12-17) — is now built on every page load but never attached to the map, so NO ban polygon renders by default; a vanlifer sees no fire-ban warning unless they happen to toggle a layer-control checkbox they don't know exists. The same commit also corrupted 4 string-literal patterns (hex colors `#b0203$a` / `#e8820$c` / `#f2c94#c` at lines 28,113,116,119,122,374, and a broken inline style `align-items:center:gap:4px` at line 208) that render the legend swatch, popup chip, and severity styling wrong whenever the overlay IS manually re-enabled. tests/fire-ban-layer.selftest.js still exits 0 today (verified live) because it only ever checked pane/zIndex/geoJSON-option wiring, never `.addTo(map)` or literal validity — a false green that let a post-DONE ornith:9b REVISE (daemon-events.log:965349, "gap in the evidence") go unacknowledged. Correct: the overlay renders by default on every page load, every literal is valid, and the selftest itself pins both so this cannot silently regress a third time.
+
+THE FIX (pin exact literals — do not let the executor choose its own values):
+
+In js/fire-ban-layer.js:
+1. Restore the dropped attach call in init(). Current (line 407-408):
+   `    state.parentGroup = Lref.featureGroup();`
+   `    state.visible = true;`
+   Insert a new line between them so it reads:
+   `    state.parentGroup = Lref.featureGroup();`
+   `    state.parentGroup.addTo(map);`
+   `    state.visible = true;`
+2. Fix the corrupted hex-color literals (replace every instance, code AND the header-comment lines — same corruption event, same file):
+   - line 28 (comment): `#b0203$a` -> `#b0203a`
+   - line 27 (comment): `#e8820$c` -> `#e8820c`
+   - line 113 (both occurrences): `#b0203$a` -> `#b0203a`
+   - line 116 (both occurrences): `#e8820$c` -> `#e8820c`
+   - line 119: `#f2c94#c` -> `#f2c94c` (the `color:` field on this line is already correct — only `fillColor:` is corrupted)
+   - line 122 (both occurrences): `#e8820$c` -> `#e8820c`
+   - line 374: `#b0203$a` -> `#b0203a`
+3. Fix the broken inline style on line 208: `align-items:center:gap:4px` -> `align-items:center;gap:4px`
+
+In tests/fire-ban-layer.selftest.js:
+4. Insert two new source-scan assertions immediately after the existing (d) block closes (after the `!/overlayPane/.test(src)` assertTrue's closing `);`) and before the `// ── 2. Stub-map runtime simulation` comment. Use these EXACT variable names (`addToMapRe`, `colorTokenRe`) so they read unambiguously as the (e)/(f) checks:
+
+  // (e) SAFETY-CRITICAL: the fire-ban featureGroup is actually attached to
+  // the map via state.parentGroup.addTo(map) inside init(). Without this
+  // call the overlay is built (and state.visible defaults to true) but
+  // never rendered — the 2026-07-19 regression (commit 5ba2549) dropped
+  // this exact line while adding the custom pane.
+  var addToMapRe = /state\.parentGroup\.addTo\(\s*map\s*\)/;
+  assertTrue(
+    addToMapRe.test(src),
+    '(e) source-scan FAILED: no `state.parentGroup.addTo(map)` call found in ' + SRC_PATH + ' — the fire-ban overlay would never render by default'
+  );
+
+  // (f) every hex color literal in the file is valid 6-digit hex — no
+  // stray `$`/`#` characters corrupting them (e.g. '#b0203$a', '#f2c94#c'
+  // — the same 2026-07-19 regression). Collect every #-prefixed token that
+  // looks like it was meant to be a hex color and require it to be
+  // exactly #RRGGBB.
+  var colorTokenRe = /#[0-9a-zA-Z$#]{5,8}/g;
+  var badColors = [];
+  var colorMatch;
+  while ((colorMatch = colorTokenRe.exec(src)) !== null) {
+    if (!/^#[0-9a-fA-F]{6}$/.test(colorMatch[0])) badColors.push(colorMatch[0]);
+  }
+  assertTrue(
+    badColors.length === 0,
+    '(f) source-scan FAILED: malformed hex color literal(s) found in ' + SRC_PATH + ': ' + JSON.stringify(badColors)
+  );
+
+SCOPE FENCE (D13, do NOT exceed): Do not touch the already-correct pane/zIndex code at js/fire-ban-layer.js:291 or 416-423 (that part of the fix landed and is out of scope). Do not touch functions/api/fire-bans.js, crown-land-overlay.js, plan-day.js, map.html, or any other overlay/backend file. Do not modify the existing (a)-(d) source-scan assertions or the stub-map runtime-simulation section (fakeMap/fakeL/fakeDocument, `runRuntimeAssertionsAndExit`) in tests/fire-ban-layer.selftest.js — only append the new (e)/(f) block. Do not edit missions/mt-fireban-click-fix.mission.txt (historical record of the owner mission) or missions/_logs/GAP-REGISTER.jsonl (status updates there are the conductor's job, not this mission's).
+
+NIYYAH (why): gap-fireban-click-shield (filed 2026-07-19, GAP-REGISTER.jsonl:28, status "owned") flagged that the click-shield mechanism is coded correctly in isolation but the safety-critical overlay it protects never displays — the original bite ("fire-ban polygon intercepts ALL taps... POIs unclickable") and the safety feature itself both remain unverified in production because the polygon that would trigger the shield never renders by default.
+source: missions/_logs/GAP-REGISTER.jsonl
+source: js/fire-ban-layer.js
+
+REACHABILITY NOTE (miqat): Non-page change. js/fire-ban-layer.js is an existing script already wired into the live map page (referenced by a <script> tag in map.html; self-inits via waitForMap()/DOMContentLoaded against window.map/_layerCtl/L, already shipped by the owner mission). This mission edits only that file plus its existing selftest — no new page, route, or nav entry is added, so no MIQAT orphan-page reachability check applies.
+
+STEPS:
+1. Restore `state.parentGroup.addTo(map);` in init() and fix the 4 corrupted literal patterns (10 occurrences total) per THE FIX items 1-3. [edit] js/fire-ban-layer.js
+   validation_command: node --check js/fire-ban-layer.js; if ($LASTEXITCODE -ne 0) { Write-Error 'syntax error'; exit 1 }; if ((Select-String -Path js/fire-ban-layer.js -Pattern 'state\.parentGroup\.addTo\(map\)' -Quiet) -and -not (Select-String -Path js/fire-ban-layer.js -Pattern '#b0203\$a' -Quiet) -and -not (Select-String -Path js/fire-ban-layer.js -Pattern '#e8820\$c' -Quiet) -and -not (Select-String -Path js/fire-ban-layer.js -Pattern '#f2c94#c' -Quiet) -and -not (Select-String -Path js/fire-ban-layer.js -Pattern 'align-items:center:gap:4px' -Quiet) -and (Select-String -Path js/fire-ban-layer.js -Pattern 'align-items:center;gap:4px' -Quiet)) { Write-Host 'OK'; exit 0 } else { Write-Error 'FAIL: addTo(map) missing or corrupted literal(s) still present'; exit 1 }
+2. Add the (e)/(f) source-scan assertions to the selftest per THE FIX item 4, using the exact `addToMapRe` / `colorTokenRe` variable names. [edit] tests/fire-ban-layer.selftest.js
+   validation_command: node --check tests/fire-ban-layer.selftest.js; if ($LASTEXITCODE -ne 0) { Write-Error 'syntax error'; exit 1 }; if ((Select-String -Path tests/fire-ban-layer.selftest.js -Pattern 'addToMapRe' -Quiet) -and (Select-String -Path tests/fire-ban-layer.selftest.js -Pattern 'colorTokenRe' -Quiet)) { Write-Host 'OK: new (e)/(f) assertions present'; exit 0 } else { Write-Error 'FAIL: selftest.js missing addToMapRe or colorTokenRe assertions'; exit 1 }
+3. OUTCOME CHECK [command]: run the full (now-hardened) selftest and confirm every assertion — including the new (e)/(f) checks — passes against the fixed source.
+   validation_command: node tests/fire-ban-layer.selftest.js
+
+DONE-MEANS: `node tests/fire-ban-layer.selftest.js` exits 0 with assertions (a) through (f) all passing; `state.parentGroup.addTo(map);` is present in js/fire-ban-layer.js init() so the fire-ban overlay actually renders on page load by default (matching its own "DEFAULT VISIBILITY: ON" header comment); and no corrupted hex-color or inline-style literal (`$`-in-hex or `#f2c94#c` or `align-items:center:gap:4px`) remains anywhere in js/fire-ban-layer.js.

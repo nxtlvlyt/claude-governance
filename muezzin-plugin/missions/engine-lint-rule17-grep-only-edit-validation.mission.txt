@@ -1,0 +1,99 @@
+MISSION-ID: engine-lint-rule17-grep-only-edit-validation
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\.claude\muezzin-plugin
+ALLOW-FILES:
+  - mission_lint.mjs
+REQUIRES: none
+STEPS: 2
+
+ONE-WRITER RULE (binding): Step 1 is the sole authoring step -- it edits mission_lint.mjs to add the new RULE 17 detection block plus its five selftest fixtures. Step 2 (OUTCOME CHECK) is verify-only and authors no new file content: it re-runs the full lint selftest suite and performs the scoped git commit of the change step 1 already authored. ALLOW-FILES names only mission_lint.mjs, and only step 1 changes its content.
+
+MAQSAD (the end): mission_lint.mjs currently enforces 16 lint rules (RULE 1 through RULE 16, last landed as commit eca6b54 "RULE 16 improvise-bait"), and grepping the file confirms no RULE 17 or equivalent exists. It has no rule that inspects a code-repo mission's [edit] step for a hollow validation_command. The receipt: mt-pluz-camping-pass-layer's six edit steps all passed lint and ran green even though the mission wrote dead code -- a window.mtPassBadge helper never called anywhere, plus a duplicate ab-camping-pass-area layer entry -- because every validation_command was a bare Select-String presence check against literals sitting inside that dead code; only the verdict panel's late REJECT caught the hollowness, after an attempt was already burned. The real fix for that instance already shipped (commit 283e836, QUEUE ITEM 23), so this mission closes the remaining half of gap-grep-validation-passes-dead-code: the missing mechanical gate that would have refused that mission at authoring time, cost zero. Correct looks like: a code-repo mission whose [edit] step validates only via a bare grep/Select-String/findstr presence check, with no execution/render/reachability assertion anywhere in that same check, is refused at the lint boundary before it ever fires.
+
+THE FIX (pin exact literals -- do not let the executor choose its own values):
+Anchor A -- insert a new detection block immediately BEFORE the line (currently line 339, unique in the file):
+  return { ok: problems.length === 0, problems };
+Insert this exact block right after RULE 16's closing brace and right before that return line:
+
+  // RULE 17 -- GREP-ONLY EDIT VALIDATION (gap-grep-validation-passes-dead-code, filed
+  // 2026-07-20: mt-pluz-camping-pass-layer's 6 [edit] steps all passed lint and ran
+  // green because every validation_command Select-String'd literals that lived INSIDE
+  // dead code -- window.mtPassBadge, defined at map.html around line 118, called
+  // nowhere; a duplicate ab-camping-pass-area layer entry. Grep-presence proves a
+  // literal exists in the file; it never proves the edited code is CALLED/reachable.
+  // The verdict panel caught it, but late, after a burned attempt (QUEUE ITEM 23 /
+  // commit 283e836 later removed the dead helper for real). This generalizes RULE 11's
+  // own diagnosis ("zero browser execution occurred") off VISUAL_QC_REQUIRED onto EVERY
+  // code-repo [edit] step's OWN validation_command.
+  // SCOPE: code-repo missions only, and only an [edit]-tagged step line that carries a
+  // validation_command -- either inline on the same line, or on the next non-blank
+  // line before the following numbered step (the shape this engine's own missions use).
+  // An [edit] step with NO validation_command at all is a different, already-covered
+  // gap (RULE 4's Done-means bar) -- not this rule's concern, so it is skipped, not
+  // flagged. A validation_command escapes the gate the moment it names ANY execution/
+  // render/reachability signal alongside the grep verb: node running a script (not
+  // just `node --check`), wrangler, playwright, puppeteer, Invoke-WebRequest/curl
+  // hitting a served URL, or explicit call/invoke/reachable/wired language.
+  if (isCodeRepoClass) {
+    const lines17 = t.split(/\r?\n/);
+    const grepVerb17 = /\b(Select-String|findstr|grep)\b/i;
+    const executionSignal17 = /\bnode\s+(?!--check\b)\S|\bwrangler\b|\bplaywright\b|\bpuppeteer\b|\bInvoke-WebRequest\b|\bcurl\s|reachab|\bcall(s|ed|-site)?\b|\binvoke(s|d)?\b|\bwired\b/i;
+    for (let i17 = 0; i17 < lines17.length; i17++) {
+      const line17 = lines17[i17];
+      if (!/^\s*\d+\.\s.*\[edit\]/i.test(line17)) continue;
+      let vcLine17 = null;
+      const inlineVc17 = line17.match(/validation_command:\s*(.+)$/i);
+      if (inlineVc17) {
+        vcLine17 = inlineVc17[1];
+      } else {
+        for (let j17 = i17 + 1; j17 < lines17.length; j17++) {
+          if (/^\s*\d+\.\s/.test(lines17[j17])) break;
+          const nextVc17 = lines17[j17].match(/validation_command:\s*(.+)$/i);
+          if (nextVc17) { vcLine17 = nextVc17[1]; break; }
+          if (lines17[j17].trim() !== '') break;
+        }
+      }
+      if (vcLine17 === null) continue;
+      if (grepVerb17.test(vcLine17) && !executionSignal17.test(vcLine17)) {
+        const snippet17 = vcLine17.trim().slice(0, 140);
+        add('grep-only-edit-validation', `[edit] step's validation_command is a bare Select-String/grep/findstr presence check with no execution/render/reachability assertion ("${snippet17}") -- grep-presence proves a literal exists in the file, never that the edited code is CALLED/reachable (mt-pluz-camping-pass-layer receipt: 6 [edit] steps passed lint and ran green while validating literals living inside a dead window.mtPassBadge helper never invoked anywhere, gap-grep-validation-passes-dead-code). Add an execution/render/reachability assertion to the same validation_command -- node running (not just --check) a script that actually invokes the code path, a wrangler/playwright/puppeteer render, or explicit call-site/reachability language.`);
+        break;
+      }
+    }
+  }
+
+Anchor B -- insert five new selftest fixtures immediately AFTER this exact line (currently line 579, unique in the file):
+  ck(!lintMission(nonCodeRepoProse).problems.some((p) => p.rule === 'improvise-bait'), 'RULE 16: a non-code-repo (research-class) mission never triggers improvise-bait, regardless of step wording');
+...and BEFORE the blank line + console.log(`\n${fail ? fail + ' FAIL' : 'ALL PASS...`) line that follows it. Insert this exact block:
+
+  // ---- RULE 17: GREP-ONLY EDIT VALIDATION (gap-grep-validation-passes-dead-code,
+  // mt-pluz-camping-pass-layer dead window.mtPassBadge helper receipt) ----
+  const grepOnlyEditVc = 'MISSION-CLASS: code-repo\nREPO-ROOT: C:\\proj\\x\nALLOW-FILES:\n  - map.html\nMaqsad: wire the camping pass badge. Done means: badge renders.\nSteps:\n  1. Add the mtPassBadge helper to map.html. [edit] map.html\n     validation_command: Select-String -Path map.html -Pattern \'mtPassBadge\' -Quiet\n';
+  const goe = lintMission(grepOnlyEditVc);
+  ck(!goe.ok && goe.problems.some((p) => p.rule === 'grep-only-edit-validation'), 'RULE 17: [edit] step with grep-only validation_command (Select-String presence check, no execution/reachability assertion) REFUSED (mt-pluz-camping-pass-layer dead-code receipt, gap-grep-validation-passes-dead-code)');
+  const execAssertedEditVc = 'MISSION-CLASS: code-repo\nREPO-ROOT: C:\\proj\\x\nALLOW-FILES:\n  - map.html\nMaqsad: wire the camping pass badge. Done means: badge renders.\nSteps:\n  1. Add the mtPassBadge helper to map.html and call it from the layer-init path. [edit] map.html\n     validation_command: node scratch-badge-check.mjs; if (Select-String -Path map.html -Pattern \'mtPassBadge\' -Quiet) { Write-Output CALLED-OK }\n';
+  ck(lintMission(execAssertedEditVc).ok, 'RULE 17: [edit] step whose validation_command adds a real execution/reachability assertion alongside the grep passes clean');
+  const editNoVc = 'MISSION-CLASS: code-repo\nREPO-ROOT: C:\\proj\\x\nALLOW-FILES:\n  - map.html\nMaqsad: wire the badge. Done means: badge renders.\nSteps:\n  1. Add the mtPassBadge helper to map.html. [edit] map.html\n  2. OUTCOME CHECK: confirm the build is clean. [command]\n';
+  ck(!lintMission(editNoVc).problems.some((p) => p.rule === 'grep-only-edit-validation'), 'RULE 17: [edit] step with NO validation_command at all is unaffected -- a different, already-covered gap (RULE 4 Done-means), not this rule');
+  const commandGrepOnly = 'MISSION-CLASS: code-repo\nREPO-ROOT: C:\\proj\\x\nALLOW-FILES:\n  - a.mjs\nMaqsad: patch a. Done means: node -c passes.\nSteps:\n  1. Apply the staged patcher. [command]\n     validation_command: Select-String -Path a.mjs -Pattern \'newFn\' -Quiet\n';
+  ck(!lintMission(commandGrepOnly).problems.some((p) => p.rule === 'grep-only-edit-validation'), 'RULE 17: a [command]-tagged step with a grep-only validation_command is unaffected -- this rule is scoped to [edit] steps only');
+  const nonCodeRepoEdit = 'Maqsad: research. Done means: report.md exists.\nSteps:\n  1. Add the section. [edit] report.md\n     validation_command: Select-String -Path report.md -Pattern \'Section\' -Quiet\n';
+  ck(!lintMission(nonCodeRepoEdit).problems.some((p) => p.rule === 'grep-only-edit-validation'), 'RULE 17: a non-code-repo mission never triggers grep-only-edit-validation regardless of step wording');
+
+Both code blocks reuse the existing `isCodeRepoClass` and `add` names already in scope in lintMission -- do not redeclare them.
+
+SCOPE FENCE (D13, do NOT exceed): touch ONLY mission_lint.mjs, and within it ONLY the two insertions named above. Do NOT touch mission_class.mjs, GAP-REGISTER.jsonl, QUEUE.md, or the existing RULE 1-16 blocks/fixtures -- zero regressions required, their logic and message text stay byte-identical. Do NOT touch anything under C:\Users\marka\code\mt-integration-2026-06-22 -- part (a) of this gap (the mtPassBadge dead-code instance) already landed via commit 283e836 and must not be re-diagnosed or re-touched. Do NOT author or edit any other mission_lint-rule*.mission.txt file. Do NOT widen the new rule's scope beyond [edit]-tagged code-repo steps -- do not also gate [command]/[verify] steps, that is a different, not-yet-filed concern.
+
+NIYYAH (why): gap-grep-validation-passes-dead-code, filed 2026-07-20T05:2xZ, part (b) of a two-part gap. Part (a) -- the mt-pluz-camping-pass-layer dead-code instance -- is already resolved (commit 283e836). Part (b), the missing mission_lint RULE, has had no owner until this mission. The gap's jurisdiction field says "both" (mt + muezzin-plugin engine), but the actual code change lives entirely in the muezzin-plugin engine repo, so this is an engine-class mission that fires through the GAP-PRIORITY-HOLD per operator ruling (gap issues are always priority).
+source: C:\Users\marka\.claude\muezzin-plugin\missions\_logs\GAP-REGISTER.jsonl
+source: C:\Users\marka\.claude\muezzin-plugin\mission_lint.mjs
+
+REACHABILITY NOTE (miqat): non-page engine/script change. mission_lint.mjs is a pure-text Node module with no UI surface, and ALLOW-FILES names no .html target, so RULE 12's orphan-page nav-reachability check does not apply here and no UNLINKED-OK declaration is needed.
+
+STEPS:
+1. Insert the RULE 17 detection block at Anchor A and the five selftest fixtures at Anchor B, exactly as pinned above in THE FIX. [edit] mission_lint.mjs
+   validation_command: node --check mission_lint.mjs; if ($LASTEXITCODE -ne 0) { Write-Output 'SYNTAX-FAIL'; exit 1 }; $out = node mission_lint.mjs 2>&1 | Out-String; if ($out -notmatch 'ALL PASS') { Write-Output 'SELFTEST-NOT-ALL-PASS-YET'; Write-Output $out.Substring([Math]::Max(0,$out.Length-800)); exit 1 }; if ($out -notmatch 'RULE 17') { Write-Output 'RULE17-FIXTURES-MISSING'; exit 1 }; if (-not (Select-String -Path mission_lint.mjs -Pattern 'grep-only-edit-validation' -Quiet)) { Write-Output 'RULE17-DETECTION-MISSING'; exit 1 }; Write-Output RULE17-STEP1-OK
+2. OUTCOME CHECK [command]: re-run the full lint selftest suite, confirm both new fixture outcomes are present with zero regressions on the prior 16 rules, then commit with a scoped pathspec.
+   validation_command: $out = node mission_lint.mjs 2>&1 | Out-String; if ($LASTEXITCODE -ne 0) { Write-Output 'SELFTEST-EXIT-NONZERO'; exit 1 }; if ($out -notmatch 'ALL PASS') { Write-Output 'NOT-ALL-PASS'; exit 1 }; if ($out -notmatch [regex]::Escape('grep-only validation_command (Select-String presence check, no execution/reachability assertion) REFUSED')) { Write-Output 'RULE17-REFUSE-FIXTURE-MISSING'; exit 1 }; if ($out -notmatch [regex]::Escape('adds a real execution/reachability assertion alongside the grep passes clean')) { Write-Output 'RULE17-PASS-FIXTURE-MISSING'; exit 1 }; $dirty = git status --porcelain -- mission_lint.mjs; $atHead = (git show HEAD:mission_lint.mjs) -match 'grep-only-edit-validation'; if (-not $dirty -and $atHead) { Write-Output ALREADY_COMMITTED; exit 0 }; git add -- mission_lint.mjs; git commit -m "feat(lint): RULE 17 grep-only-edit-validation -- a code-repo [edit] step's validation_command may not be a bare Select-String/grep/findstr presence check with no execution/render/reachability assertion (gap-grep-validation-passes-dead-code, filed 2026-07-20; mt-pluz-camping-pass-layer receipt: 6 edit steps passed lint on literals living inside a dead window.mtPassBadge helper, caught late by the verdict panel, real fix landed via QUEUE ITEM 23 / commit 283e836)" -- mission_lint.mjs; if ((git show HEAD:mission_lint.mjs) -match 'grep-only-edit-validation') { Write-Output COMMITTED_AT_HEAD } else { Write-Output COMMIT_VERIFY_FAIL; exit 1 }
+
+DONE-MEANS: mission_lint.mjs at HEAD carries RULE 17 (grep-only-edit-validation) with its five selftest fixtures; full selftest suite reports ALL PASS with zero regressions on the prior 16 rules; from this point a code-repo mission whose [edit] step's validation_command is a bare Select-String/grep/findstr presence check with no execution/render/reachability assertion is refused at lint time, before it ever fires; the change is committed at HEAD with a scoped pathspec.

@@ -1,0 +1,137 @@
+MISSION-ID: engine-lint-rule17-numeric-contract
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\.claude\muezzin-plugin
+ALLOW-FILES:
+  - mission_lint.mjs
+REQUIRES: none
+STEPS: 3
+
+ONE-WRITER RULE (binding): step 1 is the sole author of mission_lint.mjs (adds the RULE 17
+detection block plus its four selftest fixtures). Steps 2 and 3 are verify/commit-only —
+they author no new file content.
+
+MAQSAD (the end): mt-levels-not-ladders's Maqsad (lines 22-27, confirmed live at HEAD) pins
+exact numeric constants — point weights live community_spot = 10 pts, live community_review
+= 3 pts, and five level thresholds 1/25/75/200/500 expressed as ranges (1-24)/(25-74)/
+(75-199)/(200-499)/(500+) — yet step 1's validation_command (line 60, confirmed live at
+HEAD) only Select-String-checks the level NAMES ('Day Tripper','Trail Boss',
+'buildLevelBadge','levelFor','canonical') and never touches a single one of those numbers.
+The seat that ran this mission shipped wrong thresholds (50/150/400/900/2000) and rewrote
+its own test to match its wrong numbers, passing every step validation cleanly; only the
+phase-3 verify panel caught it, after 2 wasted attempts (gap-mission-validation-must-pin-
+numeric-contract, filed 2026-07-19). Correct looks like: a mission whose Maqsad states
+numeric contract constants is REFUSED at the lint boundary, cost zero, unless at least one
+step's validation_command literal-matches every one of those numbers — the same mechanism
+RULE 16 already uses for improvised mechanics, applied to improvised numbers.
+
+THE FIX (pin exact literals — do not let the executor choose its own values):
+
+Add ONE new rule, RULE 17 — NUMERIC-CONTRACT-NOT-PINNED — to mission_lint.mjs, plus its
+selftest fixtures. Two insertion points, both inside mission_lint.mjs:
+
+ANCHOR A (end of lintMission, before its return): insert the detection block below
+immediately ABOVE the line that reads exactly:
+  return { ok: problems.length === 0, problems };
+(this line currently sits directly after RULE 16's closing brace, before the blank line and
+the "// ---- selftests" comment). Insert this block verbatim, unchanged, including comments:
+
+  // RULE 17 -- NUMERIC-CONTRACT-NOT-PINNED (gap-mission-validation-must-pin-numeric-contract,
+  // filed 2026-07-19: mt-levels-not-ladders step 1's validation_command checked level NAMES
+  // (Day Tripper/Trail Boss) but NOT the threshold NUMBERS (1/25/75/200/500) or point weights
+  // (spot=10/review=3) the Maqsad specified -- the seat shipped wrong mins 50/150/400/900/2000
+  // and rewrote its own test to match; only the phase-3 verify panel caught it, 2 wasted
+  // attempts. Scoped to code-repo missions only (reuses isCodeRepoClass from RULE 15/16
+  // above). Extracts numeric-contract literals from the mission text ABOVE its bare "STEPS:"
+  // section header using two narrow, receipt-matched shapes: (a) a parenthesized range or
+  // floor -- "(N-M)" or "(N+)" -- the exact level-threshold shape ("(1-24)" ... "(500+)");
+  // (b) a point/weight literal -- "N pts" or "N points" (case-insensitive) -- the exact
+  // weight shape ("10 pts", "3 pts"). Each distinct number captured by either shape must
+  // appear as a literal, word-bounded token somewhere in the STEPS section's
+  // validation_command text; a number present in the design intent but absent from every
+  // validation_command is refused here, at cost zero, before a seat can improvise a
+  // different number and pass its own rewritten test.
+  if (isCodeRepoClass) {
+    const stepsHeaderMatch17 = t.match(/^[ \t]*STEPS:[ \t]*$/im);
+    const splitIdx17 = stepsHeaderMatch17 ? t.indexOf(stepsHeaderMatch17[0]) : -1;
+    const maqsadText17 = splitIdx17 >= 0 ? t.slice(0, splitIdx17) : t;
+    const stepsText17 = splitIdx17 >= 0 ? t.slice(splitIdx17) : '';
+    const contractNums17 = new Set();
+    for (const m of maqsadText17.matchAll(/\((\d{1,4})-(\d{1,4})\)/g)) { contractNums17.add(m[1]); contractNums17.add(m[2]); }
+    for (const m of maqsadText17.matchAll(/\((\d{1,4})\+\)/g)) { contractNums17.add(m[1]); }
+    for (const m of maqsadText17.matchAll(/\b(\d{1,6})\s*(?:pts|points?)\b/gi)) { contractNums17.add(m[1]); }
+    const validationLines17 = stepsText17.split(/\r?\n/).filter((l) => /validation_command\s*:/i.test(l));
+    const validationText17 = validationLines17.join('\n');
+    const missingNums17 = [...contractNums17].filter((n) => !new RegExp(`\\b${n}\\b`).test(validationText17));
+    if (contractNums17.size > 0 && missingNums17.length > 0) {
+      const sorted17 = missingNums17.map(Number).sort((a, b) => a - b).join(', ');
+      add('numeric-contract-not-pinned', `Maqsad declares numeric-contract literal(s) [${sorted17}] (threshold range "(N-M)"/"(N+)" or point/weight "N pts" shape) that appear in NO step's validation_command -- mt-levels-not-ladders shipped wrong thresholds (50/150/400/900/2000 instead of 1/25/75/200/500) and rewrote its own test to match because step 1's validation_command only Select-String-checked level NAMES, never the numbers (gap-mission-validation-must-pin-numeric-contract, filed 2026-07-19). Add a Select-String/-match check for each numeric literal to at least one validation_command.`);
+    }
+  }
+
+ANCHOR B (selftest section): insert the fixtures block below immediately ABOVE the line
+that prints the final tally (the line containing the exact text "ALL PASS -- mission miqat:
+flawed work orders refused at the boundary, zero cycles burned" — the last thing before it
+today is the RULE 16 fixture "(i)" non-code-repo assertion). Insert this block verbatim:
+
+  // ---- RULE 17: NUMERIC-CONTRACT-NOT-PINNED (gap-mission-validation-must-pin-numeric-
+  // contract, filed 2026-07-19 -- mt-levels-not-ladders step 1 checked level NAMES but
+  // never the threshold NUMBERS 1/25/75/200/500 or weights 10/3) ----
+  const numericContractBad17 = 'MISSION-CLASS: code-repo\nREPO-ROOT: C:\\proj\\x\nALLOW-FILES:\n  - js/levels.js\nMaqsad: give contributors a level badge. live community_spot = 10 pts, live community_review = 3 pts. Levels: 1 Day Tripper (1-24); 2 Weekender (25-74); 3 Full-Timer (75-199); 4 Overlander (200-499); 5 Trail Boss (500+).\nSTEPS:\n1. Author js/levels.js exporting levelFor and buildLevelBadge. [edit] js/levels.js\n   validation_command: node --check js/levels.js; if ($LASTEXITCODE -ne 0) { exit 1 }; $c = Get-Content js/levels.js -Raw; if ($c -notmatch \'Day Tripper\' -or $c -notmatch \'Trail Boss\') { exit 1 } else { Write-Output OK }\nDone means: js/levels.js exists.';
+  const nc17 = lintMission(numericContractBad17);
+  ck(!nc17.ok && nc17.problems.some((p) => p.rule === 'numeric-contract-not-pinned'), 'RULE 17: the mt-levels-not-ladders shape (thresholds + weights in Maqsad, names-only validation_command) REFUSED');
+
+  const numericContractGood17 = 'MISSION-CLASS: code-repo\nREPO-ROOT: C:\\proj\\x\nALLOW-FILES:\n  - js/levels.js\nMaqsad: give contributors a level badge. live community_spot = 10 pts, live community_review = 3 pts. Levels: 1 Day Tripper (1-24); 2 Weekender (25-74); 3 Full-Timer (75-199); 4 Overlander (200-499); 5 Trail Boss (500+).\nSTEPS:\n1. Author js/levels.js exporting levelFor and buildLevelBadge. [edit] js/levels.js\n   validation_command: node --check js/levels.js; if ($LASTEXITCODE -ne 0) { exit 1 }; $c = Get-Content js/levels.js -Raw; foreach ($n in \'1\',\'24\',\'25\',\'74\',\'75\',\'199\',\'200\',\'499\',\'500\',\'10\',\'3\') { if ($c -notmatch [regex]::Escape($n)) { exit 1 } }; Write-Output OK\nDone means: js/levels.js exists.';
+  ck(lintMission(numericContractGood17).ok, 'RULE 17: same Maqsad with every threshold/weight number pinned in validation_command passes');
+
+  const noContractOrdinary17 = 'MISSION-CLASS: code-repo\nREPO-ROOT: C:\\proj\\x\nALLOW-FILES:\n  - a.mjs\nMaqsad: fix a bug in a.mjs.\nSTEPS:\n1. Fix the bug. [edit] a.mjs\n   validation_command: node --check a.mjs\nDone means: node -c passes.';
+  ck(lintMission(noContractOrdinary17).ok, 'RULE 17: an ordinary code-repo mission with no numeric-contract language passes untouched');
+
+  const nonCodeRepoNumeric17 = 'Maqsad: research thresholds (1-24) and weights 10 pts. Done means: report.md exists.';
+  ck(!lintMission(nonCodeRepoNumeric17).problems.some((p) => p.rule === 'numeric-contract-not-pinned'), 'RULE 17: a non-code-repo mission is never checked, regardless of numeric shapes present');
+
+Transcribe both blocks EXACTLY as given above, character for character, including the "17"
+variable-name suffixes and the double-dash "--" in comments (not em-dash). Do not rename
+variables, do not reformat, do not "improve" the regexes.
+
+SCOPE FENCE (D13, do NOT exceed): touch ONLY mission_lint.mjs. Do NOT modify
+mission_class.mjs, any of RULE 1 through RULE 16's own logic or fixtures, AUTORUN.md,
+QUEUE.md, or GAP-REGISTER.jsonl. Do NOT retrofit mt-levels-not-ladders.mission.txt (or any
+other existing mission) to satisfy RULE 17 — that is separate follow-on work, not this
+mission. Do NOT attempt a general NLP/AST-based numeric-contract extractor beyond the two
+pinned shapes named above (parenthesized range/floor, and "N pts"/"N points") — a broader
+heuristic is future scope, not this mission's.
+
+NIYYAH (why): gap-mission-validation-must-pin-numeric-contract, filed 2026-07-19 — RULE 16
+(improvise-bait, landed commit eca6b54) already closed the class of steps that describe
+mechanical work without a literal payload; this gap is the same failure shape one layer up —
+a step whose validation_command literal-matches SOME of the Maqsad's contract (level names)
+but not ALL of it (the numbers), so a seat can satisfy every gate while shipping the wrong
+numbers and rewriting its own test around them. mt-levels-not-ladders is the live receipt.
+source: missions/_logs/GAP-REGISTER.jsonl
+source: missions/mt-levels-not-ladders.mission.txt
+source: mission_lint.mjs
+
+REACHABILITY NOTE (miqat): non-page engine change. mission_lint.mjs is a pure-text module
+consumed by the mission-firing pipeline (the MIQAT gate), not a user-facing page or site
+surface — no nav-reachability applies, no ALLOW-FILES entry is an .html file.
+
+STEPS:
+1. Add RULE 17 (numeric-contract-not-pinned) and its four selftest fixtures to
+   mission_lint.mjs, inserting the two blocks specified in THE FIX above at Anchor A
+   (before the lintMission return statement) and Anchor B (before the final selftest
+   tally line), verbatim. If RULE 17 is already present at both anchors in the exact
+   form given, leave the file unchanged (idempotent — do not duplicate). [edit] mission_lint.mjs
+   validation_command: node --check mission_lint.mjs; if ($LASTEXITCODE -ne 0) { Write-Output SYNTAX-FAIL; exit 1 }; $c = Get-Content mission_lint.mjs -Raw; $hits = ([regex]::Matches($c, 'numeric-contract-not-pinned')).Count; if ($hits -lt 3) { Write-Output "RULE17-INCOMPLETE hits=$hits"; exit 1 }; if ($c -notmatch 'gap-mission-validation-must-pin-numeric-contract') { Write-Output RULE17-NIYYAH-MISSING; exit 1 }; if ($c -notmatch 'RULE 17') { Write-Output RULE17-HEADER-MISSING; exit 1 }; Write-Output RULE17-CODE-OK
+2. Selftest gate: run mission_lint.mjs's own selftest suite and confirm every assertion
+   passes, old and new, zero regressions. [verify]
+   validation_command: $out = node mission_lint.mjs 2>&1 | Out-String; if ($out -notmatch 'ALL PASS') { Write-Output SELFTEST-FAIL; Write-Output $out.Substring([Math]::Max(0,$out.Length-800)); exit 1 }; if ($out -notmatch 'RULE 17') { Write-Output RULE17-ASSERTS-MISSING; exit 1 }; if ($out -notmatch 'numeric-contract-not-pinned') { Write-Output RULE17-MSG-MISSING; exit 1 }; Write-Output SELFTEST-GATE-OK
+3. OUTCOME CHECK, scoped and idempotent commit of the landed rule. [command]
+   validation_command: $dirty = git status --porcelain -- mission_lint.mjs; $atHead = (git show HEAD:mission_lint.mjs) -match 'numeric-contract-not-pinned'; if (-not $dirty -and $atHead) { Write-Output ALREADY_COMMITTED; exit 0 }; git add -- mission_lint.mjs; git commit -m "feat(lint): RULE 17 numeric-contract-not-pinned -- Maqsad threshold/weight numbers must be literal-matched by a step validation_command (gap-mission-validation-must-pin-numeric-contract, filed 2026-07-19; mt-levels-not-ladders receipt: wrong thresholds 50/150/400/900/2000 shipped, its own test rewritten to match, because step 1 checked level names only)" -- mission_lint.mjs; if ((git show HEAD:mission_lint.mjs) -match 'numeric-contract-not-pinned') { Write-Output COMMITTED_AT_HEAD } else { Write-Output COMMIT_VERIFY_FAIL; exit 1 }
+
+DONE-MEANS: mission_lint.mjs at HEAD carries RULE 17 (numeric-contract-not-pinned) with its
+four selftest fixtures green, zero regressions across RULE 1 through RULE 16's existing
+asserts (selftest prints "ALL PASS"). From this point, a code-repo mission whose Maqsad
+states a numeric contract (thresholds as "(N-M)"/"(N+)" ranges, or weights as "N pts"/"N
+points") but whose validation_commands never literal-match one or more of those numbers is
+refused at the lint boundary, cost zero — the same class of failure mt-levels-not-ladders
+shipped live and burned 2 attempts to catch.

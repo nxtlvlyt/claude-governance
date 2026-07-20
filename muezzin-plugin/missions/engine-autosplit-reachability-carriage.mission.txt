@@ -1,0 +1,72 @@
+MISSION-ID: engine-autosplit-reachability-carriage
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\.claude\muezzin-plugin
+ALLOW-FILES:
+  - mission_split.mjs
+REQUIRES: none
+STEPS: 2
+
+ONE-WRITER RULE (binding): step 1 is the sole author of mission_split.mjs (function, wiring, and self-test fixture all land in this one file, one step). Step 2 is verify-only and authors nothing.
+
+MAQSAD (the end): mission_split.mjs's emitSubMissions forwards MISSION-CLASS (line 231) and a gated VISUAL_QC_REQUIRED header (buildDoneMeans, lines 79-135) into split children, but has ZERO logic for REACHABILITY NOTE / UNLINKED-OK declarations (grep for "REACHABILITY|UNLINKED-OK|LITERAL.*PINNED" over mission_split.mjs returns no matches). Live receipt: mt-publish-trip PASSED the miqat at 10:22 (its REACHABILITY NOTE satisfied mission_lint.mjs RULE 12), autosplit at 10:34:42 emitted mt-publish-trip.S1 carrying trip.html WITHOUT that note, and S1 MIQAT-REFUSED "orphan-page-no-reachability" at 10:34:50 — zero execution. The only fix in place today is the conductor's manual hand-patch of that one S1 file; the engine bug that produced it is untouched and will refire on the next autosplit of any code-repo parent whose ALLOW-FILES ships a non-index/map .html page under a REACHABILITY NOTE or UNLINKED-OK declaration. Correct: emitSubMissions extracts the parent's REACHABILITY NOTE block (or standalone UNLINKED-OK line) and forwards it verbatim into any child whose own files ship such a page, so the child passes RULE 12 without hand-patching.
+
+THE FIX (pin exact literals):
+
+1. In mission_split.mjs, immediately after line 154 (the blank line following buildCodeRepoDeclaration's closing `}` at line 153, and before the `// ---- emitSubMissions --------` comment at line 155), insert this new exported function and its four regex constants verbatim:
+
+// ---- buildReachabilityDeclaration (QUEUE ITEM 53 / gap-autosplit-strips-miqat-notes,
+// 2026-07-19): emitSubMissions carries MISSION-CLASS and a gated VISUAL_QC_REQUIRED header
+// into children (above) but had zero logic for REACHABILITY NOTE / UNLINKED-OK -- the same
+// forwarder gap, one rule over (mission_lint.mjs RULE 12, orphan-page-no-reachability).
+// Live receipt: mt-publish-trip PASSED the miqat at 10:22, autosplit at 10:34:42 emitted S1
+// carrying trip.html WITHOUT the note, S1 MIQAT-REFUSED orphan-page-no-reachability at
+// 10:34:50. Gated on the SAME predicate RULE 12 itself uses (a non-index/map .html file in
+// THIS child's own files) so the note forwards exactly when this child would otherwise trip
+// the rule the parent already satisfied -- never to a sibling shipping no page at all.
+const REACHABILITY_NOTE_RE = /^REACHABILITY NOTE\s*\([^)\r\n]*\)\s*:.*?(?=\r?\n\s*\r?\n|\r?\n\d+\.\s|(?![\s\S]))/ims;
+const UNLINKED_OK_LINE_RE = /^UNLINKED-OK:.*$/im;
+const HTML_FILE_RE = /\.html$/i;
+const ENTRY_HTML_RE = /(^|\/)(index|map)\.html$/i;
+
+export function buildReachabilityDeclaration(files, parentMissionText) {
+  const shipsPage = (files || []).some((f) => HTML_FILE_RE.test(f) && !ENTRY_HTML_RE.test(f));
+  if (!shipsPage) return null;
+  const t = String(parentMissionText || '');
+  const noteMatch = t.match(REACHABILITY_NOTE_RE);
+  if (noteMatch) return noteMatch[0].trim();
+  const unlinkedMatch = t.match(UNLINKED_OK_LINE_RE);
+  return unlinkedMatch ? unlinkedMatch[0].trim() : null;
+}
+
+VERIFIED literal: this exact REACHABILITY_NOTE_RE, run against the real missions/mt-publish-trip.mission.txt parent text, extracts the full note block (629 chars, ending exactly on "the owner sharing their own link.") -- NOT just its first line. Do not substitute a bare `$` for the end-of-string alternative: with the `m` flag active (required so `^REACHABILITY NOTE` matches mid-file, not only at position 0), a bare `$` matches at every line ending and truncates the note to one line. `(?![\s\S])` is the correct true-end-of-string test and must be used verbatim.
+
+2. In emitSubMissions, immediately after line 227 (`const codeRepo = buildCodeRepoDeclaration(doneMeans.files, plan._parentMission);`), insert:
+    const reachabilityNote = buildReachabilityDeclaration(doneMeans.files, plan._parentMission);
+
+3. In the childText array, insert one new line between the existing line 235 (`...(doneMeans.visualQcHeaderLine ? [doneMeans.visualQcHeaderLine] : []),`) and line 236 (`requiresClause,`):
+      ...(reachabilityNote ? [reachabilityNote] : []),
+
+4. Add a new self-test block to the file's existing embedded self-test suite (the `if (process.argv[1]?.endsWith('mission_split.mjs'))` block at the bottom), inserted after line 717 (`fsF.rmSync(tmpF, { recursive: true, force: true });`) and its closing `}` at line 718, and before the blank line 719 / final `console.log` at line 720. The block must construct a code-repo parent fixture carrying a MISSION-LEVEL `REACHABILITY NOTE (miqat):` block (mirroring mt-publish-trip's real shape: MISSION-CLASS code-repo, REPO-ROOT, ALLOW-FILES listing one non-entry .html file and one non-html sibling file, then the REACHABILITY NOTE block), split it via splitOversizedPlan with a ceiling that forces the .html file and the sibling file into separate groups, run it through the real emitSubMissions, and assert with these EXACT ck() message strings (pinned so the OUTCOME CHECK step can verify them):
+   - `ck(/REACHABILITY NOTE/.test(<html-child-text>), 'REACHABILITY-CARRIAGE: html-shipping child inherits the forwarded REACHABILITY NOTE (QUEUE item 53, mt-publish-trip.S1 MIQAT-REFUSED 10:34:50 receipt)');`
+   - `ck(!/REACHABILITY NOTE/.test(<non-html-sibling-text>), 'REACHABILITY-CARRIAGE: sibling child shipping no page does not carry the note');`
+   - `ck(lintMission(<html-child-text>).ok === true && lintMission(<html-child-text>).problems.length === 0, 'REACHABILITY-CARRIAGE: html-shipping child passes the REAL lintMission RULE 12 gate (orphan-page-no-reachability no longer fires)');`
+   Also add a standalone-UNLINKED-OK assertion (no REACHABILITY NOTE block present, only a bare `UNLINKED-OK: <why>` line in the parent) calling buildReachabilityDeclaration directly and asserting it returns that line verbatim.
+   Use the already-imported `lintMission` from `./mission_lint.mjs` (imported the same way the VQC-INHERITANCE and code-repo fixtures above it already do) — do not add a new import statement at module scope.
+
+SCOPE FENCE (D13, do NOT exceed): do NOT modify mission_lint.mjs (RULE 12 itself is correct — the gap is the missing forwarder, not the gate). Do NOT touch buildDoneMeans/the VISUAL_QC_REQUIRED forwarding logic (lines 79-135) or buildCodeRepoDeclaration (lines 137-153) — both already work and must stay byte-unchanged except for the single new function inserted between them. Do NOT touch the step-carriage serialization logic (lines 186-220, the validation_command/context_dependencies carriage fixed 2026-07-14). Do NOT edit missions/mt-publish-trip.S1.mission.txt, missions/mt-publish-trip.mission.txt, or any other existing mission file — the S1 hand-patch is the conductor's already-applied interim fix and is out of scope here. Do NOT attempt the "agy fork port" named in the gap's owner field — QUEUE ITEM 53 and the gap both name it as a separate follow-on.
+
+NIYYAH (why): closes gap-autosplit-strips-miqat-notes (GAP-REGISTER.jsonl:38, filed 2026-07-19 ~10:4xZ, class "engine", status "owned", owner "QUEUE ITEM 53"), whose fix_shape reads verbatim: "carry every lint-consumed mission-level block verbatim into children whose ALLOW-FILES intersect; interim: conductor re-inserts by hand on child re-bare." This mission replaces that interim hand-patch convention with the mechanical fix for the REACHABILITY NOTE / UNLINKED-OK half of that fix_shape (the VISUAL_QC_REQUIRED and MISSION-CLASS halves are already landed).
+source: mission_split.mjs
+source: mission_lint.mjs
+source: missions/QUEUE.md (ITEM 53)
+source: missions/mt-publish-trip.S1.mission.txt
+
+REACHABILITY NOTE (miqat): non-page change. This mission's ALLOW-FILES contains only mission_split.mjs (an engine script) — no .html file, so mission_lint.mjs RULE 12's own shipsPage predicate (MISSION-CLASS code-repo AND an ALLOW-FILES .html file other than index/map.html) does not even trigger for this mission itself.
+
+STEPS:
+1. Edit mission_split.mjs per THE FIX above: add the buildReachabilityDeclaration function + its four regex constants after line 154, wire the reachabilityNote call after line 227, insert the childText forwarding line between lines 235-236, and add the pinned REACHABILITY-CARRIAGE self-test fixture block before line 720. [edit] mission_split.mjs
+   validation_command: node --check mission_split.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; $c = Get-Content mission_split.mjs -Raw; $need = @('buildReachabilityDeclaration','REACHABILITY_NOTE_RE','UNLINKED_OK_LINE_RE','reachabilityNote','REACHABILITY-CARRIAGE'); $missing = $need | Where-Object { $c -notmatch [regex]::Escape($_) }; if ($missing) { exit 1 } else { Write-Output 'REACHABILITY_FUNC_PRESENT' }
+2. OUTCOME CHECK [command]: Run exactly: node mission_split.mjs — require both a clean exit and the new REACHABILITY-CARRIAGE fixture's pinned PASS line to actually appear (verified this exact command correctly exits 1 against the CURRENT unfixed file, marker absent, even though its own exit code is 0 today). Verify-only — authors nothing.
+   validation_command: $out = (node mission_split.mjs 2>&1) -join "`n"; if ($LASTEXITCODE -ne 0) { exit 1 }; if ($out -notmatch [regex]::Escape('PASS  REACHABILITY-CARRIAGE: html-shipping child inherits the forwarded REACHABILITY NOTE')) { exit 1 } else { Write-Output 'REACHABILITY_SELFTEST_OK' }
+
+DONE-MEANS: mission_split.mjs exports buildReachabilityDeclaration; emitSubMissions forwards a parent's REACHABILITY NOTE block (or standalone UNLINKED-OK line) verbatim into any split child whose own files ship a non-index/map .html page, and leaves siblings shipping no such page untouched; the file's embedded self-test suite (node mission_split.mjs) exits 0 with the new REACHABILITY-CARRIAGE assertions passing, alongside zero regressions in every pre-existing fixture (VQC, VQC-INHERITANCE, code-repo, STEP-CARRIAGE).

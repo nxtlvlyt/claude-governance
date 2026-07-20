@@ -1,0 +1,113 @@
+MISSION-ID: engine-render-witness-maphtml-redirect-fix
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\.claude\muezzin-plugin
+ALLOW-FILES:
+  - missions/mt-integrate-weather-aware-planning-2026-06-23.S2.mission.txt
+  - missions/mt-integrate-region-heatmap-2026-06-23.S2.mission.txt
+  - missions/mt-integrate-near-me-discovery.S1.S2.mission.txt
+  - missions/mt-integrate-aurora-forecast-diff-report.S2.mission.txt
+REQUIRES: none
+STEPS: 2
+
+ONE-WRITER RULE (binding): Step 1 is the SOLE mutating step and authors all four
+ALLOW-FILES entries (missions/mt-integrate-weather-aware-planning-2026-06-23.S2.mission.txt,
+missions/mt-integrate-region-heatmap-2026-06-23.S2.mission.txt,
+missions/mt-integrate-near-me-discovery.S1.S2.mission.txt,
+missions/mt-integrate-aurora-forecast-diff-report.S2.mission.txt). Step 2 (OUTCOME CHECK)
+is verify-only and authors nothing.
+
+MAQSAD (the end): The render-witness mission template family (weather-aware-planning.S2,
+region-heatmap.S2, near-me-discovery.S1.S2, aurora-forecast-diff-report.S2) points its
+playwright/browser navigation at "/map.html", which 308-redirects to the extensionless
+"/map" route — per GAP-REGISTER.jsonl:58 (gap-render-witness-embedded-js-and-maphtml-redirect,
+filed 2026-07-20T00:02Z, status owned, owner QUEUE ITEM 58) this false-negatives the
+served-markup assertion: weather.S2's own receipt shows {"tag":false} against /map.html
+but {"tag":true,"pop":70,"fatalErrors":0} against /map for the identical script and
+identical deploy. Both weather.S2 and region-heatmap.S2 have live FAILED runs
+(mission.result.json: "ok": false, error containing "WITNESS-FAIL") directly caused by
+this, rescued only by a manual conductor dry-run rather than a clean daemon fire
+(AUTORUN.md:1175, AUTORUN.md:1027). Correct looks like: every render-witness mission's
+browser navigation targets the extensionless served route (/map), so a daemon-fired
+run — not just a hand-run dry-run — produces a clean tag:true/ok:true receipt.
+
+THE FIX (pin exact literals): In each of the four ALLOW-FILES, replace ONLY the literal
+navigation-target text that appends ".html" to the served route with the extensionless
+"/map" target:
+  (1) missions/mt-integrate-weather-aware-planning-2026-06-23.S2.mission.txt — replace
+      `p.goto(process.argv[2] + "/map.html", { waitUntil: "load", timeout: 60000 })`
+      with
+      `p.goto(process.argv[2] + "/map", { waitUntil: "load", timeout: 60000 })`
+  (2) missions/mt-integrate-region-heatmap-2026-06-23.S2.mission.txt — identical literal
+      replacement:
+      `p.goto(process.argv[2] + "/map.html", { waitUntil: "load", timeout: 60000 })`
+      with
+      `p.goto(process.argv[2] + "/map", { waitUntil: "load", timeout: 60000 })`
+  (3) missions/mt-integrate-near-me-discovery.S1.S2.mission.txt — replace
+      `page.goto('$url/map.html', { waitUntil: 'load', timeout: 45000 })`
+      with
+      `page.goto('$url/map', { waitUntil: 'load', timeout: 45000 })`
+  (4) missions/mt-integrate-aurora-forecast-diff-report.S2.mission.txt — this step's
+      payload is prose, not a literal p.goto call; replace the phrase
+      `playwright render of map.html from that URL`
+      with
+      `playwright render of /map from that URL`
+      so the executor that writes scratch-qc.mjs at runtime targets the extensionless
+      route.
+Touch no other text in any of the four files.
+
+SCOPE FENCE (D13, do NOT exceed): Do NOT touch the Invoke-WebRequest reachability-poll
+URIs in weather.S2 / region-heatmap.S2 (both legitimately keep polling
+`Invoke-WebRequest -Uri "$url/map.html"` for a bare-200 reachability check before the
+browser render runs — the 308 redirect makes that check pass regardless of target, so
+it is not the defect and stays as-is). Do NOT touch the trailing `[command] map.html`
+file-name tag at the end of aurora-forecast-diff-report.S2's step 9 (that names the
+on-disk product file map.html, which is still correctly named map.html — it is not a
+URL and is unrelated to the redirect defect). Do NOT touch any PARENT/Maqsad/Done-means/
+ALLOW-FILES/REQUIRES header text in any of the four files. Do NOT touch any other
+mission.txt file in missions/ not named in ALLOW-FILES, including any future
+render-witness mission not yet authored. Do NOT touch the mt-integration-2026-06-22
+product repo itself (map.html, js/*, functions/*) — this mission edits only the
+engine's template mission text, never application code. Do NOT attempt to re-fire any
+render-witness mission through the daemon from inside this mission — that is the
+conductor's follow-up after this mission lands (QUEUE ITEM 58's second half).
+
+NIYYAH (why): This mission exists because GAP-REGISTER.jsonl:58
+(gap-render-witness-embedded-js-and-maphtml-redirect, filed 2026-07-20T00:02Z, status
+owned, owner "QUEUE ITEM 58") names the /map.html-vs-/map redirect false-negative as a
+live, receipted tooling defect blocking clean daemon-fired render-witness runs, and
+QUEUE.md:3447-3464 carries the fix spec (jurisdiction mt, class engine/template stem)
+directing exactly this template-level correction before any render-witness mission is
+re-fired through the daemon.
+source: C:/Users/marka/.claude/muezzin-plugin/missions/_logs/GAP-REGISTER.jsonl
+source: C:/Users/marka/.claude/muezzin-plugin/QUEUE.md
+
+REACHABILITY NOTE (miqat): Non-page change — this mission edits mission-template text
+files (engine/conductor infra) only; it ships no new page or UI surface, so MIQAT
+nav-reachability does not apply.
+
+STEPS:
+1. Replace the ".html"-appending playwright/browser navigation target with the
+   extensionless "/map" target in all four render-witness template files (three literal
+   p.goto/page.goto string replacements plus one prose-phrase replacement in
+   aurora-forecast-diff-report.S2); touch no other line in any of the four files. [edit]
+   missions/mt-integrate-weather-aware-planning-2026-06-23.S2.mission.txt,
+   missions/mt-integrate-region-heatmap-2026-06-23.S2.mission.txt,
+   missions/mt-integrate-near-me-discovery.S1.S2.mission.txt,
+   missions/mt-integrate-aurora-forecast-diff-report.S2.mission.txt
+   validation_command: $f1 = Get-Content "missions\mt-integrate-weather-aware-planning-2026-06-23.S2.mission.txt" -Raw; $f2 = Get-Content "missions\mt-integrate-region-heatmap-2026-06-23.S2.mission.txt" -Raw; $f3 = Get-Content "missions\mt-integrate-near-me-discovery.S1.S2.mission.txt" -Raw; $f4 = Get-Content "missions\mt-integrate-aurora-forecast-diff-report.S2.mission.txt" -Raw; $fail = $false; if (-not $f1.Contains('p.goto(process.argv[2] + "/map", { waitUntil: "load", timeout: 60000 })')) { Write-Output "FAIL-f1-new-missing"; $fail = $true }; if ($f1.Contains('p.goto(process.argv[2] + "/map.html", { waitUntil: "load", timeout: 60000 })')) { Write-Output "FAIL-f1-old-present"; $fail = $true }; if (-not $f2.Contains('p.goto(process.argv[2] + "/map", { waitUntil: "load", timeout: 60000 })')) { Write-Output "FAIL-f2-new-missing"; $fail = $true }; if ($f2.Contains('p.goto(process.argv[2] + "/map.html", { waitUntil: "load", timeout: 60000 })')) { Write-Output "FAIL-f2-old-present"; $fail = $true }; if (-not $f3.Contains("page.goto('`$url/map', { waitUntil: 'load', timeout: 45000 })")) { Write-Output "FAIL-f3-new-missing"; $fail = $true }; if ($f3.Contains("page.goto('`$url/map.html', { waitUntil: 'load', timeout: 45000 })")) { Write-Output "FAIL-f3-old-present"; $fail = $true }; if (-not $f4.Contains('playwright render of /map from that URL')) { Write-Output "FAIL-f4-new-missing"; $fail = $true }; if ($f4.Contains('playwright render of map.html from that URL')) { Write-Output "FAIL-f4-old-present"; $fail = $true }; if ($fail) { exit 1 } else { Write-Output "PASS-ALL-4-FIXED" }
+2. OUTCOME CHECK [command]: Independently re-verify, using a differently-implemented
+   regex-based check (not step 1's .Contains() logic), that all four files carry the new
+   /map target AND that the SCOPE-FENCED text (weather.S2/region-heatmap.S2's
+   Invoke-WebRequest reachability poll still targeting "$url/map.html", and aurora's
+   trailing "[command] map.html" file-name tag) is unchanged — proving the fix landed
+   without scope creep.
+   validation_command: $f1 = Get-Content "missions\mt-integrate-weather-aware-planning-2026-06-23.S2.mission.txt" -Raw; $f2 = Get-Content "missions\mt-integrate-region-heatmap-2026-06-23.S2.mission.txt" -Raw; $f3 = Get-Content "missions\mt-integrate-near-me-discovery.S1.S2.mission.txt" -Raw; $f4 = Get-Content "missions\mt-integrate-aurora-forecast-diff-report.S2.mission.txt" -Raw; $fail = $false; if ($f1 -notmatch [regex]::Escape('p.goto(process.argv[2] + "/map",')) { Write-Output "OUTCOME-FAIL-f1-goto"; $fail = $true }; if ($f1 -notmatch [regex]::Escape('Invoke-WebRequest -Uri "$url/map.html"')) { Write-Output "OUTCOME-FAIL-f1-poll-overedited"; $fail = $true }; if ($f2 -notmatch [regex]::Escape('p.goto(process.argv[2] + "/map",')) { Write-Output "OUTCOME-FAIL-f2-goto"; $fail = $true }; if ($f2 -notmatch [regex]::Escape('Invoke-WebRequest -Uri "$url/map.html"')) { Write-Output "OUTCOME-FAIL-f2-poll-overedited"; $fail = $true }; if ($f3 -notmatch [regex]::Escape("page.goto('`$url/map',")) { Write-Output "OUTCOME-FAIL-f3-goto"; $fail = $true }; if ($f4 -notmatch [regex]::Escape('playwright render of /map from that URL')) { Write-Output "OUTCOME-FAIL-f4-prose"; $fail = $true }; if ($f4 -notmatch [regex]::Escape('[command] map.html')) { Write-Output "OUTCOME-FAIL-f4-filetag-overedited"; $fail = $true }; if ($fail) { exit 1 } else { Write-Output "OUTCOME-PASS-RENDER-WITNESS-MAP-TARGET-FIXED" }
+
+DONE-MEANS: All four render-witness template mission files (weather-aware-planning.S2,
+region-heatmap.S2, near-me-discovery.S1.S2, aurora-forecast-diff-report.S2) target the
+extensionless /map route in their playwright/browser navigation step instead of
+/map.html, verified by both steps' validation_commands exiting 0; the scope-fenced
+reachability-poll and file-name-tag text in those same files remains byte-identical to
+its pre-mission state. (Re-firing a render-witness mission through the daemon to bank a
+clean production ok:true/tag:true receipt is the conductor's follow-up after this
+mission lands — QUEUE ITEM 58's second half — and is out of this mission's scope.)

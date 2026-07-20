@@ -1,0 +1,155 @@
+MISSION-ID: engine-deploy-gate-coldstart-retry
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\.claude\muezzin-plugin
+ALLOW-FILES:
+  - deploy_gate.mjs
+REQUIRES: none
+STEPS: 3
+
+ONE-WRITER RULE (binding): Step 1 authors deploy_gate.mjs (the only tracked
+source file this mission may touch). Step 2 performs a scoped git commit of
+step 1's edit but writes no new file content of its own. Step 3 (OUTCOME
+CHECK) authors nothing — read-only verification against HEAD.
+
+MAQSAD (the end): deploy_gate.mjs's renderProbe() (current HEAD, lines 41-64)
+makes exactly one puppeteer pass, and the argv-guarded CLI branch (lines
+67-76) calls it once and exits on that single judge() verdict — no retry
+loop, no backoff, no fresh-page re-probe anywhere in the file. This false-
+negatived guard-4 (render-verify) on the mt-levels preview leaderboard.html
+check (.level-chip selectorPresent:false) immediately after a fresh preview
+deploy: an independent playwright cross-check on the same URL with the same
+wait pattern found the chip present with zero pageErrors, and re-running the
+exact same deploy_gate.mjs command 2 minutes later also passed clean. This
+matches a Cloudflare Pages Functions/D1 cold-start-on-first-hit pattern (the
+/api/leaderboard fetch the page depends on) — not a rendering or routing
+defect. It only bites unattended/daemon-driven deploy chains (a manual
+re-run already unblocks), but an unattended chain has no human to re-run it.
+Correct looks like: renderProbe retries once (fresh page, short backoff) on
+a coldstart-flake result (page rendered but the interactive selector wasn't
+there yet) before the CLI treats it as a hard FAIL — mirroring the
+isRetryableOverlapFailure classifier already proven in scripts/e2e-runner.mjs
+(a pure DETECTOR_ERROR/timeout predicate at lines 152-153, driving the
+3-attempt fresh-browser retry loop at its call site, lines 969-976, in the
+mt-integration-2026-06-22 repo).
+
+THE FIX (pin exact literals — do not let the executor choose its own
+values):
+
+(A) Replace current HEAD lines 40-64 (the comment "// LIVE: render `url` in
+headless puppeteer, collect loaded scripts + selector presence." through the
+renderProbe function's closing brace) with exactly this text:
+
+// PURE: decide whether a renderProbe result is a coldstart-flake worth one retry — the page itself
+// rendered (navOk) but the interactive selector wasn't there yet, matching a Cloudflare Pages
+// Functions/D1 cold-start-on-first-hit pattern rather than a routing/SSR-shell regression. Mirrors
+// the isRetryableOverlapFailure classifier in scripts/e2e-runner.mjs (gap-mt-deploy-gate-coldstart-flake,
+// filed 2026-07-20). Exported for selftest (no browser).
+export function isRetryableColdstart({ navOk, selectorPresent } = {}) {
+  return navOk === true && selectorPresent === false;
+}
+
+const COLDSTART_RETRY_BACKOFF_MS = 1500;
+
+// LIVE: render `url` in headless puppeteer, collect loaded scripts + selector presence. Retries
+// once (fresh page, short backoff) on a coldstart-flake result before returning — see
+// isRetryableColdstart above.
+export async function renderProbe(url, { selector, timeoutMs, waitMs, launchOptions } = {}) {
+  const puppeteer = (await import('puppeteer')).default;
+  const browser = await puppeteer.launch(launchOptions || { headless: true });
+  try {
+    const probeOnce = async () => {
+      const page = await browser.newPage();
+      const loadedScripts = [];
+      page.on('response', (r) => { const u = r.url(); if (/\.js(\?|$)/i.test(u)) loadedScripts.push(u.split('/').pop().split('?')[0]); });
+      await page.setViewport({ width: 1440, height: 900, deviceScaleFactor: 1 });
+      try { await page.goto(url, { waitUntil: 'networkidle2', timeout: timeoutMs ?? 20000 }); }
+      catch { /* interactive pages (leaflet tiles) may never idle — best-effort, still probe the DOM */ }
+      await new Promise((r) => setTimeout(r, waitMs ?? 5000));
+      const dom = await page.evaluate((sel) => ({
+        selectorPresent: !!document.querySelector(sel),
+        hasBody: !!(document.body && document.body.innerHTML.length > 200),
+        bodyLen: document.body ? document.body.innerHTML.length : 0,
+        title: document.title,
+      }), selector || '.leaflet-container').catch(() => ({ selectorPresent: false, hasBody: false, bodyLen: 0, title: '' }));
+      await page.close().catch(() => {});
+      return { ...dom, loadedScripts, navOk: dom.hasBody };
+    };
+    let result = await probeOnce();
+    if (isRetryableColdstart(result)) {
+      await new Promise((r) => setTimeout(r, COLDSTART_RETRY_BACKOFF_MS));
+      result = await probeOnce();
+    }
+    return result;
+  } finally {
+    await browser.close();
+  }
+}
+
+(B) In the existing selftest block, insert exactly these three new lines
+immediately after the current "partial" ck() line (the line reading
+`ck(partial.ok === false && partial.reasons.some((r) => r.includes('aurora-overlay.js')), 'judge: rendered but a required feature script missing -> FAIL, names it');`)
+and before the `console.log(fails === 0 ? ...)` summary line:
+
+  // coldstart-flake retry classifier (gap-mt-deploy-gate-coldstart-flake): page rendered (navOk)
+  // but the interactive selector wasn't there yet -> worth one retry
+  ck(isRetryableColdstart({ navOk: true, selectorPresent: false }) === true, 'isRetryableColdstart: navOk + selector absent -> retry');
+  ck(isRetryableColdstart({ navOk: true, selectorPresent: true }) === false, 'isRetryableColdstart: selector present -> no retry needed');
+  ck(isRetryableColdstart({ navOk: false, selectorPresent: false }) === false, 'isRetryableColdstart: nav itself failed -> not a coldstart flake, no retry');
+
+Do not change parseArgs(), judge(), the CLI branch (lines 67-76 of current
+HEAD), or the final console.log summary text — only the two literal hunks
+above.
+
+SCOPE FENCE (D13, do NOT exceed): this mission touches ONLY deploy_gate.mjs.
+Do not edit scripts/e2e-runner.mjs — it is a read-only reference for the
+mirrored isRetryableOverlapFailure pattern, not a target. Do not modify
+judge()'s reasons/requireMarkers logic, parseArgs(), or the CLI exit-code
+branch. Do not add a second retry (exactly one retry — two probeOnce()
+attempts total). Do not fold requireMarkers/loadedScripts checks into the
+retry predicate — isRetryableColdstart triggers on navOk+selectorPresent
+only, per the gap's fix_shape. Do not touch GAP-REGISTER.jsonl, QUEUE.md, or
+any daemon/scheduler file — closing the gap record and any daemon-restart
+question are the conductor's job after this mission lands, not this
+mission's.
+
+NIYYAH (why): gap-mt-deploy-gate-coldstart-flake, filed 2026-07-20, class
+engine, jurisdiction mt, status owned — a real false-negative on a live
+preview deploy, root-caused to a Cloudflare cold-start pattern, not a code
+defect. Low priority (a manual re-run already unblocks) but it only bites
+exactly the case that matters most: unattended/daemon-driven deploy chains
+with no human present to re-run. QUEUE.md ITEM 47 (filed 2026-07-19) already
+names this exact fix in prose as a rider on the e2e-runner per-cell-SETUP-
+retry item ("deploy_gate.mjs gets the same single-retry courtesy") but no
+mission.txt existed for it before this one (Glob for *deploy-gate*coldstart*
+and *deploy_gate*retry* under missions/ returned nothing) and prose in QUEUE
+is not a receipt of code landing.
+source: missions/_logs/GAP-REGISTER.jsonl
+source: deploy_gate.mjs
+source: C:\Users\marka\code\mt-integration-2026-06-22\scripts\e2e-runner.mjs
+source: QUEUE.md
+
+REACHABILITY NOTE (miqat): non-page change. deploy_gate.mjs is an internal
+engine script invoked as `node deploy_gate.mjs <url> [--require=...]` as a
+[command] step inside ops-deploy missions (see its own header comment,
+lines 1-12) — it is spawned fresh per invocation, not a user-facing page or
+a statically-imported daemon module. No nav-reachability concern; the MIQAT
+orphan-page refusal does not apply.
+
+STEPS:
+1. Apply the two literal hunks from THE FIX section above to deploy_gate.mjs: replace current HEAD lines 40-64 with block (A), and insert the three new ck() lines from block (B) immediately after the existing "partial" ck() line and before the final console.log summary line. [edit] deploy_gate.mjs
+   validation_command: node --check deploy_gate.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; if (-not (Select-String -Path deploy_gate.mjs -Pattern 'export function isRetryableColdstart' -Quiet)) { exit 1 }; if (-not (Select-String -Path deploy_gate.mjs -Pattern 'COLDSTART_RETRY_BACKOFF_MS' -Quiet)) { exit 1 }; if (-not (Select-String -Path deploy_gate.mjs -Pattern 'probeOnce' -Quiet)) { exit 1 }; if (-not (Select-String -Path deploy_gate.mjs -Pattern 'isRetryableColdstart\(result\)' -Quiet)) { exit 1 }; Write-Output 'EDIT_OK'
+2. Run the file's own bare selftest (no URL arg, triggers the argv-guarded selftest branch) and require ALL PASS including the three new coldstart-classifier checks; then scoped commit of deploy_gate.mjs only. Run exactly: [command]
+   validation_command: $out = node deploy_gate.mjs 2>&1; $code = $LASTEXITCODE; $joined = ($out -join "`n"); Write-Output $joined; if ($code -ne 0) { exit 1 }; if ($joined -notmatch 'ALL PASS') { exit 1 }; if ($joined -notmatch [regex]::Escape('isRetryableColdstart: navOk + selector absent -> retry')) { exit 1 }; if ($joined -notmatch [regex]::Escape('isRetryableColdstart: selector present -> no retry needed')) { exit 1 }; if ($joined -notmatch [regex]::Escape('isRetryableColdstart: nav itself failed -> not a coldstart flake, no retry')) { exit 1 }; git add -- deploy_gate.mjs; git diff --cached --quiet; if ($LASTEXITCODE -eq 0) { Write-Output ALREADY_COMMITTED } else { git commit -m "fix(engine): deploy_gate.mjs retries renderProbe once on a coldstart-flake (navOk true, selectorPresent:false) before hard-failing the render-verify guard, mirroring isRetryableOverlapFailure in scripts/e2e-runner.mjs (gap-mt-deploy-gate-coldstart-flake, filed 2026-07-20)" -- deploy_gate.mjs }; if ($LASTEXITCODE -ne 0) { exit 1 }
+3. OUTCOME CHECK [command]: confirm HEAD carries the fix and the committed file's own selftest still passes clean from the committed state.
+   validation_command: $head = git show HEAD:deploy_gate.mjs; if ($head -notmatch 'export function isRetryableColdstart' -or $head -notmatch 'COLDSTART_RETRY_BACKOFF_MS') { exit 1 }; $out2 = node deploy_gate.mjs 2>&1; $code2 = $LASTEXITCODE; if ($code2 -ne 0) { exit 1 }; if (($out2 -join "`n") -notmatch 'ALL PASS') { exit 1 }; Write-Output 'OUTCOME_OK'
+
+DONE-MEANS: deploy_gate.mjs exports isRetryableColdstart({navOk,
+selectorPresent}) and renderProbe() retries exactly once — a fresh page via
+the internal probeOnce() closure, after a 1500ms (COLDSTART_RETRY_BACKOFF_MS)
+backoff — when the first pass is a coldstart-flake (navOk true, selectorPresent
+false) before returning to the CLI/judge() path; node --check is clean; the
+bare selftest (`node deploy_gate.mjs`) exits 0 with "ALL PASS" including the
+3 new coldstart-classifier checks; a scoped commit touching only
+deploy_gate.mjs has landed at HEAD. judge(), parseArgs(), and the CLI exit
+branch are byte-identical to before this mission except for the two named
+hunks.

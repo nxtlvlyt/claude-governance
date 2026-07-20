@@ -1,0 +1,144 @@
+MISSION-ID: mt-saved-lists-migration
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - d1/migrate-saved-lists-2026-07-19.sql
+  - d1/schema-write.sql
+REQUIRES: none
+STEPS: 3
+
+ONE-WRITER RULE (binding): Step 1 authors d1/migrate-saved-lists-2026-07-19.sql
+only. Step 2 authors d1/schema-write.sql only. Step 3 is verify-only and
+authors nothing.
+
+MAQSAD (the end): workers/contribute-d1.js:1306-1475 (savedListsRouter and its
+helpers savedOwnList, savedCreateList, savedListLists, savedGetList,
+savedAddItem, savedDeleteItem) issues live SELECT/INSERT/DELETE statements
+against tables `saved_lists` and `saved_list_items` on env.DB (binds to D1
+database muddytires-pois per wrangler.write.toml), but no committed migration
+creates those tables and d1/schema-write.sql at HEAD contains zero references
+to either name. Any authenticated call into this router (e.g. GET
+/saved/lists) throws "no such table" and 500s. Correct looks like: the exact
+DDL that was silently dropped from schema-write.sql is restored to the schema
+file and captured as a standalone, idempotent migration file ready to apply.
+
+THE FIX (pin exact literals): Recovered byte-for-byte from
+`git show 30986d5:d1/schema-write.sql` (lines 136-174), BEFORE it was silently
+dropped by merge commit 2bc10c6. Both new files must contain this exact block
+verbatim (including the two index names and the CHECK constraint):
+
+-- ── saved_lists (M-SAVED-LIST: P1 competitor parity) ─────────────────────────
+-- Every paid competitor (iOverlander, Park4Night, Campendium) ships a saved /
+-- favorites primitive — most paywall it. We ship the FREE version: a logged-in
+-- user can create up to MAX_LISTS lists, each holding up to MAX_ITEMS POIs or
+-- reviews, with map fly-to from the bookmark icon in the POI popup and a
+-- /saved.html management page.
+--
+-- Identity model mirrors the contribute worker contract (mission
+-- photo-fix-contributor-leak): user_id is the canonical accounts.users.id (the
+-- TRUSTED X-User-Id header the Pages proxy sets after /me succeeds), NOT the
+-- email. Email round-trips fine for legacy /mine but the saved-list primitive
+-- is new, so we key on the harder identifier directly. No body-supplied
+-- contributor field is ever stored here; the dispatcher overwrites it with
+-- the verified userId before INSERT.
+--
+-- target_kind ENUM('spot','review') matches the existing community_review
+-- target ENUM('poi','spot'). Note we EXTEND with 'review' because users save
+-- reviews/tips, not just spots — and we add 'poi' so users can save the
+-- 30k-row legacy POIs too (community_spot is only the user-added ones).
+CREATE TABLE IF NOT EXISTS saved_lists (
+  id          INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id     INTEGER NOT NULL,         -- accounts.users.id; set from X-User-Id (proxy) / verified token (worker)
+  name        TEXT NOT NULL DEFAULT 'My spots',
+  created_at  TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_saved_lists_user_id ON saved_lists (user_id);
+
+CREATE TABLE IF NOT EXISTS saved_list_items (
+  id           INTEGER PRIMARY KEY AUTOINCREMENT,
+  list_id      INTEGER NOT NULL REFERENCES saved_lists(id),
+  target_kind  TEXT NOT NULL CHECK (target_kind IN ('spot','review','poi')),
+  target_id    INTEGER NOT NULL,
+  note         TEXT,
+  added_at     TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_saved_list_items_list_id ON saved_list_items (list_id);
+-- Helps the "is POI X already in any of my lists?" bookmark-icon check (workers
+-- query by list_id + target_kind + target_id when toggling).
+CREATE INDEX IF NOT EXISTS idx_saved_list_items_target ON saved_list_items (target_kind, target_id);
+
+Step 1 puts this block (prefixed with a short migration header comment stating
+purpose, source commit 30986d5, apply/verify commands — follow the exact
+header style of d1/migrate-rating-subscores-2026-06-23.sql) into a NEW file
+d1/migrate-saved-lists-2026-07-19.sql. It is naturally idempotent (CREATE
+TABLE/INDEX IF NOT EXISTS — no ALTER TABLE involved, so no "duplicate column"
+special-casing is needed).
+
+Step 2 reinserts the identical block into d1/schema-write.sql at its ORIGINAL
+position: immediately after the current line
+`CREATE INDEX IF NOT EXISTS idx_user_contributions_contributor_id ON user_contributions (contributor_id);`
+(currently line 143) and before the current line
+`-- ── M-AMBASSADOR-SCOUT: accounts.user_role (verified-ambassador program) ──────`
+(currently line 145) — i.e. replace the single blank line 144 with: blank
+line, the saved_lists/saved_list_items block above, blank line. This mirrors
+commit 38bc9ab's precedent for restoring the sibling rating_* columns that the
+same merge (2bc10c6) also silently reverted.
+
+SCOPE FENCE (D13, do NOT exceed): Do NOT touch workers/contribute-d1.js (the
+router/query code is already correct and out of scope — this mission fixes
+only the missing schema, not application logic). Do NOT touch any other
+d1/*.sql file (in particular do NOT re-touch the already-fixed
+rating_noise/rating_access/rating_safety/rating_signal columns in
+community_review, and do NOT touch community_spot, user_contributions, or the
+M-AMBASSADOR-SCOUT user_role block — read-only context around the insertion
+point only). Do NOT run `wrangler d1 execute` against the live database and
+do NOT attempt to build/author mt-impact-visibility — both are explicitly
+out of scope for this mission (see DONE-MEANS).
+
+NIYYAH (why): gap-saved-lists-table-not-in-production, filed 2026-07-19,
+class bite, jurisdiction mt. The gap's own filed summary: "saved_list_items +
+saved_lists tables do NOT exist in muddytires-pois OR muddytires-accounts
+(live PRAGMA both empty), and there is NO committed d1/*.sql migration for
+them — yet workers/contribute-d1.js savedListsRouter queries them on env.DB."
+Per the standing ruling GAP ISSUES ARE ALWAYS PRIORITY, this bite-class gap
+outranks other product missions until closed.
+source: workers/contribute-d1.js
+source: d1/schema-write.sql
+source: d1/migrate-rating-subscores-2026-06-23.sql
+
+REACHABILITY NOTE (miqat): non-page change — this mission touches only D1
+schema/migration SQL files. It ships no new page and needs no nav-reachability
+check; MIQAT does not apply.
+
+STEPS:
+1. Author d1/migrate-saved-lists-2026-07-19.sql: a short header comment
+   (purpose, cites source commit 30986d5 and the merge revert 2bc10c6,
+   apply/verify commands — style-matched to d1/migrate-rating-subscores-2026-06-23.sql's
+   header) followed by the exact saved_lists/saved_list_items DDL block pinned
+   above, verbatim. [edit] d1/migrate-saved-lists-2026-07-19.sql
+   validation_command: powershell -NoProfile -Command "$c = Get-Content d1/migrate-saved-lists-2026-07-19.sql -Raw; $ok = ($c -match 'CREATE TABLE IF NOT EXISTS saved_lists') -and ($c -match 'CREATE TABLE IF NOT EXISTS saved_list_items') -and ($c -match 'list_id\s+INTEGER NOT NULL REFERENCES saved_lists\(id\)') -and ($c -match \"CHECK \(target_kind IN \('spot','review','poi'\)\)\") -and ($c -match 'idx_saved_lists_user_id') -and ($c -match 'idx_saved_list_items_list_id') -and ($c -match 'idx_saved_list_items_target'); if (-not $ok) { Write-Error 'FAIL: migrate-saved-lists-2026-07-19.sql missing required DDL'; exit 1 } else { Write-Output 'PASS' }"
+2. Restore the identical saved_lists/saved_list_items block into
+   d1/schema-write.sql immediately after the existing
+   idx_user_contributions_contributor_id index line and before the
+   M-AMBASSADOR-SCOUT section comment, matching its original position from
+   commit 30986d5. [edit] d1/schema-write.sql
+   validation_command: powershell -NoProfile -Command "$lines = Get-Content d1/schema-write.sql; $ucLine = ($lines | Select-String -Pattern 'idx_user_contributions_contributor_id' -SimpleMatch).LineNumber; $savedLine = ($lines | Select-String -Pattern 'CREATE TABLE IF NOT EXISTS saved_lists \(').LineNumber; $ambLine = ($lines | Select-String -Pattern 'M-AMBASSADOR-SCOUT').LineNumber; $itemsLine = ($lines | Select-String -Pattern 'CREATE TABLE IF NOT EXISTS saved_list_items \(').LineNumber; $ok = $ucLine -and $savedLine -and $ambLine -and $itemsLine -and ($savedLine -gt $ucLine) -and ($itemsLine -gt $savedLine) -and ($ambLine -gt $itemsLine); if (-not $ok) { Write-Error 'FAIL: saved_lists block missing or out of position in schema-write.sql'; exit 1 } else { Write-Output 'PASS' }"
+3. OUTCOME CHECK [command]: confirm both files carry byte-identical DDL for
+   the three index names and both CREATE TABLE statements, and that
+   schema-write.sql has no duplicate saved_lists block (exactly one match
+   each). Verify-only — authors nothing.
+   validation_command: powershell -NoProfile -Command "$mig = Get-Content d1/migrate-saved-lists-2026-07-19.sql -Raw; $sch = Get-Content d1/schema-write.sql -Raw; $names = @('CREATE TABLE IF NOT EXISTS saved_lists', 'CREATE TABLE IF NOT EXISTS saved_list_items', 'idx_saved_lists_user_id', 'idx_saved_list_items_list_id', 'idx_saved_list_items_target'); $ok = $true; foreach ($n in $names) { if (-not ($mig -match [regex]::Escape($n)) -or -not ($sch -match [regex]::Escape($n))) { $ok = $false }; $schCount = ([regex]::Matches($sch, [regex]::Escape($n))).Count; if ($schCount -ne 1) { $ok = $false } }; if (-not $ok) { Write-Error 'FAIL: DDL mismatch or duplicate block between migrate file and schema-write.sql'; exit 1 } else { Write-Output 'PASS' }"
+
+DONE-MEANS: d1/migrate-saved-lists-2026-07-19.sql exists with the verbatim
+CREATE TABLE saved_lists / saved_list_items + 3 indexes DDL; d1/schema-write.sql
+carries the identical block restored to its original position (one match
+each, no duplicates); both files pass their validation_commands. Applying the
+migration to the live muddytires-pois D1
+(`wrangler d1 execute muddytires-pois --file=d1/migrate-saved-lists-2026-07-19.sql --remote`)
+and verifying it there (`wrangler d1 execute muddytires-pois --command="PRAGMA table_info(saved_lists)" --remote`,
+same for saved_list_items, plus a live authed GET /saved/lists returning 200
+not 500) is deploy-time work the conductor performs after this mission lands,
+per the same precedent as mt-display-names.mission.txt and
+mt-first-party-beacon.S1.mission.txt — not silently assumed by this mission.
+Constructing mt-impact-visibility (the downstream aff62-spec mission this gap
+also names) is explicitly out of scope here.
