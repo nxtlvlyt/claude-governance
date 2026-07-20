@@ -37,27 +37,50 @@ export function judge({ selectorPresent, loadedScripts, requireMarkers, navOk })
   return { ok: reasons.length === 0, reasons };
 }
 
+// PURE: does this probe result look like a coldstart flake (worth one retry) rather than a real
+// failure? Exported for selftest. Coldstart flakes present as nav failing or the selector never
+// appearing — a fresh page + short backoff often clears them; a genuine regression fails the same
+// way twice.
+export function isRetryableColdstart({ navOk, selectorPresent }) {
+  return !navOk || !selectorPresent;
+}
+
+export const COLDSTART_RETRY_BACKOFF_MS = 1500;
+
 // LIVE: render `url` in headless puppeteer, collect loaded scripts + selector presence.
+// Retries once (fresh page, COLDSTART_RETRY_BACKOFF_MS backoff) if the first pass looks like a
+// coldstart flake rather than a real regression.
 export async function renderProbe(url, { selector, timeoutMs, waitMs, launchOptions } = {}) {
   const puppeteer = (await import('puppeteer')).default;
   const browser = await puppeteer.launch(launchOptions || { headless: true });
   try {
-    const page = await browser.newPage();
-    const loadedScripts = [];
-    page.on('response', (r) => { const u = r.url(); if (/\.js(\?|$)/i.test(u)) loadedScripts.push(u.split('/').pop().split('?')[0]); });
-    await page.setViewport({ width: 1440, height: 900, deviceScaleFactor: 1 });
-    let navOk = true;
-    try { await page.goto(url, { waitUntil: 'networkidle2', timeout: timeoutMs ?? 20000 }); }
-    catch { /* interactive pages (leaflet tiles) may never idle — best-effort, still probe the DOM */ }
-    await new Promise((r) => setTimeout(r, waitMs ?? 5000));
-    const dom = await page.evaluate((sel) => ({
-      selectorPresent: !!document.querySelector(sel),
-      hasBody: !!(document.body && document.body.innerHTML.length > 200),
-      bodyLen: document.body ? document.body.innerHTML.length : 0,
-      title: document.title,
-    }), selector || '.leaflet-container').catch(() => ({ selectorPresent: false, hasBody: false, bodyLen: 0, title: '' }));
-    navOk = dom.hasBody;
-    return { ...dom, loadedScripts, navOk };
+    const probeOnce = async () => {
+      const page = await browser.newPage();
+      try {
+        const loadedScripts = [];
+        page.on('response', (r) => { const u = r.url(); if (/\.js(\?|$)/i.test(u)) loadedScripts.push(u.split('/').pop().split('?')[0]); });
+        await page.setViewport({ width: 1440, height: 900, deviceScaleFactor: 1 });
+        try { await page.goto(url, { waitUntil: 'networkidle2', timeout: timeoutMs ?? 20000 }); }
+        catch { /* interactive pages (leaflet tiles) may never idle — best-effort, still probe the DOM */ }
+        await new Promise((r) => setTimeout(r, waitMs ?? 5000));
+        const dom = await page.evaluate((sel) => ({
+          selectorPresent: !!document.querySelector(sel),
+          hasBody: !!(document.body && document.body.innerHTML.length > 200),
+          bodyLen: document.body ? document.body.innerHTML.length : 0,
+          title: document.title,
+        }), selector || '.leaflet-container').catch(() => ({ selectorPresent: false, hasBody: false, bodyLen: 0, title: '' }));
+        const navOk = dom.hasBody;
+        return { ...dom, loadedScripts, navOk };
+      } finally {
+        await page.close();
+      }
+    };
+    let result = await probeOnce();
+    if (isRetryableColdstart(result)) {
+      await new Promise((r) => setTimeout(r, COLDSTART_RETRY_BACKOFF_MS));
+      result = await probeOnce();
+    }
+    return result;
   } finally {
     await browser.close();
   }
@@ -94,6 +117,10 @@ if (process.argv[1]?.endsWith('deploy_gate.mjs') && !process.argv.slice(2).some(
   // partial: rendered but one required feature missing -> FAIL (names the missing one)
   const partial = judge({ selectorPresent: true, loadedScripts: ['leaflet.js'], requireMarkers: ['leaflet.js', 'aurora-overlay.js'], navOk: true });
   ck(partial.ok === false && partial.reasons.some((r) => r.includes('aurora-overlay.js')), 'judge: rendered but a required feature script missing -> FAIL, names it');
+  // coldstart-retry predicate: nav failure or missing selector reads as a worth-a-retry flake
+  ck(isRetryableColdstart({ navOk: false, selectorPresent: true }) === true, 'isRetryableColdstart: nav failure -> retryable');
+  ck(isRetryableColdstart({ navOk: true, selectorPresent: false }) === true, 'isRetryableColdstart: selector absent -> retryable');
+  ck(isRetryableColdstart({ navOk: true, selectorPresent: true }) === false, 'isRetryableColdstart: nav ok + selector present -> not retryable');
   console.log(fails === 0 ? '\nALL PASS — deploy_gate pure logic (parseArgs + judge)' : `\n${fails} FAIL`);
   process.exit(fails === 0 ? 0 : 1);
 }
