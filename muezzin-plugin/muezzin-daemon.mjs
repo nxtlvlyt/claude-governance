@@ -821,8 +821,12 @@ export function queuedDepsHold(missionText, missionPath, autorunText, resultOkFn
   const selfEsc = String(missionPath || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   // mt-c1-boundary: \b guards against 'UNRESOLVED' substring-matching 'RESOLVED' (the
   // exact inversion bug conduct-cycle.mjs's closed() was \b-fixed for on 2026-07-02 —
-  // this daemon's twin regex was left out of that fix).
-  if (new RegExp(`^#.*\\bRESOLVED\\b.*${selfEsc}`, 'm').test(autorunText)) {
+  // this daemon's twin regex was left out of that fix). RESOLVED-LANDED/SUPERSEDED inline
+  // variant (gap-queueddepshold-resolved-landed-blind, 2026-07-20): the conductor's real
+  // stamps put the mission PATH first and RESOLVED-LANDED/SUPERSEDED inline afterward
+  // (`<path>  <!-- RESOLVED-LANDED ... -->`), never a leading-hash comment with RESOLVED
+  // before the path — this regex was blind to both real stamp shapes until now.
+  if (new RegExp(`^[^\\n]*${selfEsc}[^\\n]*\\b(?:RESOLVED(?:-[A-Z]+)*|SUPERSEDED)\\b`, 'm').test(autorunText)) {
     // mt-c2a-queueddeps (GAP-HUNT-2026-07-03: "RESOLVED-LANDED stamp is a pure-trust input
     // ... zero validation"): a stamp claiming this mission landed is verified against the
     // repo via missionLandedState BEFORE it retires the mission. A GENUINE verdict (no
@@ -877,8 +881,11 @@ export function queuedDepsHold(missionText, missionPath, autorunText, resultOkFn
   for (const dep of deps) {
     if (dep === missionPath) continue;
     const doneRe = new RegExp(`^DONE\\s+${dep.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'm');
-    // sibling of mt-c1-boundary: same \b guard for the dependency-satisfier check.
-    const resolvedRe = new RegExp(`^#.*\\bRESOLVED\\b.*${dep.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'm');
+    // sibling of mt-c1-boundary: same \b guard for the dependency-satisfier check, widened
+    // for the RESOLVED-LANDED/SUPERSEDED inline stamp shape (gap-queueddepshold-resolved-
+    // landed-blind, 2026-07-20) — see the self-resolved check's twin comment above.
+    const depEsc = dep.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const resolvedRe = new RegExp(`^[^\\n]*${depEsc}[^\\n]*\\b(?:RESOLVED(?:-[A-Z]+)*|SUPERSEDED)\\b`, 'm');
     if (resolvedRe.test(autorunText)) continue;                                  // conductor-landed
     if (doneRe.test(autorunText) && resultOkFn(dep) === true) continue;          // DONE + PASS receipt
     return { hold: true, dep, why: doneRe.test(autorunText) ? `dependency ${dep} is DONE but its result.json is not ok:true (hollow receipt)` : `dependency ${dep} not DONE/RESOLVED` };
@@ -2125,6 +2132,32 @@ if (process.argv.includes('--selftest')) {
     const resolvedDepNote = '# ' + 'RESOLVED' + ' — landed: ' + depPath;
     ck(queuedDepsHold(reqText, childPath, unresolvedDepNote, () => false).hold === true, 'mt-c1-boundary(dep): an UNRESOLVED-noted dependency comment must NOT satisfy the dependency check — stays held');
     ck(queuedDepsHold(reqText, childPath, resolvedDepNote, () => false).hold === false, 'mt-c1-boundary(dep): an explicit RESOLVED-noted dependency comment satisfies the dependency check');
+  }
+
+  // ---- gap-queueddepshold-resolved-landed-blind (RESOLVED-LANDED inline-comment variant
+  // + SUPERSEDED, added to the RESOLVED-satisfier regex 2026-07-20): the self/dependency
+  // RESOLVED checks above only matched a full-line leading-hash comment with RESOLVED
+  // BEFORE the path. A real conductor stamp of the form `<path>  <!-- RESOLVED-LANDED ...
+  // -->` (path FIRST, RESOLVED-LANDED inline, no leading '#') or a SUPERSEDED disposition
+  // never matched — this daemon stayed blind to both stamp shapes the conductor actually
+  // writes. Four fixtures lock the widened contract, including a negative control.
+  {
+    const stem3 = ['q', 'rlblind', 'stem'].join('-');
+    const selfPath3 = 'missions/' + stem3 + '.mission.txt';
+    const inlineResolvedLandedSelf = selfPath3 + '  <!-- ' + 'RESOLVED-LANDED' + ' 2026-07-20 -->';
+    ck(queuedDepsHold('MISSION-ID: x', selfPath3, inlineResolvedLandedSelf, () => false).hold === true, 'gap-queueddepshold-resolved-landed-blind: inline RESOLVED-LANDED (path first, no leading #) satisfies the self-resolved check');
+
+    const depPath3 = 'missions/' + stem3 + '.dep.mission.txt';
+    const childPath3 = 'missions/' + stem3 + '.child.mission.txt';
+    const reqText3 = 'REQUIRES: ' + depPath3 + '\n';
+    const inlineResolvedLandedDep = depPath3 + '  <!-- ' + 'RESOLVED-LANDED' + ' 2026-07-20 -->';
+    ck(queuedDepsHold(reqText3, childPath3, inlineResolvedLandedDep, () => false).hold === false, 'gap-queueddepshold-resolved-landed-blind: inline RESOLVED-LANDED dependency stamp satisfies the dependency check');
+
+    const inlineSupersededDep = depPath3 + '  <!-- ' + 'SUPERSEDED' + ' by missions/other.mission.txt -->';
+    ck(queuedDepsHold(reqText3, childPath3, inlineSupersededDep, () => false).hold === false, 'gap-queueddepshold-resolved-landed-blind: inline SUPERSEDED dependency stamp satisfies the dependency check');
+
+    const inlineDiagnosedOnlyDep = depPath3 + '  <!-- ' + 'DIAGNOSED' + ' — root cause found, fix not yet landed -->';
+    ck(queuedDepsHold(reqText3, childPath3, inlineDiagnosedOnlyDep, () => false).hold === true, 'gap-queueddepshold-resolved-landed-blind: a DIAGNOSED-but-not-RESOLVED stamp does NOT satisfy the dependency check — still holds (negative control)');
   }
 
   // ---- mt-c2a-queueddeps: RESOLVED stamp verification via missionLandedState ----
