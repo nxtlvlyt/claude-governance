@@ -1,0 +1,65 @@
+MISSION-ID: engine-execreceipt-syntax-precheck
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\.claude\muezzin-plugin
+ALLOW-FILES:
+  - seat_dispatch.mjs
+REQUIRES: none
+STEPS: 2
+
+ONE-WRITER RULE (binding): step 1 authors seat_dispatch.mjs (both the pre-check code and the two new selftest fixtures live in the same file). Step 2 is verify-only and authors nothing.
+
+MAQSAD (the end): execReceipt()'s needsScriptFile path (seat_dispatch.mjs ~line 236) writes an executor-authored PowerShell command straight to a temp .ps1 file and RUNS it with no syntax check first. When the executor mis-emits a multi-line string constant -- the confirmed, now-recurring bug where a here-string opener `@'` is followed by a literal two-character `\n` (backslash + n) instead of a real newline -- PowerShell throws a raw ParseError deep inside the real execution, which surfaces as an opaque SYNTAX-FAIL stack trace (receipt: engine-lint-rule17-grep-only-edit-validation FAILED 2026-07-20T13:32:30Z, mission_lint.mjs:372, 3x identical, model=claude-sonnet-5) or an "unresolvable-builtin-import" halt loop (receipt: engine-runtime-verify-parent-relative-import FAILED 2026-07-20T11:01:39Z, north-mini-code-toolcall, 5x identical). Both burned a full step timeout before failing. Filed as gap-executor-multiline-string-literal-fragility (2026-07-20T13:4xZ) -- 3 confirmed instances across 2 model tiers.
+
+THE FIX (pin exact literals): in execReceipt() (seat_dispatch.mjs), inside the `else if (needsScriptFile)` branch, insert a parse-only syntax check between the existing `writeFileSync(tmp, cmd + parityTail, 'utf8');` line and the existing `out = execFileSync('pwsh.exe', ['-NoProfile', '-NonInteractive', '-File', tmp], ...)` line (both already inside the same `try { ... } finally { ... }` block -- do not move or duplicate either). Insert exactly:
+
+```
+        // SYNTAX PRE-CHECK (gap-executor-multiline-string-literal-fragility, 2026-07-20): parse
+        // the script BEFORE running it. AST-only parse (Parser.ParseFile), zero execution -- a
+        // malformed here-string (executor emits literal '\n' text after @' instead of a real
+        // newline) throws a clean ParseError here instead of burning a full step timeout and
+        // surfacing as an opaque SYNTAX-FAIL stack trace deep in a downstream selftest.
+        const syntaxCheckCmd = `$errs = $null; [void][System.Management.Automation.Language.Parser]::ParseFile('${tmp.replace(/'/g, "''")}', [ref]$null, [ref]$errs); if ($errs.Count -gt 0) { $errs | ForEach-Object { Write-Output $_.Message }; exit 1 } else { exit 0 }`;
+        try {
+          execFileSync('pwsh.exe', ['-NoProfile', '-NonInteractive', '-Command', syntaxCheckCmd], { cwd, env: childEnv, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: 15000 });
+        } catch (parseErr) {
+          const parseMsg = (String(parseErr.stdout || '') + String(parseErr.stderr || '')).trim() || String(parseErr.message || '').slice(0, 300);
+          hb(`exec-fail elapsed=${Date.now() - tExec0}ms MALFORMED-VALIDATION-COMMAND`);
+          return { type: 'exec', ref: cmd, ok: false, exit: 1, out: `MALFORMED-VALIDATION-COMMAND: ${parseMsg}`.slice(0, 2000) };
+        }
+```
+
+The line immediately after this inserted block must remain the pre-existing `out = execFileSync('pwsh.exe', ['-NoProfile', '-NonInteractive', '-File', tmp], { cwd, env: childEnv, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: stepTimeoutMs });` byte-identical to today -- this fix only gates entry to that line, it does not change it.
+
+Then add two new selftest fixtures immediately after the existing case-12 HERE-STRING MANGLE FIX block (the one ending with `check('execReceipt single-line: unchanged -Command path still works', ...)` inside the `if (process.platform === 'win32') { ... }` block) and its closing `}`, and before the `// TIMEOUT-ESCALATION ladder` comment. Insert exactly:
+
+```
+  // 13. MALFORMED-MULTILINE-STRING PRE-CHECK (gap-executor-multiline-string-literal-fragility,
+  //     2026-07-20): the exact engine-runtime-verify-parent-relative-import / engine-lint-
+  //     rule17-grep-only-edit-validation kill shape -- a here-string with a LITERAL '\n' text
+  //     token (backslash+n, not a real newline) right after the @' opener, which PowerShell's
+  //     parser rejects. Must fail FAST with a labeled diagnostic instead of a raw ParseError
+  //     buried in a downstream selftest's own stack trace.
+  if (process.platform === 'win32') {
+    const badHs = "$script = @'\\n(function(){})();\\n'@\n";
+    const rBad = execReceipt(badHs, '.');
+    check('execReceipt syntax pre-check: malformed here-string (literal backslash-n text after @\') fails fast', rBad.ok, false);
+    check('execReceipt syntax pre-check: failure is labeled MALFORMED-VALIDATION-COMMAND, not a raw ParseError dump', rBad.out.startsWith('MALFORMED-VALIDATION-COMMAND'), true);
+  }
+```
+
+SCOPE FENCE (D13, do NOT exceed): touch ONLY seat_dispatch.mjs, ONLY the two insertions named above. Do NOT modify execTimeoutMs, isLongRunCmd, the single-line -Command branch (line 246 in today's file), the non-Windows execSync branch, the finally-block cleanup, or any other selftest case (including the existing case-12 here-string block itself -- it stays byte-identical). Do NOT change the 15000ms syntax-check timeout to anything else; it is deliberately small (a parse-only pass never legitimately takes seconds). Do NOT touch dispatch-heartbeat.log rotation, agy_dispatch.mjs, self_witness.mjs, or verdict_merge.mjs.
+
+NIYYAH (why): gap-executor-multiline-string-literal-fragility, filed 2026-07-20T13:4xZ, GAP-REGISTER.jsonl -- 3 confirmed live instances this session (engine-runtime-verify-parent-relative-import, engine-lint-rule17-grep-only-edit-validation, mt-saved-lists-migration) of the executor mis-emitting a multi-line string constant, 2 different languages (PowerShell here-strings, JS string literals), 2 different model tiers (north-mini-code-toolcall, claude-sonnet-5). This mission closes the PowerShell-here-string half of that gap at the execution layer (catch-before-run) rather than trying to prevent the underlying LLM mis-emission, which has already proven unfixable by prose instruction alone across 2 mission attempts.
+source: C:\Users\marka\.claude\muezzin-plugin\missions\_logs\GAP-REGISTER.jsonl
+source: C:\Users\marka\.claude\muezzin-plugin\seat_dispatch.mjs
+source: C:\Users\marka\.claude\muezzin-plugin\missions\AUTORUN.md
+
+REACHABILITY NOTE (miqat): non-page engine change (a dispatch-layer library used by the mission executor's own internal exec pipeline) -- no new page/surface ships, so no nav-reachability / MIQAT concern applies.
+
+STEPS:
+1. Apply THE FIX exactly as specified above: the syntax-precheck insertion inside execReceipt()'s needsScriptFile branch, and the two new selftest fixtures. [edit] seat_dispatch.mjs
+   validation_command: node --check seat_dispatch.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; if (-not (Select-String -Path seat_dispatch.mjs -Pattern 'MALFORMED-VALIDATION-COMMAND' -Quiet)) { exit 1 }; if (-not (Select-String -Path seat_dispatch.mjs -Pattern 'System.Management.Automation.Language.Parser' -Quiet)) { exit 1 }; if (-not (Select-String -Path seat_dispatch.mjs -Pattern 'syntaxCheckCmd' -Quiet)) { exit 1 }; Write-Output 'SYNTAX-PRECHECK-CODE-OK'
+2. OUTCOME CHECK [command]: run the file's own embedded selftest and confirm the new fixtures pass alongside the pre-existing suite (zero regressions). Authors nothing.
+   validation_command: $out = node seat_dispatch.mjs --selftest 2>&1 | Out-String; $ec = $LASTEXITCODE; if ($ec -ne 0) { exit 1 }; if ($out -notmatch 'malformed here-string') { exit 1 }; if ($out -notmatch 'MALFORMED-VALIDATION-COMMAND') { exit 1 }; if ($out -notmatch 'selftest\] \d+ passed, 0 failed') { exit 1 }; Write-Output 'SELFTEST-ZERO-REGRESSIONS'
+
+DONE-MEANS: execReceipt()'s needsScriptFile path parses a multi-line/here-string validation_command with PowerShell's own AST parser BEFORE executing it; a malformed here-string (the confirmed literal-backslash-n-after-@' class) now fails in under 15 seconds with a result carrying `out` prefixed `MALFORMED-VALIDATION-COMMAND:` instead of burning a full step timeout and surfacing as a raw ParseError or an opaque downstream SYNTAX-FAIL; the embedded --selftest reports the new fixtures passing with zero regressions to the pre-existing suite (`[selftest] N passed, 0 failed`).
