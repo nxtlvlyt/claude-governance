@@ -826,7 +826,7 @@ export function queuedDepsHold(missionText, missionPath, autorunText, resultOkFn
   // stamps put the mission PATH first and RESOLVED-LANDED/SUPERSEDED inline afterward
   // (`<path>  <!-- RESOLVED-LANDED ... -->`), never a leading-hash comment with RESOLVED
   // before the path — this regex was blind to both real stamp shapes until now.
-  if (new RegExp(`^[^\\n]*${selfEsc}[^\\n]*\\b(?:RESOLVED(?:-[A-Z]+)*|SUPERSEDED)\\b`, 'm').test(autorunText)) {
+  if (new RegExp(`^#.*\\bRESOLVED\\b.*${selfEsc}|^[^\\n]*${selfEsc}[^\\n]*\\b(?:RESOLVED(?:-[A-Z]+)*|SUPERSEDED)\\b`, 'm').test(autorunText)) {
     // mt-c2a-queueddeps (GAP-HUNT-2026-07-03: "RESOLVED-LANDED stamp is a pure-trust input
     // ... zero validation"): a stamp claiming this mission landed is verified against the
     // repo via missionLandedState BEFORE it retires the mission. A GENUINE verdict (no
@@ -885,7 +885,7 @@ export function queuedDepsHold(missionText, missionPath, autorunText, resultOkFn
     // for the RESOLVED-LANDED/SUPERSEDED inline stamp shape (gap-queueddepshold-resolved-
     // landed-blind, 2026-07-20) — see the self-resolved check's twin comment above.
     const depEsc = dep.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const resolvedRe = new RegExp(`^[^\\n]*${depEsc}[^\\n]*\\b(?:RESOLVED(?:-[A-Z]+)*|SUPERSEDED)\\b`, 'm');
+    const resolvedRe = new RegExp(`^#.*\\bRESOLVED\\b.*${depEsc}|^[^\\n]*${depEsc}[^\\n]*\\b(?:RESOLVED(?:-[A-Z]+)*|SUPERSEDED)\\b`, 'm');
     if (resolvedRe.test(autorunText)) continue;                                  // conductor-landed
     if (doneRe.test(autorunText) && resultOkFn(dep) === true) continue;          // DONE + PASS receipt
     return { hold: true, dep, why: doneRe.test(autorunText) ? `dependency ${dep} is DONE but its result.json is not ok:true (hollow receipt)` : `dependency ${dep} not DONE/RESOLVED` };
