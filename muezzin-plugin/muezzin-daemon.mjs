@@ -696,8 +696,9 @@ export function batonAllows(content) {
   return String(content).split(/\r?\n/)[0].trim() === 'claude-muezzin';
 }
 const batonHeldLogged = new Set();
-export function gapHoldSkips(raw) {
+export function gapHoldSkips(raw, holdText) {
   const stem = path.basename(String(raw)).replace(/\.mission\.txt$/i, '');
+  if (String(holdText || '').includes(`EXEMPT: missions/${stem}.mission.txt`)) return false;
   return GAP_HOLD_PRODUCT_PREFIXES.some((p) => stem.toLowerCase().startsWith(p));
 }
 
@@ -1208,9 +1209,13 @@ async function mainLoop() {
     // the conductor holds this flag open (bite-class gaps in progress), PRODUCT-class fires
     // are skipped — engine/gap/damm missions still fire. The flag is a file so it survives
     // reloads and is visible to every instance; the conductor clears it when the gap closes.
-    if (existsSync(path.join(LOGDIR, 'GAP-PRIORITY-HOLD')) && gapHoldSkips(raw)) {
-      if (!gapHoldLogged.has(raw)) { gapHoldLogged.add(raw); evt(`GAP-PRIORITY-HOLD: ${raw} — product fire deferred while bite-class gap work is open (operator ruling 2026-07-03); skipping to next pending`); }
-      return;
+    if (existsSync(path.join(LOGDIR, 'GAP-PRIORITY-HOLD'))) {
+      let gapHoldText = '';
+      try { gapHoldText = readFileSync(path.join(LOGDIR, 'GAP-PRIORITY-HOLD'), 'utf8'); } catch { /* unreadable hold file -> no exemptions, held as before */ }
+      if (gapHoldSkips(raw, gapHoldText)) {
+        if (!gapHoldLogged.has(raw)) { gapHoldLogged.add(raw); evt(`GAP-PRIORITY-HOLD: ${raw} — product fire deferred while bite-class gap work is open (operator ruling 2026-07-03); skipping to next pending`); }
+        return;
+      }
     }
     // RETRO-REPEAT GATE (blind-spot hunt #24, 2026-07-03 — receipt: 924 retros for ONE stem
     // at 30-second refire cadence while zero engine code read the retro corpus back): if this
@@ -1721,6 +1726,11 @@ if (process.argv.includes('--selftest')) {
   ck(gapHoldSkips('missions/qc-concern-poi-affiliate-cards-poi-affiliate-cards-js-2026-06-25.mission.txt') === true, 'gap-hold: qc-concern-* held (2026-07-07 live bypass receipt)');
   ck(gapHoldSkips('missions/qc-fix-share-spot-share-spot-js-2026-06-24.mission.txt') === true, 'gap-hold: qc-fix-* held (same family)');
   ck(gapHoldSkips('missions/m1-1-oracle-ingest-ontario-crownland-v6.mission.txt') === true, 'gap-hold: m1-* held (oracle-ingest is muddytires product)');
+  // OWNER-EXEMPTION (gapHoldSkips second param): a hold file naming a specific mission as
+  // EXEMPT lets that one mission fire while the rest of the product class stays held.
+  ck(gapHoldSkips('missions/mt-fireban-click-fix.mission.txt', 'EXEMPT: missions/mt-fireban-click-fix.mission.txt') === false, 'gap-hold named-owner-fires: the EXEMPT-named mission itself is released (not held)');
+  ck(gapHoldSkips('missions/mt-fire.mission.txt', 'EXEMPT: missions/mt-fireban-click-fix.mission.txt') === true, 'gap-hold unnamed-product-still-held: a different mt-* mission is NOT released by another mission\'s EXEMPT line');
+  ck(gapHoldSkips('missions/mt-fireban-click-fix-extra.mission.txt', 'EXEMPT: missions/mt-fireban-click-fix.mission.txt') === true, 'gap-hold stem-substring-guard: a stem that merely CONTAINS the exempted stem as a prefix is NOT falsely released (full stem + .mission.txt match required)');
   // CONDUCTOR-BATON (plan step 5): single-writer lock, both polarities + edges.
   ck(batonAllows('claude-muezzin\ngranted 2026-07-07') === true, 'baton: first line "claude-muezzin" -> this daemon fires');
   ck(batonAllows('claude-muezzin\r\ncrlf body') === true, 'baton: CRLF first line still grants');
