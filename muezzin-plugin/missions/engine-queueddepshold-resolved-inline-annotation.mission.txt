@@ -1,0 +1,79 @@
+MISSION-ID: engine-queueddepshold-resolved-inline-annotation
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\.claude\muezzin-plugin
+ALLOW-FILES:
+  - muezzin-daemon.mjs
+REQUIRES: none
+STEPS: 2
+
+ONE-WRITER RULE (binding): step 1 authors muezzin-daemon.mjs (both regex changes and the new selftest fixtures live in the same file). Step 2 is verify-only and authors nothing.
+
+MAQSAD (the end): queuedDepsHold()'s dependency-satisfaction check (muezzin-daemon.mjs ~line 881) and its self-resolved check (~line 825) both use `resolvedRe = /^#.*\bRESOLVED\b.*<path>/m` -- requiring a STANDALONE line starting with `#` that contains both the RESOLVED keyword and the mission path. This project's OWN established convention for conductor judgment calls (RESOLVED-LANDED, RESOLVED-BY-BOOTSTRAP-HAND-APPLY, SUPERSEDED) is to append the annotation INSIDE the terminal-status line's own trailing HTML comment -- e.g. `FAILED missions/x.mission.txt  <!-- ... RESOLVED-LANDED 2026-07-15T17:2xZ ... Do NOT refire. -->` -- used dozens of times this session. That shape does not start with `#`, so resolvedRe never matches it. LIVE-CONFIRMED: mt-mobile-lane-fix.S1 carries a full RESOLVED-LANDED judgment inline on its FAILED line (landed 2026-07-15T17:2xZ, "Done-means satisfied end-to-end... Do NOT refire") -- but mt-plan-mode-mobile.S1, which REQUIRES it, has sat TARTIB-HELD every poll since (5+ days as of this filing), because the dependency check only reads the line's leading status token, never the judgment inside its own comment.
+
+THE FIX (pin exact literals):
+
+1. In the SELF-RESOLVED check, replace this exact line:
+```
+  if (new RegExp(`^#.*\\bRESOLVED\\b.*${selfEsc}`, 'm').test(autorunText)) {
+```
+with exactly:
+```
+  if (new RegExp(`^#.*\\bRESOLVED\\b.*${selfEsc}|^[^\\n]*${selfEsc}[^\\n]*\\b(?:RESOLVED(?:-[A-Z]+)*|SUPERSEDED)\\b`, 'm').test(autorunText)) {
+```
+
+2. In the DEPENDENCY-SATISFACTION loop, replace this exact line:
+```
+    const resolvedRe = new RegExp(`^#.*\\bRESOLVED\\b.*${dep.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'm');
+```
+with exactly:
+```
+    const depEsc = dep.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const resolvedRe = new RegExp(`^#.*\\bRESOLVED\\b.*${depEsc}|^[^\\n]*${depEsc}[^\\n]*\\b(?:RESOLVED(?:-[A-Z]+)*|SUPERSEDED)\\b`, 'm');
+```
+   (this introduces `depEsc` as a named variable used by the new alternative; every OTHER reference to `dep.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')` later in the same loop body -- specifically inside the `doneRe` line two lines above this one -- stays UNCHANGED, byte-identical to today; do not refactor doneRe to use depEsc, that is out of scope.)
+
+Both new alternatives read: does ANY single line contain the dep/self path AND, anywhere later on that SAME line, a word-boundaried keyword matching `RESOLVED` optionally followed by one or more `-UPPERCASE` segments (catching RESOLVED-LANDED, RESOLVED-BY-BOOTSTRAP-HAND-APPLY, etc.) or the literal `SUPERSEDED`. The `\b` before the keyword group preserves the existing UNRESOLVED-safety (per mt-c1-boundary's own regression pair, comment lines 2109-2128) -- "UNRESOLVED" has no word boundary between its "N" and "RESOLVED", so it still never matches.
+
+SCOPE FENCE (D13, do NOT exceed): touch ONLY the two regex-construction lines named above, plus the new selftest block described in step 1 below. Do NOT touch the `doneRe` line, the STAMP-DISPUTED / missionLandedState logic, the unresolvedHyphenated visibility block, the bare-stem/tartib-child resolution logic (parts a/b/b2/c above the loop), or any other selftest case in the file (including the existing "tartib-gate" and "mt-c1-boundary" blocks -- they stay byte-identical and must keep passing unchanged, they are the regression guard for this exact fix).
+
+NIYYAH (why): gap-queueddepshold-resolved-landed-blind, filed 2026-07-20T16:3xZ, GAP-REGISTER.jsonl -- live-confirmed direct cause of the daemon's queue sitting dry (both currently-queued missions TARTIB-held; this closes the mt-plan-mode-mobile.S1 / mt-mobile-lane-fix.S1 half of that starvation).
+source: C:\Users\marka\.claude\muezzin-plugin\missions\_logs\GAP-REGISTER.jsonl
+source: C:\Users\marka\.claude\muezzin-plugin\muezzin-daemon.mjs
+source: C:\Users\marka\.claude\muezzin-plugin\missions\AUTORUN.md
+
+REACHABILITY NOTE (miqat): non-page engine change (the mission daemon's own dependency-scheduling logic) -- no new page/surface ships, so no nav-reachability / MIQAT concern applies.
+
+STEPS:
+1. Apply THE FIX exactly as specified above (both regex-construction line replacements), then add this new selftest block immediately after the existing "mt-c1-boundary regression pair" block's closing `}` (the one ending at the line containing `'mt-c1-boundary(dep): an explicit RESOLVED-noted dependency comment satisfies the dependency check'`) and before the next selftest section begins. Insert exactly:
+```
+  // ---- gap-queueddepshold-resolved-landed-blind (2026-07-20): a RESOLVED-class judgment
+  // annotated INLINE in a terminal-status line's own trailing comment (this project's actual
+  // convention -- e.g. 'FAILED missions/x.mission.txt  <!-- ... RESOLVED-LANDED ... -->')
+  // must satisfy the same-file self-check AND the dependency check, not only a standalone
+  // #-prefixed line. Fixture strings built by runtime concatenation, never typed as a single
+  // literal (mirrors the mt-c1-boundary block immediately above).
+  {
+    const stem2 = ['r', 'inline', 'stem'].join('-');
+    const selfPath2b = 'missions/' + stem2 + '.mission.txt';
+    const inlineSelfNote = 'FAILED ' + selfPath2b + '  <!-- ... ' + 'RESOLVED' + '-LANDED 2026-07-15T17:2xZ: done-means satisfied, do not refire. -->';
+    ck(queuedDepsHold('MISSION-ID: x', selfPath2b, inlineSelfNote, () => false).hold === true, 'gap-queueddepshold: an inline RESOLVED-LANDED judgment on a FAILED self-line now satisfies the self-resolved check (the mt-mobile-lane-fix.S1 class)');
+
+    const depPath2 = 'missions/' + stem2 + '.dep.mission.txt';
+    const childPath2 = 'missions/' + stem2 + '.child.mission.txt';
+    const reqText2 = 'REQUIRES: ' + depPath2 + '\n';
+    const inlineDepNote = 'FAILED ' + depPath2 + '  <!-- ... ' + 'RESOLVED' + '-LANDED 2026-07-15T17:2xZ: done-means satisfied, do not refire. -->';
+    ck(queuedDepsHold(reqText2, childPath2, inlineDepNote, () => false).hold === false, 'gap-queueddepshold: an inline RESOLVED-LANDED judgment on a FAILED dependency line now satisfies the dependency check (the mt-plan-mode-mobile.S1 class)');
+
+    const inlineSupersededNote = 'FAILED ' + depPath2 + '  <!-- ... ' + 'SUPERSEDED' + ' 2026-07-07: replaced by a different mission. -->';
+    ck(queuedDepsHold(reqText2, childPath2, inlineSupersededNote, () => false).hold === false, 'gap-queueddepshold: an inline SUPERSEDED judgment on a FAILED dependency line also satisfies the dependency check');
+
+    const stillFailingNote = 'FAILED ' + depPath2 + '  <!-- ... DIAGNOSED 2026-07-20: root cause found, CANDIDATE-REQUEUE, not yet fixed. -->';
+    ck(queuedDepsHold(reqText2, childPath2, stillFailingNote, () => false).hold === true, 'gap-queueddepshold: a DIAGNOSED-but-not-RESOLVED annotation still correctly holds (no false satisfy on prose that merely explains the failure)');
+  }
+```
+   [edit] muezzin-daemon.mjs
+   validation_command: node --check muezzin-daemon.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; if (-not (Select-String -Path muezzin-daemon.mjs -Pattern 'gap-queueddepshold-resolved-landed-blind' -Quiet)) { exit 1 }; if (-not (Select-String -Path muezzin-daemon.mjs -Pattern 'depEsc' -Quiet)) { exit 1 }; Write-Output 'QUEUEDDEPSHOLD-FIX-CODE-OK'
+2. OUTCOME CHECK [command]: run the daemon's own embedded selftest and confirm the new fixtures pass alongside zero regressions to the existing tartib-gate and mt-c1-boundary blocks. Authors nothing.
+   validation_command: $out = node muezzin-daemon.mjs --selftest 2>&1 | Out-String; $ec = $LASTEXITCODE; if ($ec -ne 0) { exit 1 }; if ($out -notmatch 'gap-queueddepshold: an inline RESOLVED-LANDED judgment on a FAILED dependency line now satisfies') { exit 1 }; if ($out -notmatch 'tartib-gate: conductor-RESOLVED dependency satisfies') { exit 1 }; if ($out -notmatch 'mt-c1-boundary\(dep\): an explicit RESOLVED-noted dependency comment satisfies') { exit 1 }; Write-Output 'QUEUEDDEPSHOLD-SELFTEST-OK'
+
+DONE-MEANS: queuedDepsHold() recognizes a RESOLVED-class keyword (RESOLVED, RESOLVED-LANDED, RESOLVED-BY-..., SUPERSEDED) appearing inline in a terminal-status line's own trailing comment as satisfying both the self-resolved check and the dependency-satisfaction check, in addition to the pre-existing standalone-#-line form; the embedded --selftest passes the 4 new fixtures with zero regressions to the pre-existing tartib-gate and mt-c1-boundary selftest blocks.
