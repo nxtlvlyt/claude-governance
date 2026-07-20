@@ -3443,3 +3443,22 @@ form: a mission_lint rule that greps sibling d1/*.sql for the same CREATE TABLE
 name and refuses on a mismatch. Deeper form: a live D1 schema probe in the
 deploy guard chain (a migration that no-ops against an existing incompatible
 table is a deploy blocker). Engine- stem.
+
+ITEM 58 — RENDER-WITNESS TEMPLATE: EMBEDDED-JS FRAGILITY + /map.html REDIRECT
+FALSE-NEGATIVE (filed 2026-07-20 ~00:0xZ). RECEIPT: weather-aware-planning.S2
+(re-authored from the region-heatmap.S2 render-witness template) FAILED x2 on the
+daemon with engine-exec/no-output; the conductor's own in-session run of the
+IDENTICAL command broke at Remove-Item — the single-quoted playwright JS EMBEDDED
+inside the PowerShell [command] one-liner is fragile across the exec layer.
+Separately, the witness targets /map.html which 308-redirects to /map
+(extensionless); the redirect false-negatives html.includes(<tag>) on p.content()
+— weather.S2 render returned tag:false vs /map.html but tag:true+pop:70 vs /map.
+Both are TOOLING defects (the feature is landed+wired+live; the conductor banked
+the render proof via a ninth-law FILE-based /map witness). FIX: amend the
+render-witness recipe (canonical template = region-heatmap.S2, also
+near-me.S1.S2) — (a) write the playwright witness to a scratch .mjs FILE
+(Set-Content) then `node` it, do NOT embed it in the PowerShell string; (b) target
+/map not /map.html. Then re-verify one render-witness mission fires clean THROUGH
+THE DAEMON (not just a conductor dry-run). Unblocks the render-witness class incl.
+bookmark-widget.S2 (the other audit REQUEUE, same render need). Owns
+gap-render-witness-embedded-js-and-maphtml-redirect. Engine/template stem.
