@@ -152,6 +152,35 @@ export function buildCodeRepoDeclaration(files, parentMissionText) {
   return { repoRoot: parentInfo.repoRoot, allowFiles };
 }
 
+// ---- buildReachabilityDeclaration ---------------------------------------------------
+// RULE 12 (mission_lint.mjs, trip-cost orphan-page receipt 2026-07-03): a code-repo
+// mission whose ALLOW-FILES ship a standalone .html page (not the site's entry surfaces
+// index.html/map.html) is REFUSED unless it carries reachability intent (an inbound-link/
+// nav step or evidence line) or an explicit `UNLINKED-OK: <why>` declaration. A split
+// child that inherits such a page loses the parent's own reachability language the same
+// way emitSubMissions used to lose VISUAL-QC-REQUIRED — so this forwarder mirrors RULE 12's
+// own predicates (HTML_FILE_RE/ENTRY_HTML_RE/UNLINKED_OK_LINE_RE/REACHABILITY_NOTE_RE) to
+// keep forwarder and gate in lockstep, the same discipline buildDoneMeans's
+// RENDER_EXEC_STEP_RE already established for VISUAL-QC-REQUIRED above. A non-html sibling
+// never ships the page, so it never receives the note — same gating shape as
+// buildDoneMeans's hasWebUi check.
+const HTML_FILE_RE = /\.html$/i;
+const ENTRY_HTML_RE = /(^|\/)(index|map)\.html$/i;
+const UNLINKED_OK_LINE_RE = /^UNLINKED-OK:.*$/im;
+const REACHABILITY_NOTE_RE = /\b(inbound[- ]link|nav(igation)? (link|entry|anchor)|NAV_LINK|reachab)/i;
+
+export function buildReachabilityDeclaration(files, parentMissionText) {
+  const shipsStandaloneHtml = (files || []).some((f) => HTML_FILE_RE.test(f) && !ENTRY_HTML_RE.test(f));
+  if (!shipsStandaloneHtml) return null;
+
+  const text = String(parentMissionText || '');
+  const unlinkedOkMatch = text.match(UNLINKED_OK_LINE_RE);
+  if (unlinkedOkMatch) return unlinkedOkMatch[0];
+
+  const note = 'REACHABILITY: this page requires an inbound nav-link from the site entry surface (index.html/map.html) — verify NAV_LINK=present before Done, or declare UNLINKED-OK: <why>.';
+  return REACHABILITY_NOTE_RE.test(note) ? note : null;
+}
+
 // ---- emitSubMissions --------------------------------------------------------------
 // Writes each sub-mission as a .mission.txt file + a _split-manifest.json handoff record
 // into the missions directory. Appends each child to the AUTORUN queue in tartib order.
@@ -225,6 +254,7 @@ export function emitSubMissions(plan, ctx = {}, io = {}) {
 
     const doneMeans = buildDoneMeans(group, plan._parentMission);
     const codeRepo = buildCodeRepoDeclaration(doneMeans.files, plan._parentMission);
+    const reachabilityNote = buildReachabilityDeclaration(doneMeans.files, plan._parentMission);
 
     const childText = [
       `MISSION-ID: ${childId}`,
@@ -232,6 +262,7 @@ export function emitSubMissions(plan, ctx = {}, io = {}) {
       `PARENT: ${parentId}`,
       `TARTIB-INDEX: ${group.index} of ${plan.groupCount}`,
       ...(codeRepo ? [`REPO-ROOT: ${codeRepo.repoRoot}`, `ALLOW-FILES:`, ...codeRepo.allowFiles.map((f) => `  - ${f}`)] : []),
+      ...(reachabilityNote ? [reachabilityNote] : []),
       ...(doneMeans.visualQcHeaderLine ? [doneMeans.visualQcHeaderLine] : []),
       requiresClause,
       `STEPS: ${group.stepCount}`,
@@ -714,6 +745,100 @@ if (process.argv[1]?.endsWith('mission_split.mjs')) {
     ck(vqS1Lint.ok === true && vqS1Lint.problems.length === 0, 'STEP-CARRIAGE agreement: the untagged child passes lintMission (no refusal scheduled at emit time)');
 
     fsF.rmSync(tmpF, { recursive: true, force: true });
+  }
+
+  // ---- REACHABILITY-CARRIAGE (RULE 12 forwarding parity, mirrors the VISUAL-QC
+  // forwarding fixture above): a code-repo parent ships a standalone .html page (not
+  // index.html/map.html) alongside a non-html sibling group. The html-shipping child
+  // must inherit a reachability declaration so it passes the REAL lintMission RULE 12
+  // gate (the trip-cost orphan-page shape); the non-html sibling must NOT receive one.
+  // A second parent already carrying its own UNLINKED-OK line proves that line is
+  // forwarded VERBATIM rather than overwritten by a synthesized note.
+  {
+    const osR = await import('os');
+    const fsR = await import('fs');
+    const { lintMission: lintMissionR } = await import('./mission_lint.mjs');
+    const tmpR = fsR.mkdtempSync(path.join(osR.tmpdir(), 'msplit_reach_'));
+    const missionsDirR = path.join(tmpR, 'missions');
+    fsR.mkdirSync(missionsDirR, { recursive: true });
+
+    // (a) no existing UNLINKED-OK on the parent -> a synthesized reachability note is forwarded.
+    const parentTextReach = [
+      'MISSION-ID: M-REACH1',
+      'MISSION-CLASS: code-repo',
+      'REPO-ROOT: C:\\fake\\repo',
+      'ALLOW-FILES:',
+      '  - trip-cost.html',
+      '  - lib/helper.mjs',
+      'Maqsad: ship the standalone planner page plus an unrelated helper.',
+    ].join('\n');
+    const reachQueue = {
+      mission_id: 'M-REACH1',
+      steps: [
+        { step_index: 1, description: 'author the standalone planner page', action_type: 'edit', target_files: ['trip-cost.html'], context_dependencies: [], validation_command: 'true' },
+        { step_index: 2, description: 'add an unrelated helper', action_type: 'edit', target_files: ['lib/helper.mjs'], context_dependencies: [], validation_command: 'node -c lib/helper.mjs' },
+      ],
+    };
+    const planReach = splitOversizedPlan(parentTextReach, reachQueue, { sizeCeiling: 1 });
+    ck(planReach.split === true && planReach.groupCount === 2, 'REACHABILITY-CARRIAGE: 2 steps / ceiling 1 = 2 groups (html-shipping, non-html sibling)');
+
+    const outReach = emitSubMissions(planReach, {
+      missionsDir: missionsDirR,
+      parentMissionFile: 'reach-1.mission.txt',
+      parentId: planReach.parentId,
+    }, {
+      writeFile: (p, c) => { fsR.mkdirSync(path.dirname(p), { recursive: true }); fsR.writeFileSync(p, c); },
+    });
+    ck(outReach.ok === true && outReach.files.length === 2, 'REACHABILITY-CARRIAGE: emitSubMissions wrote 2 children');
+
+    const htmlChildReach = fsR.readFileSync(path.join(missionsDirR, 'reach-1.S1.mission.txt'), 'utf8');
+    const nonHtmlChildReach = fsR.readFileSync(path.join(missionsDirR, 'reach-1.S2.mission.txt'), 'utf8');
+
+    ck(REACHABILITY_NOTE_RE.test(htmlChildReach), 'REACHABILITY-CARRIAGE: the html-shipping child inherits a reachability declaration satisfying RULE 12\'s own hasReachability predicate');
+    ck(!/REACHABILITY:/.test(nonHtmlChildReach), 'REACHABILITY-CARRIAGE: the non-html sibling does NOT inherit the reachability note');
+
+    const htmlChildLintReach = lintMissionR(htmlChildReach);
+    const nonHtmlChildLintReach = lintMissionR(nonHtmlChildReach);
+    ck(htmlChildLintReach.ok === true && htmlChildLintReach.problems.length === 0, 'REACHABILITY-CARRIAGE: the html-shipping child passes the REAL lintMission RULE 12 gate');
+    ck(nonHtmlChildLintReach.ok === true && nonHtmlChildLintReach.problems.length === 0, 'REACHABILITY-CARRIAGE: the non-html sibling passes lintMission unaffected');
+
+    // (b) parent already carries its own UNLINKED-OK line -> forwarded VERBATIM, not replaced.
+    const parentTextUnlinked = [
+      'MISSION-ID: M-REACH2',
+      'MISSION-CLASS: code-repo',
+      'REPO-ROOT: C:\\fake\\repo',
+      'UNLINKED-OK: direct-URL tool page by design, no nav entry intended',
+      'ALLOW-FILES:',
+      '  - trip-cost.html',
+      '  - lib/helper2.mjs',
+      'Maqsad: ship a deliberately unlinked tool page plus an unrelated helper.',
+    ].join('\n');
+    const unlinkedQueue = {
+      mission_id: 'M-REACH2',
+      steps: [
+        { step_index: 1, description: 'author the standalone tool page', action_type: 'edit', target_files: ['trip-cost.html'], context_dependencies: [], validation_command: 'true' },
+        { step_index: 2, description: 'add an unrelated helper', action_type: 'edit', target_files: ['lib/helper2.mjs'], context_dependencies: [], validation_command: 'node -c lib/helper2.mjs' },
+      ],
+    };
+    const planUnlinked = splitOversizedPlan(parentTextUnlinked, unlinkedQueue, { sizeCeiling: 1 });
+    ck(planUnlinked.split === true && planUnlinked.groupCount === 2, 'REACHABILITY-CARRIAGE: UNLINKED-OK fixture: 2 steps / ceiling 1 = 2 groups');
+
+    const outUnlinked = emitSubMissions(planUnlinked, {
+      missionsDir: missionsDirR,
+      parentMissionFile: 'reach-2.mission.txt',
+      parentId: planUnlinked.parentId,
+    }, {
+      writeFile: (p, c) => { fsR.mkdirSync(path.dirname(p), { recursive: true }); fsR.writeFileSync(p, c); },
+    });
+    ck(outUnlinked.ok === true && outUnlinked.files.length === 2, 'REACHABILITY-CARRIAGE: UNLINKED-OK fixture: emitSubMissions wrote 2 children');
+
+    const unlinkedChildText = fsR.readFileSync(path.join(missionsDirR, 'reach-2.S1.mission.txt'), 'utf8');
+    ck(unlinkedChildText.includes('UNLINKED-OK: direct-URL tool page by design, no nav entry intended'), 'REACHABILITY-CARRIAGE: the parent\'s own UNLINKED-OK line is forwarded VERBATIM onto the html-shipping child, not overwritten by a synthesized note');
+
+    const unlinkedChildLint = lintMissionR(unlinkedChildText);
+    ck(unlinkedChildLint.ok === true && unlinkedChildLint.problems.length === 0, 'REACHABILITY-CARRIAGE: the UNLINKED-OK child also passes the REAL lintMission RULE 12 gate');
+
+    fsR.rmSync(tmpR, { recursive: true, force: true });
   }
 
   console.log(fails === 0 ? '\nALL PASS — mission_split: splitOversizedPlan + emitSubMissions sound' : `\n${fails} FAIL`);
