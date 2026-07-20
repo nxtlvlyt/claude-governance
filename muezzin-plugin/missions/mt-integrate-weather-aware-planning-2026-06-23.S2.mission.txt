@@ -4,34 +4,16 @@ PARENT: MT-INTEGRATE-WEATHER-AWARE-PLANNING-2026-06-23
 TARTIB-INDEX: 2 of 2
 REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
 ALLOW-FILES:
-  - map.html
   - js/plan-day-weather.js
-VISUAL-QC-REQUIRED
-REQUIRES: none (parent S1 LANDED f46fb51 — RESOLVED-LANDED at AUTORUN line 1140; js/plan-day-weather.js + the 3 tokens HEAVY_RAIN_POP/__mtPlanDayWeather/fetchWeather live at HEAD, map.html references the script; the tartib predecessor no longer blocks)
+  - map.html
+REQUIRES: MT-INTEGRATE-WEATHER-AWARE-PLANNING-2026-06-23.S1 (tartib — this sub-mission may not start until MT-INTEGRATE-WEATHER-AWARE-PLANNING-2026-06-23.S1's receipt exists)
 STEPS: 1
 
-RE-DIAGNOSIS (conductor false-death sweep 2026-07-19T23:1xZ, workflow wf_a8aeac89-672,
-adversarially refuted): the prior FAILED was NOT an external blocker — parent S1 landed
-(f46fb51) and this S2's sole step carried an EMPTY [command] tag + mangled Done-means, so
-MIQAT correctly refused it and it never ran (zero runs). Re-authored against the current
-compliant render-witness template (region-heatmap.S2, DONE 2026-07-17): a guarded no-op
-commit paired with the preview deploy (satisfies deploy-without-commit), then the headless
-render asserting the weather feature. Only the ALLOW-FILES, the tag string, and the runtime
-assertion (HEAVY_RAIN_POP === 70) differ from that proven template.
+PARENT MAQSAD: Land commit bbf702d ("feat(weather-aware-planning): inline forecast on
 
-PARENT MAQSAD: Land commit f46fb51 ("feat(weather-aware-planning): inline forecast on
-overnights") — done by S1.
-
-Maqsad: sub-mission 2 of 2 — Render-witness for VISUAL-QC-REQUIRED: deploy the current tree
-via wrangler pages preview, capture the emitted *.pages.dev URL, and assert /map.html
-renders with no fatal page error, the plan-day-weather.js script tag present in the served
-markup, and window.__mtPlanDayWeather.HEAVY_RAIN_POP === 70 in the page's own runtime —
-verified by headless-browser render, not by reading the code.
+Maqsad: sub-mission 2 of 2 — Render /map.html from the local preview server at PREVIEW-BASE-URL in a headless browser and assert no fatal script error occurred and window.__mtPlanDayWeather.HEAVY_RAIN_POP === 70 in the page's own runtime, satisfying VISUAL-QC-REQUIRED. through Render /map.html from the local preview server at PREVIEW-BASE-URL in a headless browser and assert no fatal script error occurred and window.__mtPlanDayWeather.HEAVY_RAIN_POP === 70 in the page's own runtime, satisfying VISUAL-QC-REQUIRED.
 
 Steps:
-  9. Render-witness (literal payload pinned 2026-07-19 against region-heatmap.S2 DONE 2026-07-17; waitUntil 'load' not 'networkidle' per QUEUE ITEM 24, map.html never goes network-quiet over Starlink). Run exactly: $dirty = @(git status --porcelain -uno -- map.html js/plan-day-weather.js); if ($dirty.Count -gt 0) { git add -- map.html js/plan-day-weather.js; git commit -m "feat(weather-aware-planning): S2 witness-pass commit pairing (mt-integrate-weather-aware-planning.S2; S1 landed f46fb51)" -- map.html js/plan-day-weather.js; if ($LASTEXITCODE -ne 0) { Write-Output COMMIT-FAIL; exit 1 } } else { Write-Output ALLOW-FILES-ALREADY-COMMITTED }; $out = npx wrangler pages deploy . --project-name=muddytires --branch=preview 2>&1 | Out-String; $m = [regex]::Match($out, 'https://[a-z0-9-]+\.muddytires\.pages\.dev'); if (-not $m.Success) { Write-Output NO_PREVIEW_BASE_URL; exit 1 }; $url = $m.Value; Write-Output "DEPLOYED: $url"; $ok = $false; for ($i=0; $i -lt 10; $i++) { try { $r = Invoke-WebRequest -Uri "$url/map.html" -UseBasicParsing -TimeoutSec 10; if ($r.StatusCode -eq 200) { $ok = $true; break } } catch {}; Start-Sleep -Seconds 5 }; if (-not $ok) { Write-Output POLL-FAILED; exit 1 }; $js = 'import { chromium } from "playwright"; const b = await chromium.launch(); const ctx = await b.newContext(); const p = await ctx.newPage(); const errs = []; p.on("pageerror", (e) => errs.push(String(e))); p.on("console", (m) => { if (m.type() === "error" && /weather/i.test(m.text())) errs.push(m.text()); }); await p.goto(process.argv[2] + "/map.html", { waitUntil: "load", timeout: 60000 }); const html = await p.content(); const tag = html.includes("plan-day-weather.js"); const pop = await p.evaluate(() => (window.__mtPlanDayWeather && window.__mtPlanDayWeather.HEAVY_RAIN_POP)); await b.close(); console.log(JSON.stringify({ tag, pop, fatalErrors: errs.length })); if (!tag || pop !== 70 || errs.length > 0) process.exit(1);'; Set-Content scratch-weather-witness.mjs -Value $js; node scratch-weather-witness.mjs $url; $rc = $LASTEXITCODE; Remove-Item scratch-weather-witness.mjs -ErrorAction SilentlyContinue; if ($rc -ne 0) { Write-Output WITNESS-FAIL; exit 1 }; Write-Output WEATHER-WITNESSED [command]
+  9. Render /map.html from the local preview server at PREVIEW-BASE-URL in a headless browser and assert no fatal script error occurred and window.__mtPlanDayWeather.HEAVY_RAIN_POP === 70 in the page's own runtime, satisfying VISUAL-QC-REQUIRED. [command] 
 
-Done means: step 9's headless-render receipt shows map.html served from the emitted
-*.pages.dev preview URL with zero fatal page errors, the plan-day-weather.js script tag
-present in the served markup, and window.__mtPlanDayWeather.HEAVY_RAIN_POP === 70 in the
-served page's runtime — verified by headless-browser render, not by reading the code.
+Done means:  exist/are updated as specified
