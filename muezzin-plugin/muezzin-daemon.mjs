@@ -812,6 +812,51 @@ export function retroRepeatBlocked(stem, retroDir, missionMtimeMs,
   return { blocked: true, count: failsWindowed.length, newest: new Date(newestAllMs).toISOString() };
 }
 
+// PATH ATTRIBUTION (gap-queueddepshold-same-line-crossreference-ambiguity, 2026-07-20): a
+// RESOLVED-class keyword on a line only satisfies a mission-path check if that keyword's
+// nearest neighboring "missions/X.mission.txt" mention IS the path being tested -- not some
+// OTHER mission named nearby in the same prose (the exact mt-plan-mode-mobile.S1 false-
+// positive: a RETIRED-HISTORY line explained that a DIFFERENT mission, its dependency,
+// reached RESOLVED-LANDED, and the old same-line-anywhere check misattributed that stamp to
+// the wrong mission). For each occurrence of our own path on the line, the "ownership
+// window" is bounded by the nearest OTHER mission-path mention on either side; a keyword
+// only counts if it falls inside that window.
+function pathOwnsNearbyResolvedStamp(line, escapedPath) {
+  const pathRe = new RegExp(escapedPath, 'g');
+  const anyPathRe = /missions\/[^\s<>"'`]+\.mission\.txt/g;
+  const kwRe = /\b(?:RESOLVED(?:-[A-Z]+)*|SUPERSEDED)\b/g;
+  let m;
+  const ourPositions = [];
+  while ((m = pathRe.exec(line))) ourPositions.push({ start: m.index, end: m.index + m[0].length });
+  if (!ourPositions.length) return false;
+  const otherPositions = [];
+  while ((m = anyPathRe.exec(line))) {
+    const isOurs = ourPositions.some(p => m.index >= p.start && m.index < p.end);
+    if (!isOurs) otherPositions.push(m.index);
+  }
+  const kwPositions = [];
+  while ((m = kwRe.exec(line))) kwPositions.push(m.index);
+  for (const our of ourPositions) {
+    const afterCandidates = otherPositions.filter(p => p > our.start);
+    const afterBoundary = afterCandidates.length ? Math.min(...afterCandidates) : line.length;
+    const beforeCandidates = otherPositions.filter(p => p < our.start);
+    const beforeBoundary = beforeCandidates.length ? Math.max(...beforeCandidates) : 0;
+    for (const kw of kwPositions) {
+      if (kw >= our.end && kw < afterBoundary) return true;
+      if (kw < our.start && kw >= beforeBoundary) return true;
+    }
+  }
+  return false;
+}
+
+// Line-by-line wrapper: does ANY line in autorunText carry a RESOLVED-class stamp that this
+// specific path OWNS (per the attribution rule above)? Replaces the old same-line-anywhere
+// regex at both the self-resolved check and the dependency-satisfaction check below.
+function hasResolvedStampForPath(autorunText, path) {
+  const escaped = String(path).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return String(autorunText).split(/\r?\n/).some((line) => pathOwnsNearbyResolvedStamp(line, escaped));
+}
+
 export function queuedDepsHold(missionText, missionPath, autorunText, resultOkFn, gitFn = (repo, argstr) => { try { return { ok: true, out: execSync(`git -C "${repo}" ${argstr}`, { stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 64 * 1024 * 1024 }).toString() }; } catch { return { ok: false, out: '' }; } }) {
   const txt = String(missionText || '');
   // SELF-RESOLVED CHECK (2026-07-02, d1-migrations resurrection loop): a conductor-RESOLVED
@@ -826,7 +871,7 @@ export function queuedDepsHold(missionText, missionPath, autorunText, resultOkFn
   // stamps put the mission PATH first and RESOLVED-LANDED/SUPERSEDED inline afterward
   // (`<path>  <!-- RESOLVED-LANDED ... -->`), never a leading-hash comment with RESOLVED
   // before the path — this regex was blind to both real stamp shapes until now.
-  if (new RegExp(`^[^\\n]*${selfEsc}[^\\n]*\\b(?:RESOLVED(?:-[A-Z]+)*|SUPERSEDED)\\b`, 'm').test(autorunText)) {
+  if (hasResolvedStampForPath(autorunText, missionPath)) {
     // mt-c2a-queueddeps (GAP-HUNT-2026-07-03: "RESOLVED-LANDED stamp is a pure-trust input
     // ... zero validation"): a stamp claiming this mission landed is verified against the
     // repo via missionLandedState BEFORE it retires the mission. A GENUINE verdict (no
@@ -885,8 +930,7 @@ export function queuedDepsHold(missionText, missionPath, autorunText, resultOkFn
     // for the RESOLVED-LANDED/SUPERSEDED inline stamp shape (gap-queueddepshold-resolved-
     // landed-blind, 2026-07-20) — see the self-resolved check's twin comment above.
     const depEsc = dep.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const resolvedRe = new RegExp(`^[^\\n]*${depEsc}[^\\n]*\\b(?:RESOLVED(?:-[A-Z]+)*|SUPERSEDED)\\b`, 'm');
-    if (resolvedRe.test(autorunText)) continue;                                  // conductor-landed
+    if (hasResolvedStampForPath(autorunText, dep)) continue;                     // conductor-landed
     if (doneRe.test(autorunText) && resultOkFn(dep) === true) continue;          // DONE + PASS receipt
     return { hold: true, dep, why: doneRe.test(autorunText) ? `dependency ${dep} is DONE but its result.json is not ok:true (hollow receipt)` : `dependency ${dep} not DONE/RESOLVED` };
   }
@@ -2158,6 +2202,28 @@ if (process.argv.includes('--selftest')) {
 
     const inlineDiagnosedOnlyDep = depPath3 + '  <!-- ' + 'DIAGNOSED' + ' — root cause found, fix not yet landed -->';
     ck(queuedDepsHold(reqText3, childPath3, inlineDiagnosedOnlyDep, () => false).hold === true, 'gap-queueddepshold-resolved-landed-blind: a DIAGNOSED-but-not-RESOLVED stamp does NOT satisfy the dependency check — still holds (negative control)');
+  }
+
+  // ---- gap-queueddepshold-same-line-crossreference-ambiguity (2026-07-20): a RESOLVED-class
+  // keyword on a line only counts for OUR path if it is not closer to a DIFFERENT mission
+  // path mentioned in the same prose -- the exact mt-plan-mode-mobile.S1 false-positive class.
+  // Fixture strings built by runtime concatenation, never typed as a single literal.
+  {
+    const stem4 = ['q', 'attrib', 'stem'].join('-');
+    const ourPath4 = 'missions/' + stem4 + '.mission.txt';
+    const otherPath4 = 'missions/' + stem4 + '.dep.mission.txt';
+    // the real incident shape: our own path mentioned first, then prose naming a DIFFERENT
+    // mission whose OWN status (not ours) reached RESOLVED-LANDED
+    const crossRefNote = '# RETIRED-HISTORY: FAILED ' + ourPath4 + '  <!-- dependency not yet satisfied at that time -- its own done-verdict only landed later, ' + otherPath4 + ' ' + 'RESOLVED-LANDED' + ' 2026-07-15 -->';
+    const crossRefResult = queuedDepsHold('MISSION-ID: x', ourPath4, crossRefNote, () => false);
+    ck(crossRefResult.hold === false, 'gap-queueddepshold-same-line-crossreference-ambiguity: our own path is NOT falsely self-resolved when a DIFFERENT mission mentioned nearby owns the RESOLVED keyword (the mt-plan-mode-mobile.S1 incident, reproduced)');
+
+    const otherOwnsItResult = queuedDepsHold('MISSION-ID: x', otherPath4, crossRefNote, () => false);
+    ck(otherOwnsItResult.hold === true && otherOwnsItResult.resolvedSelf === true, 'gap-queueddepshold-same-line-crossreference-ambiguity: the OTHER mission genuinely named in that same line IS correctly recognized as resolved');
+
+    // regression guard: a real, un-confused inline stamp (only one path on the line) still works
+    const cleanStamp = ourPath4 + '  <!-- ' + 'RESOLVED-LANDED' + ' done -->';
+    ck(queuedDepsHold('MISSION-ID: x', ourPath4, cleanStamp, () => false).hold === true, 'gap-queueddepshold-same-line-crossreference-ambiguity: a clean single-path inline stamp still satisfies (no regression)');
   }
 
   // ---- mt-c2a-queueddeps: RESOLVED stamp verification via missionLandedState ----
