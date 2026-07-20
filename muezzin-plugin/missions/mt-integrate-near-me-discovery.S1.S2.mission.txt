@@ -1,1 +1,34 @@
+MISSION-ID: MT-INTEGRATE-NEAR-ME-DISCOVERY.S1.S2
+
+# HISTORICAL RECORD — this mission is RESOLVED-LANDED and explicitly NO-REQUEUE (see
+# AUTORUN.md DUPLICATE-RETIRED annotations, 2026-07-15). The "Spots near me" feature
+# was verified live via a conductor ninth-law in-session dry-run (preview
+# abec3a76.muddytires.pages.dev, /map.html loaded fatal=false, near-me.js script tag
+# PRESENT, WITNESS_EXIT=0) — that verification is independent of this mission.txt's
+# own content and is not affected by what follows.
+#
+# CONTENT-LOSS INCIDENT (2026-07-20, conductor, admitted plainly): an unrelated
+# mission (engine-render-witness-maphtml-redirect-fix, step 3) was scoped to replace
+# ONLY this file's playwright navigation literal (targeting /map instead of
+# /map.html), but instead whole-file re-emitted and destroyed everything except that
+# one line — the exact "targeted replace vs whole-file re-emit on a large-file edit"
+# defect class this project has hit before. No git history exists for this file prior
+# to that commit (it was never committed before), so the original full mission text
+# (header, Maqsad, Steps, Done-means) could not be recovered. Preserving what is
+# genuinely known below; the rest is unrecoverable. This mission will never refire —
+# no functional risk, only a degraded historical record.
+
+## The one line that survived (the legitimate render-witness fix, verified by
+## engine-render-witness-maphtml-redirect-fix's own step-5 outcome check):
 page.goto('$url/map', { waitUntil: 'load', timeout: 45000 })
+
+## What is known from surviving substrate (AUTORUN.md + its preflight receipt,
+## missions/_logs/preflight/mt-integrate-near-me-discovery.S1.S2.md):
+- SPLIT-CHILD of MT-INTEGRATE-NEAR-ME-DISCOVERY.S1, tartib-index 2 of 2.
+- Render-witness step for the near-me-discovery feature: preview deploy, playwright
+  render of /map, assert no fatal script error and js/near-me.js script tag present.
+- waitUntil 'load' (not 'networkidle') — QUEUE ITEM 24: map.html has continuous
+  tile/API traffic and never reaches network-quiet on this machine.
+- Original attempt-1 (2026-07-14) failed on an executor-improvised ParserError
+  (empty [command] tag, only prose); fixed by carrying the literal command, matching
+  the camping-pass step-6 shape.

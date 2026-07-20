@@ -20,11 +20,10 @@ Invoke-WebRequest -Uri "$url/map.html"
 
 Done means: exist/are updated as specified
 
-# Debug/Logs
-FAIL-f1-new-missing
-FAIL-f1-old-present
-FAIL-f1-poll-overedited
-PASS-f1
-
-# Path reference for validation script
-missions\mt-integrate-weather-aware-planning-2026-06-23.S2.mission.txt
+# HISTORICAL RECORD — this mission is RESOLVED-LANDED (see AUTORUN.md), do not refire.
+# The feature (weather-aware planning) is verified live in production independent of
+# this mission.txt's own content. On 2026-07-20 an unrelated mission
+# (engine-render-witness-maphtml-redirect-fix) applied a targeted p.goto fix to this
+# file but appended debug/log lines outside its declared scope; those were stripped
+# here (conductor, same wake) — the p.goto/Invoke-WebRequest lines above are the
+# legitimate fix, verified by that mission's own step-5 outcome check.
