@@ -812,6 +812,34 @@ export function retroRepeatBlocked(stem, retroDir, missionMtimeMs,
   return { blocked: true, count: failsWindowed.length, newest: new Date(newestAllMs).toISOString() };
 }
 
+// PATH-OWNS-STAMP DISAMBIGUATION (gap-queueddepshold-same-line-crossreference-ambiguity,
+// 2026-07-20, found while widening the RESOLVED-satisfier regex for gap-queueddepshold-
+// resolved-landed-blind): the prior single-regex RESOLVED/SUPERSEDED check tested whether a
+// line contained BOTH the target path AND a RESOLVED-ish keyword ANYWHERE on that line — but
+// a real conductor stamp can cross-reference a SECOND mission's path inside its own comment
+// (e.g. "missions/a.mission.txt  <!-- SUPERSEDED by missions/b.mission.txt -->" stamps ONLY
+// missions/a; missions/b is merely NAMED, not itself resolved). The naive whole-line test
+// would have let a dependency check for missions/b falsely pass, just because its path
+// string sits inside missions/a's comment. pathOwnsNearbyResolvedStamp requires the checked
+// path to be the line's own SUBJECT — the text BEFORE the first `<!--` — never a path merely
+// mentioned inside another mission's comment; hasResolvedStampForPath scans autorunText
+// line-by-line through that gate. Both the self-resolved check and the dependency-
+// satisfaction loop below now route through this single, disambiguated helper.
+function pathOwnsNearbyResolvedStamp(line, escapedPath) {
+  const commentIdx = line.indexOf('<!--');
+  const subject = commentIdx >= 0 ? line.slice(0, commentIdx) : line;
+  if (!new RegExp(escapedPath).test(subject)) return false;
+  return /\b(?:RESOLVED(?:-[A-Z]+)*|SUPERSEDED)\b/.test(line);
+}
+
+function hasResolvedStampForPath(autorunText, path) {
+  const esc = String(path).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  for (const line of String(autorunText).split(/\r?\n/)) {
+    if (pathOwnsNearbyResolvedStamp(line, esc)) return true;
+  }
+  return false;
+}
+
 export function queuedDepsHold(missionText, missionPath, autorunText, resultOkFn, gitFn = (repo, argstr) => { try { return { ok: true, out: execSync(`git -C "${repo}" ${argstr}`, { stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 64 * 1024 * 1024 }).toString() }; } catch { return { ok: false, out: '' }; } }) {
   const txt = String(missionText || '');
   // SELF-RESOLVED CHECK (2026-07-02, d1-migrations resurrection loop): a conductor-RESOLVED
@@ -826,7 +854,7 @@ export function queuedDepsHold(missionText, missionPath, autorunText, resultOkFn
   // stamps put the mission PATH first and RESOLVED-LANDED/SUPERSEDED inline afterward
   // (`<path>  <!-- RESOLVED-LANDED ... -->`), never a leading-hash comment with RESOLVED
   // before the path — this regex was blind to both real stamp shapes until now.
-  if (new RegExp(`^[^\\n]*${selfEsc}[^\\n]*\\b(?:RESOLVED(?:-[A-Z]+)*|SUPERSEDED)\\b`, 'm').test(autorunText)) {
+  if (hasResolvedStampForPath(autorunText, missionPath)) {
     // mt-c2a-queueddeps (GAP-HUNT-2026-07-03: "RESOLVED-LANDED stamp is a pure-trust input
     // ... zero validation"): a stamp claiming this mission landed is verified against the
     // repo via missionLandedState BEFORE it retires the mission. A GENUINE verdict (no
@@ -885,8 +913,7 @@ export function queuedDepsHold(missionText, missionPath, autorunText, resultOkFn
     // for the RESOLVED-LANDED/SUPERSEDED inline stamp shape (gap-queueddepshold-resolved-
     // landed-blind, 2026-07-20) — see the self-resolved check's twin comment above.
     const depEsc = dep.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const resolvedRe = new RegExp(`^[^\\n]*${depEsc}[^\\n]*\\b(?:RESOLVED(?:-[A-Z]+)*|SUPERSEDED)\\b`, 'm');
-    if (resolvedRe.test(autorunText)) continue;                                  // conductor-landed
+    if (hasResolvedStampForPath(autorunText, dep)) continue;                     // conductor-landed
     if (doneRe.test(autorunText) && resultOkFn(dep) === true) continue;          // DONE + PASS receipt
     return { hold: true, dep, why: doneRe.test(autorunText) ? `dependency ${dep} is DONE but its result.json is not ok:true (hollow receipt)` : `dependency ${dep} not DONE/RESOLVED` };
   }
@@ -2158,6 +2185,30 @@ if (process.argv.includes('--selftest')) {
 
     const inlineDiagnosedOnlyDep = depPath3 + '  <!-- ' + 'DIAGNOSED' + ' — root cause found, fix not yet landed -->';
     ck(queuedDepsHold(reqText3, childPath3, inlineDiagnosedOnlyDep, () => false).hold === true, 'gap-queueddepshold-resolved-landed-blind: a DIAGNOSED-but-not-RESOLVED stamp does NOT satisfy the dependency check — still holds (negative control)');
+  }
+
+  // ---- gap-queueddepshold-same-line-crossreference-ambiguity (2026-07-20, found while
+  // widening the RESOLVED-satisfier regex for gap-queueddepshold-resolved-landed-blind):
+  // a real conductor stamp can cross-reference a SECOND mission's path inside its own
+  // comment — e.g. "missions/a.mission.txt  <!-- SUPERSEDED by missions/b.mission.txt -->"
+  // stamps ONLY missions/a as retired; missions/b is merely NAMED, not itself resolved. The
+  // naive regex tested the WHOLE line for "does it contain this path AND a RESOLVED-ish
+  // keyword", so a dependency check for missions/b against THIS line would have falsely
+  // treated missions/b as satisfied too, just because its path string happens to sit inside
+  // missions/a's comment. hasResolvedStampForPath/pathOwnsNearbyResolvedStamp fix this by
+  // requiring the checked path to be the line's own SUBJECT (the text BEFORE the first
+  // `<!--`), never a path merely mentioned inside another mission's comment.
+  {
+    const crossA = 'missions/cross-ambig-a.mission.txt';
+    const crossB = 'missions/cross-ambig-b.mission.txt';
+    const crossRefLine = crossA + '  <!-- ' + 'SUPERSEDED' + ' by ' + crossB + ' -->';
+    ck(queuedDepsHold('MISSION-ID: x', crossA, crossRefLine, () => false).hold === true, 'gap-queueddepshold-same-line-crossreference-ambiguity: the STAMPED mission (crossA, the line\'s own subject) is correctly retired');
+    ck(queuedDepsHold('MISSION-ID: x', crossB, crossRefLine, () => false).hold === false, 'gap-queueddepshold-same-line-crossreference-ambiguity: a mission MERELY NAMED inside another mission\'s comment (crossB) is NOT falsely treated as self-resolved (the cross-reference must not satisfy its own retirement)');
+
+    const childCross = 'missions/cross-ambig-child.mission.txt';
+    const reqCrossB = 'REQUIRES: ' + crossB + '\n';
+    const depHold = queuedDepsHold(reqCrossB, childCross, crossRefLine, () => false);
+    ck(depHold.hold === true && depHold.dep === crossB, 'gap-queueddepshold-same-line-crossreference-ambiguity: a dependency (crossB) merely NAMED inside crossA\'s SUPERSEDED comment is NOT falsely satisfied — stays held (the exact same-line cross-reference ambiguity, dependency-side)');
   }
 
   // ---- mt-c2a-queueddeps: RESOLVED stamp verification via missionLandedState ----
