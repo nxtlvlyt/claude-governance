@@ -116,7 +116,7 @@ STEPS:
    apply/verify commands — style-matched to d1/migrate-rating-subscores-2026-06-23.sql's
    header) followed by the exact saved_lists/saved_list_items DDL block pinned
    above, verbatim. [edit] d1/migrate-saved-lists-2026-07-19.sql
-   validation_command: powershell -NoProfile -Command "$c = Get-Content d1/migrate-saved-lists-2026-07-19.sql -Raw; $ok = ($c -match 'CREATE TABLE IF NOT EXISTS saved_lists') -and ($c -match 'CREATE TABLE IF NOT EXISTS saved_list_items') -and ($c -match 'list_id\s+INTEGER NOT NULL REFERENCES saved_lists\(id\)') -and ($c -match \"CHECK \(target_kind IN \('spot','review','poi'\)\)\") -and ($c -match 'idx_saved_lists_user_id') -and ($c -match 'idx_saved_list_items_list_id') -and ($c -match 'idx_saved_list_items_target'); if (-not $ok) { Write-Error 'FAIL: migrate-saved-lists-2026-07-19.sql missing required DDL'; exit 1 } else { Write-Output 'PASS' }"
+   validation_command: powershell -NoProfile -Command "$c = Get-Content d1/migrate-saved-lists-2026-07-19.sql -Raw; $ok = ($c -match 'CREATE TABLE IF NOT EXISTS saved_lists') -and ($c -match 'CREATE TABLE IF NOT EXISTS saved_list_items') -and ($c -match 'list_id\s+INTEGER NOT NULL REFERENCES saved_lists\(id\)') -and ($c -match 'CHECK \(target_kind IN \(''spot'',''review'',''poi''\)\)') -and ($c -match 'idx_saved_lists_user_id') -and ($c -match 'idx_saved_list_items_list_id') -and ($c -match 'idx_saved_list_items_target'); if (-not $ok) { Write-Error 'FAIL: migrate-saved-lists-2026-07-19.sql missing required DDL'; exit 1 } else { Write-Output 'PASS' }"
 2. Restore the identical saved_lists/saved_list_items block into
    d1/schema-write.sql immediately after the existing
    idx_user_contributions_contributor_id index line and before the
