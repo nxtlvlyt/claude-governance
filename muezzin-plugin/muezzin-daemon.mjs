@@ -419,12 +419,31 @@ function nextUpLine() {
 // scoreboard line for pushes (operator: every push must carry the counts, not just an event)
 // BUG 3 (2026-06-25): PARKED is a terminal status — count it as its own class so it doesn't
 // inflate the "pending" tally. Pending = total - all terminal/active classes.
+// LAST-COMMIT AGE (gap-notify-blind-to-conductor-direct-work, 2026-07-21): "0 running" is
+// only ever true of MISSION lanes -- it says nothing about conductor-direct engine/governance
+// work landing between missions (real incident: operator's own screenshot showed a correct
+// "0 running - 0 pending" push, then ~40 minutes of real conductor-direct commits with zero
+// signal to the phone). Surfacing the plugin repo's last commit age on every push closes the
+// blind spot without inventing a new activity channel -- a commit already IS the receipt for
+// real work, mission or not. Fail-soft: git absence/error -> empty string, never breaks the push.
+function lastCommitAge() {
+  try {
+    const iso = execSync('git log -1 --format=%cI', { cwd: HERE, stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim();
+    if (!iso) return '';
+    const ms = Date.now() - new Date(iso).getTime();
+    if (!(ms >= 0)) return '';
+    const mins = Math.floor(ms / 60000);
+    const age = mins < 1 ? '<1m' : mins < 60 ? `${mins}m` : `${Math.floor(mins / 60)}h${mins % 60}m`;
+    return ` · last commit ${age} ago`;
+  } catch { return ''; }
+}
+
 function scoreLine() {
   try {
     const lines = readFileSync(AUTORUN, 'utf8').split(/\r?\n/).filter((l) => l.trim() && !l.trim().startsWith('#'));
     const n = (s) => lines.filter((l) => l.trim().startsWith(s)).length;
     const pending = lines.length - n('DONE') - n('RUNNING') - n('FAILED') - n('SPLIT') - n('PARKED');
-    return `${n('DONE')} done · ${n('RUNNING')} running · ${pending} pending · ${n('FAILED')} failed${n('PARKED') ? ` · ${n('PARKED')} parked` : ''}`;
+    return `${n('DONE')} done · ${n('RUNNING')} running · ${pending} pending · ${n('FAILED')} failed${n('PARKED') ? ` · ${n('PARKED')} parked` : ''}${lastCommitAge()}`;
   } catch { return ''; }
 }
 
@@ -2369,6 +2388,16 @@ if (process.argv.includes('--selftest')) {
     const capResOk = (dep) => { try { return JSON.parse(readFileSync(path.join(capDir, path.basename(dep).replace(/\.mission\.txt$/, '') + '.mission.result.json'), 'utf8')).ok === true; } catch { return false; } };
     const capGate = queuedDepsHold('MISSION-ID: x', 'missions/foo-bar.S2.mission.txt', capAutorun, capResOk);
     ck(capGate.hold === false, 'conductor-apply-receipt: a synthetic receipt satisfies queuedDepsHold exactly like a real one — the dependent releases');
+  }
+
+  // ---- gap-notify-blind-to-conductor-direct-work (2026-07-21): scoreLine() now appends a
+  // last-commit-age fragment so a push never again reads as "0 running, nothing happening"
+  // during a stretch of real conductor-direct commits. Smoke-level only (scoreLine reads the
+  // real AUTORUN/repo, not an injectable path) -- asserts shape, not exact counts.
+  {
+    const sl = scoreLine();
+    ck(typeof sl === 'string' && /\bdone ·/.test(sl), 'scoreLine: still returns the done/running/pending/failed shape unchanged');
+    ck(/last commit .+ ago/.test(sl) || sl.length > 0, 'scoreLine: either carries a last-commit-age fragment (this repo has commits) or fails soft to the unchanged base string, never throws');
   }
 
   rmSync(tmp, { recursive: true, force: true });
