@@ -1,9 +1,20 @@
 MISSION-ID: mt-27-ai-enrich-redeploy-witness
-MISSION-CLASS: command
+MISSION-CLASS: ops-deploy
 REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
 ALLOW-FILES: (none -- no code changes, deploy + witness only)
 REQUIRES: none
 STEPS: 2
+
+AUTHORING-BUG NOTE (self-caught, 2026-07-21): the first version of this mission used
+MISSION-CLASS: command with a standard [command]/validation_command step body -- that
+shape is NEVER recognized as a literal-command-queue mission (isCommandClassMission only
+matches MISSION-CLASS: ops-deploy or the literal string "command-class"), so it silently
+fell through to the normal architect-planned path, which resolves its exec cwd to the
+mission SANDBOX, not the declared REPO-ROOT -- explaining the live ENOENT on
+wrangler.ai-enrich-test.toml both attempts. Corrected to MISSION-CLASS: ops-deploy with a
+fenced ```pwsh block (command_queue.mjs's buildLiteralCommandQueue), which runs verbatim
+from REPO-ROOT with zero LLM rewrite -- the actually-correct shape for this class of
+mission, confirmed by direct source read (orchestrate.mjs:766-770, command_queue.mjs:18-77).
 
 MAQSAD (the end): workers/ai-enrich.js (mt-27 POI-enrichment, INBOX.md "MUDDYTIRES BACKLOG"
 -- "mt-27 free to shape+queue", operator ruling 2026-07-03) is ALREADY FULLY BUILT and
@@ -61,13 +72,21 @@ source: C:\Users\marka\code\mt-integration-2026-06-22\wrangler.ai-enrich-test.to
 REACHABILITY NOTE (miqat): non-page backend worker (test-only *.workers.dev endpoint, never
 linked from any live page nav) -- no nav-reachability / MIQAT concern applies.
 
-STEPS:
-1. Commit an honest, empty deploy-marker (nothing changed -- this records exactly which
-commit goes live), then redeploy the current committed code to the test worker.
-   [command] wrangler.ai-enrich-test.toml
-   validation_command: git commit --allow-empty -m "deploy marker: redeploy ai-enrich.js test worker (mt-27), HEAD unchanged" ; if ($LASTEXITCODE -ne 0) { exit 1 }; $out = npx wrangler deploy --config wrangler.ai-enrich-test.toml 2>&1 | Out-String; Write-Output $out; if ($LASTEXITCODE -ne 0) { exit 1 }; if ($out -notmatch 'Uploaded|Deployed|Current Version ID') { exit 1 }; Write-Output 'MT27-REDEPLOY-OK'
-2. OUTCOME CHECK [command] (LITERAL PINNED validation_command below, transcribe verbatim): witness the auth gate live WITHOUT invoking the paid model -- a POST to /enrich with NO X-Internal-AI-Secret header must return HTTP 401 (the gate fires before any AIMLAPI call, so this probe costs nothing and writes nothing to D1). Authors nothing.
-   validation_command: try { $r = Invoke-WebRequest -Uri 'https://muddytires-ai-enrich-test.markabass.workers.dev/enrich' -Method POST -ContentType 'application/json' -Body '{"lat":45.0,"lng":-75.0,"name":"probe-only"}' -SkipHttpErrorCheck } catch { Write-Output "REQUEST-ERROR: $_"; exit 1 }; Write-Output "STATUS: $($r.StatusCode)"; Write-Output "BODY: $($r.Content)"; if ($r.StatusCode -ne 401) { exit 1 }; if ($r.Content -notmatch 'Not authorized') { exit 1 }; Write-Output 'MT27-AUTH-GATE-LIVE-WITNESSED-OK'
+STEPS (literal-command-queue: each fenced line below runs VERBATIM from REPO-ROOT, no LLM
+rewrite -- exit code IS the pass/fail signal, per command_queue.mjs's own contract):
+
+```pwsh
+git commit --allow-empty -m "deploy marker: redeploy ai-enrich.js test worker (mt-27), HEAD unchanged" ; if ($LASTEXITCODE -ne 0) { exit 1 }; $out = npx wrangler deploy --config wrangler.ai-enrich-test.toml 2>&1 | Out-String; Write-Output $out; if ($LASTEXITCODE -ne 0) { exit 1 }; if ($out -notmatch 'Uploaded|Deployed|Current Version ID') { exit 1 }; Write-Output 'MT27-REDEPLOY-OK'
+try { $r = Invoke-WebRequest -Uri 'https://muddytires-ai-enrich-test.markabass.workers.dev/enrich' -Method POST -ContentType 'application/json' -Body '{"lat":45.0,"lng":-75.0,"name":"probe-only"}' -SkipHttpErrorCheck } catch { Write-Output "REQUEST-ERROR: $_"; exit 1 }; Write-Output "STATUS: $($r.StatusCode)"; Write-Output "BODY: $($r.Content)"; if ($r.StatusCode -ne 401) { exit 1 }; if ($r.Content -notmatch 'Not authorized') { exit 1 }; Write-Output 'MT27-AUTH-GATE-LIVE-WITNESSED-OK'
+```
+
+Step 1 (line 1 above): commit an honest, empty deploy-marker (nothing changed -- this
+records exactly which commit goes live), then redeploy the current committed code to the
+test worker.
+Step 2 (line 2 above, OUTCOME CHECK, authors nothing): witness the auth gate live WITHOUT
+invoking the paid model -- a POST to /enrich with NO X-Internal-AI-Secret header must
+return HTTP 401 (the gate fires before any AIMLAPI call, so this probe costs nothing and
+writes nothing to D1).
 
 DONE-MEANS: the test worker is redeployed carrying the current committed code (including the
 ec5a40f auth-gate fix); a live unauthenticated POST /enrich returns HTTP 401 with the
