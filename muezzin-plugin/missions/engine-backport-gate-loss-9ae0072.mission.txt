@@ -1,0 +1,212 @@
+MISSION-ID: engine-backport-gate-loss-9ae0072
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\.claude\muezzin-plugin
+ALLOW-FILES:
+  - deconstructor.mjs
+REQUIRES: missions/engine-backport-dep-loss-e1cba9e.mission.txt
+STEPS: 2
+
+ONE-WRITER RULE (binding): step 1 authors deconstructor.mjs. Step 2 is verify-only and
+authors nothing.
+
+MAQSAD (the end): same loss shape as the dep-loss mission this one REQUIRES, one beat later
+(agy-muezzin commit 9ae0072, filed as backport-intake BUG 2, missions/INBOX.md, evaluated
+2026-07-21 and confirmed still open in muezzin-plugin). A mission can declare a per-step
+`validation_command:` witness verbatim (e.g. atv-1's anti-fabrication FETCH-RECEIPT
+Select-String gate), but the plan is MODEL-AUTHORED — an autosplit child re-planning its own
+text can RE-INVENT that gate as something weaker (a bare Test-Path where the parent demanded
+content-level proof), and nothing catches it. Half A (the serializer preserving
+validation_command verbatim into child mission text) already landed 2026-07-14 (commit
+6088ed1). Half B (the mechanical backstop forcing a re-planned queue to keep the declared
+gate) was never ported. This mission ports it — using the EXACT SAME injection point the
+dep-loss mission (which this REQUIRES) just created in runQueueLoop, extending it rather than
+adding a second separate call site.
+
+THE FIX (pin exact literals -- verbatim from agy-muezzin commit 9ae0072, `git show 9ae0072 --
+deconstructor.mjs` in C:\Users\marka\agy-muezzin, re-confirmed 2026-07-21):
+
+1. Insert these two new exported functions immediately before the line
+`export function validateMicroQueue(queue, opts = {}) {` (that line and everything after it
+stays completely unchanged, only prepend before it). If the dep-loss mission's own new
+functions (parseDeclaredDeps/injectDeclaredDeps) already sit directly above this line, insert
+after THEM and still directly before validateMicroQueue -- do not separate the two dep-loss
+functions from each other.
+```
+// ---- DECLARED-VALIDATION VERBATIM SURVIVAL (e1cba9e residual, closed 2026-07-08) --------
+// SAME LOSS SHAPE as context_dependencies (commit e1cba9e): the parent mission DECLARED
+// per-step validation_command gates verbatim (atv-1's anti-fabrication FETCH-RECEIPT
+// Select-String gates), but the plan is MODEL-AUTHORED and an autosplit child is RE-PLANNED
+// from its own text — so a gate absent from the child text is gone, and the child's planner
+// RE-INVENTS a weaker witness (a bare Test-Path where the mission demanded the FETCH-RECEIPT
+// content gate). This is the MECHANICAL half: parse the declared gates out of the mission
+// text and re-impose any the planner re-authored, BEFORE validation, on every plan path
+// (single architect + panel integrator, via runQueueLoop). The other half lives in
+// mission_split.mjs emitSubMissions, which serializes each child step's validation_command
+// verbatim as a following indented line — the parent's own convention — so the guarantee
+// survives autosplit RECURSION (parent -> S1 -> S1.S1 -> ...).
+//
+// Declaration convention (the parent's own shape — atv-1 — and what emitSubMissions emits):
+//   ... [edit|command|verify] <target[, target]> [; context_dependencies: <dep[, dep]>]
+//       validation_command: <the complete witness command, verbatim to end of line>
+// The command line binds to the NEAREST PRECEDING [action] step-target line; a blank line
+// or a new numbered step line breaks the binding, and a binding is consumed by the first
+// command line it receives — so prose paragraphs can never inherit a stale step. A same-line
+// "... [action] <target> ; validation_command: <cmd>" also counts. Deps used a token filter
+// (looksLikeDepPath) to reject prose; a command is arbitrary text, so here the anti-prose
+// filter is STRUCTURAL: an unbound "validation_command:" line parses as NOTHING.
+const ACTION_TARGETS_RE = /\[(edit|command|verify)\]\s*([^;\r\n]*)/i;
+
+// parseDeclaredValidations(mission) -> [{ command: verbatim, targets: [verbatim...], action }]
+export function parseDeclaredValidations(mission) {
+  const decls = [];
+  let bound = null;   // nearest preceding step-target line still eligible to receive a command
+  for (const line of String(mission || '').split(/\r?\n/)) {
+    if (!line.trim()) { bound = null; continue; }                        // blank line breaks binding
+    const am = line.match(ACTION_TARGETS_RE);
+    if (am) {
+      const action = am[1].toLowerCase();
+      const targets = am[2].split(',').map((s) => s.trim()).filter(Boolean);
+      const sm = line.match(/\bvalidation_command\s*:\s*(.+)$/i);        // same-line form
+      if (sm && targets.length && sm[1].trim()) { decls.push({ command: sm[1].trim(), targets, action }); bound = null; }
+      else bound = targets.length ? { targets, action } : null;
+      continue;
+    }
+    if (/^\s*\d+\.\s/.test(line)) { bound = null; continue; }            // new numbered step (its [action] line not seen yet)
+    const vm = line.match(/^[ \t]*validation_command\s*:\s*(.+)$/i);     // next-line form (the atv-1 shape)
+    if (vm && bound && vm[1].trim()) { decls.push({ command: vm[1].trim(), targets: bound.targets, action: bound.action }); bound = null; }
+  }
+  return decls;
+}
+
+// injectDeclaredValidations(queue, mission, { research, codeRepo }) — mutates queue in
+// place; returns { injected, decls }. Pairing: a declaration lands on the plan step(s)
+// matching BOTH its action_type and a declared target; if none, a target-only match still
+// receives it (the planner changed the action but kept the deliverable). NO edit-step
+// fallback — deliberately ASYMMETRIC with injectDeclaredDeps: deps are ADDITIVE read-only
+// inputs (over-providing is bounded), but a validation_command is a scalar OVERWRITE, and
+// spraying one gate over every step would destroy correct witnesses. A fully-renamed target
+// keeps the planner's command (mission lint + the verdict panel still police it).
+// Floor containment MIRRORED, not bypassed (the dep fix's escapesSandbox principle): a
+// declared command that would trip a validateMicroAction floor the planner's own command
+// does not is skipped, never injected — the backstop runs on every repair attempt and must
+// not deadlock the repair loop on a mission-authoring error.
+export function injectDeclaredValidations(queue, mission, { research = false, codeRepo = false } = {}) {
+  const decls = parseDeclaredValidations(mission);
+  const steps = Array.isArray(queue?.steps) ? queue.steps : [];
+  let injected = 0;
+  if (!decls.length || !steps.length) return { injected, decls: decls.length };
+  const norm = (p) => String(p).toLowerCase().replace(/\\/g, '/');
+  const vopts = { research, codeRepo };
+  for (const { command, targets, action } of decls) {
+    if (!command || !targets.length) continue;
+    const tset = new Set(targets.map(norm));
+    const onTarget = (s) => (s?.target_files || []).some((t) => tset.has(norm(t)));
+    let recipients = steps.filter((s) => s?.action_type === action && onTarget(s));
+    if (!recipients.length) recipients = steps.filter(onTarget);
+    for (const s of recipients) {
+      if (String(s.validation_command || '') === command) continue;      // idempotent — already verbatim
+      const before = validateMicroAction(s, 0, vopts);
+      const after = validateMicroAction({ ...s, validation_command: command }, 0, vopts);
+      if (after.some((e) => !before.includes(e))) continue;              // declared gate trips a floor the planner's didn't -> skip (no deadlock)
+      s.validation_command = command;
+      injected++;
+    }
+  }
+  return { injected, decls: decls.length };
+}
+
+```
+2. Find the injection block the dep-loss mission (engine-backport-dep-loss-e1cba9e, which
+this mission REQUIRES) added inside `runQueueLoop`, immediately after
+`const queue = extractQueue(rawContent);`. It reads exactly:
+```
+    // DEP-LOSS MECHANICAL BACKSTOP (backport-intake BUG 1, 2026-07-21): BEFORE validation,
+    // re-inject any mission-text-declared context_dependencies the model dropped or
+    // re-authored. Runs on every attempt so the repair loop can never un-inject them;
+    // validation then judges the FINAL queue.
+    if (queue && missionText) injectDeclaredDeps(queue, missionText, { research });
+```
+Replace that ENTIRE block (all five lines) with exactly:
+```
+    // DEP-LOSS MECHANICAL BACKSTOP (backport-intake BUG 1, 2026-07-21) + VALIDATION-LOSS
+    // BACKSTOP (backport-intake BUG 2, 2026-07-21): BEFORE validation, re-inject any
+    // mission-text-declared context_dependencies AND re-impose any declared
+    // validation_command the model dropped, re-invented, or weakened. Runs on every
+    // attempt so the repair loop can never undo them; validation then judges the FINAL queue.
+    if (queue && missionText) {
+      injectDeclaredDeps(queue, missionText, { research });
+      injectDeclaredValidations(queue, missionText, { research, codeRepo });
+    }
+```
+If the dep-loss mission's block does not match verbatim (wording drifted during its own
+authoring), locate the real block by finding the `injectDeclaredDeps(queue, missionText` call
+inside `runQueueLoop` and extend it the same way: add an `injectDeclaredValidations(queue,
+missionText, { research, codeRepo });` call immediately after the existing
+`injectDeclaredDeps` call, inside the same `if (queue && missionText)` block. Do not create a
+second, separate `if (queue && missionText)` block.
+
+SCOPE FENCE (D13, do NOT exceed): touch ONLY the two new functions and the one-block
+extension above (or its real-anchor equivalent), plus the new selftest block described in
+step 1 below. Do NOT modify validateMicroAction, escapesSandbox, injectDeclaredDeps,
+parseDeclaredDeps, or ANY existing selftest block (including the dep-loss mission's own new
+fixtures) — all must keep passing byte-identical, they are the regression guard.
+
+NIYYAH (why): backport-intake BUG 2 (missions/INBOX.md "BACKPORT INTAKE 2026-07-08", item 2),
+evaluated for real 2026-07-21 via a 7-way parallel workflow, confirmed still open.
+source: C:\Users\marka\.claude\muezzin-plugin\missions\INBOX.md
+source: C:\Users\marka\.claude\muezzin-plugin\deconstructor.mjs
+source: C:\Users\marka\agy-muezzin\deconstructor.mjs (git commit 9ae0072, the reference implementation this mission ports verbatim)
+
+REACHABILITY NOTE (miqat): non-page engine change (the mission planner's own gate-enforcement
+logic) -- no new page/surface ships, so no nav-reachability / MIQAT concern applies.
+
+STEPS:
+1. Apply THE FIX exactly as specified above (insert the two functions before
+validateMicroQueue, extend the existing injection block to also call
+injectDeclaredValidations), then add this new selftest block: locate this file's actual
+`if (process.argv[...] === '--selftest')` block and insert this fixture group as a new block
+near the dep-loss mission's own new fixtures (or at the end, just before the final
+`console.log(fails === 0 ? ...)` summary line):
+```
+  // ---- backport-intake BUG 2: DECLARED-VALIDATION VERBATIM SURVIVAL (gate-loss,
+  // agy-muezzin 9ae0072, ported 2026-07-21). Fixture strings built by runtime concatenation.
+  {
+    const stem7 = ['bp', 'gate', 'stem'].join('-');
+    const tgt7 = 'parts/' + stem7 + '-profile.md';
+    const gate7 = "if (-not ((Select-String -Path " + tgt7 + " -Pattern 'FETCH-RECEIPT:' -Quiet) -and ((Select-String -Path " + tgt7 + " -Pattern 'FETCHED' -Quiet) -or (Select-String -Path " + tgt7 + " -Pattern 'UNREACHABLE' -Quiet)))) { exit 1 }";
+    const vMission7 = [
+      'MISSION-CLASS: research',
+      'Steps:',
+      '  1. Profile it. [edit] ' + tgt7,
+      '     validation_command: ' + gate7,
+    ].join('\n');
+    const parsed7 = parseDeclaredValidations(vMission7);
+    ck(parsed7.length === 1 && parsed7[0].command === gate7, 'backport-BUG2 VAL-SURVIVAL parse: next-line validation_command extracted verbatim, bound to its preceding [edit] target');
+
+    const weakQ7 = () => ({ mission_id: 'M-X', steps: [
+      { step_index: 1, description: 'profile', action_type: 'edit', target_files: [tgt7], context_dependencies: [], validation_command: 'Test-Path ' + tgt7 },
+    ] });
+    const wq7 = weakQ7();
+    const inj7 = injectDeclaredValidations(wq7, vMission7, { research: true });
+    ck(inj7.injected === 1 && wq7.steps[0].validation_command === gate7, 'backport-BUG2 VAL-SURVIVAL inject: planner-invented weak Test-Path witness OVERWRITTEN with the declared FETCH-RECEIPT gate verbatim');
+    const inj7b = injectDeclaredValidations(wq7, vMission7, { research: true });
+    ck(inj7b.injected === 0 && wq7.steps[0].validation_command === gate7, 'backport-BUG2 VAL-SURVIVAL inject: idempotent on a step already carrying the declared gate verbatim');
+
+    const renQ7 = { mission_id: 'M-X', steps: [
+      { step_index: 1, description: 'profile', action_type: 'edit', target_files: ['parts/renamed-target.md'], context_dependencies: [], validation_command: 'Test-Path parts/renamed-target.md' },
+    ] };
+    injectDeclaredValidations(renQ7, vMission7, { research: true });
+    ck(renQ7.steps[0].validation_command === 'Test-Path parts/renamed-target.md', 'backport-BUG2 VAL-SURVIVAL inject: a fully-renamed target keeps the planner own command (deliberate asymmetry with dep injection -- no spray fallback for a scalar overwrite)');
+  }
+```
+   [edit] deconstructor.mjs
+   validation_command: node --check deconstructor.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; if (-not (Select-String -Path deconstructor.mjs -Pattern 'export function parseDeclaredValidations' -Quiet)) { exit 1 }; if (-not (Select-String -Path deconstructor.mjs -Pattern 'export function injectDeclaredValidations' -Quiet)) { exit 1 }; if (-not (Select-String -Path deconstructor.mjs -Pattern 'backport-BUG2' -Quiet)) { exit 1 }; if ((Select-String -Path deconstructor.mjs -AllMatches -Pattern 'if \(queue && missionText\)').Matches.Count -ne 1) { exit 1 }; Write-Output 'GATE-LOSS-CODE-OK'
+2. OUTCOME CHECK [command] (LITERAL PINNED validation_command below, transcribe verbatim): run this file's own embedded selftest and confirm the new fixtures pass with zero regressions, including the dep-loss mission's own fixtures from the prior mission. Authors nothing.
+   validation_command: $out = node deconstructor.mjs --selftest 2>&1 | Out-String; Write-Output $out; $ec = $LASTEXITCODE; if ($ec -ne 0) { exit 1 }; if (([regex]::Matches($out, 'PASS\s+backport-BUG2')).Count -lt 3) { exit 1 }; if (([regex]::Matches($out, 'PASS\s+backport-BUG1')).Count -lt 3) { exit 1 }; if ($out -match 'FAIL') { exit 1 }; Write-Output 'GATE-LOSS-SELFTEST-OK-NO-REGRESSION'
+
+DONE-MEANS: parseDeclaredValidations and injectDeclaredValidations exist and are exported;
+the single runQueueLoop injection block calls both injectDeclaredDeps and
+injectDeclaredValidations on every plan attempt before validation (exactly one
+`if (queue && missionText)` block in the whole file, not two). The embedded selftest passes
+at least 3 new backport-BUG2 fixtures plus the dep-loss mission's backport-BUG1 fixtures, with
+zero regressions (no FAIL anywhere in the full selftest output).

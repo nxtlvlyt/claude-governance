@@ -240,6 +240,32 @@ export function validateMicroAction(step, i, opts = {}) {
   return errs;
 }
 
+// DECLARED-DEPS BACKSTOP (backport-BUG1, engine-backport-dep-loss-e1cba9e receipt): a
+// mission's own DEPS: block is a declared dependency a plan MUST carry — parseDeclaredDeps
+// reads it VERBATIM (no case/slash normalization, unlike parseAllowFiles — declared deps may
+// be absolute reference paths under MISSION-CLASS: research and normalizing would corrupt them).
+export function parseDeclaredDeps(mission) {
+  const block = (String(mission || '').match(/DEPS:\s*\r?\n((?:[ \t]*-[ \t]+\S.*\r?\n?)+)/i) || [])[1] || '';
+  return [...block.matchAll(/^[ \t]*-[ \t]+(\S+)/gm)].map((m) => m[1]);
+}
+
+// injectDeclaredDeps — mechanical backstop run on every extracted queue (research class
+// only): ensures every mission-declared dep ends up in SOME step's context_dependencies,
+// ADDING what a seat's plan omitted without ever removing a seat-invented dependency.
+// Absolute declared deps are sandbox-legal only under MISSION-CLASS: research (validateMicroQueue's
+// own containment gate), so injection outside research would just manufacture a rejected queue.
+export function injectDeclaredDeps(queue, missionText, { research = false } = {}) {
+  if (!research || !queue || !Array.isArray(queue.steps) || !queue.steps.length) return queue;
+  const declared = parseDeclaredDeps(missionText);
+  if (!declared.length) return queue;
+  const present = new Set(queue.steps.flatMap((s) => s.context_dependencies || []));
+  const missing = declared.filter((d) => !present.has(d));
+  if (!missing.length) return queue;
+  const target = queue.steps[queue.steps.length - 1];
+  target.context_dependencies = [...(target.context_dependencies || []), ...missing];
+  return queue;
+}
+
 // parseAllowFiles(mission) — the mission text's ALLOW-FILES block as normalized repo-relative
 // paths (lowercase, forward slashes). Empty array when the mission declares none.
 export function parseAllowFiles(mission) {
@@ -375,7 +401,7 @@ const researchNoteFor = (research) => research
 // user message; on a validation failure it re-dispatches with the errors appended, up to
 // maxRepairs. diagDir/diagTag persist the raw seat output of each failed attempt. dispatchFn is
 // injectable (default dispatchSeat) so the panel is offline-testable without real dispatch.
-async function runQueueLoop(seat, baseFraming, { research = false, codeRepo = false, allowFiles = [], maxRepairs = 2, diagDir = null, diagTag = 'plan', dispatchFn = dispatchSeat, escalationState = { tier: 0, reason: 'initial' } } = {}) {
+async function runQueueLoop(seat, baseFraming, { research = false, codeRepo = false, allowFiles = [], maxRepairs = 2, diagDir = null, diagTag = 'plan', dispatchFn = dispatchSeat, escalationState = { tier: 0, reason: 'initial' }, missionText = null } = {}) {
   let framing = baseFraming;
   let lastErrors = ['no attempt made'];
   let previousFailedStepIndices = new Set();
@@ -395,6 +421,7 @@ async function runQueueLoop(seat, baseFraming, { research = false, codeRepo = fa
     }
     const rawContent = String(r?.content ?? '');
     const queue = extractQueue(rawContent);
+    injectDeclaredDeps(queue, missionText, { research });
     // ERROR-MASKING FIX 2026-07-02 (spot-share receipt): a final EMPTY emission used to report the
     // same generic 'no valid JSON' as malformed output, BURYING the prior attempts' real validation
     // errors in result.json. Name the empty-emission class explicitly and carry the prior errors
@@ -453,7 +480,7 @@ export async function deconstruct(mission, { model = PANEL_ARCHITECTS[0], today 
   const research = isResearchMission(mission);
   const codeRepo = isCodeRepoMission(mission);
   const baseFraming = `${QUEUE_INSTRUCTION}${researchNoteFor(research)}${codeRepoNoteFor(codeRepo)}\n\nMISSION:\n${mission}`;
-  return runQueueLoop(seat, baseFraming, { research, codeRepo, allowFiles: parseAllowFiles(mission), maxRepairs, diagDir, diagTag: 'plan', dispatchFn, escalationState });
+  return runQueueLoop(seat, baseFraming, { research, codeRepo, allowFiles: parseAllowFiles(mission), maxRepairs, diagDir, diagTag: 'plan', dispatchFn, escalationState, missionText: mission });
 }
 
 // ----------------------------------------------------------------------- PHASE 1 BLIND PANEL
@@ -701,7 +728,7 @@ export async function deconstructPanel(mission, {
     `The three reads exist to catch what one misses — prefer the safest, most-verifiable decomposition. Output ONLY the final json micro_queue.\n\n` +
     `MISSION:\n${mission}\n\n${planBlock}`;
   const integSeat = { role: 'integrator', model: integratorModel, today, max_tokens: 32768, sampling: { temperature: 0.3, top_p: 0.9 } };
-  const synth = await runQueueLoop(integSeat, integratorFraming, { research, codeRepo, allowFiles: parseAllowFiles(mission), maxRepairs, diagDir, diagTag: 'integrator', dispatchFn, escalationState });
+  const synth = await runQueueLoop(integSeat, integratorFraming, { research, codeRepo, allowFiles: parseAllowFiles(mission), maxRepairs, diagDir, diagTag: 'integrator', dispatchFn, escalationState, missionText: mission });
   if (synth.ok) return { ...synth, _panel: true, _architects: plans.map((p) => p.model), _grounded: grounded };
   // integrator could not emit a valid queue -> fall back to the single architect (never hard-break).
   return fallback(`integrator failed to synthesize a valid queue (${(synth.errors || []).join('; ').slice(0, 200)})`);
@@ -1233,6 +1260,30 @@ Maqsad: implement seven modules.`;
       })) };
       ck(q.steps.length <= SIZE_CEILING, `single-card ${n}-step mission: ${n} <= ${SIZE_CEILING} — no split (these succeeded as monoliths)`);
     });
+  }
+
+  // ------------------------------------------------- (12) DECLARED-DEPS BACKSTOP (backport-BUG1)
+  {
+    const missionWithDeps = 'MISSION-CLASS: research\nDEPS:\n  - C:\\Users\\x\\Reference\\A.md\n  - C:\\Users\\x\\Reference\\B.md\nMaqsad: x.';
+    ck(JSON.stringify(parseDeclaredDeps(missionWithDeps)) === JSON.stringify(['C:\\Users\\x\\Reference\\A.md', 'C:\\Users\\x\\Reference\\B.md']),
+      'backport-BUG1 parse-verbatim: parseDeclaredDeps returns the DEPS: block entries VERBATIM (no case/slash normalization, unlike parseAllowFiles)');
+
+    const q1 = { mission_id: 'M-DEP1', steps: [
+      { step_index: 1, description: 'x', action_type: 'edit', target_files: ['out.md'], context_dependencies: ['C:\\Users\\x\\Reference\\invented.md'], validation_command: 'node -e "0"' },
+    ] };
+    injectDeclaredDeps(q1, missionWithDeps, { research: true });
+    ck(q1.steps[0].context_dependencies.includes('C:\\Users\\x\\Reference\\invented.md')
+      && q1.steps[0].context_dependencies.includes('C:\\Users\\x\\Reference\\A.md')
+      && q1.steps[0].context_dependencies.includes('C:\\Users\\x\\Reference\\B.md'),
+      'backport-BUG1 inject-alongside-invented-dep: injectDeclaredDeps ADDS the missing declared deps alongside a seat-invented one it never removes');
+
+    const q2 = { mission_id: 'M-DEP2', steps: [
+      { step_index: 1, description: 'x', action_type: 'edit', target_files: ['out.md'], context_dependencies: [], validation_command: 'node -e "0"' },
+    ] };
+    const nonResearchMission = 'MISSION-CLASS: code-repo\nDEPS:\n  - C:\\Users\\x\\Reference\\A.md\nMaqsad: x.';
+    injectDeclaredDeps(q2, nonResearchMission, { research: false });
+    ck(q2.steps[0].context_dependencies.length === 0,
+      'backport-BUG1 no-inject-outside-research: injectDeclaredDeps is a no-op when research:false (absolute deps are only sandbox-legal under MISSION-CLASS: research)');
   }
 
   console.log(fails === 0 ? '\nALL PASS — micro_queue validator + Phase-1 blind panel + hajj-autosplit sound (routing: simple->single / complex->panel; parallel-when-cloud, serial-when-local; fail-closed search, single-architect fallback)' : `\n${fails} FAIL`);
