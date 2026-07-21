@@ -3386,6 +3386,13 @@ chunking commit itself) SUCCESS 19:09Z; run 29862413660 on 72ab9df SUCCESS 19:39
 first two post-fix CI runs are consecutively green. ONE more green closes ITEM 51 and
 sweeps every gap-ci-failure-* row; a red instead means the race survived chunking and the
 next diagnosis targets whatever the failing run's --log-failed shows (never assume).
+*** ITEM 51 ACCEPTED 3/3 AND CLOSED (2026-07-21T20:1xZ) ***: third sample run 29864500568
+(manual workflow_dispatch against production /map -- the workflow's own documented ad-hoc
+lane, an independent race sample) concluded SUCCESS. Three consecutive greens on a workflow
+that had been red on nearly every run since its 2026-06-23 birth. All 23 gap-ci-failure-*
+register rows swept closed with the full receipt chain (anchor -> patcher dry-run ->
+mission 66dad6b -> five-guard production deploy 72ab9df2 -> 3x green CI). The largest
+open gap family in the register is DONE.
 
 ITEM 52 — BOOT-FRESHNESS GUARD: STALE daemon-status.json MASQUERADES AS HEALTHY
 AFTER A REBOOT (filed 2026-07-19 ~09:0xZ; operator ask verbatim: "do we need any
