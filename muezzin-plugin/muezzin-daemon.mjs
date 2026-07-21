@@ -1264,6 +1264,15 @@ async function mainLoop() {
   // supervisors and each looped forever). The supervisor treats 3 as "do not restart — exit quietly."
   if (!lock.ok) { console.log(`daemon already running (PID ${lock.holder}) — exiting per singleton lock (code 3 = supervisor must NOT restart)`); process.exit(3); }
   reclaimStaleRunning();
+  // BOOT-STATUS GHOST (backport-intake BUG 7, 2026-07-21): setStatus()'s only call site used
+  // to be at the end of each mainLoop iteration -- heal-cadence + the fire loop both run before
+  // it, so a fresh daemon could sit for minutes with daemon-status.json/STATUS-BOARD.md still
+  // holding the PREVIOUS (possibly-crashed) instance's snapshot even though reclaimStaleRunning
+  // just corrected AUTORUN.md. Live receipt: the 2026-07-20T23:22:47Z restart left the board
+  // stale for 2m31s while a mid-flight mission's RUNNING mark had already been reclaimed in
+  // substrate. Force a refresh the instant boot recovery completes so a reader never sees a
+  // ghost mark tied to a dead PID.
+  setStatus({ state: 'starting', lanes: [], queued: readQueue().pending.length });
   evt(`daemon UP (PID ${process.pid}, singleton) — draining missions/AUTORUN.md, up to ${MAX_LANES} parallel lanes`);
   // NO push on daemon UP (operator 2026-06-10: lifecycle pushes are noise — restarts
   // spammed his phone with zero information). Pushes are OUTCOME-ONLY: DONE/FAILED.
