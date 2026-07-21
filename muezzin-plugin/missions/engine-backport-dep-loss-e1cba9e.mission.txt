@@ -1,0 +1,201 @@
+MISSION-ID: engine-backport-dep-loss-e1cba9e
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\.claude\muezzin-plugin
+ALLOW-FILES:
+  - deconstructor.mjs
+REQUIRES: none
+STEPS: 2
+
+ONE-WRITER RULE (binding): step 1 authors deconstructor.mjs (two new exported functions,
+one runQueueLoop parameter + one injection call, two call-site threadings, and new selftest
+fixtures all live in the same file). Step 2 is verify-only and authors nothing.
+
+MAQSAD (the end): a mission's declared `context_dependencies:` (absolute evidence-file paths
+the mission text names verbatim) can be silently dropped or re-authored by the model-authored
+plan on ANY replan (including autosplit children re-planning their own text) -- nothing
+mechanically enforces that a declared dependency survives into the actual plan. This is
+backport-intake BUG 1 (missions/INBOX.md, filed 2026-07-08, evaluated 2026-07-21): the fork
+(agy-muezzin, commit e1cba9e) proved this live -- atv-1's S1.S1 child re-plan invented
+`reference/firesticktricks.com.txt` in place of the declared `data/atv-corpus/*.md` evidence
+file, and profiled against nothing. muezzin-plugin already ported HALF of the fork's fix
+(mission_split.mjs's serializer now preserves context_dependencies verbatim into child mission
+TEXT, 2026-07-14) -- but the MECHANICAL BACKSTOP half (forcing the model's re-PLANNED queue to
+keep declared deps even when the model itself drops/invents them) was never ported. This
+mission ports that second half.
+
+THE FIX (pin exact literals -- verbatim from agy-muezzin commit e1cba9e, `git show e1cba9e --
+deconstructor.mjs` in C:\Users\marka\agy-muezzin, confirmed byte-compatible against
+muezzin-plugin's current deconstructor.mjs: escapesSandbox exists at line 71,
+parseAllowFiles at line 245, runQueueLoop's signature at line 378 matches the fork's
+PRE-fix signature exactly):
+
+1. Insert these two new exported functions immediately before the line
+`export function parseAllowFiles(mission) {` (that line and everything after it stays
+completely unchanged, only prepend before it):
+```
+// ---- DECLARED-DEP VERBATIM SURVIVAL (backport-intake BUG 1, agy-muezzin commit e1cba9e,
+// 2026-07-08 dep-loss receipted at atv-1 S1.S1). The parent mission DECLARED absolute
+// context_dependencies verbatim in its step lines, but the plan is MODEL-AUTHORED --
+// nothing mechanically forced the planner to copy the declared paths into the plan's
+// context_dependencies, and a re-planned child INVENTED a substitute path and profiled
+// against nothing. This is the MECHANICAL half: parse the dep declarations out of the
+// mission text and re-inject any the planner dropped/re-authored, BEFORE validation, on
+// every plan path (single architect + panel integrator, via runQueueLoop). The other half
+// lives in mission_split.mjs emitSubMissions (already ported 2026-07-14), which serializes
+// each child step's context_dependencies verbatim into the child mission text -- so the
+// guarantee survives autosplit RECURSION (child text -> child plan -> grandchild text -> ...).
+//
+// Declaration convention (the parent's own shape, and what emitSubMissions emits):
+//   ... [edit|command|verify] <target[, target]> ; context_dependencies: <dep[, dep]>
+// A bare "context_dependencies: <dep[, dep]>" line (no same-line target) also counts --
+// its deps fall back to every edit step. Tokens must be path-ish (no spaces/quotes/
+// brackets, at least one '/', '\' or '.') so prose mentions and JSON schema fragments
+// never parse as deps; "none" is the declared-empty marker and yields nothing.
+const DEP_TOKEN_RE = /^[\w~][\w.:~\\/-]*$/;
+const looksLikeDepPath = (s) => DEP_TOKEN_RE.test(s) && /[\\/.]/.test(s) && !/^none$/i.test(s);
+
+// parseDeclaredDeps(mission) -> [{ deps: [verbatim...], targets: [verbatim...] }]
+export function parseDeclaredDeps(mission) {
+  const decls = [];
+  for (const line of String(mission || '').split(/\r?\n/)) {
+    const m = line.match(/^(.*?)\bcontext_dependencies\s*:\s*(.+)$/i);
+    if (!m) continue;
+    const deps = m[2].split(',').map((s) => s.trim()).filter(looksLikeDepPath);
+    if (!deps.length) continue;
+    const tm = m[1].match(/\[(?:edit|command|verify)\]\s*([^;[\]]*?)\s*;\s*$/i);
+    const targets = tm ? tm[1].split(',').map((s) => s.trim()).filter(Boolean) : [];
+    decls.push({ deps, targets });
+  }
+  return decls;
+}
+
+// injectDeclaredDeps(queue, mission, { research }) -- mutates queue in place; returns
+// { injected, decls }. Pairing: a declaration carrying a same-line target lands on the
+// plan step(s) that target that file; a declaration with no target (or whose target the
+// planner renamed) falls back to every 'edit' step (deps are read-only inputs -- over-
+// providing is bounded by executor dep-windowing; under-providing is the receipted bug).
+// Class containment is MIRRORED, not bypassed: a dep validateMicroAction would reject
+// for this class (absolute outside research, any '..') is skipped, never injected -- the
+// backstop must not deadlock the repair loop on a mission-authoring error the mission
+// lint already polices.
+export function injectDeclaredDeps(queue, mission, { research = false } = {}) {
+  const decls = parseDeclaredDeps(mission);
+  const steps = Array.isArray(queue?.steps) ? queue.steps : [];
+  let injected = 0;
+  if (!decls.length || !steps.length) return { injected, decls: decls.length };
+  const norm = (p) => String(p).toLowerCase().replace(/\\/g, '/');
+  for (const { deps, targets } of decls) {
+    const legal = deps.filter((d) => !escapesSandbox(d) || (research && String(d).indexOf('..') === -1));
+    if (!legal.length) continue;
+    const tset = new Set(targets.map(norm));
+    let recipients = tset.size ? steps.filter((s) => (s?.target_files || []).some((t) => tset.has(norm(t)))) : [];
+    if (!recipients.length) recipients = steps.filter((s) => s?.action_type === 'edit');
+    if (!recipients.length) recipients = steps;
+    for (const s of recipients) {
+      if (!Array.isArray(s.context_dependencies)) s.context_dependencies = [];
+      const have = new Set(s.context_dependencies.map(norm));
+      for (const d of legal) {
+        if (!have.has(norm(d))) { s.context_dependencies.push(d); have.add(norm(d)); injected++; }
+      }
+    }
+  }
+  return { injected, decls: decls.length };
+}
+
+```
+2. Replace this exact line (the `runQueueLoop` function signature):
+```
+async function runQueueLoop(seat, baseFraming, { research = false, codeRepo = false, allowFiles = [], maxRepairs = 2, diagDir = null, diagTag = 'plan', dispatchFn = dispatchSeat, escalationState = { tier: 0, reason: 'initial' } } = {}) {
+```
+with exactly:
+```
+async function runQueueLoop(seat, baseFraming, { research = false, codeRepo = false, allowFiles = [], maxRepairs = 2, diagDir = null, diagTag = 'plan', dispatchFn = dispatchSeat, escalationState = { tier: 0, reason: 'initial' }, missionText = null } = {}) {
+```
+3. Find the line `const queue = extractQueue(rawContent);` inside `runQueueLoop` (there is
+exactly one occurrence). Immediately AFTER that line, insert exactly:
+```
+    // DEP-LOSS MECHANICAL BACKSTOP (backport-intake BUG 1, 2026-07-21): BEFORE validation,
+    // re-inject any mission-text-declared context_dependencies the model dropped or
+    // re-authored. Runs on every attempt so the repair loop can never un-inject them;
+    // validation then judges the FINAL queue.
+    if (queue && missionText) injectDeclaredDeps(queue, missionText, { research });
+```
+4. Find the line inside `export async function deconstruct(...)` that calls `runQueueLoop(seat, baseFraming, { research, codeRepo, allowFiles: parseAllowFiles(mission), maxRepairs, diagDir, diagTag: 'plan', dispatchFn, escalationState });` (or the closest-matching call with the same argument names -- transcribe verbatim what you actually find, adding only `missionText: mission` as one more property in that same options object, do not otherwise alter the call).
+5. Do the same for `export async function deconstructPanel(...)`'s equivalent call to runQueueLoop (or its internal integrator dispatch loop) if one exists with the same options shape -- add `missionText: mission` there too. If deconstructPanel does not call runQueueLoop directly (e.g. it has its own inline loop), locate wherever THAT loop calls `extractQueue` and apply step 3's same injection call there instead, adapting variable names to what actually exists -- do not invent a call site that isn't there.
+
+SCOPE FENCE (D13, do NOT exceed): touch ONLY the two new functions, the one signature change,
+the one injection-call insertion, the two call-site threadings (or their nearest real
+equivalent per step 5's fallback instruction), and the new selftest block described in step 1
+below. Do NOT modify validateMicroAction, validateMicroQueue, escapesSandbox, or ANY existing
+selftest block -- all must keep passing byte-identical, they are the regression guard.
+
+NIYYAH (why): backport-intake BUG 1 (missions/INBOX.md "BACKPORT INTAKE 2026-07-08", item 1),
+evaluated for real 2026-07-21 via a 7-way parallel workflow, confirmed still open.
+source: C:\Users\marka\.claude\muezzin-plugin\missions\INBOX.md
+source: C:\Users\marka\.claude\muezzin-plugin\deconstructor.mjs
+source: C:\Users\marka\agy-muezzin\deconstructor.mjs (git commit e1cba9e, the reference implementation this mission ports verbatim)
+
+REACHABILITY NOTE (miqat): non-page engine change (the mission planner's own dependency-
+enforcement logic) -- no new page/surface ships, so no nav-reachability / MIQAT concern applies.
+
+STEPS:
+1. Apply THE FIX exactly as specified above (insert the two functions, change the
+signature, insert the injection call, thread missionText through both call sites per
+steps 4-5), then add this new selftest block immediately after the existing
+`export function parseAllowFiles(mission) {` function's closing `}` and before whatever
+comment/code follows it (transcribe the exact insertion point you find; do not guess a line
+number). Insert exactly:
+```
+// ---- backport-intake BUG 1: DECLARED-DEP VERBATIM SURVIVAL (dep-loss, agy-muezzin
+// e1cba9e, ported 2026-07-21) -- fixture strings built by runtime concatenation.
+if (process.argv[2] === '--selftest' || process.argv[1]?.endsWith('deconstructor.mjs')) {
+  // guarded no-op placeholder retained only if the host file's own selftest gate differs;
+  // the REAL fixtures below must be spliced into the file's actual existing --selftest
+  // block (find it, do not create a second one) using this exact fixture content:
+}
+```
+   Then, INSTEAD of the placeholder above (delete it -- it is a landmark for you to find
+the real selftest block, never leave it in the file), locate this file's own actual
+`if (process.argv[...] === '--selftest')` block (or equivalent self-test entry guard) and
+insert this fixture group as a new block near its other DEP/VALIDATION-shaped fixtures,
+or at the end just before its final `console.log(fails === 0 ? ...)` summary line:
+```
+  // ---- backport-intake BUG 1: DECLARED-DEP VERBATIM SURVIVAL (dep-loss, agy-muezzin
+  // e1cba9e, ported 2026-07-21). Fixture strings built by runtime concatenation.
+  {
+    const stem6 = ['bp', 'dep', 'stem'].join('-');
+    const absDep = 'C:/Users/marka/.claude/muezzin-plugin/data/' + stem6 + '/evidence.md';
+    const tgt6 = 'parts/' + stem6 + '-profile.md';
+    const atvMission6 = [
+      'MISSION-CLASS: research',
+      'Steps:',
+      '  1. Profile it. [edit] ' + tgt6 + ' ; context_dependencies: ' + absDep,
+    ].join('\n');
+    const parsed6 = parseDeclaredDeps(atvMission6);
+    ck(parsed6.length === 1 && parsed6[0].deps[0] === absDep, 'backport-BUG1 DEP-SURVIVAL parse: declared context_dependencies extracted verbatim');
+
+    const invented6 = 'reference/' + stem6 + '-invented.txt';
+    const droppedQ6 = { mission_id: 'M-X', steps: [
+      { step_index: 1, description: 'profile', action_type: 'edit', target_files: [tgt6], context_dependencies: [invented6], validation_command: 'Test-Path ' + tgt6 },
+    ] };
+    const inj6 = injectDeclaredDeps(droppedQ6, atvMission6, { research: true });
+    ck(inj6.injected === 1 && droppedQ6.steps[0].context_dependencies.includes(absDep), 'backport-BUG1 DEP-SURVIVAL inject: planner-invented substitute dep does not remove the declared dep -- it is re-injected alongside');
+
+    const crMission6 = atvMission6.replace('MISSION-CLASS: research', 'MISSION-CLASS: code');
+    const crQ6 = { mission_id: 'M-X', steps: [
+      { step_index: 1, description: 'profile', action_type: 'edit', target_files: [tgt6], context_dependencies: [], validation_command: 'Test-Path ' + tgt6 },
+    ] };
+    const injCr6 = injectDeclaredDeps(crQ6, crMission6, { research: false });
+    ck(injCr6.injected === 0 && crQ6.steps[0].context_dependencies.length === 0, 'backport-BUG1 DEP-SURVIVAL inject: an absolute dep is NOT injected outside research class (mirrors containment, no repair-loop deadlock)');
+  }
+```
+   [edit] deconstructor.mjs
+   validation_command: node --check deconstructor.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; if (-not (Select-String -Path deconstructor.mjs -Pattern 'export function parseDeclaredDeps' -Quiet)) { exit 1 }; if (-not (Select-String -Path deconstructor.mjs -Pattern 'export function injectDeclaredDeps' -Quiet)) { exit 1 }; if (-not (Select-String -Path deconstructor.mjs -Pattern 'missionText = null' -Quiet)) { exit 1 }; if (-not (Select-String -Path deconstructor.mjs -Pattern 'backport-BUG1' -Quiet)) { exit 1 }; if ((Select-String -Path deconstructor.mjs -Pattern 'guarded no-op placeholder' -Quiet)) { exit 1 }; Write-Output 'DEP-LOSS-CODE-OK'
+2. OUTCOME CHECK [command] (LITERAL PINNED validation_command below, transcribe verbatim): run this file's own embedded selftest and confirm the new fixtures pass with zero regressions. Authors nothing.
+   validation_command: $out = node deconstructor.mjs --selftest 2>&1 | Out-String; Write-Output $out; $ec = $LASTEXITCODE; if ($ec -ne 0) { exit 1 }; if (([regex]::Matches($out, 'PASS\s+backport-BUG1')).Count -lt 3) { exit 1 }; if ($out -match 'FAIL') { exit 1 }; Write-Output 'DEP-LOSS-SELFTEST-OK-NO-REGRESSION'
+
+DONE-MEANS: parseDeclaredDeps and injectDeclaredDeps exist and are exported; runQueueLoop
+accepts a missionText option and calls injectDeclaredDeps on every plan attempt before
+validation; both deconstruct() and deconstructPanel() (or its real equivalent loop) thread
+missionText through. The embedded selftest passes at least 3 new backport-BUG1 fixtures with
+zero regressions (no FAIL anywhere in the full selftest output).
