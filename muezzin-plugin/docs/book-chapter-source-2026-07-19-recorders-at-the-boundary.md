@@ -101,8 +101,11 @@ features shipped across the boundary.
 **Layer 2 — LIVE: the boundary is instrumented.**
 A PreCompact hook fires before the vendor's summarizer runs. It extracts the
 operator's still-open messages from the raw transcript (so in-flight questions
-survive even if the summary forgets them), snapshots git state in every
-relevant repo, writes a structural handoff file as a guaranteed floor, has a
+survive even if the summary forgets them), snapshots git state in the
+governance repo and the active project directory (two fixed locations, not
+an exhaustive scan — a sibling repo touched in the same session but outside
+those two paths is not captured, a real scope limit named here rather than
+implied away), writes a structural handoff file as a guaranteed floor, has a
 local model draft a handoff digest, and injects a bootstrap block that the
 summary must carry at its head. If the instance wrote nothing before the
 boundary, the hook's fallback file says so explicitly — a stub that admits
