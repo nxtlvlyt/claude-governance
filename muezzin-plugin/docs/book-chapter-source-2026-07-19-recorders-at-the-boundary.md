@@ -68,16 +68,22 @@ this way; imagine requiring a pilot to write the aircraft's maintenance log
 during the stall. Sometimes the writing simply does not happen at all — the
 instance dies first, or the write fails silently, and nothing checks.
 
-We have a corpus receipt for what that costs. A sister project (the Antigravity
-book pipeline) ran forty-four sessions with a compaction ritual but no
-verification of the written handoff: **eight of the forty-four handoff files —
-18% — were completely empty.** Silent deaths. The next instance woke with
-nothing, and nothing announced it. And the sharpest specimen in that corpus is
-worse than emptiness: a state file that confidently recorded a working
-111,000-character file as "DESTROYED — a 12-line stub." Four audit passes later
-the file was proven intact; the mandated "recovery" would have overwritten
-working code. **The record itself was the liar** — and in a compaction-based
-architecture, the record is all a successor has.
+We have a corpus receipt for part of what that costs, and an honest correction
+for the rest. A sister project (the Antigravity book pipeline) is recalled to
+have run sessions with a compaction ritual but no verification of the written
+handoff, with roughly a fifth of handoff files completely empty — **eight of
+forty-four, by memory.** That specific count is UNVERIFIED: a direct search of
+the sister project's own session-summary corpus found no independent log
+substantiating "44" or "8 empty" anywhere — recalled, not receipted, and
+marked as such here rather than presented as corpus fact.
+
+What IS independently receipted, found in that same corpus
+(`STATE-1781043472710.md`, ruling R-FINAL-M31-001): a state file that
+confidently recorded a working 111,121-character file as "DESTROYED — a
+12-line stub." Four independent auditor sessions later the file was proven
+intact; the mandated "recovery" would have overwritten working code.
+**The record itself was the liar** — and in a compaction-based architecture,
+the record is all a successor has.
 
 ## III. What we run instead: solving for the specification
 
