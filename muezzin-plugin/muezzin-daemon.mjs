@@ -857,6 +857,33 @@ function hasResolvedStampForPath(autorunText, path) {
   return String(autorunText).split(/\r?\n/).some((line) => pathOwnsNearbyResolvedStamp(line, escaped));
 }
 
+// SPLIT-PARENT TARTIB (gap-queueddepshold-split-parent-tartib-unrecognized, 2026-07-20): a
+// tartib predecessor that Hajj-split (mission_split.mjs) decomposed never reaches DONE
+// itself -- SPLIT is its terminal status, and the real work lives in its children. Without
+// this, every tartib child whose predecessor was split held FOREVER: doneRe only matches
+// "DONE <dep>", never "SPLIT <dep>". Satisfied ONLY when the dep's own manifest
+// (<stem>._split-manifest.json, written by mission_split.emitSubMissions) is readable AND
+// every one of its listed children is itself DONE with a PASS receipt (resultOkFn) --
+// exactly the same DONE+PASS bar queuedDepsHold already holds every other dependency to,
+// just recursed one level into the split's own children. A missing/unreadable manifest or
+// any one unfinished child fails CLOSED (still holds) -- a split parent with no verifiable
+// children is not evidence of completion. Injectable readFileFn/pathMod/hereDir so this
+// unit-tests with zero filesystem contact against the real missions directory.
+export function splitParentSatisfied(dep, autorunText, resultOkFn, readFileFn, pathMod, hereDir) {
+  let manifest;
+  try {
+    const stem = missionSandboxStem(dep);
+    manifest = JSON.parse(readFileFn(pathMod.join(hereDir, 'missions', `${stem}._split-manifest.json`), 'utf8'));
+  } catch { return false; }
+  const children = Array.isArray(manifest?.children) ? manifest.children : [];
+  if (!children.length) return false;
+  return children.every((c) => {
+    const cFile = String(c?.file || '');
+    const cEsc = cFile.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return new RegExp(`^DONE\\s+${cEsc}`, 'm').test(String(autorunText)) && resultOkFn(cFile) === true;
+  });
+}
+
 export function queuedDepsHold(missionText, missionPath, autorunText, resultOkFn, gitFn = (repo, argstr) => { try { return { ok: true, out: execSync(`git -C "${repo}" ${argstr}`, { stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 64 * 1024 * 1024 }).toString() }; } catch { return { ok: false, out: '' }; } }) {
   const txt = String(missionText || '');
   // SELF-RESOLVED CHECK (2026-07-02, d1-migrations resurrection loop): a conductor-RESOLVED
@@ -932,6 +959,8 @@ export function queuedDepsHold(missionText, missionPath, autorunText, resultOkFn
     const depEsc = dep.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     if (hasResolvedStampForPath(autorunText, dep)) continue;                     // conductor-landed
     if (doneRe.test(autorunText) && resultOkFn(dep) === true) continue;          // DONE + PASS receipt
+    const splitRe = new RegExp(`^SPLIT\\s+${depEsc}`, 'm');
+    if (splitRe.test(autorunText) && splitParentSatisfied(dep, autorunText, resultOkFn, readFileSync, path, HERE)) continue;  // SPLIT parent whose children are all DONE+PASS
     return { hold: true, dep, why: doneRe.test(autorunText) ? `dependency ${dep} is DONE but its result.json is not ok:true (hollow receipt)` : `dependency ${dep} not DONE/RESOLVED` };
   }
   return { hold: false };
@@ -2224,6 +2253,31 @@ if (process.argv.includes('--selftest')) {
     // regression guard: a real, un-confused inline stamp (only one path on the line) still works
     const cleanStamp = ourPath4 + '  <!-- ' + 'RESOLVED-LANDED' + ' done -->';
     ck(queuedDepsHold('MISSION-ID: x', ourPath4, cleanStamp, () => false).hold === true, 'gap-queueddepshold-same-line-crossreference-ambiguity: a clean single-path inline stamp still satisfies (no regression)');
+  }
+
+  // ---- gap-queueddepshold-split-parent-tartib-unrecognized (2026-07-20): a tartib
+  // predecessor that Hajj-split decomposed reaches SPLIT, never DONE -- queuedDepsHold's
+  // doneRe only matched "DONE <dep>", so every split parent held its children FOREVER.
+  // splitParentSatisfied is tested directly here (not through queuedDepsHold) since the
+  // real call site wires real readFileSync/path/HERE -- these fixtures inject a stub
+  // reader instead so no fixture ever touches the real missions directory.
+  {
+    const stem5 = ['q', 'split', 'parent', 'stem'].join('-');
+    const parentPath5 = 'missions/' + stem5 + '.mission.txt';
+    const child1 = 'missions/' + stem5 + '.S1.mission.txt';
+    const child2 = 'missions/' + stem5 + '.S2.mission.txt';
+    const manifest5 = JSON.stringify({ parentId: 'M-SPLIT5', children: [{ id: 'M-SPLIT5.S1', file: child1 }, { id: 'M-SPLIT5.S2', file: child2 }] });
+    const readOk = () => manifest5;
+    const readMissing = () => { throw new Error('ENOENT: no such file'); };
+
+    const arAllDone = 'DONE ' + child1 + '  <!-- t -->\nDONE ' + child2 + '  <!-- t -->\n';
+    const resOkAll = (p) => p === child1 || p === child2;
+    ck(splitParentSatisfied(parentPath5, arAllDone, resOkAll, readOk, path, '/fake/here') === true, 'gap-queueddepshold-split-parent-tartib-unrecognized: all children DONE+PASS -> satisfied (releases the split parent)');
+
+    const arOneMissing = 'DONE ' + child1 + '  <!-- t -->\n';
+    ck(splitParentSatisfied(parentPath5, arOneMissing, resOkAll, readOk, path, '/fake/here') === false, 'gap-queueddepshold-split-parent-tartib-unrecognized: one child not yet DONE -> still holds');
+
+    ck(splitParentSatisfied(parentPath5, arAllDone, resOkAll, readMissing, path, '/fake/here') === false, 'gap-queueddepshold-split-parent-tartib-unrecognized: manifest not on disk (readFileFn throws) -> still holds, fails closed');
   }
 
   // ---- mt-c2a-queueddeps: RESOLVED stamp verification via missionLandedState ----
