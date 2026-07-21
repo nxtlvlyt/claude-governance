@@ -3496,16 +3496,31 @@ time with an honest --allow-empty commit-marker step, not a rule change. ITEM 25
 exemption (Pages `--branch=<preview>` literal flag) does not cover this shape: a bare
 `wrangler deploy --config <toml>` carries no --branch flag at all; its non-production status
 lives in the referenced .toml (workers_dev=true, no [[routes]]/[[route]] table) instead.
-FIX SHAPE (gate-LOOSENING — narrow + adversarially verified per drift-and-ratchet, same bar
-as ITEM 24/25): exempt a bare `wrangler deploy --config <file>` from RULE 8 ONLY when the
-referenced toml is readable from the mission REPO-ROOT and shows workers_dev=true with no
-[[routes]]/[[route]] table. Regression selftests: (a) a workers_dev=true config with no
-commit passes; (b) a config WITH a [[routes]] entry (real production route) still requires
-the commit pairing even with workers_dev=true; (c) a missing/unreadable toml path fails
-closed (still requires commit), never silently exempts. Requires lintMission() to gain
-filesystem read access scoped to REPO-ROOT, which it may not currently have -- check the
-function signature before implementing. Adversarial pass: agent tries to author a production
-worker deploy (real [[routes]] entry) that slips the exemption; lands only if it fails.
+FIX SHAPE CORRECTED 2026-07-21T09:1xZ (conductor, checked before implementing): the
+original fs-read fix shape below is WRONG -- lintMission(text) is a deliberately PURE,
+filesystem-free function; mission-lint-rule16-improvise-bait-patch.mjs:38 already documents
+this as a protected invariant ("fs.existsSync() would break that contract for every caller
+of lintMission()"). Giving it fs access would violate an existing, deliberate design
+decision, not just add a feature. CORRECTED FIX SHAPE (gate-LOOSENING — narrow +
+adversarially verified per drift-and-ratchet, same bar as ITEM 24/25, TEXT-ONLY per the
+RULE 16 precedent): exempt a bare `wrangler deploy --config <file>` from RULE 8 ONLY when
+the mission text itself carries an explicit author-asserted declaration line (e.g.
+"NON-PRODUCTION-WORKER: workers_dev=true, no [[routes]]" — exact marker TBD, mirror RULE
+16's "LITERAL ... PINNED" explicit-declaration pattern) -- the mission author attests to
+the config shape in the text the linter already reads, rather than the linter verifying it
+independently. Regression selftests: (a) the declaration present + no commit passes; (b) no
+declaration + no commit still requires the commit pairing (no accidental blanket exemption);
+(c) the declaration present but a real [[routes]]-bearing deploy still gets caught by a
+DIFFERENT, later verification stage (this rule only relaxes the miqat-time text check, not
+the actual deploy safety). Adversarial pass: agent tries to author a production worker
+deploy that slips the exemption via a false declaration; lands only if it fails, and note
+that a false declaration is a worse failure mode than the original absence (author-asserted
+lies are harder to catch than omissions) -- weigh whether this exemption is worth adding at
+all given mt-27 already has a working non-exemption workaround (the commit-marker pattern).
+Original (WRONG, fs-read) fix shape preserved below for history, do not implement as-is:
+exempt a bare `wrangler deploy --config <file>` from RULE 8 ONLY when the referenced toml is
+readable from the mission REPO-ROOT and shows workers_dev=true with no [[routes]]/[[route]]
+table -- REJECTED, violates lintMission()'s filesystem-free contract.
 Low priority — mt-27 itself is already unblocked by the commit-marker workaround; this item
 exists so the NEXT bare-worker-deploy mission doesn't re-hit the same wall.
 GAP-REGISTER: gap-rule8-worker-deploy-no-branch-flag-shape (owner now resolves here).
