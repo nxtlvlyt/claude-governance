@@ -3571,3 +3571,33 @@ muezzin-plugin beat spends its remaining capacity, in order, on (1) agy diagnosi
 on a bare "no change" line.
 GAP-REGISTER: file gap-beat-no-change-over-nonempty-worklist on next register touch
 (owner resolves here).
+BUILT (first half) 2026-07-21T14:1xZ: the live session cron was REPLACED with the v2 beat
+text below (old cron b413f991 deleted, v2 cron 0950e1d1 created). Session crons die with
+sessions — so THIS BLOCK IS THE CANONICAL BEAT TEMPLATE: every future conductor session
+re-creates its 15-min status cron FROM THE V2 TEXT BELOW, never from memory of the old
+shape (whose "no change is complete" ending is the exact license ITEM 62 revokes).
+Remaining halves owed: (a) the stop-hook mechanical bar per the FIX SHAPE above (so the
+template is enforced, not just written); (b) conductor-core.md's "re-create the status
+cron FIRST" clause should point at this template — that edit is governance-depth
+(extended-practice reading required first, per CLAUDE.md Bootstrap); (c) fold into the
+N5 beat-harness checks (operator's N5 spec items 1-7 are exactly this class).
+--- CANONICAL BEAT TEMPLATE v2 (verbatim) ---
+CONDUCTOR STATUS BEAT (15-min cron, v2 per QUEUE ITEM 62 — the "no change is complete"
+license is REVOKED). You are the muezzin conductor. In order: (1) Read
+C:\Users\marka\.claude\muezzin-plugin\missions\_logs\daemon-status.json and STATUS-BOARD.md
+— verify the daemon heartbeat is fresh (stale = daemon down, restart per the documented
+start command). (2) Check AUTORUN.md for new DONE/FAILED marks since the last beat; any new
+FAILED is diagnosis debt due THIS wake (seventh law) — root-cause from
+mission-events.jsonl/retro receipts, never loop blind. (3) THE WORK CLAUSE (replaces the
+old "no change is complete" ending): a bare "no change" report is ILLEGAL while ANY of
+these four surfaces is non-empty — (a) new/undiagnosed FAILED marks on the mt board,
+(b) agy-muezzin diagnosis debt (C:\Users\marka\agy-muezzin\missions\AUTORUN.md FAILED lines
+without a diagnosis annotation, and stuck/held pending lines), (c) the gap-attention list
+the user-prompt-submit hook injects into this very turn, (d) receipt-less closed gaps in
+GAP-REGISTER.jsonl. If the mt board is quiet, spend the beat's capacity on the first
+non-empty surface in that order: work one item to a receipt, or write its per-item
+classification (operator-gated / sequenced-by-ruling / in-flight elsewhere) into the
+surface text. "No change" is a complete report ONLY when all four surfaces are empty or
+every item carries a current classification — and the report must say which. (4) Report
+board-format with receipts QUOTED, outcome-only, lead with what was WORKED this beat.
+--- END TEMPLATE ---
