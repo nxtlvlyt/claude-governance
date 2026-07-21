@@ -3524,3 +3524,23 @@ table -- REJECTED, violates lintMission()'s filesystem-free contract.
 Low priority — mt-27 itself is already unblocked by the commit-marker workaround; this item
 exists so the NEXT bare-worker-deploy mission doesn't re-hit the same wall.
 GAP-REGISTER: gap-rule8-worker-deploy-no-branch-flag-shape (owner now resolves here).
+
+## 2026-07-21 ITEM 61 — LINT: naive case-insensitive FAIL-grep in validation_commands
+(gap-validation-fail-grep-case-insensitive-substring, filed with full reproduction)
+RECEIPT: engine-backport-dep-loss-e1cba9e + engine-backport-gate-loss-9ae0072 both burned
+2 attempts each (4 total, 2026-07-21) on `if ($out -match 'FAIL') { exit 1 }` guards that
+false-fire deterministically -- PowerShell -match is case-INSENSITIVE, and passing selftest
+output legitimately contains 'fail-closed'/'fail-open'/'fails forever' substrings (7 lines
+in deconstructor's own green selftest, verified by direct grep -ic). The conductor then
+misattributed both failures to gap-large-stdout-selftest-false-fail for ~7 hours before
+reproducing through execReceipt directly (full capture intact, child genuinely exits 1 in
+1.4s -- the engine was never at fault). Fifth-law note: tonight's 2 hits are STRUCK from
+gap-large-stdout's evidence; its original 2026-07-20 '[no stdout captured]' instances stand.
+FIX SHAPE: (1) AUTHORING RULE, effective immediately for conductor-authored missions: a
+FAIL-detection guard over selftest output must be line-anchored case-sensitive
+(`-cmatch '(?m)^FAIL'`) or rely on the child exit code alone. (2) LINT RULE (mission_lint,
+next engine batch, sibling of the RULE 17 grep-family): flag any validation_command carrying
+a bare `-match 'FAIL'` over captured output; suggest the -cmatch anchored form. Regression
+fixtures: (a) bare form flagged; (b) `-cmatch '(?m)^FAIL'` passes; (c) FAIL-grep over a
+literal string (not captured output) not flagged.
+GAP-REGISTER: gap-validation-fail-grep-case-insensitive-substring (owner resolves here).
