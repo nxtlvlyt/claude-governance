@@ -1,0 +1,131 @@
+MISSION-ID: engine-queueddepshold-split-parent-tartib
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\.claude\muezzin-plugin
+ALLOW-FILES:
+  - muezzin-daemon.mjs
+REQUIRES: none
+STEPS: 2
+
+ONE-WRITER RULE (binding): step 1 authors muezzin-daemon.mjs (one new helper function, one
+call-site insertion inside queuedDepsHold's dependency loop, and new selftest fixtures all
+live in the same file). Step 2 is verify-only and authors nothing.
+
+MAQSAD (the end): queuedDepsHold's dependency-satisfaction loop only recognizes a literal
+`^DONE\s+<dep>` line in AUTORUN.md as satisfying a dependency. A SPLIT-class predecessor
+(AUTORUN status SPLIT, never DONE, because the autosplit replaces it with tartib children)
+can never satisfy a dependent mission this way, even once every one of its own children has
+genuinely landed DONE with a passing receipt. LIVE-CAUGHT this wake: mt-integrate-poi-tags-
+2026-06-23.S2 (REQUIRES the SPLIT-status mt-integrate-poi-tags-2026-06-23.S1 via the implicit
+.Sn -> .S(n-1) rule) sat bare-queued across multiple 15-min beats, never firing and never
+producing ANY HELD/FAILED/RECURRING-HALT receipt -- pickPromotion simply never selected it,
+silently, because the split-parent semantics were never mechanically recognized. This mission
+closes gap-queueddepshold-split-parent-tartib-unrecognized (GAP-REGISTER.jsonl).
+
+THE FIX (pin exact literals -- verified against the real split-manifest.json shape on disk,
+missions/mt-integrate-poi-tags-2026-06-23.S1._split-manifest.json, which has this exact
+top-level shape: `{"parentId":"...","ceiling":8,"originalStepCount":9,"groupCount":2,
+"children":[{"id":"...","file":"missions/....mission.txt","steps":8,"requires":null}, ...],
+"ts":"..."}`):
+
+1. Insert this new helper function immediately before the line
+`export function queuedDepsHold(missionText, missionPath, autorunText, resultOkFn, gitFn = (repo, argstr) => { try { return { ok: true, out: execSync(...`
+(the export function's own opening line stays completely unchanged, only prepend before it):
+```
+// SPLIT-PARENT SATISFACTION (gap-queueddepshold-split-parent-tartib-unrecognized,
+// 2026-07-21): a SPLIT-status dependency (AUTORUN line "SPLIT missions/<dep>", never DONE --
+// the autosplit replaces the parent with tartib children) satisfies a dependent mission ONLY
+// if every one of its own children, per <dep-stem>._split-manifest.json, is itself DONE with
+// a passing receipt. One level deep only -- a grandchild-split parent is a known, accepted
+// limitation, not silently mis-handled (falls through to the normal unsatisfied hold, same
+// as today, never a false-positive release).
+function splitParentSatisfied(dep, autorunText, resultOkFn, readManifestFn) {
+  const manifestRel = dep.replace(/\.mission\.txt$/i, '._split-manifest.json');
+  let manifest;
+  try { manifest = JSON.parse(readManifestFn(manifestRel)); } catch { return false; }
+  const children = Array.isArray(manifest?.children) ? manifest.children : [];
+  if (!children.length) return false;
+  return children.every((c) => {
+    const childFile = String(c?.file || '').replace(/\\/g, '/');
+    if (!childFile) return false;
+    const childDoneRe = new RegExp(`^DONE\\s+${childFile.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'm');
+    return childDoneRe.test(autorunText) && resultOkFn(childFile) === true;
+  });
+}
+
+```
+2. Replace this exact line (inside the `for (const dep of deps)` loop, the dependency-satisfaction condition):
+```
+    if (doneRe.test(autorunText) && resultOkFn(dep) === true) continue;          // DONE + PASS receipt
+```
+with exactly:
+```
+    if (doneRe.test(autorunText) && resultOkFn(dep) === true) continue;          // DONE + PASS receipt
+    const splitRe = new RegExp(`^SPLIT\\s+${depEsc}`, 'm');
+    if (splitRe.test(autorunText) && splitParentSatisfied(dep, autorunText, resultOkFn, (p) => readFileSync(path.join(HERE, p), 'utf8'))) continue;   // SPLIT parent, all children DONE+PASS
+```
+   (`depEsc` two lines above stays declared and unchanged -- it is what the new SPLIT regex reuses; `readFileSync`, `path`, and `HERE` are already imported/declared at module scope, verified present)
+
+SCOPE FENCE (D13, do NOT exceed): touch ONLY the one new helper function (inserted once,
+before queuedDepsHold), the one exact line-insertion named above, and the new selftest block
+described in step 1 below. Do NOT modify doneRe, depEsc's declaration, the STAMP-DISPUTED/
+missionLandedState logic, the unresolvedHyphenated visibility block, the bare-stem/tartib-child
+resolution logic in promotionHold, or ANY existing selftest block (including "tartib-gate",
+"mt-c1-boundary", "gap-queueddepshold-resolved-landed-blind", and
+"gap-queueddepshold-same-line-crossreference-ambiguity" -- all four must keep passing
+byte-identical, they are the regression guard).
+
+NIYYAH (why): gap-queueddepshold-split-parent-tartib-unrecognized, filed 2026-07-20T23:1xZ,
+GAP-REGISTER.jsonl -- live-caught the same wake on mt-integrate-poi-tags-2026-06-23.S2 sitting
+silently unfireable for multiple beats.
+source: C:\Users\marka\.claude\muezzin-plugin\missions\_logs\GAP-REGISTER.jsonl
+source: C:\Users\marka\.claude\muezzin-plugin\muezzin-daemon.mjs
+source: C:\Users\marka\.claude\muezzin-plugin\missions\mt-integrate-poi-tags-2026-06-23.S1._split-manifest.json
+
+REACHABILITY NOTE (miqat): non-page engine change (the mission daemon's own dependency-
+scheduling logic) -- no new page/surface ships, so no nav-reachability / MIQAT concern applies.
+
+STEPS:
+1. Apply THE FIX exactly as specified above (insert the helper function, apply the line
+insertion), then add this new selftest block immediately after the existing
+"gap-queueddepshold-same-line-crossreference-ambiguity" block's closing `}` (the one ending
+at the line containing `'gap-queueddepshold-same-line-crossreference-ambiguity: a clean
+single-path inline stamp still satisfies (no regression)');`) and before the next
+`// ----` comment. Insert exactly:
+```
+  // ---- gap-queueddepshold-split-parent-tartib-unrecognized (2026-07-21): a SPLIT-status
+  // predecessor satisfies its dependent once every child in its split-manifest is DONE+PASS.
+  // Fixture strings built by runtime concatenation, never typed as a single literal.
+  {
+    const stem5 = ['q', 'splitp', 'stem'].join('-');
+    const parentPath5 = 'missions/' + stem5 + '.S1.mission.txt';
+    const child1Path5 = 'missions/' + stem5 + '.S1.S1.mission.txt';
+    const child2Path5 = 'missions/' + stem5 + '.S1.S2.mission.txt';
+    const depMissionPath5 = 'missions/' + stem5 + '.S2.mission.txt';
+    const autorunSplitAllDone = '# SPLIT ' + parentPath5 + '\nSPLIT ' + parentPath5 + '\nDONE ' + child1Path5 + '\nDONE ' + child2Path5 + '\n';
+    const manifestAllDone = JSON.stringify({ children: [{ file: child1Path5 }, { file: child2Path5 }] });
+    const okFnAllPass = () => true;
+    const releasedAllDone = queuedDepsHold('MISSION-ID: x', depMissionPath5, autorunSplitAllDone, okFnAllPass, undefined);
+    ck(releasedAllDone.hold === false, 'gap-queueddepshold-split-parent-tartib-unrecognized: a SPLIT parent whose every child is DONE+PASS satisfies the dependent (implicit .S2 -> .S1 rule)');
+
+    const autorunSplitOneChildMissing = 'SPLIT ' + parentPath5 + '\nDONE ' + child1Path5 + '\n';
+    const heldOneChildMissing = queuedDepsHold('MISSION-ID: x', depMissionPath5, autorunSplitOneChildMissing, okFnAllPass, undefined);
+    ck(heldOneChildMissing.hold === true, 'gap-queueddepshold-split-parent-tartib-unrecognized: a SPLIT parent with ONE child still not DONE still holds (no false-positive release)');
+
+    const autorunSplitPlainNoManifest = 'SPLIT missions/no-such-manifest-stem.S1.mission.txt\n';
+    const heldNoManifest = queuedDepsHold('MISSION-ID: x', 'missions/no-such-manifest-stem.S2.mission.txt', autorunSplitPlainNoManifest, okFnAllPass, undefined);
+    ck(heldNoManifest.hold === true, 'gap-queueddepshold-split-parent-tartib-unrecognized: a SPLIT parent whose manifest file does not exist on disk falls through to the normal unsatisfied hold (fail-closed, never crashes)');
+  }
+
+```
+   [edit] muezzin-daemon.mjs
+   validation_command: node --check muezzin-daemon.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; if (-not (Select-String -Path muezzin-daemon.mjs -Pattern 'splitParentSatisfied' -Quiet)) { exit 1 }; if (-not (Select-String -Path muezzin-daemon.mjs -Pattern 'gap-queueddepshold-split-parent-tartib-unrecognized' -Quiet)) { exit 1 }; Write-Output 'SPLIT-PARENT-CODE-OK'
+2. OUTCOME CHECK [command] (LITERAL PINNED validation_command below, transcribe verbatim): run the daemon's own embedded selftest and confirm the new fixtures pass AND the four prior queuedDepsHold-family selftest blocks specifically still report PASS status (not merely message-substring presence). Authors nothing.
+   validation_command: $out = node muezzin-daemon.mjs --selftest 2>&1 | Out-String; $ec = $LASTEXITCODE; if ($ec -ne 0) { exit 1 }; if ($out -notmatch 'PASS\s+gap-queueddepshold-split-parent-tartib-unrecognized: a SPLIT parent whose every child is DONE\+PASS satisfies') { exit 1 }; if ($out -notmatch 'PASS\s+gap-queueddepshold-split-parent-tartib-unrecognized: a SPLIT parent with ONE child still not DONE still holds') { exit 1 }; if ($out -notmatch 'PASS\s+gap-queueddepshold-split-parent-tartib-unrecognized: a SPLIT parent whose manifest file does not exist') { exit 1 }; if ($out -notmatch 'PASS\s+tartib-gate: conductor-RESOLVED dependency satisfies') { exit 1 }; if ($out -notmatch 'PASS\s+mt-c1-boundary\(dep\): an explicit RESOLVED-noted dependency comment satisfies') { exit 1 }; if ($out -notmatch 'PASS\s+gap-queueddepshold-resolved-landed-blind: inline RESOLVED-LANDED \(path first, no leading #\) satisfies the self-resolved check') { exit 1 }; if ($out -notmatch 'PASS\s+gap-queueddepshold-same-line-crossreference-ambiguity: our own path is NOT falsely self-resolved') { exit 1 }; if ($out -match 'FAIL\s+tartib-gate') { exit 1 }; if ($out -match 'FAIL\s+mt-c1-boundary') { exit 1 }; if ($out -match 'FAIL\s+gap-queueddepshold') { exit 1 }; Write-Output 'SPLIT-PARENT-SELFTEST-OK-NO-REGRESSION'
+
+DONE-MEANS: queuedDepsHold recognizes a SPLIT-status predecessor as satisfying its dependent
+once every child listed in that predecessor's own split-manifest.json is DONE with a passing
+result.json receipt -- a manifest whose children are not all DONE, or a manifest that cannot
+be read at all, still correctly holds (fail-closed, no false-positive release, no crash). The
+embedded --selftest passes the 3 new fixtures with zero regressions to tartib-gate,
+mt-c1-boundary, gap-queueddepshold-resolved-landed-blind, and
+gap-queueddepshold-same-line-crossreference-ambiguity.
