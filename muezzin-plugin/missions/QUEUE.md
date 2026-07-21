@@ -3573,6 +3573,19 @@ readable from the mission REPO-ROOT and shows workers_dev=true with no [[routes]
 table -- REJECTED, violates lintMission()'s filesystem-free contract.
 Low priority — mt-27 itself is already unblocked by the commit-marker workaround; this item
 exists so the NEXT bare-worker-deploy mission doesn't re-hit the same wall.
+RESOLVED WONTBUILD 2026-07-21T20:3xZ (conductor decision, substrate-grounded): the design
+question is answered — NO exemption gets built, in either shape. Reasoning: (1) the
+corrected text-only shape's own adversarial note already names the killer — a FALSE author
+declaration ("NON-PRODUCTION-WORKER" on a routed worker) is a worse failure mode than the
+original absence, because author-asserted lies are harder to catch than omissions; (2) the
+commit-marker workaround (`git commit --allow-empty -m "deploy marker: ..."`) is not a
+workaround at all — it is a BETTER pattern than any exemption: it keeps git and Cloudflare
+paired on EVERY deploy including no-change redeploys, costs one empty commit, and needs
+zero new lint surface; (3) RULE 8's intent (never diverge git from what Cloudflare serves)
+is preserved STRONGER by the marker than by any carve-out. STANDING AUTHORING RULE (this
+line is the owner): a redeploy-only mission satisfies RULE 8 with an --allow-empty
+deploy-marker commit — the mt-27 receipt (e700ccd/72ab9df pattern) is the template.
+gap-rule8-worker-deploy-no-branch-flag-shape closes with this decision.
 GAP-REGISTER: gap-rule8-worker-deploy-no-branch-flag-shape (owner now resolves here).
 
 ## 2026-07-21 ITEM 61 — LINT: naive case-insensitive FAIL-grep in validation_commands
