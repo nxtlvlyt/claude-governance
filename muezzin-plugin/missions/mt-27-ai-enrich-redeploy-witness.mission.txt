@@ -1,0 +1,63 @@
+MISSION-ID: mt-27-ai-enrich-redeploy-witness
+MISSION-CLASS: command
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES: (none -- no code changes, deploy + witness only)
+REQUIRES: none
+STEPS: 2
+
+MAQSAD (the end): workers/ai-enrich.js (mt-27 POI-enrichment, INBOX.md "MUDDYTIRES BACKLOG"
+-- "mt-27 free to shape+queue", operator ruling 2026-07-03) is ALREADY FULLY BUILT and
+committed (commits 1ca8580 add + ec5a40f security fix), NOT a stub needing authoring -- the
+_blocked/mt-27-ai-poi-enrichment.mission.txt draft is stale (wrong REPO-ROOT: E:\AI_Storage\...
+does not exist on this machine; wrong branch: references oracle-frontend-swap, real work is
+on main; wrong framing: says "HALT WITH A RECEIPT if operator model decision isn't recorded"
+when the model has been decided since 2026-07-03, aimlapi + google/gemma-4-31b-it, confirmed
+live in the committed code's own default).
+REAL GAP (verified this session, live commands, not re-asserted): the security fix commit
+ec5a40f (2026-06-22T17:14:30-04:00, adds the X-Internal-AI-Secret constant-time auth gate on
+POST /enrich, closing an unauthenticated-cost/poisoning hole) POSTDATES the only known
+deployment (`wrangler deployments list --name muddytires-ai-enrich-test`, real output: last
+deployment 2026-06-19T11:29:45.855Z, a Secret Change event, no deployment since). The D1
+migration IS already applied (`wrangler d1 execute muddytires-pois --remote`, live-confirmed
+this session: proposed_enrichment table exists, 103 rows read on the sqlite_master probe).
+So: the code is correct, the D1 schema is correct, but the LIVE *.workers.dev test endpoint
+is very likely still serving the 3-day-older, unauthenticated version of /enrich. This
+mission closes that gap: redeploy the current (secure) code, then witness the auth gate live
+WITHOUT ever invoking the paid model (the auth check runs before any AIMLAPI call, so an
+unauthenticated probe never spends money).
+NON-PRODUCTION: this worker is *.workers.dev only (wrangler.ai-enrich-test.toml, workers_dev
+= true, no [routes]/[[route]] entries). It does not touch muddytires.ca, DNS, Pages, or the
+prod read/write workers. Standard test-worker deploy, not a production deploy -- the
+production five-guard chain does not apply here.
+
+CLOUDFLARE_API_TOKEN NOTE (live gotcha, confirmed this session): the shell's
+CLOUDFLARE_API_TOKEN env var shadows a working wrangler OAuth session with narrower scope,
+causing false 7403 errors on `wrangler d1 execute` and similar commands (gap-cloudflare-api-
+token-shadows-oauth-session, fixed in seat_dispatch.mjs's execReceipt for engine-dispatched
+work 2026-07-21, commit 655a2fe -- this mission's own steps run through that same execReceipt
+path since it is MISSION-CLASS: command, so the fix already applies automatically here).
+
+NIYYAH (why): INBOX.md "MUDDYTIRES BACKLOG" mt-27 entry + operator's 2026-07-03 ruling
+(QUEUE.md "AIMLAPI KEY: BUILD NOW, ROTATE AT THE END" -- "mt-27 POI-enrichment: free to queue
+when shaped") + GAP ISSUES ARE ALWAYS PRIORITY (operator-rulings.md) -- a live, unpatched
+security hole on a deployed worker is a bite-class gap regardless of the worker being
+non-production.
+source: C:\Users\marka\.claude\muezzin-plugin\missions\INBOX.md
+source: C:\Users\marka\.claude\muezzin-plugin\missions\QUEUE.md
+source: C:\Users\marka\code\mt-integration-2026-06-22\workers\ai-enrich.js (git log confirms ec5a40f is the current HEAD content)
+source: C:\Users\marka\code\mt-integration-2026-06-22\wrangler.ai-enrich-test.toml
+
+REACHABILITY NOTE (miqat): non-page backend worker (test-only *.workers.dev endpoint, never
+linked from any live page nav) -- no nav-reachability / MIQAT concern applies.
+
+STEPS:
+1. Redeploy the current committed code to the test worker.
+   [command] wrangler.ai-enrich-test.toml
+   validation_command: $out = npx wrangler deploy --config wrangler.ai-enrich-test.toml 2>&1 | Out-String; Write-Output $out; if ($LASTEXITCODE -ne 0) { exit 1 }; if ($out -notmatch 'Uploaded|Deployed|Current Version ID') { exit 1 }; Write-Output 'MT27-REDEPLOY-OK'
+2. OUTCOME CHECK [command] (LITERAL PINNED validation_command below, transcribe verbatim): witness the auth gate live WITHOUT invoking the paid model -- a POST to /enrich with NO X-Internal-AI-Secret header must return HTTP 401 (the gate fires before any AIMLAPI call, so this probe costs nothing and writes nothing to D1). Authors nothing.
+   validation_command: try { $r = Invoke-WebRequest -Uri 'https://muddytires-ai-enrich-test.markabass.workers.dev/enrich' -Method POST -ContentType 'application/json' -Body '{"lat":45.0,"lng":-75.0,"name":"probe-only"}' -SkipHttpErrorCheck } catch { Write-Output "REQUEST-ERROR: $_"; exit 1 }; Write-Output "STATUS: $($r.StatusCode)"; Write-Output "BODY: $($r.Content)"; if ($r.StatusCode -ne 401) { exit 1 }; if ($r.Content -notmatch 'Not authorized') { exit 1 }; Write-Output 'MT27-AUTH-GATE-LIVE-WITNESSED-OK'
+
+DONE-MEANS: the test worker is redeployed carrying the current committed code (including the
+ec5a40f auth-gate fix); a live unauthenticated POST /enrich returns HTTP 401 with the
+no-hint body, confirming the fix is actually serving traffic (not just committed to git).
+No model invocation occurs during this mission (the 401 short-circuits before callAiml()).
