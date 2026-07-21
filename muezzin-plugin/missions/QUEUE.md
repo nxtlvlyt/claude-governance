@@ -3381,6 +3381,11 @@ https://muddytires.ca/map ok:true selectorPresent:true reasons:[]; witnessed mar
 e2e outcome PASS". The undeployed midlane fix commits (775d9f3/f3b2ee7) rode the same
 deploy -- gap-midlane-chip-clutter closed with this receipt. ACCEPTANCE CLOCK NOW RUNNING:
 next 3 lighthouse-ci runs green closes this item + the whole gap-ci-failure family.
+CLOCK 2/3 (2026-07-21T19:5xZ, gh run list receipts): run 29860315836 on 66dad6b (the
+chunking commit itself) SUCCESS 19:09Z; run 29862413660 on 72ab9df SUCCESS 19:39Z -- the
+first two post-fix CI runs are consecutively green. ONE more green closes ITEM 51 and
+sweeps every gap-ci-failure-* row; a red instead means the race survived chunking and the
+next diagnosis targets whatever the failing run's --log-failed shows (never assume).
 
 ITEM 52 — BOOT-FRESHNESS GUARD: STALE daemon-status.json MASQUERADES AS HEALTHY
 AFTER A REBOOT (filed 2026-07-19 ~09:0xZ; operator ask verbatim: "do we need any
