@@ -77,7 +77,7 @@ rewrite -- exit code IS the pass/fail signal, per command_queue.mjs's own contra
 
 ```pwsh
 git commit --allow-empty -m "deploy marker: redeploy ai-enrich.js test worker (mt-27), HEAD unchanged" ; if ($LASTEXITCODE -ne 0) { exit 1 }; $out = npx wrangler deploy --config wrangler.ai-enrich-test.toml 2>&1 | Out-String; Write-Output $out; if ($LASTEXITCODE -ne 0) { exit 1 }; if ($out -notmatch 'Uploaded|Deployed|Current Version ID') { exit 1 }; Write-Output 'MT27-REDEPLOY-OK'
-try { $r = Invoke-WebRequest -Uri 'https://muddytires-ai-enrich-test.markabass.workers.dev/enrich' -Method POST -ContentType 'application/json' -Body '{"lat":45.0,"lng":-75.0,"name":"probe-only"}' -SkipHttpErrorCheck } catch { Write-Output "REQUEST-ERROR: $_"; exit 1 }; Write-Output "STATUS: $($r.StatusCode)"; Write-Output "BODY: $($r.Content)"; if ($r.StatusCode -ne 401) { exit 1 }; if ($r.Content -notmatch 'Not authorized') { exit 1 }; Write-Output 'MT27-AUTH-GATE-LIVE-WITNESSED-OK'
+try { $r = Invoke-WebRequest -Uri 'https://muddytires-ai-enrich-test.nxtlvl.workers.dev/enrich' -Method POST -ContentType 'application/json' -Body '{"lat":45.0,"lng":-75.0,"name":"probe-only"}' -SkipHttpErrorCheck } catch { Write-Output "REQUEST-ERROR: $_"; exit 1 }; Write-Output "STATUS: $($r.StatusCode)"; Write-Output "BODY: $($r.Content)"; if ($r.StatusCode -ne 401) { exit 1 }; if ($r.Content -notmatch 'Not authorized') { exit 1 }; Write-Output 'MT27-AUTH-GATE-LIVE-WITNESSED-OK'
 ```
 
 Step 1 (line 1 above): commit an honest, empty deploy-marker (nothing changed -- this
