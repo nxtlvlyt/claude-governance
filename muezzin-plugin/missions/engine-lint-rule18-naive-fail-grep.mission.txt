@@ -1,0 +1,49 @@
+MISSION-ID: engine-lint-rule18-naive-fail-grep
+MISSION-CLASS: ops-deploy
+REPO-ROOT: C:\Users\marka\.claude\muezzin-plugin
+ALLOW-FILES:
+  - mission_lint.mjs
+REQUIRES: none
+STEPS: 4
+
+MAQSAD (the end): QUEUE ITEM 61 / gap-validation-fail-grep-case-insensitive-substring.
+A validation_command guard `if ($out -match 'FAIL') { exit 1 }` false-fires
+deterministically on green selftest output containing benign 'fail-closed'/'fail-open'/
+'fails forever' substrings (PowerShell -match is case-insensitive). Receipt: 4 burned
+attempts across the two engine-backport missions 2026-07-21, misattributed to an engine
+capture gap for ~7 hours. This mission lands mission_lint RULE 18 (naive-fail-grep) via
+the STAGED, DRY-RUN-RECEIPTED patcher (dry-run on a byte-copy: PATCHED / ALREADY-PATCHED
+idempotent / node --check SYNTAX-OK / full selftest ALL PASS including all 3 new RULE 18
+fixtures): missions/_logs/staged-lint-rule18-2026-07-21/patch-rule18-failgrep.mjs.
+NOTE ON SELF-REFERENCE: this mission text intentionally never contains the flagged form
+itself (the fixture strings inside the patcher are assembled by concatenation) so the
+miqat that gains RULE 18 never refuses this mission or the patcher's own text.
+
+NIYYAH (why): QUEUE.md ITEM 61 (authoring rule already effective; this is the mechanical
+half). GAP ISSUES ARE ALWAYS PRIORITY (operator-rulings.md).
+source: C:\Users\marka\.claude\muezzin-plugin\missions\QUEUE.md
+source: C:\Users\marka\.claude\muezzin-plugin\mission_lint.mjs
+source: C:\Users\marka\.claude\muezzin-plugin\missions\_logs\staged-lint-rule18-2026-07-21\patch-rule18-failgrep.mjs
+
+REACHABILITY NOTE (miqat): engine lint layer, no page/surface ships -- no nav-reachability
+concern.
+
+STEPS (literal-command-queue: each fenced line runs VERBATIM from REPO-ROOT; exit code is
+the pass/fail signal):
+
+```pwsh
+node missions/_logs/staged-lint-rule18-2026-07-21/patch-rule18-failgrep.mjs mission_lint.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; Write-Output 'RULE18-PATCH-APPLIED'
+node --check mission_lint.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; Write-Output 'RULE18-SYNTAX-OK'
+$out = node mission_lint.mjs 2>&1 | Out-String; Write-Output $out; if ($LASTEXITCODE -ne 0) { exit 1 }; if (([regex]::Matches($out, 'PASS  RULE 18')).Count -lt 3) { exit 1 }; if ($out -cmatch '(?m)^FAIL') { exit 1 }; Write-Output 'RULE18-SELFTEST-OK'
+git commit -m "lint: RULE 18 naive-fail-grep - bare case-insensitive FAIL match over captured output refused at miqat (ITEM 61, 4-burned-attempts receipt)" -- mission_lint.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; Write-Output 'RULE18-COMMIT-OK'
+```
+
+Step 1: apply the staged patcher (fail-closed on anchor mismatch, idempotent).
+Step 2: syntax check.
+Step 3 (OUTCOME CHECK): full selftest -- all 3 new RULE 18 fixtures PASS, zero failures
+anywhere (checked with the line-anchored case-sensitive form RULE 18 itself teaches).
+Step 4: scoped commit, flags-first pathspec order.
+
+DONE-MEANS: mission_lint.mjs at HEAD carries RULE 18 (naive-fail-grep) with its 3 fixtures
+passing in the embedded selftest (zero regressions), committed scoped to mission_lint.mjs
+only. The agy-fork port is a separate follow-up per ITEM 61's both-jurisdictions note.
