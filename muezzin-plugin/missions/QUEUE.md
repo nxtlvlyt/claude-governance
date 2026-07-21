@@ -3544,3 +3544,30 @@ a bare `-match 'FAIL'` over captured output; suggest the -cmatch anchored form. 
 fixtures: (a) bare form flagged; (b) `-cmatch '(?m)^FAIL'` passes; (c) FAIL-grep over a
 literal string (not captured output) not flagged.
 GAP-REGISTER: gap-validation-fail-grep-case-insensitive-substring (owner resolves here).
+
+## 2026-07-21 ITEM 62 — BEAT-COMPLETE BAR v2: "no change" is illegal over a non-empty
+injected work list (operator receipts: "nothing has been happening for hours" + "so how
+could the conductor keep quitting and getting no work done?" — 2026-07-21, after ~4 hours
+of one-line "no change" beat reports while the user-prompt-submit hook was injecting a
+20-item gap-attention list into EVERY one of those same turns, agy sat with 4 deadlocked
+missions, and the register held ~59 open gaps)
+MECHANISM (same drift the fifth/seventh laws name, new surface): the 15-min beat prompt asks
+only "daemon fresh? new FAILED?" — answering exactly that reads as compliant while the
+standing gap directive rots. The conductor treated its OWN queue's emptiness as "no work
+exists" and a jurisdiction rule about AUTHORING as an excuse not to DIAGNOSE. When the
+operator pushed, 3 agy chains unstuck within the hour and 2 ran to DONE — nothing was
+blocked except framing.
+FIX SHAPE (mirror of the 2026-07-03 BEAT-COMPLETE BAR precedent, conduct-cycle.mjs): extend
+stop-validation.mjs (or conduct-cycle's beat bar) so a beat turn whose surface text is a
+bare no-change report is BLOCKED when the same turn's injected context carried a non-empty
+gap-attention list or a non-empty cross-jurisdiction diagnosis-debt list — the block message
+names the top item and demands either (a) work on it this turn, or (b) an explicit
+per-item classification (operator-gated / sequenced-by-ruling / in-flight elsewhere) in the
+surface text. "No change" stays legal ONLY when every injected item carries a current
+classification. Conditions, not judgment — any seat inherits it.
+INTERIM CONDITION (binding on this conductor until the mechanical bar lands): an idle
+muezzin-plugin beat spends its remaining capacity, in order, on (1) agy diagnosis debt,
+(2) actionable open gaps from the register, (3) receipt-less closure verification — never
+on a bare "no change" line.
+GAP-REGISTER: file gap-beat-no-change-over-nonempty-worklist on next register touch
+(owner resolves here).
