@@ -80,7 +80,19 @@ export function checkLaneExclusion(targetText, base, { lanesFn = liveLanes, root
     const after = norm[idx + rrNorm.length];
     if (after !== undefined && after !== '/' && after !== '"' && after !== "'" && after !== ' ' && after !== '\n') continue; // some-repo2 is not some-repo
     const phase = phaseFn(base, mission);
-    if (phase === 'plan') continue; // the receipted exception -- plan-phase writes nothing of its own yet
+    // FORMER EXCEPTION REMOVED (2026-07-21, root-caused live): "plan-phase writes nothing of
+    // its own yet" was FALSE for code-repo missions -- orchestrate.mjs's PHASE -1 (sandbox/repo
+    // isolation) captures containment's baselineDirty snapshot BEFORE plan even starts, not
+    // during/after it. A conductor write landing inside the plan-phase window (which can run
+    // minutes: this incident's plan took 22:25:20-22:27:59) is invisible to that already-locked
+    // baseline, so the mission's OWN later containment-drift check attributes the conductor's
+    // write to itself -- the EXACT failure this gate exists to prevent (this file's own header:
+    // "a conductor pre-flight side-wrote files ... while a lane was RUNNING ... tripping
+    // containment-drift and burning the mission's OWN attempt 1", 2026-07-03). The exception
+    // reopened the hole it was meant to close; receipt: engine-queueddepshold-path-attribution's
+    // STATE.md containment-drift, 2026-07-20, conductor Edit landed 22:26:08.823Z -- inside that
+    // same mission's own plan-phase window -- and RECURRING-HALTed it three times before the
+    // real cause (this exception) was found.
     return {
       blocked: true, mission: stemOf(mission), repoRoot, phase,
       reason: `LANE-EXCLUSION (~/.claude/hooks/lane-exclusion-gate.mjs; GAP-CLOSURE-PLAYBOOK UNIT E1): ${repoRoot} is mission ${stemOf(mission)}'s REPO-ROOT and that lane is RUNNING right now, past plan-phase (phase=${phase || 'undeterminable -- fail-closed'}). A write here risks the containment-drift class that burned mt-mobile-qc-hardening.S1.S1's attempt 1 (2026-07-03, STATE.md:115-123): the mission's clean-worktree check cannot tell this write apart from its own work, and the failure would attribute to the MISSION, not to this action. Wait for the lane to finish (missions/_logs/daemon-status.json), then act.`,
@@ -107,7 +119,14 @@ if (process.argv[2] === '--selftest') {
   check(checkLaneExclusion(null, 'b', fx).blocked, false, 'no target text -> never blocked');
   check(checkLaneExclusion('C:\\Users\\marka\\code\\other-repo\\f.js', 'b', fx).blocked, false, 'target outside any live REPO-ROOT -> allowed');
   check(checkLaneExclusion('C:\\Users\\marka\\code\\some-repo\\js\\f.js', 'b', fx).blocked, true, 'target inside a RUNNING lane REPO-ROOT, phase=step -> BLOCKED');
-  check(checkLaneExclusion('C:\\Users\\marka\\code\\some-repo\\js\\f.js', 'b', { ...fx, phaseFn: () => 'plan' }).blocked, false, 'same target, phase=plan -> ALLOWED (the receipted exception)');
+  check(checkLaneExclusion('C:\\Users\\marka\\code\\some-repo\\js\\f.js', 'b', { ...fx, phaseFn: () => 'plan' }).blocked, true, 'same target, phase=plan -> now BLOCKED (2026-07-21: the old exception was proven unsafe, containment baselineDirty is captured in Phase -1, before plan starts)');
+  // REGRESSION (2026-07-21): reproduces tonight's exact incident shape -- a code-repo lane
+  // still in its (multi-minute) plan phase, conductor writes STATE.md, must now be blocked.
+  check(checkLaneExclusion('C:\\Users\\marka\\.claude\\muezzin-plugin\\STATE.md', 'b', {
+    lanesFn: () => ['missions/engine-x.mission.txt'],
+    rootFn: (base, m) => (m === 'missions/engine-x.mission.txt' ? 'C:/Users/marka/.claude/muezzin-plugin' : null),
+    phaseFn: () => 'plan',
+  }).blocked, true, 'engine-queueddepshold-path-attribution incident, reproduced: STATE.md write during a code-repo lane\'s plan phase -> BLOCKED (was silently allowed before this fix, causing 3 false containment-drift halts)');
   check(checkLaneExclusion('C:\\Users\\marka\\code\\some-repo\\js\\f.js', 'b', { ...fx, phaseFn: () => null }).blocked, true, 'undeterminable phase for a known-RUNNING lane -> fail-CLOSED');
   check(checkLaneExclusion('git -C "C:/Users/marka/code/some-repo" add f.js && git commit', 'b', fx).blocked, true, 'Bash command string referencing the live REPO-ROOT -> BLOCKED');
   check(checkLaneExclusion('C:\\Users\\marka\\code\\some-repo2\\f.js', 'b', fx).blocked, false, 'boundary-aware: some-repo2 does NOT match live root some-repo');
