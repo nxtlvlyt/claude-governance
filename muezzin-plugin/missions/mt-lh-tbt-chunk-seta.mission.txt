@@ -1,0 +1,59 @@
+MISSION-ID: mt-lh-tbt-chunk-seta
+MISSION-CLASS: ops-deploy
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - map.html
+REQUIRES: none
+STEPS: 5
+
+MAQSAD (the end): QUEUE ITEM 51 / the gap-ci-failure family root (~18 auto-filed CI
+signals, one class). Lighthouse CI on map.html is a coin-flip NO_FCP because setA's
+synchronous MK.forEach addTo burst (map.html L317-318, the 8s _setPosition CPU profile)
+races first paint under mobile throttling — when the burst wins, nothing paints inside
+LH's budget. Fix: chunk setA — identical per-marker predicate verbatim, first 80 markers
+synchronous (instant viewport paint), remainder in requestIdleCallback batches of 80
+(setTimeout fallback), generation token cancels stale passes on setA re-entry. The
+patcher is STAGED and dry-run-receipted (PATCHED / ALREADY-PATCHED idempotent / anchor
+consumed exactly once / patched setA declaration compiles — receipts in QUEUE ITEM 51,
+commit 39b6c81): missions/_logs/staged-lh-tbt-2026-07-21/patch-seta-chunk.mjs. This
+mission applies it to the REAL map.html, commits scoped, ships the preview branch, and
+witnesses the change serving on the STABLE preview alias (never a guessed per-deploy
+hostname — the mt-27 lesson). Production deploy is NOT this mission: it rides the
+standing five-guard conductor-called chain afterward; CI-green acceptance (3 consecutive)
+accrues after the production push.
+
+NIYYAH (why): QUEUE.md ITEM 51 (anchor + patcher receipts committed 39b6c81 + caf34a6);
+GAP ISSUES ARE ALWAYS PRIORITY (operator-rulings.md) — this is the root of the largest
+open gap family in the register.
+source: C:\Users\marka\.claude\muezzin-plugin\missions\QUEUE.md
+source: C:\Users\marka\code\mt-integration-2026-06-22\map.html
+source: C:\Users\marka\.claude\muezzin-plugin\missions\_logs\staged-lh-tbt-2026-07-21\patch-seta-chunk.mjs
+
+REACHABILITY NOTE (miqat): map.html is an EXISTING live page already linked site-wide —
+no new page/surface ships, no nav-reachability concern.
+
+STEPS (literal-command-queue: each fenced line runs VERBATIM from REPO-ROOT; exit code is
+the pass/fail signal):
+
+```pwsh
+node C:/Users/marka/.claude/muezzin-plugin/missions/_logs/staged-lh-tbt-2026-07-21/patch-seta-chunk.mjs map.html; if ($LASTEXITCODE -ne 0) { exit 1 }; if (-not (Select-String -Path map.html -Pattern 'ITEM-51 TBT-burst chunking' -Quiet)) { exit 1 }; Write-Output 'TBT-PATCH-APPLIED'
+node C:/Users/marka/.claude/muezzin-plugin/missions/_logs/staged-lh-tbt-2026-07-21/parse-check-seta.mjs map.html; if ($LASTEXITCODE -ne 0) { exit 1 }; Write-Output 'TBT-PARSE-OK'
+git commit -m "perf(map): chunk setA marker application - first 80 sync, rest idle batches, token-guarded (ITEM 51, LH NO_FCP race root)" -- map.html; if ($LASTEXITCODE -ne 0) { exit 1 }; Write-Output 'TBT-COMMIT-OK'
+$out = npx wrangler pages deploy . --project-name=muddytires --branch=preview --commit-dirty=true 2>&1 | Out-String; Write-Output $out; if ($LASTEXITCODE -ne 0) { exit 1 }; if ($out -notmatch 'Deployment complete') { exit 1 }; Write-Output 'TBT-PREVIEW-DEPLOYED'
+$ok = $false; foreach ($i in 1..6) { try { $r = Invoke-WebRequest -Uri 'https://preview.muddytires.pages.dev/map.html' -UseBasicParsing -TimeoutSec 20 } catch { Start-Sleep -Seconds 10; continue }; if ($r.StatusCode -eq 200 -and $r.Content -match 'ITEM-51 TBT-burst chunking') { $ok = $true; break }; Start-Sleep -Seconds 10 }; if (-not $ok) { Write-Output 'PREVIEW-WITNESS-MISS: 200/marker not observed within 6 polls'; exit 1 }; Write-Output 'TBT-PREVIEW-WITNESSED'
+```
+
+Step 1 (line 1): apply the staged, dry-run-receipted patcher to the real map.html; fail
+closed on anchor mismatch; confirm the chunk marker landed.
+Step 2 (line 2): parse-only compile check of the patched setA declaration (no execution).
+Step 3 (line 3): scoped commit, flags-first pathspec order (the corrected RULE 15 shape).
+Step 4 (line 4): ship the preview branch (witness infrastructure, ITEM 25 class — the
+commit pairing for RULE 8 is line 3).
+Step 5 (line 5, OUTCOME CHECK, authors nothing): poll the STABLE preview alias until the
+patched bytes serve — HTTP 200 with the chunk marker present in the served content.
+
+DONE-MEANS: map.html at HEAD carries the ITEM-51 chunked setA (marker string present,
+patched declaration compiles), the change is committed scoped to map.html only, and the
+stable preview alias https://preview.muddytires.pages.dev/map.html serves the patched
+bytes (200 + marker observed). Production deploy + the 3-consecutive-green-CI acceptance
+are the conductor's follow-up via the standing five-guard chain, not this mission.
