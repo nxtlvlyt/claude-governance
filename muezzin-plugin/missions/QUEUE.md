@@ -3355,6 +3355,21 @@ markers paint immediately), remaining batches via requestIdleCallback with a
 setTimeout(…,0) fallback; identical treatment for renderCommunity. Dry-run the
 patcher against a copy, D-condition probe (mobile+4x CPU) before/after, then the
 mission fires with the staged artifact.
+ANCHOR CORRECTED + PATCHER STAGED 2026-07-21T18:5xZ (conductor, dry-run receipted):
+deeper read showed the forEach at L301 only BUILDS markers into MK — the real
+addTo burst (the 8s _setPosition profile) is setA at map.html L317-318:
+`MK.forEach(... o.m.addTo(map) ...)`, refired on every anchor click AND at boot
+via setA(curIdx). Patcher staged at
+missions/_logs/staged-lh-tbt-2026-07-21/patch-seta-chunk.mjs — chunked setA:
+identical predicate verbatim, first 80 markers synchronous (instant paint),
+remainder in requestIdleCallback batches of 80 (setTimeout fallback), generation
+token cancels stale passes on setA re-entry (moveend refires). DRY-RUN RECEIPTS
+(against a byte-copy via cp, never git show): PATCHED; second run ALREADY-PATCHED;
+chunk marker present exactly 1x; original anchor 0 remaining; extracted patched
+setA declaration COMPILES (SETA-PARSE-OK, 960 chars, Function parse, no
+execution). NEXT: author the mission — apply patcher to real map.html + scoped
+commit + preview deploy + D-condition probe before/after + LH local score;
+acceptance stays 3 consecutive green CI runs.
 
 ITEM 52 — BOOT-FRESHNESS GUARD: STALE daemon-status.json MASQUERADES AS HEALTHY
 AFTER A REBOOT (filed 2026-07-19 ~09:0xZ; operator ask verbatim: "do we need any
