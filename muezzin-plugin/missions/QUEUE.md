@@ -3614,6 +3614,18 @@ of its steps executes a render command is structurally unpassable and refusable 
 zero cost. Fixture pair: (a) Done-means says render + no step runs render_check/playwright
 -> refused; (b) same Done-means + a step carrying render_check_local.mjs (the atv-11.S2
 shape) -> passes. Both jurisdictions (the receipt mission is agy's; port with the family).
+MUEZZIN-PLUGIN HALF DONE 2026-07-21T20:5xZ: RULE 18 (naive-fail-grep) LANDED — commit
+37c643c via engine-lint-rule18-naive-fail-grep (staged-patcher shape, attempt 1 clean, all
+3 fixtures green, zero regressions). Remaining under this item: (a) the agy-fork port of
+RULE 18; (b) the done-means-render rider above (both jurisdictions).
+RIDER 2 (2026-07-21T20:5xZ, third hit today — mt-27, mt-lh-tbt-chunk-seta, rule18 mission):
+STANDING AUTHORING PATTERN, idempotent commit steps in literal missions. A bare
+`git commit -m "..." -- <path>` fails a re-attempt with "nothing to commit" after attempt 1
+landed it, burning the retry. Use the sentry-atv-wire.S1 receipted idiom verbatim:
+`git add -- <path>; git diff --cached --quiet; if ($LASTEXITCODE -eq 0) { Write-Output
+'ALREADY_COMMITTED' } else { git commit -m "..." -- <path>; if ($LASTEXITCODE -ne 0)
+{ exit 1 } }`. Lint-candidate (same family): flag a literal-mission commit step lacking
+the diff --cached guard.
 
 ## 2026-07-21 ITEM 62 — BEAT-COMPLETE BAR v2: "no change" is illegal over a non-empty
 injected work list (operator receipts: "nothing has been happening for hours" + "so how
