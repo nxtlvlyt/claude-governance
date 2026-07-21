@@ -258,7 +258,15 @@ export async function checkStructure(artifactText, contextText, { dispatch = orn
         // (GAP #3's diagnosis recommended propagating the original system prompt's
         // concern-line request into this retry, not just the bare tag). Mirrors LAGUNA_SYSTEM's
         // own instruction shape.
-        const retryPrompt = `Your previous reply did not include a <verdict> tag. Reply with one of: <verdict>APPROVE</verdict>, <verdict>REVISE</verdict>, or <verdict>REJECT</verdict> -- then one short line naming the most important concern (or "none"). No other text besides the tag and that one line.\n\nYour previous reply was:\n${String(content).slice(0, 500)}`;
+        // ARTIFACT-DROPPED-ON-RETRY (gap-ornith-witness-truncated-generation-noise,
+        // 2026-07-21): the retry prompt used to omit the original artifact/context entirely --
+        // the model's ONLY input was its own incomplete first reply, so its "concern" line
+        // could only ever describe THAT truncated reply ("cuts off mid-sentence, failing to
+        // deliver a verdict"), never the actual mission being reviewed. Four receipted
+        // instances shared this exact signature; re-including the real artifact/context here
+        // and naming it explicitly ("the ARTIFACT ABOVE") closes the root cause, not just the
+        // symptom.
+        const retryPrompt = `${buildLagunaPrompt(artifactText, contextText)}\n\nYour previous reply did not include a <verdict> tag and cut off before concluding. Reply with one of: <verdict>APPROVE</verdict>, <verdict>REVISE</verdict>, or <verdict>REJECT</verdict> -- then one short line naming the most important concern about the ARTIFACT ABOVE (or "none"). No other text besides the tag and that one line. (Your incomplete previous reply, for reference only -- do not critique this text itself: ${String(content).slice(0, 300)})`;
         const retryRaw = await dispatch(system, retryPrompt);
         const { content: retryContent } = sanitizeWitnessContent(retryRaw);
         const retryParsed = parseLagunaVerdict(retryContent);
@@ -742,12 +750,28 @@ if (process.argv[1] && process.argv[1].endsWith('self_witness.mjs') && !process.
     let capturedRetryPrompt = '';
     const csConcernRecovered = await checkStructure('art', 'ctx', {
       dispatch: async (sys, prompt) => {
-        if (prompt.startsWith('Your previous reply did not include')) capturedRetryPrompt = prompt;
+        if (prompt.includes('Your previous reply did not include')) capturedRetryPrompt = prompt;
         return capturedRetryPrompt ? '<verdict>REJECT</verdict> cites a receipt that does not exist' : 'rambling, no tag';
       },
     });
     ck(/naming the most important concern/.test(capturedRetryPrompt), 're-ask prompt: asks for a concern line, not "no other text" (the bug this hunt-item names)');
     ck(csConcernRecovered.verdict === 'REJECT' && csConcernRecovered.notes.includes('cites a receipt that does not exist'), 're-ask: a recovered verdict WITH a concern keeps that concern in notes (adjudicable, not a bare tag)');
+  }
+  // ---- gap-ornith-witness-truncated-generation-noise (2026-07-21): the retry prompt used to
+  // DROP the original artifact/context entirely, leaving the model nothing to comment on but
+  // its own incomplete first reply -- the exact receipted failure signature (4 instances,
+  // "cuts off mid-sentence" concern lines that describe the retry mechanism, not the mission).
+  {
+    let capturedRetryPrompt2 = '';
+    await checkStructure('THE-REAL-ARTIFACT-TEXT-xyz', 'THE-REAL-CONTEXT-TEXT-abc', {
+      dispatch: async (sys, prompt) => {
+        if (prompt.includes('Your previous reply did not include')) capturedRetryPrompt2 = prompt;
+        return capturedRetryPrompt2 ? '<verdict>APPROVE</verdict> none' : 'rambling, no tag';
+      },
+    });
+    ck(capturedRetryPrompt2.includes('THE-REAL-ARTIFACT-TEXT-xyz'), 'gap-ornith-witness-truncated-generation-noise: the re-ask prompt carries the ORIGINAL artifact text, not just the model\'s own prior incomplete reply');
+    ck(capturedRetryPrompt2.includes('THE-REAL-CONTEXT-TEXT-abc'), 'gap-ornith-witness-truncated-generation-noise: the re-ask prompt carries the ORIGINAL context text too');
+    ck(/ARTIFACT ABOVE/.test(capturedRetryPrompt2), 'gap-ornith-witness-truncated-generation-noise: the concern instruction explicitly points at the artifact, disambiguating it from the model\'s own previous (truncated) reply');
   }
 
   // ---- summarizePs + wouldOversubscribe (GR10 VRAM logic) ----
