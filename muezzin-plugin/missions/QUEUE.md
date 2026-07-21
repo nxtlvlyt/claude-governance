@@ -3544,6 +3544,13 @@ a bare `-match 'FAIL'` over captured output; suggest the -cmatch anchored form. 
 fixtures: (a) bare form flagged; (b) `-cmatch '(?m)^FAIL'` passes; (c) FAIL-grep over a
 literal string (not captured output) not flagged.
 GAP-REGISTER: gap-validation-fail-grep-case-insensitive-substring (owner resolves here).
+RIDER (2026-07-21T18:1xZ, same lint family, atv-7-build-styling.S2 receipt — 3 burned
+cycles across 11 days): done-means-render-without-render-step — a mission whose Done-means
+demands render/headless-browser evidence ("verify by headless-browser render") while ZERO
+of its steps executes a render command is structurally unpassable and refusable at miqat,
+zero cost. Fixture pair: (a) Done-means says render + no step runs render_check/playwright
+-> refused; (b) same Done-means + a step carrying render_check_local.mjs (the atv-11.S2
+shape) -> passes. Both jurisdictions (the receipt mission is agy's; port with the family).
 
 ## 2026-07-21 ITEM 62 — BEAT-COMPLETE BAR v2: "no change" is illegal over a non-empty
 injected work list (operator receipts: "nothing has been happening for hours" + "so how
