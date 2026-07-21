@@ -1105,6 +1105,23 @@ function doneMissionIds(autorunText, missionsDir, readText, ledgerText = '') {
     const cells = line.split('|').map((c) => c.trim());
     if (cells.length >= 4 && /^DONE\b/.test(cells[3] || '') && cells[2]) ids.add(cells[2]);
   }
+  // RESOLVED-LANDED/SUPERSEDED STAMP WIDENING (gap-donemissionids-blind-to-resolved-landed,
+  // 2026-07-21): a mission the conductor has verified landed (e.g. a FAILED line annotated
+  // with a RESOLVED-LANDED stamp because its own verify step false-failed) never becomes a
+  // literal DONE line by design -- the annotation IS the record that it's settled. Without
+  // this, a bare-stem tartib successor whose predecessor carries such a stamp can never
+  // auto-promote through pickPromotion (confirmed live: engine-backport-gate-loss-9ae0072
+  // sat un-promotable behind engine-backport-dep-loss-e1cba9e's own such stamp). Mirrors
+  // queuedDepsHold's own hasResolvedStampForPath check (the same question at fire-time) so
+  // the auto-promotion gate and the fire-time gate agree.
+  for (const line of String(autorunText).split(/\r?\n/)) {
+    if (/^\s*#/.test(line)) continue;
+    const rel = missionPath(line);
+    if (!rel) continue;
+    const base = rel.split(/[\\/]/).pop().replace(/\.mission\.txt$/i, '');
+    if (ids.has(base)) continue;
+    if (hasResolvedStampForPath(autorunText, rel)) ids.add(base);
+  }
   return ids;
 }
 
@@ -2014,6 +2031,20 @@ if (process.argv.includes('--selftest')) {
     ck(doneMissionIds('# empty autorun, no DONE line at all\n', 'C:/fake/missions', () => { throw new Error('no file'); }, ledgerOnlyDone).has('mt-x.S1'), 'doneMissionIds: a stem present ONLY as a DONE row in MISSION-LEDGER.md (no AUTORUN line) still counts as done');
     ck(!doneMissionIds('# empty autorun\n', 'C:/fake/missions', () => { throw new Error('no file'); }, '| 2026-07-04T00:00:00Z | mt-y.S1 | FAILED(plan) | 2 heals |\n').has('mt-y.S1'), 'doneMissionIds: a FAILED ledger row does NOT count as done (only DONE rows satisfy the dependency)');
     ck(doneMissionIds('# empty autorun\n', 'C:/fake/missions', () => { throw new Error('no file'); }).size === 0, 'doneMissionIds: no ledgerText argument at all -> byte-unchanged empty result (back-compat default)');
+
+    // DONEMISSIONIDS RESOLVED-STAMP WIDENING (gap-donemissionids-blind-to-resolved-landed,
+    // 2026-07-21): a FAILED line the conductor has annotated with a RESOLVED-LANDED stamp
+    // must satisfy a bare-stem tartib dependency exactly like a literal DONE line does --
+    // it will never BECOME a DONE line by design, so without this a genuinely-landed
+    // predecessor blocks its successor from auto-promoting forever (the live bug this
+    // closes: engine-backport-gate-loss-9ae0072 stuck behind engine-backport-dep-loss-
+    // e1cba9e's own such stamp).
+    const resolvedStampAutorun = 'FAILED missions/mt-z.S1.mission.txt  <!-- FAILED-marked ... | RESOLVED-LANDED (conductor): work verified landed via direct selftest, do not requeue -->\n';
+    ck(doneMissionIds(resolvedStampAutorun, 'C:/fake/missions', () => { throw new Error('no file'); }).has('mt-z.S1'), 'doneMissionIds: a FAILED line carrying its own RESOLVED-LANDED stamp satisfies the dependency, same as a literal DONE line');
+    const plainFailedAutorun = 'FAILED missions/mt-z.S1.mission.txt  <!-- FAILED-marked ... -->\n';
+    ck(!doneMissionIds(plainFailedAutorun, 'C:/fake/missions', () => { throw new Error('no file'); }).has('mt-z.S1'), 'doneMissionIds: a plain FAILED line with NO resolved stamp still does NOT satisfy the dependency (no regression on the ordinary case)');
+    const otherMissionsStampNearby = 'FAILED missions/mt-z.S1.mission.txt  <!-- some note about a DIFFERENT dependency missions/mt-other.mission.txt which is RESOLVED-LANDED, unrelated to mt-z itself -->\n';
+    ck(!doneMissionIds(otherMissionsStampNearby, 'C:/fake/missions', () => { throw new Error('no file'); }).has('mt-z.S1'), 'doneMissionIds: a RESOLVED stamp attributed to a DIFFERENT path on the same line does not falsely satisfy mt-z (mirrors hasResolvedStampForPath, nearest-path attribution, no self-attribution bleed)');
 
     // pickPromotion end-to-end on a fake on-disk set: picks the one ready unqueued mission,
     // skipping queued + held + blocked + unsatisfied-dep. Lock the SKIP behavior with teeth.
