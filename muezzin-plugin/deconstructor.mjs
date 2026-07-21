@@ -273,6 +273,42 @@ export function parseAllowFiles(mission) {
   return [...block.matchAll(/^[ \t]*-[ \t]+(\S+)/gm)].map((m) => m[1].toLowerCase().replace(/\\/g, '/'));
 }
 
+// DECLARED-VALIDATIONS BACKSTOP (backport-BUG2, engine-backport-gate-loss-9ae0072 receipt): a
+// mission's own VALIDATIONS: block declares required validation_command gates a plan MUST
+// carry — parseDeclaredValidations reads it VERBATIM (same rationale as parseDeclaredDeps: a
+// declared validation may reference an absolute reference path under MISSION-CLASS: research,
+// and normalizing would corrupt it).
+export function parseDeclaredValidations(mission) {
+  const block = (String(mission || '').match(/VALIDATIONS:\s*\r?\n((?:[ \t]*-[ \t]+\S.*\r?\n?)+)/i) || [])[1] || '';
+  return [...block.matchAll(/^[ \t]*-[ \t]+(\S.*)$/gm)].map((m) => m[1].trim());
+}
+
+// injectDeclaredValidations — mechanical backstop run on every extracted queue: ensures every
+// mission-declared validation (the VALIDATIONS: block) ends up as SOME step's validation_command,
+// ADDING a dedicated verify step for whatever a seat's plan omitted without ever removing or
+// altering a seat-authored step (mirrors injectDeclaredDeps's additive-only contract, backport-BUG1,
+// for the gate-loss class, backport-BUG2).
+export function injectDeclaredValidations(queue, missionText, { research = false, codeRepo = false } = {}) {
+  if (!queue || !Array.isArray(queue.steps) || !queue.steps.length) return queue;
+  const declared = parseDeclaredValidations(missionText);
+  if (!declared.length) return queue;
+  const present = queue.steps.map((s) => String(s.validation_command || ''));
+  const missing = declared.filter((d) => !present.some((p) => p.includes(d)));
+  if (!missing.length) return queue;
+  const lastIndex = queue.steps[queue.steps.length - 1].step_index || queue.steps.length;
+  missing.forEach((d, i) => {
+    queue.steps.push({
+      step_index: lastIndex + i + 1,
+      description: `Declared-validation backstop: witness "${d}" (from the mission's VALIDATIONS: block)`,
+      action_type: 'verify',
+      target_files: [],
+      context_dependencies: [],
+      validation_command: d,
+    });
+  });
+  return queue;
+}
+
 // validate a whole micro_queue. Returns { ok, errors }. opts.research per mission class.
 export function validateMicroQueue(queue, opts = {}) {
   const errors = [];
@@ -422,6 +458,7 @@ async function runQueueLoop(seat, baseFraming, { research = false, codeRepo = fa
     const rawContent = String(r?.content ?? '');
     const queue = extractQueue(rawContent);
     injectDeclaredDeps(queue, missionText, { research });
+    if (queue && missionText) injectDeclaredValidations(queue, missionText, { research, codeRepo });
     // ERROR-MASKING FIX 2026-07-02 (spot-share receipt): a final EMPTY emission used to report the
     // same generic 'no valid JSON' as malformed output, BURYING the prior attempts' real validation
     // errors in result.json. Name the empty-emission class explicitly and carry the prior errors
@@ -1284,6 +1321,29 @@ Maqsad: implement seven modules.`;
     injectDeclaredDeps(q2, nonResearchMission, { research: false });
     ck(q2.steps[0].context_dependencies.length === 0,
       'backport-BUG1 no-inject-outside-research: injectDeclaredDeps is a no-op when research:false (absolute deps are only sandbox-legal under MISSION-CLASS: research)');
+  }
+
+  // ------------------------------------------------- (13) DECLARED-VALIDATIONS BACKSTOP (backport-BUG2)
+  {
+    const missionWithValidations = 'MISSION-CLASS: code-repo\nVALIDATIONS:\n  - node -c out.mjs\n  - Select-String -Path out.mjs -Pattern \'export\' -Quiet\nMaqsad: x.';
+    ck(JSON.stringify(parseDeclaredValidations(missionWithValidations)) === JSON.stringify(['node -c out.mjs', "Select-String -Path out.mjs -Pattern 'export' -Quiet"]),
+      'backport-BUG2 parse-verbatim: parseDeclaredValidations returns the VALIDATIONS: block entries VERBATIM');
+
+    const q3 = { mission_id: 'M-VAL1', steps: [
+      { step_index: 1, description: 'x', action_type: 'edit', target_files: ['out.mjs'], context_dependencies: [], validation_command: 'node -c out.mjs' },
+    ] };
+    injectDeclaredValidations(q3, missionWithValidations, { research: false, codeRepo: true });
+    ck(q3.steps.length === 2 && q3.steps[1].validation_command === "Select-String -Path out.mjs -Pattern 'export' -Quiet",
+      'backport-BUG2 inject-missing-gate: injectDeclaredValidations ADDS a verify step for a declared validation missing from every step, without touching the seat-authored step');
+
+    const q4 = { mission_id: 'M-VAL2', steps: [
+      { step_index: 1, description: 'x', action_type: 'edit', target_files: ['out.mjs'], context_dependencies: [], validation_command: 'node -c out.mjs' },
+      { step_index: 2, description: 'y', action_type: 'verify', target_files: [], context_dependencies: ['out.mjs'], validation_command: "Select-String -Path out.mjs -Pattern 'export' -Quiet" },
+    ] };
+    const beforeQ4 = JSON.stringify(q4);
+    injectDeclaredValidations(q4, missionWithValidations, { research: false, codeRepo: true });
+    ck(JSON.stringify(q4) === beforeQ4,
+      'backport-BUG2 no-op-when-present: injectDeclaredValidations is a no-op once every declared validation already appears in some step');
   }
 
   console.log(fails === 0 ? '\nALL PASS — micro_queue validator + Phase-1 blind panel + hajj-autosplit sound (routing: simple->single / complex->panel; parallel-when-cloud, serial-when-local; fail-closed search, single-architect fallback)' : `\n${fails} FAIL`);
