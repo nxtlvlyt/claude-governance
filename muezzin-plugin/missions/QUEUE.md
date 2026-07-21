@@ -3343,6 +3343,18 @@ consecutive green LH CI runs + local trace showing FCP before the burst.
 Product-class mission (map.html) — construct AFTER mt-fireban-click-fix lands
 (same file, no lane overlap). The 13 INBOX signal entries consolidate here; the
 poller keeps appending until this lands (expected noise, not new information).
+ANCHOR PINNED 2026-07-21T18:4xZ (conductor, direct read — fireban landed, item now
+constructible): the burst loop is map.html ~line 301, inside the
+`fetch('pois.json?list=1&bbox='...)` response handler — a synchronous
+`fc.features.forEach(function(ft){...})` that builds every circleMarker/cluster
+(~539 at wide zoom) in one main-thread pass, followed by the MK.push/addTo chain.
+The community layer has a twin at renderCommunity (~line 276, its own forEach).
+PATCHER SHAPE (next beat, staged fail-closed per the mt-lh-boot-cpu precedent):
+split fc.features into batches of ~60, first batch synchronous (viewport-visible
+markers paint immediately), remaining batches via requestIdleCallback with a
+setTimeout(…,0) fallback; identical treatment for renderCommunity. Dry-run the
+patcher against a copy, D-condition probe (mobile+4x CPU) before/after, then the
+mission fires with the staged artifact.
 
 ITEM 52 — BOOT-FRESHNESS GUARD: STALE daemon-status.json MASQUERADES AS HEALTHY
 AFTER A REBOOT (filed 2026-07-19 ~09:0xZ; operator ask verbatim: "do we need any
