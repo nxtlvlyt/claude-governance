@@ -33,7 +33,11 @@ import { createHash } from 'crypto';
 import { execSync } from 'child_process';
 import path from 'path';
 
-const readMaybe = (cwd, rel) => (rel && existsSync(path.join(cwd, rel))) ? readFileSync(path.join(cwd, rel), 'utf8') : '';
+// EISDIR GUARD (2026-07-21, ported from the agy fork's atv-7-build-styling.S2 receipt:
+// verdict phase threw "EISDIR: illegal operation on a directory, read" — a [verify] step's
+// target was a DIRECTORY, existsSync passed it, readFileSync threw, killing the whole
+// verdict phase): only read real files; anything else reads as ''.
+const readMaybe = (cwd, rel) => { try { const p = path.join(cwd, rel); return (rel && existsSync(p) && statSync(p).isFile()) ? readFileSync(p, 'utf8') : ''; } catch { return ''; } };
 
 // ---- PHASE 3 (ACCEPTANCE criteria 1+2, wired 2026-06-10 after the operator caught it
 // missing): ADVERSARIAL VERIFY by model seats — producer≠verifier. The validator and
