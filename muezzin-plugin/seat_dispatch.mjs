@@ -278,7 +278,12 @@ export function execReceipt(cmd, cwd, opts = {}) {
     hb(`exec-ok elapsed=${Date.now() - tExec0}ms`);
     return { type: 'exec', ref: cmd, ok: true, exit: 0, out: String(out).slice(0, 2000) };
   } catch (e) {
-    hb(`exec-fail elapsed=${Date.now() - tExec0}ms`);
+    // EXEC-CAPTURE FORENSICS (gap-large-stdout-selftest-false-fail step 1, 2026-07-21):
+    // on every exec failure, record exactly how many bytes each stream carried BEFORE any
+    // trimming/fallback — the intermittent false-fail class needs this to distinguish
+    // "output existed but was lost/truncated in transit" from "child genuinely emitted
+    // nothing". stdoutB/stderrB land in the dispatch heartbeat log alongside elapsed.
+    hb(`exec-fail elapsed=${Date.now() - tExec0}ms stdoutB=${String(e.stdout || '').length} stderrB=${String(e.stderr || '').length} status=${e.status ?? 'none'} killed=${!!e.killed} code=${e.code ?? 'none'}`);
     const captured = (String(e.stdout || '') + String(e.stderr || '')).trim();
     // DIAGNOSTIC FALLBACK (M-ENGINE-EXEC-DIAG, 2026-07-01): a 120s-timeout or signal-killed
     // child throws with EMPTY stdout/stderr — the "engine-exec with no error" OPAQUE failure
