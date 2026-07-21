@@ -3370,6 +3370,17 @@ setA declaration COMPILES (SETA-PARSE-OK, 960 chars, Function parse, no
 execution). NEXT: author the mission — apply patcher to real map.html + scoped
 commit + preview deploy + D-condition probe before/after + LH local score;
 acceptance stays 3 consecutive green CI runs.
+PRODUCTION-SHIPPED 2026-07-21T19:4xZ (conductor-called five-guard chain, standing 2026-07-11
+ruling): mission mt-lh-tbt-chunk-seta landed the chunked setA (commit 66dad6b; all 5 steps
+ok on attempt 1 incl. independent preview HTTP witness; verdict REJECT refuted -- the 1+/1-
+diff IS the whole patch, map.html is long-line format). Deploy receipts: tree clean after
+scoping the saved-lists SQL artifact into its own commit (72ab9df); wrangler pages deploy
+--branch=main "Deployment complete"; production poll 2 served the chunk marker; deploy_gate
+https://muddytires.ca/map ok:true selectorPresent:true reasons:[]; witnessed marker
+"deploy marker stamped (WITNESSED): 72ab9df2 -- live /map == HEAD:map.html, tree clean,
+e2e outcome PASS". The undeployed midlane fix commits (775d9f3/f3b2ee7) rode the same
+deploy -- gap-midlane-chip-clutter closed with this receipt. ACCEPTANCE CLOCK NOW RUNNING:
+next 3 lighthouse-ci runs green closes this item + the whole gap-ci-failure family.
 
 ITEM 52 — BOOT-FRESHNESS GUARD: STALE daemon-status.json MASQUERADES AS HEALTHY
 AFTER A REBOOT (filed 2026-07-19 ~09:0xZ; operator ask verbatim: "do we need any
