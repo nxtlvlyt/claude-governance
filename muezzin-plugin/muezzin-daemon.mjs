@@ -385,11 +385,35 @@ function renderBoard(s) {
 // pidfile doubles as the instance-registry entry for the dashboard.
 const PIDFILE = path.join(LOGDIR, 'daemon.pid');
 function pidAlive(pid) { try { process.kill(pid, 0); return true; } catch { return false; } }
-function acquireSingleton(pidfile = PIDFILE) {
+// SINGLETON LIVENESS (backport-intake BUG 6, 2026-07-21): pidAlive alone only proves SOME
+// process holds this numeric PID -- the OS can recycle a dead daemon's PID to any unrelated
+// live process, producing a false-alive that blocks a legitimate restart (exit 3, supervisor
+// told NOT to respawn). Verify the holder is actually this script, not just alive.
+// FAIL-SAFE DIRECTION (deliberate): when the commandline check itself is inconclusive (query
+// error, unsupported platform, matchFn injection failure), matches() returns null and the
+// caller treats that as "assume held" -- the ORIGINAL conservative behavior -- never as
+// license to reclaim. Only a POSITIVE confirmed mismatch reclaims the lock. This preserves
+// the exact protection the 2026-06-09 double-daemon race comment above describes; the fix
+// narrows a false-positive, it must never introduce a false-negative.
+function pidCommandLineMatches(pid, execFn = execSync) {
+  try {
+    const out = execFn(
+      `powershell -NoProfile -Command "(Get-CimInstance Win32_Process -Filter \\"ProcessId=${Number(pid)}\\").CommandLine"`,
+      { stdio: ['ignore', 'pipe', 'ignore'], timeout: 5000 }
+    ).toString();
+    if (!out.trim()) return null; // process gone / query returned nothing -> inconclusive
+    return /muezzin-daemon\.mjs/i.test(out);
+  } catch { return null; } // query failed -> inconclusive, never a confirmed mismatch
+}
+function acquireSingleton(pidfile = PIDFILE, matchFn = pidCommandLineMatches) {
   try {
     if (existsSync(pidfile)) {
       const old = parseInt(readFileSync(pidfile, 'utf8').trim(), 10);
-      if (Number.isInteger(old) && old > 0 && pidAlive(old)) return { ok: false, holder: old };
+      if (Number.isInteger(old) && old > 0 && pidAlive(old)) {
+        const matches = matchFn(old);
+        if (matches !== false) return { ok: false, holder: old }; // true or inconclusive (null) -> still blocked
+        // confirmed mismatch: the PID was recycled to an unrelated process -- stale, reclaim it
+      }
     }
   } catch { /* unreadable pidfile -> stale, claim it */ }
   writeFileSync(pidfile, String(process.pid));
@@ -1716,9 +1740,16 @@ if (process.argv.includes('--selftest')) {
   // missions ran headless, and one recovery spawned a second daemon. Selftests never
   // touch live state.)
   const tpid = path.join(tmp, 'daemon.pid');
+  const alwaysMatch = () => true;   // stub: never shell out for real in the selftest
   writeFileSync(tpid, '999999999');
-  ck(acquireSingleton(tpid).ok === true, 'singleton: stale (dead-holder) pidfile is claimed');
-  ck(acquireSingleton(tpid).ok === false, 'singleton: live holder (ourselves, just written) refuses a second acquire');
+  ck(acquireSingleton(tpid, alwaysMatch).ok === true, 'singleton: stale (dead-holder) pidfile is claimed');
+  ck(acquireSingleton(tpid, alwaysMatch).ok === false, 'singleton: live holder (ourselves, just written) refuses a second acquire');
+  // BUG 6 (singleton-liveness, 2026-07-21): pidAlive alone cannot distinguish "the real daemon"
+  // from "the OS recycled this PID to something else" -- these two cases are the fix.
+  writeFileSync(tpid, String(process.pid)); // alive (it's us), but matchFn will say it's NOT muezzin-daemon.mjs
+  ck(acquireSingleton(tpid, () => false).ok === true, 'singleton BUG 6: pidAlive true + CONFIRMED commandline mismatch -> reclaimed (the recycled-PID fix)');
+  writeFileSync(tpid, String(process.pid));
+  ck(acquireSingleton(tpid, () => null).ok === false, 'singleton BUG 6: pidAlive true + INCONCLUSIVE commandline check -> stays blocked (fail-safe toward the original conservative behavior, never a false reclaim)');
   // ──────────────────────────────────────────────────────────────────────────
   // HALF A — HAJJ SPLIT status mechanics (queue-flow-1). SPLIT is a settled, non-firing
   // status: it is parsed like DONE/FAILED (excluded from pending, stripped in missionPath,

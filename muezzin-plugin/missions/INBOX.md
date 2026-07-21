@@ -77,15 +77,37 @@ These are part of "que everything" but cannot fire into a wall — each names ex
 ~~- **OPERATIONAL — no way to "park" a mission without removing the file.** Operator/senior conductor needs a way to say "this mission is broken, ignore it, don't fire it again" without (a) deleting the mission.txt file, (b) blanket FAILED-prefixing every AUTORUN line. Proposal: add a `PARKED` terminal status to engine STATUS_RE alongside DONE/FAILED/SPLIT/RUNNING, and have pickPromotion exclude PARKED missions by path absolutely.~~
 
 ## BACKPORT INTAKE 2026-07-08 (from agy-muezzin fork's first live project — 8-attempt arc, all receipted in fork QUEUE.md/STATE.md)
-The fork found 7 real engine bugs under live fire; the Claude engine shares the code lineage, so EACH needs evaluation here (receipts + fixes + selftests exist fork-side to port):
-1. AUTOSPLIT DEP-LOSS (fork fix e1cba9e): mission_split child serializer drops context_dependencies; child re-plan invents substitute paths. Port parseDeclaredDeps/injectDeclaredDeps + serializer emit.
-2. AUTOSPLIT GATE-LOSS (fork fix 9ae0072): same serializer drops validation_command; anti-fabrication gates re-invented at child re-plan. Port parseDeclaredValidations/injectDeclaredValidations.
-3. STALE-SANDBOX ON REQUEUE: child sandbox + _checkpoint.json persist across FAILED requeues → verdict panel re-judges old artifacts; checkpoint resumes by STEP INDEX across text changes. Fix owed: sandbox reset on requeue + content-hash checkpoint keys + verdict ignores artifacts older than run-start.
-4. TARTIB OUTPUT-PASSING: DONE child's artifacts invisible to its successor (S2 assembled without S1's parts; verify gate caught it). Fix owed: stage DONE artifacts where successors resolve them.
-5. DAEMON LINE-RESURRECTION: daemon full-file AUTORUN rewrites resurrect externally-purged pending lines from memory/files; conductor queue edits only stick when... (fork workaround: park mission FILES). Evaluate Claude daemon for same.
-6. SINGLETON LIVENESS: pidfile pid can be RECYCLED to an unrelated process (fork receipt 23788) → false-alive; and CommandLine-based checks must match bare "node muezzin-daemon.mjs" (no repo substring). Harden liveness = pid+CommandLine.
-7. BOOT-STATUS GHOST: fresh daemon re-renders inherited RUNNING/FAILED marks from stale status/mark state.
-Also proven useful fork-side, consider adopting: RELOAD-REQUEST flag exists Claude-side? (fork daemon honors it; fork lacks a supervisor — separate fork item.)
+EVALUATED FOR REAL 2026-07-21T05:2xZ (conductor, 7-way parallel workflow, each finding graded
+EXECUTED against actual code/git history, not re-asserted from this note): this sat untouched
+for two weeks. 2 of 7 already resolved by unrelated work, 1 fixed tonight, 4 confirmed still
+live and owed.
+1. AUTOSPLIT DEP-LOSS (fork fix e1cba9e): STILL OPEN. Half A (serializer preserves
+   context_dependencies) already landed independently (mission_split.mjs, 2026-07-14). Half B
+   (parseDeclaredDeps/injectDeclaredDeps mechanical backstop in deconstructor.mjs, forcing a
+   re-planned child to keep its declared deps) confirmed ABSENT — zero matches for either
+   function anywhere in deconstructor.mjs. A child mission's re-plan can still invent
+   substitute paths in place of declared deps with nothing catching it.
+2. AUTOSPLIT GATE-LOSS (fork fix 9ae0072): STILL OPEN. Same shape as #1 — Half A (serializer
+   preserves validation_command) landed 2026-07-14 (commit 6088ed1). Half B
+   (parseDeclaredValidations/injectDeclaredValidations) confirmed ABSENT from deconstructor.mjs.
+   A child re-plan can still weaken/re-invent a witness gate the parent declared.
+3. STALE-SANDBOX ON REQUEUE: RESOLVED — superseded by QUEUE ITEM 20 (commit 235d94f,
+   2026-07-11), which independently fixed the checkpoint-resumes-by-step-index-across-
+   text-changes root cause. Re-verified against live code 2026-07-21, not just re-asserted.
+4. TARTIB OUTPUT-PASSING: STILL OPEN. A DONE tartib child's committed artifacts are not staged
+   anywhere its successor's sandbox can resolve them — confirmed no staging step exists between
+   promotionHold/queuedDepsHold releasing a dependent and orchestrate() running it.
+5. DAEMON LINE-RESURRECTION: NOT PRESENT in the Claude daemon. Evaluated 2026-07-21 — does not
+   reproduce; muezzin-daemon.mjs's AUTORUN rewrite path does not resurrect externally-purged
+   lines the way the fork's did.
+6. SINGLETON LIVENESS: STILL OPEN. acquireSingleton checks only that the pidfile's PID is alive
+   (process.kill(pid,0)), never that it's actually muezzin-daemon.mjs — a recycled PID handed to
+   an unrelated process would false-report "already running."
+7. BOOT-STATUS GHOST: FIXED 2026-07-21 (commit fce1379). setStatus() now fires immediately
+   after reclaimStaleRunning() on boot, closing the render-lag window (live receipt: the
+   2026-07-20T23:22:47Z restart left the board stale 2m31s while AUTORUN.md had already moved
+   on) instead of waiting until the end of the first loop iteration.
+Also proven useful fork-side, consider adopting: RELOAD-REQUEST flag exists Claude-side? (fork daemon honors it; fork lacks a supervisor — separate fork item.) NOT evaluated this wake.
 
 ## INTAKE 2026-07-08 (from writing the two operator manuals side-by-side)
 1. THE CLAUDE CONDUCTOR HAS NO LADDER: agy's conductor is graded per-beat against 7
