@@ -3487,3 +3487,25 @@ e2e to the CHANGED surface — a leaderboard deploy render-verifies the leaderbo
 overlap sweep. Owns gap-e2e-overlap-gate-three-flake-modes. NOTE: the levels + map
 SPOF fix shipped live 2026-07-20 (commit 4fb3c39) by using deploy_gate render-verify
 on the actual production surfaces instead of the broken sweep. Engine/harness stem.
+
+## 2026-07-21 ITEM 60 — ENGINE: RULE 8 (deploy-without-commit) exemption for config-declared
+non-production WORKER deploys (gap-rule8-worker-deploy-no-branch-flag-shape, filed live)
+RECEIPT: mt-27-ai-enrich-redeploy-witness.mission.txt MIQAT-REFUSED (zero cost, no attempt
+burned) redeploying already-committed code with nothing new to commit -- worked around this
+time with an honest --allow-empty commit-marker step, not a rule change. ITEM 25's existing
+exemption (Pages `--branch=<preview>` literal flag) does not cover this shape: a bare
+`wrangler deploy --config <toml>` carries no --branch flag at all; its non-production status
+lives in the referenced .toml (workers_dev=true, no [[routes]]/[[route]] table) instead.
+FIX SHAPE (gate-LOOSENING — narrow + adversarially verified per drift-and-ratchet, same bar
+as ITEM 24/25): exempt a bare `wrangler deploy --config <file>` from RULE 8 ONLY when the
+referenced toml is readable from the mission REPO-ROOT and shows workers_dev=true with no
+[[routes]]/[[route]] table. Regression selftests: (a) a workers_dev=true config with no
+commit passes; (b) a config WITH a [[routes]] entry (real production route) still requires
+the commit pairing even with workers_dev=true; (c) a missing/unreadable toml path fails
+closed (still requires commit), never silently exempts. Requires lintMission() to gain
+filesystem read access scoped to REPO-ROOT, which it may not currently have -- check the
+function signature before implementing. Adversarial pass: agent tries to author a production
+worker deploy (real [[routes]] entry) that slips the exemption; lands only if it fails.
+Low priority — mt-27 itself is already unblocked by the commit-marker workaround; this item
+exists so the NEXT bare-worker-deploy mission doesn't re-hit the same wall.
+GAP-REGISTER: gap-rule8-worker-deploy-no-branch-flag-shape (owner now resolves here).
