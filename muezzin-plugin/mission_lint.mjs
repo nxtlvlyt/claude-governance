@@ -349,6 +349,20 @@ export function lintMission(text) {
     add('numeric-contract-not-pinned', `mission Done-means clause references a numeric acceptance bar (threshold/minimum/score/percentage/pass-rate language) but pins NO literal digit anywhere in that clause ("${doneMeansText17.trim().slice(0, 120)}") -- the verdict panel has no fixed number to judge against and witnesses will each argue a different bar was met (gap-mission-validation-must-pin-numeric-contract). Pin the exact number: "at least 3 matches", "grade <=8", "pass rate >=90%".`);
   }
 
+  // RULE 18 -- NAIVE-FAIL-GREP (gap-validation-fail-grep-case-insensitive-substring,
+  // ITEM 61; receipt: dep-loss + gate-loss backport missions burned 4 attempts 2026-07-21):
+  // a validation_command guard like `if ($out -match 'FAIL') { exit 1 }` false-fires
+  // deterministically on ANY selftest whose PASSING output contains benign 'fail'
+  // substrings (fail-closed, fail-open, fails-forever, FAILED(plan) inside fixture
+  // descriptions) because PowerShell -match is case-INSENSITIVE by default. Flag the
+  // bare variable-against-'FAIL' form; the cure is line-anchored case-sensitive
+  // `-cmatch '(?m)^FAIL'` or trusting the child exit code alone. A -cmatch form, an
+  // anchored pattern, or a longer pattern (FAILED:, ^FAIL\s) is NOT flagged.
+  const naiveFailGrep18 = /\$\w+\s+-match\s+(['"])FAIL\1/;
+  if (naiveFailGrep18.test(t)) {
+    add('naive-fail-grep', `mission carries a validation guard matching captured output against the bare token 'FAIL' with case-insensitive -match (\$var -match 'FAIL') -- this false-fires on benign 'fail-closed'/'fail-open'/'fails forever' text in GREEN selftest output (PowerShell -match ignores case; 4 attempts burned across two engine-backport missions 2026-07-21). Use line-anchored case-sensitive -cmatch '(?m)^FAIL', or rely on the child process exit code alone.`);
+  }
+
   return { ok: problems.length === 0, problems };
 }
 
@@ -609,6 +623,21 @@ if (process.argv[1] && process.argv[1].endsWith('mission_lint.mjs')) {
   // (d) a grade cutoff pinned to a literal digit -> passes.
   const pinnedGrade17 = 'Maqsad: grade the copy. Done means: every string scores grade <=8.';
   ck(lintMission(pinnedGrade17).ok, 'RULE 17: Done-means with a pinned grade cutoff ("grade <=8") passes');
+
+  // ---- RULE 18: NAIVE-FAIL-GREP (ITEM 61; the dep-loss/gate-loss 4-burned-attempts shape).
+  // (a) bare case-insensitive form -> refused. Fixture assembled by concatenation so this
+  // selftest block never itself trips the rule when linted as text.
+  const naiveGrep18 = 'Maqsad: verify. Done means: selftest green. validation_command: $out = node x.mjs --selftest | Out-String; if ($out ' + '-match ' + String.fromCharCode(39) + 'FAIL' + String.fromCharCode(39) + ') { exit 1 }';
+  const ng18 = lintMission(naiveGrep18);
+  ck(!ng18.ok && ng18.problems.some((p) => p.rule === 'naive-fail-grep'), 'RULE 18: bare $var -match FAIL guard over captured output REFUSED (naive-fail-grep)');
+
+  // (b) the anchored case-sensitive cure -> passes.
+  const curedGrep18 = 'Maqsad: verify. Done means: selftest green. validation_command: $out = node x.mjs --selftest | Out-String; if ($out -cmatch ' + String.fromCharCode(39) + '(?m)^FAIL' + String.fromCharCode(39) + ') { exit 1 }';
+  ck(lintMission(curedGrep18).ok, 'RULE 18: the -cmatch (?m)^FAIL anchored cure passes');
+
+  // (c) a LONGER pattern through -match (not the bare token) -> not flagged.
+  const longerGrep18 = 'Maqsad: verify. Done means: ok. validation_command: if ($out ' + '-match ' + String.fromCharCode(39) + 'FAILED\\(plan\\)' + String.fromCharCode(39) + ') { exit 1 }';
+  ck(!lintMission(longerGrep18).problems.some((p) => p.rule === 'naive-fail-grep'), 'RULE 18: a longer -match pattern (FAILED\\(plan\\)) is NOT flagged -- only the bare FAIL token form');
 
   console.log(`\n${fail ? fail + ' FAIL' : 'ALL PASS — mission miqat: flawed work orders refused at the boundary, zero cycles burned'}`);
   process.exit(fail ? 1 : 0);

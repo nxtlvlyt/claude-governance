@@ -23,21 +23,21 @@
     },
     "qwen3.6:27b": {
       "verdict": {
-        "pass": 25,
+        "pass": 26,
         "miss": 0,
         "fabrication": 0
       }
     },
     "granite4.1:30b": {
       "verdict": {
-        "pass": 14,
+        "pass": 15,
         "miss": 0,
         "fabrication": 0
       }
     },
     "north-mini-code-1.0:q4_K_M": {
       "verdict": {
-        "pass": 14,
+        "pass": 15,
         "miss": 0,
         "fabrication": 0
       }
