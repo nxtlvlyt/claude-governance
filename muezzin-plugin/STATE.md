@@ -1,6 +1,53 @@
 # STATE.md — muezzin-plugin (this project's contextualization of CLAUDE.md)
 
-## ⚡ SESSION LEDGER 2026-07-11 (written pre-compaction; the successor resumes from HERE)
+## ⚡ SESSION LEDGER 2026-07-22 (Fable 5 conductor; the successor resumes from HERE)
+
+BOARDS: both clean, both daemons idle on the session's fixes. mt PID 40296, agy PID 27320→40060
+(restarted onto fixes this session; both carry the documented launch envs
+MUEZZIN_ARCHITECT_ROUTE=panel + MUEZZIN_MAX_LANES=1 — board renders lanes 0/1). Totals
+132 DONE · 156 FAILED · 0 running · 0 pending · 8 PARKED. GAP REGISTER 59/79 closed, every
+open gap owner-resolvable (full-register scan verified — 0 orphaned).
+
+ENGINE FIXES LANDED + LIVE THIS SESSION (all both-jurisdictions unless noted):
+- RULE 19 numeric-contract-declared-unpinned (mission_lint): a mission declaring
+  `NUMERIC-CONTRACT: n1,n2,...` is refused at miqat unless every literal is pinned in a
+  validation step. muezzin a137496, agy fork 8e96511. Opt-in; the fuzzy auto-detect was
+  prototyped 3x and REJECTED (too brittle). Convention documented MISSION_ARCHITECTURE.md
+  Guarantee 3.
+- EXEC-CAPTURE TRUNCATION FIX (seat_dispatch.mjs): the SUCCESS path kept only
+  String(out).slice(0,2000) (head), so + orchestrate:1258's .slice(-500) the verdict panel saw
+  a fixed MIDDLE window [1500..2000] and false-REJECTed long-selftest PASSES (RULE 19's own
+  mission, mt-lh-tbt, atv-3.S1, backport-gate-loss — ~5 this session). ROOT-CAUSED with
+  arithmetic proof; fixed with headTailCap (keeps head+tail). muezzin b07d5c6, agy 24fc2f6,
+  BOTH DAEMONS RESTARTED onto it (this is why long-selftest engine missions stop false-rejecting).
+- AGY LAST-RESPONSE WRITER (muezzin_hook.py check_post_tool): dead since Jun 26 — the agy
+  PostToolUse payload carries no `result`, so the writer never fired. Fixed with a transcript
+  fallback (reads last PLANNER_RESPONSE/MODEL content); confirmed against a real agy transcript.
+  Forensic instrument used to root-cause it, then removed (D6).
+
+FILED ENGINE ITEMS (design-verified, not yet built — QUEUE.md):
+- ITEM 63 [edit]-step safety: DEFLATED by D12 to ~1 real member (member 1 struck — runtime_verify
+  already import-smokes .mjs/.js edits; member 3 narrow, major classes already witnessed). The
+  surviving fix = the [command]-over-[edit] convention (documented) + a fuzzy low-pri scoped-change
+  lint. Gap gap-mission-file-edit-whole-reemit-corruption STAYS OPEN (documented ≠ mechanical gate).
+- ITEM 64 standing FAILED-mark reconciliation (the zombie re-audit loop, gap-failed-mark-
+  reconciliation-loop): DESIGN FORK recorded — conduct-cycle is READ-ONLY on AUTORUN, so ADVISORY
+  (flag reconcile-candidates, safe) vs AUTO-WRITE (stops surfacing, but breaks the read-only
+  invariant + false-close risk → needs bulletproof content-verification + OPERATOR SIGN-OFF).
+  Ship advisory first. Naive "steps-ok → close" REJECTED (masks legit verdict rejects).
+- ITEM 65: camping-pass client wiring (renumbered from a duplicate ITEM 23 this session).
+
+OPERATOR-SIDE THIS SESSION (non-conductor): fast-mode kept flipping Fable→Opus; diagnosed as
+Win+O keybind + a persisted fast-mode preference. Added `fastModePerSessionOptIn:true` to
+~/.claude/settings.json; recommended the operator set CLAUDE_CODE_DISABLE_FAST_MODE=1 (User env)
++ relaunch for a permanent pin.
+
+SEQUENCE STANDING: agy-100% gate → N5 beat-harness build (items 1-14) → local-conductor test
+(format awaits operator spec). Warroom build sequenced behind agy-100%+N5. Remaining open gaps
+are all identity-bound (atv-emulator), N5-batch (compaction-witness/ITEM 23, failed-mark/ITEM 64),
+or sequenced-by-ruling (warroom-borrow). Nothing conductor-actionable is unowned.
+
+## ⚡ SESSION LEDGER 2026-07-11 (written pre-compaction)
 
 IN-FLIGHT AT WRITE TIME: mt lane running qc-fix-aurora-export-syntax (Sentry live-error
 fix, guarded deploy step 4 included); agy lane running atv-11-design-pass.S2 (final
