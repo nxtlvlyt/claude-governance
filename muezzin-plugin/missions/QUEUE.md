@@ -2350,6 +2350,21 @@ from the agy process or agy from the Claude CLI process" — each with a same-se
         also log toolCall's keys + transcript_readable, to confirm on the next --post
         whether output nests in toolCall.* or must come from the transcript, before the
         edit. [conf 0.95 — payload shape directly captured]
+        FIXED 2026-07-22 (conductor-direct: hooks class, ~15 lines, no lane, receipt=this
+        diagnosis). The refined captures decided it: toolcall_keys=[] (empty — output not
+        there either) + transcript_readable=true. So the tool output is NOT in the payload;
+        the readable transcriptPath is the source. check_post_tool now falls back to walking
+        transcriptPath for the last model response (type PLANNER_RESPONSE / source MODEL /
+        content — the SAME walk check_stop step-1 uses) when result/output is absent,
+        fail-open. VERIFIED: a synthetic payload matching the exact captured shape (no
+        result, empty toolCall, real transcript) writes the last model response; the
+        canonical result.output path still writes (no regression); py_compile OK.
+        PRODUCTION CONFIRMATION PENDING: last-response.txt reset to empty this beat — next
+        beat, if its mtime advanced from a real agy --post, the fix works on REAL transcripts
+        (residual: whether agy's real transcript uses the exact type/source/content fields
+        check_stop assumes — shared code path, so if wrong, check_stop's Stop guard would
+        also be broken, which is not flagged). Instrument stays one more beat for that
+        confirmation, then removed. [conf 0.9 — verified on faithful synthetic]
     (b) bootstrap gate + (d) computed diagnosis-debt: CONFIRMED STILL OPEN 2026-07-22
         (conductor, FULL READ of check_pre_tool + check_pre_invoke + load_rules_inject,
         raising last beat's 0.7 grep-level to 0.9). (b): check_pre_tool has exactly three
