@@ -1,0 +1,99 @@
+MISSION-ID: engine-empty-emission-heal-cap
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\.claude\muezzin-plugin
+ALLOW-FILES:
+  - seat_dispatch.mjs
+REQUIRES: none
+STEPS: 2
+
+ONE-WRITER RULE (binding): step 1 authors seat_dispatch.mjs (both the healDispatch cap and
+the new selftest fixture 9f live in that one file, applied by a single staged patcher). Step 2
+is verify-only and authors nothing.
+
+MAQSAD (the end): gap-empty-emission-burns-full-heal-budget, root-caused 2026-07-22.
+healDispatch() (seat_dispatch.mjs ~line 572) treats EMPTY_CONTENT / EMPTY_CONTENT_THINKING as an
+UNCAPPED FIXING heal: it returns a think:false + doubled-budget retry EVERY time, up to the full
+MAX_HEALS(3). Live receipts (missions/_logs/dispatch-heartbeat.log, 2026-07-22) prove the
+think:false retry does NOT recover qwen3-coder-next once it has empty-emitted even once: missions
+mt-fireban and mt-saved-lists each burned all heal attempts (~9 min) on EMPTY_CONTENT_THINKING
+before the Claude fallback finally engaged. The heal is not a repair for this seat/kind -- it is a
+retry-storm that delays the fallback that actually works. Every other FIXING heal that only
+retries (rather than repairs) is already capped per-kind: the TIMEOUT branch immediately above
+does `if ((kindCounts.TIMEOUT || 0) >= 1) return null;` -- one extend-and-retry, then fail over.
+This mission gives EMPTY_CONTENT the identical per-kind cap.
+
+THE FIX (applied by a STAGED, anchor-matches-once, fail-closed, idempotent patcher --
+missions/_logs/staged-empty-emission-heal-cap-2026-07-22/patch-empty-emission-heal-cap.mjs;
+dry-run receipted 2026-07-22 on a byte-copy of the real file: PATCHED, ALREADY-PATCHED on re-run,
+node --check clean, selftest 72->77 passed / 0 failed):
+
+  EDIT 1 -- healDispatch EMPTY_CONTENT per-kind cap. The current two uncapped lines
+    ( `if (k === 'EMPTY_CONTENT_THINKING' || k === 'EMPTY_CONTENT')` then the think:false return )
+    become a braced block that first checks the per-kind tally and fails over when it has already
+    fired once, then does the SAME think:false + doubled-budget retry as before:
+
+        if (k === 'EMPTY_CONTENT_THINKING' || k === 'EMPTY_CONTENT') {                                             // thinking ate the budget (FIXING heal)
+          // PER-KIND CAP (gap-empty-emission-burns-full-heal-budget, 2026-07-22): the think:false retry does
+          // NOT recover a seat that already emitted empty once (receipts: mt-fireban + mt-saved-lists burned
+          // all MAX_HEALS on qwen3-coder-next empty-emission before the Claude fallback). Allow ONE think:false
+          // retry, then fail over to the Claude tier -- same shape as the TIMEOUT cap above.
+          if (((kindCounts.EMPTY_CONTENT_THINKING || 0) + (kindCounts.EMPTY_CONTENT || 0)) >= 1) return null;
+          return { waitMs: 0, extendTimeout: true, body: { ...body, think: false, max_tokens: (body.max_tokens || 8192) * 2 } };
+        }
+
+    The two EMPTY_CONTENT kinds share ONE budget (their tallies are summed) so a seat that emits
+    EMPTY_CONTENT_THINKING then EMPTY_CONTENT still gets exactly one retry, not two.
+
+  EDIT 2 -- offline selftest fixture 9f, inserted right after the last `roleaware:` check and
+    before the `// 10b. HEADTAIL-CAP` block. It calls healDispatch() directly, mirroring how the
+    other pure heal/cap deciders are unit-tested, and proves: FIRST empty (healCount 0, empty
+    kindCounts) returns a think:false retry plan (not null) with doubled max_tokens; SECOND empty
+    (kindCounts EMPTY_CONTENT_THINKING:1) returns null -> fail over; and the two kinds share the
+    single budget.
+
+SCOPE FENCE (D13, do NOT exceed): touch ONLY seat_dispatch.mjs, and within it ONLY the two edits
+above (the healDispatch EMPTY_CONTENT branch + the new fixture 9f). Do NOT alter the TIMEOUT cap,
+the HTTP_429/503/400/404 branches, the catch-all retry, the localOnly seat's own inline
+think-starve mirror (a SEPARATE code path, lines ~760-875 -- out of scope, and its selftest 9b
+must stay green unchanged), or any other selftest case. Do NOT change the think:false retry body
+itself -- the fix only GATES entry to it, byte-identical retry once allowed.
+
+NIYYAH (why): gap-empty-emission-burns-full-heal-budget, 2026-07-22 -- a root-caused engine defect
+that spends ~9 minutes and the entire heal budget on a retry that receipts prove cannot recover
+the seat, delaying the Claude fallback that does. GAP ISSUES ARE ALWAYS PRIORITY
+(operator-rulings.md). Class: fix (dispatch-layer heal-budget cap), jurisdiction muezzin engine.
+Verified by deeds: `node seat_dispatch.mjs --selftest` exits 0 with the new fixture 9f passing and
+zero regressions to the pre-existing suite.
+source: C:\Users\marka\.claude\muezzin-plugin\seat_dispatch.mjs
+source: C:\Users\marka\.claude\muezzin-plugin\missions\_logs\dispatch-heartbeat.log
+source: C:\Users\marka\.claude\muezzin-plugin\missions\_logs\staged-empty-emission-heal-cap-2026-07-22\patch-empty-emission-heal-cap.mjs
+
+REACHABILITY NOTE (miqat): non-page engine change -- a dispatch-layer library edit used by the
+mission executor's own model-dispatch pipeline. No new page/surface ships, so no
+nav-reachability / MIQAT concern applies.
+
+STEPS:
+1. Apply the staged patcher (fail-closed on any anchor not matching exactly once, idempotent --
+   a re-run prints ALREADY-PATCHED and exits 0), then syntax-check and confirm the cap logic +
+   sentinel landed. This is the ONLY step that writes seat_dispatch.mjs. [command] seat_dispatch.mjs
+   validation_command: node missions/_logs/staged-empty-emission-heal-cap-2026-07-22/patch-empty-emission-heal-cap.mjs seat_dispatch.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; node --check seat_dispatch.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; if (-not (Select-String -Path seat_dispatch.mjs -SimpleMatch -Pattern '(kindCounts.EMPTY_CONTENT || 0)) >= 1) return null;' -Quiet)) { exit 1 }; if (-not (Select-String -Path seat_dispatch.mjs -SimpleMatch -Pattern 'gap-empty-emission-burns-full-heal-budget' -Quiet)) { exit 1 }; Write-Output 'EMPTY-CAP-PATCH-OK'
+2. OUTCOME CHECK [command]: run the file's own embedded selftest; require the new empty-content
+   cap fixtures (retry-then-failover) to pass AND zero failures anywhere in the suite. Emit only a
+   compact summary line (counts), never the full dump, so the receipt survives any exec-capture
+   truncation. Authors nothing.
+   validation_command: $out = (node seat_dispatch.mjs --selftest 2>&1 | Out-String); $ec = $LASTEXITCODE; if ($ec -ne 0) { Write-Output ('SELFTEST-EXIT-' + $ec); exit 1 }; if ($out -notmatch 'empty-content cap: FIRST empty returns a think:false retry plan') { Write-Output 'MISSING-CAP-RETRY-FIXTURE'; exit 1 }; if ($out -notmatch 'empty-content cap: SECOND empty') { Write-Output 'MISSING-FAILOVER-FIXTURE'; exit 1 }; if ($out -notmatch 'selftest\] \d+ passed, 0 failed') { Write-Output 'SELFTEST-HAS-FAILURES'; exit 1 }; $m = [regex]::Match($out, 'selftest\] (\d+) passed, (\d+) failed'); Write-Output ('EMPTY-CAP-SELFTEST-OK passed=' + $m.Groups[1].Value + ' failed=' + $m.Groups[2].Value)
+
+VALIDATIONS:
+  - node missions/_logs/staged-empty-emission-heal-cap-2026-07-22/patch-empty-emission-heal-cap.mjs seat_dispatch.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; node --check seat_dispatch.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; if (-not (Select-String -Path seat_dispatch.mjs -SimpleMatch -Pattern '(kindCounts.EMPTY_CONTENT || 0)) >= 1) return null;' -Quiet)) { exit 1 }; if (-not (Select-String -Path seat_dispatch.mjs -SimpleMatch -Pattern 'gap-empty-emission-burns-full-heal-budget' -Quiet)) { exit 1 }; Write-Output 'EMPTY-CAP-PATCH-OK'
+  - $out = (node seat_dispatch.mjs --selftest 2>&1 | Out-String); $ec = $LASTEXITCODE; if ($ec -ne 0) { Write-Output ('SELFTEST-EXIT-' + $ec); exit 1 }; if ($out -notmatch 'empty-content cap: FIRST empty returns a think:false retry plan') { Write-Output 'MISSING-CAP-RETRY-FIXTURE'; exit 1 }; if ($out -notmatch 'empty-content cap: SECOND empty') { Write-Output 'MISSING-FAILOVER-FIXTURE'; exit 1 }; if ($out -notmatch 'selftest\] \d+ passed, 0 failed') { Write-Output 'SELFTEST-HAS-FAILURES'; exit 1 }; $m = [regex]::Match($out, 'selftest\] (\d+) passed, (\d+) failed'); Write-Output ('EMPTY-CAP-SELFTEST-OK passed=' + $m.Groups[1].Value + ' failed=' + $m.Groups[2].Value)
+
+DONE-MEANS: healDispatch() caps the EMPTY_CONTENT / EMPTY_CONTENT_THINKING FIXING heal at ONE
+think:false retry and then returns null (fail over to the Claude tier), mirroring the existing
+TIMEOUT per-kind cap -- so a seat that empty-emits no longer burns the whole heal budget before
+the fallback engages. seat_dispatch.mjs at HEAD carries that cap plus selftest fixture 9f; the
+engine commits the scoped allow-file (seat_dispatch.mjs only) on the passing step. `node
+seat_dispatch.mjs --selftest` exits 0 with fixture 9f passing and zero regressions (72 prior + 5
+new empty-content cap checks = 77 passed, 0 failed). Both step commands are idempotent: a daemon
+attempt-2 whole-mission re-run prints ALREADY-PATCHED then re-verifies green, never double-applies.
+DAEMON NOTE (bootstrap): the running daemon dispatches through the OLD uncapped heal until it is
+restarted (static import); the conductor restarts after this lands so live dispatches pick up the cap.
