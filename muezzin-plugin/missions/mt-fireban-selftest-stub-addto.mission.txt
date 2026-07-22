@@ -1,0 +1,92 @@
+MISSION-ID: mt-fireban-selftest-stub-addto
+MISSION-CLASS: code-repo
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - tests/fire-ban-layer.selftest.js
+REQUIRES: none
+STEPS: 2
+
+MAQSAD (the why): mission mt-fireban-restore-visibility landed a production
+safety fix (commits 9019c2f + 8d97859) that restored the dropped
+`state.parentGroup.addTo(map);` call at js/fire-ban-layer.js:408 — without it the
+fire-ban parent feature group is never added to the map and the default-ON layer
+never renders. That restore is CORRECT and must stay. But the restore made the
+step-3 selftest FATAL: tests/fire-ban-layer.selftest.js installs a fake `L` whose
+`featureGroup()` stub returns an object with only `layers`/`addLayer`/`removeLayer`
+and NO `addTo`, so when the module-under-test now calls
+`state.parentGroup.addTo(map)` during its stub-map runtime simulation the selftest
+throws `TypeError: state.parentGroup.addTo is not a function` and exits 1 — a false
+red on a real, correct production fix. Correct looks like: the fake featureGroup
+mocks `.addTo()` the way Leaflet does (returns the layer for chaining), the module's
+init() runs clean against the fakes, and `node tests/fire-ban-layer.selftest.js`
+exits 0 with all source-scan (a-f) + runtime (pane/geoJSON) assertions passing. This
+mission touches ONLY the test's stub — it changes no production code and no assertion.
+
+THE FIX (pin exact literal): in tests/fire-ban-layer.selftest.js the `fakeL.featureGroup()`
+stub (the return object around lines 91-100) is missing an `addTo` method. Insert ONE
+new property line — mirroring Leaflet's `.addTo(map)` which returns the layer — between
+the existing `addLayer` line and the `removeLayer` line, at the same 6-space indent, LF
+line-ending, with a trailing comma so the object literal stays valid:
+
+      addTo: function () { return this; },
+
+The insert anchor is the `addLayer` line, which occurs EXACTLY ONCE in the file
+(receipted 2026-07-22 against the target repo: addLayer anchor count=1, existing
+`addTo:` count=0, no BOM, file is pure LF). The step-1 command below anchors on that
+line, refuses to proceed if it is not unique (fail-closed), preserves LF via
+[System.IO.File]::WriteAllText, and is idempotent (re-run prints ALREADY_PATCHED and
+exits 0).
+
+SCOPE FENCE (D13, do NOT exceed): touch ONLY tests/fire-ban-layer.selftest.js, and
+within it ONLY the fakeL.featureGroup() stub — the single new addTo property. Do NOT
+touch js/fire-ban-layer.js (the production restore is correct and out of scope). Do NOT
+alter, add, or remove any selftest ASSERTION (source-scan a-f or the runtime pane/geoJSON
+checks) — the addTo stub must make the EXISTING assertions pass unchanged, never weaken
+them. Do NOT add addTo to any other stub or file.
+
+STEP-SHAPE DISCIPLINE (both commands are dry-run-proven verbatim — 2026-07-22, a full
+mirrored-repo run: baseline reproduced the FATAL, step 1 patched + node --check clean +
+the full selftest went green a-f, LF preserved, both steps idempotent): the planner MUST
+use these two commands VERBATIM as the step validation_commands, not improvise them. Both
+are ALSO declared in the VALIDATIONS: block below so the engine's injectDeclaredValidations
+backstop guarantees the exact strings land even if a plan deviates. The step-1 command is a
+SINGLE self-contained PowerShell witness expression (defines-and-uses its own $vars in one
+execReceipt call — the permitted $-bearing shape, NOT a define-then-use pipeline that
+strips); it is written BARE (no `powershell -NoProfile -Command "..."` self-wrapper) because
+the engine already runs every validation_command via pwsh -Command, and a self-wrapper would
+interpolate the $vars to empty (the confirmed powershell-wrapper-strips-dollar-vars gap).
+
+Steps:
+  1. Insert the addTo stub into the fakeL.featureGroup() return object — the ONLY step
+     that writes this file; anchored on the unique addLayer line, LF-preserving via
+     [System.IO.File]::WriteAllText, fail-closed if the anchor is not unique, idempotent
+     (ALREADY_PATCHED no-op). Run exactly: $f = 'tests/fire-ban-layer.selftest.js'; $c = [System.IO.File]::ReadAllText($f); $ins = '      addTo: function () { return this; },'; if ($c.Contains('addTo: function () { return this; }')) { Write-Output ALREADY_PATCHED; exit 0 }; $anchor = '      addLayer: function (l) { this.layers.push(l); },'; $n = ([regex]::Matches($c, [regex]::Escape($anchor))).Count; if ($n -ne 1) { Write-Error ('ANCHOR_NOT_UNIQUE count=' + $n); exit 1 }; $c2 = $c.Replace($anchor, $anchor + "`n" + $ins); [System.IO.File]::WriteAllText($f, $c2); $v = [System.IO.File]::ReadAllText($f); if (-not $v.Contains($ins)) { Write-Error 'PATCH_VERIFY_FAILED'; exit 1 }; Write-Output PATCHED [command] tests/fire-ban-layer.selftest.js
+  2. OUTCOME CHECK + commit-on-green: run the real selftest; only if it exits 0 (the FATAL
+     is gone and every assertion passes) stage + commit the scoped allow-file, idempotent
+     (ALREADY_COMMITTED no-op when nothing changed). Authors nothing via a model; target
+     files: none. Run exactly: node tests/fire-ban-layer.selftest.js; if ($LASTEXITCODE -ne 0) { Write-Error 'SELFTEST_FAILED'; exit 1 }; git add -- tests/fire-ban-layer.selftest.js; git diff --cached --quiet -- tests/fire-ban-layer.selftest.js; if ($LASTEXITCODE -ne 0) { git commit -q -m 'fix(fire-ban-selftest): stub featureGroup .addTo() so the step-3 selftest survives the parentGroup.addTo(map) safety restore (mt-fireban-selftest-stub-addto)' -- tests/fire-ban-layer.selftest.js; if ($LASTEXITCODE -ne 0) { Write-Error 'COMMIT_FAILED'; exit 1 } } else { Write-Output ALREADY_COMMITTED } [command]
+
+VALIDATIONS:
+  - $f = 'tests/fire-ban-layer.selftest.js'; $c = [System.IO.File]::ReadAllText($f); $ins = '      addTo: function () { return this; },'; if ($c.Contains('addTo: function () { return this; }')) { Write-Output ALREADY_PATCHED; exit 0 }; $anchor = '      addLayer: function (l) { this.layers.push(l); },'; $n = ([regex]::Matches($c, [regex]::Escape($anchor))).Count; if ($n -ne 1) { Write-Error ('ANCHOR_NOT_UNIQUE count=' + $n); exit 1 }; $c2 = $c.Replace($anchor, $anchor + "`n" + $ins); [System.IO.File]::WriteAllText($f, $c2); $v = [System.IO.File]::ReadAllText($f); if (-not $v.Contains($ins)) { Write-Error 'PATCH_VERIFY_FAILED'; exit 1 }; Write-Output PATCHED
+  - node tests/fire-ban-layer.selftest.js; if ($LASTEXITCODE -ne 0) { Write-Error 'SELFTEST_FAILED'; exit 1 }; git add -- tests/fire-ban-layer.selftest.js; git diff --cached --quiet -- tests/fire-ban-layer.selftest.js; if ($LASTEXITCODE -ne 0) { git commit -q -m 'fix(fire-ban-selftest): stub featureGroup .addTo() so the step-3 selftest survives the parentGroup.addTo(map) safety restore (mt-fireban-selftest-stub-addto)' -- tests/fire-ban-layer.selftest.js; if ($LASTEXITCODE -ne 0) { Write-Error 'COMMIT_FAILED'; exit 1 } } else { Write-Output ALREADY_COMMITTED }
+
+NIYYAH (why): restore-visibility follow-up — the production safety fix
+(state.parentGroup.addTo(map), commits 9019c2f + 8d97859) is correct and staying; its
+selftest guard just needs the fake featureGroup to mock .addTo() the way real Leaflet
+does. Class: fix (a false-red selftest FATAL on landed-correct production code),
+jurisdiction mt. Verified by deeds: node tests/fire-ban-layer.selftest.js exits 0 with
+every existing assertion (source-scan a-f + runtime pane/geoJSON) passing unchanged.
+source: tests/fire-ban-layer.selftest.js
+source: js/fire-ban-layer.js
+
+REACHABILITY NOTE (miqat): non-page change — this mission touches only a Node self-test
+file. It ships no new page and needs no nav-reachability check; MIQAT does not apply.
+
+DONE-MEANS: tests/fire-ban-layer.selftest.js carries exactly one new
+`addTo: function () { return this; },` property inside the fakeL.featureGroup() return
+object (inserted between addLayer and removeLayer, 6-space indent, LF), no production code
+or selftest assertion changed; `node tests/fire-ban-layer.selftest.js` exits 0 with all
+source-scan (a-f) and runtime (pane/geoJSON) assertions passing; and that scoped fix is
+committed to the target repo touching ONLY the one allow-file. Both step commands are
+idempotent (a clean re-run prints ALREADY_PATCHED then ALREADY_COMMITTED and exits 0), so
+a daemon attempt-2 whole-mission re-run never double-applies or fails on "nothing to commit."
