@@ -3799,19 +3799,19 @@ every item carries a current classification — and the report must say which. (
 board-format with receipts QUOTED, outcome-only, lead with what was WORKED this beat.
 --- END TEMPLATE ---
 
-## 2026-07-22 ITEM 63 — [edit]-STEP SAFETY: PARSE-BEFORE-ACCEPT + DELTA-GUARD ON AUTHORED FILES
-Unifies THREE gaps that share one root — an [edit] step on an already-authored file is
-under-guarded, so a seat can commit a broken/garbled/re-emitted artifact that passes every
-step check. Build them as ONE coherent [edit]-safety pass, BOTH jurisdictions (orchestrate.mjs
-+ git_steps.mjs are engine; port to agy fork). Members + their receipts:
-1. gap-executor-multiline-string-literal-fragility (JS half, ownerless until 2026-07-22):
-   the PowerShell validation_command AST pre-check IS landed (seat_dispatch.mjs:265
-   Parser.ParseFile -> MALFORMED-VALIDATION-COMMAND, fails fast, never executes), but authored
-   .mjs/.js [edit] OUTPUT is only node-checked when the author put `node -c <file>` in the
-   validation_command — no AUTOMATIC engine-level check. FIX: an automatic `node --check <target>`
-   in orchestrate.mjs's [edit]-acceptance path for .mjs/.js targets, before commit; fail fast
-   with a distinct MALFORMED-JS-ARTIFACT marker, target never committed. The JS twin of the
-   landed PowerShell AST pre-check.
+## 2026-07-22 ITEM 63 — [edit]-STEP SAFETY: DELTA-GUARD + LITERALNESS ON AUTHORED FILES
+Unifies TWO gaps (was three — member 1, JS-artifact syntax, STRUCK 2026-07-22: already covered
+by runtime_verify.mjs, see below) that share one root — an [edit] step on an already-authored
+file is under-guarded, so a seat can commit a garbled/re-emitted artifact that passes every step
+check. Build as ONE coherent [edit]-safety pass, BOTH jurisdictions (git_steps.mjs is engine;
+port to agy fork). Members + their receipts:
+1. ~~gap-executor-multiline-string-literal-fragility~~ STRUCK 2026-07-22 — REDUNDANT, already
+   covered (D9 correction: the "no automatic engine-level check" premise was wrong, missed
+   runtime_verify.mjs). runtimeVerify() runs on EVERY edit artifact at orchestrate.mjs:1477
+   before commit, import-smoking .mjs/.js (STRONGER than node --check — it loads, not just
+   parses) and failing CLOSED on any load/parse throw -> rollback, never commits. Proven this
+   beat: an unterminated-string-literal .mjs -> ok:false load-throw "Invalid or unexpected
+   token". Gap CLOSED (59/79). ITEM 63 is now a TWO-member build (2 + 3 below).
 2. gap-mission-file-edit-whole-reemit-corruption (receipt: engine-render-witness-maphtml-redirect
    appended 9 lines of debug garbage OUTSIDE scope to a weather-planning .mission.txt). The
    existing assertNoUndeclaredShrinkage (git_steps.mjs:558) is SHRINKAGE-ONLY (fires when a file
