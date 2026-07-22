@@ -2277,6 +2277,19 @@ from the agy process or agy from the Claude CLI process" — each with a same-se
     per-step validation_command lines; mt-integrate missions were prose the planner
     improvised — today's single biggest failure source (improvised commits, verifies,
     gathers). New/amended missions on BOTH sides carry literal validations.
+    SCOPING (2026-07-21, conductor — verified against mission_lint.mjs RULE 16 + the
+    gap-mission-validation-must-pin-numeric-contract fold-in): item-12's CORE is
+    ALREADY PARTIALLY LANDED as RULE 16 (improvise-bait), which itself is labelled
+    "N5 item 12 prep" — it forces a LITERAL payload on [command]/[verify] steps in
+    code-repo missions that carry script/witness intent. The N5-build RESIDUAL (do NOT
+    re-litigate RULE 16) is exactly what RULE 16 deliberately excludes: (a) mission
+    classes other than code-repo; (b) [edit]/authoring-step validation_command
+    literalness — RULE 16 EXEMPTS [edit] steps, which is precisely the hole the numeric
+    gap fell through (mt-levels-not-ladders' thresholds live in an [edit] authoring
+    step whose validation only grepped names); (c) the deterministic NUMERIC-CONTRACT:
+    field + exact-match check (the numeric-contract gap's sound fix — a fuzzy
+    ladder-extractor was prototyped and REJECTED as too brittle, receipt in that gap
+    + scratchpad/proto-rule19*.mjs); (d) the agy fork port of all the above.
 13. AGY GUARANTEED-DELIVERY LAYER — REVIVE, DON'T BUILD (premise corrected 2026-07-11,
     operator challenge "are we sure agy doesn't have that hook system? please don't
     assume" — he was right, the original filing was wrong): agy HAS a live hook harness.
