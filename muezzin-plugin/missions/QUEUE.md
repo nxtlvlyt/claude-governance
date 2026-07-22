@@ -3813,12 +3813,19 @@ port to agy fork). Members + their receipts:
    beat: an unterminated-string-literal .mjs -> ok:false load-throw "Invalid or unexpected
    token". Gap CLOSED (59/79). ITEM 63 is now a TWO-member build (2 + 3 below).
 2. gap-mission-file-edit-whole-reemit-corruption (receipt: engine-render-witness-maphtml-redirect
-   appended 9 lines of debug garbage OUTSIDE scope to a weather-planning .mission.txt). The
-   existing assertNoUndeclaredShrinkage (git_steps.mjs:558) is SHRINKAGE-ONLY (fires when a file
-   drops below 50% of HEAD lines); this receipt is undeclared GROWTH — opposite direction, so
-   the floor can't see it. FIX: extend to a SYMMETRIC line-delta band (flag undeclared growth
-   AND shrinkage beyond a ratio) on [edit] steps to text/mission files; OR prefer
-   [command]-targeted-replace over [edit] for small changes to already-authored .txt/.md files.
+   appended 9 lines of debug garbage OUTSIDE scope to a weather-planning .mission.txt).
+   CONFIRMED UNCAUGHT 2026-07-22: the growth slips ALL three existing guards — containment-drift
+   (outside-allowlist only; the file WAS allowlisted), runtimeVerify (code only; a .mission.txt
+   is not import-smoked), and assertNoUndeclaredShrinkage (git_steps:558, shrinkage-only).
+   FIX — DESIGN CORRECTED 2026-07-22 (the "symmetric line-delta band" first written here is
+   NAIVE and REJECTED): unlike shrinkage (rare + suspicious), GROWTH is the NORMAL authoring
+   case (most [edit] steps ADD content), so a symmetric growth-ratio flag false-positives on
+   every legitimate authoring step — the signal is not "growth" but "growth disproportionate to
+   a SCOPED change," which line-count alone cannot tell. SOUND FIX is the PROCESS discipline:
+   for small changes to already-authored .txt/.md/.mission.txt files, prefer a [command]
+   targeted-replace (PowerShell -replace of the matched line) over a whole-file [edit] re-emit —
+   a targeted-replace STRUCTURALLY cannot append out-of-scope garbage. (A growth guard, if built
+   at all, must be gated on a scoped-change signal in the step DESCRIPTION, not a bare ratio.)
 3. N5 item-12 [edit]-step validation literalness (RULE 16 exempts [edit] steps from its
    improvise-bait literal-payload requirement — the exact hole the numeric gap fell through).
    FIX: bring [edit] authoring steps under a literalness requirement (their validation_command
