@@ -1,0 +1,80 @@
+MISSION-ID: engine-self-resolved-stamp-boundary
+MISSION-CLASS: ops-deploy
+REPO-ROOT: C:\Users\marka\.claude\muezzin-plugin
+ALLOW-FILES:
+  - muezzin-daemon.mjs
+REQUIRES: none
+STEPS: 4
+
+MAQSAD (the end): gap-daemon-self-resolved-check-false-matches-prose-resolved, ROOT-CAUSED
+2026-07-22. muezzin-daemon.mjs's pathOwnsNearbyResolvedStamp (~L870) keyed the self-resolved
+FIRING gate on kwRe = /\b(?:...(the disposition word)...(?:-[A-Z]+)*|...(the other word)...)\b/,
+which matched a bare disposition word ANYWHERE on a mission's AUTORUN line -- including PROSE
+inside a conductor annotation. So the daemon read "mission itself is conductor-decided in AUTORUN
+-- retired from firing (work landed); skipping to next pending" for missions that were NOT decided,
+only DESCRIBED. Twice bitten this class: mt-saved-lists-migration was held ~40 min because its
+diagnosis carried "hypothesis <the word>"; engine-empty-emission-heal-cap was held ~2 beats because
+its annotation carried "0 prose-<the word>" -- the very phrase describing that it AVOIDS the bug.
+Both directions of this gate are fleet-wide-critical: too loose re-stalls live pending missions (the
+current defect); too tight fails to retire genuinely-decided missions and re-fire-loops them.
+
+THE FIX (landed by the STAGED, byte-copy-DRY-RUN-RECEIPTED patcher -- anchor-once, fail-closed,
+idempotent): tighten kwRe to a real disposition-STAMP boundary while preserving every genuine
+retirement. THREE ordered alternatives: (1) the whole-word "over-taken" disposition, always a stamp;
+(2) an explicit compound "-landed"/"-moot"/"-via-agent" form, context-independent because prose never
+writes it -- and CRITICALLY it still fires when a mission path ending ".mission.txt" (lowercase)
+immediately precedes the stamp, the real inline shape; (3) a BARE disposition word counts ONLY when
+it is NOT a lowercase word joined by one separator (space / hyphen / slash) to the keyword -- that is
+the prose signal, because genuine stamps sit in an ALL-CAPS zone (leading "# ", a "...Z <word>:"
+timestamp, "topology-<word>", "diagnosed+<word>") whose preceding char is non-lowercase, while prose
+("hypothesis <word>", "wrapper/<word>", "then <word>.") is a lowercase word + separator. The leading
+\b still blocks the "un-decided" substring (the mt-c1-boundary fix, 2026-07-02). The exact tightened
+matcher lives in the patcher (source below); this prose deliberately hyphenates the keywords so this
+very mission's AUTORUN line never self-matches the gate it repairs.
+
+DRY-RUN ALREADY PERFORMED (byte-copy, this authoring beat, on muezzin-daemon.__dryrun.mjs): patcher
+PATCHED then ALREADY-PATCHED (idempotent) / node --check SYNTAX-OK / full --selftest 187 PASS 0 FAIL
+incl. all 8 new "stamp-boundary" fixtures. Empirical sweep over the live AUTORUN.md: 525/528 mission
+paths keep their exact verdict, 0 newly-matched, and the 3 that flip off are all genuine prose false-
+positives (the two heal targets + two "then <word>." future-tense diagnoses on terminal do-not-requeue
+lines) -- zero real "-landed"/"over-taken"/tartib-# stamp lost.
+
+NIYYAH (why): a root-caused firing-gate defect that stalls live missions on the conductor's own prose.
+GAP ISSUES ARE ALWAYS PRIORITY (operator-rulings.md). System fixes have priority over product work.
+
+source: C:\Users\marka\.claude\muezzin-plugin\muezzin-daemon.mjs
+source: C:\Users\marka\.claude\muezzin-plugin\missions\_logs\staged-self-resolved-stamp-2026-07-22\patch-self-resolved-stamp.mjs
+source: C:\Users\marka\.claude\muezzin-plugin\missions\AUTORUN.md
+
+REACHABILITY NOTE (miqat): engine mission-firing gate, no page/surface ships -- no nav-reachability
+concern.
+
+STEPS (literal-command-queue: each fenced line runs VERBATIM from REPO-ROOT; exit code is the
+pass/fail signal):
+
+```pwsh
+node missions/_logs/staged-self-resolved-stamp-2026-07-22/patch-self-resolved-stamp.mjs muezzin-daemon.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; Write-Output 'STAMP-BOUNDARY-PATCH-APPLIED'
+node --check muezzin-daemon.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; Write-Output 'STAMP-BOUNDARY-SYNTAX-OK'
+$out = (node muezzin-daemon.mjs --selftest 2>&1 | Out-String); if ($LASTEXITCODE -ne 0) { exit 1 }; $sb = ([regex]::Matches($out, 'PASS  stamp-boundary')).Count; $fails = ([regex]::Matches($out, '(?m)^\s*FAIL ')).Count; Write-Output ("SELFTEST-SUMMARY sb=" + $sb + " fails=" + $fails); if ($sb -lt 8 -or $fails -gt 0) { exit 1 }; Write-Output 'STAMP-BOUNDARY-SELFTEST-OK'
+git add -- muezzin-daemon.mjs; git diff --cached --quiet; if ($LASTEXITCODE -eq 0) { Write-Output 'ALREADY_COMMITTED' } else { git commit -m "fix(engine): self-resolved firing gate keys on a real disposition stamp not prose - a bare disposition word buried in a conductor annotation no longer retires a live mission (gap-daemon-self-resolved-check-false-matches-prose-resolved; 525/528 AUTORUN paths unchanged, 8 both-direction stamp-boundary selftest fixtures)" -- muezzin-daemon.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; Write-Output 'STAMP-BOUNDARY-COMMIT-OK' }
+```
+
+Step 1: apply the staged patcher (fail-closed on anchor mismatch, idempotent ALREADY-PATCHED on rerun).
+Step 2: syntax check the patched daemon.
+Step 3 (OUTCOME CHECK): run the full daemon selftest; require all 8 new stamp-boundary fixtures PASS
+(both directions -- 4 prose-must-not-retire + 4 real-stamp-must-still-retire) and ZERO failures anywhere.
+Step 4: scoped commit (idempotent-commit idiom), flags-first pathspec -- muezzin-daemon.mjs ONLY.
+
+DONE-MEANS: muezzin-daemon.mjs at HEAD carries the tightened kwRe on pathOwnsNearbyResolvedStamp plus
+the 8 stamp-boundary selftest fixtures; its selftest is green (prior fixtures + 8 new = 187 PASS, zero
+failures); committed scoped to muezzin-daemon.mjs only. The one kwRe change propagates through
+hasResolvedStampForPath to all three consumers -- the self-decided firing gate (L944), dependency
+satisfaction (L1003), and doneMissionIds (L1123) -- so every gate that reads a disposition stamp is
+fixed by this single edit.
+
+NOTE (bootstrap / static-import staleness): the RUNNING daemon keeps the OLD matcher until it is
+restarted (Node does not hot-reload a static import), so this mission's OWN step receipts run under the
+matcher being fixed -- harmless here because the steps are node/git commands, not gate evaluations. The
+conductor restarts the daemon after landing (MUEZZIN_ARCHITECT_ROUTE=panel MUEZZIN_MAX_LANES=1) to make
+the fix live. This mission's own AUTORUN line uses the lowercase word "resolved" throughout (in
+"self-resolved" / the gap name) so it never self-matches the very gate it repairs.

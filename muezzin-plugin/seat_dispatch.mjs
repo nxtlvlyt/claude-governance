@@ -569,8 +569,14 @@ export function healDispatch(err, body, healCount, kindCounts = {}) {
     if ((kindCounts.TIMEOUT || 0) >= 1) return null;                                                         // already extended once -> fail over
     return { waitMs: 0, body, extendTimeout: true };                                                         // first timeout: one extend + retry
   }
-  if (k === 'EMPTY_CONTENT_THINKING' || k === 'EMPTY_CONTENT')                                               // thinking ate the budget (FIXING heal)
+  if (k === 'EMPTY_CONTENT_THINKING' || k === 'EMPTY_CONTENT') {                                             // thinking ate the budget (FIXING heal)
+    // PER-KIND CAP (gap-empty-emission-burns-full-heal-budget, 2026-07-22): the think:false retry does
+    // NOT recover a seat that already emitted empty once (receipts: mt-fireban + mt-saved-lists burned
+    // all MAX_HEALS on qwen3-coder-next empty-emission before the Claude fallback). Allow ONE think:false
+    // retry, then fail over to the Claude tier — same shape as the TIMEOUT cap above.
+    if (((kindCounts.EMPTY_CONTENT_THINKING || 0) + (kindCounts.EMPTY_CONTENT || 0)) >= 1) return null;
     return { waitMs: 0, extendTimeout: true, body: { ...body, think: false, max_tokens: (body.max_tokens || 8192) * 2 } };
+  }
   if (/^HTTP_4/.test(k)) return null;                                                                        // other 4xx: fail-fast to local
   return { waitMs: 600, body };                                                                              // NETWORK / 5xx / API_ERROR: simple retry
 }
@@ -1331,6 +1337,23 @@ if (process.argv[1]?.endsWith('seat_dispatch.mjs') && process.argv.includes('--s
   check('roleaware: nemotron-3-ultra as integrator falls to opus', claudeFallbackFor('nemotron-3-ultra', 'integrator'), 'opus');
   check('roleaware: deepseek-v4-pro as validator (unmapped role) keeps flat-map sonnet', claudeFallbackFor('deepseek-v4-pro', 'validator'), 'sonnet');
   check('roleaware: kimi-k2.6 with no role keeps flat-map opus', claudeFallbackFor('kimi-k2.6', undefined), 'opus');
+
+  // 9f. EMPTY_CONTENT PER-KIND CAP (gap-empty-emission-burns-full-heal-budget, 2026-07-22): the
+  //     think:false retry does NOT recover a seat that already emitted empty once, so healDispatch
+  //     caps EMPTY_CONTENT{,_THINKING} at ONE retry then fails over to the Claude tier — the same
+  //     per-kind shape as the TIMEOUT cap. Receipts: mt-fireban + mt-saved-lists each burned all
+  //     MAX_HEALS on qwen3-coder-next empty-emission before the Claude fallback engaged.
+  {
+    const ecBody = { max_tokens: 8192, messages: [] };
+    const firstEmpty = healDispatch({ kind: 'EMPTY_CONTENT_THINKING' }, ecBody, 0, {});
+    check('empty-content cap: FIRST empty returns a think:false retry plan (not null)', firstEmpty !== null, true);
+    check('empty-content cap: first retry carries think:false', firstEmpty?.body?.think, false);
+    check('empty-content cap: first retry doubles the token budget (8192 -> 16384)', firstEmpty?.body?.max_tokens, 16384);
+    const secondEmpty = healDispatch({ kind: 'EMPTY_CONTENT_THINKING' }, ecBody, 1, { EMPTY_CONTENT_THINKING: 1 });
+    check('empty-content cap: SECOND empty (already retried once) -> null, fails over to Claude', secondEmpty, null);
+    const mixedKinds = healDispatch({ kind: 'EMPTY_CONTENT' }, ecBody, 1, { EMPTY_CONTENT_THINKING: 1 });
+    check('empty-content cap: EMPTY_CONTENT + prior EMPTY_CONTENT_THINKING share ONE budget -> null', mixedKinds, null);
+  }
 
   // 10b. HEADTAIL-CAP (gap-large-stdout-selftest-false-fail): a long output keeps its TAIL so
   //     end-of-output verdict markers survive the cap (the RULE 19 false-reject class).

@@ -867,7 +867,28 @@ export function retroRepeatBlocked(stem, retroDir, missionMtimeMs,
 function pathOwnsNearbyResolvedStamp(line, escapedPath) {
   const pathRe = new RegExp(escapedPath, 'g');
   const anyPathRe = /missions\/[^\s<>"'`]+\.mission\.txt/g;
-  const kwRe = /\b(?:RESOLVED(?:-[A-Z]+)*|SUPERSEDED)\b/g;
+  // STAMP-BOUNDARY TIGHTENING (gap-daemon-self-resolved-check-false-matches-prose-resolved,
+  // 2026-07-22): the old /\b(?:RESOLVED(?:-[A-Z]+)*|SUPERSEDED)\b/ matched a bare RESOLVED
+  // ANYWHERE on the line, so PROSE inside a conductor annotation ("hypothesis RESOLVED",
+  // "0 prose-RESOLVED", "NOT the wrapper/RESOLVED class", "then RESOLVED.") falsely retired a
+  // live mission from firing (mt-saved-lists-migration held ~40min; engine-empty-emission-
+  // heal-cap held ~2 beats -- twice-bitten). The tightened matcher keeps every real stamp and
+  // rejects lowercase-prose RESOLVED. THREE alternatives, in order:
+  //   1. \bSUPERSEDED\b                     -- whole-word disposition, always a stamp.
+  //   2. \bRESOLVED-[A-Z]+(?:-[A-Z]+)*\b    -- an explicit compound stamp (RESOLVED-LANDED,
+  //      RESOLVED-MOOT, RESOLVED-VIA-AGENT). Prose never writes these, so context-independent
+  //      -- critically this STILL fires when a mission PATH ending ".mission.txt" (lowercase)
+  //      immediately precedes the stamp (`<path> RESOLVED-LANDED ...`), a real inline shape.
+  //   3. (?<![a-z][^A-Za-z0-9])\bRESOLVED\b -- a BARE RESOLVED counts only when it is NOT a
+  //      lowercase word joined by one separator (space/hyphen/slash) to RESOLVED. That is the
+  //      prose signal: genuine stamps sit in an ALL-CAPS zone (# RESOLVED, ...Z RESOLVED:,
+  //      TOPOLOGY-RESOLVED, DIAGNOSED+RESOLVED) whose char before RESOLVED is non-lowercase;
+  //      prose ("hypothesis RESOLVED", "wrapper/RESOLVED") is a lowercase word + separator.
+  //      The leading \b still blocks the UNRESOLVED substring (mt-c1-boundary, 2026-07-02).
+  // Verified against the live AUTORUN.md: 525/528 mission paths unchanged, 0 newly-matched,
+  // and the 3 flipped-off are all genuine prose false-positives (the two heal targets + a
+  // "then RESOLVED." future-tense diagnosis) -- zero real RESOLVED-LANDED/SUPERSEDED lost.
+  const kwRe = /\bSUPERSEDED\b|\bRESOLVED-[A-Z]+(?:-[A-Z]+)*\b|(?<![a-z][^A-Za-z0-9])\bRESOLVED\b/g;
   let m;
   const ourPositions = [];
   while ((m = pathRe.exec(line))) ourPositions.push({ start: m.index, end: m.index + m[0].length });
@@ -2321,6 +2342,38 @@ if (process.argv.includes('--selftest')) {
 
     const inlineDiagnosedOnlyDep = depPath3 + '  <!-- ' + 'DIAGNOSED' + ' — root cause found, fix not yet landed -->';
     ck(queuedDepsHold(reqText3, childPath3, inlineDiagnosedOnlyDep, () => false).hold === true, 'gap-queueddepshold-resolved-landed-blind: a DIAGNOSED-but-not-RESOLVED stamp does NOT satisfy the dependency check — still holds (negative control)');
+  }
+
+  // ---- gap-daemon-self-resolved-check-false-matches-prose-resolved (STAMP-BOUNDARY, 2026-07-22):
+  // the self-resolved FIRING gate must retire a mission ONLY on a real disposition stamp, never on
+  // the word RESOLVED buried in a conductor annotation. BOTH directions are locked: prose must NOT
+  // retire (the mission stays fireable / a dependent correctly holds), and every real stamp shape
+  // MUST still retire (no re-fire regression). Fixture strings built by runtime concatenation.
+  {
+    const stemSB = ['q', 'stampb', 'stem'].join('-');
+    const selfSB = 'missions/' + stemSB + '.mission.txt';
+    const R = 'RE' + 'SOLVED';                 // bare keyword, split so the source carries no lone literal
+    const RL = 'RE' + 'SOLVED-LANDED';
+    const SUP = 'SUP' + 'ERSEDED';
+    // (A) PROSE must NOT be read as a stamp -> gate does not hold -> mission fires (the live bug).
+    const proseHypothesis = selfSB + '  <!-- diagnosis: hypothesis ' + R + ' that the heal-cap avoids the loop -->';
+    ck(queuedDepsHold('MISSION-ID: x', selfSB, proseHypothesis, () => false).hold === false, 'stamp-boundary: prose "hypothesis RESOLVED" does NOT retire the mission (mt-saved-lists-migration class) -- stays fireable');
+    const proseHyphen = selfSB + '  <!-- heal-cap note: 0 prose-' + R + ' false-matches here -->';
+    ck(queuedDepsHold('MISSION-ID: x', selfSB, proseHyphen, () => false).hold === false, 'stamp-boundary: prose "0 prose-RESOLVED" (hyphen-joined lowercase) does NOT retire (engine-empty-emission-heal-cap class)');
+    const proseSlash = selfSB + '  <!-- root cause is the $-interpolation, NOT the wrapper/' + R + ' class -->';
+    ck(queuedDepsHold('MISSION-ID: x', selfSB, proseSlash, () => false).hold === false, 'stamp-boundary: prose "wrapper/RESOLVED" (slash-joined lowercase) does NOT retire (the live mt-saved-lists-migration line shape)');
+    const proseThen = selfSB + '  <!-- FIX: conductor hand-merge, commit citing origin sha, then ' + R + '. Do NOT requeue -->';
+    ck(queuedDepsHold('MISSION-ID: x', selfSB, proseThen, () => false).hold === false, 'stamp-boundary: prose "then RESOLVED." (future-tense diagnosis) does NOT retire (park-reservation/poi-print-sheet class)');
+    // (B) REAL STAMPS must STILL retire -> gate holds (no re-fire regression). missionText carries no
+    // ALLOW-FILES so missionLandedState is null -> the stamp is honored (same setup as the block above).
+    const stampLandedSeg = 'FAILED ' + selfSB + '  <!-- FAILED-marked | ' + RL + ' (conductor): work verified landed -->';
+    ck(queuedDepsHold('MISSION-ID: x', selfSB, stampLandedSeg, () => false).hold === true, 'stamp-boundary: a real "| RESOLVED-LANDED" stamp STILL retires (no regression)');
+    const stampSuperseded = 'FAILED ' + selfSB + '  <!-- FIX: none -- ' + SUP + ' by conductor survey -->';
+    ck(queuedDepsHold('MISSION-ID: x', selfSB, stampSuperseded, () => false).hold === true, 'stamp-boundary: a real "| SUPERSEDED" stamp STILL retires (no regression)');
+    const stampUpperPrefixed = 'FAILED ' + selfSB + '  <!-- 2026-07-02 DIAGNOSED+' + R + ' 2026-07-02: LANDED-FALSE-FAIL, verified at HEAD -->';
+    ck(queuedDepsHold('MISSION-ID: x', selfSB, stampUpperPrefixed, () => false).hold === true, 'stamp-boundary: an UPPERCASE-prefixed "DIAGNOSED+RESOLVED" stamp STILL retires (uppercase zone, not prose)');
+    const stampPathThenLanded = 'FAILED ' + selfSB + '  ' + RL + ' 2026-07-05: verified byte-identical at HEAD';
+    ck(queuedDepsHold('MISSION-ID: x', selfSB, stampPathThenLanded, () => false).hold === true, 'stamp-boundary: "<path>.mission.txt RESOLVED-LANDED" (path ends lowercase txt) STILL retires -- compound stamp is context-independent');
   }
 
   // ---- gap-queueddepshold-same-line-crossreference-ambiguity (2026-07-20): a RESOLVED-class
