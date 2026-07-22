@@ -1,0 +1,63 @@
+MISSION-ID: engine-mission-lint-rule20-wrapper
+MISSION-CLASS: ops-deploy
+REPO-ROOT: C:\Users\marka\.claude\muezzin-plugin
+ALLOW-FILES:
+  - mission_lint.mjs
+REQUIRES: none
+STEPS: 3
+
+MAQSAD (the end): gap-validation-command-powershell-wrapper-strips-dollar-vars's REMAINING WORK
+is the mechanical gate that closes it -- a mission_lint (miqat) rule that REFUSES, at the boundary,
+any mission whose command/validation line re-wraps PowerShell in `powershell -NoProfile -Command
+"...VAR..."` where VAR is a dollar-variable. The engine already runs every command/validation line
+through pwsh -Command (seat_dispatch.mjs), so the OUTER pwsh interpolates the inner dollar-variables
+to EMPTY before the inner powershell ever parses them, yielding a PowerShell parse error. This is
+exactly how mt-saved-lists-migration FAILED 3x (dollar c / dollar ok stripped at char 309) before it
+was re-authored bare. Today the rule is an AUTHORING RULE enforced only by conductor discipline; this
+mission lands the deterministic lint so the miqat refuses the shape for zero cost, both jurisdictions.
+
+THE FIX: a staged deterministic patcher
+(missions/_logs/staged-mission-lint-rule20-2026-07-22/patch-mission-lint-rule20.mjs) inserts RULE 20
+(VALIDATION-COMMAND-POWERSHELL-WRAPPER) plus 6 selftest fixtures into mission_lint.mjs via unique
+anchors (before the lintMission return; before the selftest summary line). The rule scopes to COMMAND
+surfaces only -- lines inside a ```pwsh/```powershell/```sh/```bash fence (the ops-deploy literal-
+command-queue convention) OR the text AFTER a validation_command:/[command]/[verify] marker -- so prose
+that merely quotes the anti-pattern is never false-flagged; it triggers only when a `-Command` wrapper
+AND a dollar-variable after it both appear (a dollar-free wrapper strips nothing; `-File` is not a
+`-Command` wrapper). Patcher is idempotent (ALREADY-PATCHED) and fail-closed (each anchor must occur
+exactly once). Dry-run RECEIPTED 2026-07-22 on a byte-copy in the plugin root (so ./mission_class.mjs
+resolves and the endsWith('mission_lint.mjs') selftest guard fires): PATCHED, node --check SYNTAX OK,
+`node mission_lint.mjs` -> ALL PASS EXIT=0 including all 6 RULE 20 fixtures (flags the fenced wrapper +
+the validation_command: wrapper; does NOT flag the bare command, the dollar-free wrapper, the prose
+mention, or pwsh -File), idempotent ALREADY-PATCHED on re-run.
+
+STEPS (literal-command-queue: each fenced line runs VERBATIM from REPO-ROOT; exit code is pass/fail;
+bare PowerShell -- the engine already invokes each line through pwsh, so do NOT add a command-string
+self-wrapper around it, which is the very anti-pattern this rule refuses):
+
+```pwsh
+node "C:/Users/marka/.claude/muezzin-plugin/missions/_logs/staged-mission-lint-rule20-2026-07-22/patch-mission-lint-rule20.mjs" mission_lint.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; node --check mission_lint.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; Write-Output 'RULE20-PATCH-OK'
+node mission_lint.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; if (-not (Select-String -Path mission_lint.mjs -SimpleMatch -Pattern 'RULE 20 -- VALIDATION-COMMAND-POWERSHELL-WRAPPER' -Quiet)) { Write-Output 'RULE20-ABSENT'; exit 1 }; Write-Output 'RULE20-SELFTEST-OK'
+git add -- mission_lint.mjs; git diff --cached --quiet; if ($LASTEXITCODE -eq 0) { Write-Output 'ALREADY_COMMITTED' } else { git commit -m "feat(mission_lint): RULE 20 validation-command-powershell-wrapper - refuse a command/validation line that re-wraps in powershell -Command carrying a dollar-var (engine already runs via pwsh -Command; the outer pwsh strips the inner dollar-vars to empty, mt-saved-lists FAILED 3x this way); closes gap-validation-command-powershell-wrapper-strips-dollar-vars" -- mission_lint.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; Write-Output 'RULE20-COMMIT-OK' }
+```
+
+Step 1: run the deterministic patcher (idempotent ALREADY-PATCHED on rerun; fail-closed if an anchor is
+absent or non-unique) then node --check the patched file. This is the only step that writes mission_lint.mjs.
+Step 2: OUTCOME CHECK -- `node mission_lint.mjs` runs the full miqat selftest suite (exit 0 = ALL PASS,
+including the 6 new RULE 20 fixtures) and confirm the RULE 20 token is present on disk. Authors nothing.
+Step 3: commit the scoped allow-file (idempotent-commit idiom, explicit pathspec on the commit itself).
+
+DONE-MEANS: mission_lint.mjs contains RULE 20 (VALIDATION-COMMAND-POWERSHELL-WRAPPER) and its 6 selftest
+fixtures; `node mission_lint.mjs` exits 0 with ALL PASS; the rule flags a command/validation line that
+re-wraps in powershell -Command with a dollar-variable and does NOT flag bare commands, dollar-free
+wrappers, prose mentions, or pwsh -File; committed scoped to mission_lint.mjs only. NOTE (post-DONE,
+not a mission step): mission_lint is statically imported by the running daemon, so RULE 20 is not
+ENFORCED at miqat until the daemon is restarted -- the conductor restarts it after this DONE, exactly as
+for the empty-emission and self-resolved fixes this session.
+
+REACHABILITY NOTE (miqat): non-page engine-module edit; no page/route/nav ships, so no MIQAT orphan-page
+reachability check applies.
+
+source: C:\Users\marka\.claude\muezzin-plugin\mission_lint.mjs
+source: C:\Users\marka\.claude\muezzin-plugin\missions\_logs\staged-mission-lint-rule20-2026-07-22\patch-mission-lint-rule20.mjs
+source: C:\Users\marka\.claude\muezzin-plugin\missions\_logs\GAP-REGISTER.jsonl

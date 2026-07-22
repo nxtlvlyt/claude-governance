@@ -382,6 +382,42 @@ export function lintMission(text) {
     }
   }
 
+  // RULE 20 -- VALIDATION-COMMAND-POWERSHELL-WRAPPER (gap-validation-command-powershell-wrapper-strips-dollar-vars,
+  // 2026-07-22 receipt: mt-saved-lists-migration FAILED 3x). The engine already runs every command/
+  // validation line through pwsh -Command (seat_dispatch.mjs), so re-wrapping a line in
+  // `powershell -NoProfile -Command "...$var..."` makes the OUTER pwsh interpolate the inner
+  // $-variables to EMPTY before the inner powershell parses them -> PowerShell parse error
+  // ("expression expected after (", bare "="). Cure = drop the wrapper, write the command BARE.
+  // SCOPE: command surfaces only -- lines inside a ```pwsh/```powershell/```sh/```bash fence (the
+  // ops-deploy literal-command-queue convention mt-saved-lists uses) OR validation_command:/[command]/
+  // [verify] tagged lines. Prose (Maqsad/Done-means/comments) is excluded so a mission that merely
+  // QUOTES the anti-pattern is not false-flagged. Trigger requires BOTH a `-Command` wrapper AND a
+  // $-variable after it (a $-free wrapper strips nothing; a `-File` invocation is not a -Command wrapper).
+  {
+    const lines20 = t.split(/\r?\n/);
+    let fenceLang20 = null;
+    for (const line of lines20) {
+      const fenceM = line.match(/^\s*```(\w+)?\s*$/);
+      if (fenceM) { fenceLang20 = fenceLang20 === null ? (fenceM[1] || 'plain').toLowerCase() : null; continue; }
+      const inShellFence = fenceLang20 !== null && /^(pwsh|powershell|sh|bash)$/.test(fenceLang20);
+      // scan only the COMMAND text: the whole line inside a shell fence, else only the part
+      // AFTER a validation_command:/[command]/[verify] marker -- so prose that merely quotes the
+      // wrapper on the same line as (but before) a marker is not treated as a command (fixture e).
+      let cmd20 = null;
+      if (inShellFence) { cmd20 = line; }
+      else { const vm20 = line.match(/(?:validation_command\s*:|\[(?:command|verify)\])\s*(.*)$/i); if (vm20) cmd20 = vm20[1]; }
+      if (cmd20 === null) continue;
+      if (!/\b(?:powershell|pwsh)(?:\.exe)?\b/i.test(cmd20)) continue;
+      const ci = cmd20.search(/-Command\b/i);
+      if (ci < 0) continue;
+      if (/\$\w/.test(cmd20.slice(ci))) {
+        const snip = cmd20.trim().slice(0, 110) + (cmd20.trim().length > 110 ? '...' : '');
+        add('validation-command-powershell-wrapper', `a command/validation line re-wraps PowerShell in \`powershell -Command "...\$var..."\` ("${snip}") -- the engine ALREADY runs every command line through pwsh -Command (seat_dispatch.mjs), so the OUTER pwsh strips the inner \$-variables to EMPTY before the inner powershell parses them, yielding a PowerShell parse error (gap-validation-command-powershell-wrapper-strips-dollar-vars; mt-saved-lists-migration FAILED 3x this way, \$c/\$ok stripped at char 309). Drop the wrapper: write the command BARE and the engine's pwsh runs it directly, \$-variables intact.`);
+        break;
+      }
+    }
+  }
+
   return { ok: problems.length === 0, problems };
 }
 
@@ -674,6 +710,34 @@ if (process.argv[1] && process.argv[1].endsWith('mission_lint.mjs')) {
   // (c) no NUMERIC-CONTRACT field at all -> rule not applicable (passes).
   const nc19none = 'Maqsad: card. Done means: card exists. validation_command: Test-Path card.md';
   ck(!lintMission(nc19none).problems.some((p) => p.rule === 'numeric-contract-declared-unpinned'), 'RULE 19: a mission with no NUMERIC-CONTRACT field is never flagged by this rule');
+
+  // ---- RULE 20: VALIDATION-COMMAND-POWERSHELL-WRAPPER (gap-validation-command-powershell-wrapper-strips-dollar-vars).
+  const PS20 = 'power' + 'shell';
+  const DQ = String.fromCharCode(34);
+  // (a) fenced pwsh block whose command re-wraps in powershell -Command "...$c..." -> FLAGGED.
+  const wrap20bad = 'Maqsad: reconcile.\nDone means: ok.\n\`\`\`pwsh\n' + PS20 + ' -NoProfile -Command ' + DQ + '$c = 42; Write-Output ($c + 1)' + DQ + '\n\`\`\`';
+  const w20b = lintMission(wrap20bad);
+  ck(!w20b.ok && w20b.problems.some((p) => p.rule === 'validation-command-powershell-wrapper'), 'RULE 20: a fenced pwsh command re-wrapped in powershell -Command "...$var..." is REFUSED (the outer pwsh strips $c)');
+
+  // (b) the BARE form of the same command inside the fence -> passes.
+  const wrap20good = 'Maqsad: reconcile.\nDone means: ok.\n\`\`\`pwsh\n$c = 42; Write-Output ($c + 1)\n\`\`\`';
+  ck(!lintMission(wrap20good).problems.some((p) => p.rule === 'validation-command-powershell-wrapper'), 'RULE 20: the BARE command (no wrapper) inside the fence is NOT flagged');
+
+  // (c) a validation_command: line carrying the wrapper -> FLAGGED.
+  const wrap20vc = 'Maqsad: verify. Done means: ok. validation_command: ' + PS20 + ' -Command ' + DQ + 'if ($ok) { exit 0 }' + DQ;
+  ck(lintMission(wrap20vc).problems.some((p) => p.rule === 'validation-command-powershell-wrapper'), 'RULE 20: a validation_command: line re-wrapped in powershell -Command "...$ok..." is flagged');
+
+  // (d) a $-free wrapper strips nothing -> NOT flagged.
+  const wrap20nodollar = 'Maqsad: verify. Done means: ok. validation_command: ' + PS20 + ' -Command ' + DQ + 'Write-Output ready' + DQ;
+  ck(!lintMission(wrap20nodollar).problems.some((p) => p.rule === 'validation-command-powershell-wrapper'), 'RULE 20: a $-free powershell -Command wrapper is NOT flagged (nothing to strip)');
+
+  // (e) the anti-pattern named only in PROSE (not a command line) -> NOT flagged (scope excludes prose).
+  const wrap20prose = 'Maqsad: never wrap in ' + PS20 + ' -Command ' + DQ + '$x' + DQ + ' -- the engine runs it already. Done means: rule documented. validation_command: Test-Path lint.md';
+  ck(!lintMission(wrap20prose).problems.some((p) => p.rule === 'validation-command-powershell-wrapper'), 'RULE 20: the wrapper named in prose (Maqsad), not on a command line, is NOT flagged');
+
+  // (f) pwsh -File script.ps1 (not a -Command wrapper) -> NOT flagged.
+  const wrap20file = 'Maqsad: run. Done means: ok. validation_command: pwsh -File run.ps1 $arg';
+  ck(!lintMission(wrap20file).problems.some((p) => p.rule === 'validation-command-powershell-wrapper'), 'RULE 20: pwsh -File (not -Command) is NOT flagged');
 
   console.log(`\n${fail ? fail + ' FAIL' : 'ALL PASS — mission miqat: flawed work orders refused at the boundary, zero cycles burned'}`);
   process.exit(fail ? 1 : 0);
