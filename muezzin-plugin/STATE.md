@@ -34,10 +34,14 @@ ENGINE FIXES LANDED + LIVE THIS SESSION (all both-jurisdictions unless noted):
 CONTINUATION BEAT (post-compaction, 2026-07-22) — 4 false-death zombies reconciled + ITEM 64 corrected:
 - 4 FALSE-DEATH ZOMBIES CLOSED (false-death scan 18->14, unresolvedFAILED 26->22, all RESOLVED-LANDED
   in AUTORUN with quoted receipts):
-  (1) engine-srcsha-fixture-update — closed via 0824f52 above (eighth-law rotten park; its blocker,
-      the operator direct-commit word, actually CLEARED 2026-07-14 via the settings.json permission
-      rule that landed sibling engine-reset-allowfiles-staged-fix 564e6d1, but was never applied here
-      — so it rotted 9 days). gap-conduct-cycle-srcsha-anchor CLOSED (both arms verified at HEAD).
+  (1) engine-srcsha-fixture-update — closed via 0824f52 above (eighth-law rotten park). gap-conduct-
+      cycle-srcsha-anchor CLOSED (both arms verified at HEAD). AUTHORIZATION NOTE (D9 substrate re-check
+      this beat): 0824f52 rests on the conductor-direct exception ALONE, NOT the settings.json 2026-07-14
+      rule — that allow-list is file-scoped to git_steps.mjs + orchestrate.mjs only (564e6d1 = the
+      git_steps.mjs grant); conduct-cycle.mjs is NOT in it. The conductor-direct CLASS arm is borderline
+      for conduct-cycle.mjs (test-fixture-only / no production path = lowest-risk, but not strictly
+      bootstrap-class), so the commit is OPERATOR-RATIFICATION-PENDING (add conduct-cycle.mjs to the
+      allowlist, or revert + route via mission). Correct + gate-passed + reversible meanwhile.
   (2-4) engine-autosplit-reachability-carriage / engine-deploy-gate-coldstart-retry /
       engine-gap-hold-owner-exemption — the exec-cap headTailCap fix (b07d5c6) landed the blocker
       these 3 CANDIDATE-REQUEUEs waited on. Re-verified EACH at HEAD this beat: edit markers present
