@@ -1933,8 +1933,8 @@ function selftest() {
     {
       const fdAu = parseAutorun('FAILED missions/fd-landed.mission.txt  <!-- t -->\nFAILED missions/fd-wiring.mission.txt  <!-- t -->\nFAILED missions/fd-gone.mission.txt  <!-- t -->\nFAILED missions/fd-judged.mission.txt  <!-- RESOLVED-LANDED earlier -->\n');
       const mtexts = {
-        'missions/fd-landed.mission.txt': 'MISSION-CLASS: code-repo\nREPO-ROOT: C:/r\nALLOW-FILES:\n  - js/a.js\n  - css/b.css\nMaqsad: land abc1234 feature',
-        'missions/fd-wiring.mission.txt': 'MISSION-CLASS: code-repo\nREPO-ROOT: C:/r\nALLOW-FILES:\n  - js/w.js\n  - map.html\nMaqsad: land abc1234 feature',
+        'missions/fd-landed.mission.txt': 'MISSION-CLASS: code-repo\nREPO-ROOT: C:/r\nBASELINE-SHA: abc1234\nALLOW-FILES:\n  - js/a.js\n  - css/b.css\nMaqsad: land abc1234 feature',
+        'missions/fd-wiring.mission.txt': 'MISSION-CLASS: code-repo\nREPO-ROOT: C:/r\nBASELINE-SHA: abc1234\nALLOW-FILES:\n  - js/w.js\n  - map.html\nMaqsad: land abc1234 feature',
         'missions/fd-gone.mission.txt': 'MISSION-CLASS: code-repo\nREPO-ROOT: C:/r\nALLOW-FILES:\n  - js/gone.js\nMaqsad: land abc1234 feature',
         'missions/fd-judged.mission.txt': 'MISSION-CLASS: code-repo\nREPO-ROOT: C:/r\nALLOW-FILES:\n  - js/a.js\nMaqsad: land abc1234 feature',
       };

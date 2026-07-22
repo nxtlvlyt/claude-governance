@@ -3945,3 +3945,43 @@ Naive step-ok-only auto-close is REJECTED. Because this edits the conductor's ow
 orientation machinery AND the false-close risk is real, it MUST land via a verdict-panel MISSION
 (exec-cap b07d5c6 precedent) — never a beat-tail hand-edit — with fixtures proving a
 wrong-but-executed mission is NOT auto-closed.
+
+CORRECTION 2026-07-22 (conductor, D12 re-read of conduct-cycle.mjs BEFORE building — this caught
+the staged patcher about to ship the exact signal this item's SAFETY section already rejected):
+CONDITION (b) IS ALREADY BUILT. `falseDeathScan` (conduct-cycle.mjs:208) + its wiring in the sweep
+(`FALSE-DEATH-CANDIDATES`, conduct-cycle.mjs:1023-1032) already implement the ALLOW-FILES
+byte-identity landed-signal for unresolved FAILED marks — via `missionLandedState` (:166) it
+produces FULL (all ALLOW-FILES byte-identical at HEAD, requires a BASELINE-SHA field) / PARTIAL
+(present-but-differs, or present-nosha) candidates, and pushes a judgment action carrying the exact
+"verify each from the repo, then annotate RESOLVED-LANDED, never leave a candidate bare" rule this
+item specified. It even already skips lines already annotated RESOLVED/SUPERSEDED (:213). So the
+(b) mechanism this item planned to build has existed since #25 (2026-07-02 false-death hunt).
+  - Its FULL selftest was RED (pre-existing, 1 failure): the fd-landed/fd-wiring fixtures predated
+    the 2026-07-13 srcSha-anchor fix (which made FULL require an explicit BASELINE-SHA field, the
+    b13-aria presence-only control) and never got the field, so the corrected logic rightly capped
+    fd-landed at PARTIAL and the "byte-identical -> FULL" assert failed. FIXED this beat — commit
+    0824f52, test-only (added BASELINE-SHA: abc1234 to both fixtures); selftest now 173 PASS / 0 FAIL.
+
+THE REAL RESIDUAL IS MISSION-CLASS COVERAGE, not a from-scratch reconcile build. `missionLandedState`
+(:167) is gated `MISSION-CLASS: code-repo` and returns null for every other class. The zombies THIS
+session — engine-lint-rule19-numeric-contract (a137496) and engine-execcap-headtail-truncation
+(b07d5c6) — are BOTH `MISSION-CLASS: ops-deploy` (verified 2026-07-22), so falseDeathScan skips them
+and they surface as bare DIAGNOSE debt every wake. THAT is the loop this item exists to close.
+  - Verified sound: ops-deploy missions carry REPO-ROOT + an ALLOW-FILES block in the SAME 2-space
+    "  - path" bullet format missionLandedState's allowBlock regex parses (exec-cap: "  - seat_dispatch.mjs").
+    They lack BASELINE-SHA, so under a relaxed gate they surface as PARTIAL (present-on-disk)
+    candidates — which is exactly the "present, verify the content, annotate RESOLVED-LANDED" signal
+    the conductor needs for the advisory shape. FULL is not required for advisory value.
+
+CORRECT BUILD (SUPERSEDES the staged patcher — DISCARD missions/_logs/staged-item64-reconcile-2026-07-22/,
+it implements the REJECTED "all-steps-ok + phase:verdict" naive signal): relax the missionLandedState
+class gate (:167) to also accept command-class missions that commit files to a REPO-ROOT with ALLOW-FILES
+(ops-deploy today; keep it shape-based — "has REPO-ROOT + ALLOW-FILES" — not an ever-growing class
+allowlist). This REUSES the proven (b) content-verification (falseDeathScan / FALSE-DEATH-CANDIDATES)
+for command-class zombies instead of adding a second, weaker signal branch. Still a verdict-panel
+MISSION (production missionLandedState behavior, daemon-imported, needs a restart), with a fixture
+proving an ops-deploy mission whose ALLOW-FILES are byte-identical-landed surfaces as a candidate and
+a wrong-but-executed (differs/absent) one does NOT. Net: one small class-gate change + a fixture,
+NOT a new naive-signal branch. Advisory-vs-auto-write fork (above) still stands for the FUTURE step
+of actually auto-writing the annotation — that remains operator-sign-off-gated; extending the EXISTING
+advisory candidate surface to ops-deploy is the safe, additive first move.

@@ -24,6 +24,45 @@ ENGINE FIXES LANDED + LIVE THIS SESSION (all both-jurisdictions unless noted):
   PostToolUse payload carries no `result`, so the writer never fired. Fixed with a transcript
   fallback (reads last PLANNER_RESPONSE/MODEL content); confirmed against a real agy transcript.
   Forensic instrument used to root-cause it, then removed (D6).
+- CONDUCT-CYCLE RED SELFTEST FIXED (0824f52, conductor-direct, test-only): the false-death-scan
+  fd-landed/fd-wiring selftest fixtures predated the 2026-07-13 srcSha-anchor fix (FULL now requires
+  an explicit BASELINE-SHA field, the b13-aria presence-only control) and never got it, so 1 selftest
+  was red ("byte-identical -> FULL"). Added BASELINE-SHA: abc1234 to both fixtures; selftest now
+  173 PASS / 0 FAIL. No production path changed (missionLandedState/falseDeathScan/sweep untouched),
+  no daemon restart. This IS the work the 9-day-parked engine-srcsha-fixture-update wanted.
+
+CONTINUATION BEAT (post-compaction, 2026-07-22) — 4 false-death zombies reconciled + ITEM 64 corrected:
+- 4 FALSE-DEATH ZOMBIES CLOSED (false-death scan 18->14, unresolvedFAILED 26->22, all RESOLVED-LANDED
+  in AUTORUN with quoted receipts):
+  (1) engine-srcsha-fixture-update — closed via 0824f52 above (eighth-law rotten park; its blocker,
+      the operator direct-commit word, actually CLEARED 2026-07-14 via the settings.json permission
+      rule that landed sibling engine-reset-allowfiles-staged-fix 564e6d1, but was never applied here
+      — so it rotted 9 days). gap-conduct-cycle-srcsha-anchor CLOSED (both arms verified at HEAD).
+  (2-4) engine-autosplit-reachability-carriage / engine-deploy-gate-coldstart-retry /
+      engine-gap-hold-owner-exemption — the exec-cap headTailCap fix (b07d5c6) landed the blocker
+      these 3 CANDIDATE-REQUEUEs waited on. Re-verified EACH at HEAD this beat: edit markers present
+      (buildReachabilityDeclaration x3 / isRetryableColdstart x5 / gapHoldSkips x18), node --check OK,
+      selftests green, result.json step1:ok step2:FAIL(engine-exec) = textbook truncated-verify
+      false-fail. NOTE: deploy-gate's step-2 validation greps for marker labels ("navOk + selector
+      absent -> retry") that DRIFTED from the committed fixture labels ("selector absent -> retryable")
+      — the deliverable is landed+green, only the expected strings differ; do NOT blind re-fire it.
+- ITEM 64 SPEC CORRECTED (QUEUE.md "CORRECTION 2026-07-22"): condition (b) ALREADY EXISTS as
+  falseDeathScan / FALSE-DEATH-CANDIDATES (conduct-cycle:208/:1023) for code-repo missions. The real
+  residual is MISSION-CLASS COVERAGE — missionLandedState:167 is code-repo-gated, so ops-deploy zombies
+  (RULE 19, exec-cap; both verified MISSION-CLASS: ops-deploy) skip it. Correct build = relax the class
+  gate to command-class (shape: has REPO-ROOT + ALLOW-FILES), REUSING the existing content-verification.
+  The staged patcher (missions/_logs/staged-item64-reconcile-2026-07-22/) used the naive
+  all-steps-ok+phase:verdict signal — the exact signal ITEM 64's own SAFETY section already REJECTED —
+  so it is SUPERSEDED (SUPERSEDED.md written). Still a verdict-panel mission when built.
+- Model: pinned to Fable 5 this session (settings.json fastModePerSessionOptIn + user env
+  CLAUDE_CODE_DISABLE_FAST_MODE=1); operator relaunching Claude Code to make the pin stick.
+- STILL OPEN after this beat: 12 rotten parks (eighth-law ≥1/wake — several are identity-bound
+  operator-held, e.g. stitch-design-mastery-b/c, which the rotten-park detector over-flags because
+  "operator no-requeue word" isn't a tracked-work owner token — a possible detector refinement, noted
+  not filed); 14 false-death candidates remaining (all PARTIAL/present-nosha, all carry current
+  dispositions — do NOT bulk-close, the rule warns file-identity proves nothing for PARTIALs);
+  mt-first-party-beacon.S1.S2 DIAGNOSED-CONTESTED (workflow verifier refuted the investigator) still
+  needs a conductor personal look (package in _logs/WORKFLOW-VERDICTS-2026-07-11.json).
 
 FILED ENGINE ITEMS (design-verified, not yet built — QUEUE.md):
 - ITEM 63 [edit]-step safety: DEFLATED by D12 to ~1 real member (member 1 struck — runtime_verify
