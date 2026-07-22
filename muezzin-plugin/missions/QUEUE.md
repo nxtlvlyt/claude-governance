@@ -3102,7 +3102,7 @@ from the >1 branch; keep edit steps strictly capped at 1; regression selftest pr
 fails, (c) an edit step disguised with a command tag but no literal command still
 fails (no bypass surface). Owner: prep workflow launched 2026-07-14 + engine mission.
 
-ITEM 23 — CAMPING-PASS CLIENT WIRING (filed 2026-07-14 ~22:4xZ; owner of the
+ITEM 23 [NUMBER-COLLISION, RENUMBER-OWED 2026-07-22: this "23" duplicates the older ITEM 23 "COMPACTION-WITNESS PORT" at line 2568 (filed 2026-07-12); this camping-pass item is the later-filed duplicate and should be renumbered to a free number by the N5 item-10 QUEUE-hygiene sweep] — CAMPING-PASS CLIENT WIRING (filed 2026-07-14 ~22:4xZ; owner of the
 mt-pluz-camping-pass-layer SUPERSEDED mark; the operator's LIVE field request —
 standing at Preacher's/Abraham Lake inside the pass area, popup said UNVERIFIED).
 DIAGNOSIS RECEIPTS (AUTORUN line ~1118): three attempts, three classes
