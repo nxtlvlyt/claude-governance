@@ -2365,6 +2365,17 @@ from the agy process or agy from the Claude CLI process" — each with a same-se
         check_stop assumes — shared code path, so if wrong, check_stop's Stop guard would
         also be broken, which is not flagged). Instrument stays one more beat for that
         confirmation, then removed. [conf 0.9 — verified on faithful synthetic]
+        RESOLVED-CONFIRMED 2026-07-22: rather than wait on --post (confounded by timing +
+        my own reset/test pollution), tested the fix DIRECTLY against a REAL agy transcript
+        (.gemini/antigravity-cli/brain/72164d28-.../transcript.jsonl). Its lines use exactly
+        source/type/content: the model line is source=MODEL, type=PLANNER_RESPONSE, content
+        present — so the walk matches. Piping a real-agy-shaped payload (no result, empty
+        toolCall, that transcriptPath) WROTE 259 bytes of the real PLANNER_RESPONSE content.
+        Fix confirmed on real data. COROLLARY: check_stop's step-1 walk uses the identical
+        matcher, so it too works on real transcripts — its Stop-guard fallback is sound (the
+        earlier "maybe check_stop is also broken" worry is resolved: format matches). The
+        forensic instrument + diag file were REMOVED (D6 clean); a one-line NOTE marks where
+        it lived. item-13e is DONE — the last-response writer lives again. [conf 0.97]
     (b) bootstrap gate + (d) computed diagnosis-debt: CONFIRMED STILL OPEN 2026-07-22
         (conductor, FULL READ of check_pre_tool + check_pre_invoke + load_rules_inject,
         raising last beat's 0.7 grep-level to 0.9). (b): check_pre_tool has exactly three
