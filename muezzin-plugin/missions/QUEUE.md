@@ -2309,6 +2309,28 @@ from the agy process or agy from the Claude CLI process" — each with a same-se
     DIAGNOSIS-DEBT (static text, not board-derived); (e) PostToolUse last-response
     writer hasn't written since 06-26 despite tool-heavy sessions — payload-shape drift
     suspected, needs its own receipt before trusting --post/--stop paths.
+    RE-PROBE (2026-07-22, conductor — eighth-law "is it broken RIGHT NOW?" against the
+    live agy hook C:\Users\marka\.gemini\config\plugins\muezzin\muezzin_hook.py; the
+    "gaps to close" list above was written 2026-07-11 and is now PARTIALLY STALE):
+    (a) LANDED 2026-07-11 — the has_marker=True stub is GONE; check_stop (L414) computes
+        has_marker from MISSION_MARKERS, scoped to mission sessions, fail-open otherwise.
+        Do NOT re-build (a). [conf 0.95, directly read]
+    (c) PARTIALLY ADDRESSED — load_rules_inject() (L360) loads rules LIVE each turn with
+        the frozen FRAMEWORK_INJECT as fail-open fallback; file mtime Jul 15, not the
+        06-26 freeze. RESIDUAL: verify the LOADED content carries no stale
+        junior-conductor framing / stale stats (content-currency unread). [conf 0.85]
+    (e) CONFIRMED STILL DEAD — the PostToolUse writer's target
+        C:/Users/marka/.claude/state/muezzin-last-response.txt has mtime Jun 26 20:45
+        (26 days stale); the writer has not fired despite tool-heavy sessions, exactly as
+        suspected. This is the live defect of the five — diagnose payload-shape first
+        (its own receipt) before trusting --post/--stop. [conf 0.9, mtime observed]
+    (b) bootstrap gate + (d) computed diagnosis-debt: STILL OPEN per grep — only inject
+        TEXT says "ORIENT FIRST / read the board"; no mechanical PreToolUse orientation
+        block and no board-derived computed debt injection found in the hook. [conf 0.7,
+        grep-level not full-read — confirm by reading check_pre_tool before building].
+    NET for the N5 build: item-13 residual is (b)+(d) build + (e) diagnose+fix + (c)
+    content-audit; (a) is done. The premise re-verification itself is the eighth-law
+    receipt the item's own note (d) demanded ("static text, not board-derived").
 14. PER-PROJECT DEPLOY PARITY: conduct-cycle --record-deploy hardcodes the muddytires
     repo/URL; the fork's androidtv deploys have no parity/record verb at all. Make the
     parity checker per-project config so both sites get byte-match + outcome-witness
