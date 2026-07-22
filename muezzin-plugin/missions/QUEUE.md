@@ -2336,6 +2336,20 @@ from the agy process or agy from the Claude CLI process" — each with a same-se
         tool-session decides: file stays empty -> hypothesis (1), writer must move to a
         fired event; file populates with unexpected keys -> hypothesis (2), fix the
         field mapping. Do NOT trust --post/--stop until that receipt lands. [conf 0.9]
+        DECIDED 2026-07-22 (instrument FIRED — 2 real agy --post captures within one
+        beat): hypothesis (1) REFUTED (--post IS invoked); hypothesis (2) CONFIRMED —
+        the agy PostToolUse payload has NO `result` key at all. Actual top keys:
+        [artifactDirectoryPath, conversationId, error, modelName, stepIdx, toolCall,
+        transcriptPath, workspacePaths]. So check_post_tool's data.get("result") is None
+        -> resp_text empty -> never writes. THE FIX (item-13e is now diagnosis-complete,
+        one precision capture from a code change): the writer must source the response
+        from where agy actually puts it — NOT a `result` dict. transcriptPath IS provided
+        in the payload (same source check_stop's step-1 walk already uses), so the sound
+        fix is to have check_post_tool fall back to reading the last model response from
+        transcriptPath when no result dict is present. Instrument REFINED this beat to
+        also log toolCall's keys + transcript_readable, to confirm on the next --post
+        whether output nests in toolCall.* or must come from the transcript, before the
+        edit. [conf 0.95 — payload shape directly captured]
     (b) bootstrap gate + (d) computed diagnosis-debt: CONFIRMED STILL OPEN 2026-07-22
         (conductor, FULL READ of check_pre_tool + check_pre_invoke + load_rules_inject,
         raising last beat's 0.7 grep-level to 0.9). (b): check_pre_tool has exactly three
@@ -2355,6 +2369,15 @@ from the agy process or agy from the Claude CLI process" — each with a same-se
     repo/URL; the fork's androidtv deploys have no parity/record verb at all. Make the
     parity checker per-project config so both sites get byte-match + outcome-witness
     stamps.
+    RE-PROBE (2026-07-22, conductor — eighth-law, still-open confirmation UNLIKE
+    item-13a): conduct-cycle.mjs --record-deploy (L1669-1719) is fully muddytires-wired
+    and NOT yet parameterised — hardcodes fetch('https://muddytires.ca/map'),
+    --project-name=muddytires, the *.muddytires.pages.dev URL regex, byte-match against
+    HEAD:map.html specifically, and github_repos:['nxtlvlyt/muddytires-pages']. The agy
+    fork has no --record-deploy verb at all. GENUINELY OPEN. Build shape: a per-project
+    config map {project -> {liveUrl, canonicalPath, pagesProject, repo}} keyed by
+    repo-root, so both muddytires and androidtv get the same five-guard byte-match +
+    e2e-outcome + marker chain. [conf 0.9, source read]
 Owner: next engine batch; items 2+3 are pure conduct-cycle sweep additions (cheapest,
 highest value); item 5 is the honesty fix a local conductor needs most; items 8-9 fold
 into the N5 build (they define what N5's rails must carry); items 10-14 are the
