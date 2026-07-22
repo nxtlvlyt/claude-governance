@@ -3798,3 +3798,33 @@ surface text. "No change" is a complete report ONLY when all four surfaces are e
 every item carries a current classification — and the report must say which. (4) Report
 board-format with receipts QUOTED, outcome-only, lead with what was WORKED this beat.
 --- END TEMPLATE ---
+
+## 2026-07-22 ITEM 63 — [edit]-STEP SAFETY: PARSE-BEFORE-ACCEPT + DELTA-GUARD ON AUTHORED FILES
+Unifies THREE gaps that share one root — an [edit] step on an already-authored file is
+under-guarded, so a seat can commit a broken/garbled/re-emitted artifact that passes every
+step check. Build them as ONE coherent [edit]-safety pass, BOTH jurisdictions (orchestrate.mjs
++ git_steps.mjs are engine; port to agy fork). Members + their receipts:
+1. gap-executor-multiline-string-literal-fragility (JS half, ownerless until 2026-07-22):
+   the PowerShell validation_command AST pre-check IS landed (seat_dispatch.mjs:265
+   Parser.ParseFile -> MALFORMED-VALIDATION-COMMAND, fails fast, never executes), but authored
+   .mjs/.js [edit] OUTPUT is only node-checked when the author put `node -c <file>` in the
+   validation_command — no AUTOMATIC engine-level check. FIX: an automatic `node --check <target>`
+   in orchestrate.mjs's [edit]-acceptance path for .mjs/.js targets, before commit; fail fast
+   with a distinct MALFORMED-JS-ARTIFACT marker, target never committed. The JS twin of the
+   landed PowerShell AST pre-check.
+2. gap-mission-file-edit-whole-reemit-corruption (receipt: engine-render-witness-maphtml-redirect
+   appended 9 lines of debug garbage OUTSIDE scope to a weather-planning .mission.txt). The
+   existing assertNoUndeclaredShrinkage (git_steps.mjs:558) is SHRINKAGE-ONLY (fires when a file
+   drops below 50% of HEAD lines); this receipt is undeclared GROWTH — opposite direction, so
+   the floor can't see it. FIX: extend to a SYMMETRIC line-delta band (flag undeclared growth
+   AND shrinkage beyond a ratio) on [edit] steps to text/mission files; OR prefer
+   [command]-targeted-replace over [edit] for small changes to already-authored .txt/.md files.
+3. N5 item-12 [edit]-step validation literalness (RULE 16 exempts [edit] steps from its
+   improvise-bait literal-payload requirement — the exact hole the numeric gap fell through).
+   FIX: bring [edit] authoring steps under a literalness requirement (their validation_command
+   must pin what they claim), consistent with the numeric NUMERIC-CONTRACT/RULE 19 discipline.
+SEQUENCING: engine-batch, same class as N5 items 1-14. Priority: system-fix class (conductor
+beat capacity per operator's 2026-07-11 "system fixes have priority"), daemons keep draining in
+parallel. Landing pattern: staged patcher + mission (RULE 19 / exec-cap precedent) + daemon
+restart; then agy-fork port (ninth-law succession rider). The three member gaps' owner fields
+now resolve to THIS item.
