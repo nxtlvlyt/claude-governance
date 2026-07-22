@@ -1,0 +1,59 @@
+MISSION-ID: engine-mission-lint-rule21-commit-ordering
+MISSION-CLASS: ops-deploy
+REPO-ROOT: C:\Users\marka\.claude\muezzin-plugin
+ALLOW-FILES:
+  - mission_lint.mjs
+REQUIRES: none
+STEPS: 3
+
+MAQSAD (the end): gap-commit-pathspec-before-dashm-ordering's REMAINING WORK is the mechanical gate.
+A commit step written `git commit -- <pathspec> -m "..."` (pathspec BEFORE -m) makes git treat `--`
+as end-of-options, so -m and the message become PATHSPECS -> "pathspec '-m' did not match any
+file(s)" and the commit never happens. This is exactly how engine-mission-lint-rule20-wrapper FAILED
+x2 (2026-07-22 17:17). RULE 15 does NOT catch it (code-repo-scoped; its regex accepts ` -- file`
+anywhere) -- and RULE 15 was in fact the SOURCE of the wrong advice: its cure message, its selftest
+fixture, and that fixture's label all TAUGHT `git commit -- <files> -m`. This mission lands RULE 21
+(the class-independent ordering gate) AND corrects RULE 15's three buggy-order occurrences so the
+codebase stops teaching the wrong order.
+
+THE FIX: a staged deterministic patcher
+(missions/_logs/staged-mission-lint-rule21-2026-07-22/patch-mission-lint-rule21.mjs) inserts RULE 21
+(COMMIT-PATHSPEC-BEFORE-DASHM) + 6 selftest fixtures via unique anchors, and reqReplace-corrects
+RULE 15's cure message + fixture + label from `git commit -- <files> -m` to the flags-first
+`git commit -m "..." -- <files>`. The rule scopes to command surfaces only (same as RULE 20 -- fenced
+shell blocks + text after validation_command:/[command]/[verify] markers); `--\s+\S` requires the
+pathspec separator so `--amend`/`--no-verify` flag-forms and the CORRECT flags-first commit never
+match. Patcher is idempotent (ALREADY-PATCHED) + fail-closed (every anchor unique). Dry-run RECEIPTED
+2026-07-22 on a plugin-root byte-copy: PATCHED, node --check OK, `node mission_lint.mjs` -> ALL PASS
+EXIT=0 including all 5 (corrected) RULE 15 fixtures + all 6 RULE 21 fixtures (flags the fenced +
+validation_command wrong-order commits; does NOT flag the correct flags-first form, `--amend`, the
+prose mention, or a bare `git commit -m` with no pathspec), idempotent ALREADY-PATCHED on re-run.
+
+STEPS (literal-command-queue: each fenced line runs VERBATIM from REPO-ROOT; exit code is pass/fail;
+bare PowerShell, no command-string self-wrapper; the commit is FLAGS-FIRST -- the correct ordering
+this very rule enforces):
+
+```pwsh
+node "C:/Users/marka/.claude/muezzin-plugin/missions/_logs/staged-mission-lint-rule21-2026-07-22/patch-mission-lint-rule21.mjs" mission_lint.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; node --check mission_lint.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; Write-Output 'RULE21-PATCH-OK'
+node mission_lint.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; if (-not (Select-String -Path mission_lint.mjs -SimpleMatch -Pattern 'RULE 21 -- COMMIT-PATHSPEC-BEFORE-DASHM' -Quiet)) { Write-Output 'RULE21-ABSENT'; exit 1 }; Write-Output 'RULE21-SELFTEST-OK'
+git add -- mission_lint.mjs; git diff --cached --quiet; if ($LASTEXITCODE -eq 0) { Write-Output 'ALREADY_COMMITTED' } else { git commit -m "feat(mission_lint): RULE 21 commit-pathspec-before-dashm + fix RULE 15's buggy-order advice - refuse a commit step whose pathspec separator precedes -m (git swallows -m as a pathspec; engine-rule20 FAILED x2 this way), and correct RULE 15's cure message/fixture/label to flags-first git commit -m ... -- files; closes gap-commit-pathspec-before-dashm-ordering" -- mission_lint.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; Write-Output 'RULE21-COMMIT-OK' }
+```
+
+Step 1: run the deterministic patcher (idempotent; fail-closed if any anchor is absent/non-unique) then
+node --check. The only step that writes mission_lint.mjs.
+Step 2: OUTCOME CHECK -- `node mission_lint.mjs` runs the full miqat selftest (exit 0 = ALL PASS incl the
+6 new RULE 21 fixtures + the 5 corrected RULE 15 fixtures) and confirm the RULE 21 token is on disk.
+Step 3: commit the scoped allow-file, FLAGS-FIRST (idempotent-commit idiom).
+
+DONE-MEANS: mission_lint.mjs contains RULE 21 (COMMIT-PATHSPEC-BEFORE-DASHM) + its 6 fixtures; RULE 15's
+three `git commit -- <files> -m` occurrences are corrected to flags-first; `node mission_lint.mjs` exits
+0 with ALL PASS; committed scoped to mission_lint.mjs, flags-first. NOTE (post-DONE, not a step):
+mission_lint is statically imported by the running daemon, so RULE 21 is not enforced at miqat until a
+daemon restart -- the conductor restarts after this DONE.
+
+REACHABILITY NOTE (miqat): non-page engine-module edit; no page/route/nav ships, so no MIQAT orphan-page
+reachability check applies.
+
+source: C:\Users\marka\.claude\muezzin-plugin\mission_lint.mjs
+source: C:\Users\marka\.claude\muezzin-plugin\missions\_logs\staged-mission-lint-rule21-2026-07-22\patch-mission-lint-rule21.mjs
+source: C:\Users\marka\.claude\muezzin-plugin\missions\_logs\GAP-REGISTER.jsonl

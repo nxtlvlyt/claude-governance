@@ -259,7 +259,7 @@ export function lintMission(text) {
   // whitespace after the double-dash, so `--no-verify`-class flags never match.
   const scopedCommit = /\bgit\s+commit\b[^\n]*\s--\s+\S/i.test(t);
   if (bareCommit && !scopedCommit) {
-    add('bare-commit-no-pathspec', 'mission runs `git commit -m ...` with NO pathspec on the commit itself -- a bare commit commits the WHOLE INDEX, not just what this mission\'s own `git add` staged (confirmed live: commit 7e0a011 silently absorbed an unrelated, already-staged change from a different interrupted mission this exact way). Scope the commit explicitly: `git commit -- <the mission\'s own ALLOW-FILES> -m "..."` so only this mission\'s own declared files ever land in the commit, regardless of what else happens to be staged.');
+    add('bare-commit-no-pathspec', 'mission runs `git commit -m ...` with NO pathspec on the commit itself -- a bare commit commits the WHOLE INDEX, not just what this mission\'s own `git add` staged (confirmed live: commit 7e0a011 silently absorbed an unrelated, already-staged change from a different interrupted mission this exact way). Scope the commit explicitly: `git commit -m "..." -- <the mission\'s own ALLOW-FILES>` so only this mission\'s own declared files ever land in the commit, regardless of what else happens to be staged.');
   }
 
   // RULE 16 -- IMPROVISE-BAIT: [command]/[verify] STEP WITHOUT A LITERAL PAYLOAD
@@ -413,6 +413,36 @@ export function lintMission(text) {
       if (/\$\w/.test(cmd20.slice(ci))) {
         const snip = cmd20.trim().slice(0, 110) + (cmd20.trim().length > 110 ? '...' : '');
         add('validation-command-powershell-wrapper', `a command/validation line re-wraps PowerShell in \`powershell -Command "...\$var..."\` ("${snip}") -- the engine ALREADY runs every command line through pwsh -Command (seat_dispatch.mjs), so the OUTER pwsh strips the inner \$-variables to EMPTY before the inner powershell parses them, yielding a PowerShell parse error (gap-validation-command-powershell-wrapper-strips-dollar-vars; mt-saved-lists-migration FAILED 3x this way, \$c/\$ok stripped at char 309). Drop the wrapper: write the command BARE and the engine's pwsh runs it directly, \$-variables intact.`);
+        break;
+      }
+    }
+  }
+
+  // RULE 21 -- COMMIT-PATHSPEC-BEFORE-DASHM (gap-commit-pathspec-before-dashm-ordering, 2026-07-22
+  // receipt: engine-mission-lint-rule20-wrapper FAILED x2 this way). A commit step written
+  // `git commit -- <pathspec> -m "..."` puts the pathspec separator BEFORE -m, so `--` ends
+  // option parsing and -m + the message become PATHSPECS, not the flag -> git errors "pathspec
+  // '-m' did not match any file(s)" and the commit never happens. RULE 15 does NOT catch this:
+  // it is code-repo-scoped, its bareCommit test /git commit\s+-m/ does not match `git commit --
+  // file -m`, and its scopedCommit test accepts ` -- file` anywhere. Class-INDEPENDENT (the bug
+  // is git syntax, not a mission-class property). SCOPE: command surfaces only (same as RULE 20 --
+  // fenced shell blocks + text after validation_command:/[command]/[verify] markers), so prose that
+  // quotes the anti-pattern is not false-flagged. `--\s+\S` requires the pathspec separator (` -- file`),
+  // so flag-forms like `--amend`/`--no-verify` and the CORRECT `git commit -m "..." -- file` never match.
+  {
+    const lines21 = t.split(/\r?\n/);
+    let fenceLang21 = null;
+    for (const line of lines21) {
+      const fenceM = line.match(/^\s*```(\w+)?\s*$/);
+      if (fenceM) { fenceLang21 = fenceLang21 === null ? (fenceM[1] || 'plain').toLowerCase() : null; continue; }
+      const inShellFence = fenceLang21 !== null && /^(pwsh|powershell|sh|bash)$/.test(fenceLang21);
+      let cmd21 = null;
+      if (inShellFence) { cmd21 = line; }
+      else { const vm21 = line.match(/(?:validation_command\s*:|\[(?:command|verify)\])\s*(.*)$/i); if (vm21) cmd21 = vm21[1]; }
+      if (cmd21 === null) continue;
+      if (/\bgit\s+commit\s+--\s+\S.*\s-m\b/i.test(cmd21)) {
+        const snip = cmd21.trim().slice(0, 110) + (cmd21.trim().length > 110 ? '...' : '');
+        add('commit-pathspec-before-dashm', `a commit step puts the \` -- <pathspec>\` separator BEFORE \`-m\` ("${snip}") -- git treats \`--\` as end-of-options, so -m and the message become PATHSPECS and the commit fails with "pathspec '-m' did not match any file(s)" (gap-commit-pathspec-before-dashm-ordering; engine-mission-lint-rule20-wrapper FAILED x2 this way). Write flags FIRST: \`git commit -m "..." -- <files>\`.`);
         break;
       }
     }
@@ -604,8 +634,8 @@ if (process.argv[1] && process.argv[1].endsWith('mission_lint.mjs')) {
   // RULE 15: BARE COMMIT WITHOUT PATHSPEC (gap-bare-commit-sweeps-preexisting-stage, 2026-07-13)
   const bareCommitCodeRepo = 'MISSION-CLASS: code-repo\nREPO-ROOT: C:\\proj\\x\nALLOW-FILES:\n  - a.mjs\nMaqsad: fix a. Done means: node -c passes.\n```pwsh\ngit add -- a.mjs\ngit commit -m "fix a"\n```';
   ck(!lintMission(bareCommitCodeRepo).ok && lintMission(bareCommitCodeRepo).problems.some((p) => p.rule === 'bare-commit-no-pathspec'), 'RULE 15: a code-repo mission with a BARE `git commit -m` (no pathspec) is REFUSED (the exact commit-7e0a011 failure shape)');
-  const scopedCommitCodeRepo = 'MISSION-CLASS: code-repo\nREPO-ROOT: C:\\proj\\x\nALLOW-FILES:\n  - a.mjs\nMaqsad: fix a. Done means: node -c passes.\n```pwsh\ngit add -- a.mjs\ngit commit -- a.mjs -m "fix a"\n```';
-  ck(lintMission(scopedCommitCodeRepo).ok, 'RULE 15: a code-repo mission with an EXPLICITLY SCOPED `git commit -- <files> -m` passes — the fix this rule asks for');
+  const scopedCommitCodeRepo = 'MISSION-CLASS: code-repo\nREPO-ROOT: C:\\proj\\x\nALLOW-FILES:\n  - a.mjs\nMaqsad: fix a. Done means: node -c passes.\n```pwsh\ngit add -- a.mjs\ngit commit -m "fix a" -- a.mjs\n```';
+  ck(lintMission(scopedCommitCodeRepo).ok, 'RULE 15: a code-repo mission with an EXPLICITLY SCOPED `git commit -m "..." -- <files>` passes — the fix this rule asks for');
   const scopedCommitFlagsFirst = 'MISSION-CLASS: code-repo\nREPO-ROOT: C:\\proj\\x\nALLOW-FILES:\n  - a.mjs\nMaqsad: fix a. Done means: node -c passes.\n```pwsh\ngit add -- a.mjs\ngit commit -m "fix a" -- a.mjs\n```';
   ck(lintMission(scopedCommitFlagsFirst).ok, 'RULE 15: the flags-then-pathspec ordering (git commit -m "..." -- <files>) — the syntactically CORRECT one — also passes (gap-mission-lint-rule15-wrong-pathspec-order)');
   ck(lintMission(deployWithCommit).ok, 'RULE 15: an ops-deploy mission with a bare commit is UNAFFECTED — the rule is scoped to code-repo\'s git_steps.mjs sandbox risk model, not a blanket ban on bare commits everywhere');
@@ -738,6 +768,33 @@ if (process.argv[1] && process.argv[1].endsWith('mission_lint.mjs')) {
   // (f) pwsh -File script.ps1 (not a -Command wrapper) -> NOT flagged.
   const wrap20file = 'Maqsad: run. Done means: ok. validation_command: pwsh -File run.ps1 $arg';
   ck(!lintMission(wrap20file).problems.some((p) => p.rule === 'validation-command-powershell-wrapper'), 'RULE 20: pwsh -File (not -Command) is NOT flagged');
+
+  // ---- RULE 21: COMMIT-PATHSPEC-BEFORE-DASHM (gap-commit-pathspec-before-dashm-ordering).
+  const FENCE = String.fromCharCode(96, 96, 96);
+  // (a) fenced pwsh commit with pathspec BEFORE -m -> FLAGGED.
+  const c21bad = 'Maqsad: land.\nDone means: committed.\n' + FENCE + 'pwsh\ngit commit -- mission_lint.mjs -m "feat: x"\n' + FENCE;
+  const c21b = lintMission(c21bad);
+  ck(!c21b.ok && c21b.problems.some((p) => p.rule === 'commit-pathspec-before-dashm'), 'RULE 21: a fenced commit with pathspec BEFORE -m is REFUSED (git swallows -m as a pathspec)');
+
+  // (b) the CORRECT flags-first form -> passes.
+  const c21good = 'Maqsad: land.\nDone means: committed.\n' + FENCE + 'pwsh\ngit commit -m "feat: x" -- mission_lint.mjs\n' + FENCE;
+  ck(!lintMission(c21good).problems.some((p) => p.rule === 'commit-pathspec-before-dashm'), 'RULE 21: the correct flags-first git commit -m "..." -- file is NOT flagged');
+
+  // (c) a validation_command: line with the wrong ordering -> FLAGGED.
+  const c21vc = 'Maqsad: land. Done means: ok. validation_command: git commit -- a.js -m "x"';
+  ck(lintMission(c21vc).problems.some((p) => p.rule === 'commit-pathspec-before-dashm'), 'RULE 21: a validation_command: commit with pathspec before -m is flagged');
+
+  // (d) git commit --amend -m "..." -> NOT flagged (--amend is a flag, not a pathspec separator).
+  const c21amend = 'Maqsad: land. Done means: ok. validation_command: git commit --amend -m "x"';
+  ck(!lintMission(c21amend).problems.some((p) => p.rule === 'commit-pathspec-before-dashm'), 'RULE 21: git commit --amend -m is NOT flagged (--amend is not a -- pathspec separator)');
+
+  // (e) the anti-pattern named only in PROSE -> NOT flagged (scope excludes prose).
+  const c21prose = 'Maqsad: never write git commit -- file -m "x" -- flags go first. Done means: rule documented. validation_command: Test-Path lint.md';
+  ck(!lintMission(c21prose).problems.some((p) => p.rule === 'commit-pathspec-before-dashm'), 'RULE 21: the wrong-order commit named in prose, not on a command line, is NOT flagged');
+
+  // (f) git commit -m with no pathspec at all -> NOT flagged by RULE 21 (that is RULE 15's concern).
+  const c21nopath = 'Maqsad: land. Done means: ok. validation_command: git commit -m "x"';
+  ck(!lintMission(c21nopath).problems.some((p) => p.rule === 'commit-pathspec-before-dashm'), 'RULE 21: a bare git commit -m with no pathspec is NOT flagged by RULE 21 (ordering rule, not the missing-pathspec rule)');
 
   console.log(`\n${fail ? fail + ' FAIL' : 'ALL PASS — mission miqat: flawed work orders refused at the boundary, zero cycles burned'}`);
   process.exit(fail ? 1 : 0);
