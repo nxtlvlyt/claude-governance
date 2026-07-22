@@ -192,6 +192,5 @@
   "skipDangerousModePermissionPrompt": true,
   "skipWorkflowUsageWarning": true,
   "theme": "dark",
-  "skipAutoPermissionPrompt": true,
-  "fastMode": true
+  "skipAutoPermissionPrompt": true
 }
