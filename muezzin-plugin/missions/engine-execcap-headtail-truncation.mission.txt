@@ -1,0 +1,64 @@
+MISSION-ID: engine-execcap-headtail-truncation
+MISSION-CLASS: ops-deploy
+REPO-ROOT: C:\Users\marka\.claude\muezzin-plugin
+ALLOW-FILES:
+  - seat_dispatch.mjs
+REQUIRES: none
+STEPS: 4
+
+MAQSAD (the end): gap-large-stdout-selftest-false-fail, ROOT-CAUSED 2026-07-22. The
+exec-capture SUCCESS path (seat_dispatch.mjs:279) kept only String(out).slice(0, 2000) --
+the HEAD 2000 chars; orchestrate.mjs:1258 then took .slice(-500) of that, so the phase-3
+verdict panel saw a fixed MIDDLE window [1500..2000] of every step's output. Any output
+over 2000 chars had its END cut -- exactly where a selftest/command prints its verdict
+(PASS / ALL-PASS / markers). Deterministic, not the "intermittent race" originally
+hypothesised. Confirmed specimen: the mission_lint RULE 19 selftest is 6955 chars,
+"PASS RULE 19" at char 6610 and "ALL PASS" at 6866 -- both past the 2000 cap -- so the
+panel false-REJECTed correct work (same mechanism behind mt-lh-tbt, atv-3.S1, and
+backport-gate-loss this session). This mission lands the fix via the STAGED, DRY-RUN-
+RECEIPTED patcher (dry-run on a byte-copy this beat: PATCHED / ALREADY-PATCHED idempotent /
+node --check SYNTAX-OK; end-to-end simulation proved headTailCap(full).slice(-500) contains
+both "PASS RULE 19" and "ALL PASS"): missions\_logs\staged-execcap-headtail-2026-07-22\
+patch-execcap-headtail.mjs. The fix is a shared headTailCap(s) helper that keeps BOTH the
+head (early context + hollow-green signals the panel needs per orchestrate:72) AND the tail
+(the verdict), applied to the success path (279) and the general-failure path (303), plus
+3 selftest fixtures.
+
+NOTE (bootstrap): the running daemon still exec-captures with the OLD head-2000 truncation
+until it is restarted, so this mission's OWN step receipts run under the bug being fixed.
+Step 3 therefore emits a COMPACT summary line (not the full ~7KB selftest dump) so its
+receipt survives the old cap and the panel sees a clean, un-truncated verdict.
+
+NIYYAH (why): a root-caused engine defect that destroyed correct work ~5 times this
+session. GAP ISSUES ARE ALWAYS PRIORITY (operator-rulings.md).
+source: C:\Users\marka\.claude\muezzin-plugin\seat_dispatch.mjs
+source: C:\Users\marka\.claude\muezzin-plugin\missions\_logs\GAP-REGISTER.jsonl
+source: C:\Users\marka\.claude\muezzin-plugin\missions\_logs\staged-execcap-headtail-2026-07-22\patch-execcap-headtail.mjs
+
+REACHABILITY NOTE (miqat): engine exec-capture layer, no page/surface ships -- no
+nav-reachability concern.
+
+STEPS (literal-command-queue: each fenced line runs VERBATIM from REPO-ROOT; exit code is
+the pass/fail signal):
+
+```pwsh
+node missions/_logs/staged-execcap-headtail-2026-07-22/patch-execcap-headtail.mjs seat_dispatch.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; Write-Output 'EXECCAP-PATCH-APPLIED'
+node --check seat_dispatch.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; Write-Output 'EXECCAP-SYNTAX-OK'
+$out = (node seat_dispatch.mjs --selftest 2>&1 | Out-String); if ($LASTEXITCODE -ne 0) { exit 1 }; $htc = ([regex]::Matches($out, 'PASS  headTailCap')).Count; $fails = ([regex]::Matches($out, '(?m)^\s*FAIL ')).Count; Write-Output ("SELFTEST-SUMMARY htc=" + $htc + " fails=" + $fails); if ($htc -lt 3 -or $fails -gt 0) { exit 1 }; Write-Output 'EXECCAP-SELFTEST-OK'
+git add -- seat_dispatch.mjs; git diff --cached --quiet; if ($LASTEXITCODE -eq 0) { Write-Output 'ALREADY_COMMITTED' } else { git commit -m "fix(engine): exec-capture keeps head+tail not head-2000 - end-of-output verdict markers survive so the phase-3 panel stops false-rejecting long-selftest passes (gap-large-stdout root-caused; RULE 19 6955-char specimen)" -- seat_dispatch.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; Write-Output 'EXECCAP-COMMIT-OK' }
+```
+
+Step 1: apply the staged patcher (fail-closed on anchor mismatch, idempotent).
+Step 2: syntax check.
+Step 3 (OUTCOME CHECK, compact receipt): run the full seat_dispatch selftest; require all 3
+new headTailCap fixtures PASS and ZERO failures anywhere; emit only the summary counts so
+the receipt survives the pre-fix truncation.
+Step 4: scoped commit (idempotent-commit idiom per ITEM 61 RIDER 2), flags-first pathspec.
+
+DONE-MEANS: seat_dispatch.mjs at HEAD carries headTailCap applied to the exec success + fail
+paths, its selftest green (69 prior + 3 new headTailCap fixtures = 72, zero failures),
+committed scoped to seat_dispatch.mjs only. Daemon restart required for the running daemon
+to exec-capture with the fix (static import) -- the conductor restarts after landing. The
+agy-fork port (seat_dispatch is engine, same file both jurisdictions) and retiring the now-
+moot step-1 exec-FAIL forensics instrument (3481bb6, wrong path for this class) are tracked
+follow-ups on the gap.

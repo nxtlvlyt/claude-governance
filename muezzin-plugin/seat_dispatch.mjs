@@ -193,6 +193,18 @@ export function isLongRunCmd(cmd) { return /#\s*LONG-RUN\b/i.test(String(cmd || 
 
 // the muezzin runs a verification command ITSELF and captures the receipt — the witness for a CODE claim
 // (node -c / bash -n / docker build / a test). ok=true ONLY on exit 0. This is the deed; the seat's word is not.
+// EXEC-OUTPUT CAP (gap-large-stdout-selftest-false-fail, root-caused 2026-07-22): keep BOTH the
+// HEAD (early context + hollow-green signals like "num_tables: 0" the phase-3 panel needs per
+// orchestrate.mjs:72) AND the TAIL (where a selftest/command prints its verdict: PASS/ALL-PASS/
+// markers). The prior `.slice(0, 2000)` kept only the head, so any output > 2000 chars had its
+// end-of-output verdict cut; combined with orchestrate.mjs:1258's downstream `.slice(-500)` the
+// panel saw a fixed MIDDLE window and false-REJECTed correct work (RULE 19 selftest, 6955 chars).
+function headTailCap(s, headN = 1400, tailN = 2500) {
+  s = String(s);
+  if (s.length <= headN + tailN) return s;
+  return s.slice(0, headN) + `\n...[${s.length - headN - tailN} chars elided -- head+tail kept]...\n` + s.slice(-tailN);
+}
+
 export function execReceipt(cmd, cwd, opts = {}) {
   // WITNESS SHELL = PowerShell on Windows (2026-06-10 receipts: agy-import + vanlife-muddy
   // both witness-halted on "'Get-ChildItem' is not recognized" — architects write PS-flavored
@@ -276,7 +288,7 @@ export function execReceipt(cmd, cwd, opts = {}) {
       out = execFileSync('pwsh.exe', ['-NoProfile', '-NonInteractive', '-Command', cmd], { cwd, env: childEnv, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: stepTimeoutMs });  // pwsh (PS7) not powershell (5.1): seats chain with && — proven live
     }
     hb(`exec-ok elapsed=${Date.now() - tExec0}ms`);
-    return { type: 'exec', ref: cmd, ok: true, exit: 0, out: String(out).slice(0, 2000) };
+    return { type: 'exec', ref: cmd, ok: true, exit: 0, out: headTailCap(out) };
   } catch (e) {
     // EXEC-CAPTURE FORENSICS (gap-large-stdout-selftest-false-fail step 1, 2026-07-21):
     // on every exec failure, record exactly how many bytes each stream carried BEFORE any
@@ -300,7 +312,7 @@ export function execReceipt(cmd, cwd, opts = {}) {
       + (e.code ? ` code=${e.code}` : '')
       + (e.message ? ` msg=${String(e.message).slice(0, 300)}` : '')
     ).replace(/\s+/g, ' ').trim();
-    return { type: 'exec', ref: cmd, ok: false, exit: e.status ?? 1, out: String(diag).slice(0, 2000) };
+    return { type: 'exec', ref: cmd, ok: false, exit: e.status ?? 1, out: headTailCap(diag) };
   }
 }
 
@@ -1319,6 +1331,16 @@ if (process.argv[1]?.endsWith('seat_dispatch.mjs') && process.argv.includes('--s
   check('roleaware: nemotron-3-ultra as integrator falls to opus', claudeFallbackFor('nemotron-3-ultra', 'integrator'), 'opus');
   check('roleaware: deepseek-v4-pro as validator (unmapped role) keeps flat-map sonnet', claudeFallbackFor('deepseek-v4-pro', 'validator'), 'sonnet');
   check('roleaware: kimi-k2.6 with no role keeps flat-map opus', claudeFallbackFor('kimi-k2.6', undefined), 'opus');
+
+  // 10b. HEADTAIL-CAP (gap-large-stdout-selftest-false-fail): a long output keeps its TAIL so
+  //     end-of-output verdict markers survive the cap (the RULE 19 false-reject class).
+  {
+    const long = 'HEAD_MARKER' + 'x'.repeat(6000) + 'TAIL_VERDICT_MARKER';
+    const capped = headTailCap(long);
+    check('headTailCap: keeps the HEAD marker', capped.includes('HEAD_MARKER'), true);
+    check('headTailCap: keeps the TAIL verdict marker (the fix)', capped.includes('TAIL_VERDICT_MARKER'), true);
+    check('headTailCap: short output is returned intact', headTailCap('short') === 'short', true);
+  }
 
   // 11. EXEC-DIAG (M-ENGINE-EXEC-DIAG): a command that fails with NO stdout/stderr must still
   //     yield a non-empty diagnostic `out` — the fix for opaque engine-exec failures that
