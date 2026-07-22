@@ -27,6 +27,7 @@
 - **No PASS without a receipt the muezzin ran** (`node -c` / `bash -n` / `docker build` / test). **Min-not-average** confidence.
 - **git commit per passing step; rollback per failing step** — surgical single-step repair, never whole-phase rejection.
 - The **verifier seat sees only file + AC + receipt** (independent witness — not the executor's self-attestation prose).
+- **Numeric contracts are declared, then pinned (RULE 19, both jurisdictions since 2026-07-22):** a mission whose Maqsad fixes exact numbers (thresholds, weights, budgets, caps) declares them once as `NUMERIC-CONTRACT: n1,n2,...` — the miqat then refuses the mission unless every listed literal appears in a validation_command/[command]/[verify] step. Prose numbers a seat can silently rewrite are not a contract (mt-levels-not-ladders shipped wrong thresholds exactly this way).
 
 ## The flow (one mission, end to end)
 1. A Mission arrives as an **amanah**: Maqsad + niyyah + unbiased context.
