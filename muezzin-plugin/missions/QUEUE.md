@@ -3826,6 +3826,14 @@ port to agy fork). Members + their receipts:
    targeted-replace (PowerShell -replace of the matched line) over a whole-file [edit] re-emit —
    a targeted-replace STRUCTURALLY cannot append out-of-scope garbage. (A growth guard, if built
    at all, must be gated on a scoped-change signal in the step DESCRIPTION, not a bare ratio.)
+   CONVENTION DOCUMENTED 2026-07-22: the [command]-over-[edit] discipline is now in
+   MISSION_ARCHITECTURE.md Guarantee 3 (beside the numeric-contract convention) with the
+   engine-render-witness receipt named. BUT the gap-mission-file-edit-whole-reemit-corruption
+   gap STAYS OPEN — per the operator ruling "a gap closes only when a MECHANICAL gate lands,
+   never when documented/noted." The only mechanical option is a lint that flags an [edit] to
+   an existing file whose step DESCRIPTION signals a scoped change (\"replace the line\",
+   \"change X to Y\", \"update the value\") — fuzzy, low-priority; until it lands OR the operator
+   accepts the convention as the ceiling, the gap is owned-and-open here, not closed.
 3. N5 item-12 [edit]-step validation literalness (RULE 16 exempts [edit] steps, confirmed
    mission_lint selftest L598). RESIDUAL SHARPENED 2026-07-22 (D12 coverage check): the major
    [edit] classes are ALREADY content-witnessed, so this is NOT the broad hole first filed —
