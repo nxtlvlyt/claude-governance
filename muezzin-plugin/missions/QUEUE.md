@@ -3828,3 +3828,37 @@ beat capacity per operator's 2026-07-11 "system fixes have priority"), daemons k
 parallel. Landing pattern: staged patcher + mission (RULE 19 / exec-cap precedent) + daemon
 restart; then agy-fork port (ninth-law succession rider). The three member gaps' owner fields
 now resolve to THIS item.
+
+## 2026-07-22 ITEM 64 — STANDING FAILED-MARK RECONCILIATION (kill the zombie re-audit loop)
+Owns gap-failed-mark-reconciliation-loop, whose owner was imprecise ("N5 items 10-14" — none
+of those, queue-hygiene/ladder/format/delivery/deploy, actually covers auto-reconciliation).
+THE PROBLEM (root of the conductor's repeated re-audit waste, lived MANY times this session):
+a mission resolved OUTSIDE the daemon — conductor-direct ninth-law apply, a re-author, a
+superseding mission, a cherry-pick-equivalent landing under a NEW sha, OR a phase-3 verdict
+FALSE-REJECT of work that actually landed — keeps its FAILED AUTORUN mark. The DIAGNOSIS-DEBT
+hook then re-surfaces it every wake, and the conductor manually reads result.json + git,
+confirms the work landed, and hand-writes a RESOLVED-LANDED annotation. FRESH RECEIPTS
+(2026-07-22, all landed-then-FAILED-marked, all needed manual reconciliation): engine-lint-
+rule19-numeric-contract (commit a137496 in HEAD, verdict false-REJECT on truncated capture),
+engine-execcap-headtail-truncation (b07d5c6 in HEAD, false-REJECT on idempotent attempt-2 +
+"72-count not witnessed"), engine-backport-gate-loss (0c586f7). HISTORICAL: of 29 recent FAILED
+marks, 26 were already conductor-resolved (2026-07-05 board-truth sweep) — but that was a
+ONE-TIME bulk pass, not a standing mechanism.
+FIX (standing, mechanical): before conduct-cycle surfaces a FAILED mark as DIAGNOSE debt,
+reconcile it — auto-stamp RESOLVED-LANDED (or suppress from the DIAGNOSE list) when ANY holds:
+  (a) the mission's committed sha is in HEAD — captured from result.json step-N execOut or a
+      commit message that names the mission id/stem (cherry-picks land under a new sha, so match
+      by mission-id in the commit message, NOT a predicted sha);
+  (b) the mission's ALLOW-FILES deliverables are present on disk AND their expected content
+      markers are found (the "witness the artifact not the commit identity" rule already in
+      deconstructor.mjs:428);
+  (c) the AUTORUN line already carries a conductor RESOLVED-LANDED/SUPERSEDED annotation
+      (partially live: muezzin-daemon doneMissionIds recognizes these for RE-FIRE suppression,
+      commit edfab62 — but the DIAGNOSIS-DEBT surfacing does not yet reconcile on it).
+This AUTOMATES what the conductor does by hand and closes the loop where landed work is
+re-diagnosed as a zombie failure every wake. Cross-jurisdiction: conduct-cycle.mjs is engine,
+port to agy fork; the warroom spec inherits it (operator-rulings N5 items 10-14 "build once +
+PORT" — this item is the missing SPECIFIC mechanism that family gestured at).
+SEQUENCING: engine-batch, HIGH leverage (every zombie re-audit is conductor beat-time burned on
+already-done work — this session alone spent multiple beats re-confirming a137496/b07d5c6).
+Landing pattern: staged patcher + mission + daemon restart; agy-fork port after.
