@@ -3,8 +3,10 @@
 ## ⚡ SESSION LEDGER 2026-07-22 (LATER ARC — end of session; SUCCESSOR RESUMES FROM HERE)
 
 DAEMON: mt PID **38788** idle, carries the launch envs (MUEZZIN_ARCHITECT_ROUTE=panel + MAX_LANES=1).
-Restarted THREE times this session (19432→29656→23500→38788) as engine fixes landed; the old PIDs in the
-EARLY ledger below (40296, 27320→40060) are REAPED — do not chase them. Boards clean: mt 0 undiagnosed
+Restarted THREE times this session (19432→29656→23500→38788) as engine fixes landed. ⚠️ CORRECTION: the
+"orphan" daemons killed during those restarts (40060, 20484) were AGY's daemons, mis-reaped cross-
+jurisdiction (shared muezzin-daemon.mjs script name) — NOT mt orphans; see open thread #2. agy daemon
+restarted (pid 2984). Boards clean: mt 0 undiagnosed
 FAILED; agy 6 FAILED / 0 undiagnosed. GAP REGISTER **63/88 closed**, every open gap owner-resolvable.
 
 PRODUCTION (muddytires.ca): fire-ban SAFETY fix DEPLOYED + browser-verified live (map renders, 531 POIs,
@@ -39,8 +41,15 @@ NOT safely scrapeable — RULE-21's own names must-ABSENT content). Full build s
 
 OPEN THREADS FOR THE SUCCESSOR:
 1. PART 2 build (from the two pins) — verdict-panel mission + staged patcher + restart. Land fresh.
-2. orphan-daemon-not-reaped fix — CONFIRMED, turnkey (the run-loop half of the singleton); higher-risk
-   daemon-loop change, fresh session. Interim: conductor reaps non-owner daemons at restart.
+2. orphan-daemon-not-reaped — ⚠️ DIAGNOSIS CORRECTED 2026-07-22, was FALSELY CONFIRMED. The "orphan"
+   daemons reaped this session (20484, likely 40060) were AGY's LEGITIMATE daemons — agy is a muezzin
+   FORK running the same muezzin-daemon.mjs, so an MT-centric "non-owner of muezzin-plugin/daemon.pid =
+   orphan" census flagged agy's live daemon (which owns agy-muezzin/daemon.pid) as an mt orphan and
+   KILLED it repeatedly. agy daemon restarted this beat (pid 2984). ‼️ DO NOT reap "non-owner
+   muezzin-daemon procs" — any census MUST scope by CWD (muezzin-plugin vs agy-muezzin); a jurisdiction
+   reaps only procs whose cwd is its OWN dir. Whether a TRUE mt orphan exists is UNVERIFIED (evidence
+   contaminated by agy daemons); the run-loop self-exit fix is DEFERRED pending cwd-aware re-diagnosis.
+   Full correction in the gap owner (gap-orphan-daemon-not-reaped-on-ownership-loss).
 3. 0824f52 (conduct-cycle red-selftest fix, early arc) is still OPERATOR-RATIFICATION-PENDING — see the
    EARLY ledger note below: add conduct-cycle.mjs to the settings allowlist, or revert + route via mission.
 4. compact-receipt + comment-collision + stale-restart lint/engine candidates — next engine batch, turnkey.
