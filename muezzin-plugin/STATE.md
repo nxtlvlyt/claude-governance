@@ -1,6 +1,53 @@
 # STATE.md — muezzin-plugin (this project's contextualization of CLAUDE.md)
 
-## ⚡ SESSION LEDGER 2026-07-22 (Fable 5 conductor; the successor resumes from HERE)
+## ⚡ SESSION LEDGER 2026-07-22 (LATER ARC — end of session; SUCCESSOR RESUMES FROM HERE)
+
+DAEMON: mt PID **38788** idle, carries the launch envs (MUEZZIN_ARCHITECT_ROUTE=panel + MAX_LANES=1).
+Restarted THREE times this session (19432→29656→23500→38788) as engine fixes landed; the old PIDs in the
+EARLY ledger below (40296, 27320→40060) are REAPED — do not chase them. Boards clean: mt 0 undiagnosed
+FAILED; agy 6 FAILED / 0 undiagnosed. GAP REGISTER **63/88 closed**, every open gap owner-resolvable.
+
+PRODUCTION (muddytires.ca): fire-ban SAFETY fix DEPLOYED + browser-verified live (map renders, 531 POIs,
+0 JS errors); deploy 85b6b72d recorded (5e208477). Two safety threads — click-shield pane + default-
+visibility addTo(map) restore (9019c2f) — both live. saved-lists migration reconciled byte-identical (5e20847).
+
+ENGINE LANDED + LIVE in daemon 38788 (later arc, all committed AFTER the early ledger):
+- RULE 20 validation-command-powershell-wrapper (mission_lint, **df6147f**): refuses a command/validation
+  line re-wrapped in `powershell -Command "...$var..."` (the outer pwsh strips the inner $-vars to empty).
+- RULE 21 commit-pathspec-before-dashm (mission_lint, **6f90679**): refuses `git commit -- <file> -m` (the
+  `--` swallows -m as a pathspec) AND corrected RULE 15's message/fixture/label that had been TEACHING that
+  buggy order (the source of RULE 20's own mission failure).
+- FALSE-REJECT RECONCILER part 1 (conduct-cycle, **19e4cae**): missionLandedState gate widened to ops-deploy-
+  with-commit; the FALSE-DEATH-CANDIDATES sweep now computes the engine-lint verdict-false-reject class
+  mechanically (first live run: 11 candidates). This is ITEM 64's real residual, now landed.
+- (empty-emission cap 12f6ac4 + self-resolved stamp ca5ee04 + headTailCap b07d5c6 all live from the early arc.)
+
+THE SESSION'S THROUGH-LINE (operator pushed hard: "teach the muezzin, don't hoard judgment"): every repeated
+manual intervention was converted to a tracked CONDITION. 5 judgment→condition gaps filed this session —
+false-reject-reconciler, commit-pathspec-ordering (RULE 21 closed it), orphan-daemon-not-reaped (CONFIRMED
+root cause + turnkey fix), engine-lint-compact-receipt, daemon-marking-comment-collision, stale-engine-self-
+restart. The verdict panel false-rejected all 7 engine missions this session (receipt-completeness, not
+defects) — each hand-adjudicated; the reconciler + part-2 exist to kill that toil.
+
+PART 2 (verdictRejectLandedCandidate) = FULLY DESIGNED, DELIBERATELY NOT BUILT. Two independent stop-audits
+returned verdict B (degraded panel + turn-3800 drift + daemon-run-loop blast radius + non-urgent = land
+FRESH, not tonight). Two turnkey pins: SPEC-verdict-reject-landed-candidate-2026-07-22.md +
+...-GATE-DESIGN-2026-07-22.md. A D13 re-read caught the spec's original signal WAS the "naive step-ok-only
+auto-close" QUEUE ITEM 24(b) rejects; corrected to STOP-REFIRE (always safe) + CONFIRM correctness-gated.
+NET-NEW BUILD the fresh session needs: a declared **DONE-MARKERS:** mission field (freeform DONE-MEANS is
+NOT safely scrapeable — RULE-21's own names must-ABSENT content). Full build scope in the gap owner + pins.
+
+OPEN THREADS FOR THE SUCCESSOR:
+1. PART 2 build (from the two pins) — verdict-panel mission + staged patcher + restart. Land fresh.
+2. orphan-daemon-not-reaped fix — CONFIRMED, turnkey (the run-loop half of the singleton); higher-risk
+   daemon-loop change, fresh session. Interim: conductor reaps non-owner daemons at restart.
+3. 0824f52 (conduct-cycle red-selftest fix, early arc) is still OPERATOR-RATIFICATION-PENDING — see the
+   EARLY ledger note below: add conduct-cycle.mjs to the settings allowlist, or revert + route via mission.
+4. compact-receipt + comment-collision + stale-restart lint/engine candidates — next engine batch, turnkey.
+
+---
+
+## ⚡ SESSION LEDGER 2026-07-22 (EARLY — Fable 5 conductor; SUPERSEDED by the LATER ARC above)
 
 BOARDS: both clean, both daemons idle on the session's fixes. mt PID 40296, agy PID 27320→40060
 (restarted onto fixes this session; both carry the documented launch envs
