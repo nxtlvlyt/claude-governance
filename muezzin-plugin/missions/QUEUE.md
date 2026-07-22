@@ -3905,6 +3905,18 @@ the conductor applies annotations BY HAND). So the two build shapes carry very d
     REAL failure forever. Needs bulletproof content-verification AND likely OPERATOR SIGN-OFF (it
     changes what auto-mutates the ledger). Recommendation: ship ADVISORY first; auto-write only
     after the advisory flag has proven its landed-signal correct in practice + operator ok.
+BUILD LOCATION SETTLED 2026-07-22 (by EXISTING architecture, not a new call): the advisory
+reconcile-check reads <stem>.mission.result.json + does git checks PER FAILED mark — file-I/O
+heavy. The DIAGNOSIS-DEBT surface that re-shows zombies every beat lives in the user-prompt-submit
+HOOK (L100-113), but that hook's OWN witness note (Gemini foreign-frontier audit 2026-07-12,
+VERDICT ADJUST-accepted) is explicit: "the owner-token regex is a cheap SURFACE heuristic ... the
+SOUND resolution ... belongs to conduct-cycle's OFFLINE sweep per item 24(b), which can afford the
+file I/O this per-prompt hook cannot ... this read is synchronous and must stay cheap." So the
+reconcile-check goes in CONDUCT-CYCLE's DIAGNOSE sweep (L967 branch), NOT the hook — same cheap-hook
+vs sound-offline-sweep split the architecture already enforces. Flow: hook keeps its cheap regex
+count ("N unannotated FAILED, run conduct-cycle"); conduct-cycle's DIAGNOSE flags each as a
+reconcile-candidate with the landed-signal; the conductor annotates instantly; the hook count drops.
+Last "hook vs conduct-cycle" ambiguity is thus resolved by substrate, not preference.
 BUILD-READY (conductor verified conduct-cycle.mjs:944-988, 2026-07-22): condition (c) is
 ALREADY HANDLED — the `closed` check at L953 (/FIX:\s*none|SUPERSEDED|RESOLVED|DUPLICATE-RETIRED/i)
 already suppresses DIAGNOSE debt when the AUTORUN line carries a RESOLVED/SUPERSEDED annotation
