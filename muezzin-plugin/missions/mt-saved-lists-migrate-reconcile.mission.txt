@@ -1,0 +1,52 @@
+MISSION-ID: mt-saved-lists-migrate-reconcile
+MISSION-CLASS: ops-deploy
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - d1/migrate-saved-lists-2026-07-19.sql
+REQUIRES: none
+STEPS: 2
+
+MAQSAD (the end): mt-saved-lists-migration's verdict panel REJECTed because
+d1/migrate-saved-lists-2026-07-19.sql's DDL block DIVERGED from the pinned THE FIX block and
+from d1/schema-write.sql -- F1 missing DEFAULT 'My spots' on saved_lists.name; F2
+idx_saved_list_items_target was 3-column (list_id, target_kind, target_id) vs the pinned 2-column
+(target_kind, target_id); F3 missing the pinned comment block; PLUS a 4th unflagged divergence
+(every column line's whitespace padding differed). schema-write.sql is CORRECT -- its
+saved_lists/saved_list_items block byte-matches the pinned THE FIX block (Agent-verified, 0-diff,
+39 lines). This mission reconciles the migrate file by WHOLESALE-REPLACING its DDL block with
+schema-write's golden block (a deterministic copy, NOT a surgical F1/F2/F3 edit -- a surgical fix
+would still fail byte-identity on the whitespace). The migrate file's own migration-header preamble
+(the Restores.../Apply.../Verify... comment) is preserved.
+
+THE FIX: a staged deterministic patcher
+(missions/_logs/staged-savedlists-migrate-reconcile-2026-07-22/patch-migrate-reconcile.mjs) copies
+schema-write.sql's golden block (from the section header through the idx_saved_list_items_target
+line) into the migrate file, replacing everything from its first CREATE TABLE onward. Dry-run
+RECEIPTED 2026-07-22 on a byte-copy: RECONCILED (39-line golden block); the migrate block is
+byte-identical to schema-write's (2283 == 2283 chars); F1/F2/F3 all resolved (DEFAULT 'My spots' = 1,
+2-col target index = 1, wrong 3-col = 0, user_id comment = 1); idempotent (ALREADY-RECONCILED on
+re-run).
+
+STEPS (literal-command-queue: each fenced line runs VERBATIM from REPO-ROOT; exit code is pass/fail;
+bare PowerShell -- the engine already invokes each line through pwsh, so do NOT add a command-string self-wrapper around it):
+
+```pwsh
+node "C:/Users/marka/.claude/muezzin-plugin/missions/_logs/staged-savedlists-migrate-reconcile-2026-07-22/patch-migrate-reconcile.mjs" d1/migrate-saved-lists-2026-07-19.sql d1/schema-write.sql; if ($LASTEXITCODE -ne 0) { exit 1 }; Write-Output 'MIGRATE-RECONCILE-OK'
+if (-not (Select-String -Path d1/migrate-saved-lists-2026-07-19.sql -SimpleMatch -Pattern "DEFAULT 'My spots'" -Quiet)) { Write-Output 'MISSING-DEFAULT'; exit 1 }; if (Select-String -Path d1/migrate-saved-lists-2026-07-19.sql -SimpleMatch -Pattern "(list_id, target_kind, target_id)" -Quiet) { Write-Output 'WRONG-3COL-INDEX'; exit 1 }; if (-not (Select-String -Path d1/migrate-saved-lists-2026-07-19.sql -SimpleMatch -Pattern "(target_kind, target_id)" -Quiet)) { Write-Output 'MISSING-2COL-INDEX'; exit 1 }; git add -- d1/migrate-saved-lists-2026-07-19.sql; git diff --cached --quiet; if ($LASTEXITCODE -eq 0) { Write-Output 'ALREADY_COMMITTED' } else { git commit -m "fix(d1): reconcile saved-lists migrate DDL to schema-write golden block - byte-identical block (adds DEFAULT 'My spots', 2-col target index, pinned comments); closes the mt-saved-lists verdict-reject F1/F2/F3" -- d1/migrate-saved-lists-2026-07-19.sql; if ($LASTEXITCODE -ne 0) { exit 1 } }; Write-Output 'MIGRATE-RECONCILE-COMMITTED'
+```
+
+Step 1: run the deterministic reconcile patcher (idempotent ALREADY-RECONCILED on rerun; fail-closed if the golden anchors are absent). This is the only step that writes the file.
+Step 2: OUTCOME CHECK -- confirm the three verdict findings are resolved on disk (DEFAULT present, 3-col index absent, 2-col index present) then commit the scoped allow-file (idempotent-commit idiom). Authors nothing.
+
+DONE-MEANS: d1/migrate-saved-lists-2026-07-19.sql's saved_lists/saved_list_items DDL block is
+BYTE-IDENTICAL to d1/schema-write.sql's (both = the pinned block): saved_lists.name is
+TEXT NOT NULL DEFAULT 'My spots', idx_saved_list_items_target indexes (target_kind, target_id), and
+the pinned comment block is present. The migrate file's own migration-header preamble is preserved.
+Committed scoped to d1/migrate-saved-lists-2026-07-19.sql only. The remote wrangler d1 execute apply
+is NOT this mission's step (it is a separate deploy action).
+
+source: C:\Users\marka\code\mt-integration-2026-06-22\d1\schema-write.sql
+source: C:\Users\marka\code\mt-integration-2026-06-22\d1\migrate-saved-lists-2026-07-19.sql
+
+REACHABILITY NOTE (miqat): non-page D1 migration-file edit; no page/route/nav ships, so no MIQAT
+orphan-page reachability check applies.
