@@ -3871,7 +3871,22 @@ L967: for a still-un-annotated FAILED stem, check (a) the stem/mission-id appear
 commit message (git log --grep, match by id NOT a predicted sha) OR (b) its ALLOW-FILES
 deliverables exist on disk with expected content markers; if so, push a `RECONCILE-AUTOCLOSE-
 ${stem}` report line (and ideally auto-write the RESOLVED-LANDED annotation) instead of DIAGNOSE.
-SAFETY: only auto-close on a POSITIVE landed-signal (a genuine failure lands no commit + no
-deliverable, so it never false-closes) — conservative by construction. Because this edits the
-conductor's own orientation machinery (conduct-cycle is daemon-imported), it lands via a
-verdict-panel MISSION (exec-cap b07d5c6 precedent), never a beat-tail hand-edit.
+SAFETY — SHARPENED 2026-07-22 (conductor found a flaw in the naive version): the tempting
+signal "all result.json steps ok:true + phase:verdict REJECT -> auto-close" is UNSAFE — it
+would mask a LEGITIMATE verdict reject (a mission whose steps EXECUTED but produced WRONG work;
+the verdict panel exists precisely to catch that). Also, matching the stem in a commit MESSAGE
+is unreliable — engine missions do NOT put their stem in the message (RULE 19's commit is "lint:
+RULE 19 numeric-contract-declared-unpinned...", no "engine-lint-rule19-numeric-contract" stem).
+So the auto-close condition must be a STRONG landed-AND-CORRECT signal, not merely "executed":
+  - (b) is the reliable one: the mission's ALLOW-FILES deliverables exist on disk AND carry the
+    Done-means's expected CONTENT markers (Select-String the required strings). "witness the
+    artifact, not the commit identity" (deconstructor.mjs:428). A wrong-but-executed mission
+    fails the content check, so it is NOT auto-closed — the verdict reject stands.
+  - (a) refined: match the mission's ACTUAL committed sha (captured from result.json step-N
+    execOut, e.g. exec-cap step-4 "[... b07d5c6] ... 1 file changed") against `git cat-file -e
+    <sha>` in the mission's REPO-ROOT — proves THAT commit is reachable, not just that some
+    commit mentions the stem.
+Naive step-ok-only auto-close is REJECTED. Because this edits the conductor's own daemon-imported
+orientation machinery AND the false-close risk is real, it MUST land via a verdict-panel MISSION
+(exec-cap b07d5c6 precedent) — never a beat-tail hand-edit — with fixtures proving a
+wrong-but-executed mission is NOT auto-closed.

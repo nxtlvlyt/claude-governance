@@ -22,6 +22,11 @@ rulings. This file is the loudness fix.)
   local-or-cloud clause below. No :cloud-tagged model, no cloud-served seat (including
   gemini-3-flash-preview via Ollama Cloud), in any seating mode. Local models on nxtbeast
   + Claude family seats remain the allowed roster.
+  CARVE-OUTS (jurisdictions where Ollama Cloud IS permitted): agy + warroom (2026-07-11),
+  and — operator word 2026-07-22: "yes it's going to use ollama cloud like the trading bot
+  does too" — the PRODUCT BOTS: the trading bot (@nxtnfabot, trading-system) and the
+  CGSports Discord bot (cgsports-pipeline). Scope: the bots' RUNTIME LLM seats (Q&A,
+  commentary, persona voice). The muezzin/conductor jurisdiction itself stays local+Claude.
 - SUPERSEDED 2026-07-02 (kept for history): "Anything served via Ollama (local or Ollama
   Cloud) is an allowed seat regardless of org." Claude family seats remain allowed and
   budget-strategic (operator-ratified 2026-06-10: Claude tier, routing windows, standing
