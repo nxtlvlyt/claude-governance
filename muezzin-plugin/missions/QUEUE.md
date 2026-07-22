@@ -2315,10 +2315,21 @@ from the agy process or agy from the Claude CLI process" — each with a same-se
     (a) LANDED 2026-07-11 — the has_marker=True stub is GONE; check_stop (L414) computes
         has_marker from MISSION_MARKERS, scoped to mission sessions, fail-open otherwise.
         Do NOT re-build (a). [conf 0.95, directly read]
-    (c) PARTIALLY ADDRESSED — load_rules_inject() (L360) loads rules LIVE each turn with
-        the frozen FRAMEWORK_INJECT as fail-open fallback; file mtime Jul 15, not the
-        06-26 freeze. RESIDUAL: verify the LOADED content carries no stale
-        junior-conductor framing / stale stats (content-currency unread). [conf 0.85]
+    (c) RESOLVED 2026-07-22 (conductor content audit) — better than "partial". The LIVE
+        content check_pre_invoke injects is RULES_FILE = C:\Users\marka\.agents\rules\
+        muezzin-conductor.md (mtime Jul 15, 13KB), loaded fresh each turn by
+        load_rules_inject(); the frozen FRAMEWORK_INJECT is only the fail-open fallback.
+        The live file carries the CURRENT law set — five verbs (L151), seventh-law
+        FAILED-triage (L111, ported 2026-07-10), eighth-law park-is-a-handoff (L159),
+        ninth-law dry-run (L134), conductor-direct 4 conditions (L93), GAP-PRIORITY-HOLD
+        (L70), EXECUTE-DONE + premature-done guard (L48), operator rulings ported
+        2026-07-15 incl. the no-rest ruling (L171-174). The lone "junior-conductor
+        2026-06-26" mention (L20) is a historical law-citation, NOT current framing. So
+        the item's "stale 06-26 junior framing" worry applied to the OLD static inject,
+        which the live loader superseded. REMAINING low-priority residual: the frozen
+        FRAMEWORK_INJECT fallback string in muezzin_hook.py is older than the live file,
+        but it fires ONLY when RULES_FILE is unreadable (fail-open path) — refresh it
+        opportunistically, not blocking. [conf 0.9, live file read]
     (e) CONFIRMED STILL DEAD — the PostToolUse writer's target
         C:/Users/marka/.claude/state/muezzin-last-response.txt had mtime Jun 26 20:45
         (26 days stale); the writer had not fired despite tool-heavy sessions.
