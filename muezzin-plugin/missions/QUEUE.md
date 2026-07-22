@@ -3862,3 +3862,16 @@ PORT" — this item is the missing SPECIFIC mechanism that family gestured at).
 SEQUENCING: engine-batch, HIGH leverage (every zombie re-audit is conductor beat-time burned on
 already-done work — this session alone spent multiple beats re-confirming a137496/b07d5c6).
 Landing pattern: staged patcher + mission + daemon restart; agy-fork port after.
+BUILD-READY (conductor verified conduct-cycle.mjs:944-988, 2026-07-22): condition (c) is
+ALREADY HANDLED — the `closed` check at L953 (/FIX:\s*none|SUPERSEDED|RESOLVED|DUPLICATE-RETIRED/i)
+already suppresses DIAGNOSE debt when the AUTORUN line carries a RESOLVED/SUPERSEDED annotation
+(that is why a hand-marked RESOLVED-LANDED line stops re-surfacing). So the build is ONLY the
+AUTOMATIC (a)/(b) detection, inserted as a new branch BEFORE the `else { DIAGNOSE-${stem} }` at
+L967: for a still-un-annotated FAILED stem, check (a) the stem/mission-id appears in a HEAD
+commit message (git log --grep, match by id NOT a predicted sha) OR (b) its ALLOW-FILES
+deliverables exist on disk with expected content markers; if so, push a `RECONCILE-AUTOCLOSE-
+${stem}` report line (and ideally auto-write the RESOLVED-LANDED annotation) instead of DIAGNOSE.
+SAFETY: only auto-close on a POSITIVE landed-signal (a genuine failure lands no commit + no
+deliverable, so it never false-closes) — conservative by construction. Because this edits the
+conductor's own orientation machinery (conduct-cycle is daemon-imported), it lands via a
+verdict-panel MISSION (exec-cap b07d5c6 precedent), never a beat-tail hand-edit.
