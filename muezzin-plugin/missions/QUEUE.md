@@ -3826,10 +3826,22 @@ port to agy fork). Members + their receipts:
    targeted-replace (PowerShell -replace of the matched line) over a whole-file [edit] re-emit —
    a targeted-replace STRUCTURALLY cannot append out-of-scope garbage. (A growth guard, if built
    at all, must be gated on a scoped-change signal in the step DESCRIPTION, not a bare ratio.)
-3. N5 item-12 [edit]-step validation literalness (RULE 16 exempts [edit] steps from its
-   improvise-bait literal-payload requirement — the exact hole the numeric gap fell through).
-   FIX: bring [edit] authoring steps under a literalness requirement (their validation_command
-   must pin what they claim), consistent with the numeric NUMERIC-CONTRACT/RULE 19 discipline.
+3. N5 item-12 [edit]-step validation literalness (RULE 16 exempts [edit] steps, confirmed
+   mission_lint selftest L598). RESIDUAL SHARPENED 2026-07-22 (D12 coverage check): the major
+   [edit] classes are ALREADY content-witnessed, so this is NOT the broad hole first filed —
+   code [edit] -> runtimeVerify import-smoke (orchestrate:1477); numeric contract -> RULE 19
+   NUMERIC-CONTRACT; DESIGN pass -> RULE 13 mandates a separate render-witness [command]
+   (selftest L534); CONTENT/copy pass -> RULE 14 mandates a copy-witness [command] (L556). The
+   TRUE residual is only PLAIN non-code / non-numeric / non-design / non-content-pass [edit]
+   artifacts (a doc/config edit whose validation is a bare Test-Path) — narrow, low-frequency,
+   low-harm (a wrong doc is far less dangerous than wrong code/numbers/design, which are all
+   already guarded). FIX (if built): a lint nudge that a plain non-contract [edit] step SHOULD
+   witness its required CONTENT (Select-String the expected strings), not just Test-Path
+   existence — LOW priority given the coverage above.
+NET AFTER D12 (2026-07-22): ITEM 63 deflated from a "three-member [edit]-safety pass" to
+essentially ONE real member — #2's [command]-over-[edit] PROCESS discipline for small changes
+to authored text/mission files. #1 was redundant (runtime_verify) + struck; #3 is a narrow
+low-priority residual (major classes already witnessed). Build accordingly — do not over-scope.
 SEQUENCING: engine-batch, same class as N5 items 1-14. Priority: system-fix class (conductor
 beat capacity per operator's 2026-07-11 "system fixes have priority"), daemons keep draining in
 parallel. Landing pattern: staged patcher + mission (RULE 19 / exec-cap precedent) + daemon
