@@ -2320,10 +2320,22 @@ from the agy process or agy from the Claude CLI process" — each with a same-se
         06-26 freeze. RESIDUAL: verify the LOADED content carries no stale
         junior-conductor framing / stale stats (content-currency unread). [conf 0.85]
     (e) CONFIRMED STILL DEAD — the PostToolUse writer's target
-        C:/Users/marka/.claude/state/muezzin-last-response.txt has mtime Jun 26 20:45
-        (26 days stale); the writer has not fired despite tool-heavy sessions, exactly as
-        suspected. This is the live defect of the five — diagnose payload-shape first
-        (its own receipt) before trusting --post/--stop. [conf 0.9, mtime observed]
+        C:/Users/marka/.claude/state/muezzin-last-response.txt had mtime Jun 26 20:45
+        (26 days stale); the writer had not fired despite tool-heavy sessions.
+        DIAGNOSED 2026-07-22 (conductor, diagnose-first receipt the item demanded):
+        check_post_tool's CODE IS FUNCTIONAL — a conductor probe piping a canonical
+        payload ({"result":{"output":...}}) and a {"result":{"stdout":...}} payload BOTH
+        wrote the file (mtime advanced live). So the code path is NOT the defect; the
+        cause is UPSTREAM, narrowed to two live hypotheses: (1) the agy/Antigravity
+        runtime never invokes --post (PreInvocation was live-tested 2026-07-11 but
+        PostToolUse never was), or (2) it invokes with an unmapped payload shape
+        (a {"toolResult":{"output":...}} probe did NOT write). INSTRUMENT LIVE: a
+        behavior-preserving forensic dump added to check_post_tool (commit-free edit,
+        py_compile OK) appends the raw top-level + result keys of every real --post to
+        C:/Users/marka/.claude/state/muezzin-post-payload-diag.jsonl. The next agy
+        tool-session decides: file stays empty -> hypothesis (1), writer must move to a
+        fired event; file populates with unexpected keys -> hypothesis (2), fix the
+        field mapping. Do NOT trust --post/--stop until that receipt lands. [conf 0.9]
     (b) bootstrap gate + (d) computed diagnosis-debt: STILL OPEN per grep — only inject
         TEXT says "ORIENT FIRST / read the board"; no mechanical PreToolUse orientation
         block and no board-derived computed debt injection found in the hook. [conf 0.7,
