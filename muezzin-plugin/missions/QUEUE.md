@@ -3889,6 +3889,22 @@ PORT" — this item is the missing SPECIFIC mechanism that family gestured at).
 SEQUENCING: engine-batch, HIGH leverage (every zombie re-audit is conductor beat-time burned on
 already-done work — this session alone spent multiple beats re-confirming a137496/b07d5c6).
 Landing pattern: staged patcher + mission + daemon restart; agy-fork port after.
+DESIGN FORK — THE KEY BUILD DECISION (conductor verified 2026-07-22: conduct-cycle is READ-ONLY
+on the real AUTORUN in production — every AUTORUN writeFileSync in the file is selftest-only/tmp;
+the conductor applies annotations BY HAND). So the two build shapes carry very different risk:
+  * ADVISORY (SAFE, preserves the read-only invariant): the DIAGNOSE report FLAGS a
+    reconcile-candidate (all-steps-ok + verdict-phase reject + a landed-signal per (a)/(b) below)
+    so the conductor sees "likely landed-but-rejected zombie" instantly and annotates faster.
+    conduct-cycle never mutates AUTORUN. Reduces the re-audit TOIL; does NOT stop the surfacing
+    (the conductor still writes the RESOLVED annotation). Small, additive, low-risk — buildable
+    without operator sign-off.
+  * AUTO-WRITE (FULL value, but breaks an invariant): conduct-cycle gains a NEW capability to
+    auto-write the RESOLVED-LANDED annotation, which STOPS the surfacing entirely. This (1) breaks
+    conduct-cycle's deliberate read-only-on-AUTORUN design (today it NEVER auto-mutates the mission
+    ledger — the conductor does), and (2) a false-close writes a wrong RESOLVED that suppresses a
+    REAL failure forever. Needs bulletproof content-verification AND likely OPERATOR SIGN-OFF (it
+    changes what auto-mutates the ledger). Recommendation: ship ADVISORY first; auto-write only
+    after the advisory flag has proven its landed-signal correct in practice + operator ok.
 BUILD-READY (conductor verified conduct-cycle.mjs:944-988, 2026-07-22): condition (c) is
 ALREADY HANDLED — the `closed` check at L953 (/FIX:\s*none|SUPERSEDED|RESOLVED|DUPLICATE-RETIRED/i)
 already suppresses DIAGNOSE debt when the AUTORUN line carries a RESOLVED/SUPERSEDED annotation
