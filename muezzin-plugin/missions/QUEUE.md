@@ -2336,10 +2336,18 @@ from the agy process or agy from the Claude CLI process" — each with a same-se
         tool-session decides: file stays empty -> hypothesis (1), writer must move to a
         fired event; file populates with unexpected keys -> hypothesis (2), fix the
         field mapping. Do NOT trust --post/--stop until that receipt lands. [conf 0.9]
-    (b) bootstrap gate + (d) computed diagnosis-debt: STILL OPEN per grep — only inject
-        TEXT says "ORIENT FIRST / read the board"; no mechanical PreToolUse orientation
-        block and no board-derived computed debt injection found in the hook. [conf 0.7,
-        grep-level not full-read — confirm by reading check_pre_tool before building].
+    (b) bootstrap gate + (d) computed diagnosis-debt: CONFIRMED STILL OPEN 2026-07-22
+        (conductor, FULL READ of check_pre_tool + check_pre_invoke + load_rules_inject,
+        raising last beat's 0.7 grep-level to 0.9). (b): check_pre_tool has exactly three
+        guards — path-existence, substrate-niyyah (canon/practice/faiths/hooks/rules/
+        claude.md), destructive-git — then returns allow_tool:True. There is NO
+        orientation/bootstrap block; nothing is the agy analogue of the claude-side
+        bootstrap-gate.mjs (block all non-bootstrap tools until Fajr orientation shown).
+        (d): check_pre_invoke injects load_rules_inject() (the RULES_FILE rulebook,
+        live-loaded + hash/mtime-stamped) plus one-shot senior-intervention — and NOTHING
+        board-derived: no STATUS-BOARD read, no undiagnosed-FAILED count, no open-gap
+        list. The claude-side user-prompt-submit hook computes+injects all of that; agy's
+        inject is rulebook+intervention only. Both are genuine N5 item-13 build work.
     NET for the N5 build: item-13 residual is (b)+(d) build + (e) diagnose+fix + (c)
     content-audit; (a) is done. The premise re-verification itself is the eighth-law
     receipt the item's own note (d) demanded ("static text, not board-derived").
