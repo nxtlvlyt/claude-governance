@@ -164,7 +164,18 @@ export function recordFix(base, { cls, fix, requeue = [] }, now = Date.now()) {
 // the falseDeathScan sweep (post-hoc) and the daemon's PRE-SATISFIED fire guard (#25b,
 // pre-hoc). Byte-identity keyed; nosha caps at PARTIAL (the b13-aria control).
 export function missionLandedState(mtext, gitFn) {
-  if (!mtext || !/MISSION-CLASS:\s*code-repo/i.test(mtext)) return null;
+  if (!mtext) return null;
+  // OPS-DEPLOY EXTENSION (gap-false-reject-reconciler-excludes-ops-deploy, 2026-07-22): ops-deploy
+  // missions with a scoped git-commit step have the same file-deliverable identity as code-repo
+  // (receipt: 6 verdict false-rejects hand-adjudicated in one session -- RULE 18/19/20/21, execcap,
+  // self-resolved -- every one an ops-deploy engine mission whose commit was already at HEAD while
+  // the sweep idled behind this gate). Pure-deploy ops missions (no git commit in the text) stay
+  // excluded: no file identity, byte-checks would false-flag them. Consumers stay safe by design:
+  // the PRE-SATISFIED fire guard blocks only on FULL (requires BASELINE-SHA); stamp-verification
+  // and promotion dispute only on GENUINE (zero allow-files at HEAD) and fail open on null.
+  const isCodeRepoMLS = /MISSION-CLASS:\s*code-repo/i.test(mtext);
+  const isOpsCommitMLS = /MISSION-CLASS:\s*ops-deploy/i.test(mtext) && /\bgit\s+commit\b/i.test(mtext);
+  if (!isCodeRepoMLS && !isOpsCommitMLS) return null;
   const repo = (mtext.match(/REPO-ROOT:\s*(.+)/) || [])[1]?.trim();
   if (!repo) return null;
   // BOUNDED-BLOCK FIX (2026-07-05, live catch): the old regex matched ANY "  - token" line
@@ -1977,6 +1988,17 @@ function selftest() {
       const stBareHex = missionLandedState(bareHexText, fdGitStub);
       ck(stBareHex.verdict !== 'FULL', 'srcSha anchor: a BARE hex mention (no BASELINE-SHA: label) equal to current HEAD must NEVER verdict FULL (the exact lighthouse-ci-manifest-fix false PRE-SATISFIED)');
       ck(stBareHex.verdict === 'PARTIAL', 'srcSha anchor: bare hex mention falls back to the nosha path -> PARTIAL (presence-only evidence)');
+
+      // OPS-DEPLOY EXTENSION fixtures (gap-false-reject-reconciler-excludes-ops-deploy, 2026-07-22):
+      // the reconciler must cover commit-carrying ops-deploy missions -- the engine-lint class that
+      // produced 6 hand-adjudicated verdict false-rejects in one session -- while pure-deploy
+      // missions stay excluded and the nosha PARTIAL cap is inherited unchanged.
+      const odCommit = 'MISSION-CLASS: ops-deploy\nREPO-ROOT: C:/r\nBASELINE-SHA: abc1234\nALLOW-FILES:\n  - js/a.js\nMaqsad: land rule. Step 3: git commit -m "x" -- js/a.js';
+      ck(missionLandedState(odCommit, fdGitStub)?.verdict === 'FULL', 'ops-deploy extension: commit-carrying ops mission with BASELINE-SHA + byte-identical allow-files -> FULL candidate (the engine-lint false-reject class, now mechanical)');
+      const odPure = 'MISSION-CLASS: ops-deploy\nREPO-ROOT: C:/r\nALLOW-FILES:\n  - js/a.js\nMaqsad: deploy the site; render-verify; no repo edits named here';
+      ck(missionLandedState(odPure, fdGitStub) === null, 'ops-deploy extension: a PURE-deploy mission (no git-commit step in the text) stays excluded from the scan -- no file identity to key on');
+      const odNosha = 'MISSION-CLASS: ops-deploy\nREPO-ROOT: C:/r\nALLOW-FILES:\n  - js/a.js\nMaqsad: land it. Step: git commit -m "x" -- js/a.js';
+      ck(missionLandedState(odNosha, fdGitStub)?.verdict === 'PARTIAL', 'ops-deploy extension: commit-carrying ops mission WITHOUT BASELINE-SHA caps at PARTIAL (nosha rule inherited unchanged, never FULL)');
       ck(stBareHex.srcSha === null, 'srcSha anchor: bare hex mention extracts NO srcSha at all -- the anchor requires an explicit BASELINE-SHA: label');
       const labeledText = 'MISSION-CLASS: code-repo\nREPO-ROOT: C:/r\nBASELINE-SHA: abc1234\nALLOW-FILES:\n  - js/a.js\n  - css/b.css\nMaqsad: land the feature';
       const stLabeled = missionLandedState(labeledText, fdGitStub);

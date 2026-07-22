@@ -1,0 +1,63 @@
+MISSION-ID: engine-odext-false-reject-reconciler
+MISSION-CLASS: ops-deploy
+REPO-ROOT: C:\Users\marka\.claude\muezzin-plugin
+ALLOW-FILES:
+  - conduct-cycle.mjs
+REQUIRES: none
+STEPS: 3
+
+MAQSAD (the end): gap-false-reject-reconciler-excludes-ops-deploy — the conductor's single most
+repeated manual judgment (6 hand-adjudicated verdict false-rejects in one session: RULE 18/19/20/21,
+execcap, self-resolved; each = read result.json, re-run selftest live, verify commit at HEAD, stamp
+RESOLVED-LANDED by hand) is unmechanized for the exact class that hits it. conduct-cycle.mjs ALREADY
+carries the reconciler (missionLandedState + falseDeathScan: ALLOW-FILES byte-identity at HEAD =>
+landed candidate) but its class gate admits ONLY code-repo missions — every engine-lint mission is
+ops-deploy, so the machinery idles while the conductor does its job manually. This teaches the
+muezzin the judgment: widen the gate to ops-deploy missions that carry a scoped git-commit step
+(file deliverables exist); pure-deploy missions stay excluded (no file identity — byte-checks would
+false-flag them). The FALSE-DEATH-CANDIDATES sweep then computes ops-deploy false-reject candidates
+mechanically; any seat (local model, agy) confirms candidates from receipts instead of re-deriving.
+
+THE FIX: a staged deterministic patcher
+(missions/_logs/staged-odext-reconciler-2026-07-22/patch-odext-reconciler.mjs), 2 anchored edits:
+EDIT-1 widens missionLandedState's gate (code-repo OR ops-deploy-with-git-commit); EDIT-2 adds 3
+selftest fixtures (commit-carrying + BASELINE-SHA byte-identical -> FULL; pure-deploy -> null
+excluded; commit-carrying nosha -> PARTIAL cap inherited). CONSUMER SAFETY verified BEFORE authoring
+(all 3 daemon call sites read): PRE-SATISFIED fire guard blocks only on FULL (requires BASELINE-SHA,
+which these missions lack -> can never wrongly skip a fire); stamp-verification (queuedDepsHold) and
+promotion (pickPromotion) dispute only on GENUINE and fail OPEN on null — fail direction preserved.
+Dry-run RECEIPTED 2026-07-22 on a plugin-root byte-copy: PATCHED, node --check OK,
+`node conduct-cycle.mjs --selftest` = 176 PASS / 0 FAIL including all 3 new fixtures, idempotent
+ALREADY-PATCHED on re-run.
+
+STEPS (literal-command-queue: each fenced line runs VERBATIM from REPO-ROOT; exit code is pass/fail;
+bare PowerShell; step 2 emits a COMPACT receipt per gap-engine-lint-mission-must-emit-compact-receipt
+— one count-assertion line, never the full selftest dump; commit is FLAGS-FIRST per live RULE 21):
+
+```pwsh
+node "C:/Users/marka/.claude/muezzin-plugin/missions/_logs/staged-odext-reconciler-2026-07-22/patch-odext-reconciler.mjs" conduct-cycle.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; node --check conduct-cycle.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; Write-Output 'ODEXT-PATCH-OK'
+$out = (node conduct-cycle.mjs --selftest 2>&1 | Out-String); if ($LASTEXITCODE -ne 0) { exit 1 }; $n = ([regex]::Matches($out, 'PASS  ops-deploy extension')).Count; $f = ([regex]::Matches($out, '(?m)^FAIL')).Count; Write-Output ("ODEXT-RECEIPT passes=" + $n + " fails=" + $f); if ($n -lt 3 -or $f -gt 0) { exit 1 }; Write-Output 'ODEXT-SELFTEST-OK'
+git add -- conduct-cycle.mjs; git diff --cached --quiet; if ($LASTEXITCODE -eq 0) { Write-Output 'ALREADY_COMMITTED' } else { git commit -m "feat(conduct-cycle): false-reject reconciler covers ops-deploy - missionLandedState gate widened to ops-deploy missions with scoped git-commit steps, so the FALSE-DEATH-CANDIDATES sweep computes the engine-lint verdict-false-reject class mechanically instead of conductor hand-adjudication (6 instances one session); pure-deploy stays excluded; PRE-SATISFIED/stamp/promotion fail-directions preserved; closes gap-false-reject-reconciler-excludes-ops-deploy" -- conduct-cycle.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; Write-Output 'ODEXT-COMMIT-OK' }
+```
+
+Step 1: run the deterministic patcher (idempotent ALREADY-PATCHED; fail-closed on absent/non-unique
+anchors) then node --check. The only step that writes conduct-cycle.mjs.
+Step 2: OUTCOME CHECK, COMPACT-RECEIPT FORM — run the full selftest but emit ONE assertion line
+(ODEXT-RECEIPT passes=N fails=F) that survives any output truncation; exit 1 unless passes>=3 and
+fails=0. Authors nothing.
+Step 3: commit the scoped allow-file, flags-first (idempotent-commit idiom).
+
+DONE-MEANS: conduct-cycle.mjs's missionLandedState admits ops-deploy missions carrying a git-commit
+step (and still refuses pure-deploy); the 3 new fixtures pass inside a fully green selftest
+(step-2 receipt line shows passes=3 fails=0); committed scoped to conduct-cycle.mjs. NOTE (post-DONE,
+not a step): conduct-cycle is imported by the running daemon (static import), so the daemon-side
+consumers (PRE-SATISFIED, stamp-verify, promotion) see the widened gate only after a daemon restart;
+the OFFLINE sweep (conduct-cycle CLI) uses it immediately. Conductor restarts at the next clean
+moment, batched per the established restart hygiene.
+
+REACHABILITY NOTE (miqat): non-page engine-module edit; no page/route/nav ships, so no MIQAT
+orphan-page reachability check applies.
+
+source: C:\Users\marka\.claude\muezzin-plugin\conduct-cycle.mjs
+source: C:\Users\marka\.claude\muezzin-plugin\missions\_logs\staged-odext-reconciler-2026-07-22\patch-odext-reconciler.mjs
+source: C:\Users\marka\.claude\muezzin-plugin\missions\_logs\GAP-REGISTER.jsonl
