@@ -1,0 +1,61 @@
+MISSION-ID: engine-lint-rule19-numeric-contract
+MISSION-CLASS: ops-deploy
+REPO-ROOT: C:\Users\marka\.claude\muezzin-plugin
+ALLOW-FILES:
+  - mission_lint.mjs
+REQUIRES: none
+STEPS: 4
+
+MAQSAD (the end): N5 item 12 (explicit-validation mission format) deterministic form of
+gap-mission-validation-must-pin-numeric-contract. A mission may DECLARE its numeric
+acceptance contract with a line-anchored field naming the exact literals; when declared,
+every listed number must appear in some validation_command / [command] / [verify] step,
+or an authoring seat can ship different numbers and pass every step check. Receipt:
+mt-levels-not-ladders shipped 50/150/400/900/2000 instead of the intended 25/75/200/500
+because its thresholds lived only in prose plus a seat-authored selftest -- never a
+validation grep -- and only the phase-3 verdict panel caught it (2 wasted attempts). This
+mission lands mission_lint RULE 19 (numeric-contract-declared-unpinned) via the STAGED,
+DRY-RUN-RECEIPTED patcher (dry-run on a byte-copy this beat: PATCHED / ALREADY-PATCHED
+idempotent / full selftest ALL PASS including all 3 new RULE 19 fixtures):
+missions\_logs\staged-lint-rule19-2026-07-21\patch-rule19-numeric-contract.mjs.
+OPT-IN BY DESIGN: the fuzzy auto-detector was prototyped through 3 guard iterations and
+REJECTED as too brittle (it could not separate a threshold ladder from line-range
+citations or fixture data -- scratchpad/proto-rule19*.mjs receipt); the explicit declared
+field plus exact-match is the sound path. Zero existing missions carry the field (verified
+2026-07-22), so zero false positives on the current corpus. The rule is text-only,
+honoring lintMission's fs-free invariant.
+NOTE ON SELF-REFERENCE: this mission text never carries the flagged field at line-start
+(the patcher's fixture strings assemble the token by concatenation), so the miqat that
+gains RULE 19 never refuses this mission or the patcher's own text.
+
+NIYYAH (why): QUEUE.md N5 item 12 (the sound deterministic fix, superseding the rejected
+fuzzy-lint owner). GAP ISSUES ARE ALWAYS PRIORITY (operator-rulings.md).
+source: C:\Users\marka\.claude\muezzin-plugin\missions\QUEUE.md
+source: C:\Users\marka\.claude\muezzin-plugin\mission_lint.mjs
+source: C:\Users\marka\.claude\muezzin-plugin\missions\_logs\staged-lint-rule19-2026-07-21\patch-rule19-numeric-contract.mjs
+
+REACHABILITY NOTE (miqat): engine lint layer, no page/surface ships -- no nav-reachability
+concern.
+
+STEPS (literal-command-queue: each fenced line runs VERBATIM from REPO-ROOT; exit code is
+the pass/fail signal):
+
+```pwsh
+node missions/_logs/staged-lint-rule19-2026-07-21/patch-rule19-numeric-contract.mjs mission_lint.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; Write-Output 'RULE19-PATCH-APPLIED'
+node --check mission_lint.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; Write-Output 'RULE19-SYNTAX-OK'
+$out = node mission_lint.mjs 2>&1 | Out-String; Write-Output $out; if ($LASTEXITCODE -ne 0) { exit 1 }; if (([regex]::Matches($out, 'PASS  RULE 19')).Count -lt 3) { exit 1 }; if ($out -cmatch '(?m)^FAIL') { exit 1 }; Write-Output 'RULE19-SELFTEST-OK'
+git add -- mission_lint.mjs; git diff --cached --quiet; if ($LASTEXITCODE -eq 0) { Write-Output 'ALREADY_COMMITTED' } else { git commit -m "lint: RULE 19 numeric-contract-declared-unpinned - a declared NUMERIC-CONTRACT field whose literals are not pinned in any validation step is refused at miqat (N5 item 12; mt-levels-not-ladders wrong-threshold receipt)" -- mission_lint.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; Write-Output 'RULE19-COMMIT-OK' }
+```
+
+Step 1: apply the staged patcher (fail-closed on anchor mismatch, idempotent).
+Step 2: syntax check.
+Step 3 (OUTCOME CHECK): full selftest -- all 3 new RULE 19 fixtures PASS, zero failures
+anywhere (checked with the line-anchored case-sensitive form RULE 18 itself teaches).
+Step 4: scoped commit (idempotent-commit idiom per ITEM 61 RIDER 2), flags-first pathspec.
+
+DONE-MEANS: mission_lint.mjs at HEAD carries RULE 19 (numeric-contract-declared-unpinned)
+with its 3 fixtures passing in the embedded selftest (zero regressions), committed scoped
+to mission_lint.mjs only. Daemon restart is required for the running daemon to pick up the
+new rule (mission_lint is a static import) -- the conductor restarts after landing. The
+agy-fork port + retrofitting the known cases (mt-levels-not-ladders, mt-integrate-k6) with
+the field are separate follow-ups per N5 items 10-14 (both-jurisdictions note).

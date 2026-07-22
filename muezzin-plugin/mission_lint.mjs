@@ -363,6 +363,25 @@ export function lintMission(text) {
     add('naive-fail-grep', `mission carries a validation guard matching captured output against the bare token 'FAIL' with case-insensitive -match (\$var -match 'FAIL') -- this false-fires on benign 'fail-closed'/'fail-open'/'fails forever' text in GREEN selftest output (PowerShell -match ignores case; 4 attempts burned across two engine-backport missions 2026-07-21). Use line-anchored case-sensitive -cmatch '(?m)^FAIL', or rely on the child process exit code alone.`);
   }
 
+  // RULE 19 -- NUMERIC-CONTRACT DECLARED BUT NOT PINNED (gap-mission-validation-must-pin-numeric-contract,
+  // N5 item 12 deterministic form): a mission MAY declare its numeric acceptance contract with a
+  // `NUMERIC-CONTRACT: n1,n2,...` line. When present, EVERY listed literal must appear in some
+  // validation_command / [command] / [verify] step -- otherwise an authoring seat can ship different
+  // numbers and pass every step check (mt-levels-not-ladders shipped wrong thresholds this exact way:
+  // its bands 25/75/200/500 lived only in prose + a seat-authored selftest, never a validation grep).
+  // OPT-IN: the fuzzy auto-detect was proven too brittle (3-iteration receipt); the field is the
+  // explicit contract, exact-matched. Text-only, honoring lintMission's fs-free invariant.
+  const ncMatch19 = t.match(/^[ \t]*NUMERIC-CONTRACT:[ \t]*([0-9][0-9,\s]*)$/im);
+  if (ncMatch19) {
+    const nums19 = [...new Set(ncMatch19[1].split(',').map((s) => s.trim()).filter(Boolean))];
+    const vlines19 = t.split(/\r?\n/).filter((l) => /validation_command\s*:/i.test(l) || /\[(command|verify)\]/i.test(l));
+    const vtext19 = vlines19.join('\n');
+    const missing19 = nums19.filter((n) => !new RegExp('\\b' + n + '\\b').test(vtext19));
+    if (missing19.length) {
+      add('numeric-contract-declared-unpinned', `mission declares NUMERIC-CONTRACT: ${nums19.join(',')} but ${missing19.length} literal(s) [${missing19.join(', ')}] appear in NO validation_command/[command]/[verify] step -- an authoring seat can ship different numbers and pass every step check (gap-mission-validation-must-pin-numeric-contract; mt-levels-not-ladders shipped wrong thresholds this exact way). Pin each contract number in the authoring step's validation_command.`);
+    }
+  }
+
   return { ok: problems.length === 0, problems };
 }
 
@@ -638,6 +657,23 @@ if (process.argv[1] && process.argv[1].endsWith('mission_lint.mjs')) {
   // (c) a LONGER pattern through -match (not the bare token) -> not flagged.
   const longerGrep18 = 'Maqsad: verify. Done means: ok. validation_command: if ($out ' + '-match ' + String.fromCharCode(39) + 'FAILED\\(plan\\)' + String.fromCharCode(39) + ') { exit 1 }';
   ck(!lintMission(longerGrep18).problems.some((p) => p.rule === 'naive-fail-grep'), 'RULE 18: a longer -match pattern (FAILED\\(plan\\)) is NOT flagged -- only the bare FAIL token form');
+
+  // ---- RULE 19: NUMERIC-CONTRACT DECLARED BUT NOT PINNED (N5 item 12 deterministic form).
+  // Field token assembled by concatenation so this selftest block never itself carries a
+  // line-anchored NUMERIC-CONTRACT: field when mission_lint is read as text.
+  const NC = 'NUMERIC' + '-CONTRACT:';
+  // (a) declared numbers, NONE pinned in any validation -> refused.
+  const nc19bad = 'Maqsad: levels.\n' + NC + ' 25,75,200,500\n1. AUTHOR levels.js [edit] levels.js\n   validation_command: if ($c -notmatch ' + String.fromCharCode(39) + 'Day Tripper' + String.fromCharCode(39) + ') { exit 1 }\nDone means: levels shipped.';
+  const nc19b = lintMission(nc19bad);
+  ck(!nc19b.ok && nc19b.problems.some((p) => p.rule === 'numeric-contract-declared-unpinned'), 'RULE 19: declared NUMERIC-CONTRACT with zero numbers pinned in validation REFUSED');
+
+  // (b) all declared numbers pinned in a validation_command -> passes.
+  const nc19good = 'Maqsad: levels.\n' + NC + ' 25,75,200,500\n1. AUTHOR levels.js [edit] levels.js\n   validation_command: foreach ($n in 25,75,200,500) { if ($c -notmatch ("min: " + $n)) { exit 1 } }\nDone means: levels shipped.';
+  ck(lintMission(nc19good).ok, 'RULE 19: all declared contract numbers pinned in validation_command passes');
+
+  // (c) no NUMERIC-CONTRACT field at all -> rule not applicable (passes).
+  const nc19none = 'Maqsad: card. Done means: card exists. validation_command: Test-Path card.md';
+  ck(!lintMission(nc19none).problems.some((p) => p.rule === 'numeric-contract-declared-unpinned'), 'RULE 19: a mission with no NUMERIC-CONTRACT field is never flagged by this rule');
 
   console.log(`\n${fail ? fail + ' FAIL' : 'ALL PASS — mission miqat: flawed work orders refused at the boundary, zero cycles burned'}`);
   process.exit(fail ? 1 : 0);
