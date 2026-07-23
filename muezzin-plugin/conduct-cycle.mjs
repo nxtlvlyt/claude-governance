@@ -1317,6 +1317,20 @@ export function sweep(base = HERE, now = Date.now(), routeFile = path.join(proce
       });
     }
   } catch (e) { report.push(`DONENESS: compute failed — ${String(e.message).slice(0, 80)} (fail-closed: treat as NOT done)`); }
+  // PRODUCT-PIPELINE-DRY (gap-conductor-idle-board-not-flagged-as-gated-pipeline, 2026-07-23):
+  // an idle board (0 pending, 0 running) whose backlog EXISTS but isn't flowing is all-shipped OR
+  // gated — never self-evidently "nothing needed". Force naming shipped-vs-gated. Report-only,
+  // fail-soft, CANNOT affect firing. A genuinely-empty backlog keeps the clean ending.
+  try {
+    const _parkedDue = (() => { try { return parkedRevivalDue(autorun, [], {}).length; } catch { return 0; } })();
+    const _queueText = (() => { try { return readText(path.join(base, 'missions', 'QUEUE.md')) || ''; } catch { return ''; } })();
+    const _backlogExists = (autorun.parked || []).length > 0 || _parkedDue > 0 || _queueText.trim().length > 200;
+    if (autorun.pending.length === 0 && autorun.running.length === 0 && _backlogExists) {
+      actions.push({ id: 'PRODUCT-PIPELINE-DRY', class: 'judgment', approved_by_faith: false,
+        why: 'idle board (0 pending, 0 running) with existing backlog — all-shipped OR gated, never self-evidently "nothing needed from you"',
+        rule: 'emit a PIPELINE-STATUS line naming what shipped this session + what remains and ON WHOM (operator identity-bound / gated / next-batch), sourced from QUEUE PARKED + INBOX; a bare "nothing needed" is FORBIDDEN on an idle board unless the backlog is genuinely EMPTY (nothing parked, nothing queued)' });
+    }
+  } catch { /* report-only; never block the sweep */ }
   if (!actions.length) report.push('required actions: none — "nothing needed from you" is a complete ending');
   // BEAT-COMPLETE BAR (operator correction 2026-07-03 ~17:0x: system gaps were ALWAYS first
   // priority, yet conductor beats kept ending "nothing needed from you" while this list sat
@@ -2483,6 +2497,18 @@ function selftest() {
   const rBar = sweep(tmp, now, noRoute, sightOk);
   ck(rBar.actions.length > 0 && rBar.report.some((l) => l.includes('BEAT-COMPLETE BAR') && l.includes("daemon's work, not yours")), 'non-empty actions -> BEAT-COMPLETE BAR counter-license printed (complete ending must be EARNED)');
   writeFileSync(path.join(tmp, 'missions', 'AUTORUN.md'), '# q\nDONE missions/good.mission.txt  <!-- t -->\n');   // restore healthy fixture for downstream checks
+  {
+    // PRODUCT-PIPELINE-DRY fixture (gap-conductor-idle-board-not-flagged-as-gated-pipeline, 2026-07-23):
+    // an idle board (0 pending, 0 running) whose backlog EXISTS (a PARKED line) must push the
+    // report-only PRODUCT-PIPELINE-DRY judgment action AND withhold the bare complete-ending
+    // line — forcing the conductor to name shipped-vs-gated. The healthy fixture just above
+    // (no parked, no QUEUE.md) still yields 0 actions + "nothing needed" (asserted at ~:2476).
+    writeFileSync(path.join(tmp, 'missions', 'AUTORUN.md'), '# q\nDONE missions/good.mission.txt  <!-- t -->\nPARKED missions/parked-thing.mission.txt  <!-- parked 2026-07-01: pending engine batch -->\n');
+    const rPipe = sweep(tmp, now, noRoute, sightOk);
+    ck(rPipe.actions.some((a) => a.id === 'PRODUCT-PIPELINE-DRY'), 'PRODUCT-PIPELINE-DRY: idle board (0 pending/0 running) with a PARKED backlog item pushes the report-only pipeline-dry judgment action');
+    ck(!rPipe.report.some((l) => l.includes('is a complete ending')), 'PRODUCT-PIPELINE-DRY: an idle board with backlog withholds the bare "…is a complete ending" line (BEAT-COMPLETE BAR fires instead)');
+    writeFileSync(path.join(tmp, 'missions', 'AUTORUN.md'), '# q\nDONE missions/good.mission.txt  <!-- t -->\n');   // re-restore healthy AUTORUN
+  }
 
   // QUEUE.md VISIBILITY (hunt-item #21, 2026-07-04): the sweep used to never read QUEUE.md at
   // all -- now it counts UNPARKS conditions and reports them (never as a blocking action).
