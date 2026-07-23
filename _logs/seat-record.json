@@ -23,14 +23,14 @@
     },
     "qwen3.6:27b": {
       "verdict": {
-        "pass": 35,
+        "pass": 36,
         "miss": 0,
         "fabrication": 0
       }
     },
     "granite4.1:30b": {
       "verdict": {
-        "pass": 23,
+        "pass": 24,
         "miss": 0,
         "fabrication": 0
       }

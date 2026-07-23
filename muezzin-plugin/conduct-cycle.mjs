@@ -1331,6 +1331,28 @@ export function sweep(base = HERE, now = Date.now(), routeFile = path.join(proce
         rule: 'emit a PIPELINE-STATUS line naming what shipped this session + what remains and ON WHOM (operator identity-bound / gated / next-batch), sourced from QUEUE PARKED + INBOX; a bare "nothing needed" is FORBIDDEN on an idle board unless the backlog is genuinely EMPTY (nothing parked, nothing queued)' });
     }
   } catch { /* report-only; never block the sweep */ }
+  // CONSTRUCT-MISSION-DUE (gap-conductor-construct-verb-has-no-forcing-function, 2026-07-23):
+  // the beat protocol enforces every conductor verb EXCEPT the FIRST — construct. An EMPTY queue
+  // (0 pending, 0 running) can coast while ADVANCEABLE-FAILED work exists: a FAILED that was
+  // DIAGNOSED (note non-empty) yet given NEITHER a terminal disposition NOR a constructed follow-up.
+  // TERMINAL keyword set (a note matching ANY of these is disposed/parked -> does NOT fire):
+  //   RESOLVED-LANDED | \bRESOLVED\b | SUPERSEDED | DUPLICATE-RETIRED | pending engine | PARKED | LANDED
+  // A bare (empty-note) FAILED is the SEVENTH-LAW / DIAGNOSE surface, not this one. Report-only,
+  // fail-soft, class:'judgment' -> CANNOT touch the fire path. It trips the BEAT-COMPLETE BAR below,
+  // so a bare "nothing needed" can never end the beat while advanceable-FAILED work remains.
+  try {
+    const _cmdTermRe = /RESOLVED-LANDED|\bRESOLVED\b|SUPERSEDED|DUPLICATE-RETIRED|pending engine|PARKED|LANDED/i;
+    const advanceableFailed = (autorun.failed || []).filter((p) => {
+      const note = (autorun.notes[p] || '').trim();
+      return note.length > 0 && !_cmdTermRe.test(note);   // diagnosed, but no terminal disposition and no constructed follow-up
+    });
+    if (autorun.pending.length === 0 && autorun.running.length === 0 && advanceableFailed.length > 0) {
+      actions.push({ id: 'CONSTRUCT-MISSION-DUE', class: 'judgment', approved_by_faith: false,
+        why: 'queue is EMPTY (0 pending, 0 running) but ' + advanceableFailed.length + ' FAILED mission(s) are diagnosed-but-not-disposed — the conductor owes its FIRST verb (construct): build + fire a follow-up mission (amend+refire, or the owned fix), or give it a TERMINAL disposition. A bare report or "name status" CANNOT satisfy this.',
+        read_first: advanceableFailed.slice(0, 6),
+        rule: 'for each: CONSTRUCT the next mission that advances it and FIRE it, OR write a terminal disposition (RESOLVED-LANDED with a receipt / PARKED with a resolvable owner). An empty queue is only complete when NO advanceable-FAILED work remains.' });
+    }
+  } catch { /* report-only; never block the sweep */ }
   if (!actions.length) report.push('required actions: none — "nothing needed from you" is a complete ending');
   // BEAT-COMPLETE BAR (operator correction 2026-07-03 ~17:0x: system gaps were ALWAYS first
   // priority, yet conductor beats kept ending "nothing needed from you" while this list sat
@@ -2507,6 +2529,23 @@ function selftest() {
     const rPipe = sweep(tmp, now, noRoute, sightOk);
     ck(rPipe.actions.some((a) => a.id === 'PRODUCT-PIPELINE-DRY'), 'PRODUCT-PIPELINE-DRY: idle board (0 pending/0 running) with a PARKED backlog item pushes the report-only pipeline-dry judgment action');
     ck(!rPipe.report.some((l) => l.includes('is a complete ending')), 'PRODUCT-PIPELINE-DRY: an idle board with backlog withholds the bare "…is a complete ending" line (BEAT-COMPLETE BAR fires instead)');
+    writeFileSync(path.join(tmp, 'missions', 'AUTORUN.md'), '# q\nDONE missions/good.mission.txt  <!-- t -->\n');   // re-restore healthy AUTORUN
+  }
+  {
+    // CONSTRUCT-MISSION-DUE fixture (gap-conductor-construct-verb-has-no-forcing-function, 2026-07-23):
+    // (a) an idle board (0 pending, 0 running) carrying a DIAGNOSED-but-NOT-DISPOSED FAILED (a real
+    // diagnosis note with NO terminal keyword) must push the report-only CONSTRUCT-MISSION-DUE
+    // judgment action AND withhold the bare complete-ending line — the construct verb is owed.
+    // (b) an idle board whose only FAILED is TERMINALLY disposed (RESOLVED-LANDED — the current mt
+    // board shape) must NOT push it. (c) the healthy fixture above (no FAILED) still yields 0 actions
+    // + "nothing needed" (asserted at ~:2490). AUTORUN is re-restored to healthy at the end.
+    writeFileSync(path.join(tmp, 'missions', 'AUTORUN.md'), '# q\nDONE missions/good.mission.txt  <!-- t -->\nFAILED missions/cmd-advanceable.mission.txt  <!-- correct fire: predates the design-MD ruling, binds no DESIGN.md -->\n');
+    const rCmd = sweep(tmp, now, noRoute, sightOk);
+    ck(rCmd.actions.some((a) => a.id === 'CONSTRUCT-MISSION-DUE'), 'CONSTRUCT-MISSION-DUE: idle board (0 pending/0 running) with a diagnosed-but-not-disposed FAILED pushes the report-only construct-verb judgment action');
+    ck(!rCmd.report.some((l) => l.includes('is a complete ending')), 'CONSTRUCT-MISSION-DUE: an idle board with advanceable-FAILED work withholds the bare "…is a complete ending" line (BEAT-COMPLETE BAR fires instead)');
+    writeFileSync(path.join(tmp, 'missions', 'AUTORUN.md'), '# q\nDONE missions/good.mission.txt  <!-- t -->\nFAILED missions/cmd-terminal.mission.txt  <!-- RESOLVED-LANDED 2026-07-20: shipped, ancestor-of-HEAD, marker present -->\n');
+    const rCmdTerm = sweep(tmp, now, noRoute, sightOk);
+    ck(!rCmdTerm.actions.some((a) => a.id === 'CONSTRUCT-MISSION-DUE'), 'CONSTRUCT-MISSION-DUE: an idle board whose only FAILED is TERMINALLY disposed (RESOLVED-LANDED — the current mt board shape) does NOT fire — the construct verb is owed only for advanceable work');
     writeFileSync(path.join(tmp, 'missions', 'AUTORUN.md'), '# q\nDONE missions/good.mission.txt  <!-- t -->\n');   // re-restore healthy AUTORUN
   }
 
