@@ -1,0 +1,79 @@
+MISSION-ID: engine-pipeline-blindness-product-dry
+MISSION-CLASS: ops-deploy
+REPO-ROOT: C:\Users\marka\.claude\muezzin-plugin
+ALLOW-FILES:
+  - conduct-cycle.mjs
+REQUIRES: none
+STEPS: 3
+
+DONE-MARKERS:
+  - conduct-cycle.mjs :: PRODUCT-PIPELINE-DRY
+
+MAQSAD (the end): close gap-conductor-idle-board-not-flagged-as-gated-pipeline — the conductor's coast
+license on a settled-but-not-empty board. conduct-cycle.mjs's sweep ends `required actions: none —
+"nothing needed from you" is a complete ending` whenever the engine action list is empty, EVEN when the
+PRODUCT board is idle (0 pending, 0 running) with a non-empty backlog (parked / queued / gated). An idle
+board with backlog is never self-evidently "nothing needed": it is either all-shipped-this-session OR
+gated-on-something, and the difference is exactly what the operator needs named. This mission installs a
+REPORT-ONLY, fail-soft guard that pushes a PRODUCT-PIPELINE-DRY judgment action when the board is idle
+AND backlog EXISTS, forcing the conductor to NAME shipped-vs-gated instead of emitting a bare "nothing
+needed". It is class:'judgment', touches NOTHING on the fire path, and CANNOT affect firing. A
+genuinely-EMPTY backlog (nothing parked, nothing queued) keeps the clean "nothing needed" ending — which
+is what keeps the pre-existing healthy selftest (0-pending/0-running fixture, no parked, no QUEUE.md)
+GREEN.
+
+THE FIX: a staged deterministic in-place patcher
+(missions/_logs/staged-pipeline-blindness-2026-07-23/patch-pipeline-blindness-inplace.mjs) applies 2 hunks
+(A, B) to conduct-cycle.mjs via unique anchors: HUNK A inserts the PRODUCT-PIPELINE-DRY block IMMEDIATELY
+BEFORE the `if (!actions.length) report.push('required actions: none …')` line — it computes
+`_backlogExists` from (autorun.parked||[]).length, parkedRevivalDue(autorun,[],{}).length, and a >200-char
+missions/QUEUE.md read via readText, and pushes the report-only action only when pending.length===0 &&
+running.length===0 && _backlogExists (all reads wrapped fail-soft; the whole block is try/caught so it can
+never break the sweep). HUNK B adds ONE selftest fixture right after the healthy-daemon test's
+restore-healthy line: an idle board with a PARKED backlog item must push PRODUCT-PIPELINE-DRY AND withhold
+the bare `…is a complete ending` line (the BEAT-COMPLETE BAR fires instead), while the untouched healthy
+fixture above still asserts 0 actions + "nothing needed". The patcher is idempotent (ALREADY-PATCHED if
+conduct-cycle.mjs already contains PRODUCT-PIPELINE-DRY), all-or-nothing (content computed in memory first;
+any anchor miss -> HUNK <id> ANCHOR-MISS, exit 1, ZERO writes), EOL-agnostic (auto-detects the file's real
+EOL; the live file is LF today), and node --checks the file it writes. Dry-run RECEIPTED 2026-07-23 on a
+plugin-root byte-copy: PIPELINE-BLINDNESS-PATCH-OK file=1 hunks=2, node --check OK, `node conduct-cycle.mjs
+--selftest` exit 0 with 178 PASS / 0 FAIL (baseline was 176/0 — exactly the +2 new fixture assertions, zero
+regressions; both PRODUCT-PIPELINE-DRY assertions PASS; the healthy fixture stayed 0-actions + "nothing
+needed" + no beat-complete bar), and a re-run -> ALREADY-PATCHED with the file byte-unchanged.
+
+STEPS (literal-command-queue: each fenced line runs VERBATIM from REPO-ROOT; exit code is pass/fail; bare
+PowerShell, no command-string self-wrapper; the commit is FLAGS-FIRST):
+
+```pwsh
+node "C:/Users/marka/.claude/muezzin-plugin/missions/_logs/staged-pipeline-blindness-2026-07-23/patch-pipeline-blindness-inplace.mjs"; if ($LASTEXITCODE -ne 0) { exit 1 }; node --check conduct-cycle.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; Write-Output 'PIPELINE-BLINDNESS-PATCH-OK'
+$o = & node conduct-cycle.mjs --selftest 2>&1; if ($LASTEXITCODE -ne 0) { Write-Output 'SELFTEST-EXIT-NONZERO'; exit 1 }; $p = ($o | Select-String -Pattern '^PASS  PRODUCT-PIPELINE-DRY').Count; $f = ($o | Select-String -Pattern '^FAIL').Count; if ($p -lt 1) { Write-Output "PIPELINE-DRY-FIXTURE-MISSING=$p"; exit 1 }; if ($f -ne 0) { Write-Output "SELFTEST-FAIL-LINES=$f"; exit 1 }; Write-Output "PIPELINE-DRY-PASSES=$p SELFTEST=PASS FAIL=0"
+git add -- conduct-cycle.mjs; git diff --cached --quiet; if ($LASTEXITCODE -eq 0) { Write-Output 'ALREADY_COMMITTED' } else { git commit -m "feat(conduct-cycle): PRODUCT-PIPELINE-DRY report-only sweep guard - an idle board (0 pending/0 running) with existing backlog no longer self-evidently ends 'nothing needed'; forces naming shipped-vs-gated (report-only, cannot affect firing); +1 selftest fixture, healthy fixture stays green (copy-verified 178 PASS/0 FAIL); closes gap-conductor-idle-board-not-flagged-as-gated-pipeline" -- conduct-cycle.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; Write-Output 'PIPELINE-BLINDNESS-COMMIT-OK' }
+```
+
+Step 1: run the deterministic in-place patcher (idempotent ALREADY-PATCHED; all-or-nothing fail-closed if
+the anchor is absent/non-unique) then node --check conduct-cycle.mjs. The only step that writes the
+allow-file.
+Step 2: OUTCOME CHECK -- COMPACT receipt (grep-count, NOT a full selftest dump, per
+gap-engine-lint-mission-must-emit-compact-receipt): `node conduct-cycle.mjs --selftest` must exit 0 with
+>= 1 `PASS  PRODUCT-PIPELINE-DRY` line and zero `^FAIL` lines; prints one line
+`PIPELINE-DRY-PASSES=<n> SELFTEST=PASS FAIL=0`.
+Step 3: idempotent flags-first commit of the one allow-file (git-diff-cached-quiet short-circuit ->
+ALREADY_COMMITTED when nothing staged).
+
+DONE-MEANS: conduct-cycle.mjs patched -- PRODUCT-PIPELINE-DRY present (the sweep guard block + the selftest
+fixture); `node conduct-cycle.mjs --selftest` exits 0 with >= 1 PRODUCT-PIPELINE-DRY fixture PASS and 0
+FAIL; committed flags-first scoped to the one allow-file (conduct-cycle.mjs). NOTE (post-DONE, not a step):
+conduct-cycle.mjs is STATICALLY imported by the running daemon (muezzin-daemon.mjs:32 `import { heal as
+conductCycleHeal, missionLandedState } from './conduct-cycle.mjs'`), so this guard is not enforced at
+runtime until a daemon restart -- the conductor restarts after this DONE (muezzin daemon static-import
+staleness). PART-2 NOTE: this mission carries a DONE-MARKERS field (conduct-cycle.mjs :: PRODUCT-PIPELINE-DRY),
+so it is PART 2-eligible -- if the verdict panel false-rejects it while the work is actually committed +
+ancestor-of-HEAD and the marker is present at HEAD, the now-LIVE verdict-reject-landed reconciler should
+STOP-REFIRE + candidate-mark it mechanically rather than burning a blind refire.
+
+REACHABILITY NOTE (miqat): non-page engine-module edit; no page/route/nav ships, so no MIQAT orphan-page
+reachability check applies.
+
+source: C:\Users\marka\.claude\muezzin-plugin\conduct-cycle.mjs
+source: C:\Users\marka\.claude\muezzin-plugin\missions\_logs\staged-pipeline-blindness-2026-07-23\patch-pipeline-blindness-inplace.mjs
+source: C:\Users\marka\.claude\muezzin-plugin\missions\_logs\GAP-REGISTER.jsonl
