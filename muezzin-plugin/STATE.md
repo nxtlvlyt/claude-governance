@@ -1,6 +1,50 @@
 # STATE.md — muezzin-plugin (this project's contextualization of CLAUDE.md)
 
-## ⚡ SESSION LEDGER 2026-07-22 (LATER ARC — end of session; SUCCESSOR RESUMES FROM HERE)
+## ⚡ SESSION LEDGER 2026-07-23 (SUCCESSOR RESUMES FROM HERE — supersedes the 2026-07-22 arcs below)
+
+DAEMON: mt PID **11572** idle (restarted from 38788 THIS session onto the PART 2 commit; mt supervisor pid
+46180 respawns on exit; launch envs MUEZZIN_ARCHITECT_ROUTE=panel + MAX_LANES=1). agy PID **2984** idle —
+SEPARATE jurisdiction; NEVER reap by shared `muezzin-daemon` script name; stop only by pidfile-confirmed PID.
+Boards clean: mt 0 undiagnosed FAILED, agy 0 undiagnosed. GAP REGISTER ~63/90 closed, every open gap owner-resolvable.
+
+★ **PART 2 (verdictRejectLandedCandidate) LANDED + LIVE** — committed **97cc3d2** (muezzin-daemon.mjs +149 /
+mission_lint.mjs +45, scoped to the 2 allow-files). The 2026-07-22 arc's "FULLY DESIGNED, DELIBERATELY NOT
+BUILT / land fresh" is DONE. The post-verdict FAIL-CLOSED branch: a verdict-REJECTED mission whose work is
+committed+ancestor-of-HEAD AND whose declared DONE-MARKERS are all present at HEAD gets STOP-REFIRE + a
+stamp-SAFE VERDICT-REJECT-LANDED-CANDIDATE receipt (never auto-closes — the note matches NO RESOLVED
+stamp-matcher). Fail-closed: no DONE-MARKERS or any marker absent -> nothing (a genuine failure is never
+hidden). mission_lint RULE 22 flags a malformed DONE-MARKERS declaration. VERIFICATION CHAIN (banked on
+gap-false-reject-reconciler-excludes-ops-deploy): adversarial Sonnet workflow CAUGHT+CORRECTED a CATASTROPHIC
+pin bug (the pin's note tail "conductor confirms with RESOLVED-LANDED" would have auto-closed+HIDDEN real
+failures across 4 stamp-consumers) -> stamp-safety independent witness (all 4 matchers false, 0.97) ->
+r-shape verified on 5 real false-reject specimens -> writer-extension gap found+authored+tested
+(buildMarkLine/setMark +extraNote, ABSENT from the author artifacts — deterministic-before-reasoning caught
+it) -> dry-run GREEN 16/16 fixtures, 0 regressions -> live baseline GREEN 187/0 -> daemon AUTO-QUEUED+fired
+the mission (all 3 steps ok, committed) -> panel FALSE-REJECTED it (F1 show-me-the-file, the EXACT class
+PART 2 fixes; bootstrap chicken-and-egg on the old daemon) -> conductor hand-confirmed (grepped HEAD: markers
+present) -> CUTOVER (stopped 38788 ONLY, supervisor respawned 11572, loaded-PART2=True, agy untouched).
+Turnkey artifacts: PART2-LANDING-MANIFEST-2026-07-23.md + missions/_logs/staged-part2-2026-07-23/. DAY-ONE
+COVERAGE: only DONE-MARKERS-declaring missions are eligible — future engine missions should declare the field.
+
+ORPHAN GAP RE-DIAGNOSED (was FALSELY CONFIRMED -> CORRECTED -> now RESOLVED-NO-BUG): a cwd-aware census this
+session found EXACTLY 2 muezzin-daemon procs (11572 mt + 2984 agy), both pidfile-owned -> ZERO orphans. The
+launch commandline is BARE (`node  muezzin-daemon.mjs`, no path), so mt/agy are INDISTINGUISHABLE by
+commandline — that is exactly why the 2026-07-22 mis-reap killed agy's daemon. CORRECTED CENSUS METHOD =
+pidfile-set-difference ({all muezzin-daemon pids} MINUS {each jurisdiction's daemon.pid}), NEVER script-name
+matching. No orphan bug exists; the run-loop self-exit fix stays DEFERRED as unneeded.
+
+OPEN THREADS FOR THE SUCCESSOR:
+1. PART 2 is LIVE — the proof is its FIRST reconcile of a real false-reject in the wild: a
+   DONE-MARKERS-declaring engine mission the panel false-rejects should now STOP-REFIRE + candidate-mark
+   MECHANICALLY (no manual hand-confirm). Watch for it; verify the emitted note is stamp-safe on the real line.
+2. Remaining engine gaps (turnkey, next batch, all owner-resolvable on the register): compact-receipt
+   authoring lint; pipeline-blindness beat surface (conduct-cycle idle-board PRODUCT-PIPELINE-DRY — spec
+   REFINED this session, needs a backlogExists signal so it doesn't nag a genuinely-finished board + would
+   break the healthy selftest L2476-2478 without it); stale-engine-self-restart (inverse-direction added —
+   daemonStart>importedCommit => restart NOT owed, auto-supersede stale "restart owed" notes).
+3. 0824f52 conduct-cycle allowlist ratification (carried from 2026-07-22) — still OPERATOR-RATIFICATION-PENDING.
+
+## ⚡ SESSION LEDGER 2026-07-22 (LATER ARC — SUPERSEDED by the 2026-07-23 ledger above; historical)
 
 DAEMON: mt PID **38788** idle, carries the launch envs (MUEZZIN_ARCHITECT_ROUTE=panel + MAX_LANES=1).
 Restarted THREE times this session (19432→29656→23500→38788) as engine fixes landed. ⚠️ CORRECTION: the
