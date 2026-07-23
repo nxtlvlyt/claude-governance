@@ -559,17 +559,18 @@ function reclaimStaleRunning() {
 // judgment notes to bare timestamps in one beat (receipt: QUEUE.md N10, conductor had to
 // hand-restore all 4). A status mark now APPENDS its timestamp to the surviving note.
 // Pure builder, selftested both polarities.
-export function buildMarkLine(oldLine, raw, status, iso) {
+export function buildMarkLine(oldLine, raw, status, iso, extraNote) {
   const existing = (String(oldLine).match(/<!--([\s\S]*?)-->/) || [])[1]?.trim() || '';
   if (!status) return existing ? `${raw}  <!-- ${existing} -->` : raw;
-  const note = existing ? `${existing} | ${status}-marked ${iso}` : iso;
+  let note = existing ? `${existing} | ${status}-marked ${iso}` : iso;
+  if (extraNote) note = `${note} | ${extraNote}`;
   return `${status} ${raw}  <!-- ${note} -->`;
 }
-function setMark(raw, status) {
+function setMark(raw, status, extraNote) {
   const lines = readFileSync(AUTORUN, 'utf8').split(/\r?\n/);
   const idx = lines.findIndex((l) => !l.trim().startsWith('#') && missionPath(l) === raw);
   if (idx < 0) return false;
-  lines[idx] = buildMarkLine(lines[idx], raw, status, new Date().toISOString());
+  lines[idx] = buildMarkLine(lines[idx], raw, status, new Date().toISOString(), extraNote);
   writeFileSync(AUTORUN, lines.join('\n'));
   return true;
 }
@@ -694,6 +695,57 @@ function mentionedInQueue(autorunText, rel) {
 // reasons, which is exactly the cross-step conflation the step-scoping fix above closes.
 function shouldHaltMission(n, maxAttempts, failedStep) {
   return n >= maxAttempts || !!failedStep?.recurringError;
+}
+
+// VERDICT-REJECT-LANDED reconciler (gap-false-reject-reconciler-excludes-ops-deploy PART 2,
+// 2026-07-22). The verdict panel (small local witness models) false-rejects CORRECT engine work
+// on receipt-completeness grounds, forcing manual conductor toil. This pure helper decides whether
+// a verdict-REJECTED mission actually LANDED -- and it FAILS CLOSED: it returns a candidate ONLY
+// when the mission declares a machine-checkable DONE-MARKERS field AND every marker's literal
+// string is present in its file at HEAD (G9). A genuinely-failed mission (wrong content committed,
+// or no correctness witness declared) gets NOTHING and its verdict reject STANDS -- auto-closing a
+// real failure hides it, which is worse than the false-reject it would replace (QUEUE ITEM 24(b) +
+// the pin's D13 correction: "witness the ARTIFACT, not the commit identity"). Never throws outward:
+// every gitFn call is guarded, and the call site also wraps in try/catch -> null = exact current
+// behavior. Returns { sha, stepsOk, files, mlsVerdict, markers } | null.
+export function verdictRejectLandedCandidate(r, mtext, gitFn) {
+  if (!r || r.ok !== false || r.phase !== 'verdict') return null;              // G1 verdict-phase reject only (never plan/exec/build-gate)
+  if (!/^verify consensus /.test(String(r.reason || ''))) return null;         // G2 a real panel non-APPROVE (excludes verdict-threw, reason 'verdict phase threw:')
+  const steps = Array.isArray(r.steps) ? r.steps : [];
+  if (!steps.length) return null;                                              // G3
+  if (!steps.every((s) => s && s.ok === true)) return null;                    // G4 every step executed clean; a failed step is a real failure, never reconciled
+  const shaRe = /\[[\w./-]+(?: \([\w -]+\))? ([0-9a-f]{7,40})\]/g;             // git commit summary: "[main abc1234] msg" / "[main (root-commit) abc1234]"
+  let sha = null;
+  for (const s of steps) for (const m of String(s.execOut || '').matchAll(shaRe)) sha = m[1];   // LAST commit summary in the run wins
+  if (!sha) return null;                                                       // G5 no committed sha parseable from any execOut (tail-capped 500) -> fail-open, no candidate
+  const repo = (mtext.match(/REPO-ROOT:\s*(.+)/) || [])[1]?.trim();
+  if (!repo) return null;                                                      // G6 no REPO-ROOT -> nothing is verifiable at HEAD
+  let anc; try { anc = gitFn(repo, `merge-base --is-ancestor ${sha} HEAD`); } catch { return null; }
+  if (!anc || !anc.ok) return null;                                            // G7 the mission's own commit must be reachable from HEAD
+  let mls = null;
+  try { mls = missionLandedState(mtext, gitFn); } catch { mls = null; }
+  if (mls && mls.verdict === 'GENUINE') return null;                           // G8 GENUINE (zero ALLOW-FILES present at HEAD) vetoes; null/PARTIAL/FULL do not block
+  // G9 -- DONE-MARKERS correctness gate (net-new, the fail-closed core). The mission MUST declare a
+  // DONE-MARKERS block of "<repo-relative-file> :: <literal string>" bullets, and EVERY declared
+  // string MUST be present in its file's content at HEAD. This witnesses the ARTIFACT, not the
+  // commit identity: a wrong-but-executed mission (all steps ok, WRONG content committed) will NOT
+  // carry the expected string at HEAD -> null -> the verdict reject stands. NO DONE-MARKERS -> null:
+  // a mission with no machine-checkable correctness witness is never auto-reconciled. Anchored to the
+  // contiguous bullet run after the header -- the ALLOW-FILES bounded-block discipline
+  // (conduct-cycle.mjs:181-189), so a prose bullet elsewhere can never masquerade as a marker.
+  const dmBlock = (mtext.match(/^DONE-MARKERS:[ \t]*\r?\n((?:[ \t]{2}-[ \t]+\S.*\r?\n?)*)/mi) || [])[1] || '';
+  const markers = [...dmBlock.matchAll(/^[ \t]{2}-[ \t]+(.+?)[ \t\r]*$/gm)]
+    .map((mm) => mm[1])
+    .filter((b) => b.includes('::'))
+    .map((b) => ({ file: b.slice(0, b.indexOf('::')).trim(), needle: b.slice(b.indexOf('::') + 2).trim() }))
+    .filter((mk) => mk.file && mk.needle);
+  if (!markers.length) return null;                                            // G9a no machine-checkable DONE-MARKERS -> NOTHING (fail closed)
+  for (const mk of markers) {
+    let show; try { show = gitFn(repo, `show HEAD:"${mk.file}"`); } catch { return null; }
+    if (!show || !show.ok || !String(show.out).includes(mk.needle)) return null; // G9b any marker's string absent at HEAD -> NOTHING (a genuine failure stays a failure)
+  }
+  const files = [...new Set(steps.map((s) => s.target).filter(Boolean))];
+  return { sha, stepsOk: steps.length, files, mlsVerdict: mls ? mls.verdict : null, markers: markers.map((mk) => mk.file) };
 }
 
 // FIRE-TIME TARTIB GATE (2026-07-02, operator ruling "close structure that bites before
@@ -1522,6 +1574,19 @@ async function mainLoop() {
         // prior code only computed this inside the n>=MAX_ATTEMPTS branch, one branch too late to ever
         // gate on it. r?.ok is truthy for DONE/SPLIT, so failedStep is simply unused (harmless) there.
         const failedStep = (r?.steps || []).filter((s) => !s.ok).pop();
+        // VERDICT-REJECT-LANDED reconciler (PART 2, gap-false-reject-reconciler-excludes-ops-deploy,
+        // 2026-07-22): FAIL-CLOSED landed-candidate computed BEFORE the halt decision so an attempt-1
+        // false-reject never burns attempt 2. Non-null ONLY for a verdict-reject whose work is
+        // committed+ancestor-of-HEAD AND whose declared DONE-MARKERS are all present at HEAD (G1-G9).
+        // Fail-open: any throw / missing witness -> null -> exact current behavior. gitFn byte-copied
+        // from the PRE-SATISFIED guard (:1430).
+        let landedCand = null;
+        if (r && r.ok === false) {
+          try {
+            landedCand = verdictRejectLandedCandidate(r, readFileSync(missionFile, 'utf8'),
+              (repo, argstr) => { try { return { ok: true, out: execSync(`git -C "${repo}" ${argstr}`, { stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 16 * 1024 * 1024 }).toString() }; } catch { return { ok: false, out: '' }; } });
+          } catch { landedCand = null; }
+        }
         if (r?.ok) {
           evt(`DONE: ${raw}`);
           setMark(raw, 'DONE');
@@ -1560,6 +1625,22 @@ async function mainLoop() {
           const pt = missionPoint(missionFile);
           notify(`✅ DONE: ${mname}${pt ? `\nPOINT: ${pt}` : ''}${arts.length ? `\nmade: ${arts.join(', ')}\nopen: muezzin-plugin\\missions\\${mname}\\` : ''}\n${nextUpLine()}\n${scoreLine()}`);
           writeRetro(raw, r, n); attempts.delete(raw);
+        }
+        else if (landedCand) {
+          // Panel FALSE-REJECT but the work LANDED and is witnessed at HEAD. Two separable effects,
+          // split by safety (D13 correction): (1) STOP-REFIRE -- always safe: mark FAILED-terminal so
+          // attempt 2 (idempotent ALREADY-COMMITTED) never burns; (2) a stamp-SAFE CONFIRM-READY
+          // receipt for the conductor -- it does NOT auto-close (token matches no RESOLVED
+          // stamp-matcher; result.json stays ok:false; deps never satisfied; DIAGNOSE debt +
+          // falseDeathScan keep witnessing). The conductor hand-writes the real landed stamp.
+          const mname = path.basename(raw).replace(/\.mission\.txt$/, '');
+          const topFiles = (landedCand.files || []).slice(0, 4).join(', ');
+          evt(`VERDICT-REJECT-BUT-LANDED candidate: ${raw} — ${landedCand.stepsOk}/${landedCand.stepsOk} steps ok, commit ${landedCand.sha} ancestor of HEAD, ${landedCand.markers.length} DONE-MARKER(s) verified present at HEAD (missionLandedState=${landedCand.mlsVerdict ?? 'n/a'}); refire STOPPED, conductor hand-confirms next beat`);
+          setMark(raw, 'FAILED', `VERDICT-REJECT-LANDED-CANDIDATE sha=${landedCand.sha} steps-ok=${landedCand.stepsOk}/${landedCand.stepsOk} markers=${landedCand.markers.length} files=${topFiles} — panel false-reject, work landed+witnessed at HEAD; STOP-REFIRE, conductor hand-confirms the landed disposition next beat`);
+          const pt = missionPoint(missionFile);
+          notify(`🟡 LANDED-CANDIDATE: ${mname}\nverdict panel REJECTED but the work is committed at HEAD (commit ${landedCand.sha}, ${landedCand.markers.length} DONE-MARKER(s) verified) — refire STOPPED, conductor hand-confirms next beat${pt ? `\nPOINT: ${pt}` : ''}\n${nextUpLine()}\n${scoreLine()}`);
+          writeRetro(raw, r, n); attempts.delete(raw);
+          // NO chainStreak('FAILED') here: a false-reject must not trip the CHAIN-STREAK breaker (:1593).
         }
         else if (shouldHaltMission(n, MAX_ATTEMPTS, failedStep)) {
           // the REAL reason lives in the failed step's error or the verdict findings —
@@ -2133,6 +2214,66 @@ if (process.argv.includes('--selftest')) {
     ck(shouldHaltMission(2, 2, { recurringError: false }) === true, 'RECURRING-HALT: attempt budget spent (n>=MAX_ATTEMPTS) -> halts, exactly as before this change');
     ck(shouldHaltMission(1, 2, { recurringError: true, priorOccurrences: 2 }) === true, 'RECURRING-HALT: attempt 1/2 but recurringError already proven -> halts EARLY (the new behavior — does not wait for the 2nd attempt to burn)');
     ck(shouldHaltMission(1, 2, undefined) === false, 'RECURRING-HALT: no failed step at all (e.g. a split/plan-phase outcome with no per-step record) -> falls back to the attempt-budget check only, never throws on undefined');
+    // ── VERDICT-REJECT-LANDED reconciler (PART 2, gap-false-reject-reconciler-excludes-ops-deploy,
+    // 2026-07-22): FAIL-CLOSED post-verdict candidate. A verdict-REJECTED mission is a stop-refire +
+    // conductor-confirm-ready candidate ONLY when its work is committed+ancestor AND its declared
+    // DONE-MARKERS are all present at HEAD (G9). No DONE-MARKERS, or any marker absent, -> NOTHING:
+    // auto-closing a real failure hides it. ────────────────────────────────────────────────────
+    {
+      const REPO = 'C:/proj/x';
+      const rej = (steps) => ({ ok: false, phase: 'verdict', reason: 'verify consensus REJECT', steps });
+      const stepLanded = [{ step: 1, ok: true, target: 'a.js', execOut: 'preflight ok\n[main abc1234] land it\n1 file changed' }];
+      // fake gitFn: `ancestor` controls G7; `head` (file->content) controls G9 `show` AND
+      // missionLandedState's ls-tree/diff (a file is "present at HEAD" iff it is a key of head).
+      const mkGit = ({ ancestor = true, head = {} } = {}) => (repo, argstr) => {
+        if (/^merge-base --is-ancestor /.test(argstr)) return { ok: ancestor, out: '' };
+        let m;
+        if ((m = argstr.match(/^show HEAD:"(.+)"$/))) return (m[1] in head) ? { ok: true, out: head[m[1]] } : { ok: false, out: '' };
+        if ((m = argstr.match(/^ls-tree HEAD -- "(.+)"$/))) return (m[1] in head) ? { ok: true, out: `100644 blob deadbee\t${m[1]}` } : { ok: true, out: '' };
+        if (/^diff --quiet /.test(argstr)) return { ok: true, out: '' };
+        return { ok: false, out: '' };
+      };
+      const base = 'MISSION-CLASS: ops-deploy\nREPO-ROOT: ' + REPO + '\nALLOW-FILES:\n  - a.js\n```pwsh\ngit commit -m x -- a.js\n```\n';
+      const dm = 'DONE-MARKERS:\n  - a.js :: LANDED_TOKEN\n';
+
+      // (a) verdict-REJECT + landed + DONE-MARKERS present + all found -> CANDIDATE.
+      const cA = verdictRejectLandedCandidate(rej(stepLanded), base + dm, mkGit({ head: { 'a.js': 'x LANDED_TOKEN y' } }));
+      ck(cA && cA.sha === 'abc1234' && cA.markers.length === 1 && cA.stepsOk === 1, 'PART2 (a): verdict-REJECT + commit ancestor of HEAD + DONE-MARKER present at HEAD -> CANDIDATE (sha abc1234, 1 marker verified)');
+
+      // (b) verdict-REJECT + GENUINELY failed: a declared DONE-MARKER ABSENT from HEAD -> NO candidate.
+      const cB = verdictRejectLandedCandidate(rej(stepLanded), base + dm, mkGit({ head: { 'a.js': 'wrong content — token not present' } }));
+      ck(cB === null, 'PART2 (b) FAIL-CLOSED: a declared DONE-MARKER absent at HEAD (wrong-but-executed) -> NO candidate; the verdict reject STANDS (G9b)');
+
+      // (c) no DONE-MARKERS field -> NO candidate even though the work is at HEAD.
+      const cC = verdictRejectLandedCandidate(rej(stepLanded), base, mkGit({ head: { 'a.js': 'x LANDED_TOKEN y' } }));
+      ck(cC === null, 'PART2 (c) FAIL-CLOSED: no DONE-MARKERS field -> NO candidate (no machine-checkable correctness witness) (G9a)');
+
+      // (d) missionLandedState GENUINE (zero ALLOW-FILES at HEAD) -> G8 vetoes.
+      const cD = verdictRejectLandedCandidate(rej(stepLanded), base + dm, mkGit({ head: {} }));
+      ck(cD === null, 'PART2 (d) FAIL-CLOSED: missionLandedState=GENUINE (no ALLOW-FILES present at HEAD) -> G8 veto -> NO candidate');
+
+      // ── further guards (pin fixtures 5-14) ──
+      ck(verdictRejectLandedCandidate({ ok: true, phase: 'done', steps: stepLanded }, base + dm, mkGit({ head: { 'a.js': 'x LANDED_TOKEN y' } })) === null, 'PART2 G1: r.ok true (DONE) -> null');
+      ck(verdictRejectLandedCandidate({ ok: false, phase: 'build-gate', reason: 'build gate: x', steps: stepLanded }, base + dm, mkGit({ head: { 'a.js': 'x LANDED_TOKEN y' } })) === null, 'PART2 G1: phase build-gate -> null');
+      ck(verdictRejectLandedCandidate({ ok: false, phase: 'verdict', reason: 'verdict phase threw: boom', steps: stepLanded }, base + dm, mkGit({ head: { 'a.js': 'x LANDED_TOKEN y' } })) === null, 'PART2 G2: verdict-threw (reason not "verify consensus ") -> null');
+      ck(verdictRejectLandedCandidate(rej([{ step: 1, ok: false, target: 'a.js', execOut: '[main abc1234] x' }]), base + dm, mkGit({ head: { 'a.js': 'x LANDED_TOKEN y' } })) === null, 'PART2 G4: a step ok:false -> null (a real failure is never reconciled)');
+      ck(verdictRejectLandedCandidate(rej([{ step: 1, ok: true, target: 'a.js', execOut: 'no commit summary here' }]), base + dm, mkGit({ head: { 'a.js': 'x LANDED_TOKEN y' } })) === null, 'PART2 G5: no commit sha in any execOut -> null (fail-open)');
+      ck(verdictRejectLandedCandidate(rej(stepLanded), base + dm, mkGit({ ancestor: false, head: { 'a.js': 'x LANDED_TOKEN y' } })) === null, 'PART2 G7: committed sha NOT ancestor of HEAD -> null');
+      ck(verdictRejectLandedCandidate(rej(stepLanded), 'MISSION-CLASS: ops-deploy\nALLOW-FILES:\n  - a.js\n```pwsh\ngit commit -m x -- a.js\n```\n' + dm, mkGit({ head: { 'a.js': 'x LANDED_TOKEN y' } })) === null, 'PART2 G6: no REPO-ROOT -> null');
+      ck(verdictRejectLandedCandidate(rej(stepLanded), base + dm, () => { throw new Error('git down'); }) === null, 'PART2: a THROWING gitFn -> null, never throws outward (guard point 8)');
+
+      // ── writer + token invariants (pin fixtures 15-17) ──
+      // (15) buildMarkLine with NO extraNote (undefined 5th arg) is byte-identical to prior behavior.
+      ck(buildMarkLine('missions/x.mission.txt', 'missions/x.mission.txt', 'FAILED', '2026-07-22T00:00:00Z')
+        === 'FAILED missions/x.mission.txt  <!-- 2026-07-22T00:00:00Z -->', 'PART2 (15): buildMarkLine no-extraNote (bare line) byte-identical');
+      ck(buildMarkLine('FAILED missions/x.mission.txt  <!-- keep me -->', 'missions/x.mission.txt', 'FAILED', '2026-07-22T00:00:00Z')
+        === 'FAILED missions/x.mission.txt  <!-- keep me | FAILED-marked 2026-07-22T00:00:00Z -->', 'PART2 (15): buildMarkLine no-extraNote (noted line) byte-identical (note preserved)');
+      // (16) extraNote is appended after the timestamp; missionPath still parses the raw path.
+      const annotated = buildMarkLine('missions/eng-x.mission.txt', 'missions/eng-x.mission.txt', 'FAILED', '2026-07-22T00:00:00Z', 'VERDICT-REJECT-LANDED-CANDIDATE sha=abc1234 steps-ok=1/1 markers=1 files=a.js — panel false-reject, work landed+witnessed at HEAD; STOP-REFIRE, conductor hand-confirms the landed disposition next beat');
+      ck(/\| VERDICT-REJECT-LANDED-CANDIDATE sha=abc1234 /.test(annotated) && missionPath(annotated) === 'missions/eng-x.mission.txt', 'PART2 (16): extraNote appended inside the FAILED line comment; missionPath still parses the raw path (refire stops)');
+      // (17) the annotation matches NO RESOLVED/SUPERSEDED stamp-matcher -> mission NOT auto-retired.
+      ck(hasResolvedStampForPath(annotated, 'missions/eng-x.mission.txt') === false, 'PART2 (17): the VERDICT-REJECT-LANDED-CANDIDATE annotation does NOT match kwRe (:891) — mission NOT auto-retired, deps NOT satisfied; conductor hand-confirm still required (fail-closed)');
+    }
 
     // ── TERMINAL-MISSION GUARD (spam-loop root fix, 2026-06-16) ──────────────────
     // A FAILED-x2 / DONE / SPLIT mission must NEVER be auto-promoted again. terminalMissionIds

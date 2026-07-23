@@ -9,7 +9,7 @@
 //
 // Verdict: { ok, problems: [{rule, detail}] }. Pure text analysis — no fs, no dispatch.
 
-import { parseMissionClass } from './mission_class.mjs';
+import { parseMissionClass, normalizeRel } from './mission_class.mjs';
 
 export function lintMission(text) {
   const t = String(text || '');
@@ -448,6 +448,49 @@ export function lintMission(text) {
     }
   }
 
+  // RULE 22 -- DONE-MARKERS MALFORMED (gap-false-reject-reconciler-excludes-ops-deploy PART 2,
+  // 2026-07-22): the post-verdict VERDICT-REJECT-LANDED-CANDIDATE reconciler (muezzin-daemon.mjs
+  // verdictRejectLandedCandidate) auto-writes a stop-refire + conductor-confirm-ready annotation
+  // ONLY for a verdict-rejected mission that declares a machine-checkable DONE-MARKERS field AND
+  // every marker's literal string is present in its file at HEAD (G9). That field is the
+  // reconciler's SOLE correctness witness, so a MALFORMED declaration is a silent trap: it parses
+  // to zero valid markers, the branch never fires, and the author's reconciler-eligibility intent
+  // is dropped without a word. OPT-IN + exact-match (mirrors RULE 19's NUMERIC-CONTRACT discipline;
+  // the fuzzy auto-detect was proven too brittle). Pure text: shape + REPO-ROOT/ALLOW-FILES
+  // cross-checks only -- HEAD-presence is the daemon's job (G9b), never the linter's.
+  // FIELD SHAPE:  DONE-MARKERS:\n  - <repo-relative-file> :: <literal string present at HEAD>
+  if (/^[ \t]*DONE-MARKERS:[ \t]*$/im.test(t)) {
+    const dmBlock22 = (t.match(/^DONE-MARKERS:[ \t]*\r?\n((?:[ \t]{2}-[ \t]+\S.*\r?\n?)*)/mi) || [])[1] || '';
+    const bullets22 = [...dmBlock22.matchAll(/^[ \t]{2}-[ \t]+(.+?)[ \t\r]*$/gm)].map((m) => m[1]);
+    const wellFormed22 = [];
+    const malformed22 = [];
+    for (const b of bullets22) {
+      const i = b.indexOf('::');
+      const file = i >= 0 ? b.slice(0, i).trim() : '';
+      const needle = i >= 0 ? b.slice(i + 2).trim() : '';
+      if (file && needle && /^\S+$/.test(file)) wellFormed22.push({ file, needle });
+      else malformed22.push(b.trim());
+    }
+    if (!wellFormed22.length) {
+      add('done-markers-malformed', 'mission declares a DONE-MARKERS: field but NO bullet matches the required "<repo-relative-file> :: <literal string>" shape -- the false-reject reconciler (verdictRejectLandedCandidate G9) will parse ZERO markers and silently never fire, so the mission can never be auto-reconciled after a verdict false-reject. Write each marker as "  - path/to/file :: literal string that must be present at HEAD".');
+    } else if (malformed22.length) {
+      add('done-markers-malformed', `DONE-MARKERS bullet(s) [${malformed22.join(' | ').slice(0, 140)}] miss the "<file> :: <literal string>" shape (a "::" separator with a non-empty file on the left and a non-empty literal on the right) -- the reconciler (G9) silently drops malformed bullets, so a partly-garbled block under-witnesses the mission's landed state.`);
+    } else {
+      const mc22 = parseMissionClass(t);
+      if (!mc22.repoRoot) {
+        add('done-markers-malformed', 'mission declares DONE-MARKERS but no REPO-ROOT -- the reconciler resolves every marker against REPO-ROOT@HEAD (verdictRejectLandedCandidate G6/G9), so without REPO-ROOT the field is inert and the mission can never be auto-reconciled. Add a REPO-ROOT: <absolute repo path> header.');
+      } else {
+        const allow22 = mc22.allowFiles || [];
+        const hasGlob22 = allow22.some((a) => a.includes('*') || a.includes('?'));
+        if (allow22.length && !hasGlob22) {
+          const stray22 = wellFormed22.map((mk) => normalizeRel(mk.file)).filter((f) => !allow22.includes(f));
+          if (stray22.length) {
+            add('done-markers-malformed', `DONE-MARKERS file(s) [${stray22.join(', ')}] are not in ALLOW-FILES -- a marker must witness a file this mission actually writes (the reconciler checks marker content at HEAD; a file outside ALLOW-FILES is not this mission's deliverable). Add the file to ALLOW-FILES or fix the marker path.`);
+          }
+        }
+      }
+    }
+  }
   return { ok: problems.length === 0, problems };
 }
 

@@ -1,0 +1,73 @@
+MISSION-ID: engine-verdict-reject-landed-part2
+MISSION-CLASS: ops-deploy
+REPO-ROOT: C:\Users\marka\.claude\muezzin-plugin
+ALLOW-FILES:
+  - muezzin-daemon.mjs
+  - mission_lint.mjs
+REQUIRES: none
+STEPS: 3
+
+DONE-MARKERS:
+  - muezzin-daemon.mjs :: function verdictRejectLandedCandidate(
+  - mission_lint.mjs :: done-markers-malformed
+
+MAQSAD (the end): land PART 2 of gap-false-reject-reconciler-excludes-ops-deploy — the post-verdict
+false-reject reconciler. The verdict panel (small local witness models) false-rejects CORRECT engine
+work on receipt-completeness grounds, and each false-reject forces manual conductor toil (hand-writing
+a landed disposition, stopping a doomed refire that burns attempt 2). This mission installs the durable
+fix so the panel's false-rejects of correct-and-landed engine work stop being manual toil: a
+FAIL-CLOSED post-verdict branch that recognizes a verdict-REJECTED mission whose work is actually
+committed+ancestor-of-HEAD AND whose declared DONE-MARKERS are all present at HEAD, then STOPS the
+refire and stamps a conductor-confirm-ready receipt. It FAILS CLOSED — a genuinely-failed mission (wrong
+content committed, or no DONE-MARKERS correctness witness declared) gets NOTHING and its verdict reject
+STANDS, because auto-closing a real failure hides it, which is worse than the false-reject it replaces.
+
+THE FIX: a staged deterministic in-place patcher
+(missions/_logs/staged-part2-2026-07-23/patch-part2-inplace.mjs) applies 8 hunks (H1-H8) via unique
+anchors: H1 buildMarkLine gains an extraNote arg (byte-identical with no extraNote); H2 setMark threads
+extraNote; H3 inserts the pure verdictRejectLandedCandidate(r, mtext, gitFn) helper (G1-G9, never throws
+outward); H4 computes landedCand BEFORE the halt decision so an attempt-1 false-reject never burns
+attempt 2; H5 inserts the `else if (landedCand)` branch (STOP-REFIRE + a stamp-SAFE confirm-ready
+receipt that matches NO RESOLVED/SUPERSEDED stamp-matcher, so it never auto-retires); H6 adds 16 PART2
+selftest fixtures; H7 extends the mission_lint import with normalizeRel; H8 inserts RULE 22
+(done-markers-malformed) so a mission that declares a MALFORMED DONE-MARKERS field is flagged rather than
+silently under-witnessed. The patcher is idempotent (ALREADY-PATCHED if the daemon already carries the
+helper), all-or-nothing (both files computed in memory first; any anchor miss -> HUNK <id> ANCHOR-MISS,
+exit 1, ZERO writes), CRLF/LF-agnostic (auto-detects each file's real EOL), and node --checks both files
+it writes. Dry-run RECEIPTED 2026-07-23 on a plugin-root byte-copy: PART2-PATCH-OK files=2 hunks=8,
+node --check OK both, daemon --selftest PART2-PASSES=16 with only the 2 environmental scoreLine FAILs a
+no-.git copy always shows (zero NEW fails), mission_lint ALL PASS exit 0, and a re-run -> ALREADY-PATCHED.
+Live baseline before this mission: node muezzin-daemon.mjs --selftest = exit 0, 187 PASS, 0 FAIL.
+
+STEPS (literal-command-queue: each fenced line runs VERBATIM from REPO-ROOT; exit code is pass/fail;
+bare PowerShell, no command-string self-wrapper; the commit is FLAGS-FIRST):
+
+```pwsh
+node "C:/Users/marka/.claude/muezzin-plugin/missions/_logs/staged-part2-2026-07-23/patch-part2-inplace.mjs"; if ($LASTEXITCODE -ne 0) { exit 1 }; node --check muezzin-daemon.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; node --check mission_lint.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; Write-Output 'PART2-PATCH-OK'
+$o = & node muezzin-daemon.mjs --selftest 2>&1; if ($LASTEXITCODE -ne 0) { Write-Output 'DAEMON-EXIT-NONZERO'; exit 1 }; $p = ($o | Select-String -Pattern '^PASS  PART2').Count; $f = ($o | Select-String -Pattern '^FAIL').Count; if ($p -lt 16) { Write-Output "PART2-PASSES-TOO-FEW=$p"; exit 1 }; if ($f -ne 0) { Write-Output "DAEMON-FAIL-LINES=$f"; exit 1 }; node mission_lint.mjs *> $null; if ($LASTEXITCODE -ne 0) { Write-Output 'LINT-EXIT-NONZERO'; exit 1 }; Write-Output "PART2-PASSES=$p DAEMON=PASS LINT=PASS"
+git add -- muezzin-daemon.mjs mission_lint.mjs; git diff --cached --quiet; if ($LASTEXITCODE -eq 0) { Write-Output 'ALREADY_COMMITTED' } else { git commit -m "feat(muezzin-daemon): PART 2 verdict-reject-landed reconciler + mission_lint RULE 22 - post-verdict FAIL-CLOSED branch stops the panel false-rejecting correct engine work (dry-run GREEN 16/16 fixtures, live baseline 187/0); closes gap-false-reject-reconciler-excludes-ops-deploy part 2" -- muezzin-daemon.mjs mission_lint.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; Write-Output 'PART2-COMMIT-OK' }
+```
+
+Step 1: run the deterministic in-place patcher (idempotent ALREADY-PATCHED; all-or-nothing fail-closed if
+any anchor is absent/non-unique) then node --check both files. The only step that writes the allow-files.
+Step 2: OUTCOME CHECK -- COMPACT receipt (grep-count, NOT a full selftest dump, per
+gap-engine-lint-mission-must-emit-compact-receipt): `node muezzin-daemon.mjs --selftest` must exit 0 with
+>= 16 `PASS  PART2` lines and zero `^FAIL` lines, and `node mission_lint.mjs` must exit 0; prints one line
+`PART2-PASSES=<n> DAEMON=PASS LINT=PASS`.
+Step 3: idempotent flags-first commit of BOTH allow-files (git-diff-cached-quiet short-circuit ->
+ALREADY_COMMITTED when nothing staged).
+
+DONE-MEANS: both files patched -- verdictRejectLandedCandidate present in muezzin-daemon.mjs and RULE 22 /
+done-markers-malformed present in mission_lint.mjs; `node muezzin-daemon.mjs --selftest` exits 0 with >= 16
+PART2 fixtures passing and 0 FAIL; `node mission_lint.mjs` exits 0; committed flags-first scoped to the two
+allow-files (muezzin-daemon.mjs, mission_lint.mjs). NOTE (post-DONE, not a step): both files are statically
+imported by the running daemon, so PART 2 is not enforced at runtime until a daemon restart -- the conductor
+restarts after this DONE.
+
+REACHABILITY NOTE (miqat): non-page engine-module edit; no page/route/nav ships, so no MIQAT orphan-page
+reachability check applies.
+
+source: C:\Users\marka\.claude\muezzin-plugin\muezzin-daemon.mjs
+source: C:\Users\marka\.claude\muezzin-plugin\mission_lint.mjs
+source: C:\Users\marka\.claude\muezzin-plugin\missions\_logs\staged-part2-2026-07-23\patch-part2-inplace.mjs
+source: C:\Users\marka\.claude\muezzin-plugin\missions\_logs\GAP-REGISTER.jsonl
