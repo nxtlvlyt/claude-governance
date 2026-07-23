@@ -1,0 +1,91 @@
+MISSION-ID: engine-construct-verb-forcing-function
+MISSION-CLASS: ops-deploy
+REPO-ROOT: C:\Users\marka\.claude\muezzin-plugin
+ALLOW-FILES:
+  - conduct-cycle.mjs
+REQUIRES: none
+STEPS: 3
+
+DONE-MARKERS:
+  - conduct-cycle.mjs :: CONSTRUCT-MISSION-DUE
+
+MAQSAD (the end): close gap-conductor-construct-verb-has-no-forcing-function — the conductor's biggest
+hole. The beat sweep in conduct-cycle.mjs has a forcing function for every conductor verb EXCEPT the
+FIRST — construct. An EMPTY queue (0 pending, 0 running) can coast to a bare `required actions: none —
+"nothing needed from you" is a complete ending` while ADVANCEABLE-FAILED work still exists: a FAILED
+mission that was DIAGNOSED (its AUTORUN note is non-empty) yet given NEITHER a terminal disposition NOR a
+constructed follow-up mission. The existing FAILED-handling only re-DIAGNOSEs such a line (a JUDGE verb —
+line ~978) or reports it; nothing owes the CONSTRUCT of the next mission that advances it. This mission
+installs a REPORT-ONLY, fail-soft guard that pushes a CONSTRUCT-MISSION-DUE judgment action when the board
+is idle AND at least one FAILED is diagnosed-but-not-disposed, forcing the conductor to CONSTRUCT+FIRE a
+follow-up (amend+refire or the owned fix) OR write a TERMINAL disposition — a bare report or "name status"
+CANNOT satisfy it. It is class:'judgment', touches NOTHING on the fire path, and CANNOT affect firing. A
+board whose every FAILED carries a terminal disposition (RESOLVED-LANDED / SUPERSEDED / PARKED / pending
+engine / DUPLICATE-RETIRED / LANDED — the current mt board's shape) does NOT fire, which is exactly what
+keeps the pre-existing healthy + all-terminal selftests GREEN.
+
+THE FIX: a staged deterministic in-place patcher
+(missions/_logs/staged-construct-verb-2026-07-23/patch-construct-verb-inplace.mjs) applies 2 hunks (A, B)
+to conduct-cycle.mjs via unique anchors. HUNK A inserts the CONSTRUCT-MISSION-DUE block IMMEDIATELY BEFORE
+the `if (!actions.length) report.push('required actions: none …')` line — which, post-pipeline-blindness,
+sits directly after the PRODUCT-PIPELINE-DRY block, so this UPGRADE lands right after its sibling. The
+block computes `advanceableFailed` = the autorun.failed paths whose note (autorun.notes[path]||'').trim()
+is non-empty (DIAGNOSED) AND does NOT match the TERMINAL keyword set
+/RESOLVED-LANDED|\bRESOLVED\b|SUPERSEDED|DUPLICATE-RETIRED|pending engine|PARKED|LANDED/i — a bare
+empty-note FAILED is excluded (that is the seventh-law / DIAGNOSE surface). It pushes the report-only
+action only when autorun.pending.length===0 && autorun.running.length===0 && advanceableFailed.length>0.
+The whole block is try/caught so it can never break the sweep. Because it pushes an action, it trips the
+already-present BEAT-COMPLETE BAR (which fires whenever actions.length>0), so a bare "nothing needed"
+cannot end the beat while advanceable-FAILED work remains. HUNK B adds ONE selftest fixture right after
+the PRODUCT-PIPELINE-DRY fixture's closing brace: (a) an idle board with a diagnosed-but-not-disposed
+FAILED (note "correct fire: predates the design-MD ruling, binds no DESIGN.md") must push
+CONSTRUCT-MISSION-DUE AND withhold the bare `…is a complete ending` line; (b) an idle board whose only
+FAILED is RESOLVED-LANDED must NOT push it; the fixture re-restores the healthy AUTORUN at its end so
+downstream checks are unaffected. The patcher is idempotent (ALREADY-PATCHED if conduct-cycle.mjs already
+contains CONSTRUCT-MISSION-DUE), all-or-nothing (content computed in memory first; any anchor miss -> HUNK
+<id> ANCHOR-MISS, exit 1, ZERO writes), EOL-agnostic (auto-detects the file's real EOL; the live file is
+LF today), and node --checks the file it writes. Dry-run RECEIPTED 2026-07-23 on an isolated copy
+(conduct-cycle.mjs + git_steps.mjs): CONSTRUCT-VERB-PATCH-OK file=1 hunks=2, node --check OK, `node
+conduct-cycle.mjs --selftest` exit 0 with 181 PASS / 0 FAIL (baseline was 178/0 — exactly the +3 new
+fixture assertions, zero regressions; all 3 CONSTRUCT-MISSION-DUE assertions PASS incl. the all-terminal
+RESOLVED-LANDED no-fire case; the healthy fixture stayed 0-actions + "nothing needed" + no beat-complete
+bar; the PRODUCT-PIPELINE-DRY sibling stayed green), and a re-run -> ALREADY-PATCHED with the file
+byte-unchanged (sha256 identical).
+
+STEPS (literal-command-queue: each fenced line runs VERBATIM from REPO-ROOT; exit code is pass/fail; bare
+PowerShell, no command-string self-wrapper; the commit is FLAGS-FIRST):
+
+```pwsh
+node "C:/Users/marka/.claude/muezzin-plugin/missions/_logs/staged-construct-verb-2026-07-23/patch-construct-verb-inplace.mjs"; if ($LASTEXITCODE -ne 0) { exit 1 }; node --check conduct-cycle.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; Write-Output 'CONSTRUCT-VERB-PATCH-OK'
+$o = & node conduct-cycle.mjs --selftest 2>&1; if ($LASTEXITCODE -ne 0) { Write-Output 'SELFTEST-EXIT-NONZERO'; exit 1 }; $p = ($o | Select-String -Pattern '^PASS  CONSTRUCT-MISSION-DUE').Count; $f = ($o | Select-String -Pattern '^FAIL').Count; if ($p -lt 1) { Write-Output "CONSTRUCT-VERB-FIXTURE-MISSING=$p"; exit 1 }; if ($f -ne 0) { Write-Output "SELFTEST-FAIL-LINES=$f"; exit 1 }; Write-Output "CONSTRUCT-VERB-PASSES=$p SELFTEST=PASS FAIL=0"
+git add -- conduct-cycle.mjs; git diff --cached --quiet; if ($LASTEXITCODE -eq 0) { Write-Output 'ALREADY_COMMITTED' } else { git commit -m "feat(conduct-cycle): CONSTRUCT-MISSION-DUE report-only sweep guard - an EMPTY queue (0 pending/0 running) no longer coasts 'nothing needed' while advanceable-FAILED work exists (a diagnosed-but-not-disposed FAILED); forces CONSTRUCT+fire or a terminal disposition (report-only, cannot affect firing); +3 selftest assertions, healthy + all-terminal + PRODUCT-PIPELINE-DRY fixtures stay green (copy-verified 181 PASS/0 FAIL); closes gap-conductor-construct-verb-has-no-forcing-function" -- conduct-cycle.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; Write-Output 'CONSTRUCT-VERB-COMMIT-OK' }
+```
+
+Step 1: run the deterministic in-place patcher (idempotent ALREADY-PATCHED; all-or-nothing fail-closed if
+the anchor is absent/non-unique) then node --check conduct-cycle.mjs. The only step that writes the
+allow-file.
+Step 2: OUTCOME CHECK -- COMPACT receipt (grep-count, NOT a full selftest dump, per
+gap-engine-lint-mission-must-emit-compact-receipt): `node conduct-cycle.mjs --selftest` must exit 0 with
+>= 1 `PASS  CONSTRUCT-MISSION-DUE` line and zero `^FAIL` lines; prints one line
+`CONSTRUCT-VERB-PASSES=<n> SELFTEST=PASS FAIL=0`.
+Step 3: idempotent flags-first commit of the one allow-file (git-diff-cached-quiet short-circuit ->
+ALREADY_COMMITTED when nothing staged).
+
+DONE-MEANS: conduct-cycle.mjs patched -- CONSTRUCT-MISSION-DUE present (the sweep guard block + the
+selftest fixture); `node conduct-cycle.mjs --selftest` exits 0 with >= 1 CONSTRUCT-MISSION-DUE fixture
+PASS and 0 FAIL; committed flags-first scoped to the one allow-file (conduct-cycle.mjs). NOTE (post-DONE,
+not a step): conduct-cycle.mjs is STATICALLY imported by the running daemon (muezzin-daemon.mjs:32 `import
+{ heal as conductCycleHeal, missionLandedState } from './conduct-cycle.mjs'`), so this guard is not
+enforced at runtime until a daemon restart -- the conductor restarts after this DONE (muezzin daemon
+static-import staleness). PART-2 NOTE: this mission carries a DONE-MARKERS field (conduct-cycle.mjs ::
+CONSTRUCT-MISSION-DUE), so it is PART 2-eligible -- if the verdict panel false-rejects it while the work
+is actually committed + ancestor-of-HEAD and the marker is present at HEAD, the now-LIVE
+verdict-reject-landed reconciler should STOP-REFIRE + candidate-mark it mechanically rather than burning a
+blind refire.
+
+REACHABILITY NOTE (miqat): non-page engine-module edit; no page/route/nav ships, so no MIQAT orphan-page
+reachability check applies.
+
+source: C:\Users\marka\.claude\muezzin-plugin\conduct-cycle.mjs
+source: C:\Users\marka\.claude\muezzin-plugin\missions\_logs\staged-construct-verb-2026-07-23\patch-construct-verb-inplace.mjs
+source: C:\Users\marka\.claude\muezzin-plugin\missions\engine-pipeline-blindness-product-dry.mission.txt
