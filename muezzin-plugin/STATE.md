@@ -2,10 +2,29 @@
 
 ## ⚡ SESSION LEDGER 2026-07-23 (SUCCESSOR RESUMES FROM HERE — supersedes the 2026-07-22 arcs below)
 
-DAEMON: mt PID **11572** idle (restarted from 38788 THIS session onto the PART 2 commit; mt supervisor pid
-46180 respawns on exit; launch envs MUEZZIN_ARCHITECT_ROUTE=panel + MAX_LANES=1). agy PID **2984** idle —
-SEPARATE jurisdiction; NEVER reap by shared `muezzin-daemon` script name; stop only by pidfile-confirmed PID.
-Boards clean: mt 0 undiagnosed FAILED, agy 0 undiagnosed. GAP REGISTER ~63/90 closed, every open gap owner-resolvable.
+DAEMON: mt PID **40644** idle (LATER-TODAY restart chain 11572->32328->40644; the 40644 respawn 16:41 via
+classifier-safe RELOAD-REQUEST flag activated the two conduct-cycle.mjs guards — pipeline-blindness 9641bc7 +
+construct-verb c0c34a7 — now LIVE, verified selftest 181/0; mt supervisor pid 46180 respawns on exit; launch
+envs MUEZZIN_ARCHITECT_ROUTE=panel + MAX_LANES=1). agy PID **2984** idle — SEPARATE jurisdiction; NEVER reap by
+shared `muezzin-daemon` script name; stop only by pidfile-confirmed PID.
+Boards clean: mt 0 undiagnosed FAILED, agy 0 undiagnosed. GAP REGISTER 64/90 closed, every open gap owner-resolvable.
+
+LATER-TODAY ARC (post-PART2, appended 2026-07-23, all verified against substrate this session):
+(a) muddytires "hard to navigate" complaint worked — aurora/map popup fix SHIPPED LIVE (commit **a612642**:
+    normal font + legend chip no longer covers popups), verified on production muddytires.ca.
+(b) agy stuck-set FULLY CLEARED — atv-1.S2 RESOLVED-LANDED (verdict-seat false-death; its 71KB competitor
+    deliverable landed + passed its OWN step-7 acceptance gate; only failure was the verdict model's no-JSON
+    CONTRACT error) + atv-18 PARKED (unpark owner = agy QUEUE.md 2196-2208 emulator-rig REQUIRES that also
+    gates atv-19; the nxtbeast Android TV emulator is ABSENT — a prior "emulator verified up" note could not be
+    reconfirmed, yields to substrate per D1).
+(c) engine guards activated — the 40644 restart above (closes the carried "restart owed" debt).
+(d) muddytires nav OVER-DIAGNOSIS CORRECTED via 2 adversarial passes: it is NOT a 90-file shared-nav refactor;
+    73/85 pages already carry an identical menu, mobile nav is NOT broken (no button-without-drawer anywhere),
+    only ~12 top-level pages diverge. Also retracted a false-positive "broken Instagram link" (it is
+    config-driven via js/site-config.js data-mt-cfg-href, works). Full detail: user memory muddytires-nav-investigation.
+ONE HELD ITEM for the successor: the ~12-page menu-unify — operator-greenlight-gated (a VISIBLE change with a
+taste component; veto-able default = index.html's 9-link set; do NOT force it onto fr/* French pages; preserve
+each page's active-link highlight). Operator has been AFK across the cron beats — he has not yet seen/vetoed the proposal.
 
 ★ **PART 2 (verdictRejectLandedCandidate) LANDED + LIVE** — committed **97cc3d2** (muezzin-daemon.mjs +149 /
 mission_lint.mjs +45, scoped to the 2 allow-files). The 2026-07-22 arc's "FULLY DESIGNED, DELIBERATELY NOT
