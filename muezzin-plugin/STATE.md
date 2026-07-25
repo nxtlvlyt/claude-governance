@@ -2,7 +2,40 @@
 
 ## ⚡ SESSION LEDGER 2026-07-23 (SUCCESSOR RESUMES FROM HERE — supersedes the 2026-07-22 arcs below)
 
-DAEMON: mt PID **40644** idle (LATER-TODAY restart chain 11572->32328->40644; the 40644 respawn 16:41 via
+DAEMON: mt PID **16104** idle (restart chain 11572->32328->40644->**16104**; the 16104 respawn 2026-07-25
+~04:00 via RELOAD-REQUEST activated the authoritative-deploy-sha + L4 shipped-asset filter, commit 4e1c63d;
+its own fresh sweep then recomputed doneness with **L4 blockers = 0**, i.e. the false "3 commits not
+deployed" alarm is gone, judged by the daemon not by the conductor).
+
+=== 2026-07-25 REPO HYGIENE ARC (all executed, not deferred — operator: "why do you keep surfacing this
+as a suggestion to me, and not completing them, is it to make sure they get lost". He was right.) ===
+* DEPLOY TRUTH IS NOW AUTHORITATIVE. `--record-deploy` used to stamp LOCAL HEAD; it stamped 994c07e4 while
+  the live commit was a612642, passing its own byte-match guard only because the intervening commit touched
+  docs/e2e-report-*.json and never map.html. It now reads
+  `pages/projects/muddytires -> latest_deployment.deployment_trigger.metadata.commit_hash` from the
+  Cloudflare API. Fail-SOFT but never silent: if the API is unreachable the witness says
+  "HEAD-INFERRED — NOT authoritative". L4 also no longer blocks on commit gaps that ship NOTHING
+  (docs/tests/scripts/mt-audit/e2e-shots/.github + mission text are not served bytes); fail-closed kept
+  (unreadable diff => block). selftest 181 PASS / 0 FAIL.
+* BRANCH + WORKTREE SPRAWL CLEARED (site repo). Remote **289 -> 2 branches** (main, master). ALL 287 were
+  archived as remote tags `archive/<branch>` BEFORE deletion — every commit is recoverable, nothing lost.
+  Worktrees **171 -> 1** (165 stale dirs mtimed 2026-06-22/23, **3.9 GB reclaimed** on the van rig).
+  Local branches 170 -> 2. Safety tag `pre-branch-reap-2026-07-25` at 994c07e.
+* !! RESCUE — READ BEFORE DELETING ANYTHING CALLED A "STALE DUPLICATE" !! `C:\Users\marka\code\muddytires-pages`
+  was NOT a worktree; it was the main working tree of a SEPARATE CLONE holding **13 UNCOMMITTED files**:
+  admin.html +377 lines, an admin PWA (admin.webmanifest, js/admin-pwa.js, sw-admin.js), two API functions
+  (functions/api/legal-verifier.js, legal-outreach-draft.js), 5 analysis docs. A tag could NOT have saved
+  it (never committed); deleting the clone as "stale" would have destroyed a month of work. Committed as-is
+  and pushed as tag **archive/rescued-admin-pwa-2026-06-22** (fb19bef). UNREVIEWED — rescue, not
+  endorsement; evaluate before merging. The clone still exists on disk and is now clean.
+* BRANCH-REAPING GUARD DELIBERATELY NOT BUILT (spec item 2, closed as unnecessary with receipts):
+  `worktree add` appears NOWHERE in ~/.claude or hermes tooling, and 209 commits landed on main since
+  2026-07-01 with only 2 merge commits — the engine commits DIRECTLY to main, so the sprawl is HISTORICAL
+  and cleanup does not regrow. Watch condition to reopen: `git log --merges` climbing, or `worktree add`
+  reappearing in engine code.
+* Spec + full reasoning: docs/SPEC-git-derived-deploys.md (commits 6f98d75, 1375cf6, 8bba92d, 60bfa1e).
+
+(historical) mt PID 40644 (LATER-TODAY restart chain 11572->32328->40644; the 40644 respawn 16:41 via
 classifier-safe RELOAD-REQUEST flag activated the two conduct-cycle.mjs guards — pipeline-blindness 9641bc7 +
 construct-verb c0c34a7 — now LIVE, verified selftest 181/0; mt supervisor pid 46180 respawns on exit; launch
 envs MUEZZIN_ARCHITECT_ROUTE=panel + MAX_LANES=1). agy PID **2984** idle — SEPARATE jurisdiction; NEVER reap by
