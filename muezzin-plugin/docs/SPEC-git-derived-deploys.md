@@ -52,6 +52,22 @@ Tag-then-delete so nothing is lost: `git tag archive/<branch> <sha>` for each, p
 branches. Most are abandoned mission attempts. The 8 `_dryrun_*` branches delete outright — the engine
 should also stop creating them as real branches (use a temp worktree instead).
 
+## STEP 0 — DONE 2026-07-25 (was a precondition nobody had spotted)
+
+`master` was the GitHub **default branch** while sitting **70 commits behind `main` with 0 unique
+commits**. Anyone opening the repo saw a month-stale tree, and wiring Pages to the repo (item 1) would
+have defaulted to `master` and shipped a June site. agy's `last-deployed.json` was pinned to exactly
+that stale head (`295fd9a1`, 2026-07-18) — the same root.
+
+Fixed (operator-authorised, done via `gh` API + git, not a browser):
+- `gh api -X PATCH repos/nxtlvlyt/muddytires-pages -f default_branch=main` -> verified `master` -> `main`.
+- `git push github main:master` -> `295fd9a..994c07e`, a pure FAST-FORWARD (verified 0 unique commits on
+  master first, so nothing could be lost; not a force push). Both refs now at `994c07e`.
+This also genuinely resolves the daemon's standing L3 "main and master DIVERGED by 70 commit(s)" alarm —
+it was never a true divergence, just staleness with zero conflicting work.
+
+**Item 1 is now safe to execute.**
+
 ## Why this order
 
 1 fixes correctness (production is knowable). 2 stops regrowth. 3 and 4 are cleanup that only stays clean
