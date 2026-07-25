@@ -695,7 +695,22 @@ export function computeDoneness(base, autorun, {
   if (!deployedSha) blocking.push({ layer: 'L4', mission: '(repo)', reason: 'no last-deployed marker — production freshness UNKNOWN (fail-closed; run --record-deploy after a wrangler deploy)' });
   else {
     const rd = gitFn(targetRepo, `rev-list --count ${deployedSha}..HEAD`);
-    if (rd.ok && /^\d+$/.test(rd.out.trim())) { deployGap = parseInt(rd.out.trim(), 10); if (deployGap > 0) blocking.push({ layer: 'L4', mission: '(repo)', reason: `${deployGap} commit(s) landed but NOT deployed to production (last deploy @ ${deployedSha.slice(0, 8)}) — run wrangler pages deploy` }); }
+    if (rd.ok && /^\d+$/.test(rd.out.trim())) {
+      deployGap = parseInt(rd.out.trim(), 10);
+      // SHIPPED-ASSET FILTER (2026-07-25): a commit gap is only a DEPLOY blocker when the intervening
+      // commits actually change something the site SERVES. Live receipt: main sat 1 commit ahead of the
+      // deployed sha, and that commit touched only docs/e2e-report-*.json — L4 cried "not deployed" at a
+      // production that was functionally current, i.e. a false blocker that trains the operator to ignore
+      // L4. Non-shipped trees (docs/, tests/, scripts/, mt-audit/, e2e-shots/, .github/, mission text)
+      // are receipts and tooling, never served bytes. Fail-closed preserved: if the diff cannot be read,
+      // treat the gap as REAL and block.
+      if (deployGap > 0) {
+        const nf = gitFn(targetRepo, `diff --name-only ${deployedSha}..HEAD`);
+        const changed = nf.ok ? nf.out.split(/\r?\n/).map((s) => s.trim()).filter(Boolean) : null;
+        const shipped = changed === null ? null : changed.filter((f) => !/^(docs|tests|scripts|mt-audit|e2e-shots|\.github)\//i.test(f) && !/\.mission\.txt$/i.test(f));
+        if (shipped === null || shipped.length) blocking.push({ layer: 'L4', mission: '(repo)', reason: `${deployGap} commit(s) landed but NOT deployed to production (last deploy @ ${deployedSha.slice(0, 8)}${shipped === null ? '; diff unreadable — fail-closed' : `; ${shipped.length} shipped file(s) e.g. ${shipped.slice(0, 3).join(', ')}`}) — run wrangler pages deploy` });
+      }
+    }
     else blocking.push({ layer: 'L4', mission: '(repo)', reason: `deploy marker sha ${deployedSha.slice(0, 8)} not found in repo — stale/invalid marker, fail-closed` });
   }
 
@@ -1746,9 +1761,31 @@ function main() {
         try { execSync(`node "${vf}"`, { cwd: repo, stdio: ['ignore', 'pipe', 'pipe'], timeout: 180000 }); e2e = { ran: true, ok: true }; }
         catch (err) { console.error(`--record-deploy REFUSED: code is live (byte-match OK) but the E2E OUTCOME VERIFIER FAILED — users are not seeing real data. Fix the outcome, not the marker.\n${String(err.stdout || err.message).slice(0, 400)}`); process.exit(1); }
       }
+      // AUTHORITATIVE SHA (2026-07-25): stamp what CLOUDFLARE says shipped, not local HEAD.
+      // Receipt for why: this verb stamped 994c07e4 while the live commit was a612642. It passed its
+      // own byte-match guard because the intervening commit touched docs/e2e-report-*.json and never
+      // map.html — a live-bytes-vs-HEAD check STRUCTURALLY cannot catch that class. Cloudflare records
+      // the deploying commit itself (wrangler sends git metadata when run inside a repo), so ask the
+      // system that actually shipped it. Fail-SOFT, never silently: if the API is unreachable the
+      // marker still writes, but the witness SAYS it is HEAD-inferred so no future reader mistakes it
+      // for authoritative.
+      const cfSha = await (async () => {
+        const tok = process.env.CLOUDFLARE_API_TOKEN;
+        const acc = process.env.CLOUDFLARE_ACCOUNT_ID || 'c85168e16d9033ef9ccaa1ef6e1e7e88';
+        if (!tok) return null;
+        try {
+          const r = await fetch(`https://api.cloudflare.com/client/v4/accounts/${acc}/pages/projects/muddytires`, { headers: { Authorization: `Bearer ${tok}` } });
+          const j = await r.json();
+          const h = String(j?.result?.latest_deployment?.deployment_trigger?.metadata?.commit_hash || '');
+          return /^[0-9a-f]{40}$/.test(h) ? h : null;
+        } catch { return null; }
+      })();
+      const stampSha = cfSha || sha;
+      const src = cfSha ? 'AUTHORITATIVE (Cloudflare Pages API latest_deployment.commit_hash)' : 'HEAD-INFERRED — Pages API unavailable, NOT authoritative';
+      if (cfSha && cfSha !== sha) console.log(`note: live deploy is ${cfSha.slice(0, 8)}, local HEAD is ${sha.slice(0, 8)} — stamping the LIVE sha (HEAD is ahead by commits that may ship nothing).`);
       const mk = path.join(HERE, 'missions', '_logs', 'last-deployed.json');
-      writeFileSync(mk, JSON.stringify({ sha, ts: new Date().toISOString(), repo, witness: `live /map byte-matches HEAD:map.html (clean tree)${e2e.ran ? ' + e2e outcome verifier PASS' : ''}`, e2e, note: 'wrangler pages deploy --project-name=muddytires' }, null, 2));
-      console.log(`deploy marker stamped (WITNESSED): ${sha.slice(0, 8)} — live /map == HEAD:map.html, tree clean${e2e.ran ? ', e2e outcome PASS' : ''}`);
+      writeFileSync(mk, JSON.stringify({ sha: stampSha, ts: new Date().toISOString(), repo, witness: `${src}; live /map byte-matches HEAD:map.html (clean tree)${e2e.ran ? ' + e2e outcome verifier PASS' : ''}`, e2e, note: 'wrangler pages deploy --project-name=muddytires' }, null, 2));
+      console.log(`deploy marker stamped (WITNESSED): ${stampSha.slice(0, 8)} — ${cfSha ? 'sha from Cloudflare' : 'sha from local HEAD (API unavailable)'}, live /map == HEAD:map.html, tree clean${e2e.ran ? ', e2e outcome PASS' : ''}`);
     })();
     return;
   }
