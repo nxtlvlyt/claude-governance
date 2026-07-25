@@ -93,6 +93,52 @@ whose ground truth is now on disk — *is muddytires E:-gated?* (no), *does this
 tools, scoring correctness **and the tool path taken**. Until that runs, no promotion to
 model-rijal.md and no verdict.
 
+## REPLAY CONTROL — RUN 1 RESULT (2026-07-25, run `wf_3c1b2f4a-89a`, 23 agents, ~11 min)
+
+Note this run compared **Opus 5 vs SONNET 5**, not vs Opus 4.8 — the operator's live question had moved
+("so is opus 5 better than sonnet 5"). The Opus-4.8 arm is still UNRUN.
+
+Design: 6 settled incidents put COLD to each seat with full tool access, then graded by 12 independent
+graders (a grader may inspect the system itself; a tool call that cannot answer the question does NOT
+count as verification). Cases deliberately carry a plausible wrong answer: repo-location, cli-opus5,
+nav-scale, mobile-broken, deploy-state, stale-daemon.
+
+| seat | n | correct | verified w/ tools | confabulated | overconfident |
+|---|---|---|---|---|---|
+| **opus5** | 5 | 5 | 5 | 1 | 0 |
+| **sonnet5** | 6 | 5 | 5 | 3 | 1 |
+
+**DO NOT READ THIS AS A VERDICT — the arms are UNEQUAL.** One Opus 5 agent died on
+`StructuredOutput retry cap (5) exceeded`, so Opus 5 answered 5 cases and Sonnet 5 answered 6. n=5/6 is
+far too small to re-seat a conductor on. Directional only: Opus 5 fewer false statements, no
+overconfidence. **Re-run with equal arms (and an Opus 4.8 arm) before any promotion.**
+
+### What the run actually proved — the graders were harder on the GROUND TRUTH than on the seats
+
+1. **The ground truth I authored was wrong in two places**, caught by graders re-measuring independently:
+   the shared canonical menu is **SEVEN** links, not the 5 stated (the only 5-link set in the repo is the
+   FRENCH one); and `regions/*` pages are **not independently divergent** — `regions/alberta.html` vs
+   `guides/campsite.html` differ ONLY by the active-state class. An instrument whose answer key is wrong
+   cannot grade a seat; that defect was mine, not the seats'.
+2. **74 of the 85 nav pages are TEMPLATE OUTPUT** (build-guides.mjs / build-regional-guides.mjs:316,320 /
+   build-changelog.mjs:310,314 — conductor-verified). The "13 hand-edited pages" plan would have been
+   **overwritten by the next build**. Real surface: ~3 template edits + ~11 hand-authored files.
+   STATE.md corrected accordingly.
+3. **The `cli-opus5` case resolved in the OPERATOR's favour, and dissolves one of the two Opus 5 debits
+   above.** The binary was **replaced mid-session**: pkg version is now **2.1.220** (was 2.1.218) with
+   LastWriteTime **2026-07-24 19:09 local**, and `claude-opus-5` now appears **39x** where the conductor's
+   grep found **0** at 01:47Z (~18:47 local) — i.e. the CLI auto-updated ~22 minutes AFTER the grep. So
+   the grep was ACCURATE FOR THE BUILD IN FRONT OF IT and went stale immediately. **AMENDS the C1b debit
+   filed above:** the factual claim was not confabulated; what was wrong was the INFERENCE ("therefore it
+   cannot run Opus 5") — a model ID is passed through to the API regardless of the client's hardcoded
+   picker list, which is why `/model claude-opus-5` succeeded. Keep the debit, but reclassify it:
+   **invalid-instrument reasoning, not a false statement of fact.** A grader flagged the mirror error too
+   — the seat asserted the operator was "factually wrong" without ever checking whether the file it
+   grepped was the build the question was about (a fifth-law temporal-coverage miss).
+
+**Standing lesson for the instrument:** every case's answer key must itself be re-verified at grading
+time. Three of the six keys moved between authoring and grading.
+
 **Close condition:** replay control run + C1a/C1b/C3/C4/C5/C6 computed from the external counters
 across weeks (not one session). Then author the model-rijal.md conductor-seat entry — the gap this
 trial exists to fill — via operator audit or an independent pass, never by the seat itself.
