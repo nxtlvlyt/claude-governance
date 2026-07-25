@@ -59,6 +59,17 @@ timeline.html, guides.html, partners.html, about.html, changelog.html, socialIns
   4 regions/ pages — regions/alberta.html, regions/british-columbia.html, regions/nova-scotia.html,
     regions/ontario.html — SAME gap BUT their nav correctly uses `../` relative paths; the fix MUST
     keep the `../` prefix (they are one directory down).
+**SCOPE CORRECTION 2026-07-25 (from the replay-control graders, independently re-measured — SUPERSEDES
+the hand-edit plan above as the FIX DESIGN, though the divergence list itself stands):** 74 of the 85
+nav-bearing pages are NOT hand-authored — they are TEMPLATE OUTPUT from three generators (verified:
+build-regional-guides.mjs mt-mobnav at lines 316/320, build-changelog.mjs at 310/314, build-guides.mjs
+likewise). So the real edit surface is ~3 TEMPLATE EDITS + ~11 hand-authored files, NOT 13 pages edited
+by hand — hand-editing generated pages would be overwritten on the next build. Two further corrections
+to this ledger's own numbers: (i) the shared canonical menu is SEVEN links (Live Map / Share a spot /
+Guides / Partners / About / Instagram / Open map), not the 5 stated earlier — the only 5-link set in the
+repo is the FRENCH one; (ii) regions/* pages are NOT independently divergent — regions/alberta.html vs
+guides/campsite.html differ ONLY by the active-state class (text-forest vs hover:text-trail), i.e. they
+are the same template output, so they are fixed BY the template edit, not individually.
 **EXPLICITLY OUT OF SCOPE:** fr/index.html + fr/about.html carry a DELIBERATE FRENCH nav (/fr/map.html,
 /fr/canada-safety.html, /fr/pledge.html) — forcing the English canon there would break the French section.
 index.html is already canonical (it IS the reference). Preserve each page's active-link highlight
