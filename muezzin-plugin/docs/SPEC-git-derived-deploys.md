@@ -26,7 +26,38 @@ live bytes match HEAD, instead of making it impossible for them to differ.
 
 ## The fix, in dependency order
 
-### 1. DEPLOYS BECOME GIT-DERIVED (the one that actually matters)
+### 1-PRIME. **SUPERSEDES ITEM 1 BELOW — CHEAPER AND STRICTLY BETTER (found 2026-07-25 by actually querying the API)**
+
+**Cloudflare ALREADY records the deployed commit.** `GET accounts/<acc>/pages/projects/muddytires`
+returns `latest_deployment.deployment_trigger.metadata.commit_hash` — it read `a612642` with branch
+`main` and the real commit message. `wrangler pages deploy` sends git metadata automatically when run
+inside a repo. Also confirmed on the project: `source: NULL` (direct-upload, no git connection) and
+`production_branch: main` already correct.
+
+So the fix is NOT a re-architecture. It is: **stop treating `missions/_logs/last-deployed.json` as a
+source of truth; read the live sha from the Pages API.** Properties: authoritative (it is the deploying
+system's own record), cannot go stale, requires zero change to how deploys are run, and keeps
+direct-upload working. Then `--record-deploy` becomes a CACHE REFRESH, not an assertion.
+
+**Why this matters — the local marker actively lied (conductor's own error, same day):**
+`--record-deploy` stamps LOCAL HEAD at stamp time, not the commit that shipped. It stamped `994c07e4`
+while Cloudflare's record said the deployed commit was `a612642`. It passed its own byte-match guard
+only because the intervening commit touches `docs/e2e-report-*.json` and never `map.html`. A guard that
+compares live bytes to HEAD cannot detect this class at all — only the deploying system's own sha can.
+(Marker corrected to `a612642` with an AUTHORITATIVE witness string.)
+
+**Implementation sketch (small, and it is a READ — no deploy-path rewrite):**
+- helper `liveDeployedSha()` -> GET the Pages project, return `...metadata.commit_hash` (fail-soft: on
+  API error return null and say UNKNOWN — never fall back to local HEAD, which is what created the lie).
+- doneness/L4 asks: is `liveDeployedSha()` an ancestor of `main` HEAD, and do the intervening commits
+  touch any SHIPPED asset? Only then report "landed but not deployed". (Today's 1-commit gap touches
+  only `docs/`, so the correct verdict is "production functionally current" — not a blocker.)
+- keep the existing e2e/byte-match guards; they answer a different question (is the live tree healthy).
+
+The original item 1 below is RETAINED for the record and as the fallback if the Pages API is ever
+unavailable, but 1-PRIME is the one to build.
+
+### 1. DEPLOYS BECOME GIT-DERIVED (superseded by 1-PRIME above; retained for the record)
 Deploy must take a **sha**, not a directory. Either:
 - **(a) preferred, zero-custom-code:** connect the Pages project to the GitHub repo with production
   branch = `main`. Pushing to main IS the deploy; "what's live" is always a commit. Cloudflare records
