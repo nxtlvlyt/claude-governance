@@ -1,0 +1,88 @@
+MISSION-ID: mt-mobile-tap-targets-2026-07-25
+MISSION-CLASS: ops-deploy
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - js/near-me.js
+  - js/poi-hover-preview.js
+REQUIRES: none
+STEPS: 3
+
+DONE-MARKERS:
+  - js/near-me.js :: min-height:40px
+  - js/poi-hover-preview.js :: min-height:40px
+
+MAQSAD (the end): two map controls are below the 40x40 minimum tap target on mobile — the
+primary surface of a mobile-first product used one-handed from a moving van. This is not a
+guess; scripts/e2e-runner.mjs MEASURED them and docs/e2e-report-2026-07-25.json records:
+  TAP_TARGET: #mt-hp-toggle   is 68x32px  (< 40x40)  [viewport=mobile, states default AND plan]
+  TAP_TARGET: #mt-near-me-btn is 135x31px (< 40x40)  [viewport=mobile, states default AND plan]
+Both are wide enough and too SHORT (32px and 31px against a 40px floor), so the fix is a
+height floor, not a redesign. Raise each to min-height:40px with centred flex so the control
+grows downward-to-40 without moving its anchor, changing its width, or altering its label.
+Both are position:fixed, so neither participates in document flow — no sibling reflows.
+
+NIYYAH: this is the FIRST mission constructed in this session. The operator's challenge —
+"are you saying no work is being done?" — was correct: daemon lanes were [] with queued=0
+and ZERO missions fired in 24h, while the conductor hand-fixed defects in beats. That is the
+conductor substituting itself for the system and skipping its own first verb, CONSTRUCT.
+This mission exists to put verified, receipted work back in the queue where the engine can
+run it under the verdict panel and the deploy guard chain.
+
+THE FIX: a staged deterministic in-place patcher
+(missions/_logs/staged-tap-targets-2026-07-25/patch-tap-targets.mjs) appends a height floor
+to each control's existing style declaration:
+  - js/near-me.js  — the injected stylesheet string for #mt-near-me-btn; anchored on its
+    unique `padding:8px 12px;` run.
+  - js/poi-hover-preview.js — the btn.style.cssText array; anchored on the SINGLE LINE
+    `'bottom:158px',`. Single-line ON PURPOSE: that file is CRLF, so a multi-line
+    "\n"-joined anchor never matches. The patcher's first version used one and failed
+    fail-closed with ZERO writes — the documented CRLF dry-run trap. Verified unique
+    (grep -c == 1); inserted entries go on the same line, so EOL style is irrelevant.
+Patcher properties: idempotent (ALREADY-PATCHED once both markers are present),
+all-or-nothing (all content computed in memory; any anchor miss -> ANCHOR-MISS, exit 1,
+zero writes), refuses a half-applied state, and node --checks every file it writes.
+
+DRY-RUN RECEIPTED 2026-07-25 on byte-copies of both files in scratchpad/tapcopy:
+  DRY-RUN ok: would patch 2 file(s)
+  TAP-TARGET-PATCH-OK files=2
+  re-run -> ALREADY-PATCHED
+  min-height:40px present 1x in each file; node --check OK on both.
+
+STEPS (literal-command-queue: each fenced line runs VERBATIM from REPO-ROOT; exit code is
+pass/fail; bare PowerShell, no self-wrapper; the commit is FLAGS-FIRST). The literal command
+is carried in the mission text on purpose — the seventh-law receipt (mt-addspot's
+executor-improvised PowerShell ParserError at a trivially mechanical step) says do not make
+the executor invent it:
+
+```pwsh
+node "C:/Users/marka/.claude/muezzin-plugin/missions/_logs/staged-tap-targets-2026-07-25/patch-tap-targets.mjs"; if ($LASTEXITCODE -ne 0) { exit 1 }; node --check js/near-me.js; if ($LASTEXITCODE -ne 0) { exit 1 }; node --check js/poi-hover-preview.js; if ($LASTEXITCODE -ne 0) { exit 1 }; Write-Output 'TAP-TARGET-PATCH-OK'
+$a = (Select-String -Path js/near-me.js -Pattern 'min-height:40px' -AllMatches).Matches.Count; $b = (Select-String -Path js/poi-hover-preview.js -Pattern 'min-height:40px' -AllMatches).Matches.Count; if ($a -lt 1) { Write-Output "NEAR-ME-MARKER-MISSING=$a"; exit 1 }; if ($b -lt 1) { Write-Output "HP-TOGGLE-MARKER-MISSING=$b"; exit 1 }; Write-Output "TAP-TARGET-MARKERS near-me=$a hp-toggle=$b"
+git add -- js/near-me.js js/poi-hover-preview.js; git diff --cached --quiet; if ($LASTEXITCODE -eq 0) { Write-Output 'ALREADY_COMMITTED' } else { git commit -m "fix(mobile): raise #mt-near-me-btn and #mt-hp-toggle to the 40px minimum tap target - e2e measured them at 135x31 and 68x32 on mobile in both default and plan states; adds min-height:40px + centred flex so each grows to 40px without moving its anchor or changing width/label (both are position:fixed, no sibling reflow)" -- js/near-me.js js/poi-hover-preview.js; if ($LASTEXITCODE -ne 0) { exit 1 }; Write-Output 'TAP-TARGET-COMMIT-OK' }
+```
+
+Step 1: run the staged patcher (idempotent; all-or-nothing) then node --check BOTH allow-files.
+The only step that writes.
+Step 2: OUTCOME CHECK -- COMPACT receipt (grep-count, not a full dump, per
+gap-engine-lint-mission-must-emit-compact-receipt): both files must contain min-height:40px
+at least once; prints one line `TAP-TARGET-MARKERS near-me=<n> hp-toggle=<n>`.
+Step 3: idempotent flags-first commit scoped to the two allow-files.
+
+DONE-MEANS: both allow-files carry min-height:40px; node --check exits 0 on both; committed
+flags-first scoped to those two files only. NOTE (post-DONE, not a step): the fix is not
+user-visible until a production deploy — the conductor deploys under the standing guard
+chain (clean tree, e2e exit 0, parity byte-match, witnessed --record-deploy marker) and
+re-runs scripts/e2e-runner.mjs to confirm the two TAP_TARGET violations are gone.
+
+SCOPE NOTE (deliberately NOT in this mission): the same e2e run also reports
+`OVERLAP: #filtpanel intersects #mt-aurora-chip-legend` and `#filtpanel intersects
+#mt-hp-toggle` in state=default viewport=mobile. Overlap is a POSITIONING/z-order question
+that may need a product call about which control yields, so it is not bundled into a
+height-floor fix. It stays open as its own item.
+
+REACHABILITY NOTE (miqat): no page/route/nav ships; two existing controls change height
+only. No MIQAT orphan-page reachability check applies.
+
+source: C:\Users\marka\code\mt-integration-2026-06-22\js\near-me.js
+source: C:\Users\marka\code\mt-integration-2026-06-22\js\poi-hover-preview.js
+source: C:\Users\marka\code\mt-integration-2026-06-22\docs\e2e-report-2026-07-25.json
+source: C:\Users\marka\.claude\muezzin-plugin\missions\_logs\staged-tap-targets-2026-07-25\patch-tap-targets.mjs
