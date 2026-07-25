@@ -7,6 +7,47 @@ DAEMON: mt PID **16104** idle (restart chain 11572->32328->40644->**16104**; the
 its own fresh sweep then recomputed doneness with **L4 blockers = 0**, i.e. the false "3 commits not
 deployed" alarm is gone, judged by the daemon not by the conductor).
 
+=== 2026-07-25 PRODUCT ARC (operator: "are you saying no work is being done?" — he was RIGHT) ===
+THE FINDING THAT MATTERS: for most of this session daemon lanes were [] with queued=0 and ZERO
+missions fired in 24h, while the conductor hand-fixed defects in beats and reported "all four
+surfaces clear". The surfaces WERE clear — because nothing was running. That is the conductor
+substituting itself for the system and skipping its own first verb, CONSTRUCT. Fixed by
+constructing mt-mobile-tap-targets-2026-07-25, which ran the FULL loop for the first time this
+session: constructed -> mission_lint ALL PASS -> queued -> daemon fired -> verdict panel
+APPROVE (validator + auditor; final_auditor DROPPED on empty-content/budget, quorum held) ->
+committed 5436c92 -> deployed -> RE-MEASURED with the same instrument that found the defect:
+**TAP_TARGET violations 4 -> 0** (#mt-near-me-btn was 135x31, #mt-hp-toggle 68x32, both under
+the 40px floor). A successor should keep the queue fed rather than hand-patching.
+
+SHIPPED + LIVE-VERIFIED THIS SESSION (each deployed and confirmed on the edge; note
+muddytires.ca serves JS with Cache-Control max-age=14400, so a bare curl can return a STALE
+copy — always cache-bust when verifying):
+  a612642 aurora/map popup font + legend no longer covers popups
+  3756b69 operators.html reorder — #tiers now first in <main> (137->108), claim form 201->177
+  eb6ca77 poi-provenance loads outside a browser (the runtimeVerify gate that killed 5+ attempts)
+  3cf522b mobile-sheet stopped stripping loading="lazy" off community photo strips
+  95b0a86 provenance chip no longer vanishes for anonymous community spots
+  b442531 + 5c38e99 the "why we trust this" control now WORKS and is STYLED on mobile
+  adc6558 the rescued admin PWA landed + live (install from /admin.html)
+  5436c92 tap targets raised to 40px (measured 4 -> 0 violations)
+STILL OPEN, classified: provenance marker 2 ("How do we know?" TEXT affordance) and the
+?add=1-shows-onboarding-tour question are PRODUCT/DESIGN calls, deliberately left to the
+operator. The 4 remaining mobile OVERLAP violations (#filtpanel vs aurora legend / hp-toggle)
+are a z-order question, unowned, no mission yet.
+
+!! TWO AUTORUN.md FORMAT TRAPS HIT THIS SESSION — READ BEFORE EDITING THAT FILE !!
+ 1. NEVER write a MULTI-LINE annotation inside a FAILED line's <!-- --> comment. parseAutorun
+    is LINE-ORIENTED: every continuation line is read as its own mission path and stamped
+    "FAILED (missing file)". A 5-bullet annotation produced 5 PHANTOM FAILED marks (board
+    162 -> 167) within minutes. One physical line, however long (the repaired provenance line
+    is 3,838 chars and parses fine). Use " | " and " * " instead of newlines.
+ 2. AUTORUN.md may have NO TRAILING NEWLINE. `printf ... >> AUTORUN.md` then GLUES the queued
+    path onto the END of the last line, inside another mission's comment — the path is not a
+    line, so parseAutorun never sees it (pending stayed 0). Always ensure a trailing newline
+    first. Both repairs: scratchpad/fix-autorun-multiline.mjs and fix-autorun-append.mjs
+    (fail-closed, verify with `grep -cP '^FAILED (?!missions/)'` == 0 and
+    `grep -cE '^missions/.*\.mission\.txt$'`).
+
 === 2026-07-25 REPO HYGIENE ARC (all executed, not deferred — operator: "why do you keep surfacing this
 as a suggestion to me, and not completing them, is it to make sure they get lost". He was right.) ===
 * DEPLOY TRUTH IS NOW AUTHORITATIVE. `--record-deploy` used to stamp LOCAL HEAD; it stamped 994c07e4 while
