@@ -26,8 +26,23 @@ as a suggestion to me, and not completing them, is it to make sure they get lost
   admin.html +377 lines, an admin PWA (admin.webmanifest, js/admin-pwa.js, sw-admin.js), two API functions
   (functions/api/legal-verifier.js, legal-outreach-draft.js), 5 analysis docs. A tag could NOT have saved
   it (never committed); deleting the clone as "stale" would have destroyed a month of work. Committed as-is
-  and pushed as tag **archive/rescued-admin-pwa-2026-06-22** (fb19bef). UNREVIEWED — rescue, not
-  endorsement; evaluate before merging. The clone still exists on disk and is now clean.
+  and pushed as tag **archive/rescued-admin-pwa-2026-06-22** (fb19bef). The clone still exists on disk
+  and is now clean.
+  **EVALUATED 2026-07-25 (no longer unreviewed — do NOT redo this assessment):** the work is REAL,
+  COHERENT and NOT superseded. All 5 new files are valid — js/admin-pwa.js (25729 B), sw-admin.js
+  (15482 B), functions/api/legal-verifier.js (12628 B), functions/api/legal-outreach-draft.js (11309 B)
+  all pass `node --check`; admin.webmanifest is VALID JSON (name "Muddy Tires Admin — Operator console",
+  start_url /admin.html?source=pwa-admin, 1 icon). ~65 KB of substantive code. It is ONE coherent feature
+  — an installable admin PWA — not scraps: the rescued admin.html references the new PWA files 5x.
+  NONE of the 5 files exists in `main` today (checked via `git cat-file -e main:<path>`), so nothing was
+  superseded by later work.
+  **MERGE SHAPE (the one real obstacle):** the 5 NEW files can be added cleanly. `admin.html` CANNOT —
+  main has moved **5 commits** on that file since the rescue's base 3ad5ddd (main 23580 B vs rescue
+  29980 B), so its +377 lines need genuine reconciliation, never a blind overwrite. Split the merge.
+  REMAINING QUESTION IS PRODUCT-TASTE ONLY (operator's): does he want an installable admin console?
+  Everything technical checks out. (Caveat filed honestly: a first pass reported the manifest INVALID —
+  that was a /tmp path mismatch between git-bash and node, not a broken file. Re-verified by piping
+  `git show` straight into node.)
 * BRANCH-REAPING GUARD DELIBERATELY NOT BUILT (spec item 2, closed as unnecessary with receipts):
   `worktree add` appears NOWHERE in ~/.claude or hermes tooling, and 209 commits landed on main since
   2026-07-01 with only 2 merge commits — the engine commits DIRECTLY to main, so the sprawl is HISTORICAL
