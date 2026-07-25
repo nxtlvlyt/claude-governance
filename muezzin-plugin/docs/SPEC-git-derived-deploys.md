@@ -67,7 +67,22 @@ Deploy must take a **sha**, not a directory. Either:
   developer/agent working directory. Record the sha as part of the same command, not a separate step.
 Either way the invariant is: **there is no way to ship bytes that do not correspond to a pushed commit.**
 
-### 2. MISSION = MERGED + BRANCH REAPED
+### 2. ~~MISSION = MERGED + BRANCH REAPED~~ — **CLOSED 2026-07-25: NOT NEEDED, mechanism is already dead**
+
+Verified before building (the point of the check: do not write a guard against a problem that has already
+stopped happening — that is the over-scope failure this repo keeps paying for):
+- `grep -rl "worktree add"` across `~/.claude` (all .mjs/.js/.ps1) and the hermes paths returns
+  **nothing**. No current tooling creates a worktree per mission.
+- **209 commits landed on `main` since 2026-07-01; only 2 are merge commits.** The engine commits
+  DIRECTLY to main today — it does not open a branch per mission.
+- Every sprawl worktree's mtime is **2026-06-22/23**, and the 287 reaped branches are all from that same
+  era. The sprawl was produced by a June-era workflow that no longer runs.
+
+So the branch/worktree explosion is HISTORICAL, not ongoing, and cleanup (item 4) does NOT regrow.
+**If a future change reintroduces per-mission branching, this item comes back** — the condition to watch
+is: `git log --merges` on the site repo starting to climb, or `worktree add` reappearing in engine code.
+
+### 2-ORIGINAL (retained for the record; do not build unless the watch condition above fires)
 A mission is not DONE until its branch is merged to `main` and deleted. Enforce in the engine (the same
 place mission-lint already gates format). Rationale: 189 unmerged branches is not an accident, it is the
 absence of this condition — the engine creates a branch per mission and nothing ever closes the loop.
