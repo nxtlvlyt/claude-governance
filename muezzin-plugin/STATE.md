@@ -22,9 +22,54 @@ LATER-TODAY ARC (post-PART2, appended 2026-07-23, all verified against substrate
     73/85 pages already carry an identical menu, mobile nav is NOT broken (no button-without-drawer anywhere),
     only ~12 top-level pages diverge. Also retracted a false-positive "broken Instagram link" (it is
     config-driven via js/site-config.js data-mt-cfg-href, works). Full detail: user memory muddytires-nav-investigation.
-ONE HELD ITEM for the successor: the ~12-page menu-unify — operator-greenlight-gated (a VISIBLE change with a
-taste component; veto-able default = index.html's 9-link set; do NOT force it onto fr/* French pages; preserve
-each page's active-link highlight). Operator has been AFK across the cron beats — he has not yet seen/vetoed the proposal.
+MUDDYTIRES REPO ROOT (was MISSING from this ledger — a cold-boot probe could not verify "SHIPPED LIVE"
+without it): **C:\Users\marka\code\mt-integration-2026-06-22** (git repo; Cloudflare Pages project
+"muddytires"; deploy = `npx wrangler pages deploy . --project-name=muddytires --commit-dirty=true`).
+
+DEPLOY STATE — RESOLVED 2026-07-25T02:09Z (a real contradiction, now closed): this ledger said a612642
+"SHIPPED LIVE" while last-deployed.json still read 5e208477 and doneness L4 blocked "3 commit(s) landed but
+NOT deployed". BOTH were partly right: the code IS live (direct fetch of production
+https://muddytires.ca/js/aurora-overlay.js -> Hanken Grotesk=3, JetBrains Mono=0, popupclose=1,
+legendChip=8) but the `--record-deploy` MARKER was never written, so the daemon believed production was
+stale. Root cause of the marker failure: two UNTRACKED e2e reports made the worktree dirty and
+--record-deploy is fail-closed on dirty trees. Fixed: committed them (994c07e), re-ran the verifier ->
+"deploy marker stamped (WITNESSED): 994c07e4 — live /map == HEAD:map.html, tree clean, e2e outcome PASS";
+doneness recomputed 02:10:52Z with the L4 blocker GONE. LESSON: a deploy is not finished until the marker
+is stamped — an unstamped deploy reads to every future instance as "never shipped".
+
+~23h EVENT GAP 2026-07-24T02:21Z -> 2026-07-25T01:40Z in BOTH daemon-events logs = LAPTOP SLEEP (vanlife
+rig), not a daemon wedge. Receipt: on wake both daemons re-heartbeated within seconds with UNCHANGED pids
+(mt 40644 started 07-23 16:41, agy 2984 started 07-22 14:56) and all supervisors alive. The first read
+after wake shows a ~68900s "STALE" age — that is the pre-first-heartbeat instant, NOT a dead daemon.
+DO NOT restart on that reading alone; probe process liveness by pidfile first (a blind stale->restart
+would have needlessly cycled two healthy daemons). Same signature explains the LIVE-CANARY
+ENOTFOUND/UND_ERR_CONNECT_TIMEOUT fails: laptop network, not a site outage (site verified serving above).
+
+ONE HELD ITEM for the successor — MENU-UNIFY, now ENUMERATED (it previously existed only as prose here,
+with no mission file, no QUEUE item, and no page list; a cold-boot probe flagged that it would VANISH if
+this ledger were rewritten). Operator-greenlight-gated: a VISIBLE product change with a taste component
+(which links belong). Operator has NOT yet seen/vetoed it — no OPERATOR-NOTIFY entry exists after 07-18.
+CANONICAL SET (veto-able default) = index.html's complete nav: map.html, map.html?add=1, trip-cost.html,
+timeline.html, guides.html, partners.html, about.html, changelog.html, socialInstagram.
+**IN SCOPE — 13 pages** (verified 2026-07-25 by parsing each page's own <nav>):
+  9 English top-level, each missing 3-4 of the canonical links:
+    about.html, changelog.html, operators.html (missing trip-cost, timeline, socialInstagram)
+    guides.html, partners.html, pledge.html, leaderboard.html, ambassadors.html (also missing changelog)
+    landing.html (missing map, trip-cost, timeline, changelog)
+  4 regions/ pages — regions/alberta.html, regions/british-columbia.html, regions/nova-scotia.html,
+    regions/ontario.html — SAME gap BUT their nav correctly uses `../` relative paths; the fix MUST
+    keep the `../` prefix (they are one directory down).
+**EXPLICITLY OUT OF SCOPE:** fr/index.html + fr/about.html carry a DELIBERATE FRENCH nav (/fr/map.html,
+/fr/canada-safety.html, /fr/pledge.html) — forcing the English canon there would break the French section.
+index.html is already canonical (it IS the reference). Preserve each page's active-link highlight
+(e.g. guides.html marks Guides text-forest). NOT a shared-component refactor — see the nav memory.
+
+CONDUCTOR SEAT TRIAL (opened 2026-07-25, operator: "we are testing to see if opus 5 can be a better
+conductor than Opus 4.8"; and "fable is better than Opus but fable usage is out" -> Fable remains the
+PREFERRED seat, Opus 5 is an AVAILABILITY fallback, NOT a promotion). Pre-registration, criteria, and the
+ledger (including TWO Opus 5 debits the incumbent seat initially failed to file against itself):
+docs/CONDUCTOR-SEAT-TRIAL-opus5-vs-opus48.md (commit 334188e). Labelled ANECDOTAL until a replay control
+runs. RULE ZERO: the seat does not grade itself (model-rijal.md:233-240 already ruled this).
 
 ★ **PART 2 (verdictRejectLandedCandidate) LANDED + LIVE** — committed **97cc3d2** (muezzin-daemon.mjs +149 /
 mission_lint.mjs +45, scoped to the 2 allow-files). The 2026-07-22 arc's "FULLY DESIGNED, DELIBERATELY NOT
