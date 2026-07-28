@@ -1,0 +1,72 @@
+MISSION-ID: mt-fpopen-overlap-2026-07-28
+MISSION-CLASS: ops-deploy
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - map.html
+REQUIRES: none
+STEPS: 3
+
+DONE-MARKERS:
+  - map.html :: body.mt-fpopen #mt-aurora-chip-legend
+
+MAQSAD (the end): close the 4 remaining mobile OVERLAP violations measured by
+scripts/e2e-runner.mjs (docs/e2e-report-2026-07-25.json):
+  OVERLAP: #filtpanel intersects #mt-aurora-chip-legend  [state=default viewport=mobile]
+  OVERLAP: #filtpanel intersects #mt-hp-toggle           [state=default viewport=mobile]
+  OVERLAP: #filtpanel intersects #mt-near-me-btn         [state=default viewport=mobile]
+  OVERLAP: .fqa intersects #mt-hp-toggle                 [state=default viewport=mobile]
+ROOT CAUSE (verified against map.html directly): the site ALREADY has the mechanism for
+this exact defect class — `body.mt-fpopen` is toggled by fpvis() when the filter panel
+opens, and a CSS rule (gate receipts 2026-07-15: "filtpanel intersections + Apply-bar
+coverage 22.7%/11.7%") hides conflicting overlays (#mt-search-icon, .mt-locate,
+#mt-pd-gear, .leaflet-top.leaflet-left, #stamp; the original rule also hides #planbtn,
+#gpsadd, #mtsearch). But #mt-aurora-chip-legend, #mt-hp-toggle and #mt-near-me-btn all
+SHIPPED AFTER that rule and were never appended to the hide-list. The .fqa violation is
+the same root: hp-toggle floats over the open panel's Apply button, so hiding hp-toggle
+under mt-fpopen resolves it too. #filtpanel is display:none by default and fpvis(false)
+restores every control on close — the closed-panel UI is untouched. This is a pure
+selector-list extension of the established mechanism, NOT a new design.
+
+THE FIX: a staged deterministic in-place patcher
+(missions/_logs/staged-fpopen-overlap-2026-07-28/patch-fpopen-overlap.mjs) appends
+` body.mt-fpopen #mt-aurora-chip-legend, body.mt-fpopen #mt-hp-toggle,
+body.mt-fpopen #mt-near-me-btn,` immediately after the unique single-line anchor
+`body.mt-fpopen #mt-search-icon,` inside the existing display:none !important rule.
+Single-line anchor ON PURPOSE — map.html is effectively one physical line, and the CRLF
+dry-run trap forbids multi-line anchors. Patcher is idempotent (ALREADY-PATCHED when the
+marker is present), all-or-nothing (anchor-miss or post-check miss -> exit 1, ZERO
+writes), and post-checks in memory that each new selector lands exactly once before
+writing. DRY-RUN RECEIPTED 2026-07-28 on a byte-copy: DRY-RUN ok -> FPOPEN-OVERLAP-PATCH-OK
+selectors=3 -> re-run ALREADY-PATCHED; each selector present exactly 1x; size delta +101B.
+
+STEPS (literal-command-queue: each fenced line runs VERBATIM from REPO-ROOT; exit code is
+pass/fail; bare PowerShell, no self-wrapper; commit is FLAGS-FIRST — the literal commands
+are carried in the mission text per the seventh-law receipt so the executor never
+improvises them):
+
+```pwsh
+node "C:/Users/marka/.claude/muezzin-plugin/missions/_logs/staged-fpopen-overlap-2026-07-28/patch-fpopen-overlap.mjs"; if ($LASTEXITCODE -ne 0) { exit 1 }; Write-Output 'FPOPEN-OVERLAP-PATCH-OK'
+$a = (Select-String -Path map.html -Pattern 'body\.mt-fpopen #mt-aurora-chip-legend' -AllMatches).Matches.Count; $b = (Select-String -Path map.html -Pattern 'body\.mt-fpopen #mt-hp-toggle' -AllMatches).Matches.Count; $c = (Select-String -Path map.html -Pattern 'body\.mt-fpopen #mt-near-me-btn' -AllMatches).Matches.Count; if ($a -ne 1 -or $b -ne 1 -or $c -ne 1) { Write-Output "FPOPEN-MARKERS a=$a b=$b c=$c"; exit 1 }; Write-Output "FPOPEN-MARKERS aurora=$a hp=$b nearme=$c"
+git add -- map.html; git diff --cached --quiet; if ($LASTEXITCODE -eq 0) { Write-Output 'ALREADY_COMMITTED' } else { git commit -m "fix(mobile): hide aurora legend, hover-preview toggle and near-me btn while the filter panel is open - extends the existing body.mt-fpopen hide-list (2026-07-15 mechanism) to the 3 controls that shipped after it; closes all 4 remaining mobile OVERLAP violations from docs/e2e-report-2026-07-25.json; closed-panel UI untouched (fpvis(false) restores everything)" -- map.html; if ($LASTEXITCODE -ne 0) { exit 1 }; Write-Output 'FPOPEN-COMMIT-OK' }
+```
+
+Step 1: run the staged patcher (idempotent, all-or-nothing). The only step that writes.
+Step 2: OUTCOME CHECK — COMPACT receipt (grep-counts, per
+gap-engine-lint-mission-must-emit-compact-receipt): each of the 3 new selectors present
+exactly once; prints one line `FPOPEN-MARKERS aurora=1 hp=1 nearme=1`.
+Step 3: idempotent flags-first commit scoped to the one allow-file.
+
+DONE-MEANS: map.html carries all 3 `body.mt-fpopen #mt-*` selectors exactly once inside
+the hide-list; committed flags-first scoped to map.html. NOTE (post-DONE, not a step):
+not user-visible until a production deploy — the conductor deploys under the standing
+guard chain (clean tree, e2e exit 0, byte-match, witnessed --record-deploy) and re-runs
+scripts/e2e-runner.mjs expecting the mobile-default overlap violations to drop 5 -> <=1
+(the 4 fpopen-class ones gone; anything remaining is a different root and gets its own
+diagnosis, not a silent bundle).
+
+REACHABILITY NOTE (miqat): CSS-only change to an existing page; no page/route/nav ships;
+no MIQAT orphan-page reachability check applies.
+
+source: C:\Users\marka\code\mt-integration-2026-06-22\map.html
+source: C:\Users\marka\code\mt-integration-2026-06-22\docs\e2e-report-2026-07-25.json
+source: C:\Users\marka\.claude\muezzin-plugin\missions\_logs\staged-fpopen-overlap-2026-07-28\patch-fpopen-overlap.mjs
