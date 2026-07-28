@@ -84,7 +84,12 @@ async function ollamaBackend(model, prompt) {
   if (big.length) throw new Error(`GR10: big model resident (${big[0].name}) — yield the beat`);
   const r = await fetch(`${OLLAMA}/api/chat`, {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ model, stream: false, options: { temperature: 0.1, num_ctx: 16384 }, messages: [{ role: 'system', content: LAWS }, { role: 'user', content: prompt }] }),
+    // think:false (2026-07-28): the laguna-xs-2.1 re-push defaults to thinking-mode and floods
+    // content with reasoning prose on the NATIVE endpoints (probe receipt: default = rambling
+    // preamble; think:false = exactly "CLEAN", 5 chars). /api/chat honors the flag
+    // (self_witness.mjs:203 precedent). The /v1 endpoint is DIFFERENT — qwen3.6 ignores
+    // think:false there and is budget-mitigated instead (orchestrate.mjs:600-603).
+    body: JSON.stringify({ model, stream: false, think: false, options: { temperature: 0.1, num_ctx: 16384 }, messages: [{ role: 'system', content: LAWS }, { role: 'user', content: prompt }] }),
     signal: AbortSignal.timeout(300000),
   });
   if (!r.ok) throw new Error(`ollama HTTP_${r.status}`);

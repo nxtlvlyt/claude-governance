@@ -2422,3 +2422,13 @@ budget; content empty" / "no JSON verdict found" DISPATCH-class failure shape al
 board twice. Mission shape: add think:false (or final-line parsing) to laguna dispatches; also
 note ssh from this laptop needs the FULL PATH C:\Windows\System32\OpenSSH\ssh.exe (bare `ssh`
 fails in this shell) and nxtbeast by IP 100.103.44.13 (hostname does not resolve here).
+
+THINK-FLAG SWEEP — CLOSED SAME-DAY 2026-07-28 (opened above as an owed item; every path receipted):
+  * self_witness.mjs /api/chat — ALREADY had think:false (line 203). No change needed.
+  * conduct-beat-local.mjs /api/chat — GAP, fixed (commit 46c547c): think:false added; a local
+    conductor beat on new-laguna/qwen would otherwise flood content with reasoning.
+  * VERDICT PANEL /v1 path — CANARY-VERIFIED SAFE with the new laguna: /v1 SEPARATES reasoning into
+    its own field (probe: reasoning 1510 chars, content = clean 170-char JSON verdict that parses).
+    No flag needed; qwen's /v1 flag-ignoring remains budget-mitigated per orchestrate.mjs:600-603.
+  * doctor.mjs /api/generate health probes — cosmetic only, untouched.
+The new laguna witness seat is therefore CLEARED FOR DUTY on both endpoints. Rollback pin stands.
