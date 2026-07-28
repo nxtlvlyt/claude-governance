@@ -45,6 +45,12 @@ rulings. This file is the loudness fix.)
   scores). Claude = main architect (curriculum, quality gates, final audit). The
   trained artifact (conductor-qwen:27b) runs LOCAL; muezzin runtime jurisdiction
   stays local+Claude — this carve-out never extends to conducting duty.
+  PROMOTION RECORDED (operator words 2026-07-28: "I'm not looking for fast and
+  cheap I'm looking for quality" + "only the best Kimi model must be used" +
+  "yes" on the final roster): teachers = kimi-k2.6:cloud + glm-5.2:cloud, after
+  a 3-round quality-only bench (scorecard: conductor-qwen\PHASE0-BENCH-SCORECARD.md).
+  kimi-k2.7-code = reserve only; minimax family disqualified (2 models, output-
+  starving reasoning burn); kimi-k3 re-benches if extra-usage funding appears.
 
 ## Mission & engine rulings
 - **GAP ISSUES ARE ALWAYS PRIORITY** (operator word 2026-07-03 ~01:2x: "gap issues is always
