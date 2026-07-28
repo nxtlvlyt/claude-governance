@@ -56,10 +56,21 @@ Claude + witness pair. Pick top 2 as teachers. Operator reviews scores (seat-pro
   ceiling: kimi-k3 (2.8T, 1M ctx) benches identically the moment extra-usage balance is
   funded (identity-bound) — if it beats k2.6 it takes the depth seat.
 
-## Phase 3 — Train on nxtbeast
-- Unsloth QLoRA, 4-bit base, LoRA r16-64, ctx 4-8k, gradient checkpointing. Single 4090.
-- Training occupies the big lane (two-lane ruling); serial with chain inference.
-- Eval held-out set = real episodes never shown in training.
+## Phase 3 — Train on nxtbeast (REVISED 2026-07-28 after SOTA search — the original
+## QLoRA-only design rested on a falsified assumption)
+- RECEIPTS: unsloth's qwen3.5 fine-tune doc advises AGAINST 4-bit (QLoRA) training on
+  this family ("higher than normal quantization differences"); bf16 LoRA for 27B wants
+  ~56GB (exceeds 4090). Community receipt (zenvanriel, 2026-05): 27B QLoRA DOES fit
+  24GB — r16/alpha32, paged AdamW 8-bit, batch 1 × grad-accum 8, ctx 2048 hard cap,
+  gradient checkpointing, ~22-23GB, ~4-5h for ~4k pairs × 3 epochs.
+- DUAL-STUDENT DESIGN (quality-first: audition decides, not assumptions):
+  Student A = qwen3.6:27b QLoRA (operator's named target; vendor warning = HYPOTHESIS).
+  Student B = qwen3.5:9b bf16 LoRA (vendor-clean on 24GB; purest test of the
+  small-model-with-tool-reflexes thesis).
+  Identical dataset, identical held-out audition vs the banked baselines; winner takes
+  the seat. Two serial runs, big lane (two-lane ruling).
+- Samples must fit ctx 2048 for Student A — assembly enforces a token-length check.
+- Eval held-out set = HOLDOUT.md episodes, never shown in training.
 
 ## Phase 4 — Deploy + bench
 - Merge LoRA → GGUF q4_K_M → Modelfile → `conductor-qwen:27b` in Ollama.
