@@ -2455,3 +2455,10 @@ taskkill /IM qemu-system* or emulator.exe, NOT adb emu kill (it hangs).
 atv-18/19 STAY PARKED — premise UPDATED from "rig absent" to "AVD boots black"; owner unchanged.
 ALSO: the physical "etau" device may be a BETTER capture target than any emulator — ask the operator
 what it is (it appeared attached and authorized).
+
+ETAU IDENTIFIED 2026-07-28 (operator: "no idea what etau is"): getprop receipts —
+manufacturer=Coolermicro, model=HID-compliant, fingerprint Cooler/etau/etau:4.4.2/KOT49H eng-build
+test-keys 2022-01-05. It is nxtbeast's own COOLER MASTER LCD component (AIO/case display controller)
+running embedded Android 4.4 and exposing adb over USB — a known Cooler Master hardware quirk. BENIGN,
+not an external device and NOT a capture target. It permanently occupies the adb bus, so every adb
+command on nxtbeast must target explicitly (-e for the emulator) — already in the recipe above.
