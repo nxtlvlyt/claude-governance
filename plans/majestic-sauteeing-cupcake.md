@@ -50,6 +50,11 @@ Claude + witness pair. Pick top 2 as teachers. Operator reviews scores (seat-pro
   of tool CHOICE as a headline metric, not just answer quality.
 - Filter: witness pair + laguna structural pass + Claude spot-audit; rejection-sample to
   law-conformant actions only. Size target: 5-20k samples.
+- **QUALITY-FIRST (operator word 2026-07-28: "I'm not looking for fast and cheap, I'm
+  looking for quality"):** cost/speed are NOT ranking or design factors. Depth passes over
+  volume; every sample audited, not spot-audited; 5k pristine beats 20k noisy. Teacher
+  ceiling: kimi-k3 (2.8T, 1M ctx) benches identically the moment extra-usage balance is
+  funded (identity-bound) — if it beats k2.6 it takes the depth seat.
 
 ## Phase 3 — Train on nxtbeast
 - Unsloth QLoRA, 4-bit base, LoRA r16-64, ctx 4-8k, gradient checkpointing. Single 4090.
