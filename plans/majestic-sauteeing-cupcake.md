@@ -42,6 +42,12 @@ Claude + witness pair. Pick top 2 as teachers. Operator reviews scores (seat-pro
   verdicts, gap-priority classification.
 - Format: chat SFT with tool-call traces matching the beat-harness verbs
   (construct / fire / judge / report / write_state).
+- **TOOL-REACH-FIRST AXIS (operator finding, added 2026-07-28): a smaller model with the
+  right tools outperforms a larger one that doesn't reach for tools — and big models don't
+  reach initially. Every sample's first action is a TOOL DECISION (name the purpose-built
+  tool per the sixth law), never prose. Include contrast pairs: hand-rolled answer =
+  rejected, tool-reach answer = accepted. Eval scores tool-invocation rate + correctness
+  of tool CHOICE as a headline metric, not just answer quality.
 - Filter: witness pair + laguna structural pass + Claude spot-audit; rejection-sample to
   law-conformant actions only. Size target: 5-20k samples.
 

@@ -36,6 +36,16 @@ rulings. This file is the loudness fix.)
   (use-it-or-lose-it route windows); Ollama level-4 models (kimi, deepseek-v4-pro)
   never do level-2 jobs when budget is tight. The dial is muezzin-route.json.
 
+- **CONDUCTOR-QWEN TRAINING CARVE-OUT (operator word 2026-07-28: approved plan
+  majestic-sauteeing-cupcake + "you are the main architect and the other architects
+  are used to keep your usage down... and for their creativity and their non family
+  bias").** Ollama Cloud teachers ARE permitted for the conductor-qwen fine-tune
+  project's DATASET GENERATION only (bench candidates: kimi-k3, deepseek-v4-pro,
+  minimax-m3, nemotron-ultra; top-2 by bench become teachers, operator reviews
+  scores). Claude = main architect (curriculum, quality gates, final audit). The
+  trained artifact (conductor-qwen:27b) runs LOCAL; muezzin runtime jurisdiction
+  stays local+Claude — this carve-out never extends to conducting duty.
+
 ## Mission & engine rulings
 - **GAP ISSUES ARE ALWAYS PRIORITY** (operator word 2026-07-03 ~01:2x: "gap issues is always
   priority", after asking "how is the conductor still failing at this"). An open gap of
