@@ -2432,3 +2432,26 @@ THINK-FLAG SWEEP — CLOSED SAME-DAY 2026-07-28 (opened above as an owed item; e
     No flag needed; qwen's /v1 flag-ignoring remains budget-mitigated per orchestrate.mjs:600-603.
   * doctor.mjs /api/generate health probes — cosmetic only, untouched.
 The new laguna witness seat is therefore CLEARED FOR DUTY on both endpoints. Rollback pin stands.
+
+ATV EMULATOR RIG — DIAGNOSED TO ONE BOUNDED DEFECT 2026-07-28 (operator was RIGHT: the rig WAS
+installed days ago at C:\Android\Sdk — complete with adb 37.0.0, android-36 android-tv x86_64 image,
+AVDs atv-capture + atv. The conductor's "never installed" was a SEARCH failure: checked LOCALAPPDATA/
+D:/E: but never plain C:\Android. The E:\Android\Sdk built tonight is a DUPLICATE — cleanup candidate).
+WORKING RECIPE, each piece receipted tonight:
+  launch:  schtasks /Create /TN AtvEmu /TR "'C:\Android\Sdk\emulator\emulator.exe' -avd atv-capture
+           -no-window -no-audio -no-boot-anim -gpu host" + /Run  (ssh-spawned children die on session
+           exit — the ORIGINAL atv-18 480s-timeout root cause; same trap hit ollama twice tonight)
+  adb:     scheduled task AdbServer runs 'adb server nodaemon' (per-ssh adb daemons die too, leaving
+           the emulator stuck "authorizing"); ALL adb commands MUST use -e — a PHYSICAL Android device
+           "etau" serial 1234567890ABCDEF is attached to nxtbeast, so bare adb fails "more than one
+           device" (the would-have-been failure #2 even with a booted emulator)
+  capture: adb -e exec-out screencap -p -> valid 1920x1080 PNG (pipeline proven end-to-end)
+REMAINING DEFECT (bounded): the atv-capture AVD renders a BLACK framebuffer on BOTH swiftshader AND
+-gpu host, "Can't find service: input" long after boot_completed=1, and `adb emu kill` HANGS — a
+wedged/broken guest first-boot (userdata corrupt or WHPX acceleration absent). NEXT DIAGNOSIS
+(mission-shaped): adb -e logcat -d for framework crashes; verify WHPX; recreate the AVD fresh
+(avdmanager delete avd -n atv-capture, recreate, one clean cold boot). Kill the wedged instance via
+taskkill /IM qemu-system* or emulator.exe, NOT adb emu kill (it hangs).
+atv-18/19 STAY PARKED — premise UPDATED from "rig absent" to "AVD boots black"; owner unchanged.
+ALSO: the physical "etau" device may be a BETTER capture target than any emulator — ask the operator
+what it is (it appeared attached and authorized).
