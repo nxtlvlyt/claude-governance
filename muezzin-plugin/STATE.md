@@ -2401,3 +2401,24 @@ WHEN NXTBEAST IS BACK: (1) record current laguna-xs-2.1:q8_0 digest as rollback 
 (2) ollama pull, (3) re-audition the witness seat against known-answer checks BEFORE trusting verdicts
 (model-rijal.md calibration was built on the old version; a silent swap changes witness behavior),
 (4) update the rijal entry with the new digest + date. NOT urgent — nothing is broken.
+
+LAGUNA UPDATE — COMPLETE 2026-07-28 (closes the open item above). Chain of receipts:
+upstream q8_0 digest a249c0765c04 (ollama.com/tags) vs installed 7073183a9e7c -> genuine update.
+Blocked first by Ollama 412 (server too old) -> upgraded nxtbeast Ollama 0.32.0 -> 0.32.5 via
+winget over ssh (server idle, 0 models loaded, hash-verified). Two relaunch failures (Start-Process
+children die on ssh session exit — the earlier "unreachable/wedged" reads trace to this too) ->
+solved via schtasks OllamaRelaunch running "ollama app.exe" in the user session (survives ssh,
+restores tray autostart). Pull success: q8_0 now a249c0765c04 == upstream target EXACTLY.
+ROLLBACK PIN: laguna-xs-2.1:q8_0-pin-20260702 (digest 7073183a9e7c) — one `ollama cp` to revert.
+RE-AUDITION (known-answer probes, temperature 0): catches a real off-by-one (PASS); on clean code
+with DEFAULT settings it RAMBLES reasoning prose before the verdict (the new build defaults to
+thinking-mode — it is tagged `thinking` upstream); with `"think": false` the reply is exactly
+"CLEAN" (5 chars, perfect discipline).
+!! OPEN ITEM — ENGINE THINK-FLAG SWEEP (owner: next mt engine mission; trigger: BEFORE any seat
+dispatch trusts the new laguna) !! No engine dispatch site passes `think` (grep receipt: zero
+'"think"' hits across *.mjs; laguna sites: executor.mjs, conduct-cycle.mjs, keystone_flow.mjs,
+git_steps.mjs, seat_modes.mjs). Default thinking-mode output is the EXACT "reasoning consumed
+budget; content empty" / "no JSON verdict found" DISPATCH-class failure shape already on the
+board twice. Mission shape: add think:false (or final-line parsing) to laguna dispatches; also
+note ssh from this laptop needs the FULL PATH C:\Windows\System32\OpenSSH\ssh.exe (bare `ssh`
+fails in this shell) and nxtbeast by IP 100.103.44.13 (hostname does not resolve here).
