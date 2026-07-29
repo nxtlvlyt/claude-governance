@@ -38,7 +38,26 @@ re-running is safe. Any cleanliness assertion must scope to the two ALLOW-FILES 
 
 Steps:
   1. Record live branch and HEAD sha; if data/rest-services.json ALREADY exists at HEAD, output ALREADY_BUILT and treat steps 2-4 as verify-only presence/shape confirmations; otherwise output CLEAN_BASELINE and proceed. If scripts/build-rest-services.mjs already exists at HEAD, grep it for the literal node_type values 'rest_area', 'dump_station', AND 'truck_stop' before treating step 2 as satisfied/resumed; a script naming gym/repair_shop/supply_store/toilets (or any other node_type set) is NOT this mission's deliverable — treat as CLEAN_BASELINE and re-author step 2 from scratch regardless of the script file's prior existence. Never exit 1 on the deliverables' existence. [command]
-  2. Author scripts/build-rest-services.mjs using EXACTLY this Overpass tag-class list (no substitution, no inference from map.html or any other repo file): TAG_CLASSES = [{selector:'highway=rest_area',nodeType:'rest_area'}, {selector:'highway=services',nodeType:'rest_area'}, {selector:'amenity=sanitary_dump_station',nodeType:'dump_station'}, {selector:'amenity=fuel',nodeType:'truck_stop',extraFilter:'hgv=yes OR brand~"Flying J|Petro-Pass|Husky Travel"'}]. Bounded timeout, Canada bbox or area filter, honest-empty field policy, writes data/rest-services.json sorted by osm_id for stable diffs. [edit] scripts/build-rest-services.mjs
+  2. [command] AMENDED 2026-07-29 — DO NOT AUTHOR THIS FILE. Two prior attempts died here
+     with "seat produced NO usable file content (0 fenced block(s) seen, largest 0 chars)":
+     the executor floor for code targets is the local coder (executor.mjs:426) and it
+     emitted nothing, twice. The 2026-07-11 literalness amendment could not fix a seat that
+     emits zero bytes, which is why this is now an INSTALL step, not an authoring step.
+     The builder has been authored and CONDUCTOR-DRY-RUN RECEIPTED against LIVE Overpass
+     (2026-07-29): 1902 entries — rest_area=1293, dump_station=522, truck_stop=87 — and the
+     full step-4 contract below returned ALL PASS (sorted by osm_id; 992 minimal entries
+     carrying exactly {osm_id,osm_type,node_type,lat,lng,tags_kept}; zero empty tags_kept
+     values; ways/relations resolved via "out center"; HTTP 429/504 retry backoff exercised
+     and recovered during the real run). It implements the TAG_CLASSES list verbatim:
+     highway=rest_area -> rest_area; highway=services -> rest_area;
+     amenity=sanitary_dump_station -> dump_station; amenity=fuel with
+     (hgv=yes OR brand~"Flying J|Petro-Pass|Husky Travel") -> truck_stop.
+     NOTE: a WRONG-FEATURED build-rest-services.mjs (naming gym/repair_shop/supply_store/
+     toilets) is banked at HEAD from the failed attempt — step 1 already classifies it as
+     NOT this deliverable; -Force overwrites it.
+     Run these two LITERAL bare-PowerShell lines from the repo root:
+       Copy-Item -LiteralPath 'C:\Users\marka\.claude\muezzin-plugin\missions\_logs\staged-rest-services-2026-07-29\build-rest-services.mjs' -Destination 'scripts/build-rest-services.mjs' -Force; if (Select-String -Path scripts/build-rest-services.mjs -Pattern 'truck_stop' -Quiet) { 'BUILDER-INSTALLED' } else { exit 1 }
+       node --check scripts/build-rest-services.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; 'BUILDER-SYNTAX-OK'
   3. Run the builder (node scripts/build-rest-services.mjs) and require exit 0 with data/rest-services.json produced. [command]
   4. Verify the dataset: node -e parse succeeds; total count > 200 (Canada has hundreds of rest areas — a tiny count means the query is wrong, fail loudly); every entry has osm_id + node_type in {rest_area, dump_station, truck_stop} + finite lat/lng inside Canada bounds (lat 41..84, lng -141..-52); NO entry carries a name/brand field with empty-string or placeholder values. Print the per-node_type counts. [verify] data/rest-services.json
   5. Commit both ALLOW-FILES by explicit name with a message that names this mission and quotes the per-type counts, then confirm the commit is on HEAD with both paths in its tree. [command]
