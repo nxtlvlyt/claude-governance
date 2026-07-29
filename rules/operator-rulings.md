@@ -51,6 +51,15 @@ rulings. This file is the loudness fix.)
   a 3-round quality-only bench (scorecard: conductor-qwen\PHASE0-BENCH-SCORECARD.md).
   kimi-k2.7-code = reserve only; minimax family disqualified (2 models, output-
   starving reasoning burn); kimi-k3 re-benches if extra-usage funding appears.
+  PROMOTION GRANTED (operator word 2026-07-29: "yes to all", on the v1.1 frontier
+  scorecard): tuned 27B v1.1 is PROMOTED — name "Arch 3.6 27b" (the operator's own
+  proposed name; rename on his word). Receipts: conductor-qwen\V11-FRONTIER-SCORECARD.md
+  — sealed blind batch, 17.50/20 zero fatals vs haiku 10.69 / kimi-k2.6 11.56 /
+  glm-5.2 11.88 (9 fatals between them) on the 8 holdout episodes, zero injection.
+  Weights: nxtbeast D:\conductor-qwen\models\conductor-qwen-27b-v11.q4km.gguf (+f16).
+  STANDING GATE unchanged: BFCL + Lighteval external-validity pass required BEFORE
+  any standalone/shared use of the Arch name (operator "yes to all" covers running
+  them now). 9B v1.1 (15.125) = fast/cheap sibling, no seat.
 
 ## Mission & engine rulings
 - **GAP ISSUES ARE ALWAYS PRIORITY** (operator word 2026-07-03 ~01:2x: "gap issues is always
