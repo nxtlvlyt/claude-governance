@@ -2462,3 +2462,29 @@ test-keys 2022-01-05. It is nxtbeast's own COOLER MASTER LCD component (AIO/case
 running embedded Android 4.4 and exposing adb over USB — a known Cooler Master hardware quirk. BENIGN,
 not an external device and NOT a capture target. It permanently occupies the adb bus, so every adb
 command on nxtbeast must target explicitly (-e for the emulator) — already in the recipe above.
+
+=== 2026-07-28/29 EVENING ARC — the queues ran ===
+* MENU-UNIFY: LIVE SITE-WIDE. Ran as mission mt-menu-unify-2026-07-28 through the full engine loop
+  (lint ALL PASS -> daemon -> 3/3 steps ok -> verdict APPROVE -> commit 82f4ac2 -> deployed -> marker
+  82f4ac2e witnessed). 85 targets from ONE canon array (9 root pages + 69 guides + 4 regions + the 3
+  generating templates; prep receipts: idempotency x2, fr/* md5-identical, rebuild parity proven by
+  RUNNING build-regional-guides + build-changelog on the patched copy). Live spot-check cache-busted:
+  about/partners/operators/leaderboard each serve trip-cost.html EXACTLY 2x (desk+drawer), fr/ = 0.
+  MEASURING NOTE: grep -c counts LINES — single-line navs need `grep -o | wc -l` (bit twice today).
+  The operator's original "hard to navigate" complaint is CLOSED site-wide.
+* FPOPEN-OVERLAP (earlier today): mission DONE, deployed, overlap violations 0 across all 4 combos.
+* ATV-18: fired in-engine after 3 gate refusals (QUEUE-DUP -> re-bare convention; retro-gate COVERS
+  contract — both now in user memory agy-refire-gate-contracts). Attempt 1 verdict-fail -> auto-retry
+  with SEAT-ESCALATION (ladder working). Attempt 2: ALL recipe steps ok, notes-check healed mid-run,
+  THE CAPTURE LANDED IN-ENGINE (hero-atv-ui.webp 49,888B in tree, uncommitted, newer than the fe6be57
+  dry-run version) — died at VERDICT phase again = classic work-landed false-death shape. FAILED x2.
+* G3 GRADUATION TEST IN FLIGHT (deliberate non-intervention per the operator's standing succession
+  order): the self-waking agy-conductor-beat (schtask, 30-min cadence, next ~19:30 local 07-28) will
+  sweep atv-18's FAILED and must disposition it with its allowlisted verbs (record/park/hold/report).
+  The conductor judges the BEAT's judgment from the rijal log afterward — does NOT preempt the
+  recovery. A correct disposition = the last agy graduation item -> N5 unblocks (the self-feeding
+  loop the operator named: "if the muezzin was working right I wouldn't have to ask you to keep going").
+* atv-19 remains TARTIB-HELD behind atv-18 (dependency machinery verified working).
+* E:\Android\Sdk duplicate cleanup DEFERRED until atv work settles — the rebuilt atv-capture AVD may
+  reference the E: image path (avdmanager ran from E:); verify ~/.android/avd/atv-capture.avd/config.ini
+  image.sysdir BEFORE deleting E:\Android, and repoint to the identical C: image if needed.
