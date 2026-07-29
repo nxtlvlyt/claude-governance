@@ -36,30 +36,34 @@ dataset is receipted. Idempotent by construction — the builder overwrites its 
 re-running is safe. Any cleanliness assertion must scope to the two ALLOW-FILES only
 (git status --porcelain -- <paths>), never the whole tree.
 
-Steps:
-  1. Record live branch and HEAD sha; if data/rest-services.json ALREADY exists at HEAD, output ALREADY_BUILT and treat steps 2-4 as verify-only presence/shape confirmations; otherwise output CLEAN_BASELINE and proceed. If scripts/build-rest-services.mjs already exists at HEAD, grep it for the literal node_type values 'rest_area', 'dump_station', AND 'truck_stop' before treating step 2 as satisfied/resumed; a script naming gym/repair_shop/supply_store/toilets (or any other node_type set) is NOT this mission's deliverable — treat as CLEAN_BASELINE and re-author step 2 from scratch regardless of the script file's prior existence. Never exit 1 on the deliverables' existence. [command]
-  2. [command] AMENDED 2026-07-29 — DO NOT AUTHOR THIS FILE. Two prior attempts died here
-     with "seat produced NO usable file content (0 fenced block(s) seen, largest 0 chars)":
-     the executor floor for code targets is the local coder (executor.mjs:426) and it
-     emitted nothing, twice. The 2026-07-11 literalness amendment could not fix a seat that
-     emits zero bytes, which is why this is now an INSTALL step, not an authoring step.
-     The builder has been authored and CONDUCTOR-DRY-RUN RECEIPTED against LIVE Overpass
-     (2026-07-29): 1902 entries — rest_area=1293, dump_station=522, truck_stop=87 — and the
-     full step-4 contract below returned ALL PASS (sorted by osm_id; 992 minimal entries
-     carrying exactly {osm_id,osm_type,node_type,lat,lng,tags_kept}; zero empty tags_kept
-     values; ways/relations resolved via "out center"; HTTP 429/504 retry backoff exercised
-     and recovered during the real run). It implements the TAG_CLASSES list verbatim:
-     highway=rest_area -> rest_area; highway=services -> rest_area;
-     amenity=sanitary_dump_station -> dump_station; amenity=fuel with
-     (hgv=yes OR brand~"Flying J|Petro-Pass|Husky Travel") -> truck_stop.
-     NOTE: a WRONG-FEATURED build-rest-services.mjs (naming gym/repair_shop/supply_store/
-     toilets) is banked at HEAD from the failed attempt — step 1 already classifies it as
-     NOT this deliverable; -Force overwrites it.
-     Run these two LITERAL bare-PowerShell lines from the repo root:
-       Copy-Item -LiteralPath 'C:\Users\marka\.claude\muezzin-plugin\missions\_logs\staged-rest-services-2026-07-29\build-rest-services.mjs' -Destination 'scripts/build-rest-services.mjs' -Force; if (Select-String -Path scripts/build-rest-services.mjs -Pattern 'truck_stop' -Quiet) { 'BUILDER-INSTALLED' } else { exit 1 }
-       node --check scripts/build-rest-services.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; 'BUILDER-SYNTAX-OK'
-  3. Run the builder (node scripts/build-rest-services.mjs) and require exit 0 with data/rest-services.json produced. [command]
-  4. Verify the dataset: node -e parse succeeds; total count > 200 (Canada has hundreds of rest areas — a tiny count means the query is wrong, fail loudly); every entry has osm_id + node_type in {rest_area, dump_station, truck_stop} + finite lat/lng inside Canada bounds (lat 41..84, lng -141..-52); NO entry carries a name/brand field with empty-string or placeholder values. Print the per-node_type counts. [verify] data/rest-services.json
-  5. Commit both ALLOW-FILES by explicit name with a message that names this mission and quotes the per-type counts, then confirm the commit is on HEAD with both paths in its tree. [command]
+Steps (LITERAL command queue — rewritten 2026-07-29 after a MIQAT improvise-bait
+refusal: every [command] step now carries its executable payload verbatim. Each fenced
+line runs VERBATIM from REPO-ROOT in bare PowerShell — the engine already wraps each line
+in pwsh, so a line must NEVER be prefixed with "pwsh -Command". Commits are FLAGS-FIRST.
+Steps 2-4's payloads were each EXECUTED by the conductor this wake before being written
+here: the builder produced 1902 entries against live Overpass and the staged verifier
+returned STEP4-CONTRACT-OK on that output.):
 
+```pwsh
+git rev-parse --abbrev-ref HEAD; git rev-parse HEAD; $built = Test-Path data/rest-services.json; $scriptOk = (Test-Path scripts/build-rest-services.mjs) -and (Select-String -Path scripts/build-rest-services.mjs -Pattern 'truck_stop' -Quiet) -and (Select-String -Path scripts/build-rest-services.mjs -Pattern 'dump_station' -Quiet) -and (Select-String -Path scripts/build-rest-services.mjs -Pattern 'rest_area' -Quiet); if ($built -and $scriptOk) { "ALREADY_BUILT dataset=present builder=correct-features" } else { "CLEAN_BASELINE dataset=$built builderCorrectFeatures=$scriptOk" }
+Copy-Item -LiteralPath 'C:\Users\marka\.claude\muezzin-plugin\missions\_logs\staged-rest-services-2026-07-29\build-rest-services.mjs' -Destination scripts/build-rest-services.mjs -Force; if (-not (Select-String -Path scripts/build-rest-services.mjs -Pattern 'truck_stop' -Quiet)) { 'BUILDER-INSTALL-FAILED'; exit 1 }; node --check scripts/build-rest-services.mjs; if ($LASTEXITCODE -ne 0) { 'BUILDER-SYNTAX-BAD'; exit 1 }; 'BUILDER-INSTALLED-AND-SYNTAX-OK'
+node scripts/build-rest-services.mjs; if ($LASTEXITCODE -ne 0) { 'BUILDER-RUN-FAILED'; exit 1 }; if (-not (Test-Path data/rest-services.json)) { 'DATASET-MISSING'; exit 1 }; "BUILDER-RAN bytes=$((Get-Item data/rest-services.json).Length)"
+node 'C:\Users\marka\.claude\muezzin-plugin\missions\_logs\staged-rest-services-2026-07-29\verify-rest-services.mjs'; if ($LASTEXITCODE -ne 0) { exit 1 }
+git add -- data/rest-services.json scripts/build-rest-services.mjs; git diff --cached --quiet; if ($LASTEXITCODE -eq 0) { 'ALREADY_COMMITTED' } else { $c = node -e "const a=require('./data/rest-services.json');const m={};for(const e of a)m[e.node_type]=(m[e.node_type]||0)+1;console.log(Object.entries(m).map(([k,v])=>k+'='+v).join(' '))"; git commit -m "feat(data): Canada-wide rest-services dataset (mt-ingest-rest-services.S1) - highway rest areas, service plazas, sanitary dump stations and hgv/brand truck stops from Overpass; the site advertised service stops while production carried zero rest_area/dump_station rows; counts: $c" -- data/rest-services.json scripts/build-rest-services.mjs; if ($LASTEXITCODE -ne 0) { exit 1 }; "DATASET-COMMIT-OK $c" }
+```
+
+Step 1: baseline. Prints ALREADY_BUILT only when the dataset exists AND the banked
+builder actually names this mission's node_types; otherwise CLEAN_BASELINE. Never exits 1
+on mere existence. (The builder at HEAD is WRONG-FEATURED — it names gym/repair_shop/
+supply_store/toilets — so this correctly reports builderCorrectFeatures=False.)
+Step 2: INSTALL the conductor-staged builder (-Force overwrites the wrong-featured one)
+and syntax-check it. DO NOT AUTHOR IT — two attempts died here with "seat produced NO
+usable file content (0 fenced blocks)"; the code-executor floor (executor.mjs:426,
+north-mini-code-toolcall) emits zero bytes, which no literalness amendment can fix.
+Step 3: run the builder; require exit 0 and the dataset present; print its byte size.
+Step 4: run the staged step-4 acceptance contract (count floor >200, node_type set,
+finite coords inside Canada bounds lat 41..84 lng -141..-52, honest-empty name/brand
+policy, sorted by osm_id). It prints STEP4-CONTRACT-OK with per-type counts, or the
+defects and exit 1.
+Step 5: idempotent flags-first commit of both ALLOW-FILES, quoting the per-type counts.
 Done means: data/rest-services.json exists at HEAD with >200 entries across node_types rest_area/dump_station/truck_stop (per-type counts printed in the step-4 receipt), every entry carrying real coordinates inside Canada and no fabricated fields, AND scripts/build-rest-services.mjs at HEAD reruns idempotently — executable verification appropriate to a data-ingest deliverable; the D1 load + map layer wiring + live render witness belong to the S2 follow-up mission.
