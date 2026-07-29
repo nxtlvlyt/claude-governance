@@ -1,0 +1,96 @@
+MISSION-ID: mt-menu-unify-2026-07-28
+MISSION-CLASS: ops-deploy
+REPO-ROOT: C:\Users\marka\code\mt-integration-2026-06-22
+ALLOW-FILES:
+  - about.html
+  - changelog.html
+  - operators.html
+  - guides.html
+  - partners.html
+  - pledge.html
+  - leaderboard.html
+  - ambassadors.html
+  - landing.html
+  - guides/*.html
+  - regions/*.html
+  - build-guides.mjs
+  - build-changelog.mjs
+  - build-regional-guides.mjs
+REQUIRES: none
+STEPS: 3
+
+DONE-MARKERS:
+  - about.html :: trip-cost.html
+  - build-regional-guides.mjs :: trip-cost.html
+
+MAQSAD (the end): ONE canonical navigation menu on every English page of muddytires.ca —
+the operator's original "hard to navigate" complaint, root-caused 2026-07-23: each page
+hand-rolls its own nav, so the menu CHANGES as a visitor moves (homepage shows Trip cost /
+Trip map / Changelog; Guides drops all three; desktop row and mobile drawer disagree within
+single pages). CANONICAL SET = index.html's nav, proposed to the operator 2026-07-23 as a
+veto-able default and never vetoed: Live Map, Share a spot, Trip cost, Trip map, Guides,
+Partners, About, Changelog, Instagram.
+
+THE FIX: staged deterministic patcher
+missions/_logs/staged-menu-unify-2026-07-28/patch-menu-unify.mjs — regenerates BOTH the
+desktop link-row AND the mt-mobnav drawer list on every in-scope page from ONE source-of-
+truth CANON array. 85 targets: 9 hand-authored root pages + 69 guides/*.html + 4
+regions/*.html + the 3 TEMPLATES that generate them (build-guides.mjs,
+build-changelog.mjs, build-regional-guides.mjs — hand-editing generated pages alone gets
+overwritten on the next build; changelog.html and guides.html are THEMSELVES template
+output, a substrate correction found during prep). Preserves per-file EOL (mixed CRLF/LF),
+per-page href style (bare, /-rooted, ../-prefixed), active-link highlight (including a
+self-link for pages outside the canonical set: Operators, Pledge, Contributor leaderboard,
+Ambassador program), and drawer CTAs verbatim. Instagram is the hardcoded URL except on
+landing.html (only index+landing load js/site-config.js — data-mt-cfg-href anywhere else
+is a dead link). EXPLICITLY UNTOUCHED: index.html (the reference) and fr/* (French nav) —
+the patcher asserts both and refuses otherwise.
+
+Patcher properties: idempotent (ALREADY-PATCHED), all-or-nothing (any anchor miss or
+in-memory post-check failure -> ZERO WRITES), single-line anchors only (CRLF trap),
+node --check on staged template content BEFORE any write, template<->page textual parity
+asserted in memory.
+
+DRY-RUN RECEIPTED 2026-07-28 on full copies (scratchpad/menuunify): would-patch 85 / 0
+anchor misses; apply MENU-UNIFY-PATCH-OK files=85; re-apply ALREADY-PATCHED zero writes;
+fr/index.html, fr/about.html, fr/pledge.html, index.html md5-identical before/after;
+active-class scan green on all 82 pages; REBUILD PARITY proven by RUNNING
+build-regional-guides.mjs and build-changelog.mjs on the patched copy — regenerated nav
+inners IDENTICAL to patcher output (build-guides.mjs cannot run on this laptop — its
+source corpus lives on nxtbeast — covered by the in-memory textual parity assert instead;
+do NOT add a build-guides.mjs run step). Conductor independently re-verified: node --check
+OK; live-repo --dry-run = "would patch 85 file(s), 0 anchor misses".
+
+STEPS (literal-command-queue: each fenced line runs VERBATIM from REPO-ROOT; exit code is
+pass/fail; bare PowerShell; commit is FLAGS-FIRST):
+
+```pwsh
+node "C:/Users/marka/.claude/muezzin-plugin/missions/_logs/staged-menu-unify-2026-07-28/patch-menu-unify.mjs"; if ($LASTEXITCODE -ne 0) { exit 1 }; Write-Output 'MENU-UNIFY-APPLIED'
+$r = node "C:/Users/marka/.claude/muezzin-plugin/missions/_logs/staged-menu-unify-2026-07-28/patch-menu-unify.mjs" 2>&1 | Out-String; if ($r -notmatch 'ALREADY-PATCHED') { Write-Output "IDEMPOTENCY-CHECK-FAILED: $($r.Substring(0,[Math]::Min(200,$r.Length)))"; exit 1 }; $a = (Select-String -Path about.html -Pattern 'trip-cost\.html' -AllMatches).Matches.Count; $g = (Select-String -Path guides/campsite.html -Pattern 'trip-cost\.html' -AllMatches).Matches.Count; $f = (Select-String -Path fr/index.html -Pattern 'trip-cost\.html' -AllMatches).Matches.Count; if ($a -lt 2 -or $g -lt 2 -or $f -ne 0) { Write-Output "MENU-MARKERS about=$a campsite=$g fr=$f"; exit 1 }; Write-Output "MENU-MARKERS about=$a campsite=$g fr-untouched=$f ALREADY-PATCHED=confirmed"
+git add -- about.html changelog.html operators.html guides.html partners.html pledge.html leaderboard.html ambassadors.html landing.html build-guides.mjs build-changelog.mjs build-regional-guides.mjs guides regions; git diff --cached --quiet; if ($LASTEXITCODE -eq 0) { Write-Output 'ALREADY_COMMITTED' } else { git commit -m "feat(nav): one canonical menu across all English pages - regenerates desktop row + mobile drawer on 82 pages and the 3 generating templates from a single source-of-truth list (Live Map / Share a spot / Trip cost / Trip map / Guides / Partners / About / Changelog / Instagram + per-page active self-link); fixes the menu changing page-to-page and desktop/drawer divergence; fr/* and index.html untouched; rebuild parity proven against live template runs" -- about.html changelog.html operators.html guides.html partners.html pledge.html leaderboard.html ambassadors.html landing.html build-guides.mjs build-changelog.mjs build-regional-guides.mjs guides regions; if ($LASTEXITCODE -ne 0) { exit 1 }; Write-Output 'MENU-UNIFY-COMMIT-OK' }
+```
+
+Step 1: run the staged patcher (all-or-nothing; the only step that writes).
+Step 2: OUTCOME CHECK — COMPACT receipt: re-run must print ALREADY-PATCHED (idempotency in
+the real tree); trip-cost.html present >=2x in about.html (desk+drawer) and
+guides/campsite.html; EXACTLY 0x in fr/index.html. One line:
+`MENU-MARKERS about=N campsite=N fr-untouched=0 ALREADY-PATCHED=confirmed`.
+Step 3: idempotent flags-first commit scoped to the allow-list.
+
+DONE-MEANS: all 85 targets carry the canonical nav; fr/* and index.html untouched;
+committed flags-first. NOTE (post-DONE, not a step): not user-visible until a production
+deploy — the conductor deploys under the standing guard chain and spot-checks live pages
+(cache-busted; JS/HTML edge cache is 4h).
+
+REACHABILITY NOTE (miqat): no NEW page ships; nav links on existing pages change to a
+superset (every previously-linked page remains linked; leaderboard's Ambassador-program
+cross-link drops but ambassadors.html remains reachable from its own self-link and
+leaderboard remains in the drawer set... ambassadors is reachable via its self-link only
+when ON that page — GLOBAL reachability for ambassadors/pledge/operators/leaderboard is
+via index.html's FOOTER which already links Leaderboard, and operators/pledge remain
+linked from ambassadors/operators pages as before). No orphan-page regression: every page
+reachable before remains reachable.
+
+source: C:\Users\marka\code\mt-integration-2026-06-22\index.html
+source: C:\Users\marka\.claude\muezzin-plugin\missions\_logs\staged-menu-unify-2026-07-28\patch-menu-unify.mjs
+source: C:\Users\marka\.claude\muezzin-plugin\STATE.md
