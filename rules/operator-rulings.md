@@ -60,6 +60,16 @@ rulings. This file is the loudness fix.)
   STANDING GATE unchanged: BFCL + Lighteval external-validity pass required BEFORE
   any standalone/shared use of the Arch name (operator "yes to all" covers running
   them now). 9B v1.1 (15.125) = fast/cheap sibling, no seat.
+  **CORRECTION 2026-07-29 (same day, before any external claim was made): the 17.50
+  figure and the "beats Sonnet 5" comparison behind this promotion were produced by a
+  CONTAMINATED audition — the prompt leaked `law_hook` and `notes` (which states the
+  correct disposition). Clean re-run, one sealed round, same grader: Sonnet 5 18.19 /
+  Arch 27B v1.1 16.69 / Arch 9B v1.2 11.62 with 4 fabrication fatals. Sonnet 5 WINS by
+  1.50. Canonical: conductor-qwen\CLEAN-SCORECARD.md. The promotion of the 27B as the
+  local conductor seat still stands on its merits (16.69, zero fatals, fully local) —
+  but the frontier-beating claim is WITHDRAWN and must not be repeated anywhere,
+  including any model card or public writeup. The 9B is NOT release-eligible until the
+  fabrication defect is fixed.**
 
 ## Mission & engine rulings
 - **GAP ISSUES ARE ALWAYS PRIORITY** (operator word 2026-07-03 ~01:2x: "gap issues is always
