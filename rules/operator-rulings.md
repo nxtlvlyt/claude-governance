@@ -212,6 +212,30 @@ rulings. This file is the loudness fix.)
 
 ## Meta
 - A ruling here changes only by the operator's word, recorded with date.
+- **THIS LAPTOP (Hermes) IS THE AUTHORITATIVE GOVERNANCE COPY** (operator word 2026-07-31:
+  "the laptop is authortive"). When `~/.claude` on any other machine diverges from this one,
+  THIS copy wins and the other is stale — no per-file adjudication, no "which is newer"
+  analysis. Any sync flows LAPTOP -> other machine, never the reverse.
+  Receipts behind the ruling (measured 2026-07-30/31, laptop vs nxtbeast): laptop 43 files /
+  395,871 bytes, nxtbeast 37 / 306,379. nxtbeast is missing `drift-and-ratchet.md`,
+  `fajr-and-isha.md`, `orientation.md`, `pillars-and-sunnah.md`, `wudu.md`, nested
+  `formation.md`; its `conductor-core.md` has 3 laws not 9 (1,885 vs 14,986 bytes) and still
+  claims the fm11 hook DENIES; its `operator-rulings.md` (3,946 vs 16,855) still carries the
+  SUPERSEDED "Ollama Cloud is an allowed seat" clause this file replaced 2026-07-02; its
+  faiths lack the 2026-07-02 quality bars. Where nxtbeast held EXTRA content it was either
+  older (`delegation-and-stall-discipline.md`, 2026-06-01 vs the laptop's 2026-05-03 — the
+  ONE file where nxtbeast is genuinely newer) or correctly deleted here (`model-rijal.md`'s
+  `kimi-k2.7-code`, an Ollama Cloud seat removed under the 2026-07-02 no-cloud ruling; laptop
+  2026-07-02 vs nxtbeast 2026-06-17).
+  OPEN ITEM, not blocking: `delegation-and-stall-discipline.md` — nxtbeast's copy holds two
+  sections absent here (the 2026-05-31 sub-agent routing rule: sub-agents cannot await
+  long-running compute, route it to the main loop's `Bash run_in_background`; and the
+  2026-06-01 chain-ratified "Chain-before-human / AskUserQuestion" section). Under this
+  ruling the laptop still wins; whether those sections were deliberately dropped or simply
+  never migrated is unresolved and awaits the operator.
+  WHY THIS IS A RULING AND NOT A NOTE: governance divergence across machines is invisible
+  until an instance acts on the weaker copy. An instance bootstrapping on nxtbeast today
+  would read that Ollama Cloud seats are permitted.
 - STALE-TEXT CLEANUP OWED (ceremony-class, fresh context): user-prompt-submit re-anchor
   + stop-validation guidance + foreign-frontier-validators.md still name the forbidden
   workers as mandatory (EVENT-002). Until cleaned, this file is the override.
