@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "identified cited-but-not-applied trap; delegation gate works",
+  "detail": "analysis of opus failure patterns; instruction vs. mechanism",
   "tempo": "active",
   "inFlight": {
     "tasks": 2,
@@ -23,12 +23,12 @@
       "startedAt": 1785560713705
     }
   ],
-  "tokens": 965266,
+  "tokens": 983492,
   "output": {
-    "result": "blocking gate vs advisory mode: gate succeeded (2 turns); advisory failed (hours). Corpus logged: 2024 instances of model arguing gate instead of dispatching."
+    "result": "instruction doesn't fix cheap path errors; only mechanical gates + weight tuning do. v3.1 held boundary; v3.2 broke it. n=1."
   },
   "children": null,
-  "linkScanOffset": 2031563,
+  "linkScanOffset": 2049176,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -52,6 +52,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-01T05:08:07.496Z",
+  "updatedAt": "2026-08-01T05:10:01.864Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
