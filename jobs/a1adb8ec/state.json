@@ -1,14 +1,13 @@
 {
   "state": "working",
-  "detail": "gate-fire analysis: 3 findings on self-report errors, independence, hooks",
+  "detail": "1 unsourced row remains; scorer built & gated on row 300 fix",
   "tempo": "active",
   "inFlight": {
-    "tasks": 20,
+    "tasks": 10,
     "queued": 0,
     "kinds": [
       "local_bash",
-      "local_agent",
-      "monitor"
+      "local_agent"
     ]
   },
   "fan": [
@@ -31,88 +30,16 @@
       "startedAt": 1785569152609
     },
     {
-      "id": "abff96fc74da026d8",
-      "kind": "agent",
-      "label": "Build the three-way eval scorer",
-      "startedAt": 1785569729435
-    },
-    {
-      "id": "by0jbnwr7",
-      "kind": "shell",
-      "label": "until [ -s build-run.log ]; do sleep 240; done; echo COMPLETE; date",
-      "startedAt": 1785569798835
-    },
-    {
-      "id": "bg28v258r",
-      "kind": "shell",
-      "label": "until [ -s build-run.log ]; do sleep 360; done; echo T; date",
-      "startedAt": 1785570188442
-    },
-    {
       "id": "b4yv3hvdt",
       "kind": "shell",
       "label": "until [ -s build-run.log ]; do sleep 420; done; echo BUILDFIN; date",
       "startedAt": 1785570240895
     },
     {
-      "id": "b2vabb1wv",
-      "kind": "shell",
-      "label": "until [ -s build-run.log ]; do sleep 500; done; echo X; date",
-      "startedAt": 1785570260899
-    },
-    {
-      "id": "bicpfasy3",
-      "kind": "shell",
-      "label": "rm -f build-run.log; PYTHONIOENCODING=utf-8 python build-train-v33.py > build-run.log 2>&1; echo \"EXIT=$?\" echo \"=== VERIFY (independent + gate + priors) ===\" PYTHONIOENCODING=utf-8 python verify-tra…",
-      "startedAt": 1785570820616
-    },
-    {
-      "id": "b1pkd424m",
-      "kind": "monitor",
-      "label": "v3.3 extractor-fix rebuild",
-      "startedAt": 1785570825354
-    },
-    {
-      "id": "b5n69uix1",
-      "kind": "shell",
-      "label": "until [ -s build-run.log ]; do sleep 120; done; echo REBUILD_DONE; date",
-      "startedAt": 1785570898248
-    },
-    {
-      "id": "b3h552ji6",
-      "kind": "shell",
-      "label": "until [ -s build-run.log ]; do sleep 200; done; echo DONE_REBUILD",
-      "startedAt": 1785570929464
-    },
-    {
-      "id": "b2u3zswqa",
-      "kind": "shell",
-      "label": "until [ -s build-run.log ]; do sleep 300; done; echo REBUILD_COMPLETE; date",
-      "startedAt": 1785570950108
-    },
-    {
-      "id": "beg79pja2",
-      "kind": "shell",
-      "label": "until [ -s build-run.log ]; do sleep 400; done; echo FIN; date",
-      "startedAt": 1785570992136
-    },
-    {
       "id": "buih52h41",
       "kind": "shell",
       "label": "until [ -s build-run.log ]; do sleep 500; done; echo COMPLETE_NOW; date",
       "startedAt": 1785571017687
-    },
-    {
-      "id": "buuyqsyyv",
-      "kind": "shell",
-      "label": "until [ -s build-run.log ]; do sleep 600; done; echo ALLDONE; date",
-      "startedAt": 1785571043255
-    },
-    {
-      "id": "btrk069cb",
-      "kind": "shell",
-      "label": "until [ -s build-run.log ]; do sleep 700; done; echo BUILD_FINISHED_AT; date",
-      "startedAt": 1785571087578
     },
     {
       "id": "ba7e2gtzo",
@@ -131,14 +58,24 @@
       "kind": "shell",
       "label": "until [ -s build-run.log ]; do sleep 1000; done; echo READY; date",
       "startedAt": 1785571165138
+    },
+    {
+      "id": "bl8v6qcof",
+      "kind": "shell",
+      "label": "until [ -s build-run.log ]; do sleep 1100; done; echo OK_FINISHED; date",
+      "startedAt": 1785571187017
+    },
+    {
+      "id": "blr6pzyg4",
+      "kind": "shell",
+      "label": "until [ -s build-run.log ]; do sleep 1200; done; echo DONE_AT; date; cat build-run.log | tail -2",
+      "startedAt": 1785571204135
     }
   ],
-  "tokens": 1771499,
-  "output": {
-    "result": "transcript analysis complete: self-report memory error, non-independent fires, mission-linter hook gap; 1/3/0 on use/mention/undecidable vs 39% historical"
-  },
+  "tokens": 1819825,
+  "output": null,
   "children": null,
-  "linkScanOffset": 4517399,
+  "linkScanOffset": 4620420,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -162,6 +99,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-01T07:59:29.466Z",
+  "updatedAt": "2026-08-01T08:11:30.428Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
