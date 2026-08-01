@@ -1,19 +1,69 @@
 {
-  "state": "blocked",
-  "detail": "results show training+prompt compound; awaiting next direction",
-  "tempo": "blocked",
+  "state": "working",
+  "detail": "audit running; will report when book corpus analysis lands",
+  "tempo": "active",
   "inFlight": {
-    "tasks": 0,
+    "tasks": 1,
     "queued": 0,
-    "kinds": []
+    "kinds": [
+      "local_workflow"
+    ]
   },
-  "tokens": 20447,
-  "needs": "mine AI book folder against findings, or continue tuning analysis?",
-  "output": {
-    "result": "untuned+prompt: 15/24 (1 drift); trained+prompt: 21/24 (0 drift) — training worth +3 bare, +6 with prompt; V2 reflex survives both conditions"
-  },
+  "fan": [
+    {
+      "id": "a6f67fdaeccda0a7d",
+      "kind": "workflow",
+      "label": "read:chapters",
+      "startedAt": 1785558895885,
+      "group": "Read"
+    },
+    {
+      "id": "a101419f3ab49e104",
+      "kind": "workflow",
+      "label": "read:knowledge-as-conductor",
+      "startedAt": 1785558895641,
+      "group": "Read"
+    },
+    {
+      "id": "ade5b05b400b9d9cf",
+      "kind": "workflow",
+      "label": "read:early",
+      "startedAt": 1785558896017,
+      "group": "Read"
+    },
+    {
+      "id": "aabece9b137842e1b",
+      "kind": "workflow",
+      "label": "read:mid1",
+      "startedAt": 1785558897350,
+      "group": "Read"
+    },
+    {
+      "id": "aebe4fd4174233ee4",
+      "kind": "workflow",
+      "label": "read:mid2",
+      "startedAt": 1785558896411,
+      "group": "Read"
+    },
+    {
+      "id": "a562b0f319d14d48d",
+      "kind": "workflow",
+      "label": "read:mid3",
+      "startedAt": 1785558896986,
+      "group": "Read"
+    },
+    {
+      "id": "a313eaa9d35f26274",
+      "kind": "workflow",
+      "label": "read:late",
+      "startedAt": 1785558896717,
+      "group": "Read"
+    }
+  ],
+  "tokens": 35608,
+  "output": null,
   "children": null,
-  "linkScanOffset": 1321164,
+  "linkScanOffset": 1445786,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -37,6 +87,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-01T04:32:37.592Z",
+  "updatedAt": "2026-08-01T04:35:58.663Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }

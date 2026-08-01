@@ -1,0 +1,17 @@
+# Chapter Shortlist — mined from the 44 Antigravity Isha summaries (2026-07-19)
+
+Source: ai-book corpus mine wf_02828bd2 (4 read-only agents; full synthesis in the
+muezzin repo at missions/_logs/ai-book-mine-2026-07-19/SYNTHESIS.txt). Every claim
+cites its STATE file.
+
+(C) CHAPTER SHORTLIST (ranked by story strength)
+===============================================================
+1. THE FILE THAT WAS NEVER DESTROYED (0.95) — STATE-1781043472710.md (primary), STATE-1780896983635.md (context). M31: STATE.md records state-compaction.mjs \"DESTROYED — 12-line stub\" at confidence 1.0; four auditor passes prove 111,121 chars intact; the mandated \"recovery\" would have overwritten working code; the poisoned HANDOFF line survives in the file next to the rulings invalidating it. The book's whole thesis in one incident: the record itself was the liar.
+2. THE PHANTOM FILES (0.9) — STATE-1780896983635.md (primary), aftermath STATE-1780926941162.md. Three infrastructure files hallucinated from env-var strings inside fly.toml; 12 claimed [ASSERTION-CLOSED] concerns never written to disk; ruled phantom; the \"forbidden until file_read proves existence\" rule is born. The audit trail that audited nothing.
+3. THE AUDITOR WHO DIDN'T READ (0.9) — STATE-1780779021877.md (complete arc). Binding FAIL citing content that doesn't exist (\"MISSION 15\", \"7 new\"); one claim real-but-mislocated (26→23); births AUDITOR-MISREAD-26: \"Auditor independence does not override Auditor substrate-grounding.\" Who audits the auditor: receipts, not hierarchy.
+4. THE FORMALISM TRAP (0.85) — STATE-1780933522596.md (primary), earlier same-class STATE-1780730399871.md. Unanimous substantive APPROVE failed by the Governance Scanner over missing confidence numerals; re-execution structurally impossible; six-point override distinguishing formalism from substance, sealed \"Do NOT re-litigate.\" The legal system jailing itself.
+5. GOVERNED RESTRAINT (merged 4+5, 0.85) — STATE-1780718105340.md, STATE-1780719637734.md (empty-brain hard stop), prelude STATE-1780707466455.md, STATE-1780710118945.md, STATE-1780714172473.md; plus STATE-1780774430783.md (NO-OP-DUPLICATE-ISHA ruling: \"No file was written. No fabrication occurred.\"). Two incidents where the most valuable output was nothing — the gate firing as designed, and a signed refusal to fabricate timeline continuity.
+6. THE LEDGER THAT NEVER FORGETS (0.8, mechanisms chapter) — growth series STATE-1780767793228.md → 1780779021877 → 1780801534488 → 1780804835913 → 1780821939771 → 1780828010852 → 1780831201228 → 1780833833132 → 1780857932669 (12→142 ACs); honesty mechanics STATE-1780764665950.md, STATE-1780775391030.md (the phantom 30th skill). Bookkeeping errors about the books become book entries.
+7. THE DEAD ANTIBODY (0.75, reserve/companion) — STATE-1780782008619.md. The pre-commit guard exits 1 every run (undefined var under set -u); mints \"existence verification ≠ behavioral verification\" (W2-PATTERN). Companion to the existing \"Immune System Checked Itself\" chapter.
+EPIGRAPH: STATE-1780809448808.md, verbatim one-liner — \"[DISCOVERY GATE FAILURE] Agent produced plan-only output after 2 discovery retries. No file writes executed. AUDITOR_ESCALATION required.\" — for any Plan-as-Output chapter.
+Caveat (D5, from the candidates pass): operator on-page voice is thin in this corpus; chapters wanting Mark's interventions should pull from muezzin-side substrate (conductor laws, operator-rulings), not these files.
