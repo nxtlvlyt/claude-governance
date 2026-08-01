@@ -1,28 +1,18 @@
 {
   "state": "done",
-  "detail": "audit complete: n≈25 ceiling, CLASS R undetermined, traps documented",
+  "detail": "diagnosis debt cleared; 3 missions resolved, traps documented",
   "tempo": "idle",
   "inFlight": {
-    "tasks": 1,
+    "tasks": 0,
     "queued": 0,
-    "kinds": [
-      "local_bash"
-    ]
+    "kinds": []
   },
-  "fan": [
-    {
-      "id": "b205mbso4",
-      "kind": "shell",
-      "label": "ssh nxtbeast \"docker restart searxng\" 2>&1 | tail -2; sleep 6; echo \"=== verify ===\"; ssh nxtbeast \"curl -s -m 12 'http://localhost:8080/search?q=github&format=json'\" 2>&1 | head -c 300; echo; echo \"…",
-      "startedAt": 1785561145009
-    }
-  ],
-  "tokens": 2608110,
+  "tokens": 2626086,
   "output": {
-    "result": "routing result stands; abstention question unanswerable at current substrate — documented the governance boundary and retry trap to avoid dishonest sampling"
+    "result": "all three mission failures diagnosed and resolved with receipts; infrastructure healthy, SearXNG/SSH/Ollama up"
   },
   "children": null,
-  "linkScanOffset": 8076440,
+  "linkScanOffset": 8268798,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -46,6 +36,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-01T21:35:05.411Z",
+  "updatedAt": "2026-08-01T22:57:20.947Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
