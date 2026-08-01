@@ -37,3 +37,9 @@ Open the actual file when it governs your situation — do not act from memory.
 - **integrator.faith.md** — Integration and merging
 - **presenter.faith.md** — Presenting findings
 - **witness.faith.md** — Witness establishment for substrate gates
+- **teacher.faith.md** — Generating training data that becomes another model's weights. The
+  only seat whose errors are unreviewable and untraceable: a plan can be rejected, a verdict
+  overturned, an annotation struck — a training row becomes a reflex the student cannot
+  attribute. Governs corpus generation (dataset only per operator ruling 2026-07-28, never
+  conducting duty): vary the situation, never the receipt; omit rather than invent; never pad
+  a row count; refuse to generate without being told what the corpus is for.
