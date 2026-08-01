@@ -1,10 +1,10 @@
 {
   "state": "working",
-  "detail": "corrected scorer; holdout-v33 vs thesis test scope divergence clarified",
+  "detail": "de-templating at 1,221 calls; awaiting operator format spec for model-in-loop test",
   "tempo": "active",
   "inFlight": {
-    "tasks": 18,
-    "queued": 1,
+    "tasks": 19,
+    "queued": 0,
     "kinds": [
       "local_bash",
       "local_agent",
@@ -119,12 +119,18 @@
       "kind": "shell",
       "label": "until [ -s build-run.log ]; do sleep 60; done; echo FIN; date; cat build-run.log | head -5",
       "startedAt": 1785569911352
+    },
+    {
+      "id": "b224v3asy",
+      "kind": "monitor",
+      "label": "v3.3 de-template build completion",
+      "startedAt": 1785569944066
     }
   ],
-  "tokens": 1579839,
+  "tokens": 1590970,
   "output": null,
   "children": null,
-  "linkScanOffset": 4182247,
+  "linkScanOffset": 4201477,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -148,6 +154,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-01T07:38:38.005Z",
+  "updatedAt": "2026-08-01T07:39:10.404Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
