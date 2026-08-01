@@ -1,13 +1,12 @@
 {
-  "state": "blocked",
-  "detail": "VRAM guard resolved via UNSLOTH_CE_LOSS_TARGET_GB env var; rerun queued",
-  "tempo": "active",
+  "state": "working",
+  "detail": "corpus validation + scorer regression tests passing; training loading model",
+  "tempo": "idle",
   "inFlight": {
-    "tasks": 5,
+    "tasks": 4,
     "queued": 0,
     "kinds": [
       "local_bash",
-      "local_agent",
       "monitor"
     ]
   },
@@ -25,12 +24,6 @@
       "startedAt": 1785561959584
     },
     {
-      "id": "a206a3f7ff9d01f81",
-      "kind": "agent",
-      "label": "Fix scorer defects found by the lane",
-      "startedAt": 1785575867891
-    },
-    {
       "id": "blhthm0xv",
       "kind": "shell",
       "label": "ssh nxtbeast \"wsl -d Ubuntu -- bash /mnt/c/Users/marka/conductor-qwen-run/w-v33-27b.sh\" 2>&1 | tail -5",
@@ -43,12 +36,10 @@
       "startedAt": 1785576741690
     }
   ],
-  "tokens": 2145257,
-  "output": {
-    "result": "Set UNSLOTH_CE_LOSS_TARGET_GB=0.5; model/rank/batch/accum/lr/seed unchanged; chunked loss numerically equivalent"
-  },
+  "tokens": 2171170,
+  "output": null,
   "children": null,
-  "linkScanOffset": 5856523,
+  "linkScanOffset": 5888805,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -72,6 +63,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-01T09:32:37.046Z",
+  "updatedAt": "2026-08-01T09:41:05.694Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
