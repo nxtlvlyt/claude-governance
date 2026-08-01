@@ -1,12 +1,13 @@
 {
   "state": "working",
-  "detail": "v3.3 trained & merged; fabrication at 64.8%; export running ~57m",
+  "detail": "mission `cq-import-score-v33` running on lanes 1; watchdog armed",
   "tempo": "idle",
   "inFlight": {
     "tasks": 3,
     "queued": 0,
     "kinds": [
-      "local_bash"
+      "local_bash",
+      "monitor"
     ]
   },
   "fan": [
@@ -23,16 +24,16 @@
       "startedAt": 1785561959584
     },
     {
-      "id": "bn1p3slqb",
-      "kind": "shell",
-      "label": "ssh nxtbeast \"wsl -d Ubuntu -- bash /mnt/c/Users/marka/conductor-qwen-run/export-v33.sh\" 2>&1 | tail -8",
-      "startedAt": 1785598917186
+      "id": "bcbteglyj",
+      "kind": "monitor",
+      "label": "v3.3 import mission — state, step events, stalls",
+      "startedAt": 1785600538572
     }
   ],
-  "tokens": 2257863,
+  "tokens": 2271992,
   "output": null,
   "children": null,
-  "linkScanOffset": 6275070,
+  "linkScanOffset": 6398235,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -56,6 +57,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-01T16:01:02.634Z",
+  "updatedAt": "2026-08-01T16:09:12.536Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
