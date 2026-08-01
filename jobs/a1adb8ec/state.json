@@ -1,14 +1,13 @@
 {
   "state": "working",
-  "detail": "memorisation risk quantified; guard deployed + lint-clean",
+  "detail": "found 2 fidelity defects (fabricated SHA, reassembled timestamp); sent back for fix",
   "tempo": "active",
   "inFlight": {
-    "tasks": 29,
+    "tasks": 10,
     "queued": 0,
     "kinds": [
       "local_bash",
-      "local_agent",
-      "monitor"
+      "local_agent"
     ]
   },
   "fan": [
@@ -31,46 +30,11 @@
       "startedAt": 1785569152609
     },
     {
-      "id": "b5ho7bxsh",
-      "kind": "monitor",
-      "label": "de-template pass — teacher calls and corpus rewrite, with stall detection",
-      "startedAt": 1785569171316
-    },
-    {
-      "id": "bnwwsc9st",
-      "kind": "shell",
-      "label": "rm -f build-run.log; PYTHONIOENCODING=utf-8 python build-train-v33.py > build-run.log 2>&1; echo \"EXIT=$?\"",
-      "startedAt": 1785569599057
-    },
-    {
-      "id": "bx61mrjco",
-      "kind": "shell",
-      "label": "until [ -s build-run.log ]; do sleep 60; done; echo DETEMPLATE_BUILD_DONE; date",
-      "startedAt": 1785569604176
-    },
-    {
-      "id": "b7p3bprd3",
-      "kind": "shell",
-      "label": "until [ -s build-run.log ]; do sleep 120; done; echo BUILD_DONE; cat build-run.log | tail -3",
-      "startedAt": 1785569635211
-    },
-    {
-      "id": "bvi6k3463",
-      "kind": "shell",
-      "label": "until [ -s build-run.log ]; do sleep 150; done; echo BUILD_DONE",
-      "startedAt": 1785569657778
-    },
-    {
-      "id": "barn2dya9",
-      "kind": "shell",
-      "label": "until [ -s build-run.log ]; do sleep 180; done; echo BUILD_DONE; date",
-      "startedAt": 1785569691616
-    },
-    {
       "id": "bqx4n7rma",
       "kind": "shell",
       "label": "until [ -s build-run.log ]; do sleep 200; done; echo DONE_FINALLY; date; tail -2 build-run.log",
-      "startedAt": 1785569714646
+      "startedAt": 1785569714646,
+      "doneAt": 1785570518344
     },
     {
       "id": "abff96fc74da026d8",
@@ -79,94 +43,16 @@
       "startedAt": 1785569729435
     },
     {
-      "id": "b73dm7qwt",
-      "kind": "shell",
-      "label": "until [ -s build-run.log ]; do sleep 90; done; echo BUILD_COMPLETE; PYTHONIOENCODING=utf-8 python verify-train-v33.py 2>&1 | grep -v ' e.g.' | head -4",
-      "startedAt": 1785569768916
-    },
-    {
       "id": "by0jbnwr7",
       "kind": "shell",
       "label": "until [ -s build-run.log ]; do sleep 240; done; echo COMPLETE; date",
       "startedAt": 1785569798835
     },
     {
-      "id": "bcvfjz19k",
-      "kind": "shell",
-      "label": "until [ -s build-run.log ]; do sleep 300; done; echo COMPLETE",
-      "startedAt": 1785569818141
-    },
-    {
-      "id": "bixi04g8h",
-      "kind": "shell",
-      "label": "until [ -s build-run.log ]; do sleep 30; done echo \"=== BUILD COMPLETE ===\" PYTHONIOENCODING=utf-8 python verify-train-v33.py 2>&1 | grep -v ' e.g.' echo \"=== SHINGLE AFTER ===\" PYTHONIOENCODING=utf-…",
-      "startedAt": 1785569843747
-    },
-    {
-      "id": "bldaa2bui",
-      "kind": "shell",
-      "label": "sleep 420; echo \"--- checkpoint ---\"; date; wc -c build-run.log",
-      "startedAt": 1785569892029
-    },
-    {
-      "id": "b1leasmry",
-      "kind": "shell",
-      "label": "until [ -s build-run.log ]; do sleep 60; done; echo FIN; date; cat build-run.log | head -5",
-      "startedAt": 1785569911352
-    },
-    {
-      "id": "b224v3asy",
-      "kind": "monitor",
-      "label": "v3.3 de-template build completion",
-      "startedAt": 1785569944066
-    },
-    {
-      "id": "b2ad6budj",
-      "kind": "shell",
-      "label": "until [ -s build-run.log ]; do sleep 45; done; echo READY_NOW",
-      "startedAt": 1785570004862
-    },
-    {
-      "id": "bvzj7wreh",
-      "kind": "shell",
-      "label": "until [ -s build-run.log ]; do sleep 120; done; echo BUILD_OK; date; PYTHONIOENCODING=utf-8 python shingle-v33.py 2>&1 | head -14",
-      "startedAt": 1785570031455
-    },
-    {
-      "id": "bhsby15m0",
-      "kind": "shell",
-      "label": "until [ -s build-run.log ]; do sleep 150; done; echo BUILD_OK2",
-      "startedAt": 1785570055413
-    },
-    {
-      "id": "bwujbo82m",
-      "kind": "shell",
-      "label": "until [ -s build-run.log ]; do sleep 90; done echo \"=== BUILD COMPLETE ===\"; date PYTHONIOENCODING=utf-8 python verify-train-v33.py 2>&1 | grep -v ' e.g.' echo \"=== SHINGLE AFTER ===\" PYTHONIOENCODIN…",
-      "startedAt": 1785570090081
-    },
-    {
-      "id": "b6w6773fb",
-      "kind": "shell",
-      "label": "until [ -s build-run.log ]; do sleep 180; done; echo FINISHED_MARKER",
-      "startedAt": 1785570116939
-    },
-    {
       "id": "aeb1caa8a94b655c7",
       "kind": "agent",
       "label": "Capture session gate fires as corpus specimens",
       "startedAt": 1785570128298
-    },
-    {
-      "id": "bpc7wuo0u",
-      "kind": "shell",
-      "label": "until [ -s build-run.log ]; do sleep 240; done date PYTHONIOENCODING=utf-8 python verify-train-v33.py 2>&1 | grep -v ' e.g.' PYTHONIOENCODING=utf-8 python shingle-v33.py",
-      "startedAt": 1785570142700
-    },
-    {
-      "id": "bhyb1qe5s",
-      "kind": "shell",
-      "label": "until [ -s build-run.log ]; do sleep 300; done; echo BUILD_TERMINATED; date",
-      "startedAt": 1785570169081
     },
     {
       "id": "bg28v258r",
@@ -185,14 +71,18 @@
       "kind": "shell",
       "label": "until [ -s build-run.log ]; do sleep 500; done; echo X; date",
       "startedAt": 1785570260899
+    },
+    {
+      "id": "bx9nrsfmq",
+      "kind": "shell",
+      "label": "python - <<'PY' import io p='build-train-v33.py' s=io.open(p,encoding='utf-8').read() s=s.replace(''' stats = {\"kept\": {}, \"dropped\": {}, \"drop_reasons\": {}, \"shapes\": {},''', ''' stats = {\"kept\": {}…",
+      "startedAt": 1785570511943
     }
   ],
-  "tokens": 1622346,
-  "output": {
-    "result": "CLASS R: 56 distinct openings/126 rows (memorisation surface measured); mission guard deployed, lint-clean"
-  },
+  "tokens": 1684381,
+  "output": null,
   "children": null,
-  "linkScanOffset": 4341827,
+  "linkScanOffset": 4430708,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -216,6 +106,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-01T07:44:55.475Z",
+  "updatedAt": "2026-08-01T07:48:41.722Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
