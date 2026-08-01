@@ -1,7 +1,7 @@
 {
-  "state": "blocked",
-  "detail": "GPU ready; corpus generation + 4–7h train ahead; E: drive 6GB free blocks Ollama import",
-  "tempo": "blocked",
+  "state": "done",
+  "detail": "cleared 138.5 GB orphaned blobs; import blocker resolved",
+  "tempo": "idle",
   "inFlight": {
     "tasks": 2,
     "queued": 0,
@@ -23,13 +23,12 @@
       "startedAt": 1785561959584
     }
   ],
-  "tokens": 1311661,
-  "needs": "free 16GB on E: drive for 27B q4km import (currently 6GB avail of 3.7TB)",
+  "tokens": 1319114,
   "output": {
-    "result": "training ready but blocked: E: drive needs 16GB free for model import; corpus generation + ~5h training once cleared"
+    "result": "138.5 GB of unreferenced conductor-qwen v1/v1.1/v1.3 imports cleared; all 66 models resolve; E: has 144.3 GB free; corpus generation ready to proceed"
   },
   "children": null,
-  "linkScanOffset": 2874407,
+  "linkScanOffset": 2936877,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -53,6 +52,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-01T06:28:02.939Z",
+  "updatedAt": "2026-08-01T06:33:59.050Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
