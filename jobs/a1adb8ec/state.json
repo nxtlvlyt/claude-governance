@@ -1,9 +1,9 @@
 {
   "state": "working",
-  "detail": "audit complete: 126/126 CLASS R+P targets name concrete action; zero hedge",
+  "detail": "capturing session fires as labelled specimens for model training",
   "tempo": "active",
   "inFlight": {
-    "tasks": 22,
+    "tasks": 24,
     "queued": 0,
     "kinds": [
       "local_bash",
@@ -106,7 +106,8 @@
       "id": "b5i1yd724",
       "kind": "shell",
       "label": "sleep 280; date; wc -c build-run.log",
-      "startedAt": 1785569855852
+      "startedAt": 1785569855852,
+      "doneAt": 1785570140124
     },
     {
       "id": "bldaa2bui",
@@ -143,12 +144,30 @@
       "kind": "shell",
       "label": "until [ -s build-run.log ]; do sleep 150; done; echo BUILD_OK2",
       "startedAt": 1785570055413
+    },
+    {
+      "id": "bwujbo82m",
+      "kind": "shell",
+      "label": "until [ -s build-run.log ]; do sleep 90; done echo \"=== BUILD COMPLETE ===\"; date PYTHONIOENCODING=utf-8 python verify-train-v33.py 2>&1 | grep -v ' e.g.' echo \"=== SHINGLE AFTER ===\" PYTHONIOENCODIN…",
+      "startedAt": 1785570090081
+    },
+    {
+      "id": "b6w6773fb",
+      "kind": "shell",
+      "label": "until [ -s build-run.log ]; do sleep 180; done; echo FINISHED_MARKER",
+      "startedAt": 1785570116939
+    },
+    {
+      "id": "aeb1caa8a94b655c7",
+      "kind": "agent",
+      "label": "Capture session gate fires as corpus specimens",
+      "startedAt": 1785570128298
     }
   ],
-  "tokens": 1604032,
+  "tokens": 1608320,
   "output": null,
   "children": null,
-  "linkScanOffset": 4255942,
+  "linkScanOffset": 4286025,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -172,6 +191,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-01T07:41:15.859Z",
+  "updatedAt": "2026-08-01T07:42:20.606Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
