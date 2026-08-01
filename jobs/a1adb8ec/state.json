@@ -1,14 +1,13 @@
 {
   "state": "working",
-  "detail": "training step 98/135, ~10m remaining; recorded lane findings",
-  "tempo": "active",
+  "detail": "step 123/135, merge staging guarded; 12 steps to completion",
+  "tempo": "idle",
   "inFlight": {
-    "tasks": 6,
+    "tasks": 5,
     "queued": 0,
     "kinds": [
       "local_bash",
-      "monitor",
-      "local_agent"
+      "monitor"
     ]
   },
   "fan": [
@@ -41,18 +40,12 @@
       "kind": "monitor",
       "label": "v3.3 27B — tqdm step progress, failure signatures, terminal marker",
       "startedAt": 1785577774654
-    },
-    {
-      "id": "a07c06e41ae844f75",
-      "kind": "agent",
-      "label": "Prepare post-training export pipeline",
-      "startedAt": 1785577832853
     }
   ],
-  "tokens": 2219676,
+  "tokens": 2242317,
   "output": null,
   "children": null,
-  "linkScanOffset": 6013362,
+  "linkScanOffset": 6060701,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -76,6 +69,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-01T10:01:15.966Z",
+  "updatedAt": "2026-08-01T10:07:37.610Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
