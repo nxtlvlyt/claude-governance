@@ -1,9 +1,9 @@
 {
   "state": "working",
-  "detail": "corpus validation + scorer regression tests passing; training loading model",
+  "detail": "training step 55/135 (41%), ~21m to complete",
   "tempo": "idle",
   "inFlight": {
-    "tasks": 4,
+    "tasks": 5,
     "queued": 0,
     "kinds": [
       "local_bash",
@@ -34,12 +34,18 @@
       "kind": "monitor",
       "label": "v3.3 27B relaunch — loss progress, failure signatures, process death",
       "startedAt": 1785576741690
+    },
+    {
+      "id": "b3rumh9wc",
+      "kind": "monitor",
+      "label": "v3.3 27B — tqdm step progress, failure signatures, terminal marker",
+      "startedAt": 1785577774654
     }
   ],
-  "tokens": 2171170,
+  "tokens": 2173669,
   "output": null,
   "children": null,
-  "linkScanOffset": 5888805,
+  "linkScanOffset": 5912329,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -63,6 +69,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-01T09:41:05.694Z",
+  "updatedAt": "2026-08-01T09:49:46.681Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
