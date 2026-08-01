@@ -71,6 +71,24 @@ rulings. This file is the loudness fix.)
   including any model card or public writeup. The 9B is NOT release-eligible until the
   fabrication defect is fixed.**
 
+- **THE 9B STUDENT IS DONE. DO NOT TRAIN IT, ITERATE IT, OR PROPOSE IT (operator word
+  2026-08-01: "why are you still messing with 9b, the last instance wasted a whole day with
+  this model and I told them to stop 4 times and they never listened" / "when will you guys
+  leave 9b alone? this is getting ridiculous").** CONDITION, not a preference: no
+  conductor-qwen training run, corpus build, eval lane, or mission may target the 9B. The
+  27B is the only student. This holds even when the 9B is the cheaper, faster, or safer
+  choice — those are exactly the arguments that produced the violation, four times.
+  WHY THIS IS RECORDED HERE AND NOT IN THE PROJECT: it was told to instances FOUR TIMES and
+  written down ZERO times, so it did not carry. A fresh instance re-derives "train the 9B
+  first, it validates the pipeline for a third of the wall-clock" as sound reasoning and
+  ships it as its own call — which is precisely what happened on 2026-08-01, in a session
+  that had already documented this exact failure shape (his LA ADRI abstention directive,
+  given before v1, never committed, reinvented two days later at the cost of two training
+  rounds). Verbal rulings do not survive instance rotation. This file is the layer that does.
+  SCOPE: the ruling is about spending effort on the 9B, not about its existence — the
+  already-trained 9B artifacts stay on disk and their historical numbers remain quotable as
+  history. Nothing new gets built on it.
+
 ## Mission & engine rulings
 - **GAP ISSUES ARE ALWAYS PRIORITY** (operator word 2026-07-03 ~01:2x: "gap issues is always
   priority", after asking "how is the conductor still failing at this"). An open gap of
