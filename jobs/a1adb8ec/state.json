@@ -1,9 +1,9 @@
 {
   "state": "working",
-  "detail": "teacher calls climbing (133 total); extraction phase; watchdog monitoring",
+  "detail": "teachers running ~70 calls/min; awaiting validator drop & scenario count",
   "tempo": "active",
   "inFlight": {
-    "tasks": 5,
+    "tasks": 4,
     "queued": 0,
     "kinds": [
       "local_bash",
@@ -40,13 +40,14 @@
       "id": "b3ev2x9ll",
       "kind": "shell",
       "label": "until [ -s build-run.log ]; do sleep 5; done; echo \"BUILD FINISHED\"; tail -2 build-run.log",
-      "startedAt": 1785567591697
+      "startedAt": 1785567591697,
+      "doneAt": 1785567716392
     }
   ],
-  "tokens": 1424530,
+  "tokens": 1432642,
   "output": null,
   "children": null,
-  "linkScanOffset": 3285178,
+  "linkScanOffset": 3311098,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -70,6 +71,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-01T07:00:06.912Z",
+  "updatedAt": "2026-08-01T07:02:01.439Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
