@@ -127,6 +127,7 @@ export function analyzeAutorun(autorunText, missionRel) {
     const note = (s.match(/<!--([\s\S]*?)-->/) || [])[1]?.trim() || '';
     rows.push({
       n: i + 1,
+      raw: s,
       commented,
       status: commented ? null : statusOfLine(body),
       bare: !commented && !statusOfLine(body),
@@ -176,7 +177,8 @@ export function diagnosisVisibility(rows) {
   const failed = rows.filter((r) => !r.commented && /^(FAILED|PARKED)$/.test(r.status || ''));
   if (!failed.length) return { ok: true, detail: 'no FAILED/PARKED line to diagnose' };
   const undiagnosed = failed.filter((r) => !DISPOSITION_RE.test(r.note || ''));
-  const commentedNotes = rows.filter((r) => r.commented && DISPOSITION_RE.test(r.note || r.n ? r.note || '' : ''));
+  // a disposition written on a '#'-prefixed line: parseAutorun never sees it.
+  const commentedNotes = rows.filter((r) => r.commented && DISPOSITION_RE.test(r.raw || ''));
   if (!undiagnosed.length) return { ok: true, detail: `all ${failed.length} FAILED/PARKED line(s) carry a disposition token inside their own comment` };
   return {
     ok: false,
@@ -237,8 +239,15 @@ export function scanRelativePaths(text) {
       if (/^[A-Za-z]:[\\/]/.test(tok)) continue;               // C:\... absolute
       if (/^[\\/]/.test(tok)) continue;                        // /abs or \\unc
       if (/^[%$]/.test(tok) || /^\$env:/i.test(tok)) continue; // %TEMP%, $env:X, $var
-      const looksPathy = tok.includes('/') || tok.includes('\\') || PATHY_EXT.test(tok);
-      if (!looksPathy) continue;
+      // PATH-SHAPED, not merely slash-containing. Live receipt 2026-08-01: a first cut flagged
+      // `pending/0` and `PASS/0` out of a PowerShell status string, drowning the real finding.
+      // A token counts as a relative path only when it is EXPLICITLY relative (./ ../ .\),
+      // ends in a directory slash, or carries a file extension on its last segment.
+      const explicitlyRel = /^\.{1,2}[\\/]/.test(tok);
+      const trailingSlash = /[\\/]$/.test(tok);
+      const lastSeg = tok.split(/[\\/]/).filter(Boolean).pop() || '';
+      const extOnLast = PATHY_EXT.test(lastSeg) || /^[\w.-]+\.[A-Za-z][\w]{0,5}$/.test(lastSeg);
+      if (!(explicitlyRel || trailingSlash || extOnLast)) continue;
       if (/^\d+$/.test(tok)) continue;
       hits.push({ cmd, token: tok });
     }
