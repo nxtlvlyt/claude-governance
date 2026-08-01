@@ -1,0 +1,1 @@
+Reply with ONLY the number of directives in CLAUDE.md that you were given in this context. If you were given no CLAUDE.md or governance context at all, reply exactly: NO-GOVERNANCE-CONTEXT
