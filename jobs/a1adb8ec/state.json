@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "state trap-17 warning wired; 6 files staged, GPU unproven",
+  "detail": "merge phase: 1/15 shards, ~35–38 min; trap 17 monitored",
   "tempo": "idle",
   "inFlight": {
     "tasks": 5,
@@ -42,10 +42,10 @@
       "startedAt": 1785577774654
     }
   ],
-  "tokens": 2245732,
+  "tokens": 2247042,
   "output": null,
   "children": null,
-  "linkScanOffset": 6109070,
+  "linkScanOffset": 6129490,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -69,6 +69,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-01T10:13:23.950Z",
+  "updatedAt": "2026-08-01T10:25:48.506Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
