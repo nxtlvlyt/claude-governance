@@ -1,6 +1,6 @@
 {
-  "state": "blocked",
-  "detail": "model training failed; command queue rejected on unrecognized MISSION-CLASS value",
+  "state": "working",
+  "detail": "requeued mission with correct class; watching for pickup",
   "tempo": "active",
   "inFlight": {
     "tasks": 30,
@@ -194,18 +194,16 @@
       "startedAt": 1785573509961
     },
     {
-      "id": "b82x8h5un",
+      "id": "bd0r195mx",
       "kind": "monitor",
-      "label": "v3.3 27B attempt 3 — state transitions, training log, stall detection",
-      "startedAt": 1785575169493
+      "label": "v3.3 27B after in-place re-bare — pickup, QUEUE-DUP, training, stalls",
+      "startedAt": 1785575334763
     }
   ],
-  "tokens": 1998906,
-  "output": {
-    "result": "root cause: invented MISSION-CLASS value rejected by engine; dry-runs passed (ssh, WSL, Python, quoting); preflights clean; awaiting correct enum"
-  },
+  "tokens": 2005841,
+  "output": null,
   "children": null,
-  "linkScanOffset": 5013693,
+  "linkScanOffset": 5057629,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -229,6 +227,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-01T09:06:25.438Z",
+  "updatedAt": "2026-08-01T09:09:10.326Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
