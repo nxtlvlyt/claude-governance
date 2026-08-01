@@ -1,9 +1,9 @@
 {
   "state": "working",
-  "detail": "pre-registered testing hypothesis; v3.3 spec §5c locked",
+  "detail": "gate-fire analysis: 3 findings on self-report errors, independence, hooks",
   "tempo": "active",
   "inFlight": {
-    "tasks": 15,
+    "tasks": 20,
     "queued": 0,
     "kinds": [
       "local_bash",
@@ -41,12 +41,6 @@
       "kind": "shell",
       "label": "until [ -s build-run.log ]; do sleep 240; done; echo COMPLETE; date",
       "startedAt": 1785569798835
-    },
-    {
-      "id": "aeb1caa8a94b655c7",
-      "kind": "agent",
-      "label": "Capture session gate fires as corpus specimens",
-      "startedAt": 1785570128298
     },
     {
       "id": "bg28v258r",
@@ -101,14 +95,50 @@
       "kind": "shell",
       "label": "until [ -s build-run.log ]; do sleep 400; done; echo FIN; date",
       "startedAt": 1785570992136
+    },
+    {
+      "id": "buih52h41",
+      "kind": "shell",
+      "label": "until [ -s build-run.log ]; do sleep 500; done; echo COMPLETE_NOW; date",
+      "startedAt": 1785571017687
+    },
+    {
+      "id": "buuyqsyyv",
+      "kind": "shell",
+      "label": "until [ -s build-run.log ]; do sleep 600; done; echo ALLDONE; date",
+      "startedAt": 1785571043255
+    },
+    {
+      "id": "btrk069cb",
+      "kind": "shell",
+      "label": "until [ -s build-run.log ]; do sleep 700; done; echo BUILD_FINISHED_AT; date",
+      "startedAt": 1785571087578
+    },
+    {
+      "id": "ba7e2gtzo",
+      "kind": "shell",
+      "label": "until [ -s build-run.log ]; do sleep 800; done; echo K; date",
+      "startedAt": 1785571109996
+    },
+    {
+      "id": "ba1x4w1b3",
+      "kind": "shell",
+      "label": "until [ -s build-run.log ]; do sleep 900; done; echo FINAL; date",
+      "startedAt": 1785571136946
+    },
+    {
+      "id": "bu77n3lny",
+      "kind": "shell",
+      "label": "until [ -s build-run.log ]; do sleep 1000; done; echo READY; date",
+      "startedAt": 1785571165138
     }
   ],
-  "tokens": 1754001,
+  "tokens": 1771499,
   "output": {
-    "result": "§5c: v3.3 vs frontier outcome rules pre-registered; training defect only available if measurable corpus flaw can be named"
+    "result": "transcript analysis complete: self-report memory error, non-independent fires, mission-linter hook gap; 1/3/0 on use/mention/undecidable vs 39% historical"
   },
   "children": null,
-  "linkScanOffset": 4476619,
+  "linkScanOffset": 4517399,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -132,6 +162,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-01T07:56:36.934Z",
+  "updatedAt": "2026-08-01T07:59:29.466Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
