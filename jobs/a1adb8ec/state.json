@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "WSL VRAM leak found (5.5GB ollama context); corpus build in progress",
+  "detail": "corpus assembly + training mission setup; 9B run first (78m), then 27B",
   "tempo": "active",
   "inFlight": {
     "tasks": 3,
@@ -30,10 +30,10 @@
       "startedAt": 1785566168678
     }
   ],
-  "tokens": 1345741,
+  "tokens": 1355150,
   "output": null,
   "children": null,
-  "linkScanOffset": 3094261,
+  "linkScanOffset": 3110662,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -57,6 +57,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-01T06:42:33.660Z",
+  "updatedAt": "2026-08-01T06:45:33.938Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
