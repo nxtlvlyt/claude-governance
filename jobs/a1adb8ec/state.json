@@ -1,7 +1,7 @@
 {
-  "state": "done",
-  "detail": "self-audit complete: 3 FM-11 fires, 1 fabricated citation corrected",
-  "tempo": "idle",
+  "state": "blocked",
+  "detail": "3 compliance failures logged; awaiting approval to re-score CLASS R",
+  "tempo": "blocked",
   "inFlight": {
     "tasks": 2,
     "queued": 0,
@@ -23,12 +23,13 @@
       "startedAt": 1785561959584
     }
   ],
-  "tokens": 2572940,
+  "tokens": 2590325,
+  "needs": "approve re-scoring CLASS R at n=32 (10 min, no retraining)",
   "output": {
-    "result": "self-reported governance gaps (operator-bound assertions, invented canon citation); corrections applied; gates functioned as designed"
+    "result": "withdrew pre-reg condition 1 (noise-floor threshold); power analysis shows n=32 required; 3 FM-11 fires + fabricated citation on record"
   },
   "children": null,
-  "linkScanOffset": 7790568,
+  "linkScanOffset": 7933808,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -52,6 +53,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-01T19:43:11.190Z",
+  "updatedAt": "2026-08-01T19:56:32.976Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
