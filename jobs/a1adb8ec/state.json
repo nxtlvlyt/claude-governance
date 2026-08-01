@@ -1,10 +1,10 @@
 {
-  "state": "working",
-  "detail": "steps 1–3 passed, tuned lane 17/30; control confirmed genuine",
+  "state": "blocked",
+  "detail": "E: 97% full (1.2TB Ollama blobs); repoint OLLAMA_MODELS to D:?",
   "tempo": "active",
   "inFlight": {
     "tasks": 4,
-    "queued": 0,
+    "queued": 2,
     "kinds": [
       "local_bash",
       "local_agent",
@@ -35,12 +35,20 @@
       "kind": "monitor",
       "label": "v3.3 scoring mission — state, lane file counts, stalls",
       "startedAt": 1785601644493
+    },
+    {
+      "id": "bl1orte3x",
+      "kind": "shell",
+      "label": "cd C:/Users/marka/.claude/muezzin-plugin && node boundary_preflight.mjs 2>&1; echo \"EXIT=$?\"",
+      "startedAt": 1785601806779
     }
   ],
-  "tokens": 2322375,
-  "output": null,
+  "tokens": 2354093,
+  "output": {
+    "result": "E: drive 97% full with 1.2TB Ollama blobs; D: has 1.5TB free"
+  },
   "children": null,
-  "linkScanOffset": 6706452,
+  "linkScanOffset": 6733687,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -64,6 +72,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-01T16:28:46.178Z",
+  "updatedAt": "2026-08-01T16:30:19.835Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
