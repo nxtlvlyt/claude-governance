@@ -1,14 +1,14 @@
 {
-  "state": "working",
-  "detail": "diagnosis: sandbox git-repo mismatch; attempt 2 running to confirm",
+  "state": "blocked",
+  "detail": "model training failed; command queue rejected on unrecognized MISSION-CLASS value",
   "tempo": "active",
   "inFlight": {
-    "tasks": 33,
+    "tasks": 30,
     "queued": 0,
     "kinds": [
       "local_bash",
-      "monitor",
-      "local_agent"
+      "local_agent",
+      "monitor"
     ]
   },
   "fan": [
@@ -29,25 +29,7 @@
       "kind": "agent",
       "label": "Build v3.3 training corpus",
       "startedAt": 1785569152609,
-      "doneAt": 1785573222037
-    },
-    {
-      "id": "ba1x4w1b3",
-      "kind": "shell",
-      "label": "until [ -s build-run.log ]; do sleep 900; done; echo FINAL; date",
-      "startedAt": 1785571136946
-    },
-    {
-      "id": "bl8v6qcof",
-      "kind": "shell",
-      "label": "until [ -s build-run.log ]; do sleep 1100; done; echo OK_FINISHED; date",
-      "startedAt": 1785571187017
-    },
-    {
-      "id": "blr6pzyg4",
-      "kind": "shell",
-      "label": "until [ -s build-run.log ]; do sleep 1200; done; echo DONE_AT; date; cat build-run.log | tail -2",
-      "startedAt": 1785571204135
+      "doneAt": 1785574818641
     },
     {
       "id": "bxw0z3f2x",
@@ -206,22 +188,24 @@
       "startedAt": 1785572943165
     },
     {
-      "id": "bd1r66kax",
-      "kind": "monitor",
-      "label": "v3.3 27B training — daemon pickup, progress, stall detection",
-      "startedAt": 1785573439580
-    },
-    {
       "id": "ab052b051cfb288d1",
       "kind": "agent",
       "label": "Produce the frontier comparison lane",
       "startedAt": 1785573509961
+    },
+    {
+      "id": "b82x8h5un",
+      "kind": "monitor",
+      "label": "v3.3 27B attempt 3 — state transitions, training log, stall detection",
+      "startedAt": 1785575169493
     }
   ],
-  "tokens": 1938460,
-  "output": null,
+  "tokens": 1998906,
+  "output": {
+    "result": "root cause: invented MISSION-CLASS value rejected by engine; dry-runs passed (ssh, WSL, Python, quoting); preflights clean; awaiting correct enum"
+  },
   "children": null,
-  "linkScanOffset": 4853168,
+  "linkScanOffset": 5013693,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -245,6 +229,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-01T08:55:07.875Z",
+  "updatedAt": "2026-08-01T09:06:25.438Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
