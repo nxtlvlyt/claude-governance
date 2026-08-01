@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "export firing (46m), quantize (11m), then score; Ollama restarted self—will stop between runs",
+  "detail": "v3.3 trained & merged; fabrication at 64.8%; export running ~57m",
   "tempo": "idle",
   "inFlight": {
     "tasks": 3,
@@ -29,10 +29,10 @@
       "startedAt": 1785598917186
     }
   ],
-  "tokens": 2255093,
+  "tokens": 2257863,
   "output": null,
   "children": null,
-  "linkScanOffset": 6238656,
+  "linkScanOffset": 6275070,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -56,6 +56,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-01T15:42:57.674Z",
+  "updatedAt": "2026-08-01T16:01:02.634Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
