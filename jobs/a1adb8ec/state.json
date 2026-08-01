@@ -1,9 +1,9 @@
 {
   "state": "working",
-  "detail": "humility check in progress; agent scrutinizing drift/over-claim",
+  "detail": "authoring scoring mission for cq-import-score-v33; 5 steps untracked",
   "tempo": "active",
   "inFlight": {
-    "tasks": 4,
+    "tasks": 3,
     "queued": 0,
     "kinds": [
       "local_bash",
@@ -30,16 +30,16 @@
       "startedAt": 1785601115496
     },
     {
-      "id": "a8341f451d7352f17",
-      "kind": "agent",
-      "label": "Adversarially check my framing",
-      "startedAt": 1785601196355
+      "id": "bqgxm6u5f",
+      "kind": "shell",
+      "label": "Write-Output \"== B1b: '>' redirect on the ssh+wsl boundary ==\" ssh nxtbeast \"wsl -d Ubuntu -- echo HELLO_FROM_WSL > %TEMP%\\bp-redirect-probe.txt\" 2>&1 | Out-String Write-Output \"-- did a WINDOWS-side…",
+      "startedAt": 1785601415398
     }
   ],
-  "tokens": 2295416,
+  "tokens": 2312614,
   "output": null,
   "children": null,
-  "linkScanOffset": 6593047,
+  "linkScanOffset": 6623048,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -63,6 +63,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-01T16:20:12.110Z",
+  "updatedAt": "2026-08-01T16:23:43.734Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
