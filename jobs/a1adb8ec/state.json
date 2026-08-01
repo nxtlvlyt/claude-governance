@@ -1,9 +1,9 @@
 {
   "state": "working",
-  "detail": "de-template pass running (~70 calls/90s); correcting holdout gap scope",
+  "detail": "corrected scorer; holdout-v33 vs thesis test scope divergence clarified",
   "tempo": "active",
   "inFlight": {
-    "tasks": 16,
+    "tasks": 18,
     "queued": 1,
     "kinds": [
       "local_bash",
@@ -107,12 +107,24 @@
       "kind": "shell",
       "label": "sleep 280; date; wc -c build-run.log",
       "startedAt": 1785569855852
+    },
+    {
+      "id": "bldaa2bui",
+      "kind": "shell",
+      "label": "sleep 420; echo \"--- checkpoint ---\"; date; wc -c build-run.log",
+      "startedAt": 1785569892029
+    },
+    {
+      "id": "b1leasmry",
+      "kind": "shell",
+      "label": "until [ -s build-run.log ]; do sleep 60; done; echo FIN; date; cat build-run.log | head -5",
+      "startedAt": 1785569911352
     }
   ],
-  "tokens": 1576093,
+  "tokens": 1579839,
   "output": null,
   "children": null,
-  "linkScanOffset": 4150905,
+  "linkScanOffset": 4182247,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -124,8 +136,6 @@
     "--permission-mode",
     "auto"
   ],
-  "bgIsolation": "none",
-  "providerEnv": {},
   "intent": "this is a teleport session you don't have any of the context",
   "name": "teleport-context-sync",
   "nameSource": "auto",
@@ -134,8 +144,10 @@
   "daemonShort": "a1adb8ec",
   "cliVersion": "2.1.220",
   "cwd": "C:\\Users\\marka",
+  "bgIsolation": "none",
+  "providerEnv": {},
+  "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-01T07:37:36.241Z",
-  "firstTerminalAt": "2026-08-01T04:26:56.154Z",
-  "backend": "daemon"
+  "updatedAt": "2026-08-01T07:38:38.005Z",
+  "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
