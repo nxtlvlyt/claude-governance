@@ -1,24 +1,28 @@
 {
-  "state": "working",
-  "detail": "recording reflex-test results to V31-SCORECARD.md",
+  "state": "done",
+  "detail": "recovered control-lane command from disk transcripts",
   "tempo": "idle",
   "inFlight": {
     "tasks": 0,
-    "queued": 1,
+    "queued": 0,
     "kinds": []
   },
-  "tokens": 9587,
-  "output": null,
+  "tokens": 11267,
+  "output": {
+    "result": "untuned control baseline: 12/24; v3.1 maintains +3 over baseline"
+  },
   "children": null,
-  "linkScanOffset": 1211440,
+  "linkScanOffset": 1241591,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
     "--reply-on-resume",
-    "--permission-mode",
-    "default",
     "--model",
-    "opus"
+    "opus",
+    "--effort",
+    "xhigh",
+    "--permission-mode",
+    "auto"
   ],
   "intent": "this is a teleport session you don't have any of the context",
   "name": "teleport-context-sync",
@@ -32,6 +36,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-01T04:24:58.312Z",
-  "firstTerminalAt": null
+  "updatedAt": "2026-08-01T04:26:56.154Z",
+  "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
