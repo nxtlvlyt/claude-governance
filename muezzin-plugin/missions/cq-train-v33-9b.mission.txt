@@ -1,0 +1,65 @@
+MISSION-ID: cq-train-v33-9b
+MISSION-CLASS: remote-compute
+REPO-ROOT: C:\Users\marka\conductor-qwen
+ALLOW-FILES:
+  - phase3/train-v33.jsonl
+  - V33-TRAIN-9B-RECEIPT.md
+REQUIRES: phase3/train-v33.jsonl exists and TRAIN-V33-REPORT.md records its validator drop count
+STEPS: 6
+
+Maqsad: The conductor-qwen line has trained three times against a corpus that was not the
+operator's governance — FRAMEWORK-MISMATCH.md records the target format as an invention
+evaluated against itself, and the operator's own LA ADRI directive ("a high volume of
+rejection or abstention data ... actively train the weights to trigger humility") was never
+implemented: abstention-shaped targets measured 7.2% in train-v14 and 3.1% in both train-v31
+and train-v32. v3.3 is the first corpus whose targets are the operator's real AUTORUN
+annotations and whose prompt classes are interleaved so the model must learn which situation
+it is in rather than a single habit. This mission trains the 9B student on it FIRST — not the
+27B — because the corpus shape is new and a 9B run surfaces schema and pipeline defects at
+roughly a third of the wall-clock. The 27B follows only on a clean 9B.
+
+TRAINING METHOD (SOTA-searched this run per RUNBOOK STEP 4.2, receipt required by that step):
+retrieved 2026-08-01 from https://unsloth.ai/docs/get-started/fine-tuning-llms-guide.md —
+"We recommend starting with QLoRA"; "the accuracy loss for QLoRA compared to LoRA is now
+largely recovered"; "training and serving in the same precision helps preserve accuracy ...
+if you want to serve in 4-bit, train in 4-bit"; "1-3 epochs recommended to avoid overfitting".
+The artifact is served at q4_K_M, so 4-bit training is the precision-matched path. This
+CONTRADICTS the struck line in RUNBOOK STEP 4.2 (recorded 2026-07-28, restated PIPELINE.md:101)
+claiming the vendor advises against 4-bit on the Qwen3.5+ family; there is no Qwen3.5/3.6
+fine-tune page on the vendor site (probed: models/tutorials/qwen3.5-*.md 404, basics/ path 301
+then 404), so that claim has no locatable source. Conflict surfaced with both dates per the
+fifth law; the newer receipted layer is applied.
+
+niyyah: This mission changes ONE variable against a proven script — the dataset. Hyperparameters
+are inherited byte-for-byte from train_student_v31q4.py (r=16, batch 1 x accum 8, 3 epochs,
+lr 2e-4 cosine, seed 3407), which trained successfully, so any behavioural delta is attributable
+to the corpus and not to a config the conductor improvised. Checkpoints write to /mnt/d only —
+the operator's standing ruling is D: on nxtbeast, C: is OS-only. The mission is idempotent by
+construction: re-running overwrites its own checkpoint directory, and step 1 detects an
+already-complete run rather than starting a second one.
+
+Steps (LITERAL command queue — each fenced line runs VERBATIM in bare PowerShell from
+REPO-ROOT; the engine already wraps each line, so never prefix with "pwsh -Command". Steps 1
+and 2 were EXECUTED by the conductor this wake before being written here: the trap-21 preflight
+ran and returned api/ps EMPTY, and WSL Ubuntu was recovered from an "Access is denied" VHD
+attach failure via wsl --shutdown, verified with WSL-UP.):
+
+```pwsh
+$ds = Test-Path phase3\train-v33.jsonl; $rows = if ($ds) { (Get-Content phase3\train-v33.jsonl | Measure-Object -Line).Lines } else { 0 }; $rep = Test-Path TRAIN-V33-REPORT.md; $done = (ssh nxtbeast "wsl -d Ubuntu -- ls /mnt/d/conductor-qwen/ckpt-v33-9b/adapter_model.safetensors" 2>$null); if ($done) { "ALREADY_TRAINED ckpt=present rows=$rows" } else { "CLEAN_BASELINE rows=$rows report=$rep" }; if (-not $ds) { "DATASET-MISSING"; exit 1 }; if ($rows -lt 200) { "DATASET-TOO-SMALL rows=$rows"; exit 1 }
+ssh nxtbeast "powershell -NoProfile -Command \"`$r=(Invoke-RestMethod 'http://localhost:11434/api/ps' -TimeoutSec 15).models; foreach(`$m in `$r){ ollama stop `$m.name }; Start-Sleep -Seconds 4; `$a=(Invoke-RestMethod 'http://localhost:11434/api/ps' -TimeoutSec 15).models; if(`$a){ 'VRAM-HOLDER-REMAINS'; exit 1 } else { 'PS-EMPTY' }\""; if ($LASTEXITCODE -ne 0) { "TRAP21-PREFLIGHT-FAILED"; exit 1 }; $vram = ssh nxtbeast "wsl -d Ubuntu -- nvidia-smi --query-gpu=memory.used --format=csv,noheader"; "WSL-VRAM=$vram (authoritative; Windows-side view excludes WSL allocation per TRAP 21)"
+scp phase3\train-v33.jsonl nxtbeast:C:/Users/marka/conductor-qwen-run/train-v33.jsonl; ssh nxtbeast "wsl -d Ubuntu -- sed -e s/train-v31.jsonl/train-v33.jsonl/ -e s/ckpt-/ckpt-v33-/ /mnt/c/Users/marka/conductor-qwen-run/train_student_v31q4.py > /mnt/c/Users/marka/conductor-qwen-run/train_student_v33.py"; $sz = ssh nxtbeast "wsl -d Ubuntu -- wc -c < /mnt/c/Users/marka/conductor-qwen-run/train_student_v33.py"; "SCRIPT-BYTES=$sz"; if ([int]$sz -lt 1000) { "TRAP6-ZERO-BYTE-SCRIPT"; exit 1 }; ssh nxtbeast "wsl -d Ubuntu -- grep -c train-v33.jsonl /mnt/c/Users/marka/conductor-qwen-run/train_student_v33.py"
+ssh nxtbeast "wsl -d Ubuntu -- bash -c 'printf %s\n \"source /root/cq-venv/bin/activate\" \"cd /mnt/c/Users/marka/conductor-qwen-run\" \"python3 train_student_v33.py --student b\" \"echo EXIT-v33=\$?\" > /mnt/c/Users/marka/conductor-qwen-run/run-v33.sh'"; ssh nxtbeast "wsl -d Ubuntu -- bash -c 'echo bash /mnt/c/Users/marka/conductor-qwen-run/run-v33.sh > /root/train-v33.log 2>&1 > /mnt/c/Users/marka/conductor-qwen-run/w-v33.sh'"; "WRAPPERS-WRITTEN"
+ssh nxtbeast "wsl -d Ubuntu -- bash -c 'cd /mnt/c/Users/marka/conductor-qwen-run && setsid nohup bash w-v33.sh </dev/null > /mnt/c/Users/marka/conductor-qwen-run/train-v33-outer.log 2>&1 & disown; sleep 20; tail -3 /root/train-v33.log'"; $live = ssh nxtbeast "wsl -d Ubuntu -- bash -c 'pgrep -f train_student_v33 | wc -l'"; "LIVE-PROCS=$live"; if ([int]$live -lt 1) { "TRAINING-NOT-RUNNING"; exit 1 }
+$deadline = (Get-Date).AddMinutes(150); do { Start-Sleep -Seconds 300; $tail = ssh nxtbeast "wsl -d Ubuntu -- bash -c 'grep -a -e EXIT-v33 -e Traceback -e Error -e \"out of memory\" /root/train-v33.log | tail -3'"; $prog = ssh nxtbeast "wsl -d Ubuntu -- bash -c 'grep -a -e loss /root/train-v33.log | tail -1'"; "HEARTBEAT $(Get-Date -Format HH:mm) :: $prog"; } while (-not $tail -and (Get-Date) -lt $deadline); if (-not $tail) { "TIMEOUT-150MIN last-progress: $prog"; exit 1 }; "TERMINAL: $tail"; if ($tail -match "EXIT-v33=0") { Set-Content V33-TRAIN-9B-RECEIPT.md "v3.3 9B trained $(Get-Date -Format o)`nrows: $((Get-Content phase3\train-v33.jsonl | Measure-Object -Line).Lines)`nmethod: QLoRA 4-bit r16 batch1xaccum8 3ep lr2e-4 seed3407 (inherited from train_student_v31q4.py)`nvendor receipt: https://unsloth.ai/docs/get-started/fine-tuning-llms-guide.md retrieved 2026-08-01`nterminal: $tail"; "TRAIN-OK" } else { "TRAIN-FAILED: $tail"; exit 1 }
+```
+
+Done-means: `V33-TRAIN-9B-RECEIPT.md` exists at REPO-ROOT and records a terminal `EXIT-v33=0`,
+and `/mnt/d/conductor-qwen/ckpt-v33-9b/` holds an adapter. A heartbeat line without a terminal
+marker is NOT done — TRAP 22 warns that RUN.log is appended by every run, so a tail can hold a
+previous run's error; this mission writes to its own dedicated log for that reason.
+
+STOP CONDITIONS — report, do not improvise:
+- `CUDA out of memory` after the trap-21 preflight passed: the 9B at these settings fit before;
+  something else holds VRAM. Report the WSL-side reading, do not tune hyperparameters.
+- Any step needing a hyperparameter change: STOP. Changing config and dataset in the same run
+  destroys the attribution this mission exists to preserve.

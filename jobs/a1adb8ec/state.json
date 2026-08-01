@@ -1,9 +1,9 @@
 {
   "state": "working",
-  "detail": "faith injection gap identified; diversity pass fix in progress",
+  "detail": "mission file written; corpus report gate pending",
   "tempo": "active",
   "inFlight": {
-    "tasks": 8,
+    "tasks": 6,
     "queued": 0,
     "kinds": [
       "local_bash",
@@ -37,55 +37,29 @@
       "startedAt": 1785567230381
     },
     {
-      "id": "bfzgko8d3",
+      "id": "bwyk0r4wc",
       "kind": "shell",
-      "label": "sleep 500; ls -la build-run.log; tail -c 200 build-run.log",
-      "startedAt": 1785567972119
+      "label": "until [ -s build-run.log ]; do sleep 30; done; echo OK",
+      "startedAt": 1785568461474
     },
     {
-      "id": "b9l3hot2c",
+      "id": "bvyil3me4",
       "kind": "shell",
-      "label": "sleep 300; date; ls -la build-run.log",
-      "startedAt": 1785568123491
+      "label": "until [ -s build-run.log ]; do sleep 40; done; echo BUILD_DONE_FINAL; date",
+      "startedAt": 1785568473641
     },
     {
-      "id": "bixq8g01d",
+      "id": "btgxyqzjz",
       "kind": "shell",
-      "label": "python - <<'PY' import io p='build-train-v33.py' s=io.open(p,encoding='utf-8').read() s=s.replace('if cand and not target_shape_ok(cand, row[\"cls\"]):', 'if cand and not target_shape_ok(cand, row[\"cls…",
-      "startedAt": 1785568289400,
-      "doneAt": 1785568370621
-    },
-    {
-      "id": "bwm1494fz",
-      "kind": "shell",
-      "label": "until [ -s build-run.log ]; do sleep 25; done; echo BUILD_FINISHED; date",
-      "startedAt": 1785568297159,
-      "doneAt": 1785568373170
-    },
-    {
-      "id": "bndxmim7a",
-      "kind": "shell",
-      "label": "until [ -s build-run.log ]; do sleep 30; done; echo READY; PYTHONIOENCODING=utf-8 python -c \" import json;d=json.load(open('build-v33-stats.json',encoding='utf-8')) for k in ['pre_rebalance_class_cou…",
-      "startedAt": 1785568325029
-    },
-    {
-      "id": "b39q34yvw",
-      "kind": "shell",
-      "label": "until [ -s build-run.log ]; do sleep 60; done; echo BUILD_OK",
-      "startedAt": 1785568344776
-    },
-    {
-      "id": "bgeo2ev9z",
-      "kind": "shell",
-      "label": "until [ -s build-run.log ]; do sleep 45; done; date; head -c 60 build-run.log",
-      "startedAt": 1785568371049,
-      "doneAt": 1785568371705
+      "label": "until [ -s build-run.log ]; do sleep 60; done; cat build-run.log | grep -v ' e.g.' | tail -30",
+      "startedAt": 1785568487694,
+      "doneAt": 1785568548846
     }
   ],
-  "tokens": 1476156,
+  "tokens": 1490862,
   "output": null,
   "children": null,
-  "linkScanOffset": 3620047,
+  "linkScanOffset": 3693029,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -109,6 +83,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-01T07:12:59.931Z",
+  "updatedAt": "2026-08-01T07:15:50.784Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
