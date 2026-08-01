@@ -1,18 +1,16 @@
 {
-  "state": "done",
-  "detail": "routing canon revised; CLASS R target clarified; three exceptions named",
+  "state": "working",
+  "detail": "audit: AUTORUN.md shows ~2–3% genuine escalations; refining training corpus",
   "tempo": "idle",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 937646,
-  "output": {
-    "result": "routing ladder spec updated: substrate→tool→agent→user; false escalation + abstention gates added"
-  },
+  "tokens": 943274,
+  "output": null,
   "children": null,
-  "linkScanOffset": 1915523,
+  "linkScanOffset": 1974702,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -36,6 +34,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-01T05:01:47.911Z",
+  "updatedAt": "2026-08-01T05:03:54.928Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
