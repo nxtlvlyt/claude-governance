@@ -1,16 +1,32 @@
 {
   "state": "working",
-  "detail": "audit: AUTORUN.md shows ~2–3% genuine escalations; refining training corpus",
-  "tempo": "idle",
+  "detail": "mining AUTORUN.md (1,246 lines); measuring v3.1 baselines; GPU queue for length-confound",
+  "tempo": "active",
   "inFlight": {
-    "tasks": 0,
+    "tasks": 2,
     "queued": 0,
-    "kinds": []
+    "kinds": [
+      "local_agent"
+    ]
   },
-  "tokens": 943274,
+  "fan": [
+    {
+      "id": "aa5cc90ecd6bb42fe",
+      "kind": "agent",
+      "label": "Mine AUTORUN into classed rows",
+      "startedAt": 1785560689530
+    },
+    {
+      "id": "a7b4d229dc3dd802b",
+      "kind": "agent",
+      "label": "Baseline v3.1 false-abstention",
+      "startedAt": 1785560713705
+    }
+  ],
+  "tokens": 948955,
   "output": null,
   "children": null,
-  "linkScanOffset": 1974702,
+  "linkScanOffset": 2017776,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -34,6 +50,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-01T05:03:54.928Z",
+  "updatedAt": "2026-08-01T05:05:26.066Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
