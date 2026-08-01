@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "corpus structure & dedup strategy for reflex training",
+  "detail": "STATE.md updated; gate-pairs analysis running on 2GB corpus",
   "tempo": "active",
   "inFlight": {
     "tasks": 3,
@@ -30,12 +30,10 @@
       "startedAt": 1785563777659
     }
   ],
-  "tokens": 1208126,
-  "output": {
-    "result": "2,765 transcripts (2.0 GB); hook blocks as labelled pairs (violation→correction); dedup grep vs fires; flag RE_VIOLATED cases for cited-but-not-applied"
-  },
+  "tokens": 1224623,
+  "output": null,
   "children": null,
-  "linkScanOffset": 2560089,
+  "linkScanOffset": 2640795,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -59,6 +57,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-01T05:56:37.982Z",
+  "updatedAt": "2026-08-01T06:02:05.155Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
