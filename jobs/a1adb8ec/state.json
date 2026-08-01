@@ -1,13 +1,13 @@
 {
   "state": "working",
-  "detail": "frontier model caught itself refusing false attestation; 3 scorer bugs found",
-  "tempo": "idle",
+  "detail": "training live on 4090; ~1.5–2.5h until completion marker",
+  "tempo": "active",
   "inFlight": {
-    "tasks": 27,
+    "tasks": 16,
     "queued": 1,
     "kinds": [
       "local_bash",
-      "monitor"
+      "local_agent"
     ]
   },
   "fan": [
@@ -27,94 +27,15 @@
       "id": "a35600d77ec940f47",
       "kind": "agent",
       "label": "Build v3.3 training corpus",
-      "startedAt": 1785569152609,
-      "doneAt": 1785575802536
-    },
-    {
-      "id": "b1utd2tl2",
-      "kind": "shell",
-      "label": "until [ -s build-run.log ]; do sleep 550; done; echo D7; date",
-      "startedAt": 1785572187498,
-      "doneAt": 1785575787711,
-      "failed": true
-    },
-    {
-      "id": "b0qryra81",
-      "kind": "shell",
-      "label": "until [ -s build-run.log ]; do sleep 650; done; echo D8; date",
-      "startedAt": 1785572219395
-    },
-    {
-      "id": "berirn4m2",
-      "kind": "shell",
-      "label": "until [ -s build-run.log ]; do sleep 950; done; echo D11; date",
-      "startedAt": 1785572279320
-    },
-    {
-      "id": "b3f21e6mf",
-      "kind": "shell",
-      "label": "until [ -s build-run.log ]; do sleep 1050; done; echo D12; date",
-      "startedAt": 1785572302174
-    },
-    {
-      "id": "bt7e8mkww",
-      "kind": "shell",
-      "label": "until [ -s build-run.log ]; do sleep 1150; done; echo D13; date",
-      "startedAt": 1785572321510
-    },
-    {
-      "id": "bh2ikbn01",
-      "kind": "shell",
-      "label": "until [ -s build-run.log ]; do sleep 1250; done; echo D14; date",
-      "startedAt": 1785572342483
-    },
-    {
-      "id": "buu3xdjf3",
-      "kind": "shell",
-      "label": "until [ -s build-run.log ]; do sleep 1350; done; echo D15; date",
-      "startedAt": 1785572366092
-    },
-    {
-      "id": "bju986eap",
-      "kind": "shell",
-      "label": "until [ -s build-run.log ]; do sleep 1500; done; echo D16; date",
-      "startedAt": 1785572395942
-    },
-    {
-      "id": "b708knjnw",
-      "kind": "shell",
-      "label": "until [ -s build-run.log ]; do sleep 1600; done; echo D17; date",
-      "startedAt": 1785572419607
-    },
-    {
-      "id": "bihujyhkt",
-      "kind": "shell",
-      "label": "until [ -s build-run.log ]; do sleep 1700; done; echo D18; date",
-      "startedAt": 1785572444529
-    },
-    {
-      "id": "bjrsuzqhh",
-      "kind": "shell",
-      "label": "until [ -s build-run.log ]; do sleep 1800; done; echo D19; date",
-      "startedAt": 1785572465154
-    },
-    {
-      "id": "btm9xw2jn",
-      "kind": "shell",
-      "label": "until [ -s build-run.log ]; do sleep 300; done; echo LANDED4; date",
-      "startedAt": 1785572600338
-    },
-    {
-      "id": "b9di99tmq",
-      "kind": "shell",
-      "label": "until [ -s build-run.log ]; do sleep 600; done; echo LANDED7; date",
-      "startedAt": 1785572661809
+      "startedAt": 1785569152609
     },
     {
       "id": "buuiyytcg",
       "kind": "shell",
       "label": "until [ -s build-run.log ]; do sleep 700; done; echo LANDED8; date",
-      "startedAt": 1785572685335
+      "startedAt": 1785572685335,
+      "doneAt": 1785576285411,
+      "failed": true
     },
     {
       "id": "bz111p2fm",
@@ -183,16 +104,22 @@
       "startedAt": 1785572943165
     },
     {
-      "id": "bg6uwl2rv",
-      "kind": "monitor",
-      "label": "v3.3 27B attempt 4 — retro-gate acceptance, pickup, training, stalls",
-      "startedAt": 1785575716266
+      "id": "a206a3f7ff9d01f81",
+      "kind": "agent",
+      "label": "Fix scorer defects found by the lane",
+      "startedAt": 1785575867891
+    },
+    {
+      "id": "bwms3ibw1",
+      "kind": "shell",
+      "label": "ssh nxtbeast \"wsl -d Ubuntu -- bash /mnt/c/Users/marka/conductor-qwen-run/w-v33-27b.sh\" 2>&1 | tail -5",
+      "startedAt": 1785576246031
     }
   ],
-  "tokens": 2046402,
+  "tokens": 2095337,
   "output": null,
   "children": null,
-  "linkScanOffset": 5224178,
+  "linkScanOffset": 5486826,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -216,6 +143,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-01T09:16:53.689Z",
+  "updatedAt": "2026-08-01T09:24:55.960Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
