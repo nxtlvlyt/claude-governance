@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "100% of training examples contain hallucinated specifics",
+  "detail": "de-template pass warming up; flaky-WSL flagged for training",
   "tempo": "active",
   "inFlight": {
     "tasks": 4,
@@ -37,12 +37,10 @@
       "startedAt": 1785569171316
     }
   ],
-  "tokens": 1538909,
-  "output": {
-    "result": "All 828 v1.4 training rows pair questions with answers containing invented details (commit hashes, timestamps, paths) never in the question; v3.1/v3.2 show 64.8% hallucination rate (208 SHAs, 255 timestamps)"
-  },
+  "tokens": 1555677,
+  "output": null,
   "children": null,
-  "linkScanOffset": 3973167,
+  "linkScanOffset": 4024163,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -66,6 +64,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-01T07:27:59.074Z",
+  "updatedAt": "2026-08-01T07:32:13.499Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
