@@ -1,13 +1,12 @@
 {
   "state": "working",
-  "detail": "gate caught CRLF mismatch (31 CRs), diagnosed; retrying at step 3",
+  "detail": "Fixing the check now — normalize CRLF, keep content equality strict so a genuine mojibake failure still trips it.",
   "tempo": "idle",
   "inFlight": {
-    "tasks": 3,
-    "queued": 1,
+    "tasks": 2,
+    "queued": 2,
     "kinds": [
-      "local_bash",
-      "monitor"
+      "local_bash"
     ]
   },
   "fan": [
@@ -27,13 +26,14 @@
       "id": "bcbteglyj",
       "kind": "monitor",
       "label": "v3.3 import mission — state, step events, stalls",
-      "startedAt": 1785600538572
+      "startedAt": 1785600538572,
+      "doneAt": 1785600685820
     }
   ],
-  "tokens": 2274791,
+  "tokens": 2275997,
   "output": null,
   "children": null,
-  "linkScanOffset": 6428903,
+  "linkScanOffset": 6450843,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -57,6 +57,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-01T16:11:07.250Z",
+  "updatedAt": "2026-08-01T16:11:54.824Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
