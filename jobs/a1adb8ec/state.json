@@ -1,13 +1,14 @@
 {
   "state": "working",
-  "detail": "v3.3 training fired; watchdog armed for pickup/stall",
-  "tempo": "idle",
+  "detail": "frontier comparison lane running; tuned model training on nxtbeast",
+  "tempo": "active",
   "inFlight": {
-    "tasks": 32,
+    "tasks": 33,
     "queued": 0,
     "kinds": [
       "local_bash",
-      "monitor"
+      "monitor",
+      "local_agent"
     ]
   },
   "fan": [
@@ -209,12 +210,18 @@
       "kind": "monitor",
       "label": "v3.3 27B training — daemon pickup, progress, stall detection",
       "startedAt": 1785573439580
+    },
+    {
+      "id": "ab052b051cfb288d1",
+      "kind": "agent",
+      "label": "Produce the frontier comparison lane",
+      "startedAt": 1785573509961
     }
   ],
-  "tokens": 1859459,
+  "tokens": 1861943,
   "output": null,
   "children": null,
-  "linkScanOffset": 4715885,
+  "linkScanOffset": 4746737,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -238,6 +245,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-01T08:37:34.621Z",
+  "updatedAt": "2026-08-01T08:38:43.014Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
