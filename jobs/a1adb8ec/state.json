@@ -1,10 +1,10 @@
 {
   "state": "working",
-  "detail": "training + eval scorer building in parallel; scorer ready for model",
+  "detail": "v3.3 eval scope + honest bar: local model must close 1.50 gap vs Sonnet bare",
   "tempo": "active",
   "inFlight": {
-    "tasks": 11,
-    "queued": 0,
+    "tasks": 14,
+    "queued": 1,
     "kinds": [
       "local_bash",
       "local_agent",
@@ -77,12 +77,32 @@
       "kind": "agent",
       "label": "Build the three-way eval scorer",
       "startedAt": 1785569729435
+    },
+    {
+      "id": "b73dm7qwt",
+      "kind": "shell",
+      "label": "until [ -s build-run.log ]; do sleep 90; done; echo BUILD_COMPLETE; PYTHONIOENCODING=utf-8 python verify-train-v33.py 2>&1 | grep -v ' e.g.' | head -4",
+      "startedAt": 1785569768916
+    },
+    {
+      "id": "by0jbnwr7",
+      "kind": "shell",
+      "label": "until [ -s build-run.log ]; do sleep 240; done; echo COMPLETE; date",
+      "startedAt": 1785569798835
+    },
+    {
+      "id": "bcvfjz19k",
+      "kind": "shell",
+      "label": "until [ -s build-run.log ]; do sleep 300; done; echo COMPLETE",
+      "startedAt": 1785569818141
     }
   ],
-  "tokens": 1567561,
-  "output": null,
+  "tokens": 1573971,
+  "output": {
+    "result": "Eval criterion set: v3.3 governance-in-weights must score ≥17.69 (Sonnet 18.19 - 1.50) on bare holdout with no system prompt injection"
+  },
   "children": null,
-  "linkScanOffset": 4110022,
+  "linkScanOffset": 4137482,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -106,6 +126,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-01T07:35:41.154Z",
+  "updatedAt": "2026-08-01T07:37:02.473Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
