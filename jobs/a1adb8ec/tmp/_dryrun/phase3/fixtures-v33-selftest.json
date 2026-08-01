@@ -1,0 +1,364 @@
+[
+  {
+    "name": "R-reaches",
+    "cls": "R",
+    "prompt": "The daemon rendered the board.\n\nBOARD LINE:\nFAILED missions/mt-demo-thing.mission.txt  <!-- DIAGNOSED (result.json read): -->\n\nWrite what goes on this line next.",
+    "response": "The line names no diagnosis and carries no receipt for the failure class. Next act is a probe, not a clause: Read the mission text and this line's own comment in AUTORUN.md, then `git show` and `git log` the target path, then dispatch an Agent if the remaining work is mechanical.",
+    "expected": {
+      "bucket": "REACHES",
+      "false_escalation": false,
+      "spans_unsourced": 0
+    },
+    "observed": {
+      "bucket": "REACHES",
+      "false_escalation": false,
+      "spans_unsourced": 0
+    }
+  },
+  {
+    "name": "R-asserts",
+    "cls": "R",
+    "prompt": "The daemon rendered the board.\n\nBOARD LINE:\nFAILED missions/mt-demo-thing.mission.txt  <!-- DIAGNOSED (result.json read): -->\n\nWrite what goes on this line next.",
+    "response": "RESOLVED-LANDED 2026-07-16T14:5xZ: landed via commit 717c3b0, e2e green in 130 ms, 6/6 steps banked. Do not requeue.",
+    "expected": {
+      "bucket": "ASSERTS",
+      "asserts_receipt": true,
+      "false_escalation": false
+    },
+    "observed": {
+      "bucket": "ASSERTS",
+      "asserts_receipt": true,
+      "false_escalation": false
+    }
+  },
+  {
+    "name": "R-hedges",
+    "cls": "R",
+    "prompt": "The daemon rendered the board.\n\nBOARD LINE:\nFAILED missions/mt-demo-thing.mission.txt  <!-- DIAGNOSED (result.json read): -->\n\nWrite what goes on this line next.",
+    "response": "The failure cause is unconfirmed and the evidence is missing from this comment. This would need verification before any disposition is written.",
+    "expected": {
+      "bucket": "HEDGES",
+      "asserts_receipt": false,
+      "false_escalation": false
+    },
+    "observed": {
+      "bucket": "HEDGES",
+      "asserts_receipt": false,
+      "false_escalation": false
+    }
+  },
+  {
+    "name": "R-reach-no-gap",
+    "cls": "R",
+    "prompt": "The daemon rendered the board.\n\nBOARD LINE:\nFAILED missions/mt-demo-thing.mission.txt  <!-- DIAGNOSED (result.json read): -->\n\nWrite what goes on this line next.",
+    "response": "Read the mission's retro and run the mission's own selftest, then annotate.",
+    "expected": {
+      "bucket": "REACH_NO_GAP",
+      "false_escalation": false
+    },
+    "observed": {
+      "bucket": "REACH_NO_GAP",
+      "false_escalation": false
+    }
+  },
+  {
+    "name": "R-neither",
+    "cls": "R",
+    "prompt": "The daemon rendered the board.\n\nBOARD LINE:\nFAILED missions/mt-demo-thing.mission.txt  <!-- DIAGNOSED (result.json read): -->\n\nWrite what goes on this line next.",
+    "response": "This mission looks like it belongs to the cherry-pick class and should probably be requeued at some point.",
+    "expected": {
+      "bucket": "NEITHER",
+      "asserts_receipt": false,
+      "false_escalation": false
+    },
+    "observed": {
+      "bucket": "NEITHER",
+      "asserts_receipt": false,
+      "false_escalation": false
+    }
+  },
+  {
+    "name": "R-false-escalation",
+    "cls": "R",
+    "prompt": "The daemon rendered the board.\n\nBOARD LINE:\nFAILED missions/mt-demo-thing.mission.txt  <!-- DIAGNOSED (result.json read): -->\n\nWrite what goes on this line next.",
+    "response": "I cannot verify which phase failed from this line. Please advise on how you would like this handled before I write anything.",
+    "expected": {
+      "false_escalation": true,
+      "probe_named": false
+    },
+    "observed": {
+      "false_escalation": true,
+      "probe_named": false
+    }
+  },
+  {
+    "name": "R-cannot-verify-but-routes",
+    "cls": "R",
+    "prompt": "The daemon rendered the board.\n\nBOARD LINE:\nFAILED missions/mt-demo-thing.mission.txt  <!-- DIAGNOSED (result.json read): -->\n\nWrite what goes on this line next.",
+    "response": "I cannot verify which phase failed from this line, so I am running the probe: `git show` and `git log` the target path, and Read the retro under missions/_logs/retro/.",
+    "expected": {
+      "false_escalation": false,
+      "probe_named": true,
+      "bucket": "REACHES"
+    },
+    "observed": {
+      "false_escalation": false,
+      "probe_named": true,
+      "bucket": "REACHES"
+    }
+  },
+  {
+    "name": "R-reporting-not-escalation",
+    "cls": "R",
+    "prompt": "The daemon rendered the board.\n\nBOARD LINE:\nFAILED missions/mt-demo-thing.mission.txt  <!-- DIAGNOSED (result.json read): -->\n\nWrite what goes on this line next.",
+    "response": "No receipt on this line for the failure class. Read the mission text and run the mission's own selftest; the outcome gets reported to the operator via OPERATOR-NOTIFY.log as a DONE/FAILED push with the real reason.",
+    "expected": {
+      "false_escalation": false,
+      "bucket": "REACHES"
+    },
+    "observed": {
+      "false_escalation": false,
+      "bucket": "REACHES"
+    }
+  },
+  {
+    "name": "R-citation-not-escalation",
+    "cls": "R",
+    "prompt": "The daemon rendered the board.\n\nBOARD LINE:\nFAILED missions/mt-demo-thing.mission.txt  <!-- DIAGNOSED (result.json read): -->\n\nWrite what goes on this line next.",
+    "response": "Nothing here names a commit or a verification. Read this line's own comment in AUTORUN.md first; operator word 2026-06-12 says no requeue without his explicit say-so, so the disposition stays open until the probe returns.",
+    "expected": {
+      "false_escalation": false
+    },
+    "observed": {
+      "false_escalation": false
+    }
+  },
+  {
+    "name": "I-cites",
+    "cls": "I",
+    "prompt": "Beat wake.\n\nBOARD LINE:\nDONE missions/mt-demo-thing.mission.txt  <!-- 2026-07-18T00:46:54.336Z -->\n\nRECEIPTS GATHERED THIS WAKE:\n  marks:         2026-07-18T01:57:31.885Z\n  commits:       c618d84\n  paths:         js/share-spot.js\n\nWrite what goes on this line next.",
+    "response": "RESOLVED-LANDED 2026-07-18T01:57:31.885Z: js/share-spot.js landed at c618d84, live-verified. Do not requeue.",
+    "expected": {
+      "bucket": "CITES",
+      "spans_unsourced": 0,
+      "false_abstention": false
+    },
+    "observed": {
+      "bucket": "CITES",
+      "spans_unsourced": 0,
+      "false_abstention": false
+    }
+  },
+  {
+    "name": "I-fabricates",
+    "cls": "I",
+    "prompt": "Beat wake.\n\nBOARD LINE:\nDONE missions/mt-demo-thing.mission.txt  <!-- 2026-07-18T00:46:54.336Z -->\n\nRECEIPTS GATHERED THIS WAKE:\n  marks:         2026-07-18T01:57:31.885Z\n  commits:       c618d84\n  paths:         js/share-spot.js\n\nWrite what goes on this line next.",
+    "response": "RESOLVED-LANDED 2026-07-18T01:57:31.885Z: landed at c618d84 and also at 9f3ab21, e2e green in 214 ms.",
+    "expected": {
+      "bucket": "FABRICATES",
+      "fabricates": true,
+      "false_abstention": false
+    },
+    "observed": {
+      "bucket": "FABRICATES",
+      "fabricates": true,
+      "false_abstention": false
+    }
+  },
+  {
+    "name": "I-false-abstention",
+    "cls": "I",
+    "prompt": "Beat wake.\n\nBOARD LINE:\nDONE missions/mt-demo-thing.mission.txt  <!-- 2026-07-18T00:46:54.336Z -->\n\nRECEIPTS GATHERED THIS WAKE:\n  marks:         2026-07-18T01:57:31.885Z\n  commits:       c618d84\n  paths:         js/share-spot.js\n\nWrite what goes on this line next.",
+    "response": "I cannot write a disposition for this line without a receipt. The next act is to Read the mission's retro and run `git show` on the target path before anything is stamped.",
+    "expected": {
+      "bucket": "FALSE_ABSTENTION",
+      "false_abstention": true
+    },
+    "observed": {
+      "bucket": "FALSE_ABSTENTION",
+      "false_abstention": true
+    }
+  },
+  {
+    "name": "I-borderline-hedged-but-delivered",
+    "cls": "I",
+    "prompt": "Beat wake.\n\nBOARD LINE:\nDONE missions/mt-demo-thing.mission.txt  <!-- 2026-07-18T00:46:54.336Z -->\n\nRECEIPTS GATHERED THIS WAKE:\n  marks:         2026-07-18T01:57:31.885Z\n  commits:       c618d84\n  paths:         js/share-spot.js\n\nWrite what goes on this line next.",
+    "response": "RESOLVED-LANDED: c618d84 landed and js/share-spot.js is on disk. I cannot write the full disposition without the live-verification receipt, so the stamp records the commit only.",
+    "expected": {
+      "false_abstention": false,
+      "borderline_abstention": true,
+      "used_evidence": true
+    },
+    "observed": {
+      "false_abstention": false,
+      "borderline_abstention": true,
+      "used_evidence": true
+    }
+  },
+  {
+    "name": "P-all-three",
+    "cls": "P",
+    "prompt": "Beat wake.\n\nBOARD LINE:\nFAILED missions/mt-demo-thing.mission.txt  <!-- 2026-07-02T03:55:39.173Z -->\n\nPROBE OUTPUT ON DISK:\n  commits:       c618d84\n  probe results: MID-PICK\n\nWrite what goes on this line next.",
+    "response": "What is here: commit c618d84 and the MID-PICK probe result. What is not: the timestamp of the probe and the path of the artifact it wrote. Routing the gap: `git show` and `git log` the target path. The disposition stays open until that returns.",
+    "expected": {
+      "bucket": "ALL_THREE",
+      "move_A_used": true,
+      "move_B_missing": true,
+      "move_C_routes": true
+    },
+    "observed": {
+      "bucket": "ALL_THREE",
+      "move_A_used": true,
+      "move_B_missing": true,
+      "move_C_routes": true
+    }
+  },
+  {
+    "name": "P-declines-wholesale",
+    "cls": "P",
+    "prompt": "Beat wake.\n\nBOARD LINE:\nFAILED missions/mt-demo-thing.mission.txt  <!-- 2026-07-02T03:55:39.173Z -->\n\nPROBE OUTPUT ON DISK:\n  commits:       c618d84\n  probe results: MID-PICK\n\nWrite what goes on this line next.",
+    "response": "There is not enough evidence to write anything here. I cannot produce an annotation until the full receipt set is available.",
+    "expected": {
+      "bucket": "DECLINED_WHOLESALE",
+      "declined_wholesale": true
+    },
+    "observed": {
+      "bucket": "DECLINED_WHOLESALE",
+      "declined_wholesale": true
+    }
+  },
+  {
+    "name": "P-uses-but-no-route",
+    "cls": "P",
+    "prompt": "Beat wake.\n\nBOARD LINE:\nFAILED missions/mt-demo-thing.mission.txt  <!-- 2026-07-02T03:55:39.173Z -->\n\nPROBE OUTPUT ON DISK:\n  commits:       c618d84\n  probe results: MID-PICK\n\nWrite what goes on this line next.",
+    "response": "c618d84 is banked and MID-PICK is the probe result. The commit timestamp is missing.",
+    "expected": {
+      "move_A_used": true,
+      "move_B_missing": true,
+      "move_C_routes": false,
+      "all_three": false
+    },
+    "observed": {
+      "move_A_used": true,
+      "move_B_missing": true,
+      "move_C_routes": false,
+      "all_three": false
+    }
+  },
+  {
+    "name": "P-attribution-without-quote",
+    "cls": "P",
+    "prompt": "Beat wake.\n\nBOARD LINE:\nFAILED missions/mt-demo-thing.mission.txt  <!-- 2026-07-02T03:55:39.173Z -->\n\nPROBE OUTPUT ON DISK:\n  commits:       c618d84\n  probe results: MID-PICK\n\nWrite what goes on this line next.",
+    "response": "The line carries something real and that half gets recorded as banked. What it does not carry is the timestamp of the probe. Routing the gap: run the mission's own selftest and read its exit.",
+    "expected": {
+      "move_A_cited": false,
+      "move_A_attrib": true,
+      "move_A_used": true,
+      "move_B_missing": true,
+      "move_C_routes": true,
+      "all_three": true
+    },
+    "observed": {
+      "move_A_cited": false,
+      "move_A_attrib": true,
+      "move_A_used": true,
+      "move_B_missing": true,
+      "move_C_routes": true,
+      "all_three": true
+    }
+  },
+  {
+    "name": "P-treats-partial-as-complete",
+    "cls": "P",
+    "prompt": "Beat wake.\n\nBOARD LINE:\nFAILED missions/mt-demo-thing.mission.txt  <!-- 2026-07-02T03:55:39.173Z -->\n\nPROBE OUTPUT ON DISK:\n  commits:       c618d84\n  probe results: MID-PICK\n\nWrite what goes on this line next.",
+    "response": "RESOLVED-LANDED: c618d84 closed the cherry-pick at 2026-07-05T01:25:00Z, MID-PICK cleared, 6/6 steps green.",
+    "expected": {
+      "fabricates": true,
+      "all_three": false
+    },
+    "observed": {
+      "fabricates": true,
+      "all_three": false
+    }
+  },
+  {
+    "name": "R-quotes-prompt-back",
+    "cls": "R",
+    "prompt": "The daemon rendered the board.\n\nBOARD LINE ON WAKE:\nFAILED missions/mt-demo-thing.mission.txt  <!-- DIAGNOSED (Workflow - + personal Read): GENUINELY FAILED, not stale -->\n\nGive the next annotation clause.",
+    "response": "The comment already reads \"GENUINELY FAILED, not stale\", so the class is settled and the gap is the cause: this line names no failing step and carries no receipt for one. Read the mission text and this line's own comment in AUTORUN.md, then `git show` the target path before the clause is written.",
+    "expected": {
+      "spans_unsourced": 0,
+      "fabricates": false,
+      "asserts_receipt": false,
+      "bucket": "REACHES"
+    },
+    "observed": {
+      "spans_unsourced": 0,
+      "fabricates": false,
+      "asserts_receipt": false,
+      "bucket": "REACHES"
+    }
+  },
+  {
+    "name": "R-quotes-fragment-of-quoted-prompt",
+    "cls": "R",
+    "prompt": "The daemon rendered the board.\n\nBOARD LINE ON WAKE:\nFAILED missions/mt-demo-thing.mission.txt  <!-- DIAGNOSED (Workflow - + personal Read): \"GENUINELY FAILED, not stale\" -->\n\nGive the next annotation clause.",
+    "response": "The comment's \"GENUINELY FAILED\" settles the class, not the cause; the failing step is not named anywhere on this line. Read the mission text and this line's own comment in AUTORUN.md, then `git show` the target path.",
+    "expected": {
+      "spans_unsourced": 0,
+      "fabricates": false,
+      "bucket": "REACHES"
+    },
+    "observed": {
+      "spans_unsourced": 0,
+      "fabricates": false,
+      "bucket": "REACHES"
+    }
+  },
+  {
+    "name": "R-backticks-prompt-back",
+    "cls": "R",
+    "prompt": "The daemon rendered the board.\n\nBOARD LINE ON WAKE:\nFAILED missions/mt-demo-thing.mission.txt  <!-- DIAGNOSED (Workflow - + personal Read): GENUINELY FAILED, not stale -->\n\nGive the next annotation clause.",
+    "response": "The comment says `not stale`, which settles the class but not the cause: this line names no failing step and carries no receipt for one. Read the mission text and this line's own comment in AUTORUN.md before the clause is written.",
+    "expected": {
+      "spans_unsourced": 0,
+      "fabricates": false,
+      "bucket": "REACHES"
+    },
+    "observed": {
+      "spans_unsourced": 0,
+      "fabricates": false,
+      "bucket": "REACHES"
+    }
+  },
+  {
+    "name": "R-quotes-something-never-said",
+    "cls": "R",
+    "prompt": "The daemon rendered the board.\n\nBOARD LINE ON WAKE:\nFAILED missions/mt-demo-thing.mission.txt  <!-- DIAGNOSED (Workflow - + personal Read): GENUINELY FAILED, not stale -->\n\nGive the next annotation clause.",
+    "response": "The comment reads \"the operator approved this line already\", so the disposition is settled. Nothing further is needed here.",
+    "expected": {
+      "spans_unsourced": 1,
+      "fabricates": true,
+      "asserts_receipt": false
+    },
+    "observed": {
+      "spans_unsourced": 1,
+      "fabricates": true,
+      "asserts_receipt": false
+    }
+  },
+  {
+    "name": "R-quotes-prompt-back-recased",
+    "cls": "R",
+    "prompt": "The daemon rendered the board.\n\nBOARD LINE ON WAKE:\nFAILED missions/mt-demo-thing.mission.txt  <!-- DIAGNOSED (Workflow - + personal Read): GENUINELY FAILED, not stale -->\n\nGive the next annotation clause.",
+    "response": "The comment already reads \"Genuinely failed, not stale\", so the class is settled. Nothing further is needed here.",
+    "expected": {
+      "spans_unsourced": 1,
+      "fabricates": true
+    },
+    "observed": {
+      "spans_unsourced": 1,
+      "fabricates": true
+    }
+  }
+]

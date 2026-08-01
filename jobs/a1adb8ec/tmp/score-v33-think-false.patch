@@ -1,0 +1,41 @@
+##########################################################################################
+# NO PATCH.  THE CHANGE THIS FILE WAS COMMISSIONED TO MAKE IS ALREADY IN THE SOURCE.
+#
+# This file deliberately contains ZERO hunks.  `git apply` will reject it ("unrecognized
+# input") rather than silently doing nothing -- that loud failure is the point.
+#
+# TARGET   C:\Users\marka\conductor-qwen\phase3\score-v33.py
+# sha256   342a755e36b7dd8ed987a3482fd2cc2af0aa716243a0d389d4ed8db44dccb001
+# mtime    2026-08-01 02:31   (the lanes were generated 09:27-09:34 the same morning,
+#                              so this is the text that ran)
+#
+# THE LINES THE PATCH WOULD HAVE TOUCHED, quoted verbatim from that file:
+#
+#   627 def gen(api, host, model, prompt, system, timeout=600, attempts=3, num_predict=700):
+#   628     if api == "openai":
+#   ...
+#   634     else:
+#   635         pl = {"model": model, "prompt": prompt, "stream": False, "think": False,
+#   636               "options": {"temperature": 0.2, "num_predict": num_predict}}
+#   637         if system is not None:
+#   638             pl["system"] = system
+#   639         body = json.dumps(pl).encode()
+#   640         path, pick = "/api/generate", lambda d: d.get("response", "")
+#
+# `"think": False` is on line 635, inside the single Ollama payload builder, applied
+# unconditionally to every lane -- there is no per-model branch to make it conditional.
+# gen() is the only dispatch path in the file (called once, line 1512).
+#
+# CORROBORATION THAT THE FLAG WAS LIVE FOR THE TWO LANES ON DISK:
+#   * eval/lane-v33-base holds 24,640 chars across its 30 transcripts.  Under the
+#     default-think condition measured on nxtbeast the base returns response == "".
+#     Non-empty transcripts are only possible with the flag set.
+#   * eval/lane-v33-tuned completed 30/30.  Ollama therefore accepted `think:false`
+#     on BOTH tags -- no capability error on either.
+#   * No second copy of score-v33.py exists on this machine
+#     (searched C:\Users\marka\*\score-v33.py and C:\Users\marka\*\*\score-v33.py;
+#      C:\Users\marka\conductor-qwen-run does not exist).
+#
+# THE BASE LANE IS VOID FOR TWO OTHER REASONS.  See APPLY-NOTES.md sections 3 and 4,
+# and the real patch: score-v33-gen-receipt.patch.
+##########################################################################################

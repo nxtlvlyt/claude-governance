@@ -1,0 +1,106 @@
+--- a/phase3/score-v33.py
++++ b/phase3/score-v33.py
+@@ -625,12 +625,24 @@
+ # dispatch (NOT invoked by --selftest, --score-only, --compare or --register)
+ # ==========================================================================================
+ def gen(api, host, model, prompt, system, timeout=600, attempts=3, num_predict=700):
++    """Returns (text, meta).  meta records WHY the generation ended.
++
++    `response` on its own cannot tell a finished answer from one guillotined at
++    num_predict, and the two are scored identically by every rule in this file.  A lane
++    whose rows ended on `length` is holding cut-off text -- the clause that would have
++    scored may be past the cap -- and it is NOT comparable to a lane that never hit it.
++    `think` stays False on every lane: the corpus targets are annotation prose, the
++    daemon consumes `response`, and an in-band reasoning trace spends the SAME budget
++    the answer needs -- which is exactly the asymmetry this receipt makes visible."""
+     if api == "openai":
+         msgs = ([{"role": "system", "content": system}] if system else []) + \
+                [{"role": "user", "content": prompt}]
+         body = json.dumps({"model": model, "messages": msgs, "temperature": 0.2,
+                            "max_tokens": num_predict, "stream": False}).encode()
+         path, pick = "/v1/chat/completions", lambda d: d["choices"][0]["message"]["content"]
++        meta_of = lambda d: {"stop_reason": ((d.get("choices") or [{}])[0] or {}).get("finish_reason"),
++                             "out_tokens": (d.get("usage") or {}).get("completion_tokens"),
++                             "thinking_chars": 0}
+     else:
+         pl = {"model": model, "prompt": prompt, "stream": False, "think": False,
+               "options": {"temperature": 0.2, "num_predict": num_predict}}
+@@ -638,13 +650,17 @@
+             pl["system"] = system
+         body = json.dumps(pl).encode()
+         path, pick = "/api/generate", lambda d: d.get("response", "")
++        meta_of = lambda d: {"stop_reason": d.get("done_reason"),
++                             "out_tokens": d.get("eval_count"),
++                             "thinking_chars": len(d.get("thinking") or "")}
+     last = None
+     for a in range(attempts):
+         try:
+             req = urllib.request.Request(host.rstrip("/") + path, data=body,
+                                          headers={"Content-Type": "application/json"})
+             with urllib.request.urlopen(req, timeout=timeout) as r:
+-                return pick(json.load(r))
++                d = json.load(r)
++            return pick(d), meta_of(d)
+         except Exception as e:
+             last = e
+             print("    attempt %d/%d failed: %r" % (a + 1, attempts, e))
+@@ -1504,16 +1520,57 @@
+     if state != "BARE":
+         print("  NOTE: this lane is not BARE and will be REFUSED by --compare.")
+ 
++    receipt = os.path.join(outdir, "GEN-RECEIPT.jsonl")
+     for r in rows:
+         p = os.path.join(outdir, "%02d-%s.txt" % (r["idx"], r["cls"]))
+         if os.path.exists(p) and os.path.getsize(p) > 20:
+             continue                                   # resume cache
+         try:
+-            resp = gen(a.api, a.host, a.model, r["user"], system, num_predict=a.num_predict)
++            resp, meta = gen(a.api, a.host, a.model, r["user"], system,
++                             num_predict=a.num_predict)
+         except Exception as e:
+             print("  row %02d: ERROR %r" % (r["idx"], e)); continue
+         open(p, "w", encoding="utf-8").write(resp)
+-        print("  row %02d %s  %d chars" % (r["idx"], r["cls"], len(resp)))
++        meta.update({"idx": r["idx"], "cls": r["cls"], "chars": len(resp),
++                     "num_predict": a.num_predict, "model": a.model, "api": a.api,
++                     "when": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())})
++        with open(receipt, "a", encoding="utf-8") as fh:
++            fh.write(json.dumps(meta) + "\n")
++        print("  row %02d %s  %d chars  stop=%s  out_tokens=%s%s"
++              % (r["idx"], r["cls"], len(resp), meta.get("stop_reason"),
++                 meta.get("out_tokens"),
++                 "   <- CUT OFF AT num_predict" if meta.get("stop_reason") == "length" else ""))
++
++    # ---- generation receipts, read back over the WHOLE lane (not just this run) ---------
++    # A resumed lane reuses transcripts this run never dispatched; their stop_reason is
++    # unknown and is reported as unknown rather than assumed clean.
++    seen = {}
++    if os.path.exists(receipt):
++        for ln in open(receipt, encoding="utf-8"):
++            try:
++                m = json.loads(ln)
++            except Exception:
++                continue
++            seen[m.get("idx")] = m
++    truncated = sorted(i for i, m in seen.items() if m.get("stop_reason") == "length")
++    unreceipted = [r["idx"] for r in rows if r["idx"] not in seen]
++    lane["truncated_rows"] = truncated
++    lane["unreceipted_rows"] = unreceipted
++    lane["gen_receipt"] = os.path.basename(receipt)
++    json.dump(lane, open(os.path.join(outdir, "LANE.json"), "w", encoding="utf-8"), indent=2)
++    if truncated:
++        print("\n  *** %d row(s) ended on `length`: %s"
++              % (len(truncated), ", ".join("%02d" % i for i in truncated)))
++        print("  *** Those transcripts are CUT OFF, not answers.  This lane is not")
++        print("  *** comparable to a lane holding none.  Re-run it with a larger")
++        print("  *** --num-predict into a FRESH --out directory -- the resume cache")
++        print("  *** would otherwise keep every cut-off row.")
++    if unreceipted:
++        print("  NOTE: %d row(s) carry no generation receipt (transcript written before this\n"
++              "        scorer version, or resumed from cache): %s.\n"
++              "        Truncation is UNKNOWN for those rows -- do not read their absence\n"
++              "        from this list as a clean stop."
++              % (len(unreceipted), ", ".join("%02d" % i for i in unreceipted)))
+ 
+     agg, findings = score_dir(outdir, rows, lane)
+     print_card(lane, agg, findings)
