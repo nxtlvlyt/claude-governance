@@ -292,6 +292,61 @@ cost of that gap is receipted in the annotation at the end of this document.
 
 ---
 
+## PART FIVE — STRENGTH IS RESTRAINT, NOT SIZE (filed 2026-07-31)
+
+**The operator, quoting the Prophet Muhammad ﷺ:**
+
+> The strong man is not one who is good at wrestling, but the strong man is one who
+> controls himself in a fit of rage.
+
+**His application (verbatim):**
+
+> this is also in relation to AI, strong or powerful AI model it's not about parameters
+> but about control, the tools via augmentation and in doing so controlling drift and
+> being humble
+
+**Why this belongs in the source and not in the commentary:** it completes the thesis. Parts
+One and Two establish the vessel — knowledge is not held, it is conducted. Part Four
+establishes the boundary — *la adri*, the vessel cannot pour what it does not hold. Part Five
+establishes the **measure**: what makes a conductor strong is not how much it can hold, but
+whether it can stop. Wrestling is capability. Restraint under provocation is strength. A model
+asked a question it cannot answer is a model in a fit — and the fabrication rate is the
+measure of whether it can hold itself.
+
+## Annotation on Part Five (commentary, 2026-07-31) — measured, and it cuts both ways
+
+The claim is testable in this project's own numbers, and the cleanest instance is the
+smallest model. From `conductor-qwen\CLEAN-SCORECARD.md` (the corrected, sealed round):
+
+| model | before | after anti-fabrication data | fatals |
+|---|---|---|---|
+| **9B** | 11.62 (v1.2) | **13.19** (v1.3) | **4 → 0** |
+| **27B** | 16.69 (v1.1) | 15.88 (v1.3) | **0 → 1** |
+
+**On the 9B this is the hadith, measured.** The model did not get bigger. It got 1.57 points
+better and shed four fatal fabrications — the strength came entirely from learning to stop.
+
+**On the 27B the identical data introduced a fatal.** The scorecard's own reading: *"The 24
+anti-fabrication samples were authored against a defect the 27B did not have. On the 9B they
+removed four fatals. On the 27B they removed nothing (there was nothing to remove) and it
+came back with one."*
+
+The refinement that costs nothing to state and would have cost a round to learn again:
+**restraint has to be fitted to the specific failure, not applied uniformly.** Teaching
+self-control to a model that already had it, against a provocation it did not feel, made it
+worse. That is the same over-correction shape recorded twice elsewhere in this project — the
+v3.2 corpus repair, and the fully-answerable corpus that removed the examples where
+withholding was correct.
+
+Second receipt, from the same day this was filed: the untuned 27B, given all 3,999 characters
+of the operator's directives in context, still emitted the auditor's verdict vocabulary at the
+governance-scanner seat — the named self-failure in `governance_scanner.faith.md`. It broke
+the boundary **identically with the directives present and with them absent**. The tuned v3.1
+held it in both conditions. Being *told* to restrain bought nothing on that item; restraint
+that had been trained in held without being re-read. n=1, and recorded as n=1.
+
+---
+
 ## Annotation addendum (2026-07-31) — the directive was issued and not delivered
 
 Marked as commentary, not source. Measured this session, not recalled.
