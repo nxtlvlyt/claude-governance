@@ -1,10 +1,10 @@
 {
   "state": "working",
-  "detail": "Fixing the check now — normalize CRLF, keep content equality strict so a genuine mojibake failure still trips it.",
+  "detail": "sixth CRLF/encoding boundary trap in one session; preflight recipe logged",
   "tempo": "idle",
   "inFlight": {
     "tasks": 2,
-    "queued": 2,
+    "queued": 0,
     "kinds": [
       "local_bash"
     ]
@@ -21,19 +21,12 @@
       "kind": "shell",
       "label": "ssh nxtbeast \"docker ps -a --filter name=searxng --format '{{.Names}} | {{.Status}} | {{.Ports}}'\" 2>&1 | tail -3; echo \"--- docker daemon ---\"; ssh nxtbeast \"docker info --format '{{.ServerVersion}}…",
       "startedAt": 1785561959584
-    },
-    {
-      "id": "bcbteglyj",
-      "kind": "monitor",
-      "label": "v3.3 import mission — state, step events, stalls",
-      "startedAt": 1785600538572,
-      "doneAt": 1785600685820
     }
   ],
-  "tokens": 2275997,
+  "tokens": 2285607,
   "output": null,
   "children": null,
-  "linkScanOffset": 6450843,
+  "linkScanOffset": 6537046,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -57,6 +50,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-01T16:11:54.824Z",
+  "updatedAt": "2026-08-01T16:17:35.344Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
