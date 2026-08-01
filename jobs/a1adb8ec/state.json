@@ -1,10 +1,10 @@
 {
-  "state": "working",
-  "detail": "training live on 4090; ~1.5–2.5h until completion marker",
+  "state": "blocked",
+  "detail": "27B QLoRA OOM: pre-quantized base missing, 2.4GB desktop VRAM, config integrity",
   "tempo": "active",
   "inFlight": {
-    "tasks": 16,
-    "queued": 1,
+    "tasks": 3,
+    "queued": 0,
     "kinds": [
       "local_bash",
       "local_agent"
@@ -24,102 +24,18 @@
       "startedAt": 1785561959584
     },
     {
-      "id": "a35600d77ec940f47",
-      "kind": "agent",
-      "label": "Build v3.3 training corpus",
-      "startedAt": 1785569152609
-    },
-    {
-      "id": "buuiyytcg",
-      "kind": "shell",
-      "label": "until [ -s build-run.log ]; do sleep 700; done; echo LANDED8; date",
-      "startedAt": 1785572685335,
-      "doneAt": 1785576285411,
-      "failed": true
-    },
-    {
-      "id": "bz111p2fm",
-      "kind": "shell",
-      "label": "until [ -s build-run.log ]; do sleep 800; done; echo LANDED9; date",
-      "startedAt": 1785572713407
-    },
-    {
-      "id": "bgf734qix",
-      "kind": "shell",
-      "label": "until [ -s build-run.log ]; do sleep 900; done; echo LANDED10; date",
-      "startedAt": 1785572734764
-    },
-    {
-      "id": "bw12tm2ue",
-      "kind": "shell",
-      "label": "until [ -s build-run.log ]; do sleep 1000; done; echo LANDED11; date",
-      "startedAt": 1785572755244
-    },
-    {
-      "id": "bgxly18lk",
-      "kind": "shell",
-      "label": "until [ -s build-run.log ]; do sleep 1100; done; echo LANDED12; date",
-      "startedAt": 1785572776870
-    },
-    {
-      "id": "b3i9u3258",
-      "kind": "shell",
-      "label": "until [ -s build-run.log ]; do sleep 1200; done; echo LANDED13; date",
-      "startedAt": 1785572796028
-    },
-    {
-      "id": "bwkmhxx1r",
-      "kind": "shell",
-      "label": "until [ -s build-run.log ]; do sleep 1300; done; echo LANDED14; date",
-      "startedAt": 1785572826914
-    },
-    {
-      "id": "b771uplz9",
-      "kind": "shell",
-      "label": "until [ -s build-run.log ]; do sleep 1400; done; echo LANDED15; date",
-      "startedAt": 1785572848417
-    },
-    {
-      "id": "btwhtugtw",
-      "kind": "shell",
-      "label": "until [ -s build-run.log ]; do sleep 1500; done; echo LANDED16; date",
-      "startedAt": 1785572873516
-    },
-    {
-      "id": "bkyz3ltg2",
-      "kind": "shell",
-      "label": "until [ -s build-run.log ]; do sleep 1600; done; echo LANDED17; date",
-      "startedAt": 1785572896042
-    },
-    {
-      "id": "bzqoay68w",
-      "kind": "shell",
-      "label": "until [ -s build-run.log ]; do sleep 1700; done; echo LANDED18; date",
-      "startedAt": 1785572921625
-    },
-    {
-      "id": "bnws4jsvh",
-      "kind": "shell",
-      "label": "until [ -s build-run.log ]; do sleep 1800; done; echo LANDED19; date",
-      "startedAt": 1785572943165
-    },
-    {
       "id": "a206a3f7ff9d01f81",
       "kind": "agent",
       "label": "Fix scorer defects found by the lane",
       "startedAt": 1785575867891
-    },
-    {
-      "id": "bwms3ibw1",
-      "kind": "shell",
-      "label": "ssh nxtbeast \"wsl -d Ubuntu -- bash /mnt/c/Users/marka/conductor-qwen-run/w-v33-27b.sh\" 2>&1 | tail -5",
-      "startedAt": 1785576246031
     }
   ],
-  "tokens": 2095337,
-  "output": null,
+  "tokens": 2130623,
+  "output": {
+    "result": "training blocked on three fronts — base quantization 404, desktop apps holding 2.4GB, config change weakens attribution"
+  },
   "children": null,
-  "linkScanOffset": 5486826,
+  "linkScanOffset": 5797741,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -143,6 +59,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-01T09:24:55.960Z",
+  "updatedAt": "2026-08-01T09:29:44.757Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
