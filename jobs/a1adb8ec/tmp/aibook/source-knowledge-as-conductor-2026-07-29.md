@@ -176,3 +176,153 @@ Related book material: `canon\model-rijal.md`, `skills\hasan-li-ghayrihi\SKILL.m
 (the corroboration-upgrade grade — hasan li-ghayrihi: a weak chain strengthened by
 independent corroboration), and the Isha/Kiraman-Katibin/assertion-ledger sessions
 elsewhere in this folder.
+
+---
+
+## PART THREE — the architecture payload the operator handed over (verbatim)
+
+**Filed 2026-07-31.** THIS SECTION AND PART FOUR WERE MISSING FROM THIS DOCUMENT UNTIL
+TODAY. Parts One and Two were filed on 2026-07-29; the two directive sections below —
+which are the OPERATIONAL half of the thesis — existed only in the operator's chat history
+and were never committed. They were recovered when he pasted the full exchange on
+2026-07-31. Per CLAUDE.md D14: what is not in the committed substrate did not carry. The
+cost of that gap is receipted in the annotation at the end of this document.
+
+> **CONTEXT & SYSTEM ARCHITECTURE PHILOSOPHY**
+>
+> We are fine-tuning a local Qwen 27B model and building out a multi-agent pipeline. The
+> foundational design logic for this system is based on the Islamic epistemology of
+> knowledge transmission.
+>
+> You must apply the following framework to all pipeline architecture and fine-tuning
+> decisions we make:
+>
+> ### 1. The System is a Conduit, Not an Endpoint
+> * **Knowledge as Trust (*Amanah*):** The system does not "own" data; it is a temporary
+>   vessel designed to pass verified information forward (*Sadaqah Jariyah* / continuous
+>   charity).
+> * **The Mandate:** The goal is to maximize the throughput of high-signal knowledge.
+>   Hoarding or trapping unverified knowledge within the system defeats its purpose.
+>
+> ### 2. Augmentation Over Automation
+> * **Preserve the Chain (*Isnad*):** Pure automation severs human oversight. I retain
+>   absolute liability for the integrity of what this system outputs. We are building an
+>   *augmented conduit*, not a blind, autonomous generator.
+> * **Algorithmic Verification:** Classical Islamic scholars used strict, tool-based
+>   methodologies (like *'ilm al-rijal*) to cross-reference transmitters and verify data
+>   purity. Our validator agents, semantic search queries, and self-healing loops serve
+>   this exact function. They are the structural filters of the vessel.
+> * **Actionable Constraint:** The multi-agent workflow must enforce strict verification.
+>   If data cannot be verified by the tool-based filters, the system must bubble up the
+>   failure to me (the human-in-the-loop) rather than blindly transmitting a hallucinated
+>   or corrupted output.
+>
+> ### 3. Fine-Tuning Technical Parameters (Qwen 27B)
+> * **License Verification:** Qwen 27B is cleared for fine-tuning under Apache 2.0.
+> * **Weight Formats:** We cannot fine-tune on Ollama quantization formats (e.g.,
+>   :q4_K_M or :q8_0).
+> * **Pipeline Constraint:** Structure the training pipeline to pull the base FP16/BF16
+>   .safetensors directly from Hugging Face. Even when we use QLoRA to quantize the base
+>   model to 4-bit during the training run to manage VRAM, the script must ingest the raw
+>   safetensors, not a pre-compiled GGUF.
+
+---
+
+## PART FOUR — THE LA ADRI CONSTRAINT (system humility; tool-calling as reflex)
+
+**The operator's question:**
+
+> But the model should understand when it doesn't know something and use tools to know it,
+> it should be humble enough
+
+**The answer he received:**
+
+> You just identified the exact defense mechanism against hallucination, and it maps
+> perfectly to the tradition.
+>
+> In classical Islamic scholarship, saying "I do not know" (*La adri*) is famously
+> considered "half of knowledge." There is a well-known historical account of a man who
+> traveled for months to ask the scholar Imam Malik 48 questions. Malik answered 16. For
+> the remaining 32, he simply stated, "I do not know."
+>
+> A vessel cannot pour what it does not hold. Guessing is an act of arrogance. Admitting a
+> gap and seeking a verified source is an act of humility.
+>
+> In your pipeline, **hallucination is system arrogance.** The model attempts to generate
+> a statistically plausible answer from an empty latent space. **Tool-calling is system
+> humility.** The model recognizes the boundary of its internal weights, stops generation,
+> and routes a query to an external tool (RAG, search, or a calculator) to fetch the truth.
+
+**The directive he issued off the back of it (verbatim):**
+
+> **ADDENDUM: SYSTEM HUMILITY & TOOL-CALLING (THE "LA ADRI" CONSTRAINT)**
+>
+> **1. Hallucination as System Arrogance**
+> * The model must never attempt to bridge a knowledge gap by guessing. A vessel cannot
+>   pour what it does not hold.
+> * Generating unverified, plausible-sounding text when the internal weights lack the
+>   factual answer is a failure of the conduit.
+>
+> **2. Tool-Calling as System Humility**
+> * The model must be trained and prompted to recognize its own knowledge boundaries.
+> * When a query hits a boundary of low confidence or missing data, the model must
+>   explicitly halt text generation and trigger a tool-call (e.g., search, RAG retrieval,
+>   code execution, or querying a specialized agent).
+> * The agentic architecture must treat tool-calling not as a secondary option, but as the
+>   **default reflex** when internal confidence drops below a set threshold.
+>
+> **3. Fine-Tuning Directive for Rejection**
+> * When we build the fine-tuning dataset for Qwen 27B, we must include a **high volume**
+>   of "rejection" or "abstention" data.
+> * We need examples where the model is asked a complex question and the correct target
+>   output is either an explicit "I do not have this information, deploying tool X to find
+>   out" or a direct API tool-call syntax. We must actively train the weights to trigger
+>   humility.
+
+---
+
+## Annotation addendum (2026-07-31) — the directive was issued and not delivered
+
+Marked as commentary, not source. Measured this session, not recalled.
+
+**The directive:** "a **high volume** of rejection or abstention data" (Part Four, §3).
+
+**What the corpora actually contain.** Counted over the assistant/target text of each row
+with a lexical proxy for abstention (`i do not have/know`, `cannot verify/confirm`,
+`no evidence`, `unverifiable`, `insufficient evidence`, `withhold`, `abstain`, `no receipt`,
+`deploying tool`, and near variants):
+
+| corpus | rows | abstention-shaped targets |
+|---|---|---|
+| `phase3/train-v14.jsonl` | 828 | 60 (**7.2%**) |
+| `phase3/train-v31.jsonl` | 287 | 9 (**3.1%**) |
+| `phase3/train-v32.jsonl` | 286 | 9 (**3.1%**) |
+
+The signal did not merely fall short of "high volume" — it was **more than halved** between
+v1.4 and v3.1, and the v3.2 "repair" left it unchanged while raising the fraction of
+fully-answerable prompts to 92%. `repair-autorun-evidence.py` optimised the corpus in the
+exact direction this directive forbids: it taught that the evidence is always present.
+
+**Caveat on the measurement:** this is a lexical proxy over target text, not a semantic
+classification; it will both over- and under-count. It is a different and narrower measure
+than the "only 18% have targets that decline or defer a receipt" figure in V31-SCORECARD.md.
+Both were derived independently and point the same way, and the 7.2% -> 3.1% drop is large
+enough to survive proxy noise. Do not quote 3.1% as a precise abstention rate.
+
+**What was independently rediscovered by measurement two days later**, in V31-SCORECARD.md,
+without reference to this directive because it was not in substrate to reference:
+
+> **Given no evidence, withhold rather than invent.** Both models ~70%. This is the
+> behaviour the project actually wants and NEITHER corpus teaches it — the repair removed
+> most of the examples where withholding was correct.
+
+That paragraph is Part Four §3, arrived at the expensive way. The v3.3 hypothesis recorded
+there — "a deliberate unanswerable FRACTION with withholding targets" — is this directive
+restated as a corpus design. It should be built as the directive, not as a hypothesis.
+
+**The governance lesson, which is not about this project.** A directive that shapes training
+data lived only in chat. Parts One and Two — the philosophy — were filed the same day they
+were given; Parts Three and Four — the operational constraints — were not. The half that was
+committed is the half that was quoted back in every later session; the half that was not
+committed was reinvented, at the cost of at least two training rounds (v3.1, v3.2). This is
+D14 with a price tag: *formation is session-local, and what is not committed did not carry.*

@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "audit running; will report when book corpus analysis lands",
+  "detail": "corpus analysis complete: v3.2 abstention halved but misdirected; BFCL benchmarks 94.0% simple_python",
   "tempo": "active",
   "inFlight": {
     "tasks": 1,
@@ -14,56 +14,897 @@
       "id": "a6f67fdaeccda0a7d",
       "kind": "workflow",
       "label": "read:chapters",
+      "group": "Read",
       "startedAt": 1785558895885,
-      "group": "Read"
+      "doneAt": 1785559183475
     },
     {
       "id": "a101419f3ab49e104",
       "kind": "workflow",
       "label": "read:knowledge-as-conductor",
+      "group": "Read",
       "startedAt": 1785558895641,
-      "group": "Read"
+      "doneAt": 1785559159302
     },
     {
       "id": "ade5b05b400b9d9cf",
       "kind": "workflow",
       "label": "read:early",
+      "group": "Read",
       "startedAt": 1785558896017,
-      "group": "Read"
+      "doneAt": 1785559138337
     },
     {
       "id": "aabece9b137842e1b",
       "kind": "workflow",
       "label": "read:mid1",
+      "group": "Read",
       "startedAt": 1785558897350,
-      "group": "Read"
+      "doneAt": 1785559191017
     },
     {
       "id": "aebe4fd4174233ee4",
       "kind": "workflow",
       "label": "read:mid2",
+      "group": "Read",
       "startedAt": 1785558896411,
-      "group": "Read"
+      "doneAt": 1785559123396
     },
     {
       "id": "a562b0f319d14d48d",
       "kind": "workflow",
       "label": "read:mid3",
+      "group": "Read",
       "startedAt": 1785558896986,
-      "group": "Read"
+      "doneAt": 1785559159174
     },
     {
       "id": "a313eaa9d35f26274",
       "kind": "workflow",
       "label": "read:late",
+      "group": "Read",
       "startedAt": 1785558896717,
-      "group": "Read"
+      "doneAt": 1785559139546
+    },
+    {
+      "id": "a765cdb87ab1260c4",
+      "kind": "workflow",
+      "label": "verify:0:2026-07-19-chapter-short",
+      "group": "Verify",
+      "startedAt": 1785559193264,
+      "doneAt": 1785559288659
+    },
+    {
+      "id": "a50227f95124b3ece",
+      "kind": "workflow",
+      "label": "verify:1:2026-07-19-chapter-short",
+      "group": "Verify",
+      "startedAt": 1785559193512,
+      "doneAt": 1785559297956
+    },
+    {
+      "id": "a139ab09ddb4a2ed5",
+      "kind": "workflow",
+      "label": "verify:2:2026-07-19-chapter-short",
+      "group": "Verify",
+      "startedAt": 1785559194519,
+      "doneAt": 1785559278018
+    },
+    {
+      "id": "ab862ad18f15d76b9",
+      "kind": "workflow",
+      "label": "verify:3:2026-07-19-chapter-short",
+      "group": "Verify",
+      "startedAt": 1785559193414,
+      "doneAt": 1785559371507
+    },
+    {
+      "id": "a3fe46aa76931de8c",
+      "kind": "workflow",
+      "label": "verify:4:2026-07-19-chapter-short",
+      "group": "Verify",
+      "startedAt": 1785559193911,
+      "doneAt": 1785559304233
+    },
+    {
+      "id": "af1a872fcba7afacc",
+      "kind": "workflow",
+      "label": "verify:5:2026-07-19-chapter-short",
+      "group": "Verify",
+      "startedAt": 1785559195163,
+      "doneAt": 1785559304025
+    },
+    {
+      "id": "aa059eeaac513c8b1",
+      "kind": "workflow",
+      "label": "verify:6:2026-07-19-the-night-the",
+      "group": "Verify",
+      "startedAt": 1785559193653,
+      "doneAt": 1785559264721
+    },
+    {
+      "id": "a199d51564f422999",
+      "kind": "workflow",
+      "label": "verify:7:2026-07-19-the-night-the",
+      "group": "Verify",
+      "startedAt": 1785559195867,
+      "doneAt": 1785559239213
+    },
+    {
+      "id": "a8f24e048a0ef6c6e",
+      "kind": "workflow",
+      "label": "verify:8:2026-07-19-the-night-the",
+      "group": "Verify",
+      "startedAt": 1785559195053,
+      "doneAt": 1785559277503
+    },
+    {
+      "id": "a8035b3b01fd040f5",
+      "kind": "workflow",
+      "label": "verify:9:2026-07-19-the-night-the",
+      "group": "Verify",
+      "startedAt": 1785559194701,
+      "doneAt": 1785559257454
+    },
+    {
+      "id": "ad1bb7ee059dbf396",
+      "kind": "workflow",
+      "label": "verify:10:2026-07-19-the-night-the",
+      "group": "Verify",
+      "startedAt": 1785559193461,
+      "doneAt": 1785559255431
+    },
+    {
+      "id": "aebeb61e69b22ad41",
+      "kind": "workflow",
+      "label": "verify:11:2026-07-19-the-night-the",
+      "group": "Verify",
+      "startedAt": 1785559194482,
+      "doneAt": 1785559296033
+    },
+    {
+      "id": "a3f4abb4b1b50fdfa",
+      "kind": "workflow",
+      "label": "verify:12:2026-07-19-the-night-the",
+      "group": "Verify",
+      "startedAt": 1785559193776,
+      "doneAt": 1785559249245
+    },
+    {
+      "id": "a57ccfc2316421ecb",
+      "kind": "workflow",
+      "label": "verify:13:2026-07-19-the-night-the",
+      "group": "Verify",
+      "startedAt": 1785559194443,
+      "doneAt": 1785559259219
+    },
+    {
+      "id": "acad12f666c84e07a",
+      "kind": "workflow",
+      "label": "verify:14:2026-07-19-the-recorders",
+      "group": "Verify",
+      "startedAt": 1785559194889,
+      "doneAt": 1785559272023
+    },
+    {
+      "id": "a3cd9c55bc9d3bfe0",
+      "kind": "workflow",
+      "label": "verify:15:2026-07-19-the-recorders",
+      "group": "Verify",
+      "startedAt": 1785559194748,
+      "doneAt": 1785559255214
+    },
+    {
+      "id": "af3d6c8effc735bf8",
+      "kind": "workflow",
+      "label": "verify:16:2026-07-19-the-recorders",
+      "group": "Verify",
+      "startedAt": 1785559243325,
+      "doneAt": 1785559297344
+    },
+    {
+      "id": "a03f8f7396e8fd680",
+      "kind": "workflow",
+      "label": "verify:17:2026-07-19-the-recorders",
+      "group": "Verify",
+      "startedAt": 1785559253150,
+      "doneAt": 1785559321061
+    },
+    {
+      "id": "aed45cf6ba27a73b4",
+      "kind": "workflow",
+      "label": "verify:18:STATE-1781043472710.md",
+      "group": "Verify",
+      "startedAt": 1785559259650,
+      "doneAt": 1785559325962
+    },
+    {
+      "id": "ac80f16ed0136cb0a",
+      "kind": "workflow",
+      "label": "verify:19:STATE-1781043472710.md",
+      "group": "Verify",
+      "startedAt": 1785559259178,
+      "doneAt": 1785559339650
+    },
+    {
+      "id": "a235cfb4036657240",
+      "kind": "workflow",
+      "label": "verify:20:STATE-1781043472710.md",
+      "group": "Verify",
+      "startedAt": 1785559261517,
+      "doneAt": 1785559359759
+    },
+    {
+      "id": "aac52fd0980958248",
+      "kind": "workflow",
+      "label": "verify:21:STATE-1781043472710.md",
+      "group": "Verify",
+      "startedAt": 1785559263177,
+      "doneAt": 1785559355293
+    },
+    {
+      "id": "aed09ab55c2cef153",
+      "kind": "workflow",
+      "label": "verify:22:STATE-1781043472710.md",
+      "group": "Verify",
+      "startedAt": 1785559268298,
+      "doneAt": 1785559352959
+    },
+    {
+      "id": "a0663c237d284115f",
+      "kind": "workflow",
+      "label": "verify:23:STATE-1781043472710.md",
+      "group": "Verify",
+      "startedAt": 1785559275240,
+      "doneAt": 1785559358767
+    },
+    {
+      "id": "a176bd3e280a29f1d",
+      "kind": "workflow",
+      "label": "verify:24:STATE-1781043472710.md",
+      "group": "Verify",
+      "startedAt": 1785559281579,
+      "doneAt": 1785559372878
+    },
+    {
+      "id": "a7a863a6a4bf5ca4e",
+      "kind": "workflow",
+      "label": "verify:25:STATE-1781043472710.md",
+      "group": "Verify",
+      "startedAt": 1785559281957,
+      "doneAt": 1785559359570
+    },
+    {
+      "id": "a5b73ceaf0c35d31e",
+      "kind": "workflow",
+      "label": "verify:26:STATE-1781043472710.md",
+      "group": "Verify",
+      "startedAt": 1785559294131,
+      "doneAt": 1785559342986
+    },
+    {
+      "id": "a2052548f932c6500",
+      "kind": "workflow",
+      "label": "verify:27:STATE-1781043472710.md",
+      "group": "Verify",
+      "startedAt": 1785559301482,
+      "doneAt": 1785559362676
+    },
+    {
+      "id": "a7c8576a25996121e",
+      "kind": "workflow",
+      "label": "verify:28:STATE-1781043472710.md",
+      "group": "Verify",
+      "startedAt": 1785559303085,
+      "doneAt": 1785559390674
+    },
+    {
+      "id": "a44f22ae0c1ac19bb",
+      "kind": "workflow",
+      "label": "verify:29:STATE-1781043472710.md",
+      "group": "Verify",
+      "startedAt": 1785559303573,
+      "doneAt": 1785559430157
+    },
+    {
+      "id": "a2092dcc826da99f1",
+      "kind": "workflow",
+      "label": "verify:30:source-knowledge-as-cond",
+      "group": "Verify",
+      "startedAt": 1785559308235,
+      "doneAt": 1785559402695
+    },
+    {
+      "id": "a33a2e09adc6d473b",
+      "kind": "workflow",
+      "label": "verify:31:source-knowledge-as-cond",
+      "group": "Verify",
+      "startedAt": 1785559308194,
+      "doneAt": 1785559419755
+    },
+    {
+      "id": "af59313076d02e3c6",
+      "kind": "workflow",
+      "label": "verify:32:source-knowledge-as-cond",
+      "group": "Verify",
+      "startedAt": 1785559324915,
+      "doneAt": 1785559403425
+    },
+    {
+      "id": "a39d32fe4c56f9106",
+      "kind": "workflow",
+      "label": "verify:33:source-knowledge-as-cond",
+      "group": "Verify",
+      "startedAt": 1785559330240,
+      "doneAt": 1785559400782
+    },
+    {
+      "id": "a843903b7c4231bd9",
+      "kind": "workflow",
+      "label": "verify:34:source-knowledge-as-cond",
+      "group": "Verify",
+      "startedAt": 1785559344144,
+      "doneAt": 1785559438637
+    },
+    {
+      "id": "a8c91a7da2ec47e6f",
+      "kind": "workflow",
+      "label": "verify:35:source-knowledge-as-cond",
+      "group": "Verify",
+      "startedAt": 1785559348006,
+      "doneAt": 1785559448523
+    },
+    {
+      "id": "a0935c9457f6bf5a3",
+      "kind": "workflow",
+      "label": "verify:36:STATE-1780696286044.md",
+      "group": "Verify",
+      "startedAt": 1785559357035,
+      "doneAt": 1785559441146
+    },
+    {
+      "id": "a278fc33a113dcf8a",
+      "kind": "workflow",
+      "label": "verify:37:STATE-1780696286044.md",
+      "group": "Verify",
+      "startedAt": 1785559359694,
+      "doneAt": 1785559416036
+    },
+    {
+      "id": "a87135a8cb7cd5518",
+      "kind": "workflow",
+      "label": "verify:38:STATE-1780696286044.md",
+      "group": "Verify",
+      "startedAt": 1785559363191
+    },
+    {
+      "id": "a55ee03c98f0eda79",
+      "kind": "workflow",
+      "label": "verify:39:STATE-1780707466455.md",
+      "group": "Verify",
+      "startedAt": 1785559363061,
+      "doneAt": 1785559456623
+    },
+    {
+      "id": "a61ed9f9d72a5bc25",
+      "kind": "workflow",
+      "label": "verify:40:STATE-1780707466455.md",
+      "group": "Verify",
+      "startedAt": 1785559364278,
+      "doneAt": 1785559445313
+    },
+    {
+      "id": "a45c1e065c92e22a3",
+      "kind": "workflow",
+      "label": "verify:41:STATE-1780714172473.md",
+      "group": "Verify",
+      "startedAt": 1785559366594
+    },
+    {
+      "id": "a24b117508c2bf062",
+      "kind": "workflow",
+      "label": "verify:42:STATE-1780714172473.md",
+      "group": "Verify",
+      "startedAt": 1785559375369
+    },
+    {
+      "id": "a267f77384a9d2b02",
+      "kind": "workflow",
+      "label": "verify:43:STATE-1780718105340.md",
+      "group": "Verify",
+      "startedAt": 1785559376089
+    },
+    {
+      "id": "a00a17addf4be337b",
+      "kind": "workflow",
+      "label": "verify:44:STATE-1780718105340.md",
+      "group": "Verify",
+      "startedAt": 1785559394196
+    },
+    {
+      "id": "ad92b3f73870f1382",
+      "kind": "workflow",
+      "label": "verify:45:STATE-1780719637734.md",
+      "group": "Verify",
+      "startedAt": 1785559404388
+    },
+    {
+      "id": "ae713374370316672",
+      "kind": "workflow",
+      "label": "verify:46:STATE-1780723244463.md",
+      "group": "Verify",
+      "startedAt": 1785559406519
+    },
+    {
+      "id": "afc2095d2c7e50e93",
+      "kind": "workflow",
+      "label": "verify:47:STATE-1780730399871.md",
+      "group": "Verify",
+      "startedAt": 1785559407162,
+      "doneAt": 1785559457428
+    },
+    {
+      "id": "ae148f1e1c155daa3",
+      "kind": "workflow",
+      "label": "verify:48:STATE-1780730399871.md",
+      "group": "Verify",
+      "startedAt": 1785559419815
+    },
+    {
+      "id": "afbc31e96d4626dd1",
+      "kind": "workflow",
+      "label": "verify:49:STATE-1780742325947.md",
+      "group": "Verify",
+      "startedAt": 1785559424959
+    },
+    {
+      "id": "ab5bb24db45ea12ef",
+      "kind": "workflow",
+      "label": "verify:50:STATE-1780693105702.md",
+      "group": "Verify",
+      "startedAt": 1785559434127
+    },
+    {
+      "id": "a32e30fd9fe157237",
+      "kind": "workflow",
+      "label": "verify:51:STATE-1780710118945.md",
+      "group": "Verify",
+      "startedAt": 1785559441975
+    },
+    {
+      "id": "a216669ce6885578a",
+      "kind": "workflow",
+      "label": "verify:52:STATE-1780779021877.md",
+      "group": "Verify",
+      "startedAt": 1785559445793
+    },
+    {
+      "id": "a6bde18dbe73d168f",
+      "kind": "workflow",
+      "label": "verify:53:STATE-1780779021877.md",
+      "group": "Verify",
+      "startedAt": 1785559454825
+    },
+    {
+      "id": "af0978793d72f4260",
+      "kind": "workflow",
+      "label": "verify:54:STATE-1780779021877.md",
+      "group": "Verify",
+      "startedAt": 1785559452391
+    },
+    {
+      "id": "wcqwcfnc7:63",
+      "kind": "workflow",
+      "label": "verify:55:STATE-1780779021877.md",
+      "group": "Verify",
+      "startedAt": 1785559191053
+    },
+    {
+      "id": "wcqwcfnc7:64",
+      "kind": "workflow",
+      "label": "verify:56:STATE-1780775391030.md",
+      "group": "Verify",
+      "startedAt": 1785559191053
+    },
+    {
+      "id": "wcqwcfnc7:65",
+      "kind": "workflow",
+      "label": "verify:57:STATE-1780775391030.md",
+      "group": "Verify",
+      "startedAt": 1785559191054
+    },
+    {
+      "id": "wcqwcfnc7:66",
+      "kind": "workflow",
+      "label": "verify:58:STATE-1780775391030.md",
+      "group": "Verify",
+      "startedAt": 1785559191054
+    },
+    {
+      "id": "wcqwcfnc7:67",
+      "kind": "workflow",
+      "label": "verify:59:STATE-1780775391030.md",
+      "group": "Verify",
+      "startedAt": 1785559191054
+    },
+    {
+      "id": "wcqwcfnc7:68",
+      "kind": "workflow",
+      "label": "verify:60:STATE-1780774430783.md",
+      "group": "Verify",
+      "startedAt": 1785559191054
+    },
+    {
+      "id": "wcqwcfnc7:69",
+      "kind": "workflow",
+      "label": "verify:61:STATE-1780774430783.md",
+      "group": "Verify",
+      "startedAt": 1785559191054
+    },
+    {
+      "id": "wcqwcfnc7:70",
+      "kind": "workflow",
+      "label": "verify:62:STATE-1780764665950.md",
+      "group": "Verify",
+      "startedAt": 1785559191055
+    },
+    {
+      "id": "wcqwcfnc7:71",
+      "kind": "workflow",
+      "label": "verify:63:STATE-1780764665950.md",
+      "group": "Verify",
+      "startedAt": 1785559191055
+    },
+    {
+      "id": "wcqwcfnc7:72",
+      "kind": "workflow",
+      "label": "verify:64:STATE-1780782008619.md",
+      "group": "Verify",
+      "startedAt": 1785559191055
+    },
+    {
+      "id": "wcqwcfnc7:73",
+      "kind": "workflow",
+      "label": "verify:65:STATE-1780782008619.md",
+      "group": "Verify",
+      "startedAt": 1785559191055
+    },
+    {
+      "id": "wcqwcfnc7:74",
+      "kind": "workflow",
+      "label": "verify:66:STATE-1780782008619.md",
+      "group": "Verify",
+      "startedAt": 1785559191055
+    },
+    {
+      "id": "wcqwcfnc7:75",
+      "kind": "workflow",
+      "label": "verify:67:STATE-1780809448808.md",
+      "group": "Verify",
+      "startedAt": 1785559191056
+    },
+    {
+      "id": "wcqwcfnc7:76",
+      "kind": "workflow",
+      "label": "verify:68:STATE-1780804835913.md",
+      "group": "Verify",
+      "startedAt": 1785559191056
+    },
+    {
+      "id": "wcqwcfnc7:77",
+      "kind": "workflow",
+      "label": "verify:69:STATE-1780804835913.md",
+      "group": "Verify",
+      "startedAt": 1785559191056
+    },
+    {
+      "id": "wcqwcfnc7:78",
+      "kind": "workflow",
+      "label": "verify:70:STATE-1780818512058.md",
+      "group": "Verify",
+      "startedAt": 1785559191056
+    },
+    {
+      "id": "wcqwcfnc7:79",
+      "kind": "workflow",
+      "label": "verify:71:STATE-1780821939771.md",
+      "group": "Verify",
+      "startedAt": 1785559191056
+    },
+    {
+      "id": "wcqwcfnc7:80",
+      "kind": "workflow",
+      "label": "verify:72:STATE-1780821939771.md",
+      "group": "Verify",
+      "startedAt": 1785559191056
+    },
+    {
+      "id": "wcqwcfnc7:81",
+      "kind": "workflow",
+      "label": "verify:73:STATE-1780801534488.md",
+      "group": "Verify",
+      "startedAt": 1785559191057
+    },
+    {
+      "id": "wcqwcfnc7:82",
+      "kind": "workflow",
+      "label": "verify:74:STATE-1780824872913.md",
+      "group": "Verify",
+      "startedAt": 1785559191057
+    },
+    {
+      "id": "wcqwcfnc7:83",
+      "kind": "workflow",
+      "label": "verify:75:STATE-1780818512058.md",
+      "group": "Verify",
+      "startedAt": 1785559191057
+    },
+    {
+      "id": "wcqwcfnc7:84",
+      "kind": "workflow",
+      "label": "verify:76:STATE-1780818512058.md",
+      "group": "Verify",
+      "startedAt": 1785559191058
+    },
+    {
+      "id": "wcqwcfnc7:85",
+      "kind": "workflow",
+      "label": "verify:77:STATE-1780804835913.md",
+      "group": "Verify",
+      "startedAt": 1785559191058
+    },
+    {
+      "id": "wcqwcfnc7:86",
+      "kind": "workflow",
+      "label": "verify:78:STATE-1780824872913.md",
+      "group": "Verify",
+      "startedAt": 1785559191058
+    },
+    {
+      "id": "wcqwcfnc7:87",
+      "kind": "workflow",
+      "label": "verify:79:STATE-1780824872913.md",
+      "group": "Verify",
+      "startedAt": 1785559191058
+    },
+    {
+      "id": "wcqwcfnc7:88",
+      "kind": "workflow",
+      "label": "verify:80:STATE-1780818512058.md",
+      "group": "Verify",
+      "startedAt": 1785559191059
+    },
+    {
+      "id": "wcqwcfnc7:89",
+      "kind": "workflow",
+      "label": "verify:81:STATE-1780821939771.md",
+      "group": "Verify",
+      "startedAt": 1785559191059
+    },
+    {
+      "id": "wcqwcfnc7:90",
+      "kind": "workflow",
+      "label": "verify:82:STATE-1780863774070.md",
+      "group": "Verify",
+      "startedAt": 1785559191059
+    },
+    {
+      "id": "wcqwcfnc7:91",
+      "kind": "workflow",
+      "label": "verify:83:STATE-1780863774070.md",
+      "group": "Verify",
+      "startedAt": 1785559191059
+    },
+    {
+      "id": "wcqwcfnc7:92",
+      "kind": "workflow",
+      "label": "verify:84:STATE-1780828010852.md",
+      "group": "Verify",
+      "startedAt": 1785559191060
+    },
+    {
+      "id": "wcqwcfnc7:93",
+      "kind": "workflow",
+      "label": "verify:85:STATE-1780833833132.md",
+      "group": "Verify",
+      "startedAt": 1785559191060
+    },
+    {
+      "id": "wcqwcfnc7:94",
+      "kind": "workflow",
+      "label": "verify:86:STATE-1780833833132.md",
+      "group": "Verify",
+      "startedAt": 1785559191060
+    },
+    {
+      "id": "wcqwcfnc7:95",
+      "kind": "workflow",
+      "label": "verify:87:STATE-1780833833132.md",
+      "group": "Verify",
+      "startedAt": 1785559191061
+    },
+    {
+      "id": "wcqwcfnc7:96",
+      "kind": "workflow",
+      "label": "verify:88:STATE-1780831201228.md",
+      "group": "Verify",
+      "startedAt": 1785559191061
+    },
+    {
+      "id": "wcqwcfnc7:97",
+      "kind": "workflow",
+      "label": "verify:89:STATE-1780887545217.md",
+      "group": "Verify",
+      "startedAt": 1785559191061
+    },
+    {
+      "id": "wcqwcfnc7:98",
+      "kind": "workflow",
+      "label": "verify:90:STATE-1780828010852.md",
+      "group": "Verify",
+      "startedAt": 1785559191061
+    },
+    {
+      "id": "wcqwcfnc7:99",
+      "kind": "workflow",
+      "label": "verify:91:STATE-1780833833132.md",
+      "group": "Verify",
+      "startedAt": 1785559191061
+    },
+    {
+      "id": "wcqwcfnc7:100",
+      "kind": "workflow",
+      "label": "verify:92:STATE-1780857932669.md",
+      "group": "Verify",
+      "startedAt": 1785559191062
+    },
+    {
+      "id": "wcqwcfnc7:101",
+      "kind": "workflow",
+      "label": "verify:93:STATE-1780863774070.md",
+      "group": "Verify",
+      "startedAt": 1785559191062
+    },
+    {
+      "id": "wcqwcfnc7:102",
+      "kind": "workflow",
+      "label": "verify:94:STATE-1780887545217.md",
+      "group": "Verify",
+      "startedAt": 1785559191062
+    },
+    {
+      "id": "wcqwcfnc7:103",
+      "kind": "workflow",
+      "label": "verify:95:STATE-1780828010852.md",
+      "group": "Verify",
+      "startedAt": 1785559191063
+    },
+    {
+      "id": "wcqwcfnc7:104",
+      "kind": "workflow",
+      "label": "verify:96:STATE-1780857932669.md",
+      "group": "Verify",
+      "startedAt": 1785559191063
+    },
+    {
+      "id": "wcqwcfnc7:105",
+      "kind": "workflow",
+      "label": "verify:97:STATE-1780857932669.md",
+      "group": "Verify",
+      "startedAt": 1785559191063
+    },
+    {
+      "id": "wcqwcfnc7:106",
+      "kind": "workflow",
+      "label": "verify:98:STATE-1780894818698.md",
+      "group": "Verify",
+      "startedAt": 1785559191063
+    },
+    {
+      "id": "wcqwcfnc7:107",
+      "kind": "workflow",
+      "label": "verify:99:STATE-1780894818698.md",
+      "group": "Verify",
+      "startedAt": 1785559191064
+    },
+    {
+      "id": "wcqwcfnc7:108",
+      "kind": "workflow",
+      "label": "verify:100:STATE-1780896983635.md",
+      "group": "Verify",
+      "startedAt": 1785559191064
+    },
+    {
+      "id": "wcqwcfnc7:109",
+      "kind": "workflow",
+      "label": "verify:101:STATE-1780896983635.md",
+      "group": "Verify",
+      "startedAt": 1785559191064
+    },
+    {
+      "id": "wcqwcfnc7:110",
+      "kind": "workflow",
+      "label": "verify:102:STATE-1780896983635.md",
+      "group": "Verify",
+      "startedAt": 1785559191064
+    },
+    {
+      "id": "wcqwcfnc7:111",
+      "kind": "workflow",
+      "label": "verify:103:STATE-1780926941162.md",
+      "group": "Verify",
+      "startedAt": 1785559191065
+    },
+    {
+      "id": "wcqwcfnc7:112",
+      "kind": "workflow",
+      "label": "verify:104:STATE-1780926941162.md",
+      "group": "Verify",
+      "startedAt": 1785559191065
+    },
+    {
+      "id": "wcqwcfnc7:113",
+      "kind": "workflow",
+      "label": "verify:105:STATE-1780929727484.md",
+      "group": "Verify",
+      "startedAt": 1785559191065
+    },
+    {
+      "id": "wcqwcfnc7:114",
+      "kind": "workflow",
+      "label": "verify:106:STATE-1780933522596.md",
+      "group": "Verify",
+      "startedAt": 1785559191065
+    },
+    {
+      "id": "wcqwcfnc7:115",
+      "kind": "workflow",
+      "label": "verify:107:STATE-1780933522596.md",
+      "group": "Verify",
+      "startedAt": 1785559191065
+    },
+    {
+      "id": "wcqwcfnc7:116",
+      "kind": "workflow",
+      "label": "verify:108:STATE-1780933522596.md",
+      "group": "Verify",
+      "startedAt": 1785559191066
+    },
+    {
+      "id": "wcqwcfnc7:117",
+      "kind": "workflow",
+      "label": "verify:109:STATE-1780933522596.md",
+      "group": "Verify",
+      "startedAt": 1785559191066
+    },
+    {
+      "id": "wcqwcfnc7:118",
+      "kind": "workflow",
+      "label": "verify:110:STATE-1780960718997.md",
+      "group": "Verify",
+      "startedAt": 1785559191066
+    },
+    {
+      "id": "wcqwcfnc7:119",
+      "kind": "workflow",
+      "label": "verify:111:STATE-1780960718997.md",
+      "group": "Verify",
+      "startedAt": 1785559191066
+    },
+    {
+      "id": "wcqwcfnc7:120",
+      "kind": "workflow",
+      "label": "verify:112:STATE-1780975215900.md",
+      "group": "Verify",
+      "startedAt": 1785559191066
     }
   ],
-  "tokens": 35608,
-  "output": null,
+  "tokens": 431190,
+  "output": {
+    "result": "Measured training corpus: v3.2 abstention 3.1% (down from 7.2%), but repair-autorun pushed 92% to fully-answerable—opposite of constraint. BFCL: 94.0% simple_python, 91.0% parallel, 82.8% live_multiple. Proposed isolating test: hold row count/content, vary excerpt length only."
+  },
   "children": null,
-  "linkScanOffset": 1445786,
+  "linkScanOffset": 1592661,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -87,6 +928,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-01T04:35:58.663Z",
+  "updatedAt": "2026-08-01T04:44:18.422Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
