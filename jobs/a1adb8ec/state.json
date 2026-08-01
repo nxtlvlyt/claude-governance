@@ -1,10 +1,10 @@
 {
   "state": "working",
-  "detail": "de-template pass warming up; flaky-WSL flagged for training",
+  "detail": "WSL flakiness diagnosed (ACL hypothesis); mission updated to fail-closed",
   "tempo": "active",
   "inFlight": {
-    "tasks": 4,
-    "queued": 0,
+    "tasks": 6,
+    "queued": 1,
     "kinds": [
       "local_bash",
       "local_agent",
@@ -35,12 +35,24 @@
       "kind": "monitor",
       "label": "de-template pass — teacher calls and corpus rewrite, with stall detection",
       "startedAt": 1785569171316
+    },
+    {
+      "id": "bnwwsc9st",
+      "kind": "shell",
+      "label": "rm -f build-run.log; PYTHONIOENCODING=utf-8 python build-train-v33.py > build-run.log 2>&1; echo \"EXIT=$?\"",
+      "startedAt": 1785569599057
+    },
+    {
+      "id": "bx61mrjco",
+      "kind": "shell",
+      "label": "until [ -s build-run.log ]; do sleep 60; done; echo DETEMPLATE_BUILD_DONE; date",
+      "startedAt": 1785569604176
     }
   ],
-  "tokens": 1555677,
+  "tokens": 1562027,
   "output": null,
   "children": null,
-  "linkScanOffset": 4024163,
+  "linkScanOffset": 4072574,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -64,6 +76,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-01T07:32:13.499Z",
+  "updatedAt": "2026-08-01T07:33:53.761Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
