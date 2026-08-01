@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "corpus analysis complete: v3.2 abstention halved but misdirected; BFCL benchmarks 94.0% simple_python",
+  "detail": "V33-ROUTER-SPEC.md written; routing gap analysis + three competencies mapped",
   "tempo": "active",
   "inFlight": {
     "tasks": 1,
@@ -375,7 +375,8 @@
       "kind": "workflow",
       "label": "verify:38:STATE-1780696286044.md",
       "group": "Verify",
-      "startedAt": 1785559363191
+      "startedAt": 1785559363191,
+      "doneAt": 1785559476164
     },
     {
       "id": "a55ee03c98f0eda79",
@@ -398,42 +399,48 @@
       "kind": "workflow",
       "label": "verify:41:STATE-1780714172473.md",
       "group": "Verify",
-      "startedAt": 1785559366594
+      "startedAt": 1785559366594,
+      "doneAt": 1785559461448
     },
     {
       "id": "a24b117508c2bf062",
       "kind": "workflow",
       "label": "verify:42:STATE-1780714172473.md",
       "group": "Verify",
-      "startedAt": 1785559375369
+      "startedAt": 1785559375369,
+      "doneAt": 1785559459743
     },
     {
       "id": "a267f77384a9d2b02",
       "kind": "workflow",
       "label": "verify:43:STATE-1780718105340.md",
       "group": "Verify",
-      "startedAt": 1785559376089
+      "startedAt": 1785559376089,
+      "doneAt": 1785559482956
     },
     {
       "id": "a00a17addf4be337b",
       "kind": "workflow",
       "label": "verify:44:STATE-1780718105340.md",
       "group": "Verify",
-      "startedAt": 1785559394196
+      "startedAt": 1785559394196,
+      "doneAt": 1785559474941
     },
     {
       "id": "ad92b3f73870f1382",
       "kind": "workflow",
       "label": "verify:45:STATE-1780719637734.md",
       "group": "Verify",
-      "startedAt": 1785559404388
+      "startedAt": 1785559404388,
+      "doneAt": 1785559474973
     },
     {
       "id": "ae713374370316672",
       "kind": "workflow",
       "label": "verify:46:STATE-1780723244463.md",
       "group": "Verify",
-      "startedAt": 1785559406519
+      "startedAt": 1785559406519,
+      "doneAt": 1785559542785
     },
     {
       "id": "afc2095d2c7e50e93",
@@ -448,322 +455,353 @@
       "kind": "workflow",
       "label": "verify:48:STATE-1780730399871.md",
       "group": "Verify",
-      "startedAt": 1785559419815
+      "startedAt": 1785559419815,
+      "doneAt": 1785559504368
     },
     {
       "id": "afbc31e96d4626dd1",
       "kind": "workflow",
       "label": "verify:49:STATE-1780742325947.md",
       "group": "Verify",
-      "startedAt": 1785559424959
+      "startedAt": 1785559424959,
+      "doneAt": 1785559526578
     },
     {
       "id": "ab5bb24db45ea12ef",
       "kind": "workflow",
       "label": "verify:50:STATE-1780693105702.md",
       "group": "Verify",
-      "startedAt": 1785559434127
+      "startedAt": 1785559434127,
+      "doneAt": 1785559554263
     },
     {
       "id": "a32e30fd9fe157237",
       "kind": "workflow",
       "label": "verify:51:STATE-1780710118945.md",
       "group": "Verify",
-      "startedAt": 1785559441975
+      "startedAt": 1785559441975,
+      "doneAt": 1785559554373
     },
     {
       "id": "a216669ce6885578a",
       "kind": "workflow",
       "label": "verify:52:STATE-1780779021877.md",
       "group": "Verify",
-      "startedAt": 1785559445793
+      "startedAt": 1785559445793,
+      "doneAt": 1785559495896
     },
     {
       "id": "a6bde18dbe73d168f",
       "kind": "workflow",
       "label": "verify:53:STATE-1780779021877.md",
       "group": "Verify",
-      "startedAt": 1785559454825
+      "startedAt": 1785559454825,
+      "doneAt": 1785559520663
     },
     {
       "id": "af0978793d72f4260",
       "kind": "workflow",
       "label": "verify:54:STATE-1780779021877.md",
       "group": "Verify",
-      "startedAt": 1785559452391
+      "startedAt": 1785559452391,
+      "doneAt": 1785559511910
     },
     {
-      "id": "wcqwcfnc7:63",
+      "id": "aa6aab60c4ffb1fc7",
       "kind": "workflow",
       "label": "verify:55:STATE-1780779021877.md",
       "group": "Verify",
-      "startedAt": 1785559191053
+      "startedAt": 1785559461291,
+      "doneAt": 1785559588874
     },
     {
-      "id": "wcqwcfnc7:64",
+      "id": "af24773f7421ddcdc",
       "kind": "workflow",
       "label": "verify:56:STATE-1780775391030.md",
       "group": "Verify",
-      "startedAt": 1785559191053
+      "startedAt": 1785559460944,
+      "doneAt": 1785559566612
     },
     {
-      "id": "wcqwcfnc7:65",
+      "id": "a53baaf5fec2ff8d4",
       "kind": "workflow",
       "label": "verify:57:STATE-1780775391030.md",
       "group": "Verify",
-      "startedAt": 1785559191054
+      "startedAt": 1785559465764,
+      "doneAt": 1785559577753
     },
     {
-      "id": "wcqwcfnc7:66",
+      "id": "a4e9120ccb6f6aa16",
       "kind": "workflow",
       "label": "verify:58:STATE-1780775391030.md",
       "group": "Verify",
-      "startedAt": 1785559191054
+      "startedAt": 1785559466172,
+      "doneAt": 1785559573279
     },
     {
-      "id": "wcqwcfnc7:67",
+      "id": "af647f4d4c1d18df4",
       "kind": "workflow",
       "label": "verify:59:STATE-1780775391030.md",
       "group": "Verify",
-      "startedAt": 1785559191054
+      "startedAt": 1785559478707,
+      "doneAt": 1785559571432
     },
     {
-      "id": "wcqwcfnc7:68",
+      "id": "a62fc13d676a1ec3f",
       "kind": "workflow",
       "label": "verify:60:STATE-1780774430783.md",
       "group": "Verify",
-      "startedAt": 1785559191054
+      "startedAt": 1785559479014,
+      "doneAt": 1785559558015
     },
     {
-      "id": "wcqwcfnc7:69",
+      "id": "ae7908d78ddc20e68",
       "kind": "workflow",
       "label": "verify:61:STATE-1780774430783.md",
       "group": "Verify",
-      "startedAt": 1785559191054
+      "startedAt": 1785559480480,
+      "doneAt": 1785559610390
     },
     {
-      "id": "wcqwcfnc7:70",
+      "id": "a9e5ba88019bd02df",
       "kind": "workflow",
       "label": "verify:62:STATE-1780764665950.md",
       "group": "Verify",
-      "startedAt": 1785559191055
+      "startedAt": 1785559487337,
+      "doneAt": 1785559605634
     },
     {
-      "id": "wcqwcfnc7:71",
+      "id": "a47fd2acf5d7afb1f",
       "kind": "workflow",
       "label": "verify:63:STATE-1780764665950.md",
       "group": "Verify",
-      "startedAt": 1785559191055
+      "startedAt": 1785559500307,
+      "doneAt": 1785559603884
     },
     {
-      "id": "wcqwcfnc7:72",
+      "id": "ace9939675c82691c",
       "kind": "workflow",
       "label": "verify:64:STATE-1780782008619.md",
       "group": "Verify",
-      "startedAt": 1785559191055
+      "startedAt": 1785559507879,
+      "doneAt": 1785559691021
     },
     {
-      "id": "wcqwcfnc7:73",
+      "id": "a0202ed1d6bb0d8c2",
       "kind": "workflow",
       "label": "verify:65:STATE-1780782008619.md",
       "group": "Verify",
-      "startedAt": 1785559191055
+      "startedAt": 1785559517660,
+      "doneAt": 1785559598162
     },
     {
-      "id": "wcqwcfnc7:74",
+      "id": "ada5f0100e5a19922",
       "kind": "workflow",
       "label": "verify:66:STATE-1780782008619.md",
       "group": "Verify",
-      "startedAt": 1785559191055
+      "startedAt": 1785559526624,
+      "doneAt": 1785559647640
     },
     {
-      "id": "wcqwcfnc7:75",
+      "id": "a5b6c869aa14906f5",
       "kind": "workflow",
       "label": "verify:67:STATE-1780809448808.md",
       "group": "Verify",
-      "startedAt": 1785559191056
+      "startedAt": 1785559530084,
+      "doneAt": 1785559667947
     },
     {
-      "id": "wcqwcfnc7:76",
+      "id": "a1fd98ad6b46b6cd7",
       "kind": "workflow",
       "label": "verify:68:STATE-1780804835913.md",
       "group": "Verify",
-      "startedAt": 1785559191056
+      "startedAt": 1785559546922,
+      "doneAt": 1785559646366
     },
     {
-      "id": "wcqwcfnc7:77",
+      "id": "abdc5a28003cecd8c",
       "kind": "workflow",
       "label": "verify:69:STATE-1780804835913.md",
       "group": "Verify",
-      "startedAt": 1785559191056
+      "startedAt": 1785559558659,
+      "doneAt": 1785559645249
     },
     {
-      "id": "wcqwcfnc7:78",
+      "id": "ae385fb392da56a97",
       "kind": "workflow",
       "label": "verify:70:STATE-1780818512058.md",
       "group": "Verify",
-      "startedAt": 1785559191056
+      "startedAt": 1785559558457,
+      "doneAt": 1785559634012
     },
     {
-      "id": "wcqwcfnc7:79",
+      "id": "af271ab319ac8d439",
       "kind": "workflow",
       "label": "verify:71:STATE-1780821939771.md",
       "group": "Verify",
-      "startedAt": 1785559191056
+      "startedAt": 1785559562426,
+      "doneAt": 1785559671640
     },
     {
-      "id": "wcqwcfnc7:80",
+      "id": "a56238aff68d5b9a8",
       "kind": "workflow",
       "label": "verify:72:STATE-1780821939771.md",
       "group": "Verify",
-      "startedAt": 1785559191056
+      "startedAt": 1785559570820,
+      "doneAt": 1785559679376
     },
     {
-      "id": "wcqwcfnc7:81",
+      "id": "ad105826753a282b3",
       "kind": "workflow",
       "label": "verify:73:STATE-1780801534488.md",
       "group": "Verify",
-      "startedAt": 1785559191057
+      "startedAt": 1785559575701,
+      "doneAt": 1785559663918
     },
     {
-      "id": "wcqwcfnc7:82",
+      "id": "a36408ca257104b14",
       "kind": "workflow",
       "label": "verify:74:STATE-1780824872913.md",
       "group": "Verify",
-      "startedAt": 1785559191057
+      "startedAt": 1785559576941,
+      "doneAt": 1785559686284
     },
     {
-      "id": "wcqwcfnc7:83",
+      "id": "ac8803aa4fa6292aa",
       "kind": "workflow",
       "label": "verify:75:STATE-1780818512058.md",
       "group": "Verify",
-      "startedAt": 1785559191057
+      "startedAt": 1785559583024,
+      "doneAt": 1785559707812
     },
     {
-      "id": "wcqwcfnc7:84",
+      "id": "a71d419dae88840bb",
       "kind": "workflow",
       "label": "verify:76:STATE-1780818512058.md",
       "group": "Verify",
-      "startedAt": 1785559191058
+      "startedAt": 1785559592428,
+      "doneAt": 1785559648229
     },
     {
-      "id": "wcqwcfnc7:85",
+      "id": "aeb4cb03f7c431822",
       "kind": "workflow",
       "label": "verify:77:STATE-1780804835913.md",
       "group": "Verify",
-      "startedAt": 1785559191058
+      "startedAt": 1785559602440,
+      "doneAt": 1785559675427
     },
     {
-      "id": "wcqwcfnc7:86",
+      "id": "ac36d3c7beb1b568b",
       "kind": "workflow",
       "label": "verify:78:STATE-1780824872913.md",
       "group": "Verify",
-      "startedAt": 1785559191058
+      "startedAt": 1785559608751,
+      "doneAt": 1785559704669
     },
     {
-      "id": "wcqwcfnc7:87",
+      "id": "a96b455011a331081",
       "kind": "workflow",
       "label": "verify:79:STATE-1780824872913.md",
       "group": "Verify",
-      "startedAt": 1785559191058
+      "startedAt": 1785559609926
     },
     {
-      "id": "wcqwcfnc7:88",
+      "id": "a45fdfa2ac7af375b",
       "kind": "workflow",
       "label": "verify:80:STATE-1780818512058.md",
       "group": "Verify",
-      "startedAt": 1785559191059
+      "startedAt": 1785559615429
     },
     {
-      "id": "wcqwcfnc7:89",
+      "id": "a42b66e88ade18e33",
       "kind": "workflow",
       "label": "verify:81:STATE-1780821939771.md",
       "group": "Verify",
-      "startedAt": 1785559191059
+      "startedAt": 1785559639697
     },
     {
-      "id": "wcqwcfnc7:90",
+      "id": "a86cdaa91ee0ec64b",
       "kind": "workflow",
       "label": "verify:82:STATE-1780863774070.md",
       "group": "Verify",
-      "startedAt": 1785559191059
+      "startedAt": 1785559649580
     },
     {
-      "id": "wcqwcfnc7:91",
+      "id": "a2a3e33b86f96c290",
       "kind": "workflow",
       "label": "verify:83:STATE-1780863774070.md",
       "group": "Verify",
-      "startedAt": 1785559191059
+      "startedAt": 1785559650140
     },
     {
-      "id": "wcqwcfnc7:92",
+      "id": "a99d3e091d1248df6",
       "kind": "workflow",
       "label": "verify:84:STATE-1780828010852.md",
       "group": "Verify",
-      "startedAt": 1785559191060
+      "startedAt": 1785559651745
     },
     {
-      "id": "wcqwcfnc7:93",
+      "id": "a273a5c74bcaf850b",
       "kind": "workflow",
       "label": "verify:85:STATE-1780833833132.md",
       "group": "Verify",
-      "startedAt": 1785559191060
+      "startedAt": 1785559652036
     },
     {
-      "id": "wcqwcfnc7:94",
+      "id": "a46d3674270dc201a",
       "kind": "workflow",
       "label": "verify:86:STATE-1780833833132.md",
       "group": "Verify",
-      "startedAt": 1785559191060
+      "startedAt": 1785559667283
     },
     {
-      "id": "wcqwcfnc7:95",
+      "id": "af4e2fb1315b3b833",
       "kind": "workflow",
       "label": "verify:87:STATE-1780833833132.md",
       "group": "Verify",
-      "startedAt": 1785559191061
+      "startedAt": 1785559671855
     },
     {
-      "id": "wcqwcfnc7:96",
+      "id": "a78fdff30fd2f82be",
       "kind": "workflow",
       "label": "verify:88:STATE-1780831201228.md",
       "group": "Verify",
-      "startedAt": 1785559191061
+      "startedAt": 1785559676381
     },
     {
-      "id": "wcqwcfnc7:97",
+      "id": "ae07b3769cddb9b0e",
       "kind": "workflow",
       "label": "verify:89:STATE-1780887545217.md",
       "group": "Verify",
-      "startedAt": 1785559191061
+      "startedAt": 1785559679343
     },
     {
-      "id": "wcqwcfnc7:98",
+      "id": "a41bb3a09bd977807",
       "kind": "workflow",
       "label": "verify:90:STATE-1780828010852.md",
       "group": "Verify",
-      "startedAt": 1785559191061
+      "startedAt": 1785559683124
     },
     {
-      "id": "wcqwcfnc7:99",
+      "id": "a99bc7e9758232eb3",
       "kind": "workflow",
       "label": "verify:91:STATE-1780833833132.md",
       "group": "Verify",
-      "startedAt": 1785559191061
+      "startedAt": 1785559689945
     },
     {
-      "id": "wcqwcfnc7:100",
+      "id": "a901651926ef1f6a2",
       "kind": "workflow",
       "label": "verify:92:STATE-1780857932669.md",
       "group": "Verify",
-      "startedAt": 1785559191062
+      "startedAt": 1785559694784
     },
     {
-      "id": "wcqwcfnc7:101",
+      "id": "ad63201c98335d68e",
       "kind": "workflow",
       "label": "verify:93:STATE-1780863774070.md",
       "group": "Verify",
-      "startedAt": 1785559191062
+      "startedAt": 1785559709848
     },
     {
       "id": "wcqwcfnc7:102",
@@ -899,12 +937,12 @@
       "startedAt": 1785559191066
     }
   ],
-  "tokens": 431190,
+  "tokens": 703510,
   "output": {
-    "result": "Measured training corpus: v3.2 abstention 3.1% (down from 7.2%), but repair-autorun pushed 92% to fully-answerable—opposite of constraint. BFCL: 94.0% simple_python, 91.0% parallel, 82.8% live_multiple. Proposed isolating test: hold row count/content, vary excerpt length only."
+    "result": "Router spec: R (reach) ~70% fail, I (ingest) ~31% fail, O (output call) 6–18% fail. Routing already works; epistemic halves broken. Need partial-evidence prompt class (never in training data). Measure false-abstention rate + run length test (2,406 vs 504 chars) before v3.3."
   },
   "children": null,
-  "linkScanOffset": 1592661,
+  "linkScanOffset": 1659203,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -928,6 +966,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-01T04:44:18.422Z",
+  "updatedAt": "2026-08-01T04:48:31.605Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
