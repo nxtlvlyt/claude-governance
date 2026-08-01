@@ -1,10 +1,10 @@
 {
   "state": "working",
-  "detail": "refining CLASS R scoring: REACHES vs HEDGES vs ASSERTS",
+  "detail": "audit complete: 126/126 CLASS R+P targets name concrete action; zero hedge",
   "tempo": "active",
   "inFlight": {
-    "tasks": 20,
-    "queued": 1,
+    "tasks": 22,
+    "queued": 0,
     "kinds": [
       "local_bash",
       "local_agent",
@@ -131,12 +131,24 @@
       "kind": "shell",
       "label": "until [ -s build-run.log ]; do sleep 45; done; echo READY_NOW",
       "startedAt": 1785570004862
+    },
+    {
+      "id": "bvzj7wreh",
+      "kind": "shell",
+      "label": "until [ -s build-run.log ]; do sleep 120; done; echo BUILD_OK; date; PYTHONIOENCODING=utf-8 python shingle-v33.py 2>&1 | head -14",
+      "startedAt": 1785570031455
+    },
+    {
+      "id": "bhsby15m0",
+      "kind": "shell",
+      "label": "until [ -s build-run.log ]; do sleep 150; done; echo BUILD_OK2",
+      "startedAt": 1785570055413
     }
   ],
-  "tokens": 1595002,
+  "tokens": 1604032,
   "output": null,
   "children": null,
-  "linkScanOffset": 4224777,
+  "linkScanOffset": 4255942,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -160,6 +172,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-01T07:40:05.164Z",
+  "updatedAt": "2026-08-01T07:41:15.859Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
