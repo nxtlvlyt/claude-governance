@@ -1,6 +1,6 @@
 {
-  "state": "done",
-  "detail": "baked prompt persists under `--nosystem`; comparison invalid, receipts collected",
+  "state": "working",
+  "detail": "model trained/merged/exported; re-running final measurement under clean condition",
   "tempo": "idle",
   "inFlight": {
     "tasks": 2,
@@ -23,12 +23,10 @@
       "startedAt": 1785561959584
     }
   ],
-  "tokens": 2447466,
-  "output": {
-    "result": "confirmed: Ollama `--nosystem` does not clear baked SYSTEM; tuned lane served ~4K chars, base got nothing — v3.3 benchmark void, receipts provided"
-  },
+  "tokens": 2448546,
+  "output": null,
   "children": null,
-  "linkScanOffset": 7012075,
+  "linkScanOffset": 7034826,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -52,6 +50,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-01T16:54:44.334Z",
+  "updatedAt": "2026-08-01T16:57:53.380Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
