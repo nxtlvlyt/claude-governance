@@ -1,12 +1,13 @@
 {
   "state": "working",
-  "detail": "analysis of opus failure patterns; instruction vs. mechanism",
+  "detail": "governance violations struck, baselines zeroed, SearXNG restart + AUTORUN.md in flight",
   "tempo": "active",
   "inFlight": {
     "tasks": 2,
     "queued": 0,
     "kinds": [
-      "local_agent"
+      "local_agent",
+      "local_bash"
     ]
   },
   "fan": [
@@ -17,18 +18,16 @@
       "startedAt": 1785560689530
     },
     {
-      "id": "a7b4d229dc3dd802b",
-      "kind": "agent",
-      "label": "Baseline v3.1 false-abstention",
-      "startedAt": 1785560713705
+      "id": "b205mbso4",
+      "kind": "shell",
+      "label": "ssh nxtbeast \"docker restart searxng\" 2>&1 | tail -2; sleep 6; echo \"=== verify ===\"; ssh nxtbeast \"curl -s -m 12 'http://localhost:8080/search?q=github&format=json'\" 2>&1 | head -c 300; echo; echo \"…",
+      "startedAt": 1785561145009
     }
   ],
-  "tokens": 983492,
-  "output": {
-    "result": "instruction doesn't fix cheap path errors; only mechanical gates + weight tuning do. v3.1 held boundary; v3.2 broke it. n=1."
-  },
+  "tokens": 1031762,
+  "output": null,
   "children": null,
-  "linkScanOffset": 2049176,
+  "linkScanOffset": 2156642,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -52,6 +51,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-01T05:10:01.864Z",
+  "updatedAt": "2026-08-01T05:16:40.886Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
