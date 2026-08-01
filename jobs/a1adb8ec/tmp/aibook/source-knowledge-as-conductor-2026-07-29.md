@@ -154,8 +154,19 @@ Recorded because the thesis was empirically tested the same day it was filed:
 - The conductor model is the operator's thesis operationalized: the conductor-qwen
   tune's measurable gain was not knowledge but *transmission discipline* —
   reach for evidence first, cite only what was actually retrieved, report junk
-  hits honestly. A 27B trained this way matched Claude Sonnet 5 (17.50 vs 17.31
-  /20, both zero fatals) on the conductor domain, blind-graded.
+  hits honestly. ~~A 27B trained this way matched Claude Sonnet 5 (17.50 vs 17.31
+  /20, both zero fatals) on the conductor domain, blind-graded.~~
+  **[CORRECTED 2026-07-31 — THE PARITY CLAIM IS WITHDRAWN. The 17.50/17.31 numbers
+  came from a CONTAMINATED audition: the prompt leaked `law_hook` (naming the law
+  under test) and `notes` (stating the correct disposition in prose). The sealed
+  clean re-run, same grader, is `conductor-qwen\CLEAN-SCORECARD.md`: Claude Sonnet 5
+  **18.19**, Claude Haiku **17.06**, Arch 27B v1.1 **16.69**. Sonnet wins by 1.50.
+  Per `~/.claude/rules/operator-rulings.md`, the frontier-beating claim "must not be
+  repeated anywhere, including any model card or public writeup" — and it survived
+  here, uncorrected, for two days after that ruling was recorded. Found 2026-07-31 by
+  an adversarial audit of this corpus, not by a reader of this file. The transmission
+  discipline gain itself stands (16.69, zero fatals, fully local); the comparison
+  does not.]**
 - The ruwāt's integrity obsession (purity in = purity out) is implemented in the
   v1.2 generation harness as mechanical grounding rules; a fabricated receipt is
   treated as a fabricated isnad — audit-fatal.
