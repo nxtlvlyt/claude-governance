@@ -1,6 +1,6 @@
 {
   "state": "done",
-  "detail": "measurement complete: learns to act, not when entitled; thesis validated",
+  "detail": "self-audit complete: 3 FM-11 fires, 1 fabricated citation corrected",
   "tempo": "idle",
   "inFlight": {
     "tasks": 2,
@@ -23,12 +23,12 @@
       "startedAt": 1785561959584
     }
   ],
-  "tokens": 2565122,
+  "tokens": 2572940,
   "output": {
-    "result": "First valid measurement: agent learns to act but not when entitled—reflex-vs-absence finding validates your thesis"
+    "result": "self-reported governance gaps (operator-bound assertions, invented canon citation); corrections applied; gates functioned as designed"
   },
   "children": null,
-  "linkScanOffset": 7700665,
+  "linkScanOffset": 7790568,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -52,6 +52,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-01T19:39:07.717Z",
+  "updatedAt": "2026-08-01T19:43:11.190Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
