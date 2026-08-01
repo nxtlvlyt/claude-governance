@@ -1,13 +1,12 @@
 {
   "state": "working",
-  "detail": "4 gate checks passed; attempt 4 queued with absolute paths",
-  "tempo": "active",
+  "detail": "frontier model caught itself refusing false attestation; 3 scorer bugs found",
+  "tempo": "idle",
   "inFlight": {
-    "tasks": 30,
-    "queued": 0,
+    "tasks": 27,
+    "queued": 1,
     "kinds": [
       "local_bash",
-      "local_agent",
       "monitor"
     ]
   },
@@ -29,19 +28,15 @@
       "kind": "agent",
       "label": "Build v3.3 training corpus",
       "startedAt": 1785569152609,
-      "doneAt": 1785574818641
-    },
-    {
-      "id": "bxw0z3f2x",
-      "kind": "shell",
-      "label": "until [ -s build-run.log ]; do sleep 360; done; echo D5; date",
-      "startedAt": 1785572133930
+      "doneAt": 1785575802536
     },
     {
       "id": "b1utd2tl2",
       "kind": "shell",
       "label": "until [ -s build-run.log ]; do sleep 550; done; echo D7; date",
-      "startedAt": 1785572187498
+      "startedAt": 1785572187498,
+      "doneAt": 1785575787711,
+      "failed": true
     },
     {
       "id": "b0qryra81",
@@ -188,22 +183,16 @@
       "startedAt": 1785572943165
     },
     {
-      "id": "ab052b051cfb288d1",
-      "kind": "agent",
-      "label": "Produce the frontier comparison lane",
-      "startedAt": 1785573509961
-    },
-    {
       "id": "bg6uwl2rv",
       "kind": "monitor",
       "label": "v3.3 27B attempt 4 — retro-gate acceptance, pickup, training, stalls",
       "startedAt": 1785575716266
     }
   ],
-  "tokens": 2041157,
+  "tokens": 2046402,
   "output": null,
   "children": null,
-  "linkScanOffset": 5183761,
+  "linkScanOffset": 5224178,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -227,6 +216,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-01T09:15:30.661Z",
+  "updatedAt": "2026-08-01T09:16:53.689Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
