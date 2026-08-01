@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "scoring mission live; import re-verifying; parsing bugs fixed",
+  "detail": "steps 1–3 passed, tuned lane 17/30; control confirmed genuine",
   "tempo": "active",
   "inFlight": {
     "tasks": 4,
@@ -37,10 +37,10 @@
       "startedAt": 1785601644493
     }
   ],
-  "tokens": 2321797,
+  "tokens": 2322375,
   "output": null,
   "children": null,
-  "linkScanOffset": 6695222,
+  "linkScanOffset": 6706452,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -64,6 +64,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-01T16:27:38.049Z",
+  "updatedAt": "2026-08-01T16:28:46.178Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
