@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "step 123/135, merge staging guarded; 12 steps to completion",
+  "detail": "merge phase starting (~46m); trap 17 guards idempotency",
   "tempo": "idle",
   "inFlight": {
     "tasks": 5,
@@ -42,10 +42,10 @@
       "startedAt": 1785577774654
     }
   ],
-  "tokens": 2242317,
+  "tokens": 2242674,
   "output": null,
   "children": null,
-  "linkScanOffset": 6060701,
+  "linkScanOffset": 6071956,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -69,6 +69,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-01T10:07:37.610Z",
+  "updatedAt": "2026-08-01T10:11:54.022Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
