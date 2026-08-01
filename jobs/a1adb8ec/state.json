@@ -1,13 +1,14 @@
 {
   "state": "working",
-  "detail": "train-v33 corpus clear; fabrication mechanism quantified in v31/v32",
+  "detail": "de-template pass running; watchdog on shingle repeat check; mission gated",
   "tempo": "active",
   "inFlight": {
-    "tasks": 3,
+    "tasks": 4,
     "queued": 0,
     "kinds": [
       "local_bash",
-      "local_agent"
+      "local_agent",
+      "monitor"
     ]
   },
   "fan": [
@@ -27,22 +28,19 @@
       "id": "a35600d77ec940f47",
       "kind": "agent",
       "label": "Build v3.3 training corpus",
-      "startedAt": 1785566168678
+      "startedAt": 1785569152609
     },
     {
-      "id": "biiypz13d",
-      "kind": "shell",
-      "label": "until [ -s build-run.log ]; do sleep 90; done; sleep 25; echo READY",
-      "startedAt": 1785568935358,
-      "doneAt": 1785569051296
+      "id": "b5ho7bxsh",
+      "kind": "monitor",
+      "label": "de-template pass — teacher calls and corpus rewrite, with stall detection",
+      "startedAt": 1785569171316
     }
   ],
-  "tokens": 1527493,
-  "output": {
-    "result": "v33: 0 unsourced rows (all rows cite only what prompts contain); v31/v32 have fabrication pathology (target citations outside prompt scope). Repair deployed to prompt side; target audit needed."
-  },
+  "tokens": 1532335,
+  "output": null,
   "children": null,
-  "linkScanOffset": 3924355,
+  "linkScanOffset": 3960511,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -66,6 +64,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-01T07:24:42.864Z",
+  "updatedAt": "2026-08-01T07:26:22.301Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
