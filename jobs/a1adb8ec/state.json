@@ -1,6 +1,6 @@
 {
-  "state": "working",
-  "detail": "STATE.md updated; gate-pairs analysis running on 2GB corpus",
+  "state": "blocked",
+  "detail": "18 FAILED, 19 parks, 11 false-deaths, 9 damm, CONSTRUCT-MISSION-DUE backlog; ruling needed on muezzin scope",
   "tempo": "active",
   "inFlight": {
     "tasks": 3,
@@ -30,10 +30,10 @@
       "startedAt": 1785563777659
     }
   ],
-  "tokens": 1224623,
+  "tokens": 1258006,
   "output": null,
   "children": null,
-  "linkScanOffset": 2640795,
+  "linkScanOffset": 2680454,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -57,6 +57,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-01T06:02:05.155Z",
+  "updatedAt": "2026-08-01T06:09:21.887Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
