@@ -1,12 +1,13 @@
 {
   "state": "working",
-  "detail": "model trained/merged/exported; re-running final measurement under clean condition",
-  "tempo": "idle",
+  "detail": "fix dispatched; neutral system prompt written; waiting on re-run",
+  "tempo": "active",
   "inFlight": {
-    "tasks": 2,
+    "tasks": 3,
     "queued": 0,
     "kinds": [
-      "local_bash"
+      "local_bash",
+      "local_agent"
     ]
   },
   "fan": [
@@ -21,12 +22,18 @@
       "kind": "shell",
       "label": "ssh nxtbeast \"docker ps -a --filter name=searxng --format '{{.Names}} | {{.Status}} | {{.Ports}}'\" 2>&1 | tail -3; echo \"--- docker daemon ---\"; ssh nxtbeast \"docker info --format '{{.ServerVersion}}…",
       "startedAt": 1785561959584
+    },
+    {
+      "id": "ab9eb7a0126a246e3",
+      "kind": "agent",
+      "label": "Fix prompt-state truthfulness and compare gate",
+      "startedAt": 1785603632197
     }
   ],
-  "tokens": 2448546,
+  "tokens": 2455461,
   "output": null,
   "children": null,
-  "linkScanOffset": 7034826,
+  "linkScanOffset": 7113427,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -50,6 +57,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-01T16:57:53.380Z",
+  "updatedAt": "2026-08-01T17:00:57.893Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
