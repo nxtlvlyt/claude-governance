@@ -1,18 +1,19 @@
 {
-  "state": "done",
-  "detail": "recovered control-lane command from disk transcripts",
-  "tempo": "idle",
+  "state": "blocked",
+  "detail": "results show training+prompt compound; awaiting next direction",
+  "tempo": "blocked",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 11267,
+  "tokens": 20447,
+  "needs": "mine AI book folder against findings, or continue tuning analysis?",
   "output": {
-    "result": "untuned control baseline: 12/24; v3.1 maintains +3 over baseline"
+    "result": "untuned+prompt: 15/24 (1 drift); trained+prompt: 21/24 (0 drift) — training worth +3 bare, +6 with prompt; V2 reflex survives both conditions"
   },
   "children": null,
-  "linkScanOffset": 1241591,
+  "linkScanOffset": 1321164,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -36,6 +37,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-01T04:26:56.154Z",
+  "updatedAt": "2026-08-01T04:32:37.592Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
