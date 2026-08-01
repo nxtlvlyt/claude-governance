@@ -1,9 +1,9 @@
 {
   "state": "working",
-  "detail": "teachers running ~70 calls/min; awaiting validator drop & scenario count",
+  "detail": "identified teacher prompt gap: paraphrasers lack situational context; fidelity protected mechanically; recommend two-tranche approach",
   "tempo": "active",
   "inFlight": {
-    "tasks": 4,
+    "tasks": 9,
     "queued": 0,
     "kinds": [
       "local_bash",
@@ -37,17 +37,42 @@
       "startedAt": 1785567230381
     },
     {
-      "id": "b3ev2x9ll",
+      "id": "bgpeuq1xx",
       "kind": "shell",
-      "label": "until [ -s build-run.log ]; do sleep 5; done; echo \"BUILD FINISHED\"; tail -2 build-run.log",
-      "startedAt": 1785567591697,
-      "doneAt": 1785567716392
+      "label": "rm -f build-run.log; PYTHONIOENCODING=utf-8 python build-train-v33.py > build-run.log 2>&1; echo EXIT=$?; PYTHONIOENCODING=utf-8 python -c \" import json;d=json.load(open('build-v33-stats.json',encodi…",
+      "startedAt": 1785567738944
+    },
+    {
+      "id": "bajh361js",
+      "kind": "shell",
+      "label": "until [ -s build-run.log ]; do sleep 10; done; echo DONE; head -c 200 build-run.log",
+      "startedAt": 1785567772970
+    },
+    {
+      "id": "bku2f4sk3",
+      "kind": "shell",
+      "label": "until [ -s build-run.log ]; do sleep 15; done; echo BUILD_DONE",
+      "startedAt": 1785567841453
+    },
+    {
+      "id": "bdwuxwmkx",
+      "kind": "shell",
+      "label": "until [ -s build-run.log ]; do sleep 20; done; echo RUN2_DONE; grep -o '\"calls\": [0-9]*' build-run.log | head -1",
+      "startedAt": 1785567892199
+    },
+    {
+      "id": "bqoa50gri",
+      "kind": "shell",
+      "label": "sleep 240; ls -la build-run.log; tail -c 300 build-run.log",
+      "startedAt": 1785567895985
     }
   ],
-  "tokens": 1432642,
-  "output": null,
+  "tokens": 1444915,
+  "output": {
+    "result": "Teachers are blind paraphrasers (surface diversity only). Fidelity already protected by filters. Recommend: ship current build as-is, then separate tranche with conceptual brief for new situation generation."
+  },
   "children": null,
-  "linkScanOffset": 3311098,
+  "linkScanOffset": 3391809,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -71,6 +96,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-01T07:02:01.439Z",
+  "updatedAt": "2026-08-01T07:05:10.835Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
