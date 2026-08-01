@@ -1,13 +1,14 @@
 {
   "state": "working",
-  "detail": "explaining test gates + continuity across session boundaries",
+  "detail": "watchdog armed on teacher calls; validating Qwen3.6 training config",
   "tempo": "active",
   "inFlight": {
-    "tasks": 3,
+    "tasks": 4,
     "queued": 0,
     "kinds": [
       "local_bash",
-      "local_agent"
+      "local_agent",
+      "monitor"
     ]
   },
   "fan": [
@@ -28,12 +29,18 @@
       "kind": "agent",
       "label": "Build v3.3 training corpus",
       "startedAt": 1785566168678
+    },
+    {
+      "id": "b2yvy39iu",
+      "kind": "monitor",
+      "label": "v33 corpus build — teacher-call rate, file growth, and stall detection",
+      "startedAt": 1785567095370
     }
   ],
-  "tokens": 1365933,
+  "tokens": 1377745,
   "output": null,
   "children": null,
-  "linkScanOffset": 3128064,
+  "linkScanOffset": 3207225,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -57,6 +64,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-01T06:48:52.013Z",
+  "updatedAt": "2026-08-01T06:51:55.074Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
