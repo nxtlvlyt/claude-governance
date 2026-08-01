@@ -1,9 +1,9 @@
 {
   "state": "working",
-  "detail": "capturing session fires as labelled specimens for model training",
+  "detail": "memorisation risk quantified; guard deployed + lint-clean",
   "tempo": "active",
   "inFlight": {
-    "tasks": 24,
+    "tasks": 29,
     "queued": 0,
     "kinds": [
       "local_bash",
@@ -103,13 +103,6 @@
       "startedAt": 1785569843747
     },
     {
-      "id": "b5i1yd724",
-      "kind": "shell",
-      "label": "sleep 280; date; wc -c build-run.log",
-      "startedAt": 1785569855852,
-      "doneAt": 1785570140124
-    },
-    {
       "id": "bldaa2bui",
       "kind": "shell",
       "label": "sleep 420; echo \"--- checkpoint ---\"; date; wc -c build-run.log",
@@ -162,12 +155,44 @@
       "kind": "agent",
       "label": "Capture session gate fires as corpus specimens",
       "startedAt": 1785570128298
+    },
+    {
+      "id": "bpc7wuo0u",
+      "kind": "shell",
+      "label": "until [ -s build-run.log ]; do sleep 240; done date PYTHONIOENCODING=utf-8 python verify-train-v33.py 2>&1 | grep -v ' e.g.' PYTHONIOENCODING=utf-8 python shingle-v33.py",
+      "startedAt": 1785570142700
+    },
+    {
+      "id": "bhyb1qe5s",
+      "kind": "shell",
+      "label": "until [ -s build-run.log ]; do sleep 300; done; echo BUILD_TERMINATED; date",
+      "startedAt": 1785570169081
+    },
+    {
+      "id": "bg28v258r",
+      "kind": "shell",
+      "label": "until [ -s build-run.log ]; do sleep 360; done; echo T; date",
+      "startedAt": 1785570188442
+    },
+    {
+      "id": "b4yv3hvdt",
+      "kind": "shell",
+      "label": "until [ -s build-run.log ]; do sleep 420; done; echo BUILDFIN; date",
+      "startedAt": 1785570240895
+    },
+    {
+      "id": "b2vabb1wv",
+      "kind": "shell",
+      "label": "until [ -s build-run.log ]; do sleep 500; done; echo X; date",
+      "startedAt": 1785570260899
     }
   ],
-  "tokens": 1608320,
-  "output": null,
+  "tokens": 1622346,
+  "output": {
+    "result": "CLASS R: 56 distinct openings/126 rows (memorisation surface measured); mission guard deployed, lint-clean"
+  },
   "children": null,
-  "linkScanOffset": 4286025,
+  "linkScanOffset": 4341827,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -191,6 +216,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-01T07:42:20.606Z",
+  "updatedAt": "2026-08-01T07:44:55.475Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
