@@ -1,10 +1,10 @@
 {
   "state": "working",
-  "detail": "WSL flakiness diagnosed (ACL hypothesis); mission updated to fail-closed",
+  "detail": "training + eval scorer building in parallel; scorer ready for model",
   "tempo": "active",
   "inFlight": {
-    "tasks": 6,
-    "queued": 1,
+    "tasks": 11,
+    "queued": 0,
     "kinds": [
       "local_bash",
       "local_agent",
@@ -47,12 +47,42 @@
       "kind": "shell",
       "label": "until [ -s build-run.log ]; do sleep 60; done; echo DETEMPLATE_BUILD_DONE; date",
       "startedAt": 1785569604176
+    },
+    {
+      "id": "b7p3bprd3",
+      "kind": "shell",
+      "label": "until [ -s build-run.log ]; do sleep 120; done; echo BUILD_DONE; cat build-run.log | tail -3",
+      "startedAt": 1785569635211
+    },
+    {
+      "id": "bvi6k3463",
+      "kind": "shell",
+      "label": "until [ -s build-run.log ]; do sleep 150; done; echo BUILD_DONE",
+      "startedAt": 1785569657778
+    },
+    {
+      "id": "barn2dya9",
+      "kind": "shell",
+      "label": "until [ -s build-run.log ]; do sleep 180; done; echo BUILD_DONE; date",
+      "startedAt": 1785569691616
+    },
+    {
+      "id": "bqx4n7rma",
+      "kind": "shell",
+      "label": "until [ -s build-run.log ]; do sleep 200; done; echo DONE_FINALLY; date; tail -2 build-run.log",
+      "startedAt": 1785569714646
+    },
+    {
+      "id": "abff96fc74da026d8",
+      "kind": "agent",
+      "label": "Build the three-way eval scorer",
+      "startedAt": 1785569729435
     }
   ],
-  "tokens": 1562027,
+  "tokens": 1567561,
   "output": null,
   "children": null,
-  "linkScanOffset": 4072574,
+  "linkScanOffset": 4110022,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -76,6 +106,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-01T07:33:53.761Z",
+  "updatedAt": "2026-08-01T07:35:41.154Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
