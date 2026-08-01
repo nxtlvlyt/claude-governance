@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "watchdog re-armed; 63 rows vs 300–400 target, 9 teacher calls",
+  "detail": "360 rows hit; querying build on teacher calls & distinct situations",
   "tempo": "active",
   "inFlight": {
     "tasks": 4,
@@ -37,10 +37,10 @@
       "startedAt": 1785567230381
     }
   ],
-  "tokens": 1404278,
+  "tokens": 1419727,
   "output": null,
   "children": null,
-  "linkScanOffset": 3254188,
+  "linkScanOffset": 3277059,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -64,6 +64,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-01T06:54:41.469Z",
+  "updatedAt": "2026-08-01T06:57:32.537Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
