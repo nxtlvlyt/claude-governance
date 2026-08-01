@@ -1,7 +1,7 @@
 {
-  "state": "done",
-  "detail": "status check: all systems nominal, work in good shape",
-  "tempo": "idle",
+  "state": "blocked",
+  "detail": "GPU ready; corpus generation + 4–7h train ahead; E: drive 6GB free blocks Ollama import",
+  "tempo": "blocked",
   "inFlight": {
     "tasks": 2,
     "queued": 0,
@@ -23,12 +23,13 @@
       "startedAt": 1785561959584
     }
   ],
-  "tokens": 1308691,
+  "tokens": 1311661,
+  "needs": "free 16GB on E: drive for 27B q4km import (currently 6GB avail of 3.7TB)",
   "output": {
-    "result": "confirmed operational; 2 clean mines, gates baselined, spec complete, substrate improved"
+    "result": "training ready but blocked: E: drive needs 16GB free for model import; corpus generation + ~5h training once cleared"
   },
   "children": null,
-  "linkScanOffset": 2843360,
+  "linkScanOffset": 2874407,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -52,6 +53,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-01T06:26:29.141Z",
+  "updatedAt": "2026-08-01T06:28:02.939Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
