@@ -1,13 +1,14 @@
 {
   "state": "working",
-  "detail": "found 2 fidelity defects (fabricated SHA, reassembled timestamp); sent back for fix",
+  "detail": "pre-registered testing hypothesis; v3.3 spec §5c locked",
   "tempo": "active",
   "inFlight": {
-    "tasks": 10,
+    "tasks": 15,
     "queued": 0,
     "kinds": [
       "local_bash",
-      "local_agent"
+      "local_agent",
+      "monitor"
     ]
   },
   "fan": [
@@ -28,13 +29,6 @@
       "kind": "agent",
       "label": "Build v3.3 training corpus",
       "startedAt": 1785569152609
-    },
-    {
-      "id": "bqx4n7rma",
-      "kind": "shell",
-      "label": "until [ -s build-run.log ]; do sleep 200; done; echo DONE_FINALLY; date; tail -2 build-run.log",
-      "startedAt": 1785569714646,
-      "doneAt": 1785570518344
     },
     {
       "id": "abff96fc74da026d8",
@@ -73,16 +67,48 @@
       "startedAt": 1785570260899
     },
     {
-      "id": "bx9nrsfmq",
+      "id": "bicpfasy3",
       "kind": "shell",
-      "label": "python - <<'PY' import io p='build-train-v33.py' s=io.open(p,encoding='utf-8').read() s=s.replace(''' stats = {\"kept\": {}, \"dropped\": {}, \"drop_reasons\": {}, \"shapes\": {},''', ''' stats = {\"kept\": {}…",
-      "startedAt": 1785570511943
+      "label": "rm -f build-run.log; PYTHONIOENCODING=utf-8 python build-train-v33.py > build-run.log 2>&1; echo \"EXIT=$?\" echo \"=== VERIFY (independent + gate + priors) ===\" PYTHONIOENCODING=utf-8 python verify-tra…",
+      "startedAt": 1785570820616
+    },
+    {
+      "id": "b1pkd424m",
+      "kind": "monitor",
+      "label": "v3.3 extractor-fix rebuild",
+      "startedAt": 1785570825354
+    },
+    {
+      "id": "b5n69uix1",
+      "kind": "shell",
+      "label": "until [ -s build-run.log ]; do sleep 120; done; echo REBUILD_DONE; date",
+      "startedAt": 1785570898248
+    },
+    {
+      "id": "b3h552ji6",
+      "kind": "shell",
+      "label": "until [ -s build-run.log ]; do sleep 200; done; echo DONE_REBUILD",
+      "startedAt": 1785570929464
+    },
+    {
+      "id": "b2u3zswqa",
+      "kind": "shell",
+      "label": "until [ -s build-run.log ]; do sleep 300; done; echo REBUILD_COMPLETE; date",
+      "startedAt": 1785570950108
+    },
+    {
+      "id": "beg79pja2",
+      "kind": "shell",
+      "label": "until [ -s build-run.log ]; do sleep 400; done; echo FIN; date",
+      "startedAt": 1785570992136
     }
   ],
-  "tokens": 1684381,
-  "output": null,
+  "tokens": 1754001,
+  "output": {
+    "result": "§5c: v3.3 vs frontier outcome rules pre-registered; training defect only available if measurable corpus flaw can be named"
+  },
   "children": null,
-  "linkScanOffset": 4430708,
+  "linkScanOffset": 4476619,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -106,6 +132,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-01T07:48:41.722Z",
+  "updatedAt": "2026-08-01T07:56:36.934Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
