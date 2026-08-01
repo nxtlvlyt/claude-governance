@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "identified teacher prompt gap: paraphrasers lack situational context; fidelity protected mechanically; recommend two-tranche approach",
+  "detail": "methodology validated against vendor docs; precision-match hypothesis & composition ratio flagged",
   "tempo": "active",
   "inFlight": {
     "tasks": 9,
@@ -37,42 +37,40 @@
       "startedAt": 1785567230381
     },
     {
-      "id": "bgpeuq1xx",
-      "kind": "shell",
-      "label": "rm -f build-run.log; PYTHONIOENCODING=utf-8 python build-train-v33.py > build-run.log 2>&1; echo EXIT=$?; PYTHONIOENCODING=utf-8 python -c \" import json;d=json.load(open('build-v33-stats.json',encodi…",
-      "startedAt": 1785567738944
-    },
-    {
-      "id": "bajh361js",
-      "kind": "shell",
-      "label": "until [ -s build-run.log ]; do sleep 10; done; echo DONE; head -c 200 build-run.log",
-      "startedAt": 1785567772970
-    },
-    {
-      "id": "bku2f4sk3",
-      "kind": "shell",
-      "label": "until [ -s build-run.log ]; do sleep 15; done; echo BUILD_DONE",
-      "startedAt": 1785567841453
-    },
-    {
-      "id": "bdwuxwmkx",
-      "kind": "shell",
-      "label": "until [ -s build-run.log ]; do sleep 20; done; echo RUN2_DONE; grep -o '\"calls\": [0-9]*' build-run.log | head -1",
-      "startedAt": 1785567892199
-    },
-    {
       "id": "bqoa50gri",
       "kind": "shell",
       "label": "sleep 240; ls -la build-run.log; tail -c 300 build-run.log",
       "startedAt": 1785567895985
+    },
+    {
+      "id": "bacvjnl9c",
+      "kind": "shell",
+      "label": "rm -f build-run.log; PYTHONIOENCODING=utf-8 python build-train-v33.py > build-run.log 2>&1; echo \"EXIT=$?\"; PYTHONIOENCODING=utf-8 python -c \" import json;d=json.load(open('build-v33-stats.json',enco…",
+      "startedAt": 1785567959956
+    },
+    {
+      "id": "b3hazk54e",
+      "kind": "shell",
+      "label": "until [ -s build-run.log ]; do sleep 30; done; echo FINAL_RUN_DONE",
+      "startedAt": 1785567962675
+    },
+    {
+      "id": "bfzgko8d3",
+      "kind": "shell",
+      "label": "sleep 500; ls -la build-run.log; tail -c 200 build-run.log",
+      "startedAt": 1785567972119
+    },
+    {
+      "id": "bwm0g8c3m",
+      "kind": "shell",
+      "label": "until [ -s build-run.log ]; do sleep 45; done; echo FINAL_DONE; grep -c . build-run.log",
+      "startedAt": 1785567988576
     }
   ],
-  "tokens": 1444915,
-  "output": {
-    "result": "Teachers are blind paraphrasers (surface diversity only). Fidelity already protected by filters. Recommend: ship current build as-is, then separate tranche with conceptual brief for new situation generation."
-  },
+  "tokens": 1452635,
+  "output": null,
   "children": null,
-  "linkScanOffset": 3391809,
+  "linkScanOffset": 3438991,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -96,6 +94,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-01T07:05:10.835Z",
+  "updatedAt": "2026-08-01T07:07:00.283Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
