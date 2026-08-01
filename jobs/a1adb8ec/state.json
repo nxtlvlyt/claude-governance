@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "watchdog armed on teacher calls; validating Qwen3.6 training config",
+  "detail": "watchdog re-armed; 63 rows vs 300–400 target, 9 teacher calls",
   "tempo": "active",
   "inFlight": {
     "tasks": 4,
@@ -31,16 +31,16 @@
       "startedAt": 1785566168678
     },
     {
-      "id": "b2yvy39iu",
+      "id": "bq1gb1ogq",
       "kind": "monitor",
-      "label": "v33 corpus build — teacher-call rate, file growth, and stall detection",
-      "startedAt": 1785567095370
+      "label": "v33 build — row growth, teacher calls, report completion, stall detection",
+      "startedAt": 1785567230381
     }
   ],
-  "tokens": 1377745,
+  "tokens": 1404278,
   "output": null,
   "children": null,
-  "linkScanOffset": 3207225,
+  "linkScanOffset": 3254188,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -64,6 +64,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-01T06:51:55.074Z",
+  "updatedAt": "2026-08-01T06:54:41.469Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
