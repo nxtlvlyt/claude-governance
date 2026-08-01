@@ -1,14 +1,13 @@
 {
   "state": "blocked",
-  "detail": "E: drive 97% full (1.2TB Ollama); D: has 1.5TB free; repoint decision yours",
+  "detail": "gate blocking scorer edits; base lane retry cycling on step 5",
   "tempo": "active",
   "inFlight": {
-    "tasks": 4,
-    "queued": 0,
+    "tasks": 3,
+    "queued": 2,
     "kinds": [
       "local_bash",
-      "local_agent",
-      "monitor"
+      "local_agent"
     ]
   },
   "fan": [
@@ -34,15 +33,14 @@
       "id": "b3sg8jq5n",
       "kind": "monitor",
       "label": "v3.3 scoring mission — state, lane file counts, stalls",
-      "startedAt": 1785601644493
+      "startedAt": 1785601644493,
+      "doneAt": 1785602070753
     }
   ],
-  "tokens": 2361633,
-  "output": {
-    "result": "OLLAMA_MODELS points E: (97% full, 1.2TB blobs); D: has 1.5TB free—decide repoint vs re-pull 66 tags"
-  },
+  "tokens": 2370030,
+  "output": null,
   "children": null,
-  "linkScanOffset": 6770494,
+  "linkScanOffset": 6813097,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -66,6 +64,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-01T16:32:07.685Z",
+  "updatedAt": "2026-08-01T16:34:56.163Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }

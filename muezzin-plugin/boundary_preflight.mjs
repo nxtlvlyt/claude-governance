@@ -243,10 +243,12 @@ export function scanRelativePaths(text) {
       // `pending/0` and `PASS/0` out of a PowerShell status string, drowning the real finding.
       // A token counts as a relative path only when it is EXPLICITLY relative (./ ../ .\),
       // ends in a directory slash, or carries a file extension on its last segment.
+      if (/^[sy]\/[^/]*\/[^/]*\/[gimpIe]*$/.test(tok)) continue;   // sed s/a/b/ , y/a/b/ — an expression, not a path
       const explicitlyRel = /^\.{1,2}[\\/]/.test(tok);
       const trailingSlash = /[\\/]$/.test(tok);
       const lastSeg = tok.split(/[\\/]/).filter(Boolean).pop() || '';
-      const extOnLast = PATHY_EXT.test(lastSeg) || /^[\w.-]+\.[A-Za-z][\w]{0,5}$/.test(lastSeg);
+      const hasSep = tok.includes('/') || tok.includes('\\');
+      const extOnLast = PATHY_EXT.test(lastSeg) || (hasSep && /^[\w.-]+\.[A-Za-z][\w]{0,5}$/.test(lastSeg));
       if (!(explicitlyRel || trailingSlash || extOnLast)) continue;
       if (/^\d+$/.test(tok)) continue;
       hits.push({ cmd, token: tok });
@@ -408,9 +410,11 @@ function checkB3(host, missionRepoRoot) {
     const localBytes = readFileSync(lfPath);
     parts.push(`local write (node fs) = ${localBytes.length}B CR=${countCR(localBytes)}`);
 
-    // hop 1 — scp round trip
-    const up = runLocal('scp', ['-q', lfPath, `${host}:${remoteRel}`], 45000);
-    if (up.ok) {
+    // hop 1 — scp round trip (skipped when there is no remote host to test against)
+    const up = host ? runLocal('scp', ['-q', lfPath, `${host}:${remoteRel}`], 45000) : null;
+    if (!host) {
+      parts.push('scp hop SKIPPED (--skip-remote)');
+    } else if (up.ok) {
       if (existsSync(backPath)) unlinkSync(backPath);
       const down = runLocal('scp', ['-q', `${host}:${remoteRel}`, backPath], 45000);
       ssh(host, `del %TEMP%\\bp-lf-${process.pid}.txt`, 30000);
@@ -448,8 +452,10 @@ function checkB3(host, missionRepoRoot) {
     for (const f of [lfPath, backPath, psPath]) { try { if (existsSync(f)) unlinkSync(f); } catch { /* best effort */ } }
   }
 
-  // hop 3 — git autocrlf, per repo
-  for (const repo of [HERE, missionRepoRoot].filter(Boolean)) {
+  // hop 3 — git autocrlf, per DISTINCT repo (a mission whose REPO-ROOT is the plugin itself
+  // must not be probed twice — live receipt 2026-08-01, duplicated evidence string)
+  const repos = [...new Set([HERE, missionRepoRoot].filter(Boolean).map((r) => path.resolve(r)))];
+  for (const repo of repos) {
     const g = runLocal('git', ['-C', repo, 'config', '--get', 'core.autocrlf'], 20000);
     const val = (g.out || '').trim() || '(unset)';
     parts.push(`core.autocrlf[${path.basename(repo)}] = ${val}`);
@@ -673,6 +679,13 @@ function selftest() {
     ck(scanRelativePaths(['```sh', 'curl https://example.com/x.json', '```'].join('\n')).length === 0, 'paths: URLs are not relative paths');
     ck(scanRelativePaths(['```sh', 'echo %TEMP%\\x.txt', '```'].join('\n')).length === 0, 'paths: %TEMP% expansion is not a relative path');
     ck(scanRelativePaths(['```sh', 'git commit -m "x" -- src/a.mjs', '```'].join('\n')).length === 1, 'paths: repo-relative pathspec still flagged (resolves only from REPO-ROOT)');
+    // live receipt 2026-08-01: the first cut flagged PowerShell status strings as paths
+    ck(scanRelativePaths(['```sh', "if ($x) { 'PASS/0' } else { 'pending/0' }", '```'].join('\n')).length === 0,
+      'paths: slash-containing NON-path tokens (PASS/0, pending/0) are NOT flagged — the receipt stays readable');
+    ck(scanRelativePaths(['```sh', 'node ./scripts/build', '```'].join('\n')).length === 1, 'paths: explicitly-relative ./x flagged even without an extension');
+    ck(scanRelativePaths(['```sh', 'node conduct-cycle.mjs --selftest', '```'].join('\n')).length === 1, 'paths: bare relative script filename flagged');
+    ck(scanRelativePaths(['```sh', 'wrangler pages deploy --branch=preview', '```'].join('\n')).length === 0, 'paths: subcommand words are not paths');
+    ck(scanRelativePaths(['```sh', 'sed -i s/a/b/ C:\\r\\f.txt', '```'].join('\n')).length === 0, 'paths: a sed s/a/b/ expression is not a path (acceptance-run false positive)');
   }
 
   // --- scanSshRedirectAntipattern ---------------------------------------------------
@@ -759,6 +772,7 @@ function main() {
     for (const r of results) if (['B1', 'B2', 'B5'].includes(r.id) && r.result === 'WARN') r.result = 'FAIL';
   }
 
+  results.sort((a, b) => a.id.localeCompare(b.id));   // stable B1..B9 receipt order
   const counts = { PASS: 0, WARN: 0, FAIL: 0, SKIP: 0 };
   for (const r of results) counts[r.result]++;
 
