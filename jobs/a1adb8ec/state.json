@@ -1,9 +1,9 @@
 {
   "state": "working",
-  "detail": "v3.3 eval scope + honest bar: local model must close 1.50 gap vs Sonnet bare",
+  "detail": "de-template pass running (~70 calls/90s); correcting holdout gap scope",
   "tempo": "active",
   "inFlight": {
-    "tasks": 14,
+    "tasks": 16,
     "queued": 1,
     "kinds": [
       "local_bash",
@@ -95,14 +95,24 @@
       "kind": "shell",
       "label": "until [ -s build-run.log ]; do sleep 300; done; echo COMPLETE",
       "startedAt": 1785569818141
+    },
+    {
+      "id": "bixi04g8h",
+      "kind": "shell",
+      "label": "until [ -s build-run.log ]; do sleep 30; done echo \"=== BUILD COMPLETE ===\" PYTHONIOENCODING=utf-8 python verify-train-v33.py 2>&1 | grep -v ' e.g.' echo \"=== SHINGLE AFTER ===\" PYTHONIOENCODING=utf-…",
+      "startedAt": 1785569843747
+    },
+    {
+      "id": "b5i1yd724",
+      "kind": "shell",
+      "label": "sleep 280; date; wc -c build-run.log",
+      "startedAt": 1785569855852
     }
   ],
-  "tokens": 1573971,
-  "output": {
-    "result": "Eval criterion set: v3.3 governance-in-weights must score ≥17.69 (Sonnet 18.19 - 1.50) on bare holdout with no system prompt injection"
-  },
+  "tokens": 1576093,
+  "output": null,
   "children": null,
-  "linkScanOffset": 4137482,
+  "linkScanOffset": 4150905,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -114,6 +124,8 @@
     "--permission-mode",
     "auto"
   ],
+  "bgIsolation": "none",
+  "providerEnv": {},
   "intent": "this is a teleport session you don't have any of the context",
   "name": "teleport-context-sync",
   "nameSource": "auto",
@@ -122,10 +134,8 @@
   "daemonShort": "a1adb8ec",
   "cliVersion": "2.1.220",
   "cwd": "C:\\Users\\marka",
-  "bgIsolation": "none",
-  "providerEnv": {},
-  "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-01T07:37:02.473Z",
-  "firstTerminalAt": "2026-08-01T04:26:56.154Z"
+  "updatedAt": "2026-08-01T07:37:36.241Z",
+  "firstTerminalAt": "2026-08-01T04:26:56.154Z",
+  "backend": "daemon"
 }
