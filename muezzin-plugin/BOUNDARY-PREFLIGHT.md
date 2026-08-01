@@ -314,7 +314,7 @@ preserves absolute paths *by design*; write them absolute and the machinery work
 
 ## `--selftest`
 
-42 assertions over the parsing logic, with no ssh, no network, no filesystem writes outside
+43 assertions over the parsing logic, with no ssh, no network, no filesystem writes outside
 `os.tmpdir()`. Covers: UTF-16LE decode, CR counting, redirect classification, Store-alias
 detection, the AUTORUN mirror (WILL-FIRE / QUEUE-DUP / SPLIT-CHILD exemption / NOT-QUEUED /
 ABSENT / stacked statuses / `#`-line invisibility), diagnosis visibility, mission-class
