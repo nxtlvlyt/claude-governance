@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "governance violations struck, baselines zeroed, SearXNG restart + AUTORUN.md in flight",
+  "detail": "audit complete: Fable caught the leak; correction propagation failed",
   "tempo": "active",
   "inFlight": {
     "tasks": 2,
@@ -24,10 +24,12 @@
       "startedAt": 1785561145009
     }
   ],
-  "tokens": 1031762,
-  "output": null,
+  "tokens": 1043893,
+  "output": {
+    "result": "Frontier scorecard error was structural (no duty separation, leaked training data); Fable caught it same day; correction never propagated across 5 files"
+  },
   "children": null,
-  "linkScanOffset": 2156642,
+  "linkScanOffset": 2216559,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -51,6 +53,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-01T05:16:40.886Z",
+  "updatedAt": "2026-08-01T05:20:48.187Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
