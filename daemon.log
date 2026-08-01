@@ -184,3 +184,11 @@
 [2026-07-14T23:16:34.260Z] [supervisor] auth: proactive refresh starting
 [2026-07-14T23:16:34.263Z] [supervisor] auth: scheduling proactive refresh in 28510s
 [2026-07-14T23:16:34.264Z] [supervisor] auth: token still valid (cross-process refresh or not yet due)
+[2026-08-01T04:19:05.921Z] [supervisor] ─── daemon start ─── version=2.1.220 pid=31208 origin=transient
+[2026-08-01T04:19:06.853Z] [supervisor] auth: scheduling proactive refresh in 28321s
+[2026-08-01T04:19:06.856Z] [supervisor] auth: scheduling proactive refresh in 28321s
+[2026-08-01T04:19:07.500Z] [supervisor] workers=0
+[2026-08-01T04:19:07.525Z] [bg] bg: control socket bound at \\.\pipe\cc-daemon-*-control
+[2026-08-01T04:19:07.548Z] [bg] bg adopt: adopted=0 respawned=0 dead=1
+[2026-08-01T04:19:07.673Z] [bg] bg spawned a1adb8ec (slash)
+[2026-08-01T04:19:07.674Z] [bg] bg spawned 31530bb9 (spare)

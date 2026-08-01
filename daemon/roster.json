@@ -1,36 +1,34 @@
 {
   "proto": 1,
-  "supervisorPid": 38016,
-  "updatedAt": 1783645471828,
+  "supervisorPid": 31208,
+  "updatedAt": 1785557956403,
   "workers": {
-    "bb6b583a": {
-      "pid": 32316,
-      "procStart": "639192206649558340",
-      "sessionId": "bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf",
-      "rendezvousSock": "\\\\.\\pipe\\cc-daemon-69c76e4ae1bf5e5b-rv-bb6b583a",
-      "ptySock": "\\\\.\\pipe\\cc-daemon-69c76e4ae1bf5e5b-pty-bb6b583a",
-      "cliVersion": "2.1.206",
-      "startedAt": 1783434699887,
-      "attempt": 2,
+    "a1adb8ec": {
+      "pid": 31720,
+      "procStart": "639211295476843860",
+      "sessionId": "a1adb8ec-bcb6-4317-954a-4fa3f4410ca8",
+      "rendezvousSock": "\\\\.\\pipe\\cc-daemon-69c76e4ae1bf5e5b-rv-a1adb8ec",
+      "ptySock": "\\\\.\\pipe\\cc-daemon-69c76e4ae1bf5e5b-pty-a1adb8ec",
+      "cliVersion": "2.1.220",
+      "startedAt": 1785557947673,
+      "attempt": 1,
       "cwd": "C:\\Users\\marka",
       "dispatch": {
         "proto": 1,
-        "short": "bb6b583a",
-        "nonce": "8916fa57",
-        "sessionId": "bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf",
-        "createdAt": 1783434693472,
-        "source": "fleet",
+        "short": "a1adb8ec",
+        "nonce": "d3fcd208",
+        "sessionId": "a1adb8ec-bcb6-4317-954a-4fa3f4410ca8",
+        "createdAt": 1785557944822,
+        "source": "slash",
         "cwd": "C:\\Users\\marka",
         "launch": {
-          "mode": "prompt",
-          "args": [
-            "--session-id",
-            "bb6b583a-5f2e-42bf-9d87-d6fd7bbb8fdf",
+          "mode": "resume",
+          "sessionId": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\938cde6f-55e7-4232-887d-3eaefc4cdcbc.jsonl",
+          "fork": true,
+          "flagArgs": [
             "--reply-on-resume",
             "--permission-mode",
-            "default",
-            "--",
-            "but we had 30 gaps mission we were fixing first before we did anything else and a big project to que when they were done"
+            "default"
           ]
         },
         "env": {
@@ -43,7 +41,7 @@
           "default"
         ],
         "seed": {
-          "intent": "but we had 30 gaps mission we were fixing first before we did anything else and a big project to que when they were done"
+          "intent": "this is a teleport session you don't have any of the context"
         },
         "cols": 120,
         "rows": 30
@@ -57,8 +55,64 @@
         2004,
         2031
       ],
-      "rvAuth": "b4e7aba2af0137be2ec9f14e9b98f28b",
-      "ptyAuth": "251fcc9bfa0851aaf6f0a3a61c38d924"
+      "rvAuth": "050f7924a9d91fd74366ed3892139b59",
+      "ptyAuth": "1c6c597f508ed64c76d41eff79f31024"
+    },
+    "31530bb9": {
+      "pid": 20024,
+      "procStart": "639211295477409120",
+      "sessionId": "31530bb9-567a-43d1-bace-3853ecc456d5",
+      "rendezvousSock": "\\\\.\\pipe\\cc-daemon-69c76e4ae1bf5e5b-rv-31530bb9",
+      "ptySock": "\\\\.\\pipe\\cc-daemon-69c76e4ae1bf5e5b-pty-31530bb9",
+      "cliVersion": "2.1.220",
+      "startedAt": 1785557947674,
+      "attempt": 1,
+      "cwd": "C:\\Users\\marka",
+      "dispatch": {
+        "proto": 1,
+        "short": "31530bb9",
+        "nonce": "5b19ba7d",
+        "sessionId": "31530bb9-567a-43d1-bace-3853ecc456d5",
+        "createdAt": 1785557944944,
+        "source": "spare",
+        "cwd": "C:\\Users\\marka",
+        "launch": {
+          "mode": "prompt",
+          "args": [
+            "--session-id",
+            "31530bb9-567a-43d1-bace-3853ecc456d5",
+            "--agent",
+            "claude",
+            "--permission-mode",
+            "default"
+          ]
+        },
+        "env": {},
+        "isolation": "none",
+        "respawnFlags": [
+          "--agent",
+          "claude",
+          "--permission-mode",
+          "default"
+        ],
+        "agent": "claude",
+        "seed": {
+          "intent": ""
+        },
+        "cols": 120,
+        "rows": 30
+      },
+      "decModes": [
+        1004,
+        1000,
+        1002,
+        1003,
+        1006,
+        2004,
+        2031
+      ],
+      "rvAuth": "5636947c0e1a6804cbf54ad082f94cf3",
+      "ptyAuth": "07a28f080ae849920d77c8ff6d22dc1b"
     }
   }
 }
