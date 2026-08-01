@@ -1,9 +1,9 @@
 {
   "state": "working",
-  "detail": "v3.3 (27B, 135 steps) trained & merged; trap-17 verified; staging export",
+  "detail": "export firing (46m), quantize (11m), then score; Ollama restarted self—will stop between runs",
   "tempo": "idle",
   "inFlight": {
-    "tasks": 2,
+    "tasks": 3,
     "queued": 0,
     "kinds": [
       "local_bash"
@@ -21,12 +21,18 @@
       "kind": "shell",
       "label": "ssh nxtbeast \"docker ps -a --filter name=searxng --format '{{.Names}} | {{.Status}} | {{.Ports}}'\" 2>&1 | tail -3; echo \"--- docker daemon ---\"; ssh nxtbeast \"docker info --format '{{.ServerVersion}}…",
       "startedAt": 1785561959584
+    },
+    {
+      "id": "bn1p3slqb",
+      "kind": "shell",
+      "label": "ssh nxtbeast \"wsl -d Ubuntu -- bash /mnt/c/Users/marka/conductor-qwen-run/export-v33.sh\" 2>&1 | tail -8",
+      "startedAt": 1785598917186
     }
   ],
-  "tokens": 2251625,
+  "tokens": 2255093,
   "output": null,
   "children": null,
-  "linkScanOffset": 6199568,
+  "linkScanOffset": 6238656,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -50,6 +56,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-01T11:01:15.852Z",
+  "updatedAt": "2026-08-01T15:42:57.674Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }

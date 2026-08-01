@@ -193,3 +193,6 @@
 [2026-08-01T04:19:07.673Z] [bg] bg spawned a1adb8ec (slash)
 [2026-08-01T04:19:07.674Z] [bg] bg spawned 31530bb9 (spare)
 [2026-08-01T05:19:08.812Z] [bg] bg settled 31530bb9 (done)
+[2026-08-01T12:11:08.136Z] [supervisor] auth: proactive refresh starting
+[2026-08-01T12:11:09.021Z] [supervisor] auth: scheduling proactive refresh in 28560s
+[2026-08-01T12:11:09.022Z] [supervisor] auth: proactive refresh succeeded
