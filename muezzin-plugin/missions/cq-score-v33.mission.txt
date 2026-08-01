@@ -1,0 +1,64 @@
+MISSION-ID: cq-score-v33
+MISSION-CLASS: ops-deploy
+REPO-ROOT: C:\Users\marka\conductor-qwen
+ALLOW-FILES:
+  - eval/lane-v33-tuned
+  - eval/lane-v33-base
+  - V33-SCORECARD.md
+REQUIRES: none (all inputs verified by step 1)
+STEPS: 6
+
+CLASS NOTE: ops-deploy is REQUIRED and every path below is ABSOLUTE. command_queue.mjs
+isCommandClassMission() matches ONLY /MISSION-CLASS:\s*ops-deploy/i or the literal token
+command-class; cq-train-v33-27b FAILED x2 on an invented class and never ran from REPO-ROOT.
+
+Maqsad: THIS IS THE DELIVERABLE. Everything before it was preparation. cq-import-score-v33 is
+misnamed — it declares 5 steps and none of them score anything; its done-means is an import
+receipt. That was caught by an adversarial framing check, not by the conductor. This mission
+produces the scored result: arch-gov-27b-v33 against the untuned base qwen3.6:27b on the SAME
+30 holdout rows, under IDENTICAL conditions, scored by phase3\score-v33.py's three-way matrix
+with both absolute-zero ship gates enforced.
+
+WHAT IS ALREADY PROVEN (receipts, not assumptions): training EXIT-v33-27b=0, 135/135 steps;
+trap-17 verified by shard mtimes ascending across the 38-minute merge; both GGUFs byte-identical
+to the v3.1/v3.2 references; model imported and serving; /api/show round-trip content-equal
+after CRLF normalisation with zero non-ascii; a 363-token generation completing with
+done_reason=stop.
+
+WHAT IS NOT PROVEN AND IS THE ENTIRE POINT OF THIS MISSION: any RATE. Two hand-run generations
+on prompts from the corpus's own trained class are a TRAINING CHECK, exactly as V31-SCORECARD
+says of its own eval ("For v3.1 it is a training check"). This project has already withdrawn one
+frontier-parity claim and recorded one failed prediction. No number from this model may be
+quoted until it comes from this mission.
+
+niyyah: The comparison is the result; the absolute number is not. Both lanes run the SAME
+holdout bytes, the SAME prompt condition, and the SAME scorer — score-v33.py fails closed and
+refuses to render a comparison table when lanes disagree on prompt state or holdout sha, and
+that refusal must not be worked around. The base lane is a genuine control, not a strawman: if
+it returns empty responses that is a SERVING artifact (qwen3.6 emits thinking tokens and can
+leave `response` empty), and step 3 fails closed on it rather than recording a win.
+
+Steps (LITERAL command queue — bare PowerShell, absolute paths, no nested shells, no redirects
+inside any ssh string. Steps 1-2 were EXECUTED by the conductor this wake: the model serves and
+generates 363 tokens to done_reason=stop; the base's empty-response artifact is a live receipt.):
+
+```pwsh
+$h = Get-FileHash C:\Users\marka\conductor-qwen\phase3\holdout-v33.jsonl -Algorithm SHA256; "HOLDOUT-SHA=$($h.Hash.ToLower().Substring(0,16))"; $rows = (Get-Content C:\Users\marka\conductor-qwen\phase3\holdout-v33.jsonl | Measure-Object -Line).Lines; "HOLDOUT-ROWS=$rows"; if ($rows -ne 30) { "HOLDOUT-WRONG-SIZE"; exit 1 }; $st = python C:\Users\marka\conductor-qwen\phase3\score-v33.py --selftest; if ($LASTEXITCODE -ne 0) { "SCORER-SELFTEST-FAILED"; exit 1 }; "SCORER-SELFTEST-OK"
+$tags = (Invoke-RestMethod 'http://nxtbeast:11434/api/tags' -TimeoutSec 30).models.name; $hasT = $tags -contains 'arch-gov-27b-v33:latest'; $hasB = $tags -contains 'qwen3.6:27b'; "TUNED-PRESENT=$hasT BASE-PRESENT=$hasB"; if (-not ($hasT -and $hasB)) { "LANE-MODEL-MISSING"; exit 1 }; $ps = (Invoke-RestMethod 'http://nxtbeast:11434/api/ps' -TimeoutSec 20).models; if ($ps) { foreach ($m in $ps) { ssh nxtbeast "ollama stop $($m.name)" }; Start-Sleep -Seconds 5 }; $v = ssh nxtbeast "wsl -d Ubuntu -- nvidia-smi --query-gpu=memory.used --format=csv,noheader"; "WSL-VRAM=$v (TRAP 21: read from inside WSL, the Windows view excludes WSL allocation)"
+$probe = @{model='qwen3.6:27b'; prompt='Reply with one short sentence about receipts.'; stream=$false; think=$false; options=@{num_predict=200}} | ConvertTo-Json; $pr = (Invoke-RestMethod 'http://nxtbeast:11434/api/generate' -Method Post -Body $probe -TimeoutSec 300).response.Trim(); "BASE-PROBE-CHARS=$($pr.Length)"; if ($pr.Length -lt 20) { "BASE-LANE-VOID: the control returns empty text. qwen3.6 emits thinking tokens and can leave response empty - this is a SERVING artifact, not a capability result. Recording a tuned win against an empty control would repeat the withdrawn frontier-parity claim. Fix the serving (think=false / num_predict) before scoring."; exit 1 }; "BASE-LANE-LIVE"
+python C:\Users\marka\conductor-qwen\phase3\score-v33.py arch-gov-27b-v33 --api ollama --host http://nxtbeast:11434 --nosystem --out C:\Users\marka\conductor-qwen\eval\lane-v33-tuned; if ($LASTEXITCODE -ne 0) { "TUNED-LANE-FAILED"; exit 1 }; "TUNED-LANE-DONE"
+python C:\Users\marka\conductor-qwen\phase3\score-v33.py qwen3.6:27b --api ollama --host http://nxtbeast:11434 --nosystem --out C:\Users\marka\conductor-qwen\eval\lane-v33-base; if ($LASTEXITCODE -ne 0) { "BASE-LANE-FAILED"; exit 1 }; "BASE-LANE-DONE"
+python C:\Users\marka\conductor-qwen\phase3\score-v33.py --compare C:\Users\marka\conductor-qwen\eval\lane-v33-tuned C:\Users\marka\conductor-qwen\eval\lane-v33-base; if ($LASTEXITCODE -ne 0) { "COMPARE-REFUSED: score-v33.py fails closed when lanes disagree on prompt state or holdout sha. Do NOT re-register a lane to make the table render - that refusal is the guard working."; exit 1 }; "COMPARE-OK - write V33-SCORECARD.md from this output, with n stated on every rate"
+```
+
+Done-means: both lane directories hold 30 scored transcripts each, `--compare` renders without
+refusing, and the output carries n on every rate. A rendered table is NOT done if either lane
+ran under a different prompt state or a different holdout sha — the scorer refuses that, and
+the refusal is the result.
+
+STOP CONDITIONS — report, do not improvise:
+- Base lane returns empty text: STOP. Fix the serving. An empty control is not a win.
+- `--compare` refuses: STOP. Read why. Never re-register a lane to force the table.
+- Any single-cell reading: STOP. V31-SCORECARD measured a ~40-point context effect between
+  evidence-present and evidence-absent; a rate from one cell is uninterpretable.
+- Any temptation to hand-run these steps: that is the drift this whole sequence corrected.

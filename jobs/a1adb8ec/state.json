@@ -1,13 +1,14 @@
 {
   "state": "working",
-  "detail": "authoring scoring mission for cq-import-score-v33; 5 steps untracked",
+  "detail": "scoring mission live; import re-verifying; parsing bugs fixed",
   "tempo": "active",
   "inFlight": {
-    "tasks": 3,
+    "tasks": 4,
     "queued": 0,
     "kinds": [
       "local_bash",
-      "local_agent"
+      "local_agent",
+      "monitor"
     ]
   },
   "fan": [
@@ -30,16 +31,16 @@
       "startedAt": 1785601115496
     },
     {
-      "id": "bqgxm6u5f",
-      "kind": "shell",
-      "label": "Write-Output \"== B1b: '>' redirect on the ssh+wsl boundary ==\" ssh nxtbeast \"wsl -d Ubuntu -- echo HELLO_FROM_WSL > %TEMP%\\bp-redirect-probe.txt\" 2>&1 | Out-String Write-Output \"-- did a WINDOWS-side…",
-      "startedAt": 1785601415398
+      "id": "b3sg8jq5n",
+      "kind": "monitor",
+      "label": "v3.3 scoring mission — state, lane file counts, stalls",
+      "startedAt": 1785601644493
     }
   ],
-  "tokens": 2312614,
+  "tokens": 2321797,
   "output": null,
   "children": null,
-  "linkScanOffset": 6623048,
+  "linkScanOffset": 6695222,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -63,6 +64,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-01T16:23:43.734Z",
+  "updatedAt": "2026-08-01T16:27:38.049Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
