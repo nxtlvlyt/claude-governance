@@ -1,10 +1,10 @@
 {
   "state": "working",
-  "detail": "de-templating at 1,221 calls; awaiting operator format spec for model-in-loop test",
+  "detail": "refining CLASS R scoring: REACHES vs HEDGES vs ASSERTS",
   "tempo": "active",
   "inFlight": {
-    "tasks": 19,
-    "queued": 0,
+    "tasks": 20,
+    "queued": 1,
     "kinds": [
       "local_bash",
       "local_agent",
@@ -125,12 +125,18 @@
       "kind": "monitor",
       "label": "v3.3 de-template build completion",
       "startedAt": 1785569944066
+    },
+    {
+      "id": "b2ad6budj",
+      "kind": "shell",
+      "label": "until [ -s build-run.log ]; do sleep 45; done; echo READY_NOW",
+      "startedAt": 1785570004862
     }
   ],
-  "tokens": 1590970,
+  "tokens": 1595002,
   "output": null,
   "children": null,
-  "linkScanOffset": 4201477,
+  "linkScanOffset": 4224777,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -154,6 +160,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-01T07:39:10.404Z",
+  "updatedAt": "2026-08-01T07:40:05.164Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
