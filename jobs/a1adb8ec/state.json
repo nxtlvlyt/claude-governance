@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "explained RAG failure modes: training data imbalance",
+  "detail": "governance implementation audit: 4 receipts, 1 success case identified",
   "tempo": "active",
   "inFlight": {
     "tasks": 1,
@@ -823,7 +823,8 @@
       "kind": "workflow",
       "label": "verify:94:STATE-1780887545217.md",
       "group": "Verify",
-      "startedAt": 1785559711851
+      "startedAt": 1785559711851,
+      "doneAt": 1785559860934
     },
     {
       "id": "ace03976e34346fb4",
@@ -838,127 +839,151 @@
       "kind": "workflow",
       "label": "verify:96:STATE-1780857932669.md",
       "group": "Verify",
-      "startedAt": 1785559728804
+      "startedAt": 1785559728804,
+      "doneAt": 1785559867121
     },
     {
       "id": "a9afb55f3f1e8b2c7",
       "kind": "workflow",
       "label": "verify:97:STATE-1780857932669.md",
       "group": "Verify",
-      "startedAt": 1785559740397
+      "startedAt": 1785559740397,
+      "doneAt": 1785559849405
     },
     {
       "id": "a55abc8a2d48f2d20",
       "kind": "workflow",
       "label": "verify:98:STATE-1780894818698.md",
       "group": "Verify",
-      "startedAt": 1785559742890
+      "startedAt": 1785559742890,
+      "doneAt": 1785559845992
     },
     {
       "id": "a6c4997b352485978",
       "kind": "workflow",
       "label": "verify:99:STATE-1780894818698.md",
       "group": "Verify",
-      "startedAt": 1785559748913
+      "startedAt": 1785559748913,
+      "doneAt": 1785559857917
     },
     {
       "id": "a442c2b729e344971",
       "kind": "workflow",
       "label": "verify:100:STATE-1780896983635.md",
       "group": "Verify",
-      "startedAt": 1785559753084
+      "startedAt": 1785559753084,
+      "doneAt": 1785559865108
     },
     {
       "id": "aa31ccd44c1aa281c",
       "kind": "workflow",
       "label": "verify:101:STATE-1780896983635.md",
       "group": "Verify",
-      "startedAt": 1785559764526
+      "startedAt": 1785559764526,
+      "doneAt": 1785559881197
     },
     {
       "id": "a827fcfb0f2410b22",
       "kind": "workflow",
       "label": "verify:102:STATE-1780896983635.md",
       "group": "Verify",
-      "startedAt": 1785559788585
+      "startedAt": 1785559788585,
+      "doneAt": 1785559908401
     },
     {
       "id": "a25fb056c0f391110",
       "kind": "workflow",
       "label": "verify:103:STATE-1780926941162.md",
       "group": "Verify",
-      "startedAt": 1785559792436
+      "startedAt": 1785559792436,
+      "doneAt": 1785559938699
     },
     {
       "id": "a23cb3800adb8aa88",
       "kind": "workflow",
       "label": "verify:104:STATE-1780926941162.md",
       "group": "Verify",
-      "startedAt": 1785559798881
+      "startedAt": 1785559798881,
+      "doneAt": 1785559856399
     },
     {
       "id": "a8f60b6525b672623",
       "kind": "workflow",
       "label": "verify:105:STATE-1780929727484.md",
       "group": "Verify",
-      "startedAt": 1785559805932
+      "startedAt": 1785559805932,
+      "doneAt": 1785559932927
     },
     {
       "id": "aa595b3a646c63416",
       "kind": "workflow",
       "label": "verify:106:STATE-1780933522596.md",
       "group": "Verify",
-      "startedAt": 1785559809222
+      "startedAt": 1785559809222,
+      "doneAt": 1785559871017
     },
     {
       "id": "aa793d66948d33391",
       "kind": "workflow",
       "label": "verify:107:STATE-1780933522596.md",
       "group": "Verify",
-      "startedAt": 1785559823154
+      "startedAt": 1785559823154,
+      "doneAt": 1785559877492
     },
     {
       "id": "a1affcd761dc6c139",
       "kind": "workflow",
       "label": "verify:108:STATE-1780933522596.md",
       "group": "Verify",
-      "startedAt": 1785559829634
+      "startedAt": 1785559829634,
+      "doneAt": 1785559912205
     },
     {
       "id": "a12e101b8ef72046b",
       "kind": "workflow",
       "label": "verify:109:STATE-1780933522596.md",
       "group": "Verify",
-      "startedAt": 1785559839239
+      "startedAt": 1785559839239,
+      "doneAt": 1785559925167
     },
     {
-      "id": "wcqwcfnc7:118",
+      "id": "a31000d382bf27d06",
       "kind": "workflow",
       "label": "verify:110:STATE-1780960718997.md",
       "group": "Verify",
-      "startedAt": 1785559191066
+      "startedAt": 1785559845763,
+      "doneAt": 1785559915305
     },
     {
-      "id": "wcqwcfnc7:119",
+      "id": "a88f02306f180c4bd",
       "kind": "workflow",
       "label": "verify:111:STATE-1780960718997.md",
       "group": "Verify",
-      "startedAt": 1785559191066
+      "startedAt": 1785559849560,
+      "doneAt": 1785559920602
     },
     {
-      "id": "wcqwcfnc7:120",
+      "id": "a8d60c80d5147b2a7",
       "kind": "workflow",
       "label": "verify:112:STATE-1780975215900.md",
       "group": "Verify",
-      "startedAt": 1785559191066
+      "startedAt": 1785559853760,
+      "doneAt": 1785559984029
+    },
+    {
+      "id": "a72cac88b9fdb1f10",
+      "kind": "workflow",
+      "label": "synthesis",
+      "group": "Synthesize",
+      "startedAt": 1785559988178
     }
   ],
-  "tokens": 833099,
+  "tokens": 912579,
   "output": {
-    "result": "RAG breaks on mixed questions; fix is balanced training data with partial-match cases"
+    "result": "Governance was not fully implemented: abstention directive not built, 3-part constraint file never committed, function calls trained don't exist in system, single-world corpus killed discrimination. Where it WAS implemented (v3.1 fabrication fix), it worked."
   },
   "children": null,
-  "linkScanOffset": 1675051,
+  "linkScanOffset": 1683710,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -970,6 +995,8 @@
     "--permission-mode",
     "auto"
   ],
+  "bgIsolation": "none",
+  "providerEnv": {},
   "intent": "this is a teleport session you don't have any of the context",
   "name": "teleport-context-sync",
   "nameSource": "auto",
@@ -978,10 +1005,7 @@
   "daemonShort": "a1adb8ec",
   "cliVersion": "2.1.220",
   "cwd": "C:\\Users\\marka",
-  "bgIsolation": "none",
-  "providerEnv": {},
-  "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-01T04:50:42.117Z",
-  "firstTerminalAt": "2026-08-01T04:26:56.154Z"
-}
+  "updatedAt": "2026-08-01T04:53:08.426Z",
+  "firstTerminalAt": "2026-08-01T04:26:56.154Z",
+  "backend": "daemo
