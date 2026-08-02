@@ -1,32 +1,19 @@
 {
-  "state": "working",
-  "detail": "benchmark running (240 cases × 4 threads), model resident at 3.8s latency",
-  "tempo": "idle",
+  "state": "blocked",
+  "detail": "Salad GPU client holding 24GB VRAM; awaiting go-ahead to stop",
+  "tempo": "blocked",
   "inFlight": {
-    "tasks": 2,
+    "tasks": 0,
     "queued": 0,
-    "kinds": [
-      "local_bash"
-    ]
+    "kinds": []
   },
-  "fan": [
-    {
-      "id": "bchprswhf",
-      "kind": "shell",
-      "label": "ssh -o ConnectTimeout=90 -o ServerAliveInterval=30 -o ServerAliveCountMax=10000 nxtbeast \"wsl -d Ubuntu -- bash /mnt/c/Users/marka/bfcl-run-all.sh\" 2>&1 | tr -d '\\000' | tail -40",
-      "startedAt": 1785683525187
-    },
-    {
-      "id": "bvnj6szfw",
-      "kind": "shell",
-      "label": "export PYTHONIOENCODING=utf-8 cat > \"$CLAUDE_JOB_DIR/tmp/wait-bfcl.sh\" <<'EOF' #!/bin/bash for i in $(seq 1 60); do if [ -n \"$(find ~/bfclproj/result -type f -name '*.json' 2>/dev/null | head -1)\" ];…",
-      "startedAt": 1785684249806
-    }
-  ],
-  "tokens": 2852493,
-  "output": null,
+  "tokens": 2861305,
+  "needs": "say the word to stop Salad or leave it running",
+  "output": {
+    "result": "root cause found: Salad.Bowl.Service holding GPU; BFCL ready to go once cleared"
+  },
   "children": null,
-  "linkScanOffset": 12426242,
+  "linkScanOffset": 12507494,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -50,6 +37,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-02T15:24:31.645Z",
+  "updatedAt": "2026-08-02T15:51:30.298Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
