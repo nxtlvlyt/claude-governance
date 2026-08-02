@@ -1,18 +1,18 @@
 {
   "state": "done",
-  "detail": "fabrication eval complete: 1/8 vs 0/8, routing loop stops invention",
+  "detail": "27B matched 550B on executable tasks (6/6); both hedge on underspecified",
   "tempo": "idle",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 2699260,
+  "tokens": 2721102,
   "output": {
-    "result": "Detector bug fixed; tuned model 1/8 fabrication (was 6/8 due to punctuation mismatch). Both models honest when tool returns empty. Finding: routing loop itself prevents invention, not weights alone."
+    "result": "Graded vibe-coder top 3 tasks: WRITE/DEBUG/REFACTOR executable—27B 6/6 vs 550B 6/6 parity. REACHES on underspec—27B 1/3, 550B 0/3. Neither ship code after flagging gaps; both silent-guess on missing traces. 27B marginally better at naming constraints."
   },
   "children": null,
-  "linkScanOffset": 9032720,
+  "linkScanOffset": 9248228,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -36,6 +36,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-02T03:39:27.112Z",
+  "updatedAt": "2026-08-02T03:57:35.242Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
