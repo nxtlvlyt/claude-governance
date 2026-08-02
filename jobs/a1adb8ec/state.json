@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "I'll tell you which.",
+  "detail": "mission looping on one-writer violation; corrected version staged to drop at ~05:21",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -17,10 +17,10 @@
       "startedAt": 1785645984196
     }
   ],
-  "tokens": 2773497,
+  "tokens": 2779382,
   "output": null,
   "children": null,
-  "linkScanOffset": 11465632,
+  "linkScanOffset": 11529783,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -44,6 +44,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-02T05:12:30.229Z",
+  "updatedAt": "2026-08-02T05:18:50.999Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
