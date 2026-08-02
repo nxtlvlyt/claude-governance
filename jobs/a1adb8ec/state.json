@@ -1,6 +1,6 @@
 {
-  "state": "done",
-  "detail": "benchmark running GPU-backed, 0 timeouts; NUM_GPU config root-caused",
+  "state": "working",
+  "detail": "eval running on GPU (94%, 359W); irrelevance score in ~3h",
   "tempo": "idle",
   "inFlight": {
     "tasks": 2,
@@ -23,12 +23,10 @@
       "startedAt": 1785688318568
     }
   ],
-  "tokens": 2885335,
-  "output": {
-    "result": "benchmark green (94% GPU, 349W, 10/10 answers); NUM_GPU=0 was pre-existing, activated by Ollama restart"
-  },
+  "tokens": 2887129,
+  "output": null,
   "children": null,
-  "linkScanOffset": 12769222,
+  "linkScanOffset": 12807879,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -52,6 +50,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-02T16:37:10.075Z",
+  "updatedAt": "2026-08-02T16:50:55.074Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
