@@ -1,18 +1,18 @@
 {
   "state": "done",
-  "detail": "27B matched 550B on executable tasks (6/6); both hedge on underspecified",
+  "detail": "framework teaches multi-turn loops; corpus missing shape to encode it",
   "tempo": "idle",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 2721102,
+  "tokens": 2724863,
   "output": {
-    "result": "Graded vibe-coder top 3 tasks: WRITE/DEBUG/REFACTOR executable—27B 6/6 vs 550B 6/6 parity. REACHES on underspec—27B 1/3, 550B 0/3. Neither ship code after flagging gaps; both silent-guess on missing traces. 27B marginally better at naming constraints."
+    "result": "root cause: 0 multi-turn examples in 360-row corpus; fix: full-loop harness generates correct shape for v3.4 generator"
   },
   "children": null,
-  "linkScanOffset": 9248228,
+  "linkScanOffset": 9289749,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -36,6 +36,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-02T03:57:35.242Z",
+  "updatedAt": "2026-08-02T04:02:53.577Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
