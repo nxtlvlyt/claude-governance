@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "WSL fixed (orphaned VM released); benchmark ready in hours; tool-pulling next daemon pickup",
+  "detail": "engine-probe-verb-loop refired; migration 76% (880GB/245); WSL repair recorded",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -17,10 +17,10 @@
       "startedAt": 1785645984196
     }
   ],
-  "tokens": 2809889,
+  "tokens": 2813417,
   "output": null,
   "children": null,
-  "linkScanOffset": 11924289,
+  "linkScanOffset": 11969294,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -44,6 +44,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-02T06:12:58.547Z",
+  "updatedAt": "2026-08-02T06:17:46.838Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
