@@ -46,9 +46,16 @@ more must not thereby be able to write more.
 
 Steps:
 
-1. READ conduct-beat-local.mjs in full (163 lines) for context: the verb allowlist inside
-   gateAction, the JSON-extraction helper, the /api/chat call site, the rijal record fields,
-   and the existing --selftest block with its five polarity checks. Author nothing.
+1. READ the file at the ABSOLUTE path
+   C:\Users\marka\.claude\muezzin-plugin\conduct-beat-local.mjs
+   in full (163 lines) for context: the verb allowlist inside gateAction, the JSON-extraction
+   helper, the /api/chat call site, the rijal record fields, and the existing --selftest block
+   with its five polarity checks. Author nothing.
+   EVERY PATH IN EVERY STEP OF THIS MISSION MUST BE ABSOLUTE. Attempt 3 passed plan and then
+   died here on a RELATIVE path: the planner emitted
+   `Select-String -Path conduct-beat-local.mjs` and the engine resolved it against the MISSION
+   directory (missions\engine-probe-verb-loop\), not REPO-ROOT, so it could not find the file.
+   Same cwd class that failed cq-train-v33-27b. Do not emit a bare filename anywhere.
    NOTE ON WHAT GUARDS THE EXISTING BEHAVIOUR: an earlier draft of this mission asked step 1 to
    "record a baseline" that a later step would "assert against". An adversarial pass killed
    that as unenforceable prose — no mechanical check can verify it. The real guard already

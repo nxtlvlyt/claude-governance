@@ -1,10 +1,10 @@
 {
-  "state": "blocked",
-  "detail": "12 MiB free of 24,564 MiB; reboot or process kill needed",
-  "tempo": "blocked",
+  "state": "done",
+  "detail": "benchmark running GPU-backed, 0 timeouts; NUM_GPU config root-caused",
+  "tempo": "idle",
   "inFlight": {
-    "tasks": 1,
-    "queued": 1,
+    "tasks": 2,
+    "queued": 0,
     "kinds": [
       "local_bash"
     ]
@@ -15,15 +15,20 @@
       "kind": "shell",
       "label": "export PYTHONIOENCODING=utf-8 echo \"=== docker containers (Salad runs workloads in containers) ===\" ssh -o ConnectTimeout=30 nxtbeast \"docker ps -a --format \\\"{{.ID}} {{.Image}} {{.Status}}\\\"\" 2>&1 |…",
       "startedAt": 1785686952598
+    },
+    {
+      "id": "b8w7ybn1b",
+      "kind": "shell",
+      "label": "ssh -o ConnectTimeout=90 -o ServerAliveInterval=30 -o ServerAliveCountMax=10000 nxtbeast \"wsl -d Ubuntu -- bash /mnt/c/Users/marka/bfcl-run-all.sh\" 2>&1 | tr -d '\\000' | tail -40",
+      "startedAt": 1785688318568
     }
   ],
-  "tokens": 2872926,
-  "needs": "approve reboot (ssh nxtbeast \"shutdown /r /t 5\") or targeted kill (WindowsTerminal, NVIDIA Overlay, Salad.Bowl.Service)",
+  "tokens": 2885335,
   "output": {
-    "result": "VRAM leak identified: 12 MiB free; two suspect processes (WindowsTerminal 23.8 GB, NVIDIA Overlay 11.1 GB) cannot be killed by agent"
+    "result": "benchmark green (94% GPU, 349W, 10/10 answers); NUM_GPU=0 was pre-existing, activated by Ollama restart"
   },
   "children": null,
-  "linkScanOffset": 12648659,
+  "linkScanOffset": 12769222,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -47,6 +52,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-02T16:21:06.239Z",
+  "updatedAt": "2026-08-02T16:37:10.075Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
