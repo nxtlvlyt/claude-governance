@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "base eval at 167/240 (~30m remaining); poller bug fixed",
+  "detail": "baseline 167/240, running clean; results in ~30min",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -17,10 +17,10 @@
       "startedAt": 1785709728090
     }
   ],
-  "tokens": 2953836,
+  "tokens": 2953877,
   "output": null,
   "children": null,
-  "linkScanOffset": 13723338,
+  "linkScanOffset": 13738556,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -44,6 +44,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-02T22:29:05.430Z",
+  "updatedAt": "2026-08-02T23:11:31.341Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
