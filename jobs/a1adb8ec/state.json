@@ -1,25 +1,26 @@
 {
   "state": "working",
-  "detail": "Ollama 1.2TB copy running E:→D:, watcher armed, 6.4GB of 245 files moved",
+  "detail": "robocopy running: 32.1 GB, 3/245 files; will resume if session drops",
   "tempo": "idle",
   "inFlight": {
-    "tasks": 0,
-    "queued": 1,
-    "kinds": []
+    "tasks": 1,
+    "queued": 0,
+    "kinds": [
+      "local_bash"
+    ]
   },
   "fan": [
     {
-      "id": "b16bryd2i",
+      "id": "boxnwjhc9",
       "kind": "shell",
-      "label": "export PYTHONIOENCODING=utf-8 until ! ssh -o ConnectTimeout=20 nxtbeast \"powershell -NoProfile -Command \\\"if (Get-Process robocopy -EA SilentlyContinue) { exit 0 } else { exit 1 }\\\"\" 2>/dev/null; do …",
-      "startedAt": 1785645837803,
-      "doneAt": 1785645844786
+      "label": "ssh -o ConnectTimeout=30 -o ServerAliveInterval=30 -o ServerAliveCountMax=1000 nxtbeast \"robocopy E:\\\\ollama\\\\models D:\\\\ollama\\\\models /E /Z /J /R:2 /W:5 /NP /LOG+:D:\\\\ollama-migrate.log\" 2>&1 | tai…",
+      "startedAt": 1785645984196
     }
   ],
-  "tokens": 2752778,
+  "tokens": 2757381,
   "output": null,
   "children": null,
-  "linkScanOffset": 10376665,
+  "linkScanOffset": 11234485,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -43,6 +44,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-02T04:44:12.083Z",
+  "updatedAt": "2026-08-02T04:47:42.919Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
