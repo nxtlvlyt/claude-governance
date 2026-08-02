@@ -1,19 +1,17 @@
 {
   "state": "blocked",
-  "detail": "Salad.Bowl.Service hoarding 24GB VRAM at 0%; need Stop-Process to free GPU",
+  "detail": "awaiting user run `! ssh nxtbeast` to kill Salad services",
   "tempo": "blocked",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 2866626,
-  "needs": "Run: Stop-Process -Name Salad.Bowl.Service,Salad.Bootstrapper -Force",
-  "output": {
-    "result": "Found root cause: Salad.Bowl.Service idle since July 16, blocking GPU access; stopping it unblocks BFCL (~4s vs 830s)"
-  },
+  "tokens": 2867261,
+  "needs": "run: ! ssh nxtbeast \"powershell -NoProfile -Command \\\"Stop-Process -Name Salad.Bowl.Service,Salad.Bootstrapper -Force\\\"\"",
+  "output": null,
   "children": null,
-  "linkScanOffset": 12556344,
+  "linkScanOffset": 12580357,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -37,6 +35,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-02T15:54:13.571Z",
+  "updatedAt": "2026-08-02T16:08:31.268Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
