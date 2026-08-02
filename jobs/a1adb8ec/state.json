@@ -1,18 +1,16 @@
 {
   "state": "working",
-  "detail": "evaluated 2 BFCL categories; pre-reg prediction wrong (65% vs near-zero); planning baseline run",
+  "detail": "Running the untuned base next — without it we can't tell what the tune did.",
   "tempo": "idle",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 2931544,
-  "output": {
-    "result": "Irrelevance Detection 94.58% (240 rows), Python Simple AST 65.00% (400 rows); model discriminates rather than lacks capacity; baseline untuned run next"
-  },
+  "tokens": 2931650,
+  "output": null,
   "children": null,
-  "linkScanOffset": 13307795,
+  "linkScanOffset": 13327800,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -36,6 +34,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-02T19:28:31.488Z",
+  "updatedAt": "2026-08-02T19:31:12.868Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
