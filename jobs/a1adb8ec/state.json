@@ -1,18 +1,18 @@
 {
   "state": "done",
-  "detail": "framework teaches multi-turn loops; corpus missing shape to encode it",
+  "detail": "routing harness gap identified; probe-verb fix queued at AUTORUN:1254",
   "tempo": "idle",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 2724863,
+  "tokens": 2733331,
   "output": {
-    "result": "root cause: 0 multi-turn examples in 360-row corpus; fix: full-loop harness generates correct shape for v3.4 generator"
+    "result": "model doesn't need retraining; harness needs read-only probe verb. Mission queued; daemon auto-picked it up. Two pending: AIML OAuth for Sonnet rematch, OLLAMA_MODELS env move from E:"
   },
   "children": null,
-  "linkScanOffset": 9289749,
+  "linkScanOffset": 9383860,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -36,6 +36,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-02T04:02:53.577Z",
+  "updatedAt": "2026-08-02T04:09:51.480Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }

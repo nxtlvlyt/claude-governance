@@ -1,0 +1,82 @@
+MISSION-ID: engine-probe-verb-loop
+REPO-ROOT: C:\Users\marka\.claude\muezzin-plugin
+ALLOW-FILES:
+  - conduct-beat-local.mjs
+  - conduct-beat-local.probe.test.mjs
+REQUIRES: none
+STEPS: 5
+
+Maqsad: give the local conductor seat the ability to REACH. Today `conduct-beat-local.mjs`
+digests the board into a summary, sends ONE prompt, and parses ONE allowlisted verb
+(report / hold / restart / record). The seat is handed a pre-chewed state and asked for a
+verdict. It has no probe, no second turn, and therefore no way to find anything out. Add a
+read-only `probe` verb and the one extra turn that makes it a loop.
+
+WHY THIS IS THE RIGHT LEVER, receipted 2026-08-02 — do NOT re-solve this by retraining:
+
+  * `CLAUDE.md` D2 teaches the behaviour verbatim: "Your first move on uncertainty is
+    action, not consultation."
+  * `train-v33.jsonl` CANNOT teach it: 323/360 targets (89%) name a probe, but only
+    38/360 report what a probe RETURNED, and **0 of 360 rows have more than one turn** —
+    every row is exactly [system, user, assistant]. There is no shape in that dataset in
+    which reach -> tool answers -> ship can be written down. This is a DATA-SHAPE limit,
+    not a rank/epoch/lr problem, and retrying it as one is the recorded failure mode.
+  * It is not a capability gap either. In `phase3/fullloop-v1.py` the tuned 27B, GIVEN the
+    three turns by the harness, handled the returned tool output correctly 7/8 — including
+    the EMPTY and ERROR cases, where it named the gap and invented nothing.
+  * And nemotron-3-ultra (550B), which never saw this corpus, also shipped after reaching
+    ZERO times. The behaviour is rare in general. The harness has to supply the loop.
+
+niyyah: the loop is added WITHOUT widening what the seat may do. The probe verb is READ-ONLY
+and allowlisted by name; it can never mutate the board, the repo, or a mission. The existing
+gateAction ruling, the per-turn rijal JSONL record, and the think-false flag are reused as
+they stand — this mission adds a verb and a turn, not a new execution path. A seat that can
+read more must not thereby be able to write more.
+
+Steps:
+
+1. Read `conduct-beat-local.mjs` in full (163 lines). Record verbatim: the current verb
+   allowlist in `gateAction`, the JSON-extraction helper, the `/api/chat` call site, and
+   the shape of the rijal record. Change nothing yet.
+
+2. Add a `PROBES` map of READ-ONLY probes, each a named function with a bounded argument:
+     board_line(<mission-id>)      -- that mission's current AUTORUN line
+     read_retro(<mission-id>)      -- newest retro file for that mission
+     read_result_json(<mission-id>)-- that mission's result receipts
+     lanes_now()                   -- daemon lane state
+   Every probe: read-only, path-confined to REPO-ROOT, output clipped (<= 1200 chars), and
+   returning the EMPTY STRING when there is nothing — never a fabricated placeholder, never
+   a "not found" sentence the model could quote back as if it were a finding.
+
+3. Extend `gateAction` with `probe`: allow ONLY when `action.args.name` is a key of PROBES
+   and the argument matches the safe pattern; otherwise `{allow:false, status:'refused'}`.
+   Do not touch any existing verb's ruling. Refusal reasons keep the existing wording style.
+
+4. Make the beat a bounded loop: if the gated verb is `probe`, execute it, append the result
+   to the conversation as a tool turn, and re-ask. MAX 3 probes per beat, then force a
+   terminal verb. Each probe turn appends its own rijal record carrying the probe name, its
+   argument, and whether the result was EMPTY — so a beat that reached and got nothing is
+   distinguishable in the log from a beat that never reached. An empty probe result is NOT
+   an error and must not abort the beat; it is the case most worth logging.
+
+5. Write `conduct-beat-local.probe.test.mjs` and run it. It must assert, with no model
+   dispatched (stub the chat call): (a) a valid probe is allowed and executed; (b) an
+   unknown probe name is REFUSED, not executed; (c) a path-traversal argument is REFUSED;
+   (d) the loop terminates at 3 probes; (e) an EMPTY probe result still produces a rijal
+   record with the empty flag set and does not throw; (f) every pre-existing verb gates
+   exactly as it did before — assert this against the verbatim allowlist captured in step 1.
+
+Done-means: the test file exists and exits 0; `node --check conduct-beat-local.mjs` passes;
+the four probes are read-only and REPO-ROOT-confined; the pre-existing verbs' gate rulings
+are byte-unchanged; and one real beat runs end-to-end against `arch-gov-27b-v33-bare`
+showing at least one probe turn in the rijal log.
+
+STOP CONDITIONS — report, do not improvise:
+- A lane is RUNNING against this repo: STOP. Never write into a repo mid-lane.
+- Any probe would need write access to satisfy a step: STOP. The read-only boundary is the
+  point of the mission, not an obstacle in it.
+- A pre-existing verb's gate ruling changes: STOP and revert. This mission adds; it does not
+  renegotiate what the seat may already do.
+- Temptation to fix this by generating a v3.4 multi-turn corpus and retraining: STOP. That
+  is the same lever the receipts above already ruled out for THIS gap. Retraining may still
+  be right later, but it is not what this mission is for.
