@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "eval running on GPU (94%, 359W); irrelevance score in ~3h",
+  "detail": "BFCL benchmark running; 94% GPU, 13 rows banked, ~3h to irrelevance score",
   "tempo": "idle",
   "inFlight": {
     "tasks": 2,
@@ -23,10 +23,10 @@
       "startedAt": 1785688318568
     }
   ],
-  "tokens": 2887129,
+  "tokens": 2890810,
   "output": null,
   "children": null,
-  "linkScanOffset": 12807879,
+  "linkScanOffset": 12845115,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -50,6 +50,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-02T16:50:55.074Z",
+  "updatedAt": "2026-08-02T16:52:39.381Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
