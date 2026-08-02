@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "I'll report the score with its denominator, and I won't give you another time estimate until I've watched a full category complete end to end — the last two I gave were both wrong.",
+  "detail": "BFCL irrelevance: 94.58% (240 cases, 39m); simple_python running (~65m ETA)",
   "tempo": "idle",
   "inFlight": {
     "tasks": 2,
@@ -17,16 +17,16 @@
       "startedAt": 1785686952598
     },
     {
-      "id": "b19yiteph",
+      "id": "bqh655ovu",
       "kind": "shell",
-      "label": "ssh -o ConnectTimeout=90 -o ServerAliveInterval=30 -o ServerAliveCountMax=10000 nxtbeast \"wsl -d Ubuntu -- bash /mnt/c/Users/marka/bfcl-one.sh\" 2>&1 | tr -d '\\000' | tail -30",
-      "startedAt": 1785692777205
+      "label": "ssh -o ConnectTimeout=90 -o ServerAliveInterval=30 -o ServerAliveCountMax=10000 nxtbeast \"wsl -d Ubuntu -- bash /mnt/c/Users/marka/bfcl-simple.sh\" 2>&1 | tr -d '\\000' | tail -20",
+      "startedAt": 1785695269764
     }
   ],
-  "tokens": 2923549,
+  "tokens": 2927111,
   "output": null,
   "children": null,
-  "linkScanOffset": 13147004,
+  "linkScanOffset": 13239883,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -50,6 +50,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-02T17:46:31.701Z",
+  "updatedAt": "2026-08-02T18:28:13.974Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
