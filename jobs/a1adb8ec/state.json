@@ -1,19 +1,19 @@
 {
   "state": "blocked",
-  "detail": "E: drive full with 1.16 TB Ollama blobs; D: has space",
+  "detail": "2.1 TB archivable on E: (StabilityMatrix 1.5TB, courses 235GB); Drive not signed in",
   "tempo": "blocked",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 2742697,
-  "needs": "say go to robocopy models to D: and flip env var",
+  "tokens": 2747693,
+  "needs": "sign into Google Drive on nxtbeast",
   "output": {
-    "result": "measured: E: 128.7 GB free, D: 1,553.9 GB free; 1,162 GB Ollama blobs should move to D:"
+    "result": "StabilityMatrix (1.5TB) + courses (235GB) + vanlife (238GB) archivable to Drive; plan complements Ollama→D: move"
   },
   "children": null,
-  "linkScanOffset": 10277869,
+  "linkScanOffset": 10330908,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -37,6 +37,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-02T04:32:55.721Z",
+  "updatedAt": "2026-08-02T04:38:58.176Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
