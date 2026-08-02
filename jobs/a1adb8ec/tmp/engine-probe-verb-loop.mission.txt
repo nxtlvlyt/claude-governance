@@ -46,9 +46,16 @@ more must not thereby be able to write more.
 
 Steps:
 
-1. READ conduct-beat-local.mjs in full (163 lines) and record verbatim, as the baseline the
-   final step asserts against: the exact verb allowlist inside gateAction, the JSON-extraction
-   helper, the /api/chat call site, and the field list of the rijal record. Author nothing.
+1. READ conduct-beat-local.mjs in full (163 lines) for context: the verb allowlist inside
+   gateAction, the JSON-extraction helper, the /api/chat call site, the rijal record fields,
+   and the existing --selftest block with its five polarity checks. Author nothing.
+   NOTE ON WHAT GUARDS THE EXISTING BEHAVIOUR: an earlier draft of this mission asked step 1 to
+   "record a baseline" that a later step would "assert against". An adversarial pass killed
+   that as unenforceable prose — no mechanical check can verify it. The real guard already
+   exists in the file: `node conduct-beat-local.mjs --selftest` asserts all five pre-existing
+   verb polarities (sweep-ordered record EXECUTES, non-allowlisted verb PROPOSED, uninvented-
+   stem record PROPOSED, restart-with-lane REFUSED, garbage output REFUSED). Step 4 runs it and
+   requires ALL PASS. That is the enforceable contract; this step is context only.
 
 2. THE ONE AUTHORING STEP FOR conduct-beat-local.mjs. Make all of the following edits to that
    file in this single step, and do not touch it again in any later step:
@@ -83,13 +90,18 @@ Steps:
    rijal record with the empty flag set and does not throw; (f) every pre-existing verb gates
    exactly as it did before, asserted against the baseline captured in step 1.
 
-4. VERIFY only — author nothing. Run: node --check conduct-beat-local.mjs; node
-   conduct-beat-local.probe.test.mjs; and node conduct-beat-local.mjs --selftest (the five
-   pre-existing polarity checks must still ALL PASS). Report the three exit codes verbatim.
+4. VERIFY only — author nothing. Run all three and report exit codes verbatim:
+     node --check conduct-beat-local.mjs
+     node conduct-beat-local.probe.test.mjs
+     node conduct-beat-local.mjs --selftest
+   These three ARE the mechanical guarantee, and they cover the risk of concentrating four
+   edits into one authoring step (an adversarial pass flagged partial application as the most
+   likely attempt-2 failure): --check catches a syntax break, --selftest catches any change to
+   the five pre-existing verb rulings, and the new test covers the probe surface itself. If
+   --selftest stops printing ALL PASS, a pre-existing ruling moved and step 2 must be reverted.
 
-Done-means: node --check passes; the new test file exits 0; the pre-existing --selftest still
-prints ALL PASS; the four probes are read-only and REPO-ROOT-confined; and the pre-existing
-verbs' gate rulings are unchanged from the step-1 baseline.
+Done-means: all three commands exit 0; --selftest still prints ALL PASS; the new test asserts
+all six probe properties; and the four probes are read-only and REPO-ROOT-confined.
 
 STOP CONDITIONS — report, do not improvise:
 - A lane is RUNNING against this repo: STOP. Never write into a repo mid-lane.
