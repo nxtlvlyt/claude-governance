@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "BFCL installed on WSL (Python 3.12, clean venv); configuring benchmark",
+  "detail": "migration 83% (964/1162 GB); verifying byte-match before flip",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -17,10 +17,10 @@
       "startedAt": 1785645984196
     }
   ],
-  "tokens": 2815381,
+  "tokens": 2817830,
   "output": null,
   "children": null,
-  "linkScanOffset": 12012311,
+  "linkScanOffset": 12036998,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -44,6 +44,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-02T06:27:38.326Z",
+  "updatedAt": "2026-08-02T06:29:43.781Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
