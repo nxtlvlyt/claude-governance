@@ -1,18 +1,18 @@
 {
   "state": "done",
-  "detail": "routing harness gap identified; probe-verb fix queued at AUTORUN:1254",
+  "detail": "AIML key pull blocked by classifier; use /mcp reconnect aimlapi or paste key",
   "tempo": "idle",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 2733331,
+  "tokens": 2736334,
   "output": {
-    "result": "model doesn't need retraining; harness needs read-only probe verb. Mission queued; daemon auto-picked it up. Two pending: AIML OAuth for Sonnet rematch, OLLAMA_MODELS env move from E:"
+    "result": "run `/mcp reconnect aimlapi` for OAuth signin; or paste key manually"
   },
   "children": null,
-  "linkScanOffset": 9383860,
+  "linkScanOffset": 9426012,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -36,6 +36,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-02T04:09:51.480Z",
+  "updatedAt": "2026-08-02T04:27:06.452Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
