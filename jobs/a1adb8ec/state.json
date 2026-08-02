@@ -1,19 +1,19 @@
 {
   "state": "blocked",
-  "detail": "7 gaps remain: CLASS R n=10 (needs 32), Claude OAuth, `probe` not queued, OLLAMA_MODELS on E:, kimi-k3 unfunded, AIML key exposed, routing data",
+  "detail": "E: drive full with 1.16 TB Ollama blobs; D: has space",
   "tempo": "blocked",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 2737802,
-  "needs": "decide: pursue CLASS R (substrate-limited), click OAuth for Claude-family test, queue `probe` at AUTORUN:1254, move OLLAMA_MODELS to D:, fund kimi-k3, or remediate AIML key",
+  "tokens": 2742697,
+  "needs": "say go to robocopy models to D: and flip env var",
   "output": {
-    "result": "7 gaps remain: CLASS R substrate-blocked (n=10/32), Claude OAuth unmeasured, `probe` unqueued, OLLAMA_MODELS on E:, kimi-k3 unfunded, AIML key exposed"
+    "result": "measured: E: 128.7 GB free, D: 1,553.9 GB free; 1,162 GB Ollama blobs should move to D:"
   },
   "children": null,
-  "linkScanOffset": 10226483,
+  "linkScanOffset": 10277869,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -37,6 +37,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-02T04:30:06.017Z",
+  "updatedAt": "2026-08-02T04:32:55.721Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
