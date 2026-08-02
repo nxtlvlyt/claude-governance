@@ -1,32 +1,18 @@
 {
   "state": "working",
-  "detail": "BFCL irrelevance: 94.58% (240 cases, 39m); simple_python running (~65m ETA)",
+  "detail": "evaluated 2 BFCL categories; pre-reg prediction wrong (65% vs near-zero); planning baseline run",
   "tempo": "idle",
   "inFlight": {
-    "tasks": 2,
+    "tasks": 0,
     "queued": 0,
-    "kinds": [
-      "local_bash"
-    ]
+    "kinds": []
   },
-  "fan": [
-    {
-      "id": "b6kd3nh1p",
-      "kind": "shell",
-      "label": "export PYTHONIOENCODING=utf-8 echo \"=== docker containers (Salad runs workloads in containers) ===\" ssh -o ConnectTimeout=30 nxtbeast \"docker ps -a --format \\\"{{.ID}} {{.Image}} {{.Status}}\\\"\" 2>&1 |…",
-      "startedAt": 1785686952598
-    },
-    {
-      "id": "bqh655ovu",
-      "kind": "shell",
-      "label": "ssh -o ConnectTimeout=90 -o ServerAliveInterval=30 -o ServerAliveCountMax=10000 nxtbeast \"wsl -d Ubuntu -- bash /mnt/c/Users/marka/bfcl-simple.sh\" 2>&1 | tr -d '\\000' | tail -20",
-      "startedAt": 1785695269764
-    }
-  ],
-  "tokens": 2927111,
-  "output": null,
+  "tokens": 2931544,
+  "output": {
+    "result": "Irrelevance Detection 94.58% (240 rows), Python Simple AST 65.00% (400 rows); model discriminates rather than lacks capacity; baseline untuned run next"
+  },
   "children": null,
-  "linkScanOffset": 13239883,
+  "linkScanOffset": 13307795,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -50,6 +36,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-02T18:28:13.974Z",
+  "updatedAt": "2026-08-02T19:28:31.488Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
