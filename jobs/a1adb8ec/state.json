@@ -1,19 +1,19 @@
 {
   "state": "blocked",
-  "detail": "Salad GPU client holding 24GB VRAM; awaiting go-ahead to stop",
+  "detail": "Salad.Bowl.Service hoarding 24GB VRAM at 0%; need Stop-Process to free GPU",
   "tempo": "blocked",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 2861305,
-  "needs": "say the word to stop Salad or leave it running",
+  "tokens": 2866626,
+  "needs": "Run: Stop-Process -Name Salad.Bowl.Service,Salad.Bootstrapper -Force",
   "output": {
-    "result": "root cause found: Salad.Bowl.Service holding GPU; BFCL ready to go once cleared"
+    "result": "Found root cause: Salad.Bowl.Service idle since July 16, blocking GPU access; stopping it unblocks BFCL (~4s vs 830s)"
   },
   "children": null,
-  "linkScanOffset": 12507494,
+  "linkScanOffset": 12556344,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -37,6 +37,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-02T15:51:30.298Z",
+  "updatedAt": "2026-08-02T15:54:13.571Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
