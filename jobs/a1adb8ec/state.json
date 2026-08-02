@@ -1,18 +1,18 @@
 {
   "state": "done",
-  "detail": "frontier comparison unmeasurable until nxtbeast key + n>13",
+  "detail": "deepseek-v4-pro vs local 27B: frontier-parity + 1 win (6/10 vs 0/10 on hole-naming)",
   "tempo": "idle",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 2643580,
+  "tokens": 2654634,
   "output": {
-    "result": "Sonnet 5 leads 18.19–16.69; frontier comparison requires nxtbeast key + larger n"
+    "result": "27B matches frontier on evidence citing & fabrication; decisively wins on naming missing receipt items (6/10 vs 0/10, p=0.011)"
   },
   "children": null,
-  "linkScanOffset": 8502126,
+  "linkScanOffset": 8615053,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -36,6 +36,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-02T02:09:27.577Z",
+  "updatedAt": "2026-08-02T02:15:55.865Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
