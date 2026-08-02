@@ -1,17 +1,18 @@
 {
-  "state": "blocked",
-  "detail": "eval needs desktop OAuth + real tool-access test harness",
-  "tempo": "blocked",
+  "state": "done",
+  "detail": "fabrication eval complete: 1/8 vs 0/8, routing loop stops invention",
+  "tempo": "idle",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 2685511,
-  "needs": "desktop OAuth click to measure Claude-family; confirm: build full-loop tool-access test?",
-  "output": null,
+  "tokens": 2699260,
+  "output": {
+    "result": "Detector bug fixed; tuned model 1/8 fabrication (was 6/8 due to punctuation mismatch). Both models honest when tool returns empty. Finding: routing loop itself prevents invention, not weights alone."
+  },
   "children": null,
-  "linkScanOffset": 8930075,
+  "linkScanOffset": 9032720,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -35,6 +36,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-02T03:32:40.807Z",
+  "updatedAt": "2026-08-02T03:39:27.112Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
