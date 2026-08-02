@@ -1,6 +1,6 @@
 {
-  "state": "done",
-  "detail": "Arch-Gov-27B ranks 4th on irrelevance (94.58%), +12–20 pts over Qwen3; trade-off: better decline, worse function-call",
+  "state": "working",
+  "detail": "base run in progress to measure tuning delta",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -17,12 +17,10 @@
       "startedAt": 1785699197104
     }
   ],
-  "tokens": 2938179,
-  "output": {
-    "result": "Arch-Gov-27B: 4th on irrelevance leaderboard (94.58%); +12–20 pts vs Qwen3; trade-off: decline +markedly, function-call −25 pts"
-  },
+  "tokens": 2938329,
+  "output": null,
   "children": null,
-  "linkScanOffset": 13474214,
+  "linkScanOffset": 13489432,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -46,6 +44,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-02T19:36:58.852Z",
+  "updatedAt": "2026-08-02T19:53:06.659Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
