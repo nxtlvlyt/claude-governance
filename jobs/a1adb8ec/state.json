@@ -1,16 +1,16 @@
 {
   "state": "working",
-  "detail": "I'll rerun it in the background rather than holding a foreground call.",
+  "detail": "migration complete; BFCL scoring running detached (nohup+disown)",
   "tempo": "idle",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 2834392,
+  "tokens": 2838934,
   "output": null,
   "children": null,
-  "linkScanOffset": 12207050,
+  "linkScanOffset": 12260335,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -34,6 +34,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-02T07:05:15.408Z",
+  "updatedAt": "2026-08-02T14:34:20.033Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
