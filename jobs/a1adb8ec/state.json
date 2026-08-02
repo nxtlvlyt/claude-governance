@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "version mismatch found (2026.3.23 vs 2025.12.17); running controlled baseline",
+  "detail": "analyzed frontier model irrelevance scores; qwen3.6 base run pending",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -17,10 +17,10 @@
       "startedAt": 1785702216816
     }
   ],
-  "tokens": 2945030,
+  "tokens": 2946323,
   "output": null,
   "children": null,
-  "linkScanOffset": 13587252,
+  "linkScanOffset": 13604578,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -44,6 +44,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-02T20:25:20.133Z",
+  "updatedAt": "2026-08-02T20:45:56.802Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
