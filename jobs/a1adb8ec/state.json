@@ -1,6 +1,6 @@
 {
-  "state": "done",
-  "detail": "base will take ~2–2.5h; measured 56.4s/case vs tuned 39.3s",
+  "state": "working",
+  "detail": "job crashed mid-run; armed watcher to resume; ~2h to completion",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -11,18 +11,16 @@
   },
   "fan": [
     {
-      "id": "bn7l74gs6",
+      "id": "bbfthrhet",
       "kind": "shell",
-      "label": "ssh -o ConnectTimeout=90 -o ServerAliveInterval=20 -o ServerAliveCountMax=100000 nxtbeast \"wsl -d Ubuntu -- bash /mnt/c/Users/marka/bfcl-base.sh\" 2>&1 | tr -d '\\000' | grep -Ev \"it/s\\]$\" | tail -20",
-      "startedAt": 1785699197104
+      "label": "ssh -o ConnectTimeout=90 -o ServerAliveInterval=15 -o ServerAliveCountMax=100000 -o TCPKeepAlive=yes nxtbeast \"wsl -d Ubuntu -- bash /mnt/c/Users/marka/base-resume.sh\" 2>&1 | tr -d '\\000' | tail -20",
+      "startedAt": 1785702216816
     }
   ],
-  "tokens": 2939306,
-  "output": {
-    "result": "ETA 2–2.5 hours based on measured throughput (base ~1.4× slower than tuned model); base outputs 708 tok/case vs tuned 429 tok/case"
-  },
+  "tokens": 2941696,
+  "output": null,
   "children": null,
-  "linkScanOffset": 13515346,
+  "linkScanOffset": 13548044,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -46,6 +44,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-02T20:05:51.567Z",
+  "updatedAt": "2026-08-02T20:23:51.706Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
