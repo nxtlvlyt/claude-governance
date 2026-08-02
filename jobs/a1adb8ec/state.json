@@ -1,16 +1,18 @@
 {
-  "state": "working",
-  "detail": "analyzing CLASS R constraints; substrate-blocked for eval growth",
+  "state": "done",
+  "detail": "model trained and working; eval ready for missions",
   "tempo": "idle",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 2642845,
-  "output": null,
+  "tokens": 2642889,
+  "output": {
+    "result": "model trained; evaluation framework ready for mission data"
+  },
   "children": null,
-  "linkScanOffset": 8468773,
+  "linkScanOffset": 8483175,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -34,6 +36,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-02T01:10:46.767Z",
+  "updatedAt": "2026-08-02T02:08:56.846Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
