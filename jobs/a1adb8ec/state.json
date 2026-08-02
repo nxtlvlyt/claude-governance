@@ -1,6 +1,6 @@
 {
-  "state": "done",
-  "detail": "v3.4 needs native tool-call format training; BFCL is the gate",
+  "state": "working",
+  "detail": "plan repaired after 2 failures; requeued; migration 378/1162 GB",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -17,12 +17,10 @@
       "startedAt": 1785645984196
     }
   ],
-  "tokens": 2790368,
-  "output": {
-    "result": "fix: train v3.4 multi-turn on native tool-call schema (not prose); BFCL benchmark gates ship; harness generates training data"
-  },
+  "tokens": 2794405,
+  "output": null,
   "children": null,
-  "linkScanOffset": 11691578,
+  "linkScanOffset": 11775633,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -46,6 +44,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-02T05:35:40.695Z",
+  "updatedAt": "2026-08-02T05:58:16.707Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
