@@ -1,18 +1,18 @@
 {
   "state": "done",
-  "detail": "model trained and working; eval ready for missions",
+  "detail": "frontier comparison unmeasurable until nxtbeast key + n>13",
   "tempo": "idle",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 2642889,
+  "tokens": 2643580,
   "output": {
-    "result": "model trained; evaluation framework ready for mission data"
+    "result": "Sonnet 5 leads 18.19–16.69; frontier comparison requires nxtbeast key + larger n"
   },
   "children": null,
-  "linkScanOffset": 8483175,
+  "linkScanOffset": 8502126,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -36,6 +36,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-02T02:08:56.846Z",
+  "updatedAt": "2026-08-02T02:09:27.577Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
