@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "robocopy running: 32.1 GB, 3/245 files; will resume if session drops",
+  "detail": "engine-probe-verb-loop running (4m), closing gap; Ollama copy in flight",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -17,10 +17,10 @@
       "startedAt": 1785645984196
     }
   ],
-  "tokens": 2757381,
+  "tokens": 2761950,
   "output": null,
   "children": null,
-  "linkScanOffset": 11234485,
+  "linkScanOffset": 11311060,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -44,6 +44,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-02T04:47:42.919Z",
+  "updatedAt": "2026-08-02T04:49:55.315Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
