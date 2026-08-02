@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "frontier models staged on BFCL; base run finishing (~2h)",
+  "detail": "base generate at 58/240 rows; polling armed for 2m checks",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -11,16 +11,16 @@
   },
   "fan": [
     {
-      "id": "bbfthrhet",
+      "id": "bt16dlfz4",
       "kind": "shell",
-      "label": "ssh -o ConnectTimeout=90 -o ServerAliveInterval=15 -o ServerAliveCountMax=100000 -o TCPKeepAlive=yes nxtbeast \"wsl -d Ubuntu -- bash /mnt/c/Users/marka/base-resume.sh\" 2>&1 | tr -d '\\000' | tail -20",
-      "startedAt": 1785702216816
+      "label": "export PYTHONIOENCODING=utf-8 for i in $(seq 1 55); do ALIVE=$(timeout 60 ssh -o ConnectTimeout=20 nxtbeast \"wsl -d Ubuntu -- bash -c 'pgrep -c -f \\\"bfcl generate\\\"'\" 2>/dev/null | tr -d '\\000\\r' | t…",
+      "startedAt": 1785704728359
     }
   ],
-  "tokens": 2948307,
+  "tokens": 2949902,
   "output": null,
   "children": null,
-  "linkScanOffset": 13636429,
+  "linkScanOffset": 13661222,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -44,6 +44,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-02T20:51:14.622Z",
+  "updatedAt": "2026-08-02T21:05:43.579Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
