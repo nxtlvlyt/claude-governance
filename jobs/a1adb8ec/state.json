@@ -1,18 +1,17 @@
 {
-  "state": "done",
-  "detail": "diagnosis debt cleared; 3 missions resolved, traps documented",
-  "tempo": "idle",
+  "state": "blocked",
+  "detail": "waiting on you.",
+  "tempo": "blocked",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 2626086,
-  "output": {
-    "result": "all three mission failures diagnosed and resolved with receipts; infrastructure healthy, SearXNG/SSH/Ollama up"
-  },
+  "tokens": 2627049,
+  "needs": "waiting on you.",
+  "output": null,
   "children": null,
-  "linkScanOffset": 8268798,
+  "linkScanOffset": 8282789,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -36,6 +35,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-01T22:57:20.947Z",
+  "updatedAt": "2026-08-02T01:03:00.308Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
