@@ -1,17 +1,29 @@
 {
   "state": "blocked",
-  "detail": "awaiting user run `! ssh nxtbeast` to kill Salad services",
+  "detail": "12 MiB free of 24,564 MiB; reboot or process kill needed",
   "tempo": "blocked",
   "inFlight": {
-    "tasks": 0,
-    "queued": 0,
-    "kinds": []
+    "tasks": 1,
+    "queued": 1,
+    "kinds": [
+      "local_bash"
+    ]
   },
-  "tokens": 2867261,
-  "needs": "run: ! ssh nxtbeast \"powershell -NoProfile -Command \\\"Stop-Process -Name Salad.Bowl.Service,Salad.Bootstrapper -Force\\\"\"",
-  "output": null,
+  "fan": [
+    {
+      "id": "b6kd3nh1p",
+      "kind": "shell",
+      "label": "export PYTHONIOENCODING=utf-8 echo \"=== docker containers (Salad runs workloads in containers) ===\" ssh -o ConnectTimeout=30 nxtbeast \"docker ps -a --format \\\"{{.ID}} {{.Image}} {{.Status}}\\\"\" 2>&1 |…",
+      "startedAt": 1785686952598
+    }
+  ],
+  "tokens": 2872926,
+  "needs": "approve reboot (ssh nxtbeast \"shutdown /r /t 5\") or targeted kill (WindowsTerminal, NVIDIA Overlay, Salad.Bowl.Service)",
+  "output": {
+    "result": "VRAM leak identified: 12 MiB free; two suspect processes (WindowsTerminal 23.8 GB, NVIDIA Overlay 11.1 GB) cannot be killed by agent"
+  },
   "children": null,
-  "linkScanOffset": 12580357,
+  "linkScanOffset": 12648659,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -35,6 +47,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-02T16:08:31.268Z",
+  "updatedAt": "2026-08-02T16:21:06.239Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
