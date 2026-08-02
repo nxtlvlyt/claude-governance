@@ -1,16 +1,17 @@
 {
-  "state": "working",
-  "detail": "testing frontier models on governance audit; 2 lanes complete",
-  "tempo": "idle",
+  "state": "blocked",
+  "detail": "found AIML key in logs; awaiting user extraction + go-ahead",
+  "tempo": "blocked",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 2659684,
+  "tokens": 2669008,
+  "needs": "run `setx AIML_API_KEY \"<paste the key>\"` then say go",
   "output": null,
   "children": null,
-  "linkScanOffset": 8657334,
+  "linkScanOffset": 8767015,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -34,6 +35,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-02T02:40:41.279Z",
+  "updatedAt": "2026-08-02T02:51:38.303Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
