@@ -1,0 +1,20 @@
+FROM D:\conductor-qwen\models\arch-gov-27b-v33.q4km.gguf
+
+# BFCL EVAL TAG. Same weights, same digest as arch-gov-27b-v33-bare (Ollama dedupes the blob,
+# so this costs no disk). The ONLY difference is a declared generation cap.
+#
+# WHY THE CAP IS LEGITIMATE AND MUST BE DISCLOSED:
+# BFCL supplies prompt-mode models a system message stating "NO other text MUST be included".
+# Measured on this model: mean output 1,024 tokens, max 1,955, on irrelevance questions whose
+# correct answer is ~50 tokens. Some single calls exceeded 10 minutes, making the benchmark
+# un-runnable (13 of 240 rows in 30+ minutes). A response past a few hundred tokens has ALREADY
+# violated BFCL's instruction, so capping does not hide a capability -- it bounds a failure that
+# is already measured and recorded in V33-SCORECARD.md 2c. Any score from this tag must be
+# reported WITH this cap stated.
+TEMPLATE {{ .Prompt }}
+RENDERER qwen3.5
+PARSER qwen3.5
+
+PARAMETER num_predict 512
+PARAMETER temperature 0.2
+PARAMETER top_p 0.9

@@ -1,9 +1,9 @@
 {
   "state": "working",
-  "detail": "GPU benchmark running; pre-registered predictions in V33-SCORECARD.md",
+  "detail": "profiled BFCL throughput (6.9 tok/s); model never emits stop token",
   "tempo": "idle",
   "inFlight": {
-    "tasks": 2,
+    "tasks": 3,
     "queued": 0,
     "kinds": [
       "local_bash"
@@ -21,12 +21,18 @@
       "kind": "shell",
       "label": "ssh -o ConnectTimeout=90 -o ServerAliveInterval=30 -o ServerAliveCountMax=10000 nxtbeast \"wsl -d Ubuntu -- bash /mnt/c/Users/marka/bfcl-run-all.sh\" 2>&1 | tr -d '\\000' | tail -40",
       "startedAt": 1785688318568
+    },
+    {
+      "id": "b2tppn1nu",
+      "kind": "shell",
+      "label": "ssh -o ConnectTimeout=90 -o ServerAliveInterval=30 -o ServerAliveCountMax=10000 nxtbeast \"wsl -d Ubuntu -- bash /mnt/c/Users/marka/bfcl-run-all.sh\" 2>&1 | tr -d '\\000' | tail -40",
+      "startedAt": 1785690186237
     }
   ],
-  "tokens": 2896368,
+  "tokens": 2905363,
   "output": null,
   "children": null,
-  "linkScanOffset": 12895330,
+  "linkScanOffset": 12980380,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -50,6 +56,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-02T16:54:31.418Z",
+  "updatedAt": "2026-08-02T17:09:17.327Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
