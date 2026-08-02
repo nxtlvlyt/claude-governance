@@ -1,17 +1,19 @@
 {
   "state": "blocked",
-  "detail": "found AIML key in logs; awaiting user extraction + go-ahead",
+  "detail": "eval result persisted; Sonnet 5 rematch awaits AIML_API_KEY",
   "tempo": "blocked",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 2669008,
-  "needs": "run `setx AIML_API_KEY \"<paste the key>\"` then say go",
-  "output": null,
+  "tokens": 2676572,
+  "needs": "set AIML_API_KEY env var to run Sonnet 5 rematch",
+  "output": {
+    "result": "27B@4bit holds one governance boundary frontier models don't; nemotron leads on quoting/attribution; rest indistinguishable at n=10"
+  },
   "children": null,
-  "linkScanOffset": 8767015,
+  "linkScanOffset": 8827357,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -35,6 +37,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-02T02:51:38.303Z",
+  "updatedAt": "2026-08-02T02:54:03.347Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
