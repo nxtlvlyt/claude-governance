@@ -1,16 +1,26 @@
 {
   "state": "working",
-  "detail": "Running the untuned base next — without it we can't tell what the tune did.",
+  "detail": "base model eval running (~2h for 640 cases)",
   "tempo": "idle",
   "inFlight": {
-    "tasks": 0,
+    "tasks": 1,
     "queued": 0,
-    "kinds": []
+    "kinds": [
+      "local_bash"
+    ]
   },
-  "tokens": 2931650,
+  "fan": [
+    {
+      "id": "bn7l74gs6",
+      "kind": "shell",
+      "label": "ssh -o ConnectTimeout=90 -o ServerAliveInterval=20 -o ServerAliveCountMax=100000 nxtbeast \"wsl -d Ubuntu -- bash /mnt/c/Users/marka/bfcl-base.sh\" 2>&1 | tr -d '\\000' | grep -Ev \"it/s\\]$\" | tail -20",
+      "startedAt": 1785699197104
+    }
+  ],
+  "tokens": 2934460,
   "output": null,
   "children": null,
-  "linkScanOffset": 13327800,
+  "linkScanOffset": 13372546,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -34,6 +44,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-02T19:31:12.868Z",
+  "updatedAt": "2026-08-02T19:33:31.426Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
