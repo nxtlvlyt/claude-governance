@@ -1,6 +1,6 @@
 {
-  "state": "working",
-  "detail": "baseline evals running: multi_turn_base, miss_func, miss_param",
+  "state": "done",
+  "detail": "94.58 vs Sonnet 4.5 (95.03): 0.45pt gap, not a ceiling; prioritize web_search over polish",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -17,10 +17,12 @@
       "startedAt": 1785736226191
     }
   ],
-  "tokens": 3042644,
-  "output": null,
+  "tokens": 3043361,
+  "output": {
+    "result": "Sonnet 4.5 is 0.45 points ahead; model can beat it with one case; web_search lift (10→50) more valuable than polish"
+  },
   "children": null,
-  "linkScanOffset": 14946011,
+  "linkScanOffset": 14969923,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -44,6 +46,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-03T05:50:45.556Z",
+  "updatedAt": "2026-08-03T05:51:46.486Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
