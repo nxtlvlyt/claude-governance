@@ -1,7 +1,7 @@
 {
-  "state": "blocked",
-  "detail": "corpus build complete (892 situations, 9 kinds); operator_pushback at 2% below floor — add from transcript or accept as-is?",
-  "tempo": "blocked",
+  "state": "working",
+  "detail": "mined 820 new situations across 341 files; scoring & ranking by disposition",
+  "tempo": "idle",
   "inFlight": {
     "tasks": 1,
     "queued": 0,
@@ -17,11 +17,10 @@
       "startedAt": 1785753132305
     }
   ],
-  "tokens": 3077996,
-  "needs": "accept 2% operator_pushback floor or add specimens from this session?",
+  "tokens": 3082583,
   "output": null,
   "children": null,
-  "linkScanOffset": 15421205,
+  "linkScanOffset": 15466243,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -45,6 +44,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-03T11:10:26.624Z",
+  "updatedAt": "2026-08-03T11:15:13.879Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
