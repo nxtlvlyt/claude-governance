@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "D13 unsatisfiable (3 specimens max); D2/D12 mining identified as next steps",
+  "detail": "D13/D4 search complete; 14+ files found; unmining 4 directives",
   "tempo": "idle",
   "inFlight": {
     "tasks": 2,
@@ -24,10 +24,10 @@
       "startedAt": 1785796473366
     }
   ],
-  "tokens": 4903835,
+  "tokens": 4908222,
   "output": null,
   "children": null,
-  "linkScanOffset": 19165423,
+  "linkScanOffset": 19217544,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -51,6 +51,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-03T23:29:22.405Z",
+  "updatedAt": "2026-08-03T23:33:08.608Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
