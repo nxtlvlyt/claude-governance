@@ -1,13 +1,12 @@
 {
   "state": "blocked",
-  "detail": "search API costs: Marginalia free (NC-only), Mojeek £2/1k, Brave $5/1k",
+  "detail": "Brave API credit exhausted ($5.00/month); need billing decision",
   "tempo": "blocked",
   "inFlight": {
-    "tasks": 2,
+    "tasks": 1,
     "queued": 0,
     "kinds": [
-      "monitor",
-      "local_bash"
+      "monitor"
     ]
   },
   "fan": [
@@ -16,21 +15,15 @@
       "kind": "monitor",
       "label": "multi_turn serial suite: per-stage accuracy + failures",
       "startedAt": 1785772240724
-    },
-    {
-      "id": "bw1vlxwba",
-      "kind": "shell",
-      "label": "\"C:/WINDOWS/System32/OpenSSH/ssh.exe\" -o ConnectTimeout=60 -o ServerAliveInterval=20 -o ServerAliveCountMax=100000 -o TCPKeepAlive=yes nxtbeast \"wsl -d Ubuntu -- bash /mnt/c/Users/marka/finish-base-o…",
-      "startedAt": 1785796473366
     }
   ],
-  "tokens": 4918874,
-  "needs": "provide Marginalia email to request free key; confirm commercial-use plan for shipped code",
+  "tokens": 4931244,
+  "needs": "enable billing or wait for month reset to continue search measurements",
   "output": {
-    "result": "cost breakdown: Marginalia free (NC-only), Mojeek £2/1k vs Brave $5/1k; Marginalia key + commercial policy needed"
+    "result": "valid n=31 at 58.06% (search verified live); rows 32–57 unverifiable; guard installed to prevent recurrence"
   },
   "children": null,
-  "linkScanOffset": 19376336,
+  "linkScanOffset": 19503319,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -54,6 +47,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-03T23:48:36.239Z",
+  "updatedAt": "2026-08-03T23:56:03.373Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
