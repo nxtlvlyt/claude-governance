@@ -1,19 +1,26 @@
 {
-  "state": "blocked",
-  "detail": "Brave API key needs rotation (exposed in transcript)",
-  "tempo": "blocked",
+  "state": "working",
+  "detail": "BFCL web_search category running; first thesis-relevant test",
+  "tempo": "idle",
   "inFlight": {
-    "tasks": 0,
+    "tasks": 1,
     "queued": 0,
-    "kinds": []
+    "kinds": [
+      "local_bash"
+    ]
   },
-  "tokens": 3016952,
-  "needs": "rotate the Brave API key when at a keyboard",
-  "output": {
-    "result": "search fixed: braveapi active, 20 results/query, gitignored key; rotate key due to transcript exposure"
-  },
+  "fan": [
+    {
+      "id": "bt8hv5742",
+      "kind": "shell",
+      "label": "ssh -o ConnectTimeout=90 -o ServerAliveInterval=20 -o ServerAliveCountMax=100000 nxtbeast \"wsl -d Ubuntu -- bash /mnt/c/Users/marka/bfcl-websearch.sh\" 2>&1 | tr -d '\\000' | grep -vE \"it/s\\]$\" | tail …",
+      "startedAt": 1785731226291
+    }
+  ],
+  "tokens": 3019651,
+  "output": null,
   "children": null,
-  "linkScanOffset": 14529377,
+  "linkScanOffset": 14565707,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -37,6 +44,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-03T04:23:26.817Z",
+  "updatedAt": "2026-08-03T04:27:24.063Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
