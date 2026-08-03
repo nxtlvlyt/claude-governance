@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "classifier 100/1804 (34/min), ~50m ETA; zero failures",
+  "detail": "Qwen ready; Gemma 4 gated on corpus re-render; Laguna deferred + param conflict flagged",
   "tempo": "idle",
   "inFlight": {
     "tasks": 3,
@@ -30,10 +30,10 @@
       "startedAt": 1785773009624
     }
   ],
-  "tokens": 3210276,
+  "tokens": 3226713,
   "output": null,
   "children": null,
-  "linkScanOffset": 16847954,
+  "linkScanOffset": 17021245,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -57,6 +57,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-03T16:06:58.576Z",
+  "updatedAt": "2026-08-03T16:18:02.908Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
