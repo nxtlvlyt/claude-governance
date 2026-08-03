@@ -1,7 +1,7 @@
 {
-  "state": "done",
-  "detail": "corpus analysis: 9 kinds sampled, 3 scarce (orientation/pushback/humility); needs inverted sampling + retro downsampling",
-  "tempo": "idle",
+  "state": "blocked",
+  "detail": "corpus build complete (892 situations, 9 kinds); operator_pushback at 2% below floor — add from transcript or accept as-is?",
+  "tempo": "blocked",
   "inFlight": {
     "tasks": 1,
     "queued": 0,
@@ -17,12 +17,11 @@
       "startedAt": 1785753132305
     }
   ],
-  "tokens": 3072620,
-  "output": {
-    "result": "corpus imbalance identified: failure_narrative 33%, orientation_before_acting 1%, operator_pushback <1%, humility_slow_down <1%; recommend inverse sampling strategy"
-  },
+  "tokens": 3077996,
+  "needs": "accept 2% operator_pushback floor or add specimens from this session?",
+  "output": null,
   "children": null,
-  "linkScanOffset": 15370798,
+  "linkScanOffset": 15421205,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -46,6 +45,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-03T11:08:16.030Z",
+  "updatedAt": "2026-08-03T11:10:26.624Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
