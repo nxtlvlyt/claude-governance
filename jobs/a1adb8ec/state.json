@@ -1,18 +1,18 @@
 {
   "state": "done",
-  "detail": "tune trades +4.16 abstention for −1.25 function-calling; essentially free",
+  "detail": "SearXNG rate-limited; config reverted, quality gate added",
   "tempo": "idle",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 2972564,
+  "tokens": 2992316,
   "output": {
-    "result": "Arch-Gov-27B tuned variant: +4.16% on irrelevance (94.58%), −1.25% on simple_python (65.00%); five cases out of 400 — trade is net positive"
+    "result": "Config restored to original; added quality_gate.mjs to catch poisoned results; suspensions are temporary (time-based)"
   },
   "children": null,
-  "linkScanOffset": 14033556,
+  "linkScanOffset": 14232909,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -36,6 +36,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-03T03:35:44.042Z",
+  "updatedAt": "2026-08-03T03:54:45.951Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }

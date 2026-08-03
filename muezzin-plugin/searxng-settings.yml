@@ -14,3 +14,32 @@ search:
   formats:
     - html
     - json
+
+# REVERTED 2026-08-03 (conductor) — DO NOT RE-ADD AN `engines:` BLOCK WITHOUT MEASURING FIRST.
+#
+# What happened: earlier the same day this instance ran a query through this SearXNG and got
+# GENUINELY RELEVANT results — "ALoRA: Allocating Low-Rank Adaptation for Fine-tuning Large
+# Language Models", "Gradient stability in QLoRA: ablation data", "LoRA fine-tuning
+# Hyperparameters Guide | Unsloth Documentation". Search was WORKING.
+#
+# Later, seeing `unresponsive_engines: [brave 'too many requests', duckduckgo CAPTCHA,
+# startpage CAPTCHA]`, the conductor concluded search was broken and added an `engines:` block
+# disabling those three and enabling mojeek/google/bing/wikipedia/wikidata/stackexchange/
+# github/arxiv, then restarted the container. AFTER that change the same queries returned
+# junk: "qlora catastrophic forgetting" -> Thai procurement documents; "BFCL irrelevance
+# detection benchmark" -> pizza places in Des Moines; identical queries returning DIFFERENT
+# unrelated results per call.
+#
+# Root cause of the conductor's error: unresponsive_engines is NOISE, not a health verdict.
+# SearXNG routinely has some engines CAPTCHA'd while the remaining ones still answer well.
+# The operator's own words: "I'm telling you both machines had a working searxng." He was
+# right. An IP-block hypothesis was also raised and is REFUTED by measurement — raw curl from
+# nxtbeast (home) and the laptop (Starlink) returned byte-identical responses (ddg HTTP 202
+# 14.3KB, bing HTTP 200 ~75KB with 3 captcha-words) — the two hosts are not treated
+# differently, so the laptop's connection was never the problem.
+#
+# CONDITION FOR ANY FUTURE ENGINE EDIT: measure result RELEVANCE before and after
+# (searxng_quality_gate.mjs scores results against their own query). A result COUNT and an
+# empty unresponsive_engines list both pass on poisoned output — that is the same
+# check-that-passes-on-garbage class as the UTF-16 byte-count guard. Never tune engines on
+# error logs alone.
