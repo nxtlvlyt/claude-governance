@@ -1,18 +1,18 @@
 {
   "state": "done",
-  "detail": "diagnosis: corpus taught procedure not bearing; v3.4 test framed",
+  "detail": "sunnah analysis: v3.3 drill→v3.4 kind-diversity axis; corpus matched to May framework",
   "tempo": "idle",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 3036431,
+  "tokens": 3040593,
   "output": {
-    "result": "root cause: Faith files' bearing translated to board-annotation procedure, transfers only to trained shapes. v3.4 falsifiable test: lift untrained shapes (web_search, multi_turn) without dedicated corpus."
+    "result": "v3.3 confined sunnah to one situation type (drill), producing 94.58% in-kind / 10% out-of-kind. v3.4 pivot: diversity of situation *kinds* (code review, API, failed request, search null), not row count. Falsifiable: must raise web_search & multi_turn_* shapes or claim fails."
   },
   "children": null,
-  "linkScanOffset": 14825576,
+  "linkScanOffset": 14914354,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -36,6 +36,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-03T05:43:58.961Z",
+  "updatedAt": "2026-08-03T05:46:28.300Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
