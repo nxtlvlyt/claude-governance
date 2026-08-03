@@ -1,6 +1,6 @@
 {
   "state": "blocked",
-  "detail": "analyzed search API options; need Marginalia key",
+  "detail": "search API costs: Marginalia free (NC-only), Mojeek £2/1k, Brave $5/1k",
   "tempo": "blocked",
   "inFlight": {
     "tasks": 2,
@@ -24,13 +24,13 @@
       "startedAt": 1785796473366
     }
   ],
-  "tokens": 4917377,
-  "needs": "email Marginalia for free non-commercial API key",
+  "tokens": 4918874,
+  "needs": "provide Marginalia email to request free key; confirm commercial-use plan for shipped code",
   "output": {
-    "result": "recommendation: wire Marginalia + Mojeek into SearXNG for resilience; requires Marginalia API key (free via email)"
+    "result": "cost breakdown: Marginalia free (NC-only), Mojeek £2/1k vs Brave $5/1k; Marginalia key + commercial policy needed"
   },
   "children": null,
-  "linkScanOffset": 19334383,
+  "linkScanOffset": 19376336,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -54,6 +54,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-03T23:41:43.368Z",
+  "updatedAt": "2026-08-03T23:48:36.239Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
