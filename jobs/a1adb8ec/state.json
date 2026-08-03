@@ -1,32 +1,16 @@
 {
   "state": "working",
-  "detail": "measuring transcript corpus (4.7K sessions); mining gates on results",
+  "detail": "1,658 triples extracted, no keyword gate; awaiting teacher classification",
   "tempo": "idle",
   "inFlight": {
-    "tasks": 2,
+    "tasks": 0,
     "queued": 0,
-    "kinds": [
-      "local_bash"
-    ]
+    "kinds": []
   },
-  "fan": [
-    {
-      "id": "bp3o7lzxf",
-      "kind": "shell",
-      "label": "ssh -o ConnectTimeout=90 -o ServerAliveInterval=20 -o ServerAliveCountMax=100000 -o TCPKeepAlive=yes nxtbeast \"wsl -d Ubuntu -- bash /mnt/c/Users/marka/mt-fg.sh multi_turn_base\" 2>&1 | tr -d '\\000' |…",
-      "startedAt": 1785753132305
-    },
-    {
-      "id": "b7inqfx7x",
-      "kind": "shell",
-      "label": "ssh -o ConnectTimeout=60 -o ServerAliveInterval=15 -o ServerAliveCountMax=100000 -o TCPKeepAlive=yes nxtbeast \"wsl -d Ubuntu -- bash -c 'echo KEEPALIVE-UP; sleep 43200'\" 2>&1 | head -2",
-      "startedAt": 1785755958571
-    }
-  ],
-  "tokens": 3125620,
+  "tokens": 3154903,
   "output": null,
   "children": null,
-  "linkScanOffset": 15958637,
+  "linkScanOffset": 16260381,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -50,6 +34,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-03T11:37:11.841Z",
+  "updatedAt": "2026-08-03T12:09:50.250Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
