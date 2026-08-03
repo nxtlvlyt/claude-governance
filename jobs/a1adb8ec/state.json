@@ -1,9 +1,9 @@
 {
   "state": "working",
-  "detail": "benchmark ETA 8–9 h; control watcher fires ~2–3 h",
+  "detail": "corpus done (1,804 triples); control gen running (~22h); interim read underway",
   "tempo": "active",
   "inFlight": {
-    "tasks": 5,
+    "tasks": 4,
     "queued": 0,
     "kinds": [
       "local_bash",
@@ -23,12 +23,6 @@
       "kind": "monitor",
       "label": "multi_turn serial suite: per-stage accuracy + failures",
       "startedAt": 1785772240724
-    },
-    {
-      "id": "b4y8m7bgf",
-      "kind": "shell",
-      "label": "cd \"C:/Users/marka/conductor-qwen/phase4\" && python classify-triples.py --workers 5 2>&1",
-      "startedAt": 1785773009624
     },
     {
       "id": "a7434b16395665896",
@@ -83,63 +77,72 @@
       "kind": "workflow",
       "label": "verify:CLASS R holdout is still 30 rows / n=10",
       "group": "Verify",
-      "startedAt": 1785775114979
+      "startedAt": 1785775114979,
+      "doneAt": 1785775475077
     },
     {
       "id": "a6c4643b924fb1ead",
       "kind": "workflow",
       "label": "verify:Zero BFCL receipt artifacts exist in the",
       "group": "Verify",
-      "startedAt": 1785775114508
+      "startedAt": 1785775114508,
+      "doneAt": 1785775440663
     },
     {
       "id": "a4ff58a20632728f6",
       "kind": "workflow",
       "label": "verify:BFCL web_search has NO untuned base cont",
       "group": "Verify",
-      "startedAt": 1785775115494
+      "startedAt": 1785775115494,
+      "doneAt": 1785775421497
     },
     {
       "id": "a18c3c76b13d9f60f",
       "kind": "workflow",
       "label": "verify:multi_turn_* baseline for v3.3 has never",
       "group": "Verify",
-      "startedAt": 1785775115247
+      "startedAt": 1785775115247,
+      "doneAt": 1785775439746
     },
     {
       "id": "ad4a7cbc0432e0fcd",
       "kind": "workflow",
       "label": "verify:Lighteval half of the operator's standin",
       "group": "Verify",
-      "startedAt": 1785775116059
+      "startedAt": 1785775116059,
+      "doneAt": 1785775440883
     },
     {
       "id": "a8e9332f32104e60c",
       "kind": "workflow",
       "label": "verify:The minimax-m3 frontier lane RAN, is VOI",
       "group": "Verify",
-      "startedAt": 1785775116285
+      "startedAt": 1785775116285,
+      "doneAt": 1785775456115
     },
     {
       "id": "ae07ccc03fe7f052e",
       "kind": "workflow",
       "label": "verify:The vibecoder eval ran on tuned + nemotr",
       "group": "Verify",
-      "startedAt": 1785775115174
+      "startedAt": 1785775115174,
+      "doneAt": 1785775427827
     },
     {
       "id": "a6c42c2d8b311686e",
       "kind": "workflow",
       "label": "verify:BFCL leaderboard placement is provisiona",
       "group": "Verify",
-      "startedAt": 1785775115574
+      "startedAt": 1785775115574,
+      "doneAt": 1785775522995
     },
     {
       "id": "a646c74c4236a391d",
       "kind": "workflow",
       "label": "verify:The +4.16 corpus attribution on BFCL irr",
       "group": "Verify",
-      "startedAt": 1785775115137
+      "startedAt": 1785775115137,
+      "doneAt": 1785775444338
     },
     {
       "id": "a1090d610fa4d888d",
@@ -154,28 +157,32 @@
       "kind": "workflow",
       "label": "verify:§5 still says the frontier comparison wa",
       "group": "Verify",
-      "startedAt": 1785775115699
+      "startedAt": 1785775115699,
+      "doneAt": 1785775421467
     },
     {
       "id": "acf171dd70d7b4213",
       "kind": "workflow",
       "label": "verify:Two documents still declare the full-loo",
       "group": "Verify",
-      "startedAt": 1785775115416
+      "startedAt": 1785775115416,
+      "doneAt": 1785775387973
     },
     {
       "id": "a1941b782d46ec2ea",
       "kind": "workflow",
       "label": "verify:V33-ROUTER-SPEC.md §5d still reads as cu",
       "group": "Verify",
-      "startedAt": 1785775115627
+      "startedAt": 1785775115627,
+      "doneAt": 1785775380266
     },
     {
       "id": "a69d22ca3e4f7f93e",
       "kind": "workflow",
       "label": "verify:V33-SCORECARD.md cites \"§3\" five times b",
       "group": "Verify",
-      "startedAt": 1785775115654
+      "startedAt": 1785775115654,
+      "doneAt": 1785775408957
     },
     {
       "id": "a83df94b88e4dd3f5",
@@ -190,266 +197,288 @@
       "kind": "workflow",
       "label": "verify:The §2b frontier lanes ran on Ollama Clo",
       "group": "Verify",
-      "startedAt": 1785775114931
+      "startedAt": 1785775114931,
+      "doneAt": 1785775438625
     },
     {
       "id": "abd2b0584f97d8b8c",
       "kind": "workflow",
       "label": "verify:The headline base-bare lane has one trun",
       "group": "Verify",
-      "startedAt": 1785775323197
+      "startedAt": 1785775323197,
+      "doneAt": 1785775745737
     },
     {
-      "id": "wddo17988:24",
+      "id": "ad5cf090f1b4430f8",
       "kind": "workflow",
       "label": "verify:No v3.4 row generator exists anywhere —",
       "group": "Verify",
-      "startedAt": 1785775111390
+      "startedAt": 1785775374385,
+      "doneAt": 1785775712129
     },
     {
-      "id": "wddo17988:25",
+      "id": "aadee5f220f9fff2f",
       "kind": "workflow",
       "label": "verify:Spec §3 req 3 (multi-turn rows in the ba",
       "group": "Verify",
-      "startedAt": 1785775111391
+      "startedAt": 1785775386333,
+      "doneAt": 1785775668295
     },
     {
-      "id": "wddo17988:26",
+      "id": "ac9ecf1e1fbc43cb2",
       "kind": "workflow",
       "label": "verify:The render/validate layer the trainer re",
       "group": "Verify",
-      "startedAt": 1785775111391
+      "startedAt": 1785775392904,
+      "doneAt": 1785775807872
     },
     {
-      "id": "wddo17988:27",
+      "id": "ae6276acbe80385e8",
       "kind": "workflow",
       "label": "verify:Spec §3 req 2 (every directive >= 5% of",
       "group": "Verify",
-      "startedAt": 1785775111392
+      "startedAt": 1785775412921,
+      "doneAt": 1785775828432
     },
     {
-      "id": "wddo17988:28",
+      "id": "a66d4f1699d5b86d6",
       "kind": "workflow",
       "label": "verify:Spec §3 req 1 (no kind above 25% of rows",
       "group": "Verify",
-      "startedAt": 1785775111394
+      "startedAt": 1785775425953,
+      "doneAt": 1785775975799
     },
     {
-      "id": "wddo17988:29",
+      "id": "ad519076a7c745ace",
       "kind": "workflow",
       "label": "verify:Spec §3 req 5 (no citation slot without",
       "group": "Verify",
-      "startedAt": 1785775111395
+      "startedAt": 1785775425871,
+      "doneAt": 1785775688288
     },
     {
-      "id": "wddo17988:30",
+      "id": "adb6fcfa1413b6d90",
       "kind": "workflow",
       "label": "verify:Spec §3 req 4 (any target naming a sourc",
       "group": "Verify",
-      "startedAt": 1785775111396
+      "startedAt": 1785775436158,
+      "doneAt": 1785775803284
     },
     {
-      "id": "wddo17988:31",
+      "id": "ae05df7dacaaf1b08",
       "kind": "workflow",
       "label": "verify:Spec §4 falsification item 4 (re-run the",
       "group": "Verify",
-      "startedAt": 1785775111397
+      "startedAt": 1785775444360,
+      "doneAt": 1785775874984
     },
     {
-      "id": "wddo17988:32",
+      "id": "a9314e8fef267aa29",
       "kind": "workflow",
       "label": "verify:The two blind teachers disagree on half",
       "group": "Verify",
-      "startedAt": 1785775111398
+      "startedAt": 1785775445331,
+      "doneAt": 1785775751012
     },
     {
-      "id": "wddo17988:33",
+      "id": "a52b86e6536809782",
       "kind": "workflow",
       "label": "verify:glm-5.2 is labelling degenerately — 99.6",
       "group": "Verify",
-      "startedAt": 1785775111398
+      "startedAt": 1785775447931,
+      "doneAt": 1785775852607
     },
     {
-      "id": "wddo17988:34",
+      "id": "af194b8a7d4de184b",
       "kind": "workflow",
       "label": "verify:kimi emits usable=true with an empty `co",
       "group": "Verify",
-      "startedAt": 1785775111400
+      "startedAt": 1785775447691,
+      "doneAt": 1785775776235
     },
     {
-      "id": "wddo17988:35",
+      "id": "aa7bc78d4b7043781",
       "kind": "workflow",
       "label": "verify:situations-v34.jsonl and situations-bala",
       "group": "Verify",
-      "startedAt": 1785775111400
+      "startedAt": 1785775451570
     },
     {
-      "id": "wddo17988:36",
+      "id": "a5f4382eb9dec7fb4",
       "kind": "workflow",
       "label": "verify:Spec kinds 7 (search returning nothing/p",
       "group": "Verify",
-      "startedAt": 1785775111402
+      "startedAt": 1785775462392,
+      "doneAt": 1785775853514
     },
     {
-      "id": "wddo17988:37",
+      "id": "a48dffc05b5bac51b",
       "kind": "workflow",
       "label": "verify:Situation mining reached outside the spe",
       "group": "Verify",
-      "startedAt": 1785775111403
+      "startedAt": 1785775480551
     },
     {
-      "id": "wddo17988:38",
+      "id": "ad2fb256ef02fd0d4",
       "kind": "workflow",
       "label": "verify:116 of 1804 triples were mined from cond",
       "group": "Verify",
-      "startedAt": 1785775111404
+      "startedAt": 1785775528841,
+      "doneAt": 1785775970215
     },
     {
-      "id": "wddo17988:39",
+      "id": "a59ff605973038624",
       "kind": "workflow",
       "label": "verify:The only v3.4 model profile is a self-de",
       "group": "Verify",
-      "startedAt": 1785775111404
+      "startedAt": 1785775675962,
+      "doneAt": 1785775960413
     },
     {
-      "id": "wddo17988:40",
+      "id": "ada5042b89df037ff",
       "kind": "workflow",
       "label": "verify:Spec §3 req 6 (standalone, -bare, no sys",
       "group": "Verify",
-      "startedAt": 1785775111405
+      "startedAt": 1785775694719,
+      "doneAt": 1785775957732
     },
     {
-      "id": "wddo17988:41",
+      "id": "af2dcc9bbfa3e0e19",
       "kind": "workflow",
       "label": "verify:STATE.md and SEQUENCE.md carry no record",
       "group": "Verify",
-      "startedAt": 1785775111405
+      "startedAt": 1785775719022,
+      "doneAt": 1785776017948
     },
     {
-      "id": "wddo17988:42",
+      "id": "a2670a4cbd2fbe534",
       "kind": "workflow",
       "label": "verify:The teacher classification pass is mid-r",
       "group": "Verify",
-      "startedAt": 1785775111407
+      "startedAt": 1785775752942,
+      "doneAt": 1785776041916
     },
     {
-      "id": "wddo17988:43",
+      "id": "a406e470ea1811ee9",
       "kind": "workflow",
       "label": "verify:CLOSED but unrecorded: the spec's kinds",
       "group": "Verify",
-      "startedAt": 1785775111408
+      "startedAt": 1785775756338
     },
     {
-      "id": "wddo17988:44",
+      "id": "af78c4d3f6e1f8305",
       "kind": "workflow",
       "label": "verify:CLOSED but unrecorded at the pool level:",
       "group": "Verify",
-      "startedAt": 1785775111409
+      "startedAt": 1785775782026
     },
     {
-      "id": "wddo17988:45",
+      "id": "a2a35ada712dc821f",
       "kind": "workflow",
       "label": "verify:The trainer that produced the shipped v3",
       "group": "Verify",
-      "startedAt": 1785775111410
+      "startedAt": 1785775808072
     },
     {
-      "id": "wddo17988:46",
+      "id": "a71bab3043c937702",
       "kind": "workflow",
       "label": "verify:corpus_render.py implements the Gemma no",
       "group": "Verify",
-      "startedAt": 1785775111410
+      "startedAt": 1785775812184,
+      "doneAt": 1785776038403
     },
     {
-      "id": "wddo17988:47",
+      "id": "a8dc7666b95648fbe",
       "kind": "workflow",
       "label": "verify:Gemma corpora cannot be SERVED at all —",
       "group": "Verify",
-      "startedAt": 1785775111412
+      "startedAt": 1785775833834
     },
     {
-      "id": "wddo17988:48",
+      "id": "a7d36fe5aa9c58548",
       "kind": "workflow",
       "label": "verify:LoRA target_modules hardcoded to the 7 l",
       "group": "Verify",
-      "startedAt": 1785775111413
+      "startedAt": 1785775858097,
+      "doneAt": 1785776016694
     },
     {
-      "id": "wddo17988:49",
+      "id": "ac79be2a1e346d37a",
       "kind": "workflow",
       "label": "verify:The model-profile schema covers SERVING",
       "group": "Verify",
-      "startedAt": 1785775111413
+      "startedAt": 1785775858161,
+      "doneAt": 1785776059770
     },
     {
-      "id": "wddo17988:50",
+      "id": "a5a214f69dd8c36e8",
       "kind": "workflow",
       "label": "verify:Base-model selection is a hardcoded Qwen",
       "group": "Verify",
-      "startedAt": 1785775111414
+      "startedAt": 1785775880098
     },
     {
-      "id": "wddo17988:51",
+      "id": "afc96326d2233fd9d",
       "kind": "workflow",
       "label": "verify:Idempotency skip keys on the hardcoded o",
       "group": "Verify",
-      "startedAt": 1785775111414
+      "startedAt": 1785775964054
     },
     {
-      "id": "wddo17988:52",
+      "id": "aa7635d8d4e4aa54f",
       "kind": "workflow",
       "label": "verify:max_seq_length=2048 hardcoded and the co",
       "group": "Verify",
-      "startedAt": 1785775111415
+      "startedAt": 1785775966510
     },
     {
-      "id": "wddo17988:53",
+      "id": "a26d5a4f037aba5a2",
       "kind": "workflow",
       "label": "verify:export-v33.sh hard-aborts on any base th",
       "group": "Verify",
-      "startedAt": 1785775111416
+      "startedAt": 1785775977250
     },
     {
-      "id": "wddo17988:54",
+      "id": "a24b7400dfc1079cc",
       "kind": "workflow",
       "label": "verify:wsl-run.sh writes merged models and GGUF",
       "group": "Verify",
-      "startedAt": 1785775111417
+      "startedAt": 1785775980529
     },
     {
-      "id": "wddo17988:55",
+      "id": "aaba2829c1e723e36",
       "kind": "workflow",
       "label": "verify:No HF_HOME export in any in-repo trainin",
       "group": "Verify",
-      "startedAt": 1785775111418
+      "startedAt": 1785776021011
     },
     {
-      "id": "wddo17988:56",
+      "id": "a3c9ca6d03d8c44c9",
       "kind": "workflow",
       "label": "verify:wsl-run.sh trains the 9B FIRST by defaul",
       "group": "Verify",
-      "startedAt": 1785775111418
+      "startedAt": 1785776023324
     },
     {
-      "id": "wddo17988:57",
+      "id": "a2eb55d544fbd617e",
       "kind": "workflow",
       "label": "verify:PIPELINE.md tells the next instance the",
       "group": "Verify",
-      "startedAt": 1785775111419
+      "startedAt": 1785776044221
     },
     {
-      "id": "wddo17988:58",
+      "id": "ae2525c86d0cb9f69",
       "kind": "workflow",
       "label": "verify:bf16=True hardcoded in SFTConfig with no",
       "group": "Verify",
-      "startedAt": 1785775111421
+      "startedAt": 1785776047781
     },
     {
-      "id": "wddo17988:59",
+      "id": "a4aab8d3b8d3187e2",
       "kind": "workflow",
       "label": "verify:V3.4 spec bakes the base model's own too",
       "group": "Verify",
-      "startedAt": 1785775111421
+      "startedAt": 1785776064149
     },
     {
       "id": "wddo17988:60",
@@ -732,16 +761,16 @@
       "startedAt": 1785775111448
     },
     {
-      "id": "b9ghl63m9",
+      "id": "bbodi83ms",
       "kind": "shell",
-      "label": "SSH=\"C:/WINDOWS/System32/OpenSSH/ssh.exe\" # Wait for the control run to reach 40 rows, then take the matched-ID reading. # Exits when the reading is produced, so this fires exactly one notification. …",
-      "startedAt": 1785775356219
+      "label": "SSH=\"C:/WINDOWS/System32/OpenSSH/ssh.exe\" # Liveness check that CANNOT self-match: match the interpreter+entrypoint path, which appears # only in the real process, never in this wrapper's command lin…",
+      "startedAt": 1785776009483
     }
   ],
-  "tokens": 3564661,
+  "tokens": 4027782,
   "output": null,
   "children": null,
-  "linkScanOffset": 17297213,
+  "linkScanOffset": 17570653,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -753,6 +782,8 @@
     "--permission-mode",
     "auto"
   ],
+  "bgIsolation": "none",
+  "providerEnv": {},
   "intent": "this is a teleport session you don't have any of the context",
   "name": "teleport-context-sync",
   "nameSource": "auto",
@@ -761,10 +792,8 @@
   "daemonShort": "a1adb8ec",
   "cliVersion": "2.1.220",
   "cwd": "C:\\Users\\marka",
-  "bgIsolation": "none",
-  "providerEnv": {},
-  "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-03T16:42:52.244Z",
-  "firstTerminalAt": "2026-08-01T04:26:56.154Z"
+  "updatedAt": "2026-08-03T16:54:28.173Z",
+  "firstTerminalAt": "2026-08-01T04:26:56.154Z",
+  "backend": "daemon"
 }
