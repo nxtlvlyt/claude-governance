@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "corpus mining complete (1,194 situations); benchmark restarting with keepalive",
+  "detail": "generate running 50m (68 rows, ~95 min left); keepalive armed",
   "tempo": "idle",
   "inFlight": {
     "tasks": 2,
@@ -21,19 +21,12 @@
       "kind": "shell",
       "label": "ssh -o ConnectTimeout=60 -o ServerAliveInterval=15 -o ServerAliveCountMax=100000 -o TCPKeepAlive=yes nxtbeast \"wsl -d Ubuntu -- bash -c 'echo KEEPALIVE-UP; sleep 43200'\" 2>&1 | head -2",
       "startedAt": 1785755958571
-    },
-    {
-      "id": "bfaxs2j4e",
-      "kind": "shell",
-      "label": "export PYTHONIOENCODING=utf-8 timeout 90 ssh -o ConnectTimeout=25 nxtbeast \"wsl -d Ubuntu -- bash -c 'pgrep -fc sleep'\" 2>&1 | tr -d '\\000' | head -2 | sed 's/^/ keepalive sleepers in WSL: /' ssh -o …",
-      "startedAt": 1785756029973,
-      "doneAt": 1785756036787
     }
   ],
-  "tokens": 3088409,
+  "tokens": 3091306,
   "output": null,
   "children": null,
-  "linkScanOffset": 15527043,
+  "linkScanOffset": 15562113,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -57,6 +50,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-03T11:20:47.534Z",
+  "updatedAt": "2026-08-03T11:22:52.542Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
