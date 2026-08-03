@@ -1,18 +1,18 @@
 {
   "state": "done",
-  "detail": "root fix identified: replace SearXNG scraping with Brave Search API",
+  "detail": "cheapest fix: throttle queries ($0); fallback to Brave free ($0/month, 5m signup)",
   "tempo": "idle",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 2994032,
+  "tokens": 2996390,
   "output": {
-    "result": "Root cause: SearXNG scraping triggers CAPTCHAs under load. Durable fix: Brave Search API ($5/mo free tier, 1K queries/month, 50 QPS). SearXNG can authenticate to it—no re-architecture needed."
+    "result": "Recommendation: throttle existing setup first (likely self-inflicted rate limit); if needed, Brave free tier ($0/mo, 1k queries) is durable fallback with quality gate in place"
   },
   "children": null,
-  "linkScanOffset": 14263351,
+  "linkScanOffset": 14292092,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -36,6 +36,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-03T03:56:15.237Z",
+  "updatedAt": "2026-08-03T03:58:16.826Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
