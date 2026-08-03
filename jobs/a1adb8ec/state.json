@@ -1,9 +1,9 @@
 {
   "state": "working",
-  "detail": "benchmark at 1/200; three runs unattended (14h est)",
+  "detail": "benchmark running; multi_turn_base + watcher active",
   "tempo": "idle",
   "inFlight": {
-    "tasks": 4,
+    "tasks": 3,
     "queued": 0,
     "kinds": [
       "monitor",
@@ -24,22 +24,16 @@
       "startedAt": 1785776755461
     },
     {
-      "id": "bs2b1m4hy",
-      "kind": "shell",
-      "label": "cd \"C:/Users/marka/conductor-qwen/phase4\" && python adversarial-pass.py --workers 5 2>&1",
-      "startedAt": 1785777875152
-    },
-    {
       "id": "b2ai9a5th",
       "kind": "shell",
       "label": "SSH=\"C:/WINDOWS/System32/OpenSSH/ssh.exe\" # Fire the 3-way matched-ID reading once WITH-SYSTEM has covered the control's 11 ids. # Liveness matched on interpreter+entrypoint so it cannot self-match (…",
       "startedAt": 1785777949362
     }
   ],
-  "tokens": 4805770,
+  "tokens": 4836313,
   "output": null,
   "children": null,
-  "linkScanOffset": 18035275,
+  "linkScanOffset": 18330848,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -63,6 +57,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-03T17:26:08.157Z",
+  "updatedAt": "2026-08-03T17:55:38.634Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
