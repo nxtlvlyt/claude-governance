@@ -1,13 +1,14 @@
 {
   "state": "working",
-  "detail": "Qwen ready; Gemma 4 gated on corpus re-render; Laguna deferred + param conflict flagged",
-  "tempo": "idle",
+  "detail": "classifier 1125/1804 (~17 min); control run 7h; found quantization hypothesis",
+  "tempo": "active",
   "inFlight": {
-    "tasks": 3,
+    "tasks": 4,
     "queued": 0,
     "kinds": [
       "local_bash",
-      "monitor"
+      "monitor",
+      "local_workflow"
     ]
   },
   "fan": [
@@ -28,12 +29,55 @@
       "kind": "shell",
       "label": "cd \"C:/Users/marka/conductor-qwen/phase4\" && python classify-triples.py --workers 5 2>&1",
       "startedAt": 1785773009624
+    },
+    {
+      "id": "a7434b16395665896",
+      "kind": "workflow",
+      "label": "audit:v33-measurement",
+      "startedAt": 1785774353869,
+      "doneAt": 1785774735568,
+      "group": "Audit"
+    },
+    {
+      "id": "a1dd09ed8f81afb49",
+      "kind": "workflow",
+      "label": "audit:v34-corpus",
+      "startedAt": 1785774352257,
+      "group": "Audit"
+    },
+    {
+      "id": "a7d2af571045985f9",
+      "kind": "workflow",
+      "label": "audit:training-portability",
+      "startedAt": 1785774351383,
+      "group": "Audit"
+    },
+    {
+      "id": "a81fb58491917d214",
+      "kind": "workflow",
+      "label": "audit:serving-eval-harness",
+      "startedAt": 1785774353129,
+      "group": "Audit"
+    },
+    {
+      "id": "a4b379e6d03ab9d74",
+      "kind": "workflow",
+      "label": "audit:spec-vs-reality",
+      "startedAt": 1785774351337,
+      "group": "Audit"
+    },
+    {
+      "id": "a906e25f04bc9a5e1",
+      "kind": "workflow",
+      "label": "audit:mission-backlog",
+      "startedAt": 1785774351491,
+      "group": "Audit"
     }
   ],
-  "tokens": 3226713,
+  "tokens": 3361060,
   "output": null,
   "children": null,
-  "linkScanOffset": 17021245,
+  "linkScanOffset": 17225981,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -57,6 +101,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-03T16:18:02.908Z",
+  "updatedAt": "2026-08-03T16:32:24.641Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
