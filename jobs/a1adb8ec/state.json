@@ -1,6 +1,6 @@
 {
-  "state": "working",
-  "detail": "I'll re-score there rather than let an interim number become the one that sticks.",
+  "state": "done",
+  "detail": "v3.4 gate rewritten; 2 baselines missing, corpus not ready",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -17,10 +17,12 @@
       "startedAt": 1785772240724
     }
   ],
-  "tokens": 4873582,
-  "output": null,
+  "tokens": 4878367,
+  "output": {
+    "result": "§4 re-registered with GATE 0: v3.4 blocked until 2 live-search baselines exist; 7 directives under floor"
+  },
   "children": null,
-  "linkScanOffset": 18774293,
+  "linkScanOffset": 18826085,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -44,6 +46,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-03T22:12:19.975Z",
+  "updatedAt": "2026-08-03T22:13:55.411Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
