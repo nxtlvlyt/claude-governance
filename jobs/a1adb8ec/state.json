@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "cutting web_search_no_snippet (~250 calls); finishing web_search_base (~172)",
+  "detail": "1.4K API calls owed for controls; checking Brave billing model",
   "tempo": "idle",
   "inFlight": {
     "tasks": 2,
@@ -24,10 +24,10 @@
       "startedAt": 1785796473366
     }
   ],
-  "tokens": 4885473,
+  "tokens": 4887666,
   "output": null,
   "children": null,
-  "linkScanOffset": 18918804,
+  "linkScanOffset": 18956723,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -51,6 +51,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-03T22:34:48.570Z",
+  "updatedAt": "2026-08-03T22:44:06.368Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
