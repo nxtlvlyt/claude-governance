@@ -1,12 +1,13 @@
 {
-  "state": "done",
-  "detail": "v3.4 gate rewritten; 2 baselines missing, corpus not ready",
+  "state": "working",
+  "detail": "cutting web_search_no_snippet (~250 calls); finishing web_search_base (~172)",
   "tempo": "idle",
   "inFlight": {
-    "tasks": 1,
+    "tasks": 2,
     "queued": 0,
     "kinds": [
-      "monitor"
+      "monitor",
+      "local_bash"
     ]
   },
   "fan": [
@@ -15,14 +16,18 @@
       "kind": "monitor",
       "label": "multi_turn serial suite: per-stage accuracy + failures",
       "startedAt": 1785772240724
+    },
+    {
+      "id": "bw1vlxwba",
+      "kind": "shell",
+      "label": "\"C:/WINDOWS/System32/OpenSSH/ssh.exe\" -o ConnectTimeout=60 -o ServerAliveInterval=20 -o ServerAliveCountMax=100000 -o TCPKeepAlive=yes nxtbeast \"wsl -d Ubuntu -- bash /mnt/c/Users/marka/finish-base-o…",
+      "startedAt": 1785796473366
     }
   ],
-  "tokens": 4878367,
-  "output": {
-    "result": "§4 re-registered with GATE 0: v3.4 blocked until 2 live-search baselines exist; 7 directives under floor"
-  },
+  "tokens": 4885473,
+  "output": null,
   "children": null,
-  "linkScanOffset": 18826085,
+  "linkScanOffset": 18918804,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -46,6 +51,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-03T22:13:55.411Z",
+  "updatedAt": "2026-08-03T22:34:48.570Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
