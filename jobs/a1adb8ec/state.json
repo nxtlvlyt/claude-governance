@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "base irrelevance 90.42% vs tuned 94.58% (+4.16); simple_python base running (17/400)",
+  "detail": "qwen3.6:27b base benchmark 158/400 (~45min remaining)",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -11,16 +11,16 @@
   },
   "fan": [
     {
-      "id": "bgkchwxqy",
+      "id": "bqvr7svs0",
       "kind": "shell",
-      "label": "export PYTHONIOENCODING=utf-8 FAILS=0 for i in $(seq 1 90); do N=$(timeout 60 ssh -o ConnectTimeout=20 nxtbeast \"wsl -d Ubuntu -- bash -c 'pgrep -c -f \\\"bfcl generate\\\"'\" 2>/dev/null | tr -d '\\000\\r …",
-      "startedAt": 1785709728090
+      "label": "export PYTHONIOENCODING=utf-8 for i in $(seq 1 60); do N=$(timeout 60 ssh -o ConnectTimeout=20 nxtbeast \"wsl -d Ubuntu -- bash -c 'pgrep -c -f \\\"bfcl generate\\\"'\" 2>/dev/null | tr -d '\\000\\r ') if [ …",
+      "startedAt": 1785720829436
     }
   ],
-  "tokens": 2957285,
+  "tokens": 2958733,
   "output": null,
   "children": null,
-  "linkScanOffset": 13803041,
+  "linkScanOffset": 13825691,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -44,6 +44,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-03T01:12:39.030Z",
+  "updatedAt": "2026-08-03T01:34:01.779Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
