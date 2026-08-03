@@ -1,9 +1,9 @@
 {
   "state": "working",
-  "detail": "classifier 1125/1804 (~17 min); control run 7h; found quantization hypothesis",
+  "detail": "benchmark ETA 8–9 h; control watcher fires ~2–3 h",
   "tempo": "active",
   "inFlight": {
-    "tasks": 4,
+    "tasks": 5,
     "queued": 0,
     "kinds": [
       "local_bash",
@@ -34,50 +34,714 @@
       "id": "a7434b16395665896",
       "kind": "workflow",
       "label": "audit:v33-measurement",
+      "group": "Audit",
       "startedAt": 1785774353869,
-      "doneAt": 1785774735568,
-      "group": "Audit"
+      "doneAt": 1785774735568
     },
     {
       "id": "a1dd09ed8f81afb49",
       "kind": "workflow",
       "label": "audit:v34-corpus",
+      "group": "Audit",
       "startedAt": 1785774352257,
-      "group": "Audit"
+      "doneAt": 1785775109113
     },
     {
       "id": "a7d2af571045985f9",
       "kind": "workflow",
       "label": "audit:training-portability",
+      "group": "Audit",
       "startedAt": 1785774351383,
-      "group": "Audit"
+      "doneAt": 1785774821198
     },
     {
       "id": "a81fb58491917d214",
       "kind": "workflow",
       "label": "audit:serving-eval-harness",
+      "group": "Audit",
       "startedAt": 1785774353129,
-      "group": "Audit"
+      "doneAt": 1785774868548
     },
     {
       "id": "a4b379e6d03ab9d74",
       "kind": "workflow",
       "label": "audit:spec-vs-reality",
+      "group": "Audit",
       "startedAt": 1785774351337,
-      "group": "Audit"
+      "doneAt": 1785774885916
     },
     {
       "id": "a906e25f04bc9a5e1",
       "kind": "workflow",
       "label": "audit:mission-backlog",
+      "group": "Audit",
       "startedAt": 1785774351491,
-      "group": "Audit"
+      "doneAt": 1785774886274
+    },
+    {
+      "id": "a81efbbeacd6ef3c4",
+      "kind": "workflow",
+      "label": "verify:CLASS R holdout is still 30 rows / n=10",
+      "group": "Verify",
+      "startedAt": 1785775114979
+    },
+    {
+      "id": "a6c4643b924fb1ead",
+      "kind": "workflow",
+      "label": "verify:Zero BFCL receipt artifacts exist in the",
+      "group": "Verify",
+      "startedAt": 1785775114508
+    },
+    {
+      "id": "a4ff58a20632728f6",
+      "kind": "workflow",
+      "label": "verify:BFCL web_search has NO untuned base cont",
+      "group": "Verify",
+      "startedAt": 1785775115494
+    },
+    {
+      "id": "a18c3c76b13d9f60f",
+      "kind": "workflow",
+      "label": "verify:multi_turn_* baseline for v3.3 has never",
+      "group": "Verify",
+      "startedAt": 1785775115247
+    },
+    {
+      "id": "ad4a7cbc0432e0fcd",
+      "kind": "workflow",
+      "label": "verify:Lighteval half of the operator's standin",
+      "group": "Verify",
+      "startedAt": 1785775116059
+    },
+    {
+      "id": "a8e9332f32104e60c",
+      "kind": "workflow",
+      "label": "verify:The minimax-m3 frontier lane RAN, is VOI",
+      "group": "Verify",
+      "startedAt": 1785775116285
+    },
+    {
+      "id": "ae07ccc03fe7f052e",
+      "kind": "workflow",
+      "label": "verify:The vibecoder eval ran on tuned + nemotr",
+      "group": "Verify",
+      "startedAt": 1785775115174
+    },
+    {
+      "id": "a6c42c2d8b311686e",
+      "kind": "workflow",
+      "label": "verify:BFCL leaderboard placement is provisiona",
+      "group": "Verify",
+      "startedAt": 1785775115574
+    },
+    {
+      "id": "a646c74c4236a391d",
+      "kind": "workflow",
+      "label": "verify:The +4.16 corpus attribution on BFCL irr",
+      "group": "Verify",
+      "startedAt": 1785775115137
+    },
+    {
+      "id": "a1090d610fa4d888d",
+      "kind": "workflow",
+      "label": "verify:§2c's \"What this does NOT establish\" par",
+      "group": "Verify",
+      "startedAt": 1785775116377,
+      "doneAt": 1785775318325
+    },
+    {
+      "id": "a317aa9f349d229f1",
+      "kind": "workflow",
+      "label": "verify:§5 still says the frontier comparison wa",
+      "group": "Verify",
+      "startedAt": 1785775115699
+    },
+    {
+      "id": "acf171dd70d7b4213",
+      "kind": "workflow",
+      "label": "verify:Two documents still declare the full-loo",
+      "group": "Verify",
+      "startedAt": 1785775115416
+    },
+    {
+      "id": "a1941b782d46ec2ea",
+      "kind": "workflow",
+      "label": "verify:V33-ROUTER-SPEC.md §5d still reads as cu",
+      "group": "Verify",
+      "startedAt": 1785775115627
+    },
+    {
+      "id": "a69d22ca3e4f7f93e",
+      "kind": "workflow",
+      "label": "verify:V33-SCORECARD.md cites \"§3\" five times b",
+      "group": "Verify",
+      "startedAt": 1785775115654
+    },
+    {
+      "id": "a83df94b88e4dd3f5",
+      "kind": "workflow",
+      "label": "verify:CLEAN-SCORECARD.md still proposes 9B fol",
+      "group": "Verify",
+      "startedAt": 1785775116134,
+      "doneAt": 1785775369938
+    },
+    {
+      "id": "aefaab8d60d7ea87e",
+      "kind": "workflow",
+      "label": "verify:The §2b frontier lanes ran on Ollama Clo",
+      "group": "Verify",
+      "startedAt": 1785775114931
+    },
+    {
+      "id": "abd2b0584f97d8b8c",
+      "kind": "workflow",
+      "label": "verify:The headline base-bare lane has one trun",
+      "group": "Verify",
+      "startedAt": 1785775323197
+    },
+    {
+      "id": "wddo17988:24",
+      "kind": "workflow",
+      "label": "verify:No v3.4 row generator exists anywhere —",
+      "group": "Verify",
+      "startedAt": 1785775111390
+    },
+    {
+      "id": "wddo17988:25",
+      "kind": "workflow",
+      "label": "verify:Spec §3 req 3 (multi-turn rows in the ba",
+      "group": "Verify",
+      "startedAt": 1785775111391
+    },
+    {
+      "id": "wddo17988:26",
+      "kind": "workflow",
+      "label": "verify:The render/validate layer the trainer re",
+      "group": "Verify",
+      "startedAt": 1785775111391
+    },
+    {
+      "id": "wddo17988:27",
+      "kind": "workflow",
+      "label": "verify:Spec §3 req 2 (every directive >= 5% of",
+      "group": "Verify",
+      "startedAt": 1785775111392
+    },
+    {
+      "id": "wddo17988:28",
+      "kind": "workflow",
+      "label": "verify:Spec §3 req 1 (no kind above 25% of rows",
+      "group": "Verify",
+      "startedAt": 1785775111394
+    },
+    {
+      "id": "wddo17988:29",
+      "kind": "workflow",
+      "label": "verify:Spec §3 req 5 (no citation slot without",
+      "group": "Verify",
+      "startedAt": 1785775111395
+    },
+    {
+      "id": "wddo17988:30",
+      "kind": "workflow",
+      "label": "verify:Spec §3 req 4 (any target naming a sourc",
+      "group": "Verify",
+      "startedAt": 1785775111396
+    },
+    {
+      "id": "wddo17988:31",
+      "kind": "workflow",
+      "label": "verify:Spec §4 falsification item 4 (re-run the",
+      "group": "Verify",
+      "startedAt": 1785775111397
+    },
+    {
+      "id": "wddo17988:32",
+      "kind": "workflow",
+      "label": "verify:The two blind teachers disagree on half",
+      "group": "Verify",
+      "startedAt": 1785775111398
+    },
+    {
+      "id": "wddo17988:33",
+      "kind": "workflow",
+      "label": "verify:glm-5.2 is labelling degenerately — 99.6",
+      "group": "Verify",
+      "startedAt": 1785775111398
+    },
+    {
+      "id": "wddo17988:34",
+      "kind": "workflow",
+      "label": "verify:kimi emits usable=true with an empty `co",
+      "group": "Verify",
+      "startedAt": 1785775111400
+    },
+    {
+      "id": "wddo17988:35",
+      "kind": "workflow",
+      "label": "verify:situations-v34.jsonl and situations-bala",
+      "group": "Verify",
+      "startedAt": 1785775111400
+    },
+    {
+      "id": "wddo17988:36",
+      "kind": "workflow",
+      "label": "verify:Spec kinds 7 (search returning nothing/p",
+      "group": "Verify",
+      "startedAt": 1785775111402
+    },
+    {
+      "id": "wddo17988:37",
+      "kind": "workflow",
+      "label": "verify:Situation mining reached outside the spe",
+      "group": "Verify",
+      "startedAt": 1785775111403
+    },
+    {
+      "id": "wddo17988:38",
+      "kind": "workflow",
+      "label": "verify:116 of 1804 triples were mined from cond",
+      "group": "Verify",
+      "startedAt": 1785775111404
+    },
+    {
+      "id": "wddo17988:39",
+      "kind": "workflow",
+      "label": "verify:The only v3.4 model profile is a self-de",
+      "group": "Verify",
+      "startedAt": 1785775111404
+    },
+    {
+      "id": "wddo17988:40",
+      "kind": "workflow",
+      "label": "verify:Spec §3 req 6 (standalone, -bare, no sys",
+      "group": "Verify",
+      "startedAt": 1785775111405
+    },
+    {
+      "id": "wddo17988:41",
+      "kind": "workflow",
+      "label": "verify:STATE.md and SEQUENCE.md carry no record",
+      "group": "Verify",
+      "startedAt": 1785775111405
+    },
+    {
+      "id": "wddo17988:42",
+      "kind": "workflow",
+      "label": "verify:The teacher classification pass is mid-r",
+      "group": "Verify",
+      "startedAt": 1785775111407
+    },
+    {
+      "id": "wddo17988:43",
+      "kind": "workflow",
+      "label": "verify:CLOSED but unrecorded: the spec's kinds",
+      "group": "Verify",
+      "startedAt": 1785775111408
+    },
+    {
+      "id": "wddo17988:44",
+      "kind": "workflow",
+      "label": "verify:CLOSED but unrecorded at the pool level:",
+      "group": "Verify",
+      "startedAt": 1785775111409
+    },
+    {
+      "id": "wddo17988:45",
+      "kind": "workflow",
+      "label": "verify:The trainer that produced the shipped v3",
+      "group": "Verify",
+      "startedAt": 1785775111410
+    },
+    {
+      "id": "wddo17988:46",
+      "kind": "workflow",
+      "label": "verify:corpus_render.py implements the Gemma no",
+      "group": "Verify",
+      "startedAt": 1785775111410
+    },
+    {
+      "id": "wddo17988:47",
+      "kind": "workflow",
+      "label": "verify:Gemma corpora cannot be SERVED at all —",
+      "group": "Verify",
+      "startedAt": 1785775111412
+    },
+    {
+      "id": "wddo17988:48",
+      "kind": "workflow",
+      "label": "verify:LoRA target_modules hardcoded to the 7 l",
+      "group": "Verify",
+      "startedAt": 1785775111413
+    },
+    {
+      "id": "wddo17988:49",
+      "kind": "workflow",
+      "label": "verify:The model-profile schema covers SERVING",
+      "group": "Verify",
+      "startedAt": 1785775111413
+    },
+    {
+      "id": "wddo17988:50",
+      "kind": "workflow",
+      "label": "verify:Base-model selection is a hardcoded Qwen",
+      "group": "Verify",
+      "startedAt": 1785775111414
+    },
+    {
+      "id": "wddo17988:51",
+      "kind": "workflow",
+      "label": "verify:Idempotency skip keys on the hardcoded o",
+      "group": "Verify",
+      "startedAt": 1785775111414
+    },
+    {
+      "id": "wddo17988:52",
+      "kind": "workflow",
+      "label": "verify:max_seq_length=2048 hardcoded and the co",
+      "group": "Verify",
+      "startedAt": 1785775111415
+    },
+    {
+      "id": "wddo17988:53",
+      "kind": "workflow",
+      "label": "verify:export-v33.sh hard-aborts on any base th",
+      "group": "Verify",
+      "startedAt": 1785775111416
+    },
+    {
+      "id": "wddo17988:54",
+      "kind": "workflow",
+      "label": "verify:wsl-run.sh writes merged models and GGUF",
+      "group": "Verify",
+      "startedAt": 1785775111417
+    },
+    {
+      "id": "wddo17988:55",
+      "kind": "workflow",
+      "label": "verify:No HF_HOME export in any in-repo trainin",
+      "group": "Verify",
+      "startedAt": 1785775111418
+    },
+    {
+      "id": "wddo17988:56",
+      "kind": "workflow",
+      "label": "verify:wsl-run.sh trains the 9B FIRST by defaul",
+      "group": "Verify",
+      "startedAt": 1785775111418
+    },
+    {
+      "id": "wddo17988:57",
+      "kind": "workflow",
+      "label": "verify:PIPELINE.md tells the next instance the",
+      "group": "Verify",
+      "startedAt": 1785775111419
+    },
+    {
+      "id": "wddo17988:58",
+      "kind": "workflow",
+      "label": "verify:bf16=True hardcoded in SFTConfig with no",
+      "group": "Verify",
+      "startedAt": 1785775111421
+    },
+    {
+      "id": "wddo17988:59",
+      "kind": "workflow",
+      "label": "verify:V3.4 spec bakes the base model's own too",
+      "group": "Verify",
+      "startedAt": 1785775111421
+    },
+    {
+      "id": "wddo17988:60",
+      "kind": "workflow",
+      "label": "verify:Both v3.4 profiles reference phase4/trai",
+      "group": "Verify",
+      "startedAt": 1785775111422
+    },
+    {
+      "id": "wddo17988:61",
+      "kind": "workflow",
+      "label": "verify:CLOSED: serving-side Modelfile portabili",
+      "group": "Verify",
+      "startedAt": 1785775111422
+    },
+    {
+      "id": "wddo17988:62",
+      "kind": "workflow",
+      "label": "verify:CLOSED: the anti-QLoRA claim was falsifi",
+      "group": "Verify",
+      "startedAt": 1785775111424
+    },
+    {
+      "id": "wddo17988:63",
+      "kind": "workflow",
+      "label": "verify:No serve-side fold path exists for a no-",
+      "group": "Verify",
+      "startedAt": 1785775111425
+    },
+    {
+      "id": "wddo17988:64",
+      "kind": "workflow",
+      "label": "verify:corpus_render.py has ZERO callers; both",
+      "group": "Verify",
+      "startedAt": 1785775111426
+    },
+    {
+      "id": "wddo17988:65",
+      "kind": "workflow",
+      "label": "verify:The trainer that produced the shipped v3",
+      "group": "Verify",
+      "startedAt": 1785775111427
+    },
+    {
+      "id": "wddo17988:66",
+      "kind": "workflow",
+      "label": "verify:export-v33.sh is single-version hardcode",
+      "group": "Verify",
+      "startedAt": 1785775111428
+    },
+    {
+      "id": "wddo17988:67",
+      "kind": "workflow",
+      "label": "verify:There is a generic builder but no generi",
+      "group": "Verify",
+      "startedAt": 1785775111428
+    },
+    {
+      "id": "wddo17988:68",
+      "kind": "workflow",
+      "label": "verify:`--nosystem` is MEASURED false but still",
+      "group": "Verify",
+      "startedAt": 1785775111429
+    },
+    {
+      "id": "wddo17988:69",
+      "kind": "workflow",
+      "label": "verify:No builder emits the `-bare` measurement",
+      "group": "Verify",
+      "startedAt": 1785775111429
+    },
+    {
+      "id": "wddo17988:70",
+      "kind": "workflow",
+      "label": "verify:RUNBOOK.md's generic serving step writes",
+      "group": "Verify",
+      "startedAt": 1785775111430
+    },
+    {
+      "id": "wddo17988:71",
+      "kind": "workflow",
+      "label": "verify:Two sources of truth for the Modelfile:",
+      "group": "Verify",
+      "startedAt": 1785775111430
+    },
+    {
+      "id": "wddo17988:72",
+      "kind": "workflow",
+      "label": "verify:The only multi-lane eval runner hardcode",
+      "group": "Verify",
+      "startedAt": 1785775111431
+    },
+    {
+      "id": "wddo17988:73",
+      "kind": "workflow",
+      "label": "verify:CLOSED but docs say otherwise: the genui",
+      "group": "Verify",
+      "startedAt": 1785775111431
+    },
+    {
+      "id": "wddo17988:74",
+      "kind": "workflow",
+      "label": "verify:STATE.md's serving-verification receipt",
+      "group": "Verify",
+      "startedAt": 1785775111432
+    },
+    {
+      "id": "wddo17988:75",
+      "kind": "workflow",
+      "label": "verify:Three different default Ollama hosts acr",
+      "group": "Verify",
+      "startedAt": 1785775111432
+    },
+    {
+      "id": "wddo17988:76",
+      "kind": "workflow",
+      "label": "verify:STATE.md's \"START HERE\" routes the next",
+      "group": "Verify",
+      "startedAt": 1785775111433
+    },
+    {
+      "id": "wddo17988:77",
+      "kind": "workflow",
+      "label": "verify:STATE.md has no 2026-08-03 entry — V34-S",
+      "group": "Verify",
+      "startedAt": 1785775111433
+    },
+    {
+      "id": "wddo17988:78",
+      "kind": "workflow",
+      "label": "verify:STATE.md names phase3/fullloop-v1.py as",
+      "group": "Verify",
+      "startedAt": 1785775111435
+    },
+    {
+      "id": "wddo17988:79",
+      "kind": "workflow",
+      "label": "verify:IMPORT-V33-CHECKLIST.md declares itself",
+      "group": "Verify",
+      "startedAt": 1785775111436
+    },
+    {
+      "id": "wddo17988:80",
+      "kind": "workflow",
+      "label": "verify:RUNBOOK.md — the \"mechanical execution,",
+      "group": "Verify",
+      "startedAt": 1785775111436
+    },
+    {
+      "id": "wddo17988:81",
+      "kind": "workflow",
+      "label": "verify:RUNBOOK STAGE-0 preflight halts on a Sea",
+      "group": "Verify",
+      "startedAt": 1785775111437
+    },
+    {
+      "id": "wddo17988:82",
+      "kind": "workflow",
+      "label": "verify:The pre-registered §7 length-confound te",
+      "group": "Verify",
+      "startedAt": 1785775111437
+    },
+    {
+      "id": "wddo17988:83",
+      "kind": "workflow",
+      "label": "verify:Both of STATE.md's hard \"do not proceed\"",
+      "group": "Verify",
+      "startedAt": 1785775111438
+    },
+    {
+      "id": "wddo17988:84",
+      "kind": "workflow",
+      "label": "verify:STATE.md carries an uncorrected nxtbeast",
+      "group": "Verify",
+      "startedAt": 1785775111438
+    },
+    {
+      "id": "wddo17988:85",
+      "kind": "workflow",
+      "label": "verify:SEQUENCE.md lists two scorecards as \"Can",
+      "group": "Verify",
+      "startedAt": 1785775111439
+    },
+    {
+      "id": "wddo17988:86",
+      "kind": "workflow",
+      "label": "verify:HOLDOUT.md is v1-era, selects episodes b",
+      "group": "Verify",
+      "startedAt": 1785775111440
+    },
+    {
+      "id": "wddo17988:87",
+      "kind": "workflow",
+      "label": "verify:Two documents declare holdout-v31.jsonl",
+      "group": "Verify",
+      "startedAt": 1785775111440
+    },
+    {
+      "id": "wddo17988:88",
+      "kind": "workflow",
+      "label": "verify:PIPELINE.md still carries the refuted \"v",
+      "group": "Verify",
+      "startedAt": 1785775111441
+    },
+    {
+      "id": "wddo17988:89",
+      "kind": "workflow",
+      "label": "verify:PIPELINE.md is the declared intent autho",
+      "group": "Verify",
+      "startedAt": 1785775111442
+    },
+    {
+      "id": "wddo17988:90",
+      "kind": "workflow",
+      "label": "verify:Two irreconcilable BFCL simple_python nu",
+      "group": "Verify",
+      "startedAt": 1785775111443
+    },
+    {
+      "id": "wddo17988:91",
+      "kind": "workflow",
+      "label": "verify:engine-probe-verb-loop FAILED x2 on 2026",
+      "group": "Verify",
+      "startedAt": 1785775111444
+    },
+    {
+      "id": "wddo17988:92",
+      "kind": "workflow",
+      "label": "verify:v3.4 corpus work is actively in flight w",
+      "group": "Verify",
+      "startedAt": 1785775111444
+    },
+    {
+      "id": "wddo17988:93",
+      "kind": "workflow",
+      "label": "verify:Lighteval — half of the operator's stand",
+      "group": "Verify",
+      "startedAt": 1785775111445
+    },
+    {
+      "id": "wddo17988:94",
+      "kind": "workflow",
+      "label": "verify:QUEUE.md contains no conductor-qwen entr",
+      "group": "Verify",
+      "startedAt": 1785775111445
+    },
+    {
+      "id": "wddo17988:95",
+      "kind": "workflow",
+      "label": "verify:SEQUENCE.md — the file STATE.md orders r",
+      "group": "Verify",
+      "startedAt": 1785775111446
+    },
+    {
+      "id": "wddo17988:96",
+      "kind": "workflow",
+      "label": "verify:Two docs each claim to hold the 'first e",
+      "group": "Verify",
+      "startedAt": 1785775111447
+    },
+    {
+      "id": "wddo17988:97",
+      "kind": "workflow",
+      "label": "verify:cq-score-v33's successor (the n>=32 abst",
+      "group": "Verify",
+      "startedAt": 1785775111447
+    },
+    {
+      "id": "wddo17988:98",
+      "kind": "workflow",
+      "label": "verify:OLLAMA_MODELS points at the near-full E:",
+      "group": "Verify",
+      "startedAt": 1785775111448
+    },
+    {
+      "id": "wddo17988:99",
+      "kind": "workflow",
+      "label": "verify:Two guard defects diagnosed inside the c",
+      "group": "Verify",
+      "startedAt": 1785775111448
+    },
+    {
+      "id": "b9ghl63m9",
+      "kind": "shell",
+      "label": "SSH=\"C:/WINDOWS/System32/OpenSSH/ssh.exe\" # Wait for the control run to reach 40 rows, then take the matched-ID reading. # Exits when the reading is produced, so this fires exactly one notification. …",
+      "startedAt": 1785775356219
     }
   ],
-  "tokens": 3361060,
+  "tokens": 3564661,
   "output": null,
   "children": null,
-  "linkScanOffset": 17225981,
+  "linkScanOffset": 17297213,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -101,6 +765,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-03T16:32:24.641Z",
+  "updatedAt": "2026-08-03T16:42:52.244Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
