@@ -1,10 +1,10 @@
 {
   "state": "working",
-  "detail": "generate running 50m (68 rows, ~95 min left); keepalive armed",
+  "detail": "rebuilt disposition scorer; found 730 Faith/governance paragraphs; mean disposition now +0.26",
   "tempo": "idle",
   "inFlight": {
     "tasks": 2,
-    "queued": 1,
+    "queued": 0,
     "kinds": [
       "local_bash"
     ]
@@ -23,10 +23,10 @@
       "startedAt": 1785755958571
     }
   ],
-  "tokens": 3091306,
+  "tokens": 3104013,
   "output": null,
   "children": null,
-  "linkScanOffset": 15562113,
+  "linkScanOffset": 15665815,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -50,6 +50,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-03T11:22:52.542Z",
+  "updatedAt": "2026-08-03T11:28:38.351Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
