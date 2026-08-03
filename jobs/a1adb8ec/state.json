@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "181/198 no_snippet tests running (~3 min left)",
+  "detail": "eval running (189/198 done); 2 v3.4 targets identified",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -17,10 +17,10 @@
       "startedAt": 1785731226291
     }
   ],
-  "tokens": 3026551,
+  "tokens": 3033159,
   "output": null,
   "children": null,
-  "linkScanOffset": 14711972,
+  "linkScanOffset": 14789731,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -44,6 +44,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-03T05:34:27.204Z",
+  "updatedAt": "2026-08-03T05:39:54.018Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
