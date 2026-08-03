@@ -1,6 +1,6 @@
 {
   "state": "blocked",
-  "detail": "Brave API credit exhausted ($5.00/month); need billing decision",
+  "detail": "API 402 usage_limit still 5.0; need dashboard spend-limit increase",
   "tempo": "blocked",
   "inFlight": {
     "tasks": 1,
@@ -17,13 +17,11 @@
       "startedAt": 1785772240724
     }
   ],
-  "tokens": 4931244,
-  "needs": "enable billing or wait for month reset to continue search measurements",
-  "output": {
-    "result": "valid n=31 at 58.06% (search verified live); rows 32–57 unverifiable; guard installed to prevent recurrence"
-  },
+  "tokens": 4932395,
+  "needs": "check Brave dashboard for separate usage_limit or spend-limit field (not just plan tier); set above $5",
+  "output": null,
   "children": null,
-  "linkScanOffset": 19503319,
+  "linkScanOffset": 19539473,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -47,6 +45,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-03T23:56:03.373Z",
+  "updatedAt": "2026-08-03T23:58:35.842Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
