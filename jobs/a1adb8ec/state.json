@@ -1,7 +1,7 @@
 {
-  "state": "working",
-  "detail": "282 specimens mined across 7 directives w/ provenance; web_search_base running",
-  "tempo": "idle",
+  "state": "blocked",
+  "detail": "analyzed search API options; need Marginalia key",
+  "tempo": "blocked",
   "inFlight": {
     "tasks": 2,
     "queued": 0,
@@ -24,10 +24,13 @@
       "startedAt": 1785796473366
     }
   ],
-  "tokens": 4914025,
-  "output": null,
+  "tokens": 4917377,
+  "needs": "email Marginalia for free non-commercial API key",
+  "output": {
+    "result": "recommendation: wire Marginalia + Mojeek into SearXNG for resilience; requires Marginalia API key (free via email)"
+  },
   "children": null,
-  "linkScanOffset": 19277921,
+  "linkScanOffset": 19334383,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -51,6 +54,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-03T23:35:10.314Z",
+  "updatedAt": "2026-08-03T23:41:43.368Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
