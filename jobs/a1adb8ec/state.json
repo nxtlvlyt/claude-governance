@@ -1,26 +1,18 @@
 {
-  "state": "working",
-  "detail": "eval running (189/198 done); 2 v3.4 targets identified",
+  "state": "done",
+  "detail": "diagnosis: corpus taught procedure not bearing; v3.4 test framed",
   "tempo": "idle",
   "inFlight": {
-    "tasks": 1,
+    "tasks": 0,
     "queued": 0,
-    "kinds": [
-      "local_bash"
-    ]
+    "kinds": []
   },
-  "fan": [
-    {
-      "id": "bt8hv5742",
-      "kind": "shell",
-      "label": "ssh -o ConnectTimeout=90 -o ServerAliveInterval=20 -o ServerAliveCountMax=100000 nxtbeast \"wsl -d Ubuntu -- bash /mnt/c/Users/marka/bfcl-websearch.sh\" 2>&1 | tr -d '\\000' | grep -vE \"it/s\\]$\" | tail …",
-      "startedAt": 1785731226291
-    }
-  ],
-  "tokens": 3033159,
-  "output": null,
+  "tokens": 3036431,
+  "output": {
+    "result": "root cause: Faith files' bearing translated to board-annotation procedure, transfers only to trained shapes. v3.4 falsifiable test: lift untrained shapes (web_search, multi_turn) without dedicated corpus."
+  },
   "children": null,
-  "linkScanOffset": 14789731,
+  "linkScanOffset": 14825576,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -44,6 +36,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-03T05:39:54.018Z",
+  "updatedAt": "2026-08-03T05:43:58.961Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
