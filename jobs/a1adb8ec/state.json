@@ -1,6 +1,6 @@
 {
-  "state": "working",
-  "detail": "rebuilt disposition scorer; found 730 Faith/governance paragraphs; mean disposition now +0.26",
+  "state": "done",
+  "detail": "identified pattern: 7 instances of untested instrument → world claim; generalizable check added to framework",
   "tempo": "idle",
   "inFlight": {
     "tasks": 2,
@@ -23,10 +23,12 @@
       "startedAt": 1785755958571
     }
   ],
-  "tokens": 3104013,
-  "output": null,
+  "tokens": 3105273,
+  "output": {
+    "result": "mechanism: test instrument against known case before reporting world-claim; 7 dated examples with receipts; usable for humility_slow_down and operator_pushback training"
+  },
   "children": null,
-  "linkScanOffset": 15665815,
+  "linkScanOffset": 15691985,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -50,6 +52,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-03T11:28:38.351Z",
+  "updatedAt": "2026-08-03T11:31:07.747Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
