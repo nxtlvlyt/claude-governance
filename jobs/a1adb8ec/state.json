@@ -1,18 +1,17 @@
 {
-  "state": "done",
-  "detail": "cheapest fix: throttle queries ($0); fallback to Brave free ($0/month, 5m signup)",
-  "tempo": "idle",
+  "state": "blocked",
+  "detail": "awaiting Brave API key via prefixed command",
+  "tempo": "blocked",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 2996390,
-  "output": {
-    "result": "Recommendation: throttle existing setup first (likely self-inflicted rate limit); if needed, Brave free tier ($0/mo, 1k queries) is durable fallback with quality gate in place"
-  },
+  "tokens": 2999023,
+  "needs": "type `! printf '%s' 'YOUR_KEY_HERE' > \"$HOME/.claude/muezzin-plugin/.brave-key\" && chmod 600 \"$HOME/.claude/muezzin-plugin/.brave-key\" && echo WROTE-$(wc -c < \"$HOME/.claude/muezzin-plugin/.brave-key\")-BYTES` with your key substituted",
+  "output": null,
   "children": null,
-  "linkScanOffset": 14292092,
+  "linkScanOffset": 14314279,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -36,6 +35,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-03T03:58:16.826Z",
+  "updatedAt": "2026-08-03T04:09:29.238Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
