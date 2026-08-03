@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "job killed; re-armed poller; 116/200 running, baseline next",
+  "detail": "multi_turn generation in progress (2/3 done); poller re-armed for eval",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -11,16 +11,16 @@
   },
   "fan": [
     {
-      "id": "b8m3cva2g",
+      "id": "bq1j6p7ym",
       "kind": "shell",
       "label": "export PYTHONIOENCODING=utf-8 for i in $(seq 1 90); do N=$(timeout 60 ssh -o ConnectTimeout=20 nxtbeast \"wsl -d Ubuntu -- bash -c 'pgrep -c -f \\\"bfcl generate\\\"'\" 2>/dev/null | tr -d '\\000\\r ') [ \"$N…",
-      "startedAt": 1785741427499
+      "startedAt": 1785752576806
     }
   ],
-  "tokens": 3057887,
+  "tokens": 3060383,
   "output": null,
   "children": null,
-  "linkScanOffset": 15194922,
+  "linkScanOffset": 15224782,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -44,6 +44,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-03T07:17:22.821Z",
+  "updatedAt": "2026-08-03T10:23:11.343Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
