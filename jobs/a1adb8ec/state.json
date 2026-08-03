@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "Docker on nxtbeast headless-blocked; web_search datasets ~198 cases, base done",
+  "detail": "benchmark run in flight: 168/198 done (no_snippet 68/99)",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -17,10 +17,10 @@
       "startedAt": 1785731226291
     }
   ],
-  "tokens": 3024131,
+  "tokens": 3025158,
   "output": null,
   "children": null,
-  "linkScanOffset": 14641284,
+  "linkScanOffset": 14668897,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -44,6 +44,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-03T05:06:45.030Z",
+  "updatedAt": "2026-08-03T05:29:12.908Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
