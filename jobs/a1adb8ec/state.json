@@ -1,10 +1,10 @@
 {
-  "state": "working",
-  "detail": "queueing full benchmark suite (15 categories, ~2K cases); 8–12h to complete",
+  "state": "done",
+  "detail": "compared simple_python (65%) vs Haiku/others on AST composite",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
-    "queued": 1,
+    "queued": 0,
     "kinds": [
       "local_bash"
     ]
@@ -17,10 +17,12 @@
       "startedAt": 1785720829436
     }
   ],
-  "tokens": 2960136,
-  "output": null,
+  "tokens": 2962184,
+  "output": {
+    "result": "simple_python: 65% on Non-Live AST (above Haiku prompt-mode 55%, below Gemini/Qwen/Opus/DeepSeek); Haiku FC mode jumps to 86.5% via tool-calling"
+  },
   "children": null,
-  "linkScanOffset": 13868591,
+  "linkScanOffset": 13892071,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -44,6 +46,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-03T03:00:31.992Z",
+  "updatedAt": "2026-08-03T03:01:34.699Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
