@@ -1,6 +1,6 @@
 {
-  "state": "working",
-  "detail": "600-case eval in progress: 66/200 on cat 1; est. 2.5–3h total",
+  "state": "done",
+  "detail": "answer: build corpus now (CPU/cloud), train later (needs baseline)",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -17,10 +17,12 @@
       "startedAt": 1785736226191
     }
   ],
-  "tokens": 3049770,
-  "output": null,
+  "tokens": 3053651,
+  "output": {
+    "result": "build corpus now using existing artifacts (714 commits, 1832 retros, etc.); train after benchmark completes; start with kind×directive matrix (11 kinds, D7 over-weighted)"
+  },
   "children": null,
-  "linkScanOffset": 15068826,
+  "linkScanOffset": 15106759,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -44,6 +46,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-03T06:38:43.065Z",
+  "updatedAt": "2026-08-03T06:43:29.403Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
