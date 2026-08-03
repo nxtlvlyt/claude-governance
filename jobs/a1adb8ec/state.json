@@ -1,6 +1,6 @@
 {
-  "state": "done",
-  "detail": "tuned Python score 65% vs base 66.25% (−1.25pt); +4.16 on abstention",
+  "state": "working",
+  "detail": "181/198 no_snippet tests running (~3 min left)",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -17,12 +17,10 @@
       "startedAt": 1785731226291
     }
   ],
-  "tokens": 3025296,
-  "output": {
-    "result": "tuned score lower by 1.25 points (5/400 cases) but gains 4.16 on abstention; net neutral-to-positive"
-  },
+  "tokens": 3026551,
+  "output": null,
   "children": null,
-  "linkScanOffset": 14684765,
+  "linkScanOffset": 14711972,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -46,6 +44,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-03T05:33:02.763Z",
+  "updatedAt": "2026-08-03T05:34:27.204Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
