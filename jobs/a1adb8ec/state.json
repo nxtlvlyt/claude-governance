@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "227/240 tests passing; 13 remaining, ~few min",
+  "detail": "base irrelevance 90.42% vs tuned 94.58% (+4.16); simple_python base running (17/400)",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -17,10 +17,10 @@
       "startedAt": 1785709728090
     }
   ],
-  "tokens": 2954259,
+  "tokens": 2957285,
   "output": null,
   "children": null,
-  "linkScanOffset": 13760317,
+  "linkScanOffset": 13803041,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -44,6 +44,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-03T00:03:07.854Z",
+  "updatedAt": "2026-08-03T01:12:39.030Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
