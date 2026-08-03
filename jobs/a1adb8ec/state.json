@@ -1,7 +1,7 @@
 {
-  "state": "done",
-  "detail": "compared simple_python (65%) vs Haiku/others on AST composite",
-  "tempo": "idle",
+  "state": "blocked",
+  "detail": "SearXNG engines blocked (CAPTCHA, rate limits); wiring tested but search degraded",
+  "tempo": "blocked",
   "inFlight": {
     "tasks": 1,
     "queued": 0,
@@ -17,12 +17,13 @@
       "startedAt": 1785720829436
     }
   ],
-  "tokens": 2962184,
+  "tokens": 2970695,
+  "needs": "unblock SearXNG engines (brave/duckduckgo/startpage) or configure fallbacks",
   "output": {
-    "result": "simple_python: 65% on Non-Live AST (above Haiku prompt-mode 55%, below Gemini/Qwen/Opus/DeepSeek); Haiku FC mode jumps to 86.5% via tool-calling"
+    "result": "Sota search path verified reachable; three main engines blocked by CAPTCHA/rate-limits—fix config before benchmark"
   },
   "children": null,
-  "linkScanOffset": 13892071,
+  "linkScanOffset": 14005104,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -46,6 +47,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-03T03:01:34.699Z",
+  "updatedAt": "2026-08-03T03:07:35.006Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
