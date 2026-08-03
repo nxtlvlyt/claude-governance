@@ -1,18 +1,18 @@
 {
   "state": "done",
-  "detail": "SearXNG rate-limited; config reverted, quality gate added",
+  "detail": "root fix identified: replace SearXNG scraping with Brave Search API",
   "tempo": "idle",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 2992316,
+  "tokens": 2994032,
   "output": {
-    "result": "Config restored to original; added quality_gate.mjs to catch poisoned results; suspensions are temporary (time-based)"
+    "result": "Root cause: SearXNG scraping triggers CAPTCHAs under load. Durable fix: Brave Search API ($5/mo free tier, 1K queries/month, 50 QPS). SearXNG can authenticate to it—no re-architecture needed."
   },
   "children": null,
-  "linkScanOffset": 14232909,
+  "linkScanOffset": 14263351,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -36,6 +36,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-03T03:54:45.951Z",
+  "updatedAt": "2026-08-03T03:56:15.237Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
