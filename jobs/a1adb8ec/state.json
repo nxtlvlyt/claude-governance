@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "53/100 rows done (19/66 resume), ~1.5h ETA; 116s/entry",
+  "detail": "Building that evidence is what's running now.",
   "tempo": "idle",
   "inFlight": {
     "tasks": 2,
@@ -24,10 +24,10 @@
       "startedAt": 1785796473366
     }
   ],
-  "tokens": 4888904,
+  "tokens": 4890826,
   "output": null,
   "children": null,
-  "linkScanOffset": 19001149,
+  "linkScanOffset": 19028180,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -51,6 +51,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-03T23:20:48.259Z",
+  "updatedAt": "2026-08-03T23:21:58.246Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
