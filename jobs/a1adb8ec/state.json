@@ -1,16 +1,39 @@
 {
   "state": "working",
-  "detail": "1,658 triples extracted, no keyword gate; awaiting teacher classification",
+  "detail": "classifier 100/1804 (34/min), ~50m ETA; zero failures",
   "tempo": "idle",
   "inFlight": {
-    "tasks": 0,
+    "tasks": 3,
     "queued": 0,
-    "kinds": []
+    "kinds": [
+      "local_bash",
+      "monitor"
+    ]
   },
-  "tokens": 3154903,
+  "fan": [
+    {
+      "id": "bydzgxeqt",
+      "kind": "shell",
+      "label": "\"C:/WINDOWS/System32/OpenSSH/ssh.exe\" -o ConnectTimeout=60 -o ServerAliveInterval=20 -o ServerAliveCountMax=100000 -o TCPKeepAlive=yes nxtbeast \"wsl -d Ubuntu -- bash /mnt/c/Users/marka/run-multiturn…",
+      "startedAt": 1785772201336
+    },
+    {
+      "id": "b7dh8937i",
+      "kind": "monitor",
+      "label": "multi_turn serial suite: per-stage accuracy + failures",
+      "startedAt": 1785772240724
+    },
+    {
+      "id": "b4y8m7bgf",
+      "kind": "shell",
+      "label": "cd \"C:/Users/marka/conductor-qwen/phase4\" && python classify-triples.py --workers 5 2>&1",
+      "startedAt": 1785773009624
+    }
+  ],
+  "tokens": 3210276,
   "output": null,
   "children": null,
-  "linkScanOffset": 16260381,
+  "linkScanOffset": 16847954,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -34,6 +57,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-03T12:09:50.250Z",
+  "updatedAt": "2026-08-03T16:06:58.576Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
