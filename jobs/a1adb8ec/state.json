@@ -1,6 +1,6 @@
 {
-  "state": "done",
-  "detail": "answer: build corpus now (CPU/cloud), train later (needs baseline)",
+  "state": "working",
+  "detail": "corpus sourcing for D10/humility; baseline running, training next",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -17,12 +17,10 @@
       "startedAt": 1785736226191
     }
   ],
-  "tokens": 3053651,
-  "output": {
-    "result": "build corpus now using existing artifacts (714 commits, 1832 retros, etc.); train after benchmark completes; start with kind×directive matrix (11 kinds, D7 over-weighted)"
-  },
+  "tokens": 3056880,
+  "output": null,
   "children": null,
-  "linkScanOffset": 15106759,
+  "linkScanOffset": 15170771,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -46,6 +44,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-03T06:43:29.403Z",
+  "updatedAt": "2026-08-03T06:47:57.095Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
