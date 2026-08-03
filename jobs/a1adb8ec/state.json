@@ -1,17 +1,19 @@
 {
   "state": "blocked",
-  "detail": "awaiting Brave API key via prefixed command",
+  "detail": "Brave API key needs rotation (exposed in transcript)",
   "tempo": "blocked",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 2999023,
-  "needs": "type `! printf '%s' 'YOUR_KEY_HERE' > \"$HOME/.claude/muezzin-plugin/.brave-key\" && chmod 600 \"$HOME/.claude/muezzin-plugin/.brave-key\" && echo WROTE-$(wc -c < \"$HOME/.claude/muezzin-plugin/.brave-key\")-BYTES` with your key substituted",
-  "output": null,
+  "tokens": 3016952,
+  "needs": "rotate the Brave API key when at a keyboard",
+  "output": {
+    "result": "search fixed: braveapi active, 20 results/query, gitignored key; rotate key due to transcript exposure"
+  },
   "children": null,
-  "linkScanOffset": 14314279,
+  "linkScanOffset": 14529377,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -35,6 +37,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-03T04:09:29.238Z",
+  "updatedAt": "2026-08-03T04:23:26.817Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }

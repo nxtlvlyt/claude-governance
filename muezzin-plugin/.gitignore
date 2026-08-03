@@ -29,3 +29,6 @@ mission-events.jsonl
 
 # wrangler's local build/deploy cache (regenerated per-machine, not source)
 .wrangler/
+.brave-key
+searxng-settings.local.yml
+*.local.yml
