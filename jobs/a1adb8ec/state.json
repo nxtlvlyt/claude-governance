@@ -1,6 +1,6 @@
 {
-  "state": "working",
-  "detail": "v3.5 queued for training after control lane (~3h); sequence set for overnight",
+  "state": "done",
+  "detail": "queuing strategy: v3.5 trains overnight, v3.4/v3.5 bench parallel tomorrow",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,12 @@
       "session_cron"
     ]
   },
-  "tokens": 5937949,
-  "output": null,
+  "tokens": 5939126,
+  "output": {
+    "result": "v3.5 overnight training + parallel benchmarks tomorrow; audit cleared pipeline"
+  },
   "children": null,
-  "linkScanOffset": 23996816,
+  "linkScanOffset": 24038480,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -37,6 +39,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-04T21:01:02.089Z",
+  "updatedAt": "2026-08-04T21:06:43.088Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
