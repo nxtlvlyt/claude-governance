@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "rope check healthy 16/80; Lighteval route verified in QUEUE.md",
+  "detail": "lane healthy (22/80); timeout handling noted in QUEUE.md; ~1am ETA",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 5975142,
+  "tokens": 5979180,
   "output": null,
   "children": null,
-  "linkScanOffset": 24632489,
+  "linkScanOffset": 24682495,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -37,6 +37,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-04T22:29:08.882Z",
+  "updatedAt": "2026-08-04T23:00:12.188Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
