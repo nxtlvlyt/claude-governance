@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "Stage 1 dry-run verified; flagged hybrid module overlap; corpus re-shipped",
+  "detail": "web_search_base FC: 67% (#18/110); awaiting base control Stage 5",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -17,10 +17,10 @@
       "startedAt": 1785823057886
     }
   ],
-  "tokens": 5117091,
+  "tokens": 5119282,
   "output": null,
   "children": null,
-  "linkScanOffset": 21867712,
+  "linkScanOffset": 21922651,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -44,6 +44,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-04T06:44:33.031Z",
+  "updatedAt": "2026-08-04T12:43:50.085Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
