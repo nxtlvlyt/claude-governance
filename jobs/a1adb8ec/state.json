@@ -1,55 +1,26 @@
 {
   "state": "working",
-  "detail": "audit running: corpus, config, serving, eval plan, spec compliance; bf16 gap named",
-  "tempo": "active",
+  "detail": "holdout eval running (v3.4 vs v3.3 vs base, 66 rows); spec doc pending",
+  "tempo": "idle",
   "inFlight": {
     "tasks": 1,
     "queued": 0,
     "kinds": [
-      "local_workflow"
+      "local_bash"
     ]
   },
   "fan": [
     {
-      "id": "w5hw1srun:1",
-      "kind": "workflow",
-      "label": "audit:corpus-content",
-      "group": "Audit",
-      "startedAt": 1785863347203
-    },
-    {
-      "id": "accfe0c42cfe7bc99",
-      "kind": "workflow",
-      "label": "audit:training-config",
-      "group": "Audit",
-      "startedAt": 1785863356969
-    },
-    {
-      "id": "w5hw1srun:3",
-      "kind": "workflow",
-      "label": "audit:serving-path",
-      "group": "Audit",
-      "startedAt": 1785863347204
-    },
-    {
-      "id": "a0156afc3aee8edd1",
-      "kind": "workflow",
-      "label": "audit:evaluation-plan",
-      "group": "Audit",
-      "startedAt": 1785863367066
-    },
-    {
-      "id": "afc1ce69ca6313c2c",
-      "kind": "workflow",
-      "label": "audit:spec-compliance",
-      "group": "Audit",
-      "startedAt": 1785863362599
+      "id": "b4yrnd1sn",
+      "kind": "shell",
+      "label": "cd \"C:/Users/marka/conductor-qwen/phase4\" && python -c \"import ast; ast.parse(open('holdout-eval.py',encoding='utf-8').read()); print('parses OK')\" && python holdout-eval.py 2>&1",
+      "startedAt": 1785866371706
     }
   ],
-  "tokens": 5166999,
+  "tokens": 5875124,
   "output": null,
   "children": null,
-  "linkScanOffset": 22672650,
+  "linkScanOffset": 22910363,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -73,6 +44,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-04T17:09:27.545Z",
+  "updatedAt": "2026-08-04T17:59:56.098Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
