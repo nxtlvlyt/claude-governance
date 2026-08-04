@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "BFCL eval lane running (9/80, ~5.4 min/entry); Lighteval queued after",
+  "detail": "model training in progress (9/80 generate); next cron check ~23m",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 5963518,
+  "tokens": 5964553,
   "output": null,
   "children": null,
-  "linkScanOffset": 24459909,
+  "linkScanOffset": 24470010,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -37,6 +37,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-04T21:32:13.436Z",
+  "updatedAt": "2026-08-04T21:32:33.566Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
