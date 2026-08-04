@@ -1,10 +1,10 @@
 {
   "state": "working",
-  "detail": "training wired into chain; watcher re-armed for 5-stage pipeline",
+  "detail": "overnight training chain verified + live on nxtbeast",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
-    "queued": 1,
+    "queued": 0,
     "kinds": [
       "monitor"
     ]
@@ -17,10 +17,10 @@
       "startedAt": 1785823057886
     }
   ],
-  "tokens": 5086330,
+  "tokens": 5099613,
   "output": null,
   "children": null,
-  "linkScanOffset": 21564863,
+  "linkScanOffset": 21688027,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -44,6 +44,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-04T05:57:52.452Z",
+  "updatedAt": "2026-08-04T06:05:26.660Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }

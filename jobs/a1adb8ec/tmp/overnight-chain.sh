@@ -1,15 +1,18 @@
 #!/usr/bin/env bash
 # The whole night, self-driving. No stage depends on anyone being awake.
 #
-# WHY THIS REPLACES THE EARLIER QUEUE RUNNER
-# The previous chain ran only the two base controls, and I planned to slot training in by hand
-# "after the FC lane". That is a plan that requires me to be present — and I had just told the
-# operator "nothing needs you tonight" while having no watcher armed at all, which made HIM the
-# monitoring. His words: "me? because you don't want to tie the camel".
+# CORRECTED 2026-08-04 02:0x, before stage 2 ever ran, by checking the environment during the
+# wait instead of after it (practice/core.md FM-12: do the work that does not require the
+# inference FIRST). Two fatal defects were found and fixed:
 #
-# practice/core.md FM-12: before entering a waiting state, all work that does not require the
-# inference to finish must be done FIRST, and the wait must be tied. Putting training inside
-# the chain is that work.
+#   1. The chain called bare `python3` = /usr/bin/python3, which has NO torch, unsloth, trl,
+#      datasets, transformers, peft or bitsandbytes. Training would have died in seconds at
+#      ~03:00 and the night would have produced only controls. The real environment is
+#      /root/cq-venv (torch 2.11.0+cu130, unsloth 2026.7.5, CUDA True, 20.8GB free of 25.8).
+#   2. The corpus did not exist on nxtbeast at all. train-v34-train.jsonl was built on the
+#      laptop; nxtbeast has no conductor-qwen tree. Files are now mirrored to
+#      /mnt/c/Users/marka/cq-v34/ and the corpus is passed by ABSOLUTE path, because the
+#      trainer resolves a relative corpus_path against its own directory.
 #
 # ORDER, and why:
 #   1. wait for the in-flight FC lane + no_snippet   (already running, do not disturb)
@@ -19,15 +22,19 @@
 #   4. base control, Prompt mode                     (the control for 51.00%)
 #   5. base control, FC mode                         (the control the operator asked for)
 #
-# Training is stage 3, not last, because it is the actual goal and it is SHORT. Five hours of
-# characterising v3.3 ahead of forty minutes that produces v3.4 was the wrong order.
-#
-# EVERY STAGE IS SKIPPABLE ON FAILURE — a failed train must not block the controls, and a
-# failed control must not block the rest. Each writes its own marker.
+# EVERY STAGE IS SKIPPABLE ON FAILURE — a failed train must not block the controls.
 set -uo pipefail
 LOG=/root/bfclproj/overnight.log
+PY=/root/cq-venv/bin/python3
+CQ=/mnt/c/Users/marka/cq-v34
+CORPUS=$CQ/phase4/train-v34-train.jsonl
+PROFILE=$CQ/model-profiles/arch-gov-27b-v34.json
+
 exec > >(tee -a "$LOG") 2>&1
-echo "######## OVERNIGHT CHAIN $(date -Is) ########"
+echo "######## OVERNIGHT CHAIN (v2, corrected) $(date -Is) ########"
+echo "  python : $PY"
+echo "  corpus : $CORPUS ($(wc -l < "$CORPUS" 2>/dev/null || echo MISSING) rows)"
+echo "  profile: $PROFILE"
 
 wait_for_clear () {
   local w=0
@@ -39,50 +46,39 @@ wait_for_clear () {
   done
 }
 
+echo
 echo "=== STAGE 1: wait for the in-flight FC lane + no_snippet ==="
 wait_for_clear || exit 1
 
 echo
 echo "=== STAGE 2: DRY-RUN the generic trainer (never executed before) ==="
-cd /mnt/c/Users/marka/conductor-qwen
-export HF_HOME=/mnt/d/hf-cache
-timeout 3600 python3 nxtbeast/train_student_generic.py \
-    --profile model-profiles/arch-gov-27b-v34.json --dry-run
+cd "$CQ"
+export HF_HOME=/root/.cache/huggingface   # where unsloth/Qwen3.6-27B is already cached
+timeout 3600 "$PY" nxtbeast/train_student_generic.py \
+    --profile "$PROFILE" --corpus "$CORPUS" --dry-run
 DRY=$?
 echo "### DRYRUN rc=$DRY"
 
 if [ $DRY -eq 0 ]; then
   echo
   echo "=== STAGE 3: TRAIN v3.4 ==="
-  timeout 21600 python3 nxtbeast/train_student_generic.py \
-      --profile model-profiles/arch-gov-27b-v34.json
+  timeout 21600 "$PY" nxtbeast/train_student_generic.py \
+      --profile "$PROFILE" --corpus "$CORPUS"
   echo "### TRAIN rc=$?"
 else
   echo "### TRAIN SKIPPED — dry-run failed rc=$DRY. Controls still run below."
 fi
 
 wait_for_clear || true
-
 echo
 echo "=== STAGE 4: base control, Prompt mode ==="
 bash /mnt/c/Users/marka/run-base-control.sh || echo "### base-prompt rc=$?"
-wait_for_clear || true
 
+wait_for_clear || true
 echo
 echo "=== STAGE 5: base control, FC mode ==="
 bash /mnt/c/Users/marka/run-base-fc.sh || echo "### base-fc rc=$?"
 
 echo
 echo "######## OVERNIGHT CHAIN DONE $(date -Is) ########"
-echo "=== agentic scores ==="
 cat /root/bfclproj/score/data_agentic.csv 2>/dev/null
-echo
-echo "=== search spend ==="
-python3 - <<'PY'
-import io, json, os
-p="/root/bfclproj/search-calls.jsonl"
-if os.path.exists(p):
-    rs=[json.loads(l) for l in io.open(p,encoding='utf-8') if l.strip()]
-    if rs:
-        x=rs[-1]; print("  calls=%d empty=%d  approx $%.2f" % (x['calls'],x['empty'],x['calls']*5.0/1000))
-PY
