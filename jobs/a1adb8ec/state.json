@@ -1,16 +1,18 @@
 {
-  "state": "working",
-  "detail": "TUNE-PIPELINE.md drafted + merged; v3.4 eval pass in flight",
+  "state": "done",
+  "detail": "confirmed: base won't rerun; BFCL resumes row-by-row, holdout eval has no mid-run resume",
   "tempo": "idle",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 5895300,
-  "output": null,
+  "tokens": 5896585,
+  "output": {
+    "result": "base lanes resume from checkpoint; only new lanes (web_search_base, FC variant) queued; holdout eval lacks mid-run resume — gap noted for next iteration"
+  },
   "children": null,
-  "linkScanOffset": 23213813,
+  "linkScanOffset": 23260845,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -34,6 +36,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-04T18:59:36.170Z",
+  "updatedAt": "2026-08-04T19:03:58.019Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
