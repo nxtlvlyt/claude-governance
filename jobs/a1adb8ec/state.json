@@ -1,16 +1,16 @@
 {
   "state": "working",
-  "detail": "FC lane running; 2 measurements queued (~$2.50)",
+  "detail": "Running unattended: FC lane on `web_search_base`, then `web_search_no_snippet` — both guarded, VM held.",
   "tempo": "idle",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 5032322,
+  "tokens": 5034892,
   "output": null,
   "children": null,
-  "linkScanOffset": 20797679,
+  "linkScanOffset": 20850366,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -34,6 +34,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-04T04:59:25.109Z",
+  "updatedAt": "2026-08-04T05:01:28.338Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
