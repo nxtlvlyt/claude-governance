@@ -52,6 +52,25 @@ echo "=== STAGE 1: wait for the in-flight FC lane + no_snippet ==="
 wait_for_clear || exit 1
 
 echo
+echo "=== STAGE 1b: RELEASE VRAM — Ollama holds the model long after generate exits ==="
+# Measured 2026-08-04 02:2x: with the FC lane finished, Ollama still held
+# arch-gov-27b-v33-sys at 17.6GB with expires_at ~2 HOURS out, and the GPU sat at
+# 21725/24564 MiB. A 27B 4-bit LoRA needs ~16-20GB. Training would have OOM'd in seconds.
+#
+# `wait_for_clear` only proves no bfcl PROCESS is running. It says nothing about what Ollama
+# is still holding — which is the resource training actually competes for. Two different
+# things, and conflating them is how a chain that "waited correctly" still dies.
+for m in $(curl -s http://172.30.144.1:11434/api/ps | python3 -c 'import sys,json; [print(x["name"]) for x in (json.load(sys.stdin).get("models") or [])]' 2>/dev/null); do
+  echo "  unloading $m"
+  curl -s http://172.30.144.1:11434/api/generate -d "{\"model\":\"$m\",\"keep_alive\":0}" -o /dev/null
+done
+sleep 12
+echo "  ollama now holds:"
+curl -s http://172.30.144.1:11434/api/ps | python3 -c 'import sys,json; ms=json.load(sys.stdin).get("models") or []; print("    (nothing)" if not ms else "
+".join("    %s %.1fGB" % (x["name"], x.get("size_vram",0)/1e9) for x in ms))' 2>/dev/null
+echo "  gpu: $(nvidia-smi --query-gpu=memory.used,memory.total --format=csv,noheader 2>/dev/null | head -1)"
+
+echo
 echo "=== STAGE 2: DRY-RUN the generic trainer (never executed before) ==="
 cd "$CQ"
 export HF_HOME=/root/.cache/huggingface   # where unsloth/Qwen3.6-27B is already cached
