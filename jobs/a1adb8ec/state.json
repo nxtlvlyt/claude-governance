@@ -1,16 +1,16 @@
 {
   "state": "working",
-  "detail": "training done (109m, 654/654); merging weights 3/15 (~30m left)",
+  "detail": "merge 15/15 shards (55.6 GB); pipeline auto-scheduled",
   "tempo": "idle",
   "inFlight": {
     "tasks": 0,
-    "queued": 1,
+    "queued": 0,
     "kinds": []
   },
-  "tokens": 5148802,
+  "tokens": 5157728,
   "output": null,
   "children": null,
-  "linkScanOffset": 22408534,
+  "linkScanOffset": 22498899,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -34,6 +34,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-04T16:37:46.611Z",
+  "updatedAt": "2026-08-04T16:43:19.716Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
