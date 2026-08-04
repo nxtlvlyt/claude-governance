@@ -1,26 +1,16 @@
 {
   "state": "working",
-  "detail": "watcher re-armed; 65/100 rows, ~2h to completion",
+  "detail": "job at 69/100; ~31 rows remaining, ~90 min; watchers pruned",
   "tempo": "idle",
   "inFlight": {
-    "tasks": 1,
+    "tasks": 0,
     "queued": 0,
-    "kinds": [
-      "local_bash"
-    ]
+    "kinds": []
   },
-  "fan": [
-    {
-      "id": "bg15sqdc2",
-      "kind": "shell",
-      "label": "SSH=\"C:/WINDOWS/System32/OpenSSH/ssh.exe\" prev=-1; stall=0 while true; do alive=$(\"$SSH\" -o ConnectTimeout=25 -o BatchMode=yes nxtbeast \"wsl -d Ubuntu -- bash -lc \\\"ps -eo args | grep -c '^/root/bfcl…",
-      "startedAt": 1785814207113
-    }
-  ],
-  "tokens": 4998756,
+  "tokens": 4999487,
   "output": null,
   "children": null,
-  "linkScanOffset": 20372869,
+  "linkScanOffset": 20391359,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -44,6 +34,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-04T03:30:18.669Z",
+  "updatedAt": "2026-08-04T03:32:59.216Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
