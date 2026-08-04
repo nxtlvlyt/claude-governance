@@ -1,16 +1,16 @@
 {
   "state": "working",
-  "detail": "Building that now while the merge finishes.",
+  "detail": "v3.4 merged; export+scoring pipeline running (~65min ETA)",
   "tempo": "idle",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 5159309,
+  "tokens": 5163306,
   "output": null,
   "children": null,
-  "linkScanOffset": 22544753,
+  "linkScanOffset": 22618231,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -34,6 +34,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-04T17:03:29.934Z",
+  "updatedAt": "2026-08-04T17:06:35.182Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
