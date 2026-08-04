@@ -35,6 +35,7 @@ echo "######## OVERNIGHT CHAIN (v2, corrected) $(date -Is) ########"
 echo "  python : $PY"
 echo "  corpus : $CORPUS ($(wc -l < "$CORPUS" 2>/dev/null || echo MISSING) rows)"
 echo "  profile: $PROFILE"
+echo "  rundir : ${CQ_RUN_DIR:-/mnt/d/conductor-qwen-run} (artifacts on D:, never C:)"
 
 wait_for_clear () {
   local w=0
@@ -54,6 +55,15 @@ echo
 echo "=== STAGE 2: DRY-RUN the generic trainer (never executed before) ==="
 cd "$CQ"
 export HF_HOME=/root/.cache/huggingface   # where unsloth/Qwen3.6-27B is already cached
+# ARTIFACTS GO TO D:, NEVER C:. The trainer defaults RUN to /mnt/c/Users/marka/conductor-qwen-run
+# and writes a merged 16-bit 27B there — roughly 55GB. /mnt/c has 64GB free at 94% used.
+# PIPELINE.md's Stage 0-PRE opens with exactly this: "one full night lost to disk exhaustion —
+# C: full killed the 27B f16 write mid-GGUF ... C: is OS-only — NEVER the run dir for
+# model-sized files. D: is the artifact home." /mnt/d has 382GB free.
+# Training would have SUCCEEDED and then died at the merge, which is the most expensive place
+# for this to fail.
+export CQ_RUN_DIR=/mnt/d/conductor-qwen-run
+mkdir -p "$CQ_RUN_DIR/models"
 timeout 3600 "$PY" nxtbeast/train_student_generic.py \
     --profile "$PROFILE" --corpus "$CORPUS" --dry-run
 DRY=$?
