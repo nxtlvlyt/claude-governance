@@ -1,16 +1,16 @@
 {
   "state": "working",
-  "detail": "trainer running on GPU under Windows Task Scheduler; ETA ~85m",
+  "detail": "training 52% (339/654), GPU 99%, ~40 min left",
   "tempo": "idle",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 5145867,
+  "tokens": 5146471,
   "output": null,
   "children": null,
-  "linkScanOffset": 22298967,
+  "linkScanOffset": 22340722,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -34,6 +34,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-04T14:31:21.213Z",
+  "updatedAt": "2026-08-04T15:17:29.746Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
