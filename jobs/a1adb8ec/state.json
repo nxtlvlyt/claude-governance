@@ -1,16 +1,26 @@
 {
   "state": "working",
-  "detail": "v3.3 measuring queue ~5-7h; v3.4 training ~40m; dry-run first",
+  "detail": "training wired into chain; watcher re-armed for 5-stage pipeline",
   "tempo": "idle",
   "inFlight": {
-    "tasks": 0,
-    "queued": 0,
-    "kinds": []
+    "tasks": 1,
+    "queued": 1,
+    "kinds": [
+      "monitor"
+    ]
   },
-  "tokens": 5081211,
+  "fan": [
+    {
+      "id": "bg1dy2irz",
+      "kind": "monitor",
+      "label": "overnight chain: stage transitions, death, keepalive loss",
+      "startedAt": 1785823057886
+    }
+  ],
+  "tokens": 5086330,
   "output": null,
   "children": null,
-  "linkScanOffset": 21493802,
+  "linkScanOffset": 21564863,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -34,6 +44,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-04T05:51:32.965Z",
+  "updatedAt": "2026-08-04T05:57:52.452Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
