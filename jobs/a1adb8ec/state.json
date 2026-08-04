@@ -1,16 +1,16 @@
 {
   "state": "working",
-  "detail": "web_search control queued; FC lane 7/100 at 55.89s/entry",
+  "detail": "FC 20/100 done in 25 min; ETA ~1.5–2h; empty rate 14.2% rising",
   "tempo": "idle",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 5046102,
+  "tokens": 5047080,
   "output": null,
   "children": null,
-  "linkScanOffset": 20998020,
+  "linkScanOffset": 21033729,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -34,6 +34,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-04T05:07:47.657Z",
+  "updatedAt": "2026-08-04T05:25:46.439Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
