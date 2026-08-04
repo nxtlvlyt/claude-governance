@@ -1,26 +1,16 @@
 {
   "state": "working",
-  "detail": "web_search_no_snippet 67/100 (~3h left); queued: release VRAM, dry-run trainer, TRAIN v3.4, 2× base control",
+  "detail": "v3.4 training (~40 min); Ollama unloaded, VRAM clear",
   "tempo": "idle",
   "inFlight": {
-    "tasks": 1,
+    "tasks": 0,
     "queued": 0,
-    "kinds": [
-      "monitor"
-    ]
+    "kinds": []
   },
-  "fan": [
-    {
-      "id": "bg1dy2irz",
-      "kind": "monitor",
-      "label": "overnight chain: stage transitions, death, keepalive loss",
-      "startedAt": 1785823057886
-    }
-  ],
-  "tokens": 5120223,
+  "tokens": 5132009,
   "output": null,
   "children": null,
-  "linkScanOffset": 21999914,
+  "linkScanOffset": 22130955,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -44,6 +34,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-04T13:06:12.342Z",
+  "updatedAt": "2026-08-04T13:56:32.298Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }

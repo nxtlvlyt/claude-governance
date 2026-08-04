@@ -1,0 +1,10 @@
+[wsl2]
+# vmIdleTimeout=-1 added 2026-08-04. Without it WSL2 shuts the utility VM down on idle, and
+# on 2026-08-04 09:4x that killed an entire running chain at once: the overnight runner, the
+# bfcl generate lane at 74/100, and the in-VM `sleep 43200` keepalive all died together with
+# no OOM and no error. A keepalive PROCESS cannot hold a VM open, because it dies with it.
+# -1 means never idle-shutdown. 74 rows survived on disk; nothing was lost, but ~7 hours of
+# queue did not run.
+vmIdleTimeout=-1
+memory=128GB
+maxCrashDumpCount=-1
