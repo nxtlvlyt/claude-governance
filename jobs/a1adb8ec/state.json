@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "regenerating 69 rows with live search; guard + call log deployed",
+  "detail": "v3.4 corpus complete: 1,722 rows, 17 kinds; 1 gap flagged (multi-turn tool-call)",
   "tempo": "idle",
   "inFlight": {
     "tasks": 2,
@@ -24,10 +24,10 @@
       "startedAt": 1785801883591
     }
   ],
-  "tokens": 4936761,
+  "tokens": 4951861,
   "output": null,
   "children": null,
-  "linkScanOffset": 19607500,
+  "linkScanOffset": 19776624,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -51,6 +51,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-04T00:05:13.601Z",
+  "updatedAt": "2026-08-04T00:21:35.088Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
