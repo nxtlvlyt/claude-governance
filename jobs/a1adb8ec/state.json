@@ -1,18 +1,17 @@
 {
-  "state": "done",
-  "detail": "explained the 14%→51% score gap; new corpus ready (1,992 examples)",
-  "tempo": "idle",
+  "state": "blocked",
+  "detail": "51% context unknown; leaderboard needs JS rendering",
+  "tempo": "blocked",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 5005789,
-  "output": {
-    "result": "test was rigged (gagged + unplugged search); model actually 3.5× better; new corpus built with 1,992 examples across 20 situations"
-  },
+  "tokens": 5008802,
+  "needs": "want me to read the leaderboard with browser automation, or run the untuned baseline comparison instead?",
+  "output": null,
   "children": null,
-  "linkScanOffset": 20518761,
+  "linkScanOffset": 20579125,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -36,6 +35,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-04T04:45:22.229Z",
+  "updatedAt": "2026-08-04T04:48:25.842Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
