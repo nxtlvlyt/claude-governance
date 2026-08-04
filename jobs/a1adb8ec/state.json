@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "QUEUE.md release gate banked; proc 9/80, ~5.4 min/entry, re-fires at :52",
+  "detail": "license verified (Apache 2.0); rope check green, training ~5m/entry, finish ~midnight",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 5969688,
+  "tokens": 5972116,
   "output": null,
   "children": null,
-  "linkScanOffset": 24540663,
+  "linkScanOffset": 24584074,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -37,6 +37,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-04T21:34:13.420Z",
+  "updatedAt": "2026-08-04T21:59:49.843Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
