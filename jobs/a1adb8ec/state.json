@@ -1,18 +1,18 @@
 {
   "state": "done",
-  "detail": "51% ranks #28/110 on web_search_base; ties o3, beats GPT-5.2",
+  "detail": "27B scores 51 on tool-use benchmark vs frontier 11-20; #7 of 36 prompt-mode models",
   "tempo": "idle",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 5021271,
+  "tokens": 5026592,
   "output": {
-    "result": "27B model scores 51% web_search_base (median 13%), ties OpenAI o3 in prompt mode, beats GPT-5.2; #28 of 110 models"
+    "result": "27B v3.3 beats frontier on prompt-instruction tools (51 vs 13-20) but lacks native FC lane; caveat recorded with method for reproducibility"
   },
   "children": null,
-  "linkScanOffset": 20696532,
+  "linkScanOffset": 20737967,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -36,6 +36,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-04T04:54:18.498Z",
+  "updatedAt": "2026-08-04T04:56:05.767Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
