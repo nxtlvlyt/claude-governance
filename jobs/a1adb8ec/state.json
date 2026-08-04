@@ -1,6 +1,6 @@
 {
-  "state": "working",
-  "detail": "final control lane running (~3.5h); answering v3.3 baseline question",
+  "state": "done",
+  "detail": "v3.5 is a planned fix-list, not a release; recorded in STATE.md",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,12 @@
       "session_cron"
     ]
   },
-  "tokens": 5931365,
-  "output": null,
+  "tokens": 5931606,
+  "output": {
+    "result": "v3.5 is a future fix-list (reach more + recover 8 answers); nothing queued"
+  },
   "children": null,
-  "linkScanOffset": 23896316,
+  "linkScanOffset": 23940629,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -37,6 +39,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-04T20:54:58.522Z",
+  "updatedAt": "2026-08-04T20:58:04.244Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
