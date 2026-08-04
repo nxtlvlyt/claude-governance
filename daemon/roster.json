@@ -1,62 +1,6 @@
 {
   "proto": 1,
-  "supervisorPid": 31208,
-  "updatedAt": 1785561548826,
-  "workers": {
-    "a1adb8ec": {
-      "pid": 31720,
-      "procStart": "639211295476843860",
-      "sessionId": "a1adb8ec-bcb6-4317-954a-4fa3f4410ca8",
-      "rendezvousSock": "\\\\.\\pipe\\cc-daemon-69c76e4ae1bf5e5b-rv-a1adb8ec",
-      "ptySock": "\\\\.\\pipe\\cc-daemon-69c76e4ae1bf5e5b-pty-a1adb8ec",
-      "cliVersion": "2.1.220",
-      "startedAt": 1785557947673,
-      "attempt": 1,
-      "cwd": "C:\\Users\\marka",
-      "dispatch": {
-        "proto": 1,
-        "short": "a1adb8ec",
-        "nonce": "d3fcd208",
-        "sessionId": "a1adb8ec-bcb6-4317-954a-4fa3f4410ca8",
-        "createdAt": 1785557944822,
-        "source": "slash",
-        "cwd": "C:\\Users\\marka",
-        "launch": {
-          "mode": "resume",
-          "sessionId": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\938cde6f-55e7-4232-887d-3eaefc4cdcbc.jsonl",
-          "fork": true,
-          "flagArgs": [
-            "--reply-on-resume",
-            "--permission-mode",
-            "default"
-          ]
-        },
-        "env": {
-          "CLAUDE_BG_ISOLATION": "none"
-        },
-        "isolation": "none",
-        "respawnFlags": [
-          "--reply-on-resume",
-          "--permission-mode",
-          "default"
-        ],
-        "seed": {
-          "intent": "this is a teleport session you don't have any of the context"
-        },
-        "cols": 120,
-        "rows": 30
-      },
-      "decModes": [
-        1004,
-        1000,
-        1002,
-        1003,
-        1006,
-        2004,
-        2031
-      ],
-      "rvAuth": "050f7924a9d91fd74366ed3892139b59",
-      "ptyAuth": "1c6c597f508ed64c76d41eff79f31024"
-    }
-  }
+  "supervisorPid": 29044,
+  "updatedAt": 1785803212140,
+  "workers": {}
 }

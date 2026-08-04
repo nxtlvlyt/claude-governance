@@ -1,13 +1,12 @@
 {
   "state": "working",
-  "detail": "v3.4 corpus complete: 1,722 rows, 17 kinds; 1 gap flagged (multi-turn tool-call)",
+  "detail": "telemetry bug fixed (double-counting); search healthy, run unaffected",
   "tempo": "idle",
   "inFlight": {
-    "tasks": 2,
+    "tasks": 1,
     "queued": 0,
     "kinds": [
-      "monitor",
-      "local_bash"
+      "monitor"
     ]
   },
   "fan": [
@@ -16,18 +15,12 @@
       "kind": "monitor",
       "label": "multi_turn serial suite: per-stage accuracy + failures",
       "startedAt": 1785772240724
-    },
-    {
-      "id": "bx5n1s0vy",
-      "kind": "shell",
-      "label": "\"C:/WINDOWS/System32/OpenSSH/ssh.exe\" -o ConnectTimeout=60 -o ServerAliveInterval=20 -o ServerAliveCountMax=100000 -o TCPKeepAlive=yes nxtbeast \"wsl -d Ubuntu -- bash /mnt/c/Users/marka/resume-clean.…",
-      "startedAt": 1785801883591
     }
   ],
-  "tokens": 4951861,
+  "tokens": 4960688,
   "output": null,
   "children": null,
-  "linkScanOffset": 19776624,
+  "linkScanOffset": 19861299,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -51,6 +44,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-04T00:21:35.088Z",
+  "updatedAt": "2026-08-04T00:34:32.533Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }

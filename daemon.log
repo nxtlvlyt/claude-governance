@@ -217,3 +217,13 @@
 [2026-08-03T19:42:18.436Z] [supervisor] auth: proactive refresh starting
 [2026-08-03T19:42:19.629Z] [supervisor] auth: scheduling proactive refresh in 28560s
 [2026-08-03T19:42:19.629Z] [supervisor] auth: proactive refresh succeeded
+[2026-08-04T00:26:45.482Z] [supervisor] binary at C:\Users\marka\AppData\Roaming\npm\node_modules\@anthropic-ai\claude-code\bin\claude.exe changed (mtime changed) — self-restarting for upgrade
+[2026-08-04T00:26:48.017Z] [supervisor] shutting down (cause=upgrade, uptime=245261s, leases=2, live_workers=1)
+[2026-08-04T00:26:52.044Z] [supervisor] ─── daemon start ─── version=2.1.221 pid=29044 origin=transient
+[2026-08-04T00:26:52.044Z] [supervisor] ─── daemon start ─── version=2.1.221 pid=35656 origin=transient
+[2026-08-04T00:26:52.072Z] [supervisor] auth: scheduling proactive refresh in 11487s
+[2026-08-04T00:26:52.077Z] [supervisor] auth: scheduling proactive refresh in 11487s
+[2026-08-04T00:26:52.087Z] [supervisor] another daemon is already running (pid=29044, version=2.1.221, origin=transient; an on-demand daemon never displaces a running one). Stop it with `taskkill /PID 29044`, then retry.
+[2026-08-04T00:26:52.080Z] [supervisor] workers=0
+[2026-08-04T00:26:52.115Z] [bg] bg: control socket bound at \\.\pipe\cc-daemon-*-control
+[2026-08-04T00:26:52.126Z] [bg] bg adopt: adopted=0 respawned=0 dead=1
