@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "re-judge tool-loop rows + base probe running; 15m cron watch",
+  "detail": "v3.4 at 88% vs v3.3 at 68%; re-checking 2 numbers ~20 min",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 5917961,
+  "tokens": 5918023,
   "output": null,
   "children": null,
-  "linkScanOffset": 23554714,
+  "linkScanOffset": 23594761,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -37,6 +37,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-04T20:24:28.042Z",
+  "updatedAt": "2026-08-04T20:25:42.301Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
