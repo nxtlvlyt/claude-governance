@@ -1,18 +1,16 @@
 {
-  "state": "done",
-  "detail": "27B scores 51 on tool-use benchmark vs frontier 11-20; #7 of 36 prompt-mode models",
+  "state": "working",
+  "detail": "FC lane running; 2 measurements queued (~$2.50)",
   "tempo": "idle",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 5026592,
-  "output": {
-    "result": "27B v3.3 beats frontier on prompt-instruction tools (51 vs 13-20) but lacks native FC lane; caveat recorded with method for reproducibility"
-  },
+  "tokens": 5032322,
+  "output": null,
   "children": null,
-  "linkScanOffset": 20737967,
+  "linkScanOffset": 20797679,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -36,6 +34,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-04T04:56:05.767Z",
+  "updatedAt": "2026-08-04T04:59:25.109Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
