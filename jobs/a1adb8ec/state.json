@@ -1,6 +1,6 @@
 {
-  "state": "done",
-  "detail": "27B scores 67 FC (tied GPT-4.1), 51 prompt-mode (tied o3)",
+  "state": "working",
+  "detail": "v3.4 beats v3.3 on holdout (88% vs 68%); fair re-run underway",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,12 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 5918856,
-  "output": {
-    "result": "Your 27B: #18/110 native FC (67=GPT-4.1), #7/36 prompt-mode (51=o3); beats all tool-calling fine-tunes"
-  },
+  "tokens": 5924483,
+  "output": null,
   "children": null,
-  "linkScanOffset": 23680767,
+  "linkScanOffset": 23772586,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -39,6 +37,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-04T20:29:51.757Z",
+  "updatedAt": "2026-08-04T20:36:48.743Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
