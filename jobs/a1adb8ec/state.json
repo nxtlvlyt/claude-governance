@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "re-dispatching timeout rows with marker; repair path in QUEUE.md",
+  "detail": "training at 39/80 (3.4 min/entry); finish ~22:20, v3.5 pre-midnight",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 5990574,
+  "tokens": 5993375,
   "output": null,
   "children": null,
-  "linkScanOffset": 24841133,
+  "linkScanOffset": 24897263,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -37,6 +37,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-04T23:37:01.361Z",
+  "updatedAt": "2026-08-04T23:59:42.977Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
