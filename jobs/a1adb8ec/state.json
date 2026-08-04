@@ -1,9 +1,9 @@
 {
   "state": "working",
-  "detail": "64/100 rows in web_search baseline (~2h to finish)",
+  "detail": "watcher re-armed; 65/100 rows, ~2h to completion",
   "tempo": "idle",
   "inFlight": {
-    "tasks": 2,
+    "tasks": 1,
     "queued": 0,
     "kinds": [
       "local_bash"
@@ -11,22 +11,16 @@
   },
   "fan": [
     {
-      "id": "bao7e17s9",
+      "id": "bg15sqdc2",
       "kind": "shell",
-      "label": "\"C:/WINDOWS/System32/OpenSSH/ssh.exe\" -o ConnectTimeout=30 -o ServerAliveInterval=20 -o ServerAliveCountMax=100000 -o TCPKeepAlive=yes nxtbeast \"wsl -d Ubuntu -- bash -c 'echo KEEPALIVE-UP; sleep 432…",
-      "startedAt": 1785807152499
-    },
-    {
-      "id": "bnib37mxt",
-      "kind": "shell",
-      "label": "SSH=\"C:/WINDOWS/System32/OpenSSH/ssh.exe\" # grep -c prints 0 AND exits 1 when there are no matches, so `|| echo 0` yields \"0\\n0\" -> \"00\", # which compares unequal to \"0\" and fired a false COMPLETE. U…",
-      "startedAt": 1785807353768
+      "label": "SSH=\"C:/WINDOWS/System32/OpenSSH/ssh.exe\" prev=-1; stall=0 while true; do alive=$(\"$SSH\" -o ConnectTimeout=25 -o BatchMode=yes nxtbeast \"wsl -d Ubuntu -- bash -lc \\\"ps -eo args | grep -c '^/root/bfcl…",
+      "startedAt": 1785814207113
     }
   ],
-  "tokens": 4996725,
+  "tokens": 4998756,
   "output": null,
   "children": null,
-  "linkScanOffset": 20320077,
+  "linkScanOffset": 20372869,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -50,6 +44,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-04T03:19:13.914Z",
+  "updatedAt": "2026-08-04T03:30:18.669Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
