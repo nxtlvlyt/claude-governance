@@ -1,6 +1,6 @@
 {
-  "state": "working",
-  "detail": "v3.4 beats v3.3 on holdout (88% vs 68%); fair re-run underway",
+  "state": "done",
+  "detail": "v3.4 ready: system prompt + template in GGUF, tested on holdout",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,12 @@
       "session_cron"
     ]
   },
-  "tokens": 5924483,
-  "output": null,
+  "tokens": 5925751,
+  "output": {
+    "result": "v3.4 self-contained in GGUF; prompt mode ranked #7/36 (above o3, Claude); no wrapper dependency"
+  },
   "children": null,
-  "linkScanOffset": 23772586,
+  "linkScanOffset": 23793325,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -37,6 +39,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-04T20:36:48.743Z",
+  "updatedAt": "2026-08-04T20:41:37.359Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
