@@ -1,16 +1,16 @@
 {
   "state": "working",
-  "detail": "control-gate fixed; 3 genuine uncontrolled lanes named; FC running",
+  "detail": "queued base model control run to isolate tune impact",
   "tempo": "idle",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 5068060,
+  "tokens": 5071438,
   "output": null,
   "children": null,
-  "linkScanOffset": 21257677,
+  "linkScanOffset": 21308370,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -34,6 +34,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-04T05:37:30.326Z",
+  "updatedAt": "2026-08-04T05:39:20.220Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
