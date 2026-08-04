@@ -1,26 +1,16 @@
 {
   "state": "working",
-  "detail": "v3.4 training in progress (~40 min); held foreground session, 75% CPU",
+  "detail": "trainer running on GPU under Windows Task Scheduler; ETA ~85m",
   "tempo": "idle",
   "inFlight": {
-    "tasks": 1,
+    "tasks": 0,
     "queued": 0,
-    "kinds": [
-      "local_bash"
-    ]
+    "kinds": []
   },
-  "fan": [
-    {
-      "id": "bc70bxlb6",
-      "kind": "shell",
-      "label": "\"C:/WINDOWS/System32/OpenSSH/ssh.exe\" -o ConnectTimeout=60 -o ServerAliveInterval=20 -o ServerAliveCountMax=100000 -o TCPKeepAlive=yes nxtbeast \"wsl -d Ubuntu -- bash /mnt/c/Users/marka/train-now.sh\"",
-      "startedAt": 1785851995628
-    }
-  ],
-  "tokens": 5140262,
+  "tokens": 5145867,
   "output": null,
   "children": null,
-  "linkScanOffset": 22233668,
+  "linkScanOffset": 22298967,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -44,6 +34,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-04T14:01:05.237Z",
+  "updatedAt": "2026-08-04T14:31:21.213Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
