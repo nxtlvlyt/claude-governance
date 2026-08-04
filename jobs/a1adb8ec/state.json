@@ -1,10 +1,10 @@
 {
-  "state": "done",
-  "detail": "WSL VM keepalive + watcher pattern fixed; v3.4 corpus complete",
+  "state": "working",
+  "detail": "generation 32/100 rows; watcher bug fixed, re-armed",
   "tempo": "idle",
   "inFlight": {
-    "tasks": 1,
-    "queued": 2,
+    "tasks": 2,
+    "queued": 0,
     "kinds": [
       "local_bash"
     ]
@@ -17,19 +17,16 @@
       "startedAt": 1785807152499
     },
     {
-      "id": "bih5f5uxo",
-      "kind": "monitor",
-      "label": "web_search_base: completion, silent death, or stall",
-      "startedAt": 1785807232875,
-      "doneAt": 1785807241071
+      "id": "bnib37mxt",
+      "kind": "shell",
+      "label": "SSH=\"C:/WINDOWS/System32/OpenSSH/ssh.exe\" # grep -c prints 0 AND exits 1 when there are no matches, so `|| echo 0` yields \"0\\n0\" -> \"00\", # which compares unequal to \"0\" and fired a false COMPLETE. U…",
+      "startedAt": 1785807353768
     }
   ],
-  "tokens": 4992009,
-  "output": {
-    "result": "camel tied: VM held open, job relaunched verified, process-gone watcher armed; v3.4 corpus 1,992 rows / 20 kinds complete"
-  },
+  "tokens": 4995855,
+  "output": null,
   "children": null,
-  "linkScanOffset": 20236153,
+  "linkScanOffset": 20276896,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -53,6 +50,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-04T01:34:06.143Z",
+  "updatedAt": "2026-08-04T01:36:09.505Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
