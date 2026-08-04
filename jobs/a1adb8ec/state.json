@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "rope check healthy; search guard 4/5 Brave; spend $7 today, $20–30 projected",
+  "detail": "lane 27/80, pace 315 s/it; verified timeout handling in both handler layers",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 5984705,
+  "tokens": 5987918,
   "output": null,
   "children": null,
-  "linkScanOffset": 24758887,
+  "linkScanOffset": 24802200,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -37,6 +37,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-04T23:30:41.460Z",
+  "updatedAt": "2026-08-04T23:34:12.950Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
