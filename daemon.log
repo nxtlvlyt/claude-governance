@@ -227,3 +227,6 @@
 [2026-08-04T00:26:52.080Z] [supervisor] workers=0
 [2026-08-04T00:26:52.115Z] [bg] bg: control socket bound at \\.\pipe\cc-daemon-*-control
 [2026-08-04T00:26:52.126Z] [bg] bg adopt: adopted=0 respawned=0 dead=1
+[2026-08-04T00:55:52.358Z] [supervisor] binary at C:\Users\marka\AppData\Roaming\npm\node_modules\@anthropic-ai\claude-code\bin\claude.exe changed (mtime changed) — self-restarting for upgrade
+[2026-08-04T00:55:52.383Z] [supervisor] shutting down (cause=upgrade, uptime=1740s, leases=1, live_workers=0)
+[2026-08-04T00:55:56.446Z] [supervisor] upgrade self-respawn failed to spawn: EUNKNOWN: unknown error, uv_spawn — bg workers may be orphan-reaped ~60s after this process exits unless a client restarts the daemon (run `claude agents`)
