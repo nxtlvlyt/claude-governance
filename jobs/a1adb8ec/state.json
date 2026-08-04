@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "v3.4 pass complete (12.7 calls/min); v3.3 at 60/66; base pass next",
+  "detail": "eval on final pass (v3.4/v3.3 done, base underway); v3.4 3× faster",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 5908811,
+  "tokens": 5911390,
   "output": null,
   "children": null,
-  "linkScanOffset": 23427577,
+  "linkScanOffset": 23476958,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -37,6 +37,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-04T20:01:32.052Z",
+  "updatedAt": "2026-08-04T20:02:50.765Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
