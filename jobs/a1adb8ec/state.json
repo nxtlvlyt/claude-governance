@@ -1,18 +1,16 @@
 {
-  "state": "done",
-  "detail": "Agent Arena requires served model + user fleet; open-weight can't enter",
+  "state": "working",
+  "detail": "FC lane 40/100, ~55 min out; corpus done (1,992 rows verified); web_search remeasured 51% (#28/110)",
   "tempo": "idle",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 5075771,
-  "output": {
-    "result": "Agent Arena unavailable (served models only). Recommend WebArena next after BFCL completes."
-  },
+  "tokens": 5076482,
+  "output": null,
   "children": null,
-  "linkScanOffset": 21396170,
+  "linkScanOffset": 21435634,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -36,6 +34,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-04T05:44:29.146Z",
+  "updatedAt": "2026-08-04T05:47:35.471Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
