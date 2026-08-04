@@ -1,26 +1,35 @@
 {
-  "state": "working",
-  "detail": "v3.4 corpus complete (1992 rows, 20 kinds); fixing report bug, 5 directives under floor",
+  "state": "done",
+  "detail": "WSL VM keepalive + watcher pattern fixed; v3.4 corpus complete",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
-    "queued": 0,
+    "queued": 2,
     "kinds": [
-      "monitor"
+      "local_bash"
     ]
   },
   "fan": [
     {
-      "id": "b7dh8937i",
+      "id": "bao7e17s9",
+      "kind": "shell",
+      "label": "\"C:/WINDOWS/System32/OpenSSH/ssh.exe\" -o ConnectTimeout=30 -o ServerAliveInterval=20 -o ServerAliveCountMax=100000 -o TCPKeepAlive=yes nxtbeast \"wsl -d Ubuntu -- bash -c 'echo KEEPALIVE-UP; sleep 432…",
+      "startedAt": 1785807152499
+    },
+    {
+      "id": "bih5f5uxo",
       "kind": "monitor",
-      "label": "multi_turn serial suite: per-stage accuracy + failures",
-      "startedAt": 1785772240724
+      "label": "web_search_base: completion, silent death, or stall",
+      "startedAt": 1785807232875,
+      "doneAt": 1785807241071
     }
   ],
-  "tokens": 4984293,
-  "output": null,
+  "tokens": 4992009,
+  "output": {
+    "result": "camel tied: VM held open, job relaunched verified, process-gone watcher armed; v3.4 corpus 1,992 rows / 20 kinds complete"
+  },
   "children": null,
-  "linkScanOffset": 20133592,
+  "linkScanOffset": 20236153,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -44,6 +53,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-04T01:22:27.011Z",
+  "updatedAt": "2026-08-04T01:34:06.143Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
