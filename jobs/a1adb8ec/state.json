@@ -1,16 +1,18 @@
 {
-  "state": "working",
-  "detail": "job at 69/100; ~31 rows remaining, ~90 min; watchers pruned",
+  "state": "done",
+  "detail": "web_search_base: 51.00% (n=100); closes cliff investigation",
   "tempo": "idle",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 4999487,
-  "output": null,
+  "tokens": 5004962,
+  "output": {
+    "result": "web_search_base measured at 51.00% CI[41.3,60.6] vs 14.00% prior; search validity proven via telemetry (179 calls, 2.8% empty)"
+  },
   "children": null,
-  "linkScanOffset": 20391359,
+  "linkScanOffset": 20479307,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -34,6 +36,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-04T03:32:59.216Z",
+  "updatedAt": "2026-08-04T04:43:56.218Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
