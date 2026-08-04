@@ -1,16 +1,16 @@
 {
   "state": "working",
-  "detail": "FC lane 40/100, ~55 min out; corpus done (1,992 rows verified); web_search remeasured 51% (#28/110)",
+  "detail": "v3.3 measuring queue ~5-7h; v3.4 training ~40m; dry-run first",
   "tempo": "idle",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 5076482,
+  "tokens": 5081211,
   "output": null,
   "children": null,
-  "linkScanOffset": 21435634,
+  "linkScanOffset": 21493802,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -34,6 +34,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-04T05:47:35.471Z",
+  "updatedAt": "2026-08-04T05:51:32.965Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
