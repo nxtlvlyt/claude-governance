@@ -1,16 +1,18 @@
 {
-  "state": "working",
-  "detail": "queued base model control run to isolate tune impact",
+  "state": "done",
+  "detail": "Agent Arena requires served model + user fleet; open-weight can't enter",
   "tempo": "idle",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 5071438,
-  "output": null,
+  "tokens": 5075771,
+  "output": {
+    "result": "Agent Arena unavailable (served models only). Recommend WebArena next after BFCL completes."
+  },
   "children": null,
-  "linkScanOffset": 21308370,
+  "linkScanOffset": 21396170,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -34,6 +36,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-04T05:39:20.220Z",
+  "updatedAt": "2026-08-04T05:44:29.146Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
