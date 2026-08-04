@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "telemetry bug fixed (double-counting); search healthy, run unaffected",
+  "detail": "generate job relaunched detached (32 rows banked, 68 to go); web_search_base running to n=100",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -17,10 +17,10 @@
       "startedAt": 1785772240724
     }
   ],
-  "tokens": 4960688,
+  "tokens": 4965142,
   "output": null,
   "children": null,
-  "linkScanOffset": 19861299,
+  "linkScanOffset": 19925921,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -44,6 +44,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-04T00:34:32.533Z",
+  "updatedAt": "2026-08-04T00:52:11.468Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
