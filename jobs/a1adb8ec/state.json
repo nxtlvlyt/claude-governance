@@ -1,16 +1,16 @@
 {
   "state": "working",
-  "detail": "FC lane running; model repeats failing queries—real behavioral finding",
+  "detail": "2×2 queue running (tuned prompt 51% done); base lanes queued",
   "tempo": "idle",
   "inFlight": {
     "tasks": 0,
     "queued": 0,
     "kinds": []
   },
-  "tokens": 5049715,
+  "tokens": 5057254,
   "output": null,
   "children": null,
-  "linkScanOffset": 21069231,
+  "linkScanOffset": 21154008,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -34,6 +34,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-04T05:27:22.406Z",
+  "updatedAt": "2026-08-04T05:33:20.342Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
