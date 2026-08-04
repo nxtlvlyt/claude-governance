@@ -1,32 +1,16 @@
 {
   "state": "working",
-  "detail": "holdout eval running (v3.4→v3.3→base); teacher specs drafting",
+  "detail": "spec drafts dispatching (~10m); holdout eval queued (~45-90m)",
   "tempo": "idle",
   "inFlight": {
-    "tasks": 2,
+    "tasks": 0,
     "queued": 0,
-    "kinds": [
-      "local_bash"
-    ]
+    "kinds": []
   },
-  "fan": [
-    {
-      "id": "b4yrnd1sn",
-      "kind": "shell",
-      "label": "cd \"C:/Users/marka/conductor-qwen/phase4\" && python -c \"import ast; ast.parse(open('holdout-eval.py',encoding='utf-8').read()); print('parses OK')\" && python holdout-eval.py 2>&1",
-      "startedAt": 1785866371706
-    },
-    {
-      "id": "baec0rdz3",
-      "kind": "shell",
-      "label": "cd \"C:/Users/marka/conductor-qwen/phase4\" && python dispatch-spec-draft.py 2>&1",
-      "startedAt": 1785869352055
-    }
-  ],
-  "tokens": 5879960,
+  "tokens": 5885114,
   "output": null,
   "children": null,
-  "linkScanOffset": 23035497,
+  "linkScanOffset": 23084090,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -50,6 +34,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-04T18:49:42.634Z",
+  "updatedAt": "2026-08-04T18:53:07.299Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
