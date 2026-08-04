@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "generation 32/100 rows; watcher bug fixed, re-armed",
+  "detail": "64/100 rows in web_search baseline (~2h to finish)",
   "tempo": "idle",
   "inFlight": {
     "tasks": 2,
@@ -23,10 +23,10 @@
       "startedAt": 1785807353768
     }
   ],
-  "tokens": 4995855,
+  "tokens": 4996725,
   "output": null,
   "children": null,
-  "linkScanOffset": 20276896,
+  "linkScanOffset": 20320077,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -50,6 +50,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-04T01:36:09.505Z",
+  "updatedAt": "2026-08-04T03:19:13.914Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
