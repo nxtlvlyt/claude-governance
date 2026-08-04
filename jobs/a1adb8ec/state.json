@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "eval restarted (v3.4 loads first); base-FC control resuming after; cron armed",
+  "detail": "v3.4 pass complete (12.7 calls/min); v3.3 at 60/66; base pass next",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 5907765,
+  "tokens": 5908811,
   "output": null,
   "children": null,
-  "linkScanOffset": 23406159,
+  "linkScanOffset": 23427577,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -37,6 +37,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-04T19:45:24.783Z",
+  "updatedAt": "2026-08-04T20:01:32.052Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
