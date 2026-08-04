@@ -1,6 +1,6 @@
 {
-  "state": "working",
-  "detail": "5 training-chain risks caught during wait; fixing VRAM hold + corpus + dups",
+  "state": "done",
+  "detail": "caught 6 corpus defects; tool args now dict; resubmitted",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -17,10 +17,12 @@
       "startedAt": 1785823057886
     }
   ],
-  "tokens": 5105875,
-  "output": null,
+  "tokens": 5114289,
+  "output": {
+    "result": "Qwen template fixed: tool args as dict not JSON string; corpus rebuilt & shipped to nxtbeast"
+  },
   "children": null,
-  "linkScanOffset": 21757401,
+  "linkScanOffset": 21840156,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "respawnFlags": [
@@ -44,6 +46,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-04T06:30:10.968Z",
+  "updatedAt": "2026-08-04T06:35:29.871Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
