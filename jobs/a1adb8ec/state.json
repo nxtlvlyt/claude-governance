@@ -1,7 +1,7 @@
 {
-  "state": "done",
-  "detail": "muezzin capable & right tool; mission ready to queue on go",
-  "tempo": "idle",
+  "state": "blocked",
+  "detail": "Worth adding to the same go as the UI build?",
+  "tempo": "blocked",
   "inFlight": {
     "tasks": 1,
     "queued": 0,
@@ -9,12 +9,11 @@
       "session_cron"
     ]
   },
-  "tokens": 6375923,
-  "output": {
-    "result": "muezzin machinery is fit for this mission shape (14 numbered changes with verification); aurora edit risk flagged in mission text"
-  },
+  "tokens": 6378648,
+  "needs": "Worth adding to the same go as the UI build?",
+  "output": null,
   "children": null,
-  "linkScanOffset": 31236524,
+  "linkScanOffset": 31317856,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -39,6 +38,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-05T18:16:01.392Z",
+  "updatedAt": "2026-08-05T18:18:41.005Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
