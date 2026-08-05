@@ -1,6 +1,6 @@
 {
   "state": "blocked",
-  "detail": "agy model roster: k2.7-code in architect, glm-5.2 executor; awaiting seat change decision",
+  "detail": "agy cloud models audited; k2.6 seating decision pending",
   "tempo": "blocked",
   "inFlight": {
     "tasks": 1,
@@ -9,11 +9,13 @@
       "session_cron"
     ]
   },
-  "tokens": 6443674,
-  "needs": "confirm: keep current (k2.7-code architect, glm-5.2 executor) or promote k2.6 to architect?",
-  "output": null,
+  "tokens": 6444817,
+  "needs": "say \"seat k2.6\" to add it to architect row, or say nothing to keep current roster",
+  "output": {
+    "result": "agy architects: Gemini 3.1 Pro / kimi-k2.7-code / deepseek-v4-pro; executor: glm-5.2; k2.6 available but unseated pending operator choice"
+  },
   "children": null,
-  "linkScanOffset": 32922043,
+  "linkScanOffset": 32941321,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -38,6 +40,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-05T19:04:11.872Z",
+  "updatedAt": "2026-08-05T19:04:55.581Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
