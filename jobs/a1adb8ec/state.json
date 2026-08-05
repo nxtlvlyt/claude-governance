@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "Gemma4 12B bracketing run queued; awaiting v3.5 landing",
+  "detail": "Gemma 12B experiment backlog locked; training pipeline halfway, verdict ~13:50",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 6214865,
+  "tokens": 6216750,
   "output": null,
   "children": null,
-  "linkScanOffset": 29382603,
+  "linkScanOffset": 29420585,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -37,6 +37,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-05T15:16:26.578Z",
+  "updatedAt": "2026-08-05T15:17:24.717Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
