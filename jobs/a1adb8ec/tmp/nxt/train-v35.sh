@@ -46,6 +46,12 @@ export UNSLOTH_CE_LOSS_TARGET_GB=2
 # log frozen 1h). Off-switch ships in the same source (cross_entropy_loss.py:51). Eager chunked
 # CE = identical math, no compiler.
 export UNSLOTH_FUSED_CE_COMPILE_DISABLE=1
+# RUNTIME-OOM FIX (2026-08-05, rc=134 at ~step 280): CUDA OOM in backward — v3.5's
+# sentence-clipped corpus has longer max-length rows than v3.4's, spiking backward memory.
+# Env-only levers, training math untouched: expandable segments kill fragmentation OOMs;
+# CE budget 2->1 shrinks the loss transient.
+export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
+export UNSLOTH_CE_LOSS_TARGET_GB=1
 mkdir -p "$CQ_RUN_DIR/models"
 
 echo "=== dry-run ==="

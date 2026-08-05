@@ -1,6 +1,6 @@
 {
-  "state": "done",
-  "detail": "SOTA UI fix spec ready: 5-item rest state + smart aurora banner + build-gated allowlist",
+  "state": "working",
+  "detail": "trainer relaunched with expandable-segments + 1GB CE; OOM proof at step ~280, ETA ~19:50",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,12 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 6367989,
-  "output": {
-    "result": "UI redesign spec: missions-authored/mt-ui-rest-state.spec.md — 5-item map at rest, context-aware aurora banner, build-gated allowlist prevents recomplication"
-  },
+  "tokens": 6373597,
+  "output": null,
   "children": null,
-  "linkScanOffset": 31006834,
+  "linkScanOffset": 31089711,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -39,6 +37,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-05T16:45:06.952Z",
+  "updatedAt": "2026-08-05T17:05:50.511Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
