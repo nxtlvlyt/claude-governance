@@ -1,6 +1,6 @@
 {
-  "state": "done",
-  "detail": "Gemini CLI stdin workaround proven; fix deployed, loads next safe window",
+  "state": "working",
+  "detail": "step 209/720 at 18.8s; threads=1 fixed step-170; ~23:00 ETA",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,12 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 6542776,
-  "output": {
-    "result": "Gemini command-line length limit fixed via temp file pointer pattern; live within the hour between missions"
-  },
+  "tokens": 6543367,
+  "output": null,
   "children": null,
-  "linkScanOffset": 34608433,
+  "linkScanOffset": 34631472,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -39,6 +37,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-05T20:42:11.327Z",
+  "updatedAt": "2026-08-05T21:00:26.368Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
