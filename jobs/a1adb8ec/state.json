@@ -1,6 +1,6 @@
 {
-  "state": "done",
-  "detail": "3.4 beats 3.3 on holdout (58 vs 45); public bench pending",
+  "state": "working",
+  "detail": "Base-Prompt benchmark 73/80 done (~30-40 min left); v3.5 training queued after",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,12 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 6091810,
-  "output": {
-    "result": "3.4: 58/66 correct, 8/32 tool calls, 3× faster on holdout; public benchmark lanes queued for tomorrow"
-  },
+  "tokens": 6093273,
+  "output": null,
   "children": null,
-  "linkScanOffset": 26608840,
+  "linkScanOffset": 26677506,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -39,6 +37,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-05T06:35:27.127Z",
+  "updatedAt": "2026-08-05T06:39:06.412Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
