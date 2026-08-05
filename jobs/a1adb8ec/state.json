@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "model card drafted (v3.5 queued); awaiting tomorrow's scoring run",
+  "detail": "model card drafted, citation URL verified; 63/80 entries done, ~00:17 ETA",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 6015967,
+  "tokens": 6017093,
   "output": null,
   "children": null,
-  "linkScanOffset": 25504964,
+  "linkScanOffset": 25525508,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -37,6 +37,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-05T02:28:07.015Z",
+  "updatedAt": "2026-08-05T02:28:38.576Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
