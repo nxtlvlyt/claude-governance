@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "design workflow running: 3 competing redesigns + judge",
+  "detail": "training 165/720 steady, design in parallel; both report when done",
   "tempo": "active",
   "inFlight": {
     "tasks": 2,
@@ -23,13 +23,14 @@
       "kind": "workflow",
       "label": "research:inventory-audit",
       "startedAt": 1785947229969,
+      "doneAt": 1785947283259,
       "group": "Research"
     }
   ],
-  "tokens": 6279048,
+  "tokens": 6297729,
   "output": null,
   "children": null,
-  "linkScanOffset": 30904403,
+  "linkScanOffset": 30919534,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -54,6 +55,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-05T16:27:15.966Z",
+  "updatedAt": "2026-08-05T16:30:28.436Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
