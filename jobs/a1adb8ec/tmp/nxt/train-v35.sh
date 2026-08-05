@@ -36,6 +36,11 @@ echo "  gpu: $(nvidia-smi --query-gpu=memory.used --format=csv,noheader | head -
 cd "$CQ"
 export HF_HOME=/root/.cache/huggingface
 export CQ_RUN_DIR=/mnt/d/conductor-qwen-run
+# CE-GATE FIX (2026-08-05, OOM #4): unsloth's fused-CE sizes chunks from INSTANTANEOUS free
+# VRAM at step 0; with ~4GB desktop squat it reads ~0 and raises. Fixed budget = documented
+# override (cross_entropy_loss.py:33). Chunked CE is numerically identical loss math —
+# training config untouched, attribution intact.
+export UNSLOTH_CE_LOSS_TARGET_GB=2
 mkdir -p "$CQ_RUN_DIR/models"
 
 echo "=== dry-run ==="
