@@ -1,36 +1,20 @@
 {
-  "state": "working",
-  "detail": "training 165/720 steady, design in parallel; both report when done",
-  "tempo": "active",
+  "state": "done",
+  "detail": "SOTA UI fix spec ready: 5-item rest state + smart aurora banner + build-gated allowlist",
+  "tempo": "idle",
   "inFlight": {
-    "tasks": 2,
+    "tasks": 1,
     "queued": 0,
     "kinds": [
-      "local_workflow",
       "session_cron"
     ]
   },
-  "fan": [
-    {
-      "id": "a9ac08f97535952fd",
-      "kind": "workflow",
-      "label": "research:sota-patterns",
-      "startedAt": 1785947229073,
-      "group": "Research"
-    },
-    {
-      "id": "a1b52c24be86d43c6",
-      "kind": "workflow",
-      "label": "research:inventory-audit",
-      "startedAt": 1785947229969,
-      "doneAt": 1785947283259,
-      "group": "Research"
-    }
-  ],
-  "tokens": 6297729,
-  "output": null,
+  "tokens": 6367989,
+  "output": {
+    "result": "UI redesign spec: missions-authored/mt-ui-rest-state.spec.md — 5-item map at rest, context-aware aurora banner, build-gated allowlist prevents recomplication"
+  },
   "children": null,
-  "linkScanOffset": 30919534,
+  "linkScanOffset": 31006834,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -55,6 +39,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-05T16:30:28.436Z",
+  "updatedAt": "2026-08-05T16:45:06.952Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
