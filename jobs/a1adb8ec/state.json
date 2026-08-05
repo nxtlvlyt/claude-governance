@@ -1,19 +1,35 @@
 {
-  "state": "blocked",
-  "detail": "waiting on you.",
-  "tempo": "blocked",
+  "state": "working",
+  "detail": "tearing down nomadparkpad site against Muddy Tires strategy corpus",
+  "tempo": "active",
   "inFlight": {
-    "tasks": 1,
+    "tasks": 2,
     "queued": 0,
     "kinds": [
+      "local_workflow",
       "session_cron"
     ]
   },
-  "tokens": 6410549,
-  "needs": "waiting on you.",
+  "fan": [
+    {
+      "id": "a7b43c786f5321bde",
+      "kind": "workflow",
+      "label": "research:site-teardown",
+      "startedAt": 1785956239603,
+      "group": "Research"
+    },
+    {
+      "id": "ae53b2ea117786cab",
+      "kind": "workflow",
+      "label": "research:mt-positioning",
+      "startedAt": 1785956239257,
+      "group": "Research"
+    }
+  ],
+  "tokens": 6417436,
   "output": null,
   "children": null,
-  "linkScanOffset": 32144041,
+  "linkScanOffset": 32738713,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -38,6 +54,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-05T18:55:40.305Z",
+  "updatedAt": "2026-08-05T18:57:54.251Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
