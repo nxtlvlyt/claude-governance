@@ -1,6 +1,6 @@
 {
-  "state": "working",
-  "detail": "task 3.4: 54/80 entries processed (238→302 s/it); finish ETA ~23:37",
+  "state": "done",
+  "detail": "control lane 54/80 clean, finish ~11:30 pm, v3.5 overnight",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,12 @@
       "session_cron"
     ]
   },
-  "tokens": 6003952,
-  "output": null,
+  "tokens": 6004100,
+  "output": {
+    "result": "control lane running clean; finish ~11:30 pm, v3.5 trains overnight, auto-scoring"
+  },
   "children": null,
-  "linkScanOffset": 25168558,
+  "linkScanOffset": 25210875,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -37,6 +39,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-05T01:28:51.107Z",
+  "updatedAt": "2026-08-05T01:34:25.763Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
