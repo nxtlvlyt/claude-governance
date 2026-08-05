@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "UI mission live 20:05; Gemini+Claude relief seats active; training running; monitoring both",
+  "detail": "training 138/720 (~19.4s/step, finish ~23:05); next hang check pending",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 6534878,
+  "tokens": 6535337,
   "output": null,
   "children": null,
-  "linkScanOffset": 34381763,
+  "linkScanOffset": 34395345,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -37,6 +37,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-05T20:10:08.818Z",
+  "updatedAt": "2026-08-05T20:30:33.992Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
