@@ -1,6 +1,6 @@
 {
-  "state": "working",
-  "detail": "model lacks waiting-state training for camel tie; queuing V36 corpus item + 3.4 probe",
+  "state": "done",
+  "detail": "camel rule not in training corpus; gap identified in practice-layer coverage",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,12 @@
       "session_cron"
     ]
   },
-  "tokens": 6103080,
-  "output": null,
+  "tokens": 6105880,
+  "output": {
+    "result": "Model lacks camel-tying demonstrations; practice-layer coverage gap receipted in V36 backlog with audit data"
+  },
   "children": null,
-  "linkScanOffset": 26858651,
+  "linkScanOffset": 26898079,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -37,6 +39,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-05T07:08:17.501Z",
+  "updatedAt": "2026-08-05T07:09:40.780Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
