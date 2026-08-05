@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "S1 QC mission re-queued; daemon tracking S1/S2/S3 with 30m diagnostics",
+  "detail": "tune training step 54/720; next rope check in 30m",
   "tempo": "idle",
   "inFlight": {
     "tasks": 2,
@@ -9,10 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 6589816,
+  "tokens": 6593944,
   "output": null,
   "children": null,
-  "linkScanOffset": 35805059,
+  "linkScanOffset": 35894396,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -37,6 +37,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-05T23:54:16.571Z",
+  "updatedAt": "2026-08-05T23:58:11.817Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
