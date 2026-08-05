@@ -1,6 +1,6 @@
 {
   "state": "blocked",
-  "detail": "137 commits pending deploy; aurora chip untested in default view; design bloat regrew to ~10 controls",
+  "detail": "deploy theory refuted by Cloudflare API; awaiting go-ahead on control-budget fix",
   "tempo": "blocked",
   "inFlight": {
     "tasks": 1,
@@ -9,11 +9,11 @@
       "session_cron"
     ]
   },
-  "tokens": 6254708,
-  "needs": "should I fire the deploy chain first, then author the aurora+bloat fix as next mission?",
+  "tokens": 6272903,
+  "needs": "confirm: proceed with floating-control budget e2e gate + aurora chip dismiss/fade/caption?",
   "output": null,
   "children": null,
-  "linkScanOffset": 30675258,
+  "linkScanOffset": 30734293,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -38,6 +38,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-05T16:06:33.971Z",
+  "updatedAt": "2026-08-05T16:14:02.522Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
