@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "I'll bring you the head-to-head the moment they land.",
+  "detail": "Sonnet 5 lanes scored; updating scorecard; training 227/720",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 6190536,
+  "tokens": 6194386,
   "output": null,
   "children": null,
-  "linkScanOffset": 28661258,
+  "linkScanOffset": 28711115,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -37,6 +37,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-05T14:18:16.956Z",
+  "updatedAt": "2026-08-05T14:31:56.815Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
