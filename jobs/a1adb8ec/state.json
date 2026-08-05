@@ -1,29 +1,27 @@
 {
   "state": "working",
-  "detail": "deepseek-v4-pro: architect seat C, valid for frontier comparisons",
-  "tempo": "active",
+  "detail": "tryout running: both models scoring 8 real cases",
+  "tempo": "idle",
   "inFlight": {
     "tasks": 2,
     "queued": 0,
     "kinds": [
-      "local_agent",
+      "local_bash",
       "session_cron"
     ]
   },
   "fan": [
     {
-      "id": "a6c520b53f8899fe3",
-      "kind": "agent",
-      "label": "Mine auditor tryout specimens",
-      "startedAt": 1785957178818
+      "id": "bmnykfggr",
+      "kind": "shell",
+      "label": "cd \"/c/Users/marka/conductor-qwen/phase4\" && python auditor-tryout-dispatch.py",
+      "startedAt": 1785957930930
     }
   ],
-  "tokens": 6465423,
-  "output": {
-    "result": "deepseek-v4-pro holds architect seat C; valid frontier comparison lane, no change needed"
-  },
+  "tokens": 6495666,
+  "output": null,
   "children": null,
-  "linkScanOffset": 33309659,
+  "linkScanOffset": 33458717,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -48,6 +46,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-05T19:17:54.683Z",
+  "updatedAt": "2026-08-05T19:25:43.016Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
