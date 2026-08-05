@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "training in progress, clipping verdict pending ~13:45",
+  "detail": "training 295/720 steps (~21s ea), steady; fire :57",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 6209020,
+  "tokens": 6209437,
   "output": null,
   "children": null,
-  "linkScanOffset": 29184584,
+  "linkScanOffset": 29201678,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -37,6 +37,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-05T14:55:11.272Z",
+  "updatedAt": "2026-08-05T15:00:27.575Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
