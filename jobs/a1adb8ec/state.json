@@ -1,7 +1,7 @@
 {
-  "state": "working",
-  "detail": "analyzing durable claims vs staleness; evaluating 3.4 vs qwen3.6",
-  "tempo": "idle",
+  "state": "blocked",
+  "detail": "ready to run Sonnet 5 via AIML API; awaiting go-ahead + model choice",
+  "tempo": "blocked",
   "inFlight": {
     "tasks": 1,
     "queued": 0,
@@ -9,10 +9,11 @@
       "session_cron"
     ]
   },
-  "tokens": 6165282,
+  "tokens": 6170326,
+  "needs": "say go (and confirm Sonnet 5 vs Opus 5)",
   "output": null,
   "children": null,
-  "linkScanOffset": 28202136,
+  "linkScanOffset": 28288846,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -37,6 +38,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-05T13:36:15.540Z",
+  "updatedAt": "2026-08-05T13:41:42.376Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
