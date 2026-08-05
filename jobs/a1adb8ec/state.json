@@ -1,6 +1,6 @@
 {
-  "state": "done",
-  "detail": "fabrication hypothesis → designed 3-loop experiment; queued post-v3.5",
+  "state": "working",
+  "detail": "Lighteval 0.13 staged on nxtbeast; GPU training 240/720; eval fires after v3.5 holdout",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,12 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 6196448,
-  "output": {
-    "result": "designed experiment: one-shot vs three-loop benchmark (Arch/base/Sonnet 5), blind grading, queued after v3.5 gate"
-  },
+  "tokens": 6202703,
+  "output": null,
   "children": null,
-  "linkScanOffset": 28831990,
+  "linkScanOffset": 28954495,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -39,6 +37,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-05T14:40:09.225Z",
+  "updatedAt": "2026-08-05T14:48:46.936Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
