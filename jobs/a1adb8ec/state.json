@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "queue healthy; base-Prompt lane 1h34m in, trainer waiting; :53 recheck",
+  "detail": "fair-base 40/66 rows (2.6h ETA); base-Prompt 2h04m in; GPU shared; trainer queued for 04:00–06:00",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 6075809,
+  "tokens": 6078674,
   "output": null,
   "children": null,
-  "linkScanOffset": 26279555,
+  "linkScanOffset": 26308682,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -37,6 +37,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-05T05:32:26.363Z",
+  "updatedAt": "2026-08-05T06:03:12.265Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
