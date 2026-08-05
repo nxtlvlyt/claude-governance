@@ -1,6 +1,6 @@
 {
   "state": "done",
-  "detail": "3.3 benchmark vs 3.4 holdout results; 3.5 pipeline scheduled",
+  "detail": "3.4 beats 3.3 on holdout (58 vs 45); public bench pending",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,12 +9,12 @@
       "session_cron"
     ]
   },
-  "tokens": 6091389,
+  "tokens": 6091810,
   "output": {
-    "result": "3.3 has 67% board numbers; 3.4 has 58/66 holdout-only; 3.5 trains in ~2h, then paired benchmark run"
+    "result": "3.4: 58/66 correct, 8/32 tool calls, 3× faster on holdout; public benchmark lanes queued for tomorrow"
   },
   "children": null,
-  "linkScanOffset": 26563633,
+  "linkScanOffset": 26608840,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -39,6 +39,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-05T06:34:39.144Z",
+  "updatedAt": "2026-08-05T06:35:27.127Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
