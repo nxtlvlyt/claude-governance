@@ -1,7 +1,7 @@
 {
-  "state": "blocked",
-  "detail": "ready to run Sonnet 5 via AIML API; awaiting go-ahead + model choice",
-  "tempo": "blocked",
+  "state": "working",
+  "detail": "validated AIMLAPI key; wiring Sonnet 5 lanes next turn",
+  "tempo": "idle",
   "inFlight": {
     "tasks": 1,
     "queued": 0,
@@ -9,11 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 6170326,
-  "needs": "say go (and confirm Sonnet 5 vs Opus 5)",
+  "tokens": 6172744,
   "output": null,
   "children": null,
-  "linkScanOffset": 28288846,
+  "linkScanOffset": 28360667,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -38,6 +37,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-05T13:41:42.376Z",
+  "updatedAt": "2026-08-05T13:44:52.674Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
