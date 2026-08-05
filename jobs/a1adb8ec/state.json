@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "trainer queued on GPU lane (4h04m); next fire at :53",
+  "detail": "awaiting trainer GPU lane; :23 fire will resolve OOM theory",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 6111543,
+  "tokens": 6112161,
   "output": null,
   "children": null,
-  "linkScanOffset": 27023153,
+  "linkScanOffset": 27039403,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -37,6 +37,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-05T08:02:24.912Z",
+  "updatedAt": "2026-08-05T08:32:40.374Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
