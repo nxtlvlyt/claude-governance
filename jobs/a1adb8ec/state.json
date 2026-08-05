@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "3.4 failure analysis complete (13 hard, 21 fixable); model card ~80% done",
+  "detail": "training in progress, clipping verdict pending ~13:45",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 6208964,
+  "tokens": 6209020,
   "output": null,
   "children": null,
-  "linkScanOffset": 29133667,
+  "linkScanOffset": 29184584,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -37,6 +37,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-05T14:54:17.736Z",
+  "updatedAt": "2026-08-05T14:55:11.272Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
