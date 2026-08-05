@@ -1,21 +1,19 @@
 {
   "state": "blocked",
-  "detail": "v3.5 training OOM; StabilityMatrix/ComfyUI (4GB) on nxtbeast blocking retry",
+  "detail": "memory squat at 4,277 MiB; retry armed, awaiting clearance",
   "tempo": "blocked",
   "inFlight": {
     "tasks": 1,
-    "queued": 0,
+    "queued": 1,
     "kinds": [
       "session_cron"
     ]
   },
-  "tokens": 6140106,
-  "needs": "close StabilityMatrix/ComfyUI on nxtbeast, or run: ! ssh nxtbeast \"powershell Stop-Process -Id 476456 -Force\"",
-  "output": {
-    "result": "3.4 complete: 66 FC / 64 Prompt (beats 3.3 by +13 prompt); v3.5 training blocked on nxtbeast memory"
-  },
+  "tokens": 6140745,
+  "needs": "clear memory or approve rope trigger",
+  "output": null,
   "children": null,
-  "linkScanOffset": 27537075,
+  "linkScanOffset": 27550441,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -40,6 +38,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-05T13:01:35.474Z",
+  "updatedAt": "2026-08-05T13:02:35.317Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
