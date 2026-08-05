@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "relaunch #2 at 88/720, ~17.8s/step; OOM milestone ~1h away",
+  "detail": "OOM hardening test: 170/720 complete, next fire at critical step",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 6374033,
+  "tokens": 6374364,
   "output": null,
   "children": null,
-  "linkScanOffset": 31105549,
+  "linkScanOffset": 31120561,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -37,6 +37,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-05T17:30:29.746Z",
+  "updatedAt": "2026-08-05T18:00:33.660Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
