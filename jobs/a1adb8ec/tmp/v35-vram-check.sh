@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# V35-REFIRE-ROPE probe: is the GPU free enough to refire cq-train-v35?
-# v3.4's successful baseline was 2153 MiB used (22.4GB free); v3.5 OOM'd at 5189 used (19.4GB free).
-# Threshold: free >= 21500 MiB (used <= ~3064) — conservative midpoint receipted in QUEUE.md.
+# V35-REFIRE-ROPE probe v2: gate on NON-OLLAMA VRAM (the share train-v35.sh cannot clear itself).
+# v3.4 trained from 2153 MiB non-Ollama baseline; v3.5 OOM'd at 5189. Threshold: non-Ollama <= 3000 MiB.
+# (v1 gated on total free, which a daemon-warmed qwen3.6:27b masks forever; the script unloads Ollama.)
 set -uo pipefail
 TRAINERS=$(ps -eo args | grep -c '[t]rain_student_generic' || true)
 if [ "$TRAINERS" -gt 0 ]; then
@@ -10,11 +10,11 @@ if [ "$TRAINERS" -gt 0 ]; then
   exit 0
 fi
 USED=$(nvidia-smi --query-gpu=memory.used --format=csv,noheader,nounits | head -1 | tr -d ' ')
-TOTAL=$(nvidia-smi --query-gpu=memory.total --format=csv,noheader,nounits | head -1 | tr -d ' ')
-FREE=$((TOTAL - USED))
-if [ "$FREE" -ge 21500 ]; then
-  echo "REFIRE-OK free=${FREE}MiB"
+OLLAMA_MB=$(curl -s --max-time 10 http://172.30.144.1:11434/api/ps | python3 -c 'import sys,json; print(sum(m.get("size_vram",0) for m in (json.load(sys.stdin).get("models") or []))//(1024*1024))' 2>/dev/null || echo 0)
+NONOLLAMA=$((USED - OLLAMA_MB))
+if [ "$NONOLLAMA" -le 3000 ]; then
+  echo "REFIRE-OK nonollama=${NONOLLAMA}MiB (used=${USED}, ollama=${OLLAMA_MB})"
 else
-  echo "STILL-BLOCKED used=${USED}MiB free=${FREE}MiB"
+  echo "STILL-BLOCKED nonollama=${NONOLLAMA}MiB (used=${USED}, ollama=${OLLAMA_MB})"
 fi
 exit 0

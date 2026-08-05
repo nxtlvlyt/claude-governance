@@ -1,7 +1,7 @@
 {
-  "state": "blocked",
-  "detail": "3GB ComfyUI squat persists; transient Ollama load masks real delta",
-  "tempo": "blocked",
+  "state": "working",
+  "detail": "probe upgraded on nxtbeast; re-checking at :23 gate when non-Ollama <3GB",
+  "tempo": "idle",
   "inFlight": {
     "tasks": 1,
     "queued": 0,
@@ -9,11 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 6055089,
-  "needs": "exit ComfyUI or run the one-liner to clear the 3GB squat",
+  "tokens": 6058273,
   "output": null,
   "children": null,
-  "linkScanOffset": 26055781,
+  "linkScanOffset": 26093505,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -38,6 +37,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-05T04:04:50.815Z",
+  "updatedAt": "2026-08-05T04:33:30.781Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
