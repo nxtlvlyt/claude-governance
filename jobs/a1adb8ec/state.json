@@ -1,7 +1,7 @@
 {
-  "state": "working",
-  "detail": "scoring inputs pre-verified; 75/80, 21 empty-response lines identified; lane on track for 23:17",
-  "tempo": "idle",
+  "state": "blocked",
+  "detail": "v3.5 training blocked by StabilityMatrix holding 3GB VRAM on nxtbeast",
+  "tempo": "blocked",
   "inFlight": {
     "tasks": 1,
     "queued": 0,
@@ -9,10 +9,13 @@
       "session_cron"
     ]
   },
-  "tokens": 6025456,
-  "output": null,
+  "tokens": 6053201,
+  "needs": "close StabilityMatrix/ComfyUI on nxtbeast OR run: ssh nxtbeast \"powershell Stop-Process -Id 476456 -Force\"",
+  "output": {
+    "result": "v3.3 tuning confirmed +13pts FC (67% vs 54% base); v3.5 training queued, auto-retry 2x hourly"
+  },
   "children": null,
-  "linkScanOffset": 25625991,
+  "linkScanOffset": 26027847,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -37,6 +40,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-05T03:03:32.130Z",
+  "updatedAt": "2026-08-05T03:42:49.691Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
