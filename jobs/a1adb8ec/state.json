@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "S1 requeued after gate fix; diagnosing map.html deletion; monitoring training",
+  "detail": "S1 QC mission re-queued; daemon tracking S1/S2/S3 with 30m diagnostics",
   "tempo": "idle",
   "inFlight": {
     "tasks": 2,
@@ -9,10 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 6588354,
+  "tokens": 6589816,
   "output": null,
   "children": null,
-  "linkScanOffset": 35728618,
+  "linkScanOffset": 35805059,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -37,6 +37,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-05T23:52:07.113Z",
+  "updatedAt": "2026-08-05T23:54:16.571Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
