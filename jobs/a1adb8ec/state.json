@@ -1,6 +1,6 @@
 {
   "state": "done",
-  "detail": "explained tool-use performance difference: frontier wins natively, 3.4 wins off-platform",
+  "detail": "3.4 tool performance boundary clarified; defensible claim confirmed",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,12 +9,12 @@
       "session_cron"
     ]
   },
-  "tokens": 6163050,
+  "tokens": 6163871,
   "output": {
-    "result": "Frontier models excel with native tool support in their own APIs (87 vs 66); Claude 3.4 wins when tools arrive as text prompts (64 vs 11–20), the default for local/third-party runtimes"
+    "result": "3.4 outperforms frontier models on tool work when reading tool docs (not native APIs); 64% vs o3's 51%"
   },
   "children": null,
-  "linkScanOffset": 28037400,
+  "linkScanOffset": 28095814,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -39,6 +39,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-05T13:31:25.501Z",
+  "updatedAt": "2026-08-05T13:32:42.250Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
