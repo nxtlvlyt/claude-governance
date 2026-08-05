@@ -1,6 +1,6 @@
 {
   "state": "done",
-  "detail": "Sota search confirmed spec: cloud LLM→image→WeasyPrint prototype→Scribus prod",
+  "detail": "architecture decision: pipeline on Nxtbeast (always-on, steady internet, no GPU conflict); laptop reviews PDFs",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,12 +9,12 @@
       "session_cron"
     ]
   },
-  "tokens": 6578730,
+  "tokens": 6579269,
   "output": {
-    "result": "Spec: brief→cloud LLM markup→300-DPI cloud images→WeasyPrint prototype (Scribus production)→checker validates trim/bleed. Ready to build on your go."
+    "result": "Nxtbeast handles pipeline (steady internet, unattended); laptop reviews output PDFs"
   },
   "children": null,
-  "linkScanOffset": 35440861,
+  "linkScanOffset": 35502839,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -39,6 +39,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-05T23:43:06.791Z",
+  "updatedAt": "2026-08-05T23:44:47.764Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
