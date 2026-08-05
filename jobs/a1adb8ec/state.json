@@ -1,6 +1,6 @@
 {
   "state": "blocked",
-  "detail": "Worth adding to the same go as the UI build?",
+  "detail": "visual-QC faith missing on both Claude & agy; need approval to write",
   "tempo": "blocked",
   "inFlight": {
     "tasks": 1,
@@ -9,11 +9,11 @@
       "session_cron"
     ]
   },
-  "tokens": 6378648,
-  "needs": "Worth adding to the same go as the UI build?",
+  "tokens": 6380746,
+  "needs": "confirm: write visual-QC faith for both Claude & agy jurisdictions?",
   "output": null,
   "children": null,
-  "linkScanOffset": 31317856,
+  "linkScanOffset": 31392559,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -38,6 +38,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-05T18:18:41.005Z",
+  "updatedAt": "2026-08-05T18:25:57.606Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
