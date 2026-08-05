@@ -1,44 +1,19 @@
 {
-  "state": "working",
-  "detail": "agy dispatch bug found: Gemini 3.5 Flash CLI arg-cap overflow; local fallback active",
-  "tempo": "active",
+  "state": "blocked",
+  "detail": "agy model roster: k2.7-code in architect, glm-5.2 executor; awaiting seat change decision",
+  "tempo": "blocked",
   "inFlight": {
-    "tasks": 2,
+    "tasks": 1,
     "queued": 0,
     "kinds": [
-      "local_workflow",
       "session_cron"
     ]
   },
-  "fan": [
-    {
-      "id": "a7b43c786f5321bde",
-      "kind": "workflow",
-      "label": "research:site-teardown",
-      "startedAt": 1785956239603,
-      "doneAt": 1785956351343,
-      "group": "Research"
-    },
-    {
-      "id": "ae53b2ea117786cab",
-      "kind": "workflow",
-      "label": "research:mt-positioning",
-      "startedAt": 1785956239257,
-      "doneAt": 1785956366705,
-      "group": "Research"
-    },
-    {
-      "id": "af6e4d0eb7976d0ce",
-      "kind": "workflow",
-      "label": "synthesize:brief",
-      "startedAt": 1785956369549,
-      "group": "Synthesize"
-    }
-  ],
-  "tokens": 6431966,
+  "tokens": 6443674,
+  "needs": "confirm: keep current (k2.7-code architect, glm-5.2 executor) or promote k2.6 to architect?",
   "output": null,
   "children": null,
-  "linkScanOffset": 32828604,
+  "linkScanOffset": 32922043,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -63,6 +38,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-05T19:00:23.925Z",
+  "updatedAt": "2026-08-05T19:04:11.872Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
