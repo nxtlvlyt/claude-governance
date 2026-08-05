@@ -1,6 +1,6 @@
 {
   "state": "done",
-  "detail": "explained 3.4→3.5 testing rationale: measured clipping fix; full battery runs both versions",
+  "detail": "checker substrate: state-based scoring (model actions vs ground truth), not fluency",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,12 +9,12 @@
       "session_cron"
     ]
   },
-  "tokens": 6005783,
+  "tokens": 6011900,
   "output": {
-    "result": "3.5 = one measured fix (clipping defect); full BFCL+Lighteval battery runs both 3.4 and 3.5 side by side tomorrow to queue 3.6 findings"
+    "result": "web_search scoring is state-based (actions vs ground truth); documented in QUEUE.md"
   },
   "children": null,
-  "linkScanOffset": 25347639,
+  "linkScanOffset": 25449070,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -39,6 +39,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-05T01:43:13.068Z",
+  "updatedAt": "2026-08-05T02:01:42.984Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
