@@ -1,6 +1,6 @@
 {
-  "state": "working",
-  "detail": "training 295/720 steps (~21s ea), steady; fire :57",
+  "state": "done",
+  "detail": "tuning thesis: governance layer beats syntax skill; fabricated-API probe planned before laguna",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,12 @@
       "session_cron"
     ]
   },
-  "tokens": 6209437,
-  "output": null,
+  "tokens": 6212595,
+  "output": {
+    "result": "Universal layer transfers if API-hallucination reduction holds on v3.4; laguna-xs trainable only if probe clears coding-loss floor"
+  },
   "children": null,
-  "linkScanOffset": 29201678,
+  "linkScanOffset": 29307303,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -37,6 +39,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-05T15:00:27.575Z",
+  "updatedAt": "2026-08-05T15:08:43.240Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
