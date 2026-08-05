@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "lane at 76/80, 4 entries to trainer queue; :53 fire pending",
+  "detail": "model lacks waiting-state training for camel tie; queuing V36 corpus item + 3.4 probe",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 6099443,
+  "tokens": 6103080,
   "output": null,
   "children": null,
-  "linkScanOffset": 26765281,
+  "linkScanOffset": 26858651,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -37,6 +37,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-05T07:02:46.995Z",
+  "updatedAt": "2026-08-05T07:08:17.501Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
