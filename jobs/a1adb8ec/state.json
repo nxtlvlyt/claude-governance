@@ -1,6 +1,6 @@
 {
-  "state": "done",
-  "detail": "3.4 vs base vs frontier: wins on base, frontier edges on native tools, 3.4 leads on prompt-text",
+  "state": "working",
+  "detail": "training 41/720 at 17.5s/step; ~12:40 finish ETA",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,12 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 6162254,
-  "output": {
-    "result": "3.4 beats base (+12 native, +33 text); frontier leads on native tools (79–87 vs 66); 3.4 leads on prompt-text tools (64 vs 51–76)"
-  },
+  "tokens": 6162577,
+  "output": null,
   "children": null,
-  "linkScanOffset": 27974470,
+  "linkScanOffset": 27987873,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -39,6 +37,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-05T13:29:18.836Z",
+  "updatedAt": "2026-08-05T13:30:28.173Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
