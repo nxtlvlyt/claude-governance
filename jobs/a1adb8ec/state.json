@@ -1,6 +1,6 @@
 {
-  "state": "done",
-  "detail": "v3.5 training 5/720 steps, unsloth bug fixed with env var",
+  "state": "working",
+  "detail": "v3.5 still stepping; QUEUE.md + feedback memory updated",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,12 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 6156054,
-  "output": {
-    "result": "v3.5 training in progress (5/720 steps); unsloth VRAM issue resolved with UNSLOTH_CE_LOSS_TARGET_GB=2; auto-eval on completion"
-  },
+  "tokens": 6161222,
+  "output": null,
   "children": null,
-  "linkScanOffset": 27813734,
+  "linkScanOffset": 27920771,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -39,6 +37,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-05T13:21:18.840Z",
+  "updatedAt": "2026-08-05T13:27:54.147Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
