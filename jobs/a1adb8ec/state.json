@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "unsloth race condition found; relaunch #6 loading, ETA 01:45",
+  "detail": "extract test run 66/720 at 19.6s/step; finish ~01:45",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 6561855,
+  "tokens": 6562348,
   "output": null,
   "children": null,
-  "linkScanOffset": 35011200,
+  "linkScanOffset": 35026561,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -37,6 +37,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-05T21:38:55.376Z",
+  "updatedAt": "2026-08-05T22:00:23.851Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
