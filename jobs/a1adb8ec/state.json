@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "probe upgraded on nxtbeast; re-checking at :23 gate when non-Ollama <3GB",
+  "detail": "base-Prompt lane running; v3.5 trainer queued behind it",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 6058273,
+  "tokens": 6075167,
   "output": null,
   "children": null,
-  "linkScanOffset": 26093505,
+  "linkScanOffset": 26261828,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -37,6 +37,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-05T04:33:30.781Z",
+  "updatedAt": "2026-08-05T05:12:38.803Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }

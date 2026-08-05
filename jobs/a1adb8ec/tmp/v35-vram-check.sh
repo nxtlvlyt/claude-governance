@@ -1,12 +1,16 @@
 #!/usr/bin/env bash
-# V35-REFIRE-ROPE probe v2: gate on NON-OLLAMA VRAM (the share train-v35.sh cannot clear itself).
-# v3.4 trained from 2153 MiB non-Ollama baseline; v3.5 OOM'd at 5189. Threshold: non-Ollama <= 3000 MiB.
-# (v1 gated on total free, which a daemon-warmed qwen3.6:27b masks forever; the script unloads Ollama.)
+# V35-REFIRE-ROPE probe v3: TRAINER-RUNNING / TRAINER-QUEUED / REFIRE-OK / STILL-BLOCKED.
+# Gate on NON-OLLAMA VRAM (train-v35.sh unloads Ollama itself). Threshold: non-Ollama <= 3000 MiB.
+# v3 adds TRAINER-QUEUED: a train-v35.sh chain in its wait loop means DO NOT refire (double-queue).
 set -uo pipefail
-TRAINERS=$(ps -eo args | grep -c '[t]rain_student_generic' || true)
-if [ "$TRAINERS" -gt 0 ]; then
+if [ "$(ps -eo args | grep -c '[t]rain_student_generic' || true)" -gt 0 ]; then
   echo "TRAINER-RUNNING"
   tr '\r' '\n' < /root/bfclproj/train-v35.log 2>/dev/null | grep -oE '[0-9]+/[0-9]+ \[[^]]*\]' | tail -1
+  exit 0
+fi
+if [ "$(ps -eo args | grep -c '[t]rain-v35.sh' || true)" -gt 0 ]; then
+  echo "TRAINER-QUEUED (chain waiting for the gpu lane; do not refire)"
+  ps -eo pid,etime,args | grep '[b]fcl generate' | head -1 || echo "  (no lane visible — chain in sleep window)"
   exit 0
 fi
 USED=$(nvidia-smi --query-gpu=memory.used --format=csv,noheader,nounits | head -1 | tr -d ' ')
