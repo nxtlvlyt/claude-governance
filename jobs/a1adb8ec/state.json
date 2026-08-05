@@ -1,6 +1,6 @@
 {
   "state": "done",
-  "detail": "3.4 tool performance boundary clarified; defensible claim confirmed",
+  "detail": "3.4 tool use at 27B beats 70B+ models; 64 score vs Qwen-235B 56",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,12 +9,12 @@
       "session_cron"
     ]
   },
-  "tokens": 6163871,
+  "tokens": 6164383,
   "output": {
-    "result": "3.4 outperforms frontier models on tool work when reading tool docs (not native APIs); 64% vs o3's 51%"
+    "result": "3.4-27B scores 64 in tool use, above Qwen3-235B (56) and all 70B baselines"
   },
   "children": null,
-  "linkScanOffset": 28095814,
+  "linkScanOffset": 28143754,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -39,6 +39,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-05T13:32:42.250Z",
+  "updatedAt": "2026-08-05T13:34:25.770Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
