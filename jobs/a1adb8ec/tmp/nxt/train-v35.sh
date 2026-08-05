@@ -52,6 +52,13 @@ export UNSLOTH_FUSED_CE_COMPILE_DISABLE=1
 # CE budget 2->1 shrinks the loss transient.
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 export UNSLOTH_CE_LOSS_TARGET_GB=1
+# STALL FIX #2 (2026-08-05 ~17:00, second identical hang at step 170 DESPITE fused-CE compile
+# disable — py-spy again showed backward waiting on an Inductor compile SUBPROCESS; unsloth
+# compiles more regions than fused-CE). Receipted switches from installed source:
+# unsloth_zoo/compiler.py:183 = global compile off; torch _inductor/config.py:1086 = "disable
+# async compiling" via threads=1 (no subprocess pool at all). Env-only, math identical.
+export UNSLOTH_COMPILE_DISABLE=1
+export TORCHINDUCTOR_COMPILE_THREADS=1
 mkdir -p "$CQ_RUN_DIR/models"
 
 echo "=== dry-run ==="
