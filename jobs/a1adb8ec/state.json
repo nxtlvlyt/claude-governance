@@ -1,6 +1,6 @@
 {
-  "state": "working",
-  "detail": "rope check: lane healthy (44/80 procs); v3.4 finish ~11pm",
+  "state": "done",
+  "detail": "lane 52/80 healthy; v3.5 start ~23:17; QUEUE.md RELEASE step 6 documented",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,12 @@
       "session_cron"
     ]
   },
-  "tokens": 5996291,
-  "output": null,
+  "tokens": 5999094,
+  "output": {
+    "result": "3.4 finish check: lane healthy (52/80), v3.5 scheduled ~23:17, ollama push route via nxtbeast documented"
+  },
   "children": null,
-  "linkScanOffset": 25026952,
+  "linkScanOffset": 25072153,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -37,6 +39,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-05T00:27:21.776Z",
+  "updatedAt": "2026-08-05T00:59:51.801Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
