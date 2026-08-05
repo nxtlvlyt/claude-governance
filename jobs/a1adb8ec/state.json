@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "v3.4-FC training 59/100; on pace ~07:15, trainer queued",
+  "detail": "v3.4-FC at 76/100, zero timeouts; awaiting trainer GPU lane end (~07:45)",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 6120244,
+  "tokens": 6120777,
   "output": null,
   "children": null,
-  "linkScanOffset": 27167079,
+  "linkScanOffset": 27185742,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -37,6 +37,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-05T10:02:45.567Z",
+  "updatedAt": "2026-08-05T10:32:25.877Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
