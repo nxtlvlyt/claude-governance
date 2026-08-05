@@ -1,6 +1,6 @@
 {
   "state": "done",
-  "detail": "deepseek confirmed in audit; kimi k2.6 architected, glm 5.2 seated, minimax auditor",
+  "detail": "deepseek-v4-pro confirmed architect seat; training GPU cleared & relaunched",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,12 +9,12 @@
       "session_cron"
     ]
   },
-  "tokens": 6508145,
+  "tokens": 6515771,
   "output": {
-    "result": "audit complete: deepseek confirmed in use, kimi-k2.6 architect, glm-5.2 & minimax-m3 seated with scores"
+    "result": "deepseek-v4-pro seated as architect (scored); training GPU priority-held & restarted on clean card"
   },
   "children": null,
-  "linkScanOffset": 33519979,
+  "linkScanOffset": 33605533,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -39,6 +39,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-05T19:32:54.369Z",
+  "updatedAt": "2026-08-05T19:40:54.384Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
