@@ -1,6 +1,6 @@
 {
-  "state": "working",
-  "detail": "training at 39/80 (3.4 min/entry); finish ~22:20, v3.5 pre-midnight",
+  "state": "done",
+  "detail": "Base-FC control at 39/80; v3.5 auto-train ~2:30am; gate work queued",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,12 @@
       "session_cron"
     ]
   },
-  "tokens": 5993375,
-  "output": null,
+  "tokens": 5993476,
+  "output": {
+    "result": "all scheduled work on rails; Base-FC completes ~10:20pm, v3.5 trains 2:30am"
+  },
   "children": null,
-  "linkScanOffset": 24897263,
+  "linkScanOffset": 24938883,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -37,6 +39,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-04T23:59:42.977Z",
+  "updatedAt": "2026-08-05T00:02:33.068Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
