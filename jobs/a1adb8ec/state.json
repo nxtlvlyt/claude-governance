@@ -1,6 +1,6 @@
 {
-  "state": "working",
-  "detail": "awaiting trainer GPU lane; :23 fire will resolve OOM theory",
+  "state": "done",
+  "detail": "full accuracy run complete: base 31.00%, tuned model holds 67→51",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,12 @@
       "session_cron"
     ]
   },
-  "tokens": 6112161,
-  "output": null,
+  "tokens": 6117730,
+  "output": {
+    "result": "tuning validated: model holds 67→51 accuracy vs untuned collapse 54→31; v3.4 board run live, v3.5 training queued"
+  },
   "children": null,
-  "linkScanOffset": 27039403,
+  "linkScanOffset": 27119219,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -37,6 +39,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-05T08:32:40.374Z",
+  "updatedAt": "2026-08-05T09:04:45.626Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
