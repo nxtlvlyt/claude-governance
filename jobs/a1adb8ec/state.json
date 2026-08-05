@@ -1,6 +1,6 @@
 {
-  "state": "done",
-  "detail": "3.4 timing: run Lighteval post-holdout on winner (3.5 or 3.4)",
+  "state": "working",
+  "detail": "3.4 failure analysis complete (13 hard, 21 fixable); model card ~80% done",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,12 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 6203169,
-  "output": {
-    "result": "Lighteval should run on the winner post-holdout verdict, not 3.4 now; avoids duplicate runs"
-  },
+  "tokens": 6208964,
+  "output": null,
   "children": null,
-  "linkScanOffset": 29007016,
+  "linkScanOffset": 29133667,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -39,6 +37,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-05T14:50:32.443Z",
+  "updatedAt": "2026-08-05T14:54:17.736Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
