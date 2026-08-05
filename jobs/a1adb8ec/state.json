@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "Base-Prompt benchmark 73/80 done (~30-40 min left); v3.5 training queued after",
+  "detail": "verified base-Prompt lane running; 73/80 banked, ~7q to scoring",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 6093273,
+  "tokens": 6097467,
   "output": null,
   "children": null,
-  "linkScanOffset": 26677506,
+  "linkScanOffset": 26722094,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -37,6 +37,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-05T06:39:06.412Z",
+  "updatedAt": "2026-08-05T06:40:57.919Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
