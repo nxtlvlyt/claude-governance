@@ -37,6 +37,11 @@ Open the actual file when it governs your situation — do not act from memory.
 - **integrator.faith.md** — Integration and merging
 - **presenter.faith.md** — Presenting findings
 - **witness.faith.md** — Witness establishment for substrate gates
+- **visual_qc.faith.md** — The Visual Witness: judges RENDERED pages per viewport×state cell
+  (stranger test, control-count budget, staleness, occlusion — then the pair list). Green
+  detector output is evidence, never an inherited verdict. Exists because 4 green overlap
+  sweeps coexisted with the operator's cluttered-screen screenshot (2026-08-05). Deployed
+  identically to ~/.agents/faiths/ for the agy jurisdiction.
 - **teacher.faith.md** — Generating training data that becomes another model's weights. The
   only seat whose errors are unreviewable and untraceable: a plan can be rejected, a verdict
   overturned, an annotation struck — a training row becomes a reflex the student cannot
