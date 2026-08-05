@@ -1,7 +1,7 @@
 {
-  "state": "working",
-  "detail": "training run restarted after subprocess hang; v3.5 landing ~17:30",
-  "tempo": "idle",
+  "state": "blocked",
+  "detail": "awaiting specifics on muddy tires project check",
+  "tempo": "blocked",
   "inFlight": {
     "tasks": 1,
     "queued": 0,
@@ -9,10 +9,11 @@
       "session_cron"
     ]
   },
-  "tokens": 6224959,
+  "tokens": 6224986,
+  "needs": "what do you want checked on the muddy tires project?",
   "output": null,
   "children": null,
-  "linkScanOffset": 29581999,
+  "linkScanOffset": 29633733,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -37,6 +38,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-05T15:50:28.069Z",
+  "updatedAt": "2026-08-05T15:51:37.872Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
