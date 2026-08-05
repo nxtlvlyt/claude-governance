@@ -1,20 +1,35 @@
 {
-  "state": "done",
-  "detail": "browser test missing aurora banner + count rule; fix identified",
-  "tempo": "idle",
+  "state": "working",
+  "detail": "design workflow running: 3 competing redesigns + judge",
+  "tempo": "active",
   "inFlight": {
-    "tasks": 1,
+    "tasks": 2,
     "queued": 0,
     "kinds": [
+      "local_workflow",
       "session_cron"
     ]
   },
-  "tokens": 6275320,
-  "output": {
-    "result": "aurora banner not in test list for mobile; add banner + rule for >7 controls"
-  },
+  "fan": [
+    {
+      "id": "a9ac08f97535952fd",
+      "kind": "workflow",
+      "label": "research:sota-patterns",
+      "startedAt": 1785947229073,
+      "group": "Research"
+    },
+    {
+      "id": "a1b52c24be86d43c6",
+      "kind": "workflow",
+      "label": "research:inventory-audit",
+      "startedAt": 1785947229969,
+      "group": "Research"
+    }
+  ],
+  "tokens": 6279048,
+  "output": null,
   "children": null,
-  "linkScanOffset": 30829276,
+  "linkScanOffset": 30904403,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -39,6 +54,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-05T16:21:36.228Z",
+  "updatedAt": "2026-08-05T16:27:15.966Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
