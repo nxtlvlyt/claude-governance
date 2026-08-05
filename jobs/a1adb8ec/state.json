@@ -1,27 +1,20 @@
 {
-  "state": "working",
-  "detail": "tryout running: both models scoring 8 real cases",
+  "state": "done",
+  "detail": "deepseek confirmed in audit; kimi k2.6 architected, glm 5.2 seated, minimax auditor",
   "tempo": "idle",
   "inFlight": {
-    "tasks": 2,
+    "tasks": 1,
     "queued": 0,
     "kinds": [
-      "local_bash",
       "session_cron"
     ]
   },
-  "fan": [
-    {
-      "id": "bmnykfggr",
-      "kind": "shell",
-      "label": "cd \"/c/Users/marka/conductor-qwen/phase4\" && python auditor-tryout-dispatch.py",
-      "startedAt": 1785957930930
-    }
-  ],
-  "tokens": 6495666,
-  "output": null,
+  "tokens": 6508145,
+  "output": {
+    "result": "audit complete: deepseek confirmed in use, kimi-k2.6 architect, glm-5.2 & minimax-m3 seated with scores"
+  },
   "children": null,
-  "linkScanOffset": 33458717,
+  "linkScanOffset": 33519979,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -46,6 +39,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-05T19:25:43.016Z",
+  "updatedAt": "2026-08-05T19:32:54.369Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
