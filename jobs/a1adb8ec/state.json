@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "tearing down nomadparkpad site against Muddy Tires strategy corpus",
+  "detail": "agy dispatch bug found: Gemini 3.5 Flash CLI arg-cap overflow; local fallback active",
   "tempo": "active",
   "inFlight": {
     "tasks": 2,
@@ -16,6 +16,7 @@
       "kind": "workflow",
       "label": "research:site-teardown",
       "startedAt": 1785956239603,
+      "doneAt": 1785956351343,
       "group": "Research"
     },
     {
@@ -23,13 +24,21 @@
       "kind": "workflow",
       "label": "research:mt-positioning",
       "startedAt": 1785956239257,
+      "doneAt": 1785956366705,
       "group": "Research"
+    },
+    {
+      "id": "af6e4d0eb7976d0ce",
+      "kind": "workflow",
+      "label": "synthesize:brief",
+      "startedAt": 1785956369549,
+      "group": "Synthesize"
     }
   ],
-  "tokens": 6417436,
+  "tokens": 6431966,
   "output": null,
   "children": null,
-  "linkScanOffset": 32738713,
+  "linkScanOffset": 32828604,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -54,6 +63,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-05T18:57:54.251Z",
+  "updatedAt": "2026-08-05T19:00:23.925Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
