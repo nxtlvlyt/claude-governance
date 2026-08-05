@@ -1,6 +1,6 @@
 {
-  "state": "done",
-  "detail": "both wiring fixes live; daemon restarted, selftests pass",
+  "state": "working",
+  "detail": "relaunch #5 stepping past OOM site (51/720 @ 18.8s/step)",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,12 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 6529138,
-  "output": {
-    "result": "backup plan + final checker rewired; Muddy Tires missions blocked from 4090 during training"
-  },
+  "tokens": 6529557,
+  "output": null,
   "children": null,
-  "linkScanOffset": 34148131,
+  "linkScanOffset": 34162861,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -39,6 +37,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-05T20:00:05.706Z",
+  "updatedAt": "2026-08-05T20:01:06.065Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
