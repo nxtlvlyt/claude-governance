@@ -1,6 +1,6 @@
 {
   "state": "done",
-  "detail": "camel rule not in training corpus; gap identified in practice-layer coverage",
+  "detail": "governance model documented: teachers supply situations; framework validates dispositions",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,12 +9,12 @@
       "session_cron"
     ]
   },
-  "tokens": 6105880,
+  "tokens": 6110002,
   "output": {
-    "result": "Model lacks camel-tying demonstrations; practice-layer coverage gap receipted in V36 backlog with audit data"
+    "result": "governance rule banked: framework holds source concepts (return-to-source, wudu, niyyah, tie-then-wait); teachers supply situations checked against it"
   },
   "children": null,
-  "linkScanOffset": 26898079,
+  "linkScanOffset": 26984268,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -39,6 +39,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-05T07:09:40.780Z",
+  "updatedAt": "2026-08-05T07:24:55.424Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
