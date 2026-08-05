@@ -1,7 +1,7 @@
 {
-  "state": "done",
-  "detail": "confirmed: separate projects, Muddy Tires build clean",
-  "tempo": "idle",
+  "state": "blocked",
+  "detail": "redesign spec finalized + test added; awaiting build order",
+  "tempo": "blocked",
   "inFlight": {
     "tasks": 1,
     "queued": 0,
@@ -9,12 +9,11 @@
       "session_cron"
     ]
   },
-  "tokens": 6399689,
-  "output": {
-    "result": "Muddy Tires unaffected: UI spec done, Visual Witness deployed, build awaiting go"
-  },
+  "tokens": 6399986,
+  "needs": "say \"build it\" to deploy the changes",
+  "output": null,
   "children": null,
-  "linkScanOffset": 31907495,
+  "linkScanOffset": 31966126,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -39,6 +38,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-05T18:50:01.813Z",
+  "updatedAt": "2026-08-05T18:50:33.100Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
