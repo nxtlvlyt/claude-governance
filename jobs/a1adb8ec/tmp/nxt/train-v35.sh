@@ -57,7 +57,11 @@ export UNSLOTH_CE_LOSS_TARGET_GB=1
 # compiles more regions than fused-CE). Receipted switches from installed source:
 # unsloth_zoo/compiler.py:183 = global compile off; torch _inductor/config.py:1086 = "disable
 # async compiling" via threads=1 (no subprocess pool at all). Env-only, math identical.
-export UNSLOTH_COMPILE_DISABLE=1
+# STALL FIX #3 (2026-08-05 ~17:20): relaunch #3 proved compile-off cures the hang but eager
+# mode costs the fused kernels' memory savings -> OOM at step ~38. Root isolation: BOTH hangs
+# were in the compiler's SUBPROCESS POOL (py-spy: subproc_pool.py _recv_msg), not compilation.
+# So: compiler ON (memory-efficient kernels restored), THREADS=1 (in-process compile, no pool
+# to hang). One variable vs run #2. Squat now ~1.2GB (was 3.5) = +2.3GB more headroom.
 export TORCHINDUCTOR_COMPILE_THREADS=1
 mkdir -p "$CQ_RUN_DIR/models"
 
