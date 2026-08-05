@@ -1,6 +1,6 @@
 {
-  "state": "working",
-  "detail": "verified base-Prompt lane running; 73/80 banked, ~7q to scoring",
+  "state": "done",
+  "detail": "live probe confirmed thinking param receipted; no doc gap",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,12 @@
       "session_cron"
     ]
   },
-  "tokens": 6097467,
-  "output": null,
+  "tokens": 6098658,
+  "output": {
+    "result": "thinking mechanism live-verified (content=798 with think:false); doc already reflects substrate behavior"
+  },
   "children": null,
-  "linkScanOffset": 26722094,
+  "linkScanOffset": 26744633,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -37,6 +39,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-05T06:40:57.919Z",
+  "updatedAt": "2026-08-05T06:41:37.659Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
