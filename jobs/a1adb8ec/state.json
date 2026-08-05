@@ -1,7 +1,7 @@
 {
-  "state": "working",
-  "detail": "v3.4 > v3.3 confirmed (−2 collapse); v3.5 training live since 08:06",
-  "tempo": "idle",
+  "state": "blocked",
+  "detail": "training OOM × 3; StabilityMatrix hogging 4-5GB on nxtbeast",
+  "tempo": "blocked",
   "inFlight": {
     "tasks": 1,
     "queued": 0,
@@ -9,10 +9,13 @@
       "session_cron"
     ]
   },
-  "tokens": 6134326,
-  "output": null,
+  "tokens": 6139687,
+  "needs": "Close StabilityMatrix/ComfyUI on nxtbeast, or run: ssh nxtbeast \"powershell Stop-Process -Id 476456 -Force\"",
+  "output": {
+    "result": "v3.5 training armed; needs GPU memory freed (4-5GB idle process); auto-launches on clear"
+  },
   "children": null,
-  "linkScanOffset": 27388312,
+  "linkScanOffset": 27485608,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -37,6 +40,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-05T12:08:09.164Z",
+  "updatedAt": "2026-08-05T12:34:44.859Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
