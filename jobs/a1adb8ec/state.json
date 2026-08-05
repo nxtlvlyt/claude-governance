@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "validated AIMLAPI key; wiring Sonnet 5 lanes next turn",
+  "detail": "v3.5 stepping on GPU (~12:45 ETA); Sonnet 5 FC lane 7/100; auth fixed",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 6172744,
+  "tokens": 6189617,
   "output": null,
   "children": null,
-  "linkScanOffset": 28360667,
+  "linkScanOffset": 28588226,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -37,6 +37,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-05T13:44:52.674Z",
+  "updatedAt": "2026-08-05T13:59:36.898Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
