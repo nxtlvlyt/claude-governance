@@ -41,6 +41,11 @@ export CQ_RUN_DIR=/mnt/d/conductor-qwen-run
 # override (cross_entropy_loss.py:33). Chunked CE is numerically identical loss math —
 # training config untouched, attribution intact.
 export UNSLOTH_CE_LOSS_TARGET_GB=2
+# STALL FIX (2026-08-05 13:0x): step-295 hang — py-spy showed backward waiting on a torch
+# Inductor COMPILE SUBPROCESS (chunked-CE recompiles per shape; worker hung; GPU 0%, CPU 100%,
+# log frozen 1h). Off-switch ships in the same source (cross_entropy_loss.py:51). Eager chunked
+# CE = identical math, no compiler.
+export UNSLOTH_FUSED_CE_COMPILE_DISABLE=1
 mkdir -p "$CQ_RUN_DIR/models"
 
 echo "=== dry-run ==="
