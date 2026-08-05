@@ -1,6 +1,6 @@
 {
   "state": "done",
-  "detail": "mission system timing & model choice: kimi-k2.7-code (existing backup)",
+  "detail": "both wiring fixes live; daemon restarted, selftests pass",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,12 +9,12 @@
       "session_cron"
     ]
   },
-  "tokens": 6520700,
+  "tokens": 6529138,
   "output": {
-    "result": "Tonight: mission system parked, safe rewire window before training ends. Model: kimi-k2.7-code (existing approved backup, code-specialized)"
+    "result": "backup plan + final checker rewired; Muddy Tires missions blocked from 4090 during training"
   },
   "children": null,
-  "linkScanOffset": 33974549,
+  "linkScanOffset": 34148131,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -39,6 +39,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-05T19:49:22.549Z",
+  "updatedAt": "2026-08-05T20:00:05.706Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
