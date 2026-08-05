@@ -1,6 +1,6 @@
 {
   "state": "blocked",
-  "detail": "awaiting specifics on muddy tires project check",
+  "detail": "137 commits pending deploy; aurora chip untested in default view; design bloat regrew to ~10 controls",
   "tempo": "blocked",
   "inFlight": {
     "tasks": 1,
@@ -9,11 +9,11 @@
       "session_cron"
     ]
   },
-  "tokens": 6224986,
-  "needs": "what do you want checked on the muddy tires project?",
+  "tokens": 6254708,
+  "needs": "should I fire the deploy chain first, then author the aurora+bloat fix as next mission?",
   "output": null,
   "children": null,
-  "linkScanOffset": 29633733,
+  "linkScanOffset": 30675258,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -38,6 +38,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-05T15:51:37.872Z",
+  "updatedAt": "2026-08-05T16:06:33.971Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
