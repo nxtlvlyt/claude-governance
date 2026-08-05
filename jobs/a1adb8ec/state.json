@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "GPU lane at 83/100, ~1.5h remain; trainer queued; v3.5 ready early morning",
+  "detail": "trainer queued on GPU lane (4h04m); next fire at :53",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 6111111,
+  "tokens": 6111543,
   "output": null,
   "children": null,
-  "linkScanOffset": 27007054,
+  "linkScanOffset": 27023153,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -37,6 +37,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-05T07:32:41.972Z",
+  "updatedAt": "2026-08-05T08:02:24.912Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
