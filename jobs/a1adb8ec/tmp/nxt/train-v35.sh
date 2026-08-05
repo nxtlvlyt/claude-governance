@@ -21,6 +21,16 @@ for m in $(curl -s http://172.30.144.1:11434/api/ps | python3 -c 'import sys,jso
   curl -s http://172.30.144.1:11434/api/generate -d "{\"model\":\"$m\",\"keep_alive\":0}" -o /dev/null
 done
 sleep 10
+# HUNG-RUNNER SWEEP (2026-08-05): /api/ps empty + llama-server.exe alive = orphaned runner
+# holding VRAM (the operator's hypothesis for the 23:24/23:59 OOMs — this receipts + clears it).
+RESIDENT=$(curl -s http://172.30.144.1:11434/api/ps | python3 -c 'import sys,json;print(len(json.load(sys.stdin).get("models") or []))' 2>/dev/null || echo unknown)
+if [ "$RESIDENT" = "0" ]; then
+  if /mnt/c/Windows/System32/tasklist.exe /FI "IMAGENAME eq llama-server.exe" 2>/dev/null | grep -q llama-server; then
+    echo "  HUNG RUNNER DETECTED (api/ps empty, llama-server alive) — sweeping"
+    /mnt/c/Windows/System32/taskkill.exe /IM llama-server.exe /F 2>/dev/null || true
+    sleep 5
+  fi
+fi
 echo "  gpu: $(nvidia-smi --query-gpu=memory.used --format=csv,noheader | head -1)"
 
 cd "$CQ"
