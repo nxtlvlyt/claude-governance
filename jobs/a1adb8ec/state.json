@@ -1,6 +1,6 @@
 {
   "state": "done",
-  "detail": "search module wired into repair prompt; tests pass",
+  "detail": "Muddy Tires teardown: privacy patterns + spot check-in experiment",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,12 +9,12 @@
       "session_cron"
     ]
   },
-  "tokens": 6549577,
+  "tokens": 6550143,
   "output": {
-    "result": "live search results now auto-injected into repair prompts on repeated errors via SearXNG"
+    "result": "Extracted Muddy Tires brief: recommend \"still good\" check-in feature to test presence signals; full analysis in missions-authored/nomadparkpad-teardown-brief.md"
   },
   "children": null,
-  "linkScanOffset": 34813758,
+  "linkScanOffset": 34869895,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -39,6 +39,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-05T21:23:39.321Z",
+  "updatedAt": "2026-08-05T21:25:49.390Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
