@@ -1,6 +1,6 @@
 {
-  "state": "working",
-  "detail": "training run steady 162/720 steps, ~01:45 finish",
+  "state": "done",
+  "detail": "explained internet-loss failure modes & recovery",
   "tempo": "idle",
   "inFlight": {
     "tasks": 1,
@@ -9,10 +9,12 @@
       "session_cron"
     ]
   },
-  "tokens": 6566476,
-  "output": null,
+  "tokens": 6567526,
+  "output": {
+    "result": "Training finishes offline; evals/missions pause + retry; QUEUE.md ensures recovery"
+  },
   "children": null,
-  "linkScanOffset": 35180075,
+  "linkScanOffset": 35244171,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -37,6 +39,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-05T22:30:29.060Z",
+  "updatedAt": "2026-08-05T23:00:05.861Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
