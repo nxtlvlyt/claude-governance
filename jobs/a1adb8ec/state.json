@@ -1,6 +1,6 @@
 {
-  "state": "done",
-  "detail": "design review: budget-enforced simplicity, safe fallback, SOTA proxy",
+  "state": "working",
+  "detail": "S1 still running (10 min in, deploy+QC); fresh watcher armed",
   "tempo": "idle",
   "inFlight": {
     "tasks": 3,
@@ -12,18 +12,16 @@
   },
   "fan": [
     {
-      "id": "bf9q8vvro",
+      "id": "bwwu4simu",
       "kind": "shell",
-      "label": "for i in $(seq 1 270); do L=$(grep \"mt-ui-rest-state.S1.mission.txt\" \"/c/Users/marka/agy-muezzin/missions/AUTORUN.md\" | head -1) case \"$L\" in DONE*) echo \"S1-DONE-MARKED\"; break;; FAILED*) echo \"S1-F…",
-      "startedAt": 1785976328629
+      "label": "for i in $(seq 1 270); do L=$(grep \"mt-ui-rest-state.S1.mission.txt\" \"/c/Users/marka/agy-muezzin/missions/AUTORUN.md\" | head -1) case \"$L\" in DONE*) echo \"S1-TERMINAL: DONE\"; break;; FAILED*) echo \"S…",
+      "startedAt": 1785976790480
     }
   ],
-  "tokens": 6637310,
-  "output": {
-    "result": "Design is sound: enforces 5-control limit via test, proxies legacy UI safely, degrades to old layout on failure"
-  },
+  "tokens": 6638283,
+  "output": null,
   "children": null,
-  "linkScanOffset": 36686775,
+  "linkScanOffset": 36713805,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -48,6 +46,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T00:38:13.151Z",
+  "updatedAt": "2026-08-06T00:39:57.578Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
