@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "verified all gaps actioned; Fire 5 queued to finalize",
+  "detail": "Fire 5 banking: all engine fixes live, monitoring at terminal mark",
   "tempo": "idle",
   "inFlight": {
     "tasks": 4,
@@ -24,10 +24,10 @@
       "startedAt": 1785984652122
     }
   ],
-  "tokens": 6757146,
+  "tokens": 6757186,
   "output": null,
   "children": null,
-  "linkScanOffset": 39675691,
+  "linkScanOffset": 39685303,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -52,6 +52,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T02:51:03.629Z",
+  "updatedAt": "2026-08-06T02:51:17.497Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
