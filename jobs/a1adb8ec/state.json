@@ -1,12 +1,13 @@
 {
-  "state": "done",
-  "detail": "2boots marketing kit complete: 52 files, 3 seasonal variants, all audited",
+  "state": "working",
+  "detail": "verifying scratch run fired; checking banner & first steps",
   "tempo": "idle",
   "inFlight": {
-    "tasks": 5,
+    "tasks": 6,
     "queued": 0,
     "kinds": [
       "monitor",
+      "local_bash",
       "session_cron"
     ]
   },
@@ -28,14 +29,18 @@
       "kind": "monitor",
       "label": "v3.5 final run: steps + rate + terminal (slow-rate alarmed)",
       "startedAt": 1786003705685
+    },
+    {
+      "id": "bk3nd5sqm",
+      "kind": "shell",
+      "label": "until B=$(ssh nxtbeast \"wsl bash -lc \\\"grep -a '######## TRAIN v3.5 2026' /root/bfclproj/train-v35.log | tail -1\\\"\" 2>/dev/null | grep -v \"screen size\" | tr -d '\\r') && echo \"$B\" | grep -qvE \"04:08:1…",
+      "startedAt": 1786006646049
     }
   ],
-  "tokens": 7032532,
-  "output": {
-    "result": "2boots marketing kit on Desktop\\2boots\\: business-cards, rack-cards (plain/10%-off/free-edging + fall/winter seasonal), town-variants, door-hangers, social (1080×1080 + 1080×1920), process runbook + print_designer.faith.md. RGB/CMYK/press variants. Confirm phone/email before print order."
-  },
+  "tokens": 7035882,
+  "output": null,
   "children": null,
-  "linkScanOffset": 56043774,
+  "linkScanOffset": 56092052,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -60,6 +65,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T08:46:01.889Z",
+  "updatedAt": "2026-08-06T08:57:42.650Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
