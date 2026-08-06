@@ -1,7 +1,7 @@
 {
-  "state": "done",
-  "detail": "trainer resuming from checkpoint-240 (245/720 steps); S1 closed, S2/S3 held, preview ready",
-  "tempo": "idle",
+  "state": "blocked",
+  "detail": "One-line call: fire S2 now while the network is up, or after 5am PST?",
+  "tempo": "blocked",
   "inFlight": {
     "tasks": 4,
     "queued": 0,
@@ -24,12 +24,11 @@
       "startedAt": 1785987822549
     }
   ],
-  "tokens": 6815063,
-  "output": {
-    "result": "trainer resumed from checkpoint-240; production deploy decision on S1 awaits your call"
-  },
+  "tokens": 6817620,
+  "needs": "One-line call: fire S2 now while the network is up, or after 5am PST?",
+  "output": null,
   "children": null,
-  "linkScanOffset": 41822881,
+  "linkScanOffset": 42875800,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -54,6 +53,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T03:47:01.939Z",
+  "updatedAt": "2026-08-06T03:48:25.084Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
