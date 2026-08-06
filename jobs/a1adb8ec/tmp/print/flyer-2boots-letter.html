@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<style>
+  /* 8.5x11in trim + 0.125in bleed = 8.75x11.25in. Safe zone 0.375in. */
+  @page { size: 8.75in 11.25in; margin: 0; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'DejaVu Sans', sans-serif; width: 8.75in; height: 11.25in; position: relative; color: #17301f; background: #fff; }
+
+  .band { background: #1f6b3a; color: #fff; padding: 0.42in 0.5in 0.3in; }
+  .band .wordmark { font-size: 34pt; font-weight: 700; line-height: 1; }
+  .band .wordmark .two { color: #cfe8d8; }
+  .band .tag { margin-top: 5pt; font-size: 11pt; color: #e8f4ec; }
+
+  .heroimg { height: 2.5in; background: url('assets/hero.jpg') center 40% / cover no-repeat; position: relative; }
+  .heroimg .overlay { position: absolute; left: 0; right: 0; bottom: 0; background: rgba(23,48,31,0.82); color: #fff; padding: 0.14in 0.5in; }
+  .heroimg .overlay h1 { font-size: 20pt; line-height: 1.15; }
+  .heroimg .overlay h1 b { color: #9fdcb6; }
+
+  .lead { padding: 0.2in 0.5in 0; font-size: 11.5pt; color: #2c4636; line-height: 1.45; }
+
+  .qbox { margin: 0.16in 0.5in 0; border: 2.2pt solid #1f6b3a; border-radius: 8pt; padding: 0.16in 0.24in; display: flex; align-items: center; gap: 0.25in; background: #f2f8f4; }
+  .qbox .steps { flex: 1; }
+  .qbox .step { font-size: 10.5pt; margin: 3pt 0; }
+  .qbox .step b { color: #1f6b3a; }
+  .qbox .go { text-align: center; }
+  .qbox .go .url { font-size: 16pt; font-weight: 700; color: #1f6b3a; }
+  .qbox .go .sub { font-size: 8pt; color: #5a7263; margin-top: 2pt; }
+
+  .photos { display: flex; padding: 0.2in 0.4in 0; }
+  .pcell { width: 25%; padding: 0.08in; }
+  .pcard { border: 1pt solid #d7e6dc; border-radius: 6pt; overflow: hidden; }
+  .pcard .img { height: 1.15in; background-size: cover; background-position: center; }
+  .pcard .cap { padding: 0.07in 0.09in; font-size: 8.8pt; font-weight: 700; color: #1f6b3a; text-align: center; }
+  .i-lawn { background-image: url('assets/work-lawn.jpg'); }
+  .i-pw { background-image: url('assets/work-pressure-washing.jpg'); }
+  .i-decks { background-image: url('assets/work-decks.jpg'); }
+  .i-gutters { background-image: url('assets/work-gutters.jpg'); }
+
+  .more { padding: 0.1in 0.5in 0; font-size: 9.5pt; color: #4a6354; }
+  .more b { color: #1f6b3a; }
+
+  .trust { display: flex; padding: 0.16in 0.4in 0; }
+  .trust div { flex: 1; padding: 0 0.1in; font-size: 8.8pt; color: #2c4636; line-height: 1.4; }
+  .trust b { display: block; color: #1f6b3a; font-size: 9.6pt; margin-bottom: 2pt; }
+
+  .footer { position: absolute; left: 0; right: 0; bottom: 0; background: #17301f; color: #fff; padding: 0.28in 0.5in 0.4in; display: flex; justify-content: space-between; align-items: center; }
+  .footer .phone { font-size: 23pt; font-weight: 700; }
+  .footer .call { font-size: 9pt; color: #b9dcc6; margin-top: 2pt; }
+  .footer .right { text-align: right; }
+  .footer .site { font-size: 15pt; font-weight: 700; color: #cfe8d8; }
+  .footer .towns { font-size: 8.4pt; color: #8fc4a2; margin-top: 3pt; }
+</style>
+</head>
+<body>
+
+  <div class="band">
+    <div class="wordmark"><span class="two">2</span>boots</div>
+    <div class="tag">Complete property care, starting with the lawn — Niagara Region, Ontario</div>
+  </div>
+
+  <div class="heroimg">
+    <div class="overlay"><h1>See your price in <b>30&nbsp;seconds</b>. No sales call. No haggling.</h1></div>
+  </div>
+
+  <p class="lead">Trace your property online and get a fair, instant price for lawn mowing, pressure
+  washing, gutter cleaning, deck staining, or snow removal — free, no obligation, no signup.</p>
+
+  <div class="qbox">
+    <div class="steps">
+      <div class="step"><b>1.</b> Go to <b>2boots.ca</b> on your phone</div>
+      <div class="step"><b>2.</b> Trace your lawn or driveway on the map</div>
+      <div class="step"><b>3.</b> Your price appears — book if you like it</div>
+    </div>
+    <div class="go">
+      <div class="url">2boots.ca</div>
+      <div class="sub">Instant quote · free</div>
+    </div>
+  </div>
+
+  <div class="photos">
+    <div class="pcell"><div class="pcard"><div class="img i-lawn"></div><div class="cap">Lawn care</div></div></div>
+    <div class="pcell"><div class="pcard"><div class="img i-pw"></div><div class="cap">Pressure washing</div></div></div>
+    <div class="pcell"><div class="pcard"><div class="img i-decks"></div><div class="cap">Decks &amp; staining</div></div></div>
+    <div class="pcell"><div class="pcard"><div class="img i-gutters"></div><div class="cap">Gutter cleaning</div></div></div>
+  </div>
+
+  <p class="more">Also: <b>deck builds</b> and <b>seasonal snow removal</b> — 2boots keeps the whole property sharp, year round.</p>
+
+  <div class="trust">
+    <div><b>Local &amp; Niagara-based</b>A local crew serving the south-Niagara towns — not a far-off call centre.</div>
+    <div><b>No-surprise pricing</b>See your price before you commit. No pressure, ever.</div>
+    <div><b>The price holds</b>Your quote stands unless an on-site measure differs by more than 15% — our guarantee.</div>
+  </div>
+
+  <div class="footer">
+    <div>
+      <div class="phone">365-359-5700</div>
+      <div class="call">Call or text · bootswork98@outlook.com</div>
+    </div>
+    <div class="right">
+      <div class="site">2boots.ca</div>
+      <div class="towns">St. Catharines · Niagara Falls · Port Colborne</div>
+    </div>
+  </div>
+
+</body>
+</html>

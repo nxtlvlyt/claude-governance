@@ -1,7 +1,7 @@
 {
-  "state": "done",
-  "detail": "print files ready (RGB + CMYK variants); vectors/bleed verified",
-  "tempo": "idle",
+  "state": "blocked",
+  "detail": "rack card + flyer designs ready; awaiting pricing offer decision",
+  "tempo": "blocked",
   "inFlight": {
     "tasks": 4,
     "queued": 0,
@@ -24,12 +24,13 @@
       "startedAt": 1786000476480
     }
   ],
-  "tokens": 6961568,
+  "tokens": 6977088,
+  "needs": "decide on printed offer (e.g., '10% off first cut') for front, or proceed without",
   "output": {
-    "result": "PDF files print-safe: RGB for most shops, CMYK variant for strict offset; 0.125\" bleed, embedded fonts, vector-only"
+    "result": "two-sided rack card (3.5×8.5\") + full-letter flyer variants ready; RGB/CMYK press files with crew photos, instant-quote steps, guarantee, contact"
   },
   "children": null,
-  "linkScanOffset": 48499373,
+  "linkScanOffset": 50254261,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -54,6 +55,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T07:57:46.777Z",
+  "updatedAt": "2026-08-06T08:07:00.978Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
