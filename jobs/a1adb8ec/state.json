@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "run 248/720 @ steady pace, ~2.5h remaining",
+  "detail": "model training in progress; will report export + scores",
   "tempo": "idle",
   "inFlight": {
     "tasks": 6,
@@ -36,10 +36,10 @@
       "startedAt": 1786020906555
     }
   ],
-  "tokens": 7158352,
+  "tokens": 7159036,
   "output": null,
   "children": null,
-  "linkScanOffset": 60129096,
+  "linkScanOffset": 60201793,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -64,6 +64,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T15:12:32.304Z",
+  "updatedAt": "2026-08-06T15:13:20.649Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
