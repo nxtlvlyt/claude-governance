@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "verifying scratch run fired; checking banner & first steps",
+  "detail": "scratch run live; tokenizer map 1184/1184, first steps in progress",
   "tempo": "idle",
   "inFlight": {
     "tasks": 6,
@@ -37,10 +37,10 @@
       "startedAt": 1786006646049
     }
   ],
-  "tokens": 7035882,
+  "tokens": 7036419,
   "output": null,
   "children": null,
-  "linkScanOffset": 56092052,
+  "linkScanOffset": 56109368,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -65,6 +65,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T08:57:42.650Z",
+  "updatedAt": "2026-08-06T09:00:38.437Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
