@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "counter stuck 35m; cache cleared, patched loader, resuming from checkpoint-240",
+  "detail": "trainer relaunched live; watcher monitoring banner, S1 fire 5 running",
   "tempo": "idle",
   "inFlight": {
     "tasks": 4,
@@ -24,17 +24,17 @@
       "startedAt": 1785984652122
     },
     {
-      "id": "bexu1vipt",
+      "id": "bqut3f9w5",
       "kind": "shell",
-      "label": "for i in $(seq 1 40); do OUT=$(ssh nxtbeast \"wsl bash -lc \\\"tail -c 3000 /root/bfclproj/train-v35.log | grep -aE 'RESUMING|training starts|2[5-9][0-9]/720|3[0-9][0-9]/720|Traceback|OutOfMemory|failed…",
-      "startedAt": 1785985845075,
-      "doneAt": 1785985848203
+      "label": "for i in $(seq 1 50); do OUT=$(ssh nxtbeast \"wsl bash -lc \\\"awk '/######## TRAIN v3.5 2026-08-05T23:10:38/,0' /root/bfclproj/train-v35.log | grep -aE 'RESUMING|[0-9]+/720|Traceback|OutOfMemory|failed…",
+      "startedAt": 1785985895110,
+      "doneAt": 1785985898245
     }
   ],
-  "tokens": 6769935,
+  "tokens": 6771032,
   "output": null,
   "children": null,
-  "linkScanOffset": 39874166,
+  "linkScanOffset": 39903464,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -59,6 +59,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T03:10:54.000Z",
+  "updatedAt": "2026-08-06T03:11:42.024Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
