@@ -1,9 +1,9 @@
 {
-  "state": "working",
-  "detail": "diagnostics running; awaiting completion",
+  "state": "done",
+  "detail": "mission work verified; 5 controls + map live, 0 page errors",
   "tempo": "idle",
   "inFlight": {
-    "tasks": 5,
+    "tasks": 4,
     "queued": 0,
     "kinds": [
       "monitor",
@@ -19,22 +19,18 @@
       "startedAt": 1785980623392
     },
     {
-      "id": "bpmj7o00a",
-      "kind": "monitor",
-      "label": "S1 fire 5 (banking fire): pickup + terminal",
-      "startedAt": 1785984652122
-    },
-    {
       "id": "bbq3eueq3",
       "kind": "shell",
       "label": "sleep 60; NEWBANNER=$(ssh nxtbeast \"wsl bash -lc \\\"grep -a '######## TRAIN v3.5 2026' /root/bfclproj/train-v35.log | tail -1\\\"\" 2>/dev/null | grep -v \"screen size\" | tr -d '\\r') echo \"newest banner: …",
       "startedAt": 1785986042313
     }
   ],
-  "tokens": 6777040,
-  "output": null,
+  "tokens": 6808480,
+  "output": {
+    "result": "Preview build live (5 REST endpoints, 18 menu rows, legacy failsafe intact); production deploy gated on S2/S3 post-5am PST reconnect"
+  },
   "children": null,
-  "linkScanOffset": 40195514,
+  "linkScanOffset": 40464111,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -59,6 +55,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T03:17:41.264Z",
+  "updatedAt": "2026-08-06T03:39:52.567Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
