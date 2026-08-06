@@ -1,9 +1,9 @@
 {
   "state": "done",
-  "detail": "muddytires.ca/map live with redesign; all e2e gates passed, production verified",
+  "detail": "muddytires.ca/map live with redesign; model training auto-resumed",
   "tempo": "idle",
   "inFlight": {
-    "tasks": 3,
+    "tasks": 4,
     "queued": 0,
     "kinds": [
       "monitor",
@@ -16,14 +16,20 @@
       "kind": "monitor",
       "label": "v3.5 final leg: resume + completion (survives offline window quietly)",
       "startedAt": 1785998780323
+    },
+    {
+      "id": "bywli1x6m",
+      "kind": "monitor",
+      "label": "GPU evictor v3 (training final leg)",
+      "startedAt": 1786000476480
     }
   ],
-  "tokens": 6933261,
+  "tokens": 6935792,
   "output": {
-    "result": "Production deployment complete: muddytires.ca/map live with full redesign, all e2e gates passed (overlap/rest-budget/render verified), three missions closed with receipts"
+    "result": "mission complete: redesign deployed to production at muddytires.ca/map (verified e2e PASS); model training in progress, no user action needed"
   },
   "children": null,
-  "linkScanOffset": 46960240,
+  "linkScanOffset": 47000150,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -48,6 +54,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T07:12:50.111Z",
+  "updatedAt": "2026-08-06T07:14:50.232Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
