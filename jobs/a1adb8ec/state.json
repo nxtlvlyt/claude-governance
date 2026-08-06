@@ -1,6 +1,6 @@
 {
-  "state": "done",
-  "detail": "deepseek-v4-flash deployed as architect C; live test evidence sufficient",
+  "state": "working",
+  "detail": "acknowledging governance gaps; S2 running, swap+patches queued",
   "tempo": "idle",
   "inFlight": {
     "tasks": 5,
@@ -30,12 +30,10 @@
       "startedAt": 1785988231120
     }
   ],
-  "tokens": 6831263,
-  "output": {
-    "result": "Deepseek v4-flash seated as architect C (SEAT-PROBE-OK); no formal bench needed; takes effect at next engine reload"
-  },
+  "tokens": 6832385,
+  "output": null,
   "children": null,
-  "linkScanOffset": 43590585,
+  "linkScanOffset": 43654135,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -60,6 +58,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T04:04:45.897Z",
+  "updatedAt": "2026-08-06T04:07:38.411Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
