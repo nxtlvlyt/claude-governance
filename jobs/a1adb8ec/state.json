@@ -1,6 +1,6 @@
 {
-  "state": "working",
-  "detail": "evictor tightened to 15s; 17/17 dispatch paths hold-aware",
+  "state": "done",
+  "detail": "Evictor v2 working; guardian unload within 15s window",
   "tempo": "idle",
   "inFlight": {
     "tasks": 5,
@@ -30,10 +30,12 @@
       "startedAt": 1785989548914
     }
   ],
-  "tokens": 6838221,
-  "output": null,
+  "tokens": 6838312,
+  "output": {
+    "result": "Evictor v2 validated: guardian unload <15s, trainer responsive, S2+Monitors nominal"
+  },
   "children": null,
-  "linkScanOffset": 43753202,
+  "linkScanOffset": 43761954,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -58,6 +60,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T04:15:26.564Z",
+  "updatedAt": "2026-08-06T04:17:46.557Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
