@@ -1,12 +1,13 @@
 {
-  "state": "done",
-  "detail": "S1+S2+S3 landed; production verified; deploy deferred",
+  "state": "working",
+  "detail": "running full guard chain; deploy to production on success",
   "tempo": "idle",
   "inFlight": {
-    "tasks": 3,
+    "tasks": 4,
     "queued": 0,
     "kinds": [
       "monitor",
+      "local_bash",
       "session_cron"
     ]
   },
@@ -16,14 +17,18 @@
       "kind": "monitor",
       "label": "v3.5 final leg: resume + completion (survives offline window quietly)",
       "startedAt": 1785998780323
+    },
+    {
+      "id": "b4gxdc0qb",
+      "kind": "shell",
+      "label": "cd \"/c/Users/marka/code/mt-integration-2026-06-22\" && node scripts/e2e-runner.mjs --target \"https://cf918585.muddytires.pages.dev\" --out \"docs/e2e-report-deploy-gate.json\" 2>&1 | tail -12",
+      "startedAt": 1785999067984
     }
   ],
-  "tokens": 6920948,
-  "output": {
-    "result": "substrate issues resolved and landed; production deploy staged for reconnect or user trigger"
-  },
+  "tokens": 6923284,
+  "output": null,
   "children": null,
-  "linkScanOffset": 46729741,
+  "linkScanOffset": 46818096,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -48,6 +53,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T06:47:20.732Z",
+  "updatedAt": "2026-08-06T06:51:21.868Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
