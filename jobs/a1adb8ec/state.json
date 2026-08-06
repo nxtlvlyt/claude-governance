@@ -1,12 +1,13 @@
 {
   "state": "working",
-  "detail": "S3 lane open in Sonnet repair window; monitoring for FAILED",
+  "detail": "S1/S2 verified closed; S3 repair window ~5min, auto-kill at 6min",
   "tempo": "idle",
   "inFlight": {
-    "tasks": 3,
+    "tasks": 4,
     "queued": 0,
     "kinds": [
       "monitor",
+      "local_bash",
       "session_cron"
     ]
   },
@@ -16,12 +17,18 @@
       "kind": "monitor",
       "label": "S3 fire 2 status to DONE/FAILED",
       "startedAt": 1785994209556
+    },
+    {
+      "id": "b66flcixz",
+      "kind": "shell",
+      "label": "for i in $(seq 1 18); do L=$(grep \"mt-ui-rest-state.S3.mission.txt\" \"/c/Users/marka/agy-muezzin/missions/AUTORUN.md\" | head -1) case \"$L\" in DONE*) echo \"S3-DONE-BEFORE-DEADLINE\"; exit 0;; FAILED*) e…",
+      "startedAt": 1785997807110
     }
   ],
-  "tokens": 6898126,
+  "tokens": 6899427,
   "output": null,
   "children": null,
-  "linkScanOffset": 45529771,
+  "linkScanOffset": 45600794,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -46,6 +53,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T06:25:43.000Z",
+  "updatedAt": "2026-08-06T06:30:20.708Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
