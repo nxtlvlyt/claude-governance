@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "recorded deepseek-v4-pro anomaly; benching post-mission",
+  "detail": "GPU 23.9GB/100%, post-resume warmup phase; advancing",
   "tempo": "idle",
   "inFlight": {
     "tasks": 5,
@@ -30,10 +30,10 @@
       "startedAt": 1785988231120
     }
   ],
-  "tokens": 6826198,
+  "tokens": 6827202,
   "output": null,
   "children": null,
-  "linkScanOffset": 43458592,
+  "linkScanOffset": 43483279,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -58,6 +58,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T03:59:55.519Z",
+  "updatedAt": "2026-08-06T04:00:43.925Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
