@@ -1,6 +1,6 @@
 {
-  "state": "done",
-  "detail": "tuning paused at step 258 (checkpoint-240); awaiting S2 finish to restart",
+  "state": "working",
+  "detail": "trainer paused (checkpoint-240); S2 running; awaiting lane close",
   "tempo": "idle",
   "inFlight": {
     "tasks": 4,
@@ -24,12 +24,10 @@
       "startedAt": 1785988231120
     }
   ],
-  "tokens": 6841212,
-  "output": {
-    "result": "tuning paused at step 258 (checkpoint-240); will resume after S2 completes (~2.5h to finish)"
-  },
+  "tokens": 6841698,
+  "output": null,
   "children": null,
-  "linkScanOffset": 43863337,
+  "linkScanOffset": 43880724,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -54,6 +52,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T04:31:26.522Z",
+  "updatedAt": "2026-08-06T04:31:54.317Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
