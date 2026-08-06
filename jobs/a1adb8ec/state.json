@@ -1,6 +1,6 @@
 {
-  "state": "working",
-  "detail": "S1 re-bared awaiting daemon beat; training 162/720",
+  "state": "done",
+  "detail": "S1 refire armed + watch queued; training verified; QUEUE-DUP fixed",
   "tempo": "idle",
   "inFlight": {
     "tasks": 2,
@@ -25,10 +25,12 @@
       "doneAt": 1785976262312
     }
   ],
-  "tokens": 6634163,
-  "output": null,
+  "tokens": 6634426,
+  "output": {
+    "result": "Standing order: S1 refire armed under watcher; training advancing; QUEUE-DUP resolved"
+  },
   "children": null,
-  "linkScanOffset": 36514121,
+  "linkScanOffset": 36528152,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -53,6 +55,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T00:31:14.557Z",
+  "updatedAt": "2026-08-06T00:31:29.927Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
