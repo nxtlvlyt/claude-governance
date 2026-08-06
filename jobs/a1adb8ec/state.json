@@ -1,6 +1,6 @@
 {
-  "state": "working",
-  "detail": "checkpoint replay in progress (245/720); trainer running",
+  "state": "done",
+  "detail": "identified 3 failure modes; all mitigated + checkpoint-240 banked",
   "tempo": "idle",
   "inFlight": {
     "tasks": 6,
@@ -36,10 +36,12 @@
       "startedAt": 1786020906555
     }
   ],
-  "tokens": 7047432,
-  "output": null,
+  "tokens": 7047960,
+  "output": {
+    "result": "engine seats gated, Triton wedge auto-cleared, restart ratchet removed; cloud-only during training; checkpoint-240 safe"
+  },
   "children": null,
-  "linkScanOffset": 56371523,
+  "linkScanOffset": 56433908,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -64,6 +66,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T13:00:33.531Z",
+  "updatedAt": "2026-08-06T13:07:51.725Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
