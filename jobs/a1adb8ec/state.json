@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "trainer GPU clear, resuming from checkpoint; map deployed",
+  "detail": "resuming from checkpoint-240 on clean GPU post-failure",
   "tempo": "idle",
   "inFlight": {
     "tasks": 4,
@@ -24,10 +24,10 @@
       "startedAt": 1786000476480
     }
   ],
-  "tokens": 6943070,
+  "tokens": 6943741,
   "output": null,
   "children": null,
-  "linkScanOffset": 47793438,
+  "linkScanOffset": 47807850,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -52,6 +52,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T07:21:24.772Z",
+  "updatedAt": "2026-08-06T07:25:40.250Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
