@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "S2 attempt 2 running; S3 queued",
+  "detail": "s2 ~25-40 min ETA; 6 min in, deploy+QC ~10 min, judge ~15 min",
   "tempo": "idle",
   "inFlight": {
     "tasks": 3,
@@ -18,10 +18,10 @@
       "startedAt": 1785991296298
     }
   ],
-  "tokens": 6852689,
+  "tokens": 6853199,
   "output": null,
   "children": null,
-  "linkScanOffset": 44302214,
+  "linkScanOffset": 44368787,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -46,6 +46,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T04:45:36.974Z",
+  "updatedAt": "2026-08-06T04:46:34.714Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
