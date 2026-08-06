@@ -1,6 +1,6 @@
 {
-  "state": "done",
-  "detail": "all verifications green; training 223/720, cgsports clean, guards live",
+  "state": "working",
+  "detail": "training model 233/720 steps; ~2h48m ETA",
   "tempo": "idle",
   "inFlight": {
     "tasks": 6,
@@ -36,12 +36,10 @@
       "startedAt": 1786020906555
     }
   ],
-  "tokens": 7155072,
-  "output": {
-    "result": "training 223/720 (3h remaining), cgsports alerts clean for 8 days, auto-restarts armed; Ollama conflict receipted in queue"
-  },
+  "tokens": 7155531,
+  "output": null,
   "children": null,
-  "linkScanOffset": 59963512,
+  "linkScanOffset": 59991213,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -66,6 +64,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T15:05:53.584Z",
+  "updatedAt": "2026-08-06T15:06:19.430Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
