@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "muddy tires run 213/720 (~3h20m left); guards installing; alerts refired",
+  "detail": "loader at 223/720; clean run since 9:39am, 3h remaining",
   "tempo": "idle",
   "inFlight": {
     "tasks": 6,
@@ -36,10 +36,10 @@
       "startedAt": 1786020906555
     }
   ],
-  "tokens": 7138604,
+  "tokens": 7149894,
   "output": null,
   "children": null,
-  "linkScanOffset": 59804788,
+  "linkScanOffset": 59910132,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -64,6 +64,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T14:59:04.869Z",
+  "updatedAt": "2026-08-06T15:03:12.199Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }

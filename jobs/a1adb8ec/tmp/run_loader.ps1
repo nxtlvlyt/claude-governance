@@ -28,6 +28,22 @@ foreach ($line in Get-Content "C:\Users\marka\cgsports-pipeline\odds.env") {
 }
 
 if ($Mode -notlike "dry-*") {
+    # FAIL-FAST PREFLIGHT (2026-08-06): a dead/wedged Docker engine used to hang the
+    # docker exec below forever -- six schtasks queued invisible zombies for 8 days
+    # after the Jul 29 reboot while the brief re-posted a frozen scoreboard. A wedged
+    # backend hangs plain `docker version` too, so probe under a Start-Job timeout;
+    # a down engine is a loud log + exit 3 (cgs-docker-guard handles the restart).
+    $probe = Start-Job { docker version --format "{{.Server.Version}}" 2>$null }
+    $engineUp = (Wait-Job $probe -Timeout 20) -and (Receive-Job $probe)
+    Remove-Job $probe -Force -ErrorAction SilentlyContinue
+    if (-not $engineUp) {
+        $failDir = "C:\Users\marka\cgsports-pipeline\logs"
+        if (-not (Test-Path $failDir)) { New-Item -ItemType Directory $failDir | Out-Null }
+        $failStamp = Get-Date -Format "yyyyMMdd_HHmmss"
+        "DOCKER-DOWN: engine not answering within 20s -- live run skipped (docker guard restarts it)" |
+            Set-Content "$failDir\run_${failStamp}_${Mode}_DOCKER-DOWN.log"
+        exit 3
+    }
     # DB creds pulled from the running container at exec time; never stored/printed.
     $pw = (docker exec cgsports-v2-db printenv POSTGRES_PASSWORD)
     if ($pw) { $env:CGSPORTS_DB_PASSWORD = $pw.Trim() }
