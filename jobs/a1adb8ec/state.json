@@ -1,6 +1,6 @@
 {
   "state": "done",
-  "detail": "muddytires.ca/map live with redesign; model training auto-resumed",
+  "detail": "site live at muddytires.ca/map; model training watched locally",
   "tempo": "idle",
   "inFlight": {
     "tasks": 4,
@@ -24,12 +24,12 @@
       "startedAt": 1786000476480
     }
   ],
-  "tokens": 6935792,
+  "tokens": 6936729,
   "output": {
-    "result": "mission complete: redesign deployed to production at muddytires.ca/map (verified e2e PASS); model training in progress, no user action needed"
+    "result": "Site deployed to production at muddytires.ca/map with 5 controls; model training running locally (no user action needed)"
   },
   "children": null,
-  "linkScanOffset": 47000150,
+  "linkScanOffset": 47020889,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -54,6 +54,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T07:14:50.232Z",
+  "updatedAt": "2026-08-06T07:16:19.525Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
