@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "background job running; awaiting scheduler diff + loader receipts",
+  "detail": "discord bot: fetch jobs disabled on nxtbeast; recreating with fixed scheduler settings",
   "tempo": "idle",
   "inFlight": {
     "tasks": 7,
@@ -43,10 +43,10 @@
       "startedAt": 1786024588247
     }
   ],
-  "tokens": 7083652,
+  "tokens": 7084080,
   "output": null,
   "children": null,
-  "linkScanOffset": 59068101,
+  "linkScanOffset": 59135186,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -71,6 +71,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T14:04:14.091Z",
+  "updatedAt": "2026-08-06T14:05:58.154Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
