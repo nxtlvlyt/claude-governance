@@ -1,6 +1,6 @@
 {
   "state": "done",
-  "detail": "scratch-only launcher shipped; watchdog re-enabled for auto-restart",
+  "detail": "all boards clean; missions closed, kit delivered",
   "tempo": "idle",
   "inFlight": {
     "tasks": 6,
@@ -36,12 +36,12 @@
       "startedAt": 1786020906555
     }
   ],
-  "tokens": 7060876,
+  "tokens": 7061075,
   "output": {
-    "result": "training handoff complete: scratch launcher + watchdog armed for next run in ~10m"
+    "result": "posture authorized; trainer relaunch on watchdog schedule"
   },
   "children": null,
-  "linkScanOffset": 56891802,
+  "linkScanOffset": 56902473,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -66,6 +66,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T13:31:26.446Z",
+  "updatedAt": "2026-08-06T13:31:44.671Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
