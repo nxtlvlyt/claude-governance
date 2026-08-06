@@ -1,6 +1,6 @@
 {
-  "state": "working",
-  "detail": "watcher armed on trainer exit; export chain queued",
+  "state": "done",
+  "detail": "CI verified: cancellations normal, runner fail is GitHub infra",
   "tempo": "idle",
   "inFlight": {
     "tasks": 7,
@@ -43,10 +43,12 @@
       "startedAt": 1786042823716
     }
   ],
-  "tokens": 7260522,
-  "output": null,
+  "tokens": 7263109,
+  "output": {
+    "result": "verified CI behavior: old runs auto-cancelled on new push (normal); real failure from GitHub runner unavailable (not site code); last actual run green"
+  },
   "children": null,
-  "linkScanOffset": 63151603,
+  "linkScanOffset": 63678057,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -71,6 +73,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T19:00:29.215Z",
+  "updatedAt": "2026-08-06T19:10:01.068Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
