@@ -1,13 +1,12 @@
 {
-  "state": "done",
-  "detail": "model config: Architects (Gemini 3.1 Pro + kimi-k2.6 + deepseek-v4-pro), Executor (glm-5.2), Auditor (kimi-k2.7-code)",
+  "state": "working",
+  "detail": "training restarted on clean GPU (~2.6h gain); watchers armed",
   "tempo": "idle",
   "inFlight": {
     "tasks": 4,
-    "queued": 0,
+    "queued": 1,
     "kinds": [
       "monitor",
-      "local_bash",
       "session_cron"
     ]
   },
@@ -19,18 +18,23 @@
       "startedAt": 1785979624049
     },
     {
-      "id": "b2qzlcofb",
+      "id": "b6mz3b2hv",
+      "kind": "monitor",
+      "label": "GPU evictor: unload any ollama model while TRAINING-ACTIVE",
+      "startedAt": 1785980623392
+    },
+    {
+      "id": "bjo670fi1",
       "kind": "shell",
-      "label": "S1=$(ssh nxtbeast \"wsl bash -lc \\\"tail -c 2000 /root/bfclproj/train-v35.log | grep -Eo '[0-9]+/720' | tail -1\\\"\" 2>/dev/null | tr -d '\\r'); T1=$(date +%s) echo \"reading1: $S1 at $(date +%H:%M:%S)\" n=…",
-      "startedAt": 1785980236617
+      "label": "for i in $(seq 1 40); do OUT=$(ssh nxtbeast \"wsl bash -lc \\\"awk '/######## TRAIN v3.5 2026-08-05T21:45/,0' /root/bfclproj/train-v35.log | grep -aE '/720|Traceback|OutOfMemory|Error|rc=' | head -3\\\"\" …",
+      "startedAt": 1785980782155,
+      "doneAt": 1785980784485
     }
   ],
-  "tokens": 6683437,
-  "output": {
-    "result": "current models: Architects (Gemini 3.1 Pro, kimi-k2.6, deepseek-v4-pro); Executor (glm-5.2); Auditor (kimi-k2.7-code)"
-  },
+  "tokens": 6688133,
+  "output": null,
   "children": null,
-  "linkScanOffset": 37539847,
+  "linkScanOffset": 37646905,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -55,6 +59,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T01:40:38.214Z",
+  "updatedAt": "2026-08-06T01:46:28.820Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
