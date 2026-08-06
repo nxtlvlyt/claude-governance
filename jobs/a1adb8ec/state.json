@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "training restart from 0; 15/720 steps, 19s/step, ~3h40m ETA",
+  "detail": "training 26/720 (~3h20m remaining); bot staged for Docker after",
   "tempo": "idle",
   "inFlight": {
     "tasks": 6,
@@ -36,10 +36,10 @@
       "startedAt": 1786020906555
     }
   ],
-  "tokens": 7179979,
+  "tokens": 7187263,
   "output": null,
   "children": null,
-  "linkScanOffset": 60480523,
+  "linkScanOffset": 60590373,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -64,6 +64,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T15:24:38.174Z",
+  "updatedAt": "2026-08-06T15:28:01.688Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
