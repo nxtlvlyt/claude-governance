@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "training done 720/720; model merge + Docker restore running in parallel",
+  "detail": "merge packaging (27B); Docker restore mid-boot; merge landing check pending",
   "tempo": "idle",
   "inFlight": {
     "tasks": 8,
@@ -49,10 +49,10 @@
       "startedAt": 1786043769749
     }
   ],
-  "tokens": 7270018,
+  "tokens": 7270818,
   "output": null,
   "children": null,
-  "linkScanOffset": 63767580,
+  "linkScanOffset": 63785721,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -77,6 +77,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T19:16:18.783Z",
+  "updatedAt": "2026-08-06T19:25:30.849Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
