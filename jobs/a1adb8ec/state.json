@@ -1,12 +1,11 @@
 {
   "state": "working",
-  "detail": "AUTORUN fix applied, rope contracts running; training 162/720 at 19.8s/step",
+  "detail": "S1 re-bared awaiting daemon beat; training 162/720",
   "tempo": "idle",
   "inFlight": {
-    "tasks": 4,
-    "queued": 0,
+    "tasks": 2,
+    "queued": 2,
     "kinds": [
-      "local_bash",
       "session_cron"
     ]
   },
@@ -15,19 +14,21 @@
       "id": "b4qis8glu",
       "kind": "shell",
       "label": "for i in $(seq 1 90); do if grep -q \"mt-ui-rest-state\" \"/c/Users/marka/agy-muezzin/missions/_logs/daemon-status.json\" 2>/dev/null; then echo \"S1-PICKED-UP:\"; python -c \" import json d=json.load(open(…",
-      "startedAt": 1785975617210
+      "startedAt": 1785975617210,
+      "doneAt": 1785976265586
     },
     {
       "id": "bb0lbisui",
       "kind": "shell",
       "label": "for i in $(seq 1 60); do if grep -q \"mt-ui-rest-state\" \"/c/Users/marka/agy-muezzin/missions/_logs/daemon-status.json\" 2>/dev/null; then echo \"S1-LANE-OPEN:\"; python -c \" import json d=json.load(open(…",
-      "startedAt": 1785976246779
+      "startedAt": 1785976246779,
+      "doneAt": 1785976262312
     }
   ],
-  "tokens": 6633889,
+  "tokens": 6634163,
   "output": null,
   "children": null,
-  "linkScanOffset": 36498370,
+  "linkScanOffset": 36514121,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -52,6 +53,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T00:30:57.360Z",
+  "updatedAt": "2026-08-06T00:31:14.557Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
