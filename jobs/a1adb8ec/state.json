@@ -1,6 +1,6 @@
 {
-  "state": "done",
-  "detail": "5 fire running since 02:50, zero FAILED, watchers armed",
+  "state": "working",
+  "detail": "fire 5 polishing mobile predicate + proxy menu dispatch",
   "tempo": "idle",
   "inFlight": {
     "tasks": 4,
@@ -24,12 +24,10 @@
       "startedAt": 1785984652122
     }
   ],
-  "tokens": 6758672,
-  "output": {
-    "result": "all gaps actioned: fire 5 running, no undiagnosed failures, watchers armed"
-  },
+  "tokens": 6759594,
+  "output": null,
   "children": null,
-  "linkScanOffset": 39718639,
+  "linkScanOffset": 39737450,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -54,6 +52,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T02:55:24.563Z",
+  "updatedAt": "2026-08-06T02:57:39.261Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
