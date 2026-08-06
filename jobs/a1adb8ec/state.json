@@ -1,9 +1,9 @@
 {
   "state": "working",
-  "detail": "merge relaunched; docker restore in progress",
+  "detail": "picks pipeline live + 13 games pulled; model packaging ~15-25m",
   "tempo": "idle",
   "inFlight": {
-    "tasks": 9,
+    "tasks": 7,
     "queued": 0,
     "kinds": [
       "monitor",
@@ -37,28 +37,16 @@
       "startedAt": 1786020906555
     },
     {
-      "id": "byoqka0cf",
+      "id": "bdd3axu9n",
       "kind": "shell",
-      "label": "ssh nxtbeast \"schtasks /change /tn cgs-docker-guard /enable 2>&1 & schtasks /run /tn docker-desktop-interactive 2>&1\" 2>&1 | head -2 until V=$(ssh nxtbeast \"docker version --format {{.Server.Version}…",
-      "startedAt": 1786043759557
-    },
-    {
-      "id": "b2h8t8i9l",
-      "kind": "shell",
-      "label": "until OUT=$(ssh nxtbeast \"wsl -d Ubuntu -- bash -c \\\"grep -E 'MERGE-OK|MERGE-VERIFY-FAIL|no base candidate|Traceback' /root/bfclproj/merge-v35.log\\\"\" 2>/dev/null | tr -d '\\0') && [ -n \"$OUT\" ]; do sl…",
-      "startedAt": 1786043769749
-    },
-    {
-      "id": "baq0qi8c7",
-      "kind": "shell",
-      "label": "scp -q \"/c/Users/marka/.claude/jobs/a1adb8ec/tmp/run-merge-v35.sh\" nxtbeast:\"C:/Users/marka/run-merge-v35.sh\" && ssh nxtbeast \"wsl -d Ubuntu -- bash /mnt/c/Users/marka/run-merge-v35.sh\" 2>&1 | grep -…",
-      "startedAt": 1786044643015
+      "label": "ssh nxtbeast \"wsl -d Ubuntu -- bash -c \\\"rm -rf /mnt/d/conductor-qwen-run/models/arch-gov-27b-v35-merged\\\"\" 2>&1 | grep -v \"screen size\"; scp -q \"/c/Users/marka/.claude/jobs/a1adb8ec/tmp/merge-v35.py…",
+      "startedAt": 1786045017125
     }
   ],
-  "tokens": 7272678,
+  "tokens": 7278650,
   "output": null,
   "children": null,
-  "linkScanOffset": 63816305,
+  "linkScanOffset": 63895293,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -83,6 +71,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T19:30:54.350Z",
+  "updatedAt": "2026-08-06T19:37:53.458Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
