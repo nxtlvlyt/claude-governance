@@ -1,10 +1,10 @@
 {
-  "state": "done",
-  "detail": "route-config root cause fixed; daemon restarted, S3 re-queued, selftest pass",
+  "state": "working",
+  "detail": "S3 running (final mission); S1/S2 closed, trainer paused",
   "tempo": "idle",
   "inFlight": {
     "tasks": 3,
-    "queued": 1,
+    "queued": 2,
     "kinds": [
       "monitor",
       "session_cron"
@@ -18,12 +18,10 @@
       "startedAt": 1785994209556
     }
   ],
-  "tokens": 6895443,
-  "output": {
-    "result": "agy mission completion restored: ROUTE_FILE path resolved, readMode fixed in deconstructor, all tests green"
-  },
+  "tokens": 6895544,
+  "output": null,
   "children": null,
-  "linkScanOffset": 45293164,
+  "linkScanOffset": 45320361,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -48,6 +46,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T05:30:51.747Z",
+  "updatedAt": "2026-08-06T05:31:07.883Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
