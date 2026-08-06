@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "S1 fired, QUEUE-DUP fixed; mission running, step-6 preview pending",
+  "detail": "S1 running after queue fixes; awaiting preview deploy + QC step 6",
   "tempo": "idle",
   "inFlight": {
     "tasks": 3,
@@ -18,10 +18,10 @@
       "startedAt": 1785976328629
     }
   ],
-  "tokens": 6635807,
+  "tokens": 6636230,
   "output": null,
   "children": null,
-  "linkScanOffset": 36566437,
+  "linkScanOffset": 36628536,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -46,6 +46,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T00:32:20.225Z",
+  "updatedAt": "2026-08-06T00:33:01.923Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
