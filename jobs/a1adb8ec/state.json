@@ -1,9 +1,9 @@
 {
   "state": "working",
-  "detail": "merge packaging (27B); Docker restore mid-boot; merge landing check pending",
+  "detail": "merge relaunched; docker restore in progress",
   "tempo": "idle",
   "inFlight": {
-    "tasks": 8,
+    "tasks": 9,
     "queued": 0,
     "kinds": [
       "monitor",
@@ -47,12 +47,18 @@
       "kind": "shell",
       "label": "until OUT=$(ssh nxtbeast \"wsl -d Ubuntu -- bash -c \\\"grep -E 'MERGE-OK|MERGE-VERIFY-FAIL|no base candidate|Traceback' /root/bfclproj/merge-v35.log\\\"\" 2>/dev/null | tr -d '\\0') && [ -n \"$OUT\" ]; do sl…",
       "startedAt": 1786043769749
+    },
+    {
+      "id": "baq0qi8c7",
+      "kind": "shell",
+      "label": "scp -q \"/c/Users/marka/.claude/jobs/a1adb8ec/tmp/run-merge-v35.sh\" nxtbeast:\"C:/Users/marka/run-merge-v35.sh\" && ssh nxtbeast \"wsl -d Ubuntu -- bash /mnt/c/Users/marka/run-merge-v35.sh\" 2>&1 | grep -…",
+      "startedAt": 1786044643015
     }
   ],
-  "tokens": 7270818,
+  "tokens": 7272678,
   "output": null,
   "children": null,
-  "linkScanOffset": 63785721,
+  "linkScanOffset": 63816305,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -77,6 +83,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T19:25:30.849Z",
+  "updatedAt": "2026-08-06T19:30:54.350Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
