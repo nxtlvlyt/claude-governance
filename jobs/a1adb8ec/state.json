@@ -1,12 +1,13 @@
 {
-  "state": "done",
-  "detail": "all gaps actioned; S1 fire 5 running, GPU evictor armed",
+  "state": "working",
+  "detail": "verifying offline-mode run; watcher armed on banner",
   "tempo": "idle",
   "inFlight": {
-    "tasks": 4,
-    "queued": 1,
+    "tasks": 5,
+    "queued": 0,
     "kinds": [
       "monitor",
+      "local_bash",
       "session_cron"
     ]
   },
@@ -24,19 +25,16 @@
       "startedAt": 1785984652122
     },
     {
-      "id": "bqut3f9w5",
+      "id": "bbq3eueq3",
       "kind": "shell",
-      "label": "for i in $(seq 1 50); do OUT=$(ssh nxtbeast \"wsl bash -lc \\\"awk '/######## TRAIN v3.5 2026-08-05T23:10:38/,0' /root/bfclproj/train-v35.log | grep -aE 'RESUMING|[0-9]+/720|Traceback|OutOfMemory|failed…",
-      "startedAt": 1785985895110,
-      "doneAt": 1785985898245
+      "label": "sleep 60; NEWBANNER=$(ssh nxtbeast \"wsl bash -lc \\\"grep -a '######## TRAIN v3.5 2026' /root/bfclproj/train-v35.log | tail -1\\\"\" 2>/dev/null | grep -v \"screen size\" | tr -d '\\r') echo \"newest banner: …",
+      "startedAt": 1785986042313
     }
   ],
-  "tokens": 6771193,
-  "output": {
-    "result": "all gaps actioned: S1 fire 5 under Monitor, trainer live, GPU evictor armed; diagnosis debt closed"
-  },
+  "tokens": 6774884,
+  "output": null,
   "children": null,
-  "linkScanOffset": 39915015,
+  "linkScanOffset": 39978270,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -61,6 +59,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T03:11:53.420Z",
+  "updatedAt": "2026-08-06T03:14:08.394Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }

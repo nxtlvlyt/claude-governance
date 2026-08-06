@@ -36,6 +36,12 @@ echo "  gpu: $(nvidia-smi --query-gpu=memory.used --format=csv,noheader | head -
 cd "$CQ"
 export HF_HOME=/root/.cache/huggingface
 export CQ_RUN_DIR=/mnt/d/conductor-qwen-run
+# OFFLINE-MODE FIX (2026-08-06, load-fail x2 at 21:46 + 23:11: "Both AutoConfig and
+# PeftConfig loading failed" — hub resolve flaking over Starlink while the local cache
+# has served 13 successful loads; SearXNG receipts: unsloth #2112/#2878 class). The
+# cache is complete; the network adds only failure modes. Remove it from the load path.
+export HF_HUB_OFFLINE=1
+export TRANSFORMERS_OFFLINE=1
 # CE-GATE FIX (2026-08-05, OOM #4): unsloth's fused-CE sizes chunks from INSTANTANEOUS free
 # VRAM at step 0; with ~4GB desktop squat it reads ~0 and raises. Fixed budget = documented
 # override (cross_entropy_loss.py:33). Chunked CE is numerically identical loss math —
