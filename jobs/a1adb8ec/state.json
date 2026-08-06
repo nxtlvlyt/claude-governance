@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "waiting on S1 to land; prepping offline-mode training window",
+  "detail": "S1 running under Monitor; awaiting DONE mark",
   "tempo": "idle",
   "inFlight": {
     "tasks": 5,
@@ -31,10 +31,10 @@
       "startedAt": 1785986042313
     }
   ],
-  "tokens": 6776757,
+  "tokens": 6776899,
   "output": null,
   "children": null,
-  "linkScanOffset": 40165261,
+  "linkScanOffset": 40182027,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -59,6 +59,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T03:17:19.483Z",
+  "updatedAt": "2026-08-06T03:17:29.527Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
