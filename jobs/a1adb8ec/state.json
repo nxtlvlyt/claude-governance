@@ -1,6 +1,6 @@
 {
   "state": "done",
-  "detail": "all boards clean; missions closed, kit delivered",
+  "detail": "watchdog autonomous loop working end-to-end; no manual intervention needed",
   "tempo": "idle",
   "inFlight": {
     "tasks": 6,
@@ -36,12 +36,12 @@
       "startedAt": 1786020906555
     }
   ],
-  "tokens": 7061075,
+  "tokens": 7061720,
   "output": {
-    "result": "posture authorized; trainer relaunch on watchdog schedule"
+    "result": "watchdog autonomous loop validated: self-fired at 12:50:13Z, tokenizer racing, scratch-only launcher active"
   },
   "children": null,
-  "linkScanOffset": 56902473,
+  "linkScanOffset": 56927464,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -66,6 +66,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T13:31:44.671Z",
+  "updatedAt": "2026-08-06T13:32:32.108Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
