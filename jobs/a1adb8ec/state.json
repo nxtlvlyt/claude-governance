@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "database created + binding live; check-in API answering; button-visibility fix queued",
+  "detail": "668/720 queued; daemon picks up on next pass (~19m)",
   "tempo": "idle",
   "inFlight": {
     "tasks": 6,
@@ -36,10 +36,10 @@
       "startedAt": 1786020906555
     }
   ],
-  "tokens": 7259234,
+  "tokens": 7259762,
   "output": null,
   "children": null,
-  "linkScanOffset": 63111133,
+  "linkScanOffset": 63129268,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -64,6 +64,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T18:47:12.156Z",
+  "updatedAt": "2026-08-06T18:55:27.466Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
