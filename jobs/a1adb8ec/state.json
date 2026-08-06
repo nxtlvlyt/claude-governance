@@ -1,6 +1,6 @@
 {
   "state": "done",
-  "detail": "SPY→weekly carve-out wired; XOM→monthly kept; briefs/charts updated",
+  "detail": "scratch-only launcher shipped; watchdog re-enabled for auto-restart",
   "tempo": "idle",
   "inFlight": {
     "tasks": 6,
@@ -36,12 +36,12 @@
       "startedAt": 1786020906555
     }
   ],
-  "tokens": 7056784,
+  "tokens": 7060876,
   "output": {
-    "result": "SPY tenor exception applied (weekly briefs/charts); single names retain monthly; RULINGS.md updated"
+    "result": "training handoff complete: scratch launcher + watchdog armed for next run in ~10m"
   },
   "children": null,
-  "linkScanOffset": 56835800,
+  "linkScanOffset": 56891802,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -66,6 +66,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T13:28:13.628Z",
+  "updatedAt": "2026-08-06T13:31:26.446Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }

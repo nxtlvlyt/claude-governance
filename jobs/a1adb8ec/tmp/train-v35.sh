@@ -36,6 +36,11 @@ echo "  gpu: $(nvidia-smi --query-gpu=memory.used --format=csv,noheader | head -
 cd "$CQ"
 export HF_HOME=/root/.cache/huggingface
 export CQ_RUN_DIR=/mnt/d/conductor-qwen-run
+# SCRATCH-ONLY (2026-08-06, 4-for-4 receipts: every resume-from-checkpoint run crawls
+# 35->266s/it and degrades toward frozen, warm cache or not; every scratch run holds
+# ~19-21s/it. Checkpoints stay ON for post-mortem value, but each launch moves the old
+# dir aside so resume-first finds nothing — the watchdog's relaunches inherit scratch.
+mv "$CQ_RUN_DIR/ckpt-arch-gov-27b-v35" "$CQ_RUN_DIR/ckpt-graveyard-$(date +%s)" 2>/dev/null
 # OFFLINE-MODE FIX (2026-08-06, load-fail x2 at 21:46 + 23:11: "Both AutoConfig and
 # PeftConfig loading failed" — hub resolve flaking over Starlink while the local cache
 # has served 13 successful loads; SearXNG receipts: unsloth #2112/#2878 class). The
