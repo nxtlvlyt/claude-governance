@@ -1,6 +1,6 @@
 {
-  "state": "done",
-  "detail": "business card + flyer PDFs rendered, bleed-verified, ready to print",
+  "state": "working",
+  "detail": "mt-ui family live on prod; mt-checkin held per scope",
   "tempo": "idle",
   "inFlight": {
     "tasks": 4,
@@ -24,12 +24,10 @@
       "startedAt": 1786000476480
     }
   ],
-  "tokens": 6959071,
-  "output": {
-    "result": "business card (front/back) + flyer (8.75×11.25) with true 0.125\" bleed, WeasyPrint-rendered, contact info live from site"
-  },
+  "tokens": 6959362,
+  "output": null,
   "children": null,
-  "linkScanOffset": 48411832,
+  "linkScanOffset": 48424438,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -54,6 +52,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T07:55:37.925Z",
+  "updatedAt": "2026-08-06T07:56:18.546Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
