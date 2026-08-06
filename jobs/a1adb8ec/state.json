@@ -1,13 +1,12 @@
 {
-  "state": "working",
-  "detail": "model loading in preprocessing; waiting on trainer output",
+  "state": "done",
+  "detail": "scratch training healthy at 21.6s/it; 2boots kit deployed (52 files)",
   "tempo": "idle",
   "inFlight": {
-    "tasks": 6,
+    "tasks": 5,
     "queued": 0,
     "kinds": [
       "monitor",
-      "local_bash",
       "session_cron"
     ]
   },
@@ -29,18 +28,14 @@
       "kind": "monitor",
       "label": "v3.5 final run: steps + rate + terminal (slow-rate alarmed)",
       "startedAt": 1786003705685
-    },
-    {
-      "id": "bk3nd5sqm",
-      "kind": "shell",
-      "label": "until B=$(ssh nxtbeast \"wsl bash -lc \\\"grep -a '######## TRAIN v3.5 2026' /root/bfclproj/train-v35.log | tail -1\\\"\" 2>/dev/null | grep -v \"screen size\" | tr -d '\\r') && echo \"$B\" | grep -qvE \"04:08:1…",
-      "startedAt": 1786006646049
     }
   ],
-  "tokens": 7037018,
-  "output": null,
+  "tokens": 7037776,
+  "output": {
+    "result": "scratch run confirmed healthy (59/720 at 21.6s/it); 2boots CRM kit delivered with trainer/runbook/monitoring live"
+  },
   "children": null,
-  "linkScanOffset": 56127490,
+  "linkScanOffset": 56143516,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -65,6 +60,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T09:25:44.966Z",
+  "updatedAt": "2026-08-06T12:47:30.499Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
