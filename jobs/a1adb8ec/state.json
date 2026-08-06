@@ -1,10 +1,10 @@
 {
   "state": "working",
-  "detail": "trainer advancing 245/720; S1 lane running, ~2.5h remaining",
+  "detail": "S1 diagnosis complete: 5 code defects + verify step fixed; re-running",
   "tempo": "idle",
   "inFlight": {
     "tasks": 3,
-    "queued": 0,
+    "queued": 1,
     "kinds": [
       "monitor",
       "session_cron"
@@ -12,16 +12,16 @@
   },
   "fan": [
     {
-      "id": "bp8qvm6su",
+      "id": "bcdapftqx",
       "kind": "monitor",
-      "label": "mt-ui-rest-state.S1 terminal mark (DONE/FAILED)",
-      "startedAt": 1785977056063
+      "label": "S1 attempt-3: pickup + terminal mark",
+      "startedAt": 1785979624049
     }
   ],
-  "tokens": 6639714,
+  "tokens": 6668794,
   "output": null,
   "children": null,
-  "linkScanOffset": 36764295,
+  "linkScanOffset": 37144006,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -46,6 +46,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T01:00:14.763Z",
+  "updatedAt": "2026-08-06T01:27:18.140Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }

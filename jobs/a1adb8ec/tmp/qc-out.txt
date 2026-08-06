@@ -1,0 +1,8 @@
+REST_COUNT=33
+REST_ITEMS=["","mt-brand","mt-hamburger","leaflet-control-zoom-in","leaflet-control-zoom-out","mt-locate leaflet-control","bar","mt-feedback-fab","planbtn","filtbtn","mt-saved-badge","mt-spotlist-close","mt-spotlist-sort-btn on","mt-spotlist-sort-btn","mt-spotlist-sort-btn","mt-spotlist-row","mt-spotlist-row","mt-spotlist-row","mt-spotlist-row","mt-spotlist-row","mt-spotlist-row","mt-spotlist-row","mt-spotlist-row","mt-near-me-btn","mt-hp-toggle","mt-pd-gear","mt-pd-multitoggle","","mt-search-icon","mt-sources-chip","mt-offline-pack-btn","mt-onboard-skip","mt-onboard-next"]
+BODY_CLASS=present
+MENU_ROWS=-1
+PAGEERRORS=0
+FAILSAFE=legacy-visible
+FAILSAFE_DETAIL=rest:false visibleControls:33 errors:0
+RESTSTATE_QC_FAIL
