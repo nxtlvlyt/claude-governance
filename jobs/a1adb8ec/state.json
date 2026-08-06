@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "daemon healthy + Gemini fix loaded; S1 pickup on next beat (~35min)",
+  "detail": "verifying deploy budget; S1 pickup awaiting next beat",
   "tempo": "idle",
   "inFlight": {
     "tasks": 2,
@@ -9,10 +9,10 @@
       "session_cron"
     ]
   },
-  "tokens": 6599952,
+  "tokens": 6600977,
   "output": null,
   "children": null,
-  "linkScanOffset": 36013002,
+  "linkScanOffset": 36036118,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -37,6 +37,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T00:02:37.293Z",
+  "updatedAt": "2026-08-06T00:03:23.242Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
