@@ -1,9 +1,9 @@
 {
   "state": "working",
-  "detail": "fixing Windows fetch job startup; valid key confirmed",
+  "detail": "Docker relaunching on nxtbeast; will test pick flow end-to-end",
   "tempo": "idle",
   "inFlight": {
-    "tasks": 7,
+    "tasks": 9,
     "queued": 0,
     "kinds": [
       "monitor",
@@ -41,12 +41,24 @@
       "kind": "shell",
       "label": "ssh nxtbeast \"powershell -ExecutionPolicy Bypass -File C:\\Users\\marka\\cgsports-pipeline\\run_loader.ps1 -Mode live-all\" 2>&1 | tail -4; ssh nxtbeast \"schtasks /query /fo csv /v 2>nul\" 2>&1 | python -X…",
       "startedAt": 1786024588247
+    },
+    {
+      "id": "bp393y0lf",
+      "kind": "shell",
+      "label": "ssh nxtbeast \"docker ps -a --format \\\"{{.Names}} {{.Status}}\\\" 2>&1\" 2>&1 | head -5; ssh nxtbeast \"powershell -NoProfile -Command \\\"Get-ChildItem C:\\\\Users\\\\marka\\\\cgsports-pipeline\\\\logs\\\\run_*.log …",
+      "startedAt": 1786026432207
+    },
+    {
+      "id": "b1imge862",
+      "kind": "shell",
+      "label": "until OUT=$(ssh nxtbeast \"docker ps --format \\\"{{.Names}} {{.Status}}\\\" 2>&1\" 2>/dev/null | head -4) && echo \"$OUT\" | grep -qvE \"error|Cannot connect|^$\"; do sleep 15; done echo \"DOCKER-UP:\"; echo \"$…",
+      "startedAt": 1786026579732
     }
   ],
-  "tokens": 7084213,
+  "tokens": 7087807,
   "output": null,
   "children": null,
-  "linkScanOffset": 59202061,
+  "linkScanOffset": 59259473,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -71,6 +83,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T14:06:41.518Z",
+  "updatedAt": "2026-08-06T14:30:10.107Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
