@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "scratch run live; tokenizer map 1184/1184, first steps in progress",
+  "detail": "model loading in preprocessing; waiting on trainer output",
   "tempo": "idle",
   "inFlight": {
     "tasks": 6,
@@ -37,10 +37,10 @@
       "startedAt": 1786006646049
     }
   ],
-  "tokens": 7036419,
+  "tokens": 7037018,
   "output": null,
   "children": null,
-  "linkScanOffset": 56109368,
+  "linkScanOffset": 56127490,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -65,6 +65,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T09:00:38.437Z",
+  "updatedAt": "2026-08-06T09:25:44.966Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
