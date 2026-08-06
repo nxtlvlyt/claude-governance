@@ -1,18 +1,27 @@
 {
   "state": "working",
-  "detail": "receipt written, gate conditions met; awaiting daemon beat + browser-QC render",
+  "detail": "daemon+supervisor stack rebuilt (pid 42868); S1 gate satisfied, training 129/720 ETA 3.3h",
   "tempo": "idle",
   "inFlight": {
-    "tasks": 2,
+    "tasks": 3,
     "queued": 0,
     "kinds": [
+      "local_bash",
       "session_cron"
     ]
   },
-  "tokens": 6604028,
+  "fan": [
+    {
+      "id": "b4qis8glu",
+      "kind": "shell",
+      "label": "for i in $(seq 1 90); do if grep -q \"mt-ui-rest-state\" \"/c/Users/marka/agy-muezzin/missions/_logs/daemon-status.json\" 2>/dev/null; then echo \"S1-PICKED-UP:\"; python -c \" import json d=json.load(open(…",
+      "startedAt": 1785975617210
+    }
+  ],
+  "tokens": 6623928,
   "output": null,
   "children": null,
-  "linkScanOffset": 36089307,
+  "linkScanOffset": 36364079,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -37,6 +46,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T00:06:01.127Z",
+  "updatedAt": "2026-08-06T00:20:27.148Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
