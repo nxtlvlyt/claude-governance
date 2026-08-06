@@ -1,6 +1,6 @@
 {
-  "state": "working",
-  "detail": "S1 running after queue fixes; awaiting preview deploy + QC step 6",
+  "state": "done",
+  "detail": "design review: budget-enforced simplicity, safe fallback, SOTA proxy",
   "tempo": "idle",
   "inFlight": {
     "tasks": 3,
@@ -18,10 +18,12 @@
       "startedAt": 1785976328629
     }
   ],
-  "tokens": 6636230,
-  "output": null,
+  "tokens": 6637310,
+  "output": {
+    "result": "Design is sound: enforces 5-control limit via test, proxies legacy UI safely, degrades to old layout on failure"
+  },
   "children": null,
-  "linkScanOffset": 36628536,
+  "linkScanOffset": 36686775,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -46,6 +48,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T00:33:01.923Z",
+  "updatedAt": "2026-08-06T00:38:13.151Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
