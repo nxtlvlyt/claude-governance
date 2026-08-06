@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "resuming from checkpoint-240 on clean GPU post-failure",
+  "detail": "trainer 255/720 on clean GPU; evictor armed, awaiting completion",
   "tempo": "idle",
   "inFlight": {
     "tasks": 4,
@@ -24,10 +24,10 @@
       "startedAt": 1786000476480
     }
   ],
-  "tokens": 6943741,
+  "tokens": 6944073,
   "output": null,
   "children": null,
-  "linkScanOffset": 47807850,
+  "linkScanOffset": 47827508,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -52,6 +52,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T07:25:40.250Z",
+  "updatedAt": "2026-08-06T07:30:22.577Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
