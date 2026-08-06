@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "merge at shard 5/15, ~25min remaining",
+  "detail": "export chain running (convert → quantize → check); ~30–45 min",
   "tempo": "idle",
   "inFlight": {
     "tasks": 7,
@@ -37,16 +37,16 @@
       "startedAt": 1786020906555
     },
     {
-      "id": "bdd3axu9n",
+      "id": "bim0718zt",
       "kind": "shell",
-      "label": "ssh nxtbeast \"wsl -d Ubuntu -- bash -c \\\"rm -rf /mnt/d/conductor-qwen-run/models/arch-gov-27b-v35-merged\\\"\" 2>&1 | grep -v \"screen size\"; scp -q \"/c/Users/marka/.claude/jobs/a1adb8ec/tmp/merge-v35.py…",
-      "startedAt": 1786045017125
+      "label": "scp -q \"/c/Users/marka/.claude/jobs/a1adb8ec/tmp/export-v35.sh\" nxtbeast:\"C:/Users/marka/export-v35.sh\" && ssh nxtbeast \"wsl -d Ubuntu -- bash /mnt/c/Users/marka/export-v35.sh\" 2>&1 | grep -v \"screen…",
+      "startedAt": 1786047896100
     }
   ],
-  "tokens": 7279874,
+  "tokens": 7284790,
   "output": null,
   "children": null,
-  "linkScanOffset": 63934693,
+  "linkScanOffset": 63998751,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -71,6 +71,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T20:00:27.828Z",
+  "updatedAt": "2026-08-06T20:25:03.434Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
