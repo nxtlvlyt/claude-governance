@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "GPU evictor killed, eval resumed on card (17.6GB)",
+  "detail": "path-sweeping bug fixed in satisfier; daemon retest in progress",
   "tempo": "idle",
   "inFlight": {
     "tasks": 6,
@@ -37,10 +37,10 @@
       "startedAt": 1786049533985
     }
   ],
-  "tokens": 7294276,
+  "tokens": 7297456,
   "output": null,
   "children": null,
-  "linkScanOffset": 64149562,
+  "linkScanOffset": 64207887,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -65,6 +65,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T20:53:38.442Z",
+  "updatedAt": "2026-08-06T20:56:36.474Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
