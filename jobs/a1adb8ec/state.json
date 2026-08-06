@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "step 35/720 at 17.4s/step; next check pending",
+  "detail": "model training in progress; agent monitoring until completion or error",
   "tempo": "idle",
   "inFlight": {
     "tasks": 6,
@@ -36,10 +36,10 @@
       "startedAt": 1786020906555
     }
   ],
-  "tokens": 7189091,
+  "tokens": 7190044,
   "output": null,
   "children": null,
-  "linkScanOffset": 60678385,
+  "linkScanOffset": 60741503,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -64,6 +64,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T15:30:11.536Z",
+  "updatedAt": "2026-08-06T15:31:31.314Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
