@@ -1,6 +1,6 @@
 {
   "state": "done",
-  "detail": "local models stay; cloud models backup training; no replacement needed",
+  "detail": "model config: Architects (Gemini 3.1 Pro + kimi-k2.6 + deepseek-v4-pro), Executor (glm-5.2), Auditor (kimi-k2.7-code)",
   "tempo": "idle",
   "inFlight": {
     "tasks": 4,
@@ -25,12 +25,12 @@
       "startedAt": 1785980236617
     }
   ],
-  "tokens": 6683114,
+  "tokens": 6683437,
   "output": {
-    "result": "local models work fine when GPU free; cloud models only stand in during training"
+    "result": "current models: Architects (Gemini 3.1 Pro, kimi-k2.6, deepseek-v4-pro); Executor (glm-5.2); Auditor (kimi-k2.7-code)"
   },
   "children": null,
-  "linkScanOffset": 37478033,
+  "linkScanOffset": 37539847,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -55,6 +55,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T01:40:03.075Z",
+  "updatedAt": "2026-08-06T01:40:38.214Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
