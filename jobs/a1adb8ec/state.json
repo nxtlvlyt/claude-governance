@@ -1,6 +1,6 @@
 {
-  "state": "done",
-  "detail": "scratch training healthy at 21.6s/it; 2boots kit deployed (52 files)",
+  "state": "working",
+  "detail": "watchdog task running on nxtbeast; trainer stalled 3h, diagnosing autotune wedge",
   "tempo": "idle",
   "inFlight": {
     "tasks": 5,
@@ -30,12 +30,10 @@
       "startedAt": 1786003705685
     }
   ],
-  "tokens": 7037776,
-  "output": {
-    "result": "scratch run confirmed healthy (59/720 at 21.6s/it); 2boots CRM kit delivered with trainer/runbook/monitoring live"
-  },
+  "tokens": 7042782,
+  "output": null,
   "children": null,
-  "linkScanOffset": 56143516,
+  "linkScanOffset": 56197295,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -60,6 +58,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T12:47:30.499Z",
+  "updatedAt": "2026-08-06T12:50:40.100Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }

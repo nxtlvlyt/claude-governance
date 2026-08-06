@@ -1,9 +1,5 @@
-#!/bin/bash
-echo "--- bfcl alive? ---"
-pgrep -af "bfcl (generate|evaluate)" | head -3 || echo "(no bfcl process)"
-echo "--- which category is it on? ---"
-pgrep -af bfcl | grep -o "test-category [a-z_]*" | head -3
-echo "--- result files + sizes ---"
-find ~/bfclproj/result -type f -exec ls -la {} \; 2>/dev/null | head -5
-echo "--- open http connections from bfcl ---"
-ss -tnp 2>/dev/null | grep 11434 | head -5 || echo "(ss unavailable)"
+pgrep -fc train_student_generic.py
+nvidia-smi --query-gpu=memory.used,utilization.gpu --format=csv,noheader
+PID=$(pgrep -f train_student_generic.py | sort -n | tail -1)
+echo "pid=$PID cpu=$(ps -o %cpu= -p $PID 2>/dev/null)"
+/root/cq-venv/bin/py-spy dump --pid $PID 2>&1 | grep -B1 -A8 "Thread.*active" | head -22
