@@ -1,12 +1,13 @@
 {
-  "state": "blocked",
-  "detail": "awaiting key file save confirmation",
-  "tempo": "blocked",
+  "state": "working",
+  "detail": "testing CRLF line-ending hypothesis; mid-fix on Task Scheduler setting",
+  "tempo": "idle",
   "inFlight": {
-    "tasks": 6,
+    "tasks": 7,
     "queued": 0,
     "kinds": [
       "monitor",
+      "local_bash",
       "session_cron"
     ]
   },
@@ -34,13 +35,18 @@
       "kind": "monitor",
       "label": "v3.5 ratchet leg: step/rate/terminal every 7 min",
       "startedAt": 1786020906555
+    },
+    {
+      "id": "bozg9fnzw",
+      "kind": "shell",
+      "label": "ssh nxtbeast \"powershell -ExecutionPolicy Bypass -File C:\\Users\\marka\\cgsports-pipeline\\run_loader.ps1 -Mode live-all\" 2>&1 | tail -4; ssh nxtbeast \"schtasks /query /fo csv /v 2>nul\" 2>&1 | python -X…",
+      "startedAt": 1786024588247
     }
   ],
-  "tokens": 7071031,
-  "needs": "save key to C:\\Users\\marka\\newkey.txt, then reply \"saved\"",
+  "tokens": 7082072,
   "output": null,
   "children": null,
-  "linkScanOffset": 58869364,
+  "linkScanOffset": 59023955,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -65,6 +71,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T13:47:07.242Z",
+  "updatedAt": "2026-08-06T14:02:22.262Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
