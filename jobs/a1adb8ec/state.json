@@ -1,7 +1,7 @@
 {
-  "state": "working",
-  "detail": "diagnosing CUDA context retry pattern; board settled on internet window",
-  "tempo": "idle",
+  "state": "blocked",
+  "detail": "S1 live on preview; awaiting deploy decision",
+  "tempo": "blocked",
   "inFlight": {
     "tasks": 4,
     "queued": 0,
@@ -24,10 +24,13 @@
       "startedAt": 1785987822549
     }
   ],
-  "tokens": 6813526,
-  "output": null,
+  "tokens": 6814828,
+  "needs": "say 'deploy' to push S1 to production now, or confirm S2/S3 timeline",
+  "output": {
+    "result": "S1 ready on preview (https://be13de77.muddytires.pages.dev/map); S2/S3 held pending go-ahead"
+  },
   "children": null,
-  "linkScanOffset": 40545887,
+  "linkScanOffset": 41814676,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -52,6 +55,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T03:43:53.044Z",
+  "updatedAt": "2026-08-06T03:46:04.424Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
