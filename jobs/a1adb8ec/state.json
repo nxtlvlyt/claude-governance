@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "S2 running (aurora banner relocation); S3 queued; monitors active",
+  "detail": "S1 verified closed; S2 aurora banner running; S3 queued",
   "tempo": "idle",
   "inFlight": {
     "tasks": 5,
@@ -30,10 +30,10 @@
       "startedAt": 1785988231120
     }
   ],
-  "tokens": 6822521,
+  "tokens": 6824420,
   "output": null,
   "children": null,
-  "linkScanOffset": 43029386,
+  "linkScanOffset": 43367327,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -58,6 +58,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T03:51:28.540Z",
+  "updatedAt": "2026-08-06T03:54:11.811Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
