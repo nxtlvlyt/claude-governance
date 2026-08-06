@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "acknowledging governance gaps; S2 running, swap+patches queued",
+  "detail": "evictor tightened to 15s; 17/17 dispatch paths hold-aware",
   "tempo": "idle",
   "inFlight": {
     "tasks": 5,
@@ -12,12 +12,6 @@
   },
   "fan": [
     {
-      "id": "b6mz3b2hv",
-      "kind": "monitor",
-      "label": "GPU evictor: unload any ollama model while TRAINING-ACTIVE",
-      "startedAt": 1785980623392
-    },
-    {
       "id": "b574vjpqb",
       "kind": "monitor",
       "label": "v3.5 retry attempt: resume/steps/complete/death",
@@ -28,12 +22,18 @@
       "kind": "monitor",
       "label": "S2/S3 status transitions to DONE or FAILED",
       "startedAt": 1785988231120
+    },
+    {
+      "id": "buhtbac5x",
+      "kind": "monitor",
+      "label": "GPU evictor v2: 15s window while TRAINING-ACTIVE",
+      "startedAt": 1785989548914
     }
   ],
-  "tokens": 6832385,
+  "tokens": 6838221,
   "output": null,
   "children": null,
-  "linkScanOffset": 43654135,
+  "linkScanOffset": 43753202,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -58,6 +58,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T04:07:38.411Z",
+  "updatedAt": "2026-08-06T04:15:26.564Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
