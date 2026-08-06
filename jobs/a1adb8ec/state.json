@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "model training in progress; agent monitoring until completion or error",
+  "detail": "crash recovery redesigned; run 46/720 at 16.8s/step",
   "tempo": "idle",
   "inFlight": {
     "tasks": 6,
@@ -36,10 +36,10 @@
       "startedAt": 1786020906555
     }
   ],
-  "tokens": 7190044,
+  "tokens": 7192389,
   "output": null,
   "children": null,
-  "linkScanOffset": 60741503,
+  "linkScanOffset": 60823376,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -50,7 +50,7 @@
     "--permission-mode",
     "auto",
     "--effort",
-    "max"
+    "xhigh"
   ],
   "intent": "this is a teleport session you don't have any of the context",
   "name": "teleport-context-sync",
@@ -64,6 +64,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T15:31:31.314Z",
+  "updatedAt": "2026-08-06T15:33:25.134Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
