@@ -1,27 +1,27 @@
 {
   "state": "working",
-  "detail": "S1 still running (10 min in, deploy+QC); fresh watcher armed",
+  "detail": "Monitor armed on S1 terminal mark; training advancing in parallel",
   "tempo": "idle",
   "inFlight": {
     "tasks": 3,
     "queued": 0,
     "kinds": [
-      "local_bash",
+      "monitor",
       "session_cron"
     ]
   },
   "fan": [
     {
-      "id": "bwwu4simu",
-      "kind": "shell",
-      "label": "for i in $(seq 1 270); do L=$(grep \"mt-ui-rest-state.S1.mission.txt\" \"/c/Users/marka/agy-muezzin/missions/AUTORUN.md\" | head -1) case \"$L\" in DONE*) echo \"S1-TERMINAL: DONE\"; break;; FAILED*) echo \"S…",
-      "startedAt": 1785976790480
+      "id": "bp8qvm6su",
+      "kind": "monitor",
+      "label": "mt-ui-rest-state.S1 terminal mark (DONE/FAILED)",
+      "startedAt": 1785977056063
     }
   ],
-  "tokens": 6638283,
+  "tokens": 6638886,
   "output": null,
   "children": null,
-  "linkScanOffset": 36713805,
+  "linkScanOffset": 36731575,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -46,6 +46,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T00:39:57.578Z",
+  "updatedAt": "2026-08-06T00:44:22.602Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
