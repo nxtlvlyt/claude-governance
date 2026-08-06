@@ -1,7 +1,7 @@
 {
-  "state": "blocked",
-  "detail": "stock bot chart formatting fixed; monthlys policy needs ruling",
-  "tempo": "blocked",
+  "state": "done",
+  "detail": "SPY→weekly carve-out wired; XOM→monthly kept; briefs/charts updated",
+  "tempo": "idle",
   "inFlight": {
     "tasks": 6,
     "queued": 0,
@@ -36,13 +36,12 @@
       "startedAt": 1786020906555
     }
   ],
-  "tokens": 7052566,
-  "needs": "keep/switch/rephrase the monthlys recommendation — if switch, name the tenor you want",
+  "tokens": 7056784,
   "output": {
-    "result": "chart wrapping fixed (58 char lines); RULINGS.md pending your monthlys call"
+    "result": "SPY tenor exception applied (weekly briefs/charts); single names retain monthly; RULINGS.md updated"
   },
   "children": null,
-  "linkScanOffset": 56727263,
+  "linkScanOffset": 56835800,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -67,6 +66,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T13:12:55.165Z",
+  "updatedAt": "2026-08-06T13:28:13.628Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
