@@ -1,9 +1,9 @@
 {
-  "state": "done",
-  "detail": "watchdog moved to nxtbeast; training now internet-agnostic",
+  "state": "working",
+  "detail": "relaunched from checkpoint-240; monitoring every 7m with watchdog",
   "tempo": "idle",
   "inFlight": {
-    "tasks": 5,
+    "tasks": 6,
     "queued": 0,
     "kinds": [
       "monitor",
@@ -28,14 +28,18 @@
       "kind": "monitor",
       "label": "v3.5 final run: steps + rate + terminal (slow-rate alarmed)",
       "startedAt": 1786003705685
+    },
+    {
+      "id": "bz55pxi6s",
+      "kind": "monitor",
+      "label": "v3.5 ratchet leg: step/rate/terminal every 7 min",
+      "startedAt": 1786020906555
     }
   ],
-  "tokens": 7043450,
-  "output": {
-    "result": "watchdog now runs on nxtbeast as scheduled task; training self-recovers on Triton failure"
-  },
+  "tokens": 7047080,
+  "output": null,
   "children": null,
-  "linkScanOffset": 56259719,
+  "linkScanOffset": 56355485,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -60,6 +64,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T12:52:25.470Z",
+  "updatedAt": "2026-08-06T12:55:26.806Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
