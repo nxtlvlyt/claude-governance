@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "2 of 3 controls done; S3 running (allowlist export mid-edit)",
+  "detail": "S3 sync running (~20 min); no failures; daemon healthy",
   "tempo": "idle",
   "inFlight": {
     "tasks": 3,
@@ -18,10 +18,10 @@
       "startedAt": 1785994209556
     }
   ],
-  "tokens": 6896419,
+  "tokens": 6896716,
   "output": null,
   "children": null,
-  "linkScanOffset": 45411928,
+  "linkScanOffset": 45430250,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -46,6 +46,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T05:43:21.879Z",
+  "updatedAt": "2026-08-06T05:55:32.052Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
