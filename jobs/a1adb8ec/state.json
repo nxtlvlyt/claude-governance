@@ -1,7 +1,7 @@
 {
-  "state": "blocked",
-  "detail": "guardian:8b model load fails; no replacement configured",
-  "tempo": "blocked",
+  "state": "done",
+  "detail": "quality degradation mitigated: cloud stand-in guards both checks, 78/78 tests pass",
+  "tempo": "idle",
   "inFlight": {
     "tasks": 4,
     "queued": 0,
@@ -24,11 +24,12 @@
       "startedAt": 1785980623392
     }
   ],
-  "tokens": 6690140,
-  "needs": "say the word and I'll seat a cloud model in it",
-  "output": null,
+  "tokens": 6696687,
+  "output": {
+    "result": "quality impact: one advisory check off; cloud stand-in deployed for both checks; 78/78 selftests pass, zero GPU"
+  },
   "children": null,
-  "linkScanOffset": 38469008,
+  "linkScanOffset": 38610248,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -53,6 +54,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T01:47:46.823Z",
+  "updatedAt": "2026-08-06T01:51:02.674Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
