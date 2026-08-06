@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "attempt 3: 26min in, 2/3 judges returned, awaiting final verdict",
+  "detail": "S1 verdict stage running; zero FAILED, daemon alive",
   "tempo": "idle",
   "inFlight": {
     "tasks": 4,
@@ -24,10 +24,10 @@
       "startedAt": 1785980623392
     }
   ],
-  "tokens": 6701105,
+  "tokens": 6701561,
   "output": null,
   "children": null,
-  "linkScanOffset": 38728431,
+  "linkScanOffset": 38745193,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -52,6 +52,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T01:57:34.222Z",
+  "updatedAt": "2026-08-06T01:58:46.305Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
