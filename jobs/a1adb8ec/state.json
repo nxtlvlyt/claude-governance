@@ -1,6 +1,6 @@
 {
-  "state": "working",
-  "detail": "added Phase A2 image generation to runbook (AIML + ComfyUI lanes)",
+  "state": "done",
+  "detail": "CRM has seasonal & audience templates; 4 print pieces mapped",
   "tempo": "idle",
   "inFlight": {
     "tasks": 5,
@@ -30,10 +30,12 @@
       "startedAt": 1786003705685
     }
   ],
-  "tokens": 7002405,
-  "output": null,
+  "tokens": 7004636,
+  "output": {
+    "result": "CRM supports door-hanger, business card, flyer, realtor card; seasonal check-in template; can render per-town & seasonal variants immediately"
+  },
   "children": null,
-  "linkScanOffset": 52101362,
+  "linkScanOffset": 52191825,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -58,6 +60,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T08:26:55.728Z",
+  "updatedAt": "2026-08-06T08:29:21.672Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
