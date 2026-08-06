@@ -1,6 +1,6 @@
 {
-  "state": "working",
-  "detail": "training at 501/720 (~1h15m remaining); next status at next beat",
+  "state": "done",
+  "detail": "Kitesurf unsuitable for pixel-perfect QC; noted for future warroom",
   "tempo": "idle",
   "inFlight": {
     "tasks": 6,
@@ -36,10 +36,12 @@
       "startedAt": 1786020906555
     }
   ],
-  "tokens": 7221729,
-  "output": null,
+  "tokens": 7222334,
+  "output": {
+    "result": "Kitesurf: no for current visual QC (pixel-perfect critical); reference for future warroom build"
+  },
   "children": null,
-  "linkScanOffset": 61452324,
+  "linkScanOffset": 61516757,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -64,6 +66,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T18:02:20.145Z",
+  "updatedAt": "2026-08-06T18:15:16.223Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
