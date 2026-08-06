@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<style>
+  /* 3.5x2in trim + 0.125in bleed each side = 3.75x2.25in page.
+     Safe zone: keep text 0.25in from page edge (0.125 bleed + 0.125 margin). */
+  @page { size: 3.75in 2.25in; margin: 0; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 3.75in; }
+  .side { width: 3.75in; height: 2.25in; page-break-after: always; position: relative; overflow: hidden; }
+  .side:last-child { page-break-after: auto; }
+  body { font-family: 'DejaVu Sans', sans-serif; }
+
+  /* ---------- FRONT ---------- */
+  .front { background: #1f6b3a; color: #fff; }
+  .front .inner { position: absolute; inset: 0.25in; display: flex; flex-direction: column; justify-content: center; }
+  .wordmark { font-size: 34pt; font-weight: 700; letter-spacing: -0.5pt; line-height: 1; }
+  .wordmark .two { color: #cfe8d8; }
+  .rule { width: 0.55in; height: 2.5pt; background: #cfe8d8; margin: 7pt 0 6pt; }
+  .front .tag { font-size: 8.2pt; letter-spacing: 0.6pt; text-transform: uppercase; color: #e8f4ec; }
+  .front .region { font-size: 7.4pt; color: #b9dcc6; margin-top: 3pt; }
+  .boots { position: absolute; right: 0.25in; bottom: 0.22in; font-size: 8pt; color: #8fc4a2; letter-spacing: 1.2pt; }
+
+  /* ---------- BACK ---------- */
+  .back { background: #ffffff; color: #17301f; }
+  .back .inner { position: absolute; inset: 0.23in 0.25in; display: flex; flex-direction: column; }
+  .phone { font-size: 16.5pt; font-weight: 700; color: #1f6b3a; letter-spacing: 0.3pt; }
+  .cta { font-size: 8.6pt; margin-top: 2.5pt; color: #17301f; }
+  .cta b { color: #1f6b3a; }
+  .services { margin-top: 6pt; font-size: 7.6pt; line-height: 1.5; color: #2c4636; }
+  .divider { flex: 1; }
+  .foot { border-top: 0.8pt solid #d7e6dc; padding-top: 4.5pt; display: flex; justify-content: space-between; align-items: baseline; }
+  .foot .site { font-size: 9.5pt; font-weight: 700; color: #1f6b3a; }
+  .foot .mail { font-size: 7pt; color: #5a7263; }
+  .promise { font-size: 6.6pt; color: #6d8577; margin-top: 3pt; }
+</style>
+</head>
+<body>
+
+  <section class="side front">
+    <div class="inner">
+      <div class="wordmark"><span class="two">2</span>boots</div>
+      <div class="rule"></div>
+      <div class="tag">Property Maintenance &amp; Lawn Care</div>
+      <div class="region">Niagara Region · St. Catharines · Niagara Falls · Port Colborne</div>
+    </div>
+    <div class="boots">2BOOTS.CA</div>
+  </section>
+
+  <section class="side back">
+    <div class="inner">
+      <div class="phone">365-359-5700</div>
+      <div class="cta">Instant quote online — trace your property at <b>2boots.ca</b>, see your price in seconds.</div>
+      <div class="services">
+        Lawn&nbsp;care &amp;&nbsp;mowing · Driveway pressure&nbsp;washing<br>
+        Gutter&nbsp;cleaning · Deck staining&nbsp;&amp;&nbsp;builds · Seasonal snow&nbsp;removal
+      </div>
+      <div class="divider"></div>
+      <div class="foot">
+        <span class="site">2boots.ca</span>
+        <span class="mail">bootswork98@outlook.com</span>
+      </div>
+      <div class="promise">Your online price holds unless an on-site measure differs by more than 15% — our guarantee, not fine print.</div>
+    </div>
+  </section>
+
+</body>
+</html>
