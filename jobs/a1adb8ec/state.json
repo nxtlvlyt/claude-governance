@@ -1,6 +1,6 @@
 {
-  "state": "working",
-  "detail": "watchdog task running on nxtbeast; trainer stalled 3h, diagnosing autotune wedge",
+  "state": "done",
+  "detail": "watchdog moved to nxtbeast; training now internet-agnostic",
   "tempo": "idle",
   "inFlight": {
     "tasks": 5,
@@ -30,10 +30,12 @@
       "startedAt": 1786003705685
     }
   ],
-  "tokens": 7042782,
-  "output": null,
+  "tokens": 7043450,
+  "output": {
+    "result": "watchdog now runs on nxtbeast as scheduled task; training self-recovers on Triton failure"
+  },
   "children": null,
-  "linkScanOffset": 56197295,
+  "linkScanOffset": 56259719,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -58,6 +60,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T12:50:40.100Z",
+  "updatedAt": "2026-08-06T12:52:25.470Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
