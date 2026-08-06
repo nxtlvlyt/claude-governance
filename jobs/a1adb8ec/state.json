@@ -1,6 +1,6 @@
 {
   "state": "done",
-  "detail": "S1/S2/S3 all passing; mission closed, live on preview",
+  "detail": "S1+S2+S3 landed; production verified; deploy deferred",
   "tempo": "idle",
   "inFlight": {
     "tasks": 3,
@@ -18,12 +18,12 @@
       "startedAt": 1785998780323
     }
   ],
-  "tokens": 6920522,
+  "tokens": 6920948,
   "output": {
-    "result": "all three test suites pass (S1 rest, S2 aurora rules, S3 rot-resistance); defects fixed & committed to main; preview live at b66aeb48.muddytires.pages.dev/map; production verified healthy"
+    "result": "substrate issues resolved and landed; production deploy staged for reconnect or user trigger"
   },
   "children": null,
-  "linkScanOffset": 46716884,
+  "linkScanOffset": 46729741,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -48,6 +48,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T06:46:36.535Z",
+  "updatedAt": "2026-08-06T06:47:20.732Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
