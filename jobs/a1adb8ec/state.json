@@ -1,10 +1,10 @@
 {
-  "state": "done",
-  "detail": "reverted bad commit from remote; repo now clean",
+  "state": "working",
+  "detail": "S1.S2 QC failed; diagnosing + restoring fixture; tuning at 619/720 in ~30m",
   "tempo": "idle",
   "inFlight": {
     "tasks": 6,
-    "queued": 0,
+    "queued": 1,
     "kinds": [
       "monitor",
       "session_cron"
@@ -34,14 +34,19 @@
       "kind": "monitor",
       "label": "v3.5 ratchet leg: step/rate/terminal every 7 min",
       "startedAt": 1786020906555
+    },
+    {
+      "id": "b2vcpng0i",
+      "kind": "shell",
+      "label": "npx wrangler d1 list 2>&1 | head -12",
+      "startedAt": 1786040985601,
+      "doneAt": 1786041683793
     }
   ],
-  "tokens": 7225527,
-  "output": {
-    "result": "commit 404087c removed; local and remote synced to 8e96e99"
-  },
+  "tokens": 7252497,
+  "output": null,
   "children": null,
-  "linkScanOffset": 62628914,
+  "linkScanOffset": 62943249,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -66,6 +71,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T18:22:26.852Z",
+  "updatedAt": "2026-08-06T18:41:24.227Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
