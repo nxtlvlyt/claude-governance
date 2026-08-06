@@ -1,9 +1,9 @@
 {
   "state": "working",
-  "detail": "GPU timeline reconciles; waiting for eval rows",
+  "detail": "GPU process swept (22GB freed); eval resuming, validity audit pending",
   "tempo": "idle",
   "inFlight": {
-    "tasks": 6,
+    "tasks": 7,
     "queued": 0,
     "kinds": [
       "monitor",
@@ -35,12 +35,18 @@
       "kind": "shell",
       "label": "scp -q \"/c/Users/marka/.claude/jobs/a1adb8ec/tmp/holdout-eval.py\" nxtbeast:\"C:/Users/marka/cq-v34/phase4/holdout-eval.py\" && ssh nxtbeast \"wsl -d Ubuntu -- bash -c \\\"cd /mnt/c/Users/marka/cq-v34 && /…",
       "startedAt": 1786049533985
+    },
+    {
+      "id": "bpy2ewybf",
+      "kind": "shell",
+      "label": "until N=$(ssh nxtbeast \"wsl -d Ubuntu -- bash -c \\\"wc -l < /mnt/c/Users/marka/cq-v34/phase4/holdout-results-v35.jsonl\\\"\" 2>/dev/null | tr -dc 0-9) && [ -n \"$N\" ] && [ \"$N\" -ge 1 ]; do sleep 120; done…",
+      "startedAt": 1786051705174
     }
   ],
-  "tokens": 7300363,
+  "tokens": 7303433,
   "output": null,
   "children": null,
-  "linkScanOffset": 64242174,
+  "linkScanOffset": 64290562,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -65,6 +71,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T21:01:31.184Z",
+  "updatedAt": "2026-08-06T21:28:32.626Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
