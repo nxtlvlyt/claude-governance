@@ -1,6 +1,6 @@
 {
-  "state": "working",
-  "detail": "resumed from checkpoint-240 after step failure; progressing 254/720",
+  "state": "done",
+  "detail": "5 fire running since 02:50, zero FAILED, watchers armed",
   "tempo": "idle",
   "inFlight": {
     "tasks": 4,
@@ -24,10 +24,12 @@
       "startedAt": 1785984652122
     }
   ],
-  "tokens": 6758281,
-  "output": null,
+  "tokens": 6758672,
+  "output": {
+    "result": "all gaps actioned: fire 5 running, no undiagnosed failures, watchers armed"
+  },
   "children": null,
-  "linkScanOffset": 39704332,
+  "linkScanOffset": 39718639,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -52,6 +54,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T02:51:51.544Z",
+  "updatedAt": "2026-08-06T02:55:24.563Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
