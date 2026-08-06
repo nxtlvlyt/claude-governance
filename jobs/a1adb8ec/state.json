@@ -1,9 +1,9 @@
 {
   "state": "working",
-  "detail": "Docker relaunching on nxtbeast; will test pick flow end-to-end",
+  "detail": "Docker restarted; picks flowing; running alert-to-Discord chain; adding 3 stability guards",
   "tempo": "idle",
   "inFlight": {
-    "tasks": 9,
+    "tasks": 7,
     "queued": 0,
     "kinds": [
       "monitor",
@@ -37,28 +37,16 @@
       "startedAt": 1786020906555
     },
     {
-      "id": "bozg9fnzw",
+      "id": "b1g2sv2re",
       "kind": "shell",
-      "label": "ssh nxtbeast \"powershell -ExecutionPolicy Bypass -File C:\\Users\\marka\\cgsports-pipeline\\run_loader.ps1 -Mode live-all\" 2>&1 | tail -4; ssh nxtbeast \"schtasks /query /fo csv /v 2>nul\" 2>&1 | python -X…",
-      "startedAt": 1786024588247
-    },
-    {
-      "id": "bp393y0lf",
-      "kind": "shell",
-      "label": "ssh nxtbeast \"docker ps -a --format \\\"{{.Names}} {{.Status}}\\\" 2>&1\" 2>&1 | head -5; ssh nxtbeast \"powershell -NoProfile -Command \\\"Get-ChildItem C:\\\\Users\\\\marka\\\\cgsports-pipeline\\\\logs\\\\run_*.log …",
-      "startedAt": 1786026432207
-    },
-    {
-      "id": "b1imge862",
-      "kind": "shell",
-      "label": "until OUT=$(ssh nxtbeast \"docker ps --format \\\"{{.Names}} {{.Status}}\\\" 2>&1\" 2>/dev/null | head -4) && echo \"$OUT\" | grep -qvE \"error|Cannot connect|^$\"; do sleep 15; done echo \"DOCKER-UP:\"; echo \"$…",
-      "startedAt": 1786026579732
+      "label": "until ssh nxtbeast \"schtasks /query /tn cgsports-odds-alerts /v /fo list 2>&1 | findstr /C:\\\"Last Result\\\"\" 2>&1 | grep -qv 267009; do sleep 30; done ssh nxtbeast \"schtasks /query /tn cgsports-odds-a…",
+      "startedAt": 1786027602754
     }
   ],
-  "tokens": 7087807,
+  "tokens": 7122675,
   "output": null,
   "children": null,
-  "linkScanOffset": 59259473,
+  "linkScanOffset": 59625284,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -83,6 +71,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T14:30:10.107Z",
+  "updatedAt": "2026-08-06T14:50:57.613Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
