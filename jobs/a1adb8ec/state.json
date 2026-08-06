@@ -1,7 +1,7 @@
 {
-  "state": "done",
-  "detail": "8h: S1 verified, S2 committed, S3 hardened, pipeline checkpoint-proofed, deploy ready",
-  "tempo": "idle",
+  "state": "blocked",
+  "detail": "agent runtime degraded; user choice: high-effort mode or new session",
+  "tempo": "blocked",
   "inFlight": {
     "tasks": 3,
     "queued": 0,
@@ -18,12 +18,11 @@
       "startedAt": 1785991296298
     }
   ],
-  "tokens": 6860929,
-  "output": {
-    "result": "S1/S2/S3 missions hardened; training pipeline safeguarded; deploy capped at one attempt per mission"
-  },
+  "tokens": 6861517,
+  "needs": "approve high-effort mode or start fresh session",
+  "output": null,
   "children": null,
-  "linkScanOffset": 44681667,
+  "linkScanOffset": 44741445,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -48,6 +47,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T05:04:19.674Z",
+  "updatedAt": "2026-08-06T05:05:44.382Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
