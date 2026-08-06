@@ -1,10 +1,10 @@
 {
   "state": "working",
-  "detail": "S2 refire queued on patched daemon; diagnosing SearXNG URL loop",
+  "detail": "S2 attempt 2 running on patched daemon; S3 queued",
   "tempo": "idle",
   "inFlight": {
     "tasks": 3,
-    "queued": 1,
+    "queued": 0,
     "kinds": [
       "monitor",
       "session_cron"
@@ -18,10 +18,10 @@
       "startedAt": 1785991296298
     }
   ],
-  "tokens": 6849309,
+  "tokens": 6849350,
   "output": null,
   "children": null,
-  "linkScanOffset": 44073937,
+  "linkScanOffset": 44081781,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -46,6 +46,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T04:41:47.301Z",
+  "updatedAt": "2026-08-06T04:42:01.278Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
