@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "run at 248/720 steps (~2.5h ETA); daemon queue armed",
+  "detail": "run 248/720 @ steady pace, ~2.5h remaining",
   "tempo": "idle",
   "inFlight": {
     "tasks": 6,
@@ -36,10 +36,10 @@
       "startedAt": 1786020906555
     }
   ],
-  "tokens": 7156967,
+  "tokens": 7158352,
   "output": null,
   "children": null,
-  "linkScanOffset": 60066044,
+  "linkScanOffset": 60129096,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -64,6 +64,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T15:11:20.731Z",
+  "updatedAt": "2026-08-06T15:12:32.304Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
