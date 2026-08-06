@@ -1,9 +1,9 @@
 {
   "state": "blocked",
-  "detail": "rack card + flyer designs ready; awaiting pricing offer decision",
+  "detail": "flyer lacks concrete offer + images; needs sizing + image decision",
   "tempo": "blocked",
   "inFlight": {
-    "tasks": 4,
+    "tasks": 5,
     "queued": 0,
     "kinds": [
       "monitor",
@@ -22,15 +22,19 @@
       "kind": "monitor",
       "label": "GPU evictor v3 (training final leg)",
       "startedAt": 1786000476480
+    },
+    {
+      "id": "b5hcfrisy",
+      "kind": "monitor",
+      "label": "v3.5 final run: steps + rate + terminal (slow-rate alarmed)",
+      "startedAt": 1786003705685
     }
   ],
-  "tokens": 6977088,
-  "needs": "decide on printed offer (e.g., '10% off first cut') for front, or proceed without",
-  "output": {
-    "result": "two-sided rack card (3.5×8.5\") + full-letter flyer variants ready; RGB/CMYK press files with crew photos, instant-quote steps, guarantee, contact"
-  },
+  "tokens": 6979566,
+  "needs": "provide: (1) offer line (e.g. '10% off first cut'), (2) which images to use, (3) flyer size/dimensions",
+  "output": null,
   "children": null,
-  "linkScanOffset": 50254261,
+  "linkScanOffset": 50289854,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -55,6 +59,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T08:07:00.978Z",
+  "updatedAt": "2026-08-06T08:08:44.746Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
