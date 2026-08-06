@@ -1,10 +1,10 @@
 {
   "state": "working",
-  "detail": "trainer relaunched from checkpoint-240; S1 closed, S2/S3 held for internet window",
+  "detail": "diagnosing CUDA context retry pattern; board settled on internet window",
   "tempo": "idle",
   "inFlight": {
-    "tasks": 3,
-    "queued": 2,
+    "tasks": 4,
+    "queued": 0,
     "kinds": [
       "monitor",
       "session_cron"
@@ -18,18 +18,16 @@
       "startedAt": 1785980623392
     },
     {
-      "id": "b526ewzfh",
+      "id": "b574vjpqb",
       "kind": "monitor",
-      "label": "v3.5 run 23:41: resume/complete/death",
-      "startedAt": 1785987766649,
-      "doneAt": 1785987768793,
-      "failed": true
+      "label": "v3.5 retry attempt: resume/steps/complete/death",
+      "startedAt": 1785987822549
     }
   ],
-  "tokens": 6811236,
+  "tokens": 6813526,
   "output": null,
   "children": null,
-  "linkScanOffset": 40513922,
+  "linkScanOffset": 40545887,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -54,6 +52,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T03:42:53.604Z",
+  "updatedAt": "2026-08-06T03:43:53.044Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
