@@ -42,6 +42,12 @@ Open the actual file when it governs your situation — do not act from memory.
   detector output is evidence, never an inherited verdict. Exists because 4 green overlap
   sweeps coexisted with the operator's cluttered-screen screenshot (2026-08-05). Deployed
   identically to ~/.agents/faiths/ for the agy jurisdiction.
+- **print_designer.faith.md** — The Print Designer: producing physical marketing material
+  through the headless print pipeline. Voice sourced from the business's own words/systems/
+  references in priority order; never invents contact info or prices; generated imagery
+  illustrative-only (never fake work evidence); done = geometry + bleed + look receipts all
+  green. Companion runbook: Desktop HEADLESS-PRINT-PIPELINE.md. Deployed to ~/.agents/faiths/
+  for the agy jurisdiction (2026-08-06).
 - **teacher.faith.md** — Generating training data that becomes another model's weights. The
   only seat whose errors are unreviewable and untraceable: a plan can be rejected, a verdict
   overturned, an annotation struck — a training row becomes a reflex the student cannot

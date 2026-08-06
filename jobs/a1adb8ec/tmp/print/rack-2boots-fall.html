@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<style>
+  /* Rack card: 3.5x8.5in trim + 0.125in bleed = 3.75x8.75in. Safe zone 0.25in. */
+  @font-face { font-family: 'Anton'; src: url('assets/Anton-Regular.ttf'); }
+  @page { size: 3.75in 8.75in; margin: 0; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'DejaVu Sans', sans-serif; }
+  .side { width: 3.75in; height: 8.75in; page-break-after: always; position: relative; overflow: hidden; background: #17301f; }
+  .side:last-child { page-break-after: auto; }
+
+  /* ---------- FRONT (reference language: photo top, display type, green base) ---------- */
+  .topstrip { position: absolute; top: 0; left: 0; right: 0; text-align: center; padding: 0.22in 0 0; z-index: 3; color: #fff; font-size: 9pt; font-weight: 700; letter-spacing: 0.4pt; }
+  .photo { position: absolute; top: 0; left: 0; right: 0; height: 4.7in; background: url('assets/fall-bg.jpg') center / cover no-repeat; }
+  .photo::after { content: ''; position: absolute; inset: 0; background: rgba(31,107,58,0.30); }
+  .fade { position: absolute; top: 4.2in; left: 0; right: 0; height: 0.5in; background: linear-gradient(rgba(23,48,31,0), #17301f); z-index: 2; }
+  .headline { position: absolute; top: 3.2in; left: 0.3in; right: 0.3in; z-index: 3; color: #f4f1e6; font-family: 'Anton', 'DejaVu Sans', sans-serif; }
+  .headline .l1 { font-size: 44pt; transform: rotate(-2deg); line-height: 0.98; }
+  .headline .l2 { font-size: 34pt; transform: rotate(-2deg); margin-left: 0.5in; line-height: 1; }
+  .headline .l3 { font-size: 24pt; transform: rotate(-1.5deg); margin-top: 6pt; }
+  .quote { position: absolute; top: 6.15in; left: 0.3in; right: 0.3in; z-index: 3; text-align: center; color: #fff; }
+  .quote .free { font-size: 14.5pt; font-weight: 700; letter-spacing: 1.4pt; }
+  .quote .rule { width: 2.4in; height: 1pt; background: #9fdcb6; margin: 7pt auto; }
+  .quote .call { font-size: 10.5pt; color: #cfe8d8; }
+  .quote .phone { font-family: 'Anton', 'DejaVu Sans', sans-serif; font-size: 24pt; margin-top: 3pt; letter-spacing: 1pt; }
+  .quote .or { font-size: 8.6pt; color: #9fdcb6; margin-top: 6pt; }
+  .quote .site { font-size: 13pt; font-weight: 700; color: #9fdcb6; }
+  .brandfoot { position: absolute; bottom: 0.3in; left: 0; right: 0; z-index: 3; text-align: center; color: #e8f4ec; }
+  .brandfoot .wm { font-size: 17pt; font-weight: 700; }
+  .brandfoot .wm .two { color: #9fdcb6; }
+  .brandfoot .sub { font-size: 7.6pt; color: #8fc4a2; margin-top: 2pt; letter-spacing: 0.5pt; }
+
+  /* ---------- BACK (instant quote + services + trust) ---------- */
+  .back { background: #f4f7f4; }
+  .bhead { background: #1f6b3a; color: #fff; padding: 0.32in 0.3in 0.2in; }
+  .bhead .wm { font-size: 19pt; font-weight: 700; }
+  .bhead .wm .two { color: #cfe8d8; }
+  .bhead .tag { font-size: 8.2pt; color: #d9ecdf; margin-top: 2pt; }
+  .bh1 { font-family: 'Anton', 'DejaVu Sans', sans-serif; color: #17301f; font-size: 17.5pt; padding: 0.18in 0.3in 0; line-height: 1.08; }
+  .bh1 b { color: #1f6b3a; }
+  .steps { margin: 0.14in 0.3in 0; border: 1.8pt solid #1f6b3a; border-radius: 7pt; background: #fff; padding: 0.13in 0.16in; }
+  .steps .s { font-size: 9.6pt; margin: 3.5pt 0; color: #17301f; }
+  .steps .s b { color: #1f6b3a; }
+  .steps .note { font-size: 7.4pt; color: #5a7263; margin-top: 4pt; }
+  .svc { display: flex; flex-wrap: wrap; padding: 0.12in 0.22in 0; }
+  .svc .c { width: 50%; padding: 0.055in 0.08in; }
+  .svc .cin { border-radius: 5pt; overflow: hidden; border: 1pt solid #d7e6dc; background: #fff; }
+  .svc .img { height: 0.72in; background-size: cover; background-position: center; }
+  .svc .cap { font-size: 7.8pt; font-weight: 700; color: #1f6b3a; text-align: center; padding: 3pt 2pt; }
+  .i-lawn { background-image: url('assets/work-lawn.jpg'); }
+  .i-pw { background-image: url('assets/work-pressure-washing.jpg'); }
+  .i-decks { background-image: url('assets/work-decks.jpg'); }
+  .i-gutters { background-image: url('assets/work-gutters.jpg'); }
+  .also { font-size: 8pt; color: #4a6354; padding: 0.06in 0.3in 0; text-align: center; }
+  .also b { color: #1f6b3a; }
+  .promise { margin: 0.1in 0.3in 0; background: #e6f1ea; border-radius: 6pt; padding: 0.1in 0.14in; font-size: 8pt; color: #2c4636; line-height: 1.4; }
+  .promise b { color: #1f6b3a; }
+  .bfoot { position: absolute; bottom: 0; left: 0; right: 0; background: #17301f; color: #fff; padding: 0.16in 0.3in 0.28in; text-align: center; }
+  .bfoot .phone { font-family: 'Anton', 'DejaVu Sans', sans-serif; font-size: 19pt; letter-spacing: 0.8pt; }
+  .bfoot .row { font-size: 7.8pt; color: #9fdcb6; margin-top: 3pt; }
+</style>
+</head>
+<body>
+
+  <section class="side">
+    <div class="photo"></div>
+    <div class="topstrip">2boots Property Maintenance</div>
+    <div class="fade"></div>
+    <div class="headline">
+      <div class="l1">LEAVES</div>
+      <div class="l2">PILING UP?</div>
+      <div class="l2" style="margin-left:0.15in">NO PROBLEM!</div>
+    </div>
+    <div class="quote">
+      <div class="free">GET YOUR FREE QUOTE</div>
+      <div class="rule"></div>
+      <div class="call">Call or text Austin</div>
+      <div class="phone">365-359-5700</div>
+      <div class="or">book your fall clean-up before the freeze</div>
+      <div class="site">2boots.ca</div>
+    </div>
+    <div class="brandfoot">
+      <div class="wm"><span class="two">2</span>boots</div>
+      <div class="sub">FALL CLEAN-UPS · GUTTERS · LAWNS · DECKS · SNOW</div>
+    </div>
+  </section>
+
+  <section class="side back">
+    <div class="bhead">
+      <div class="wm"><span class="two">2</span>boots</div>
+      <div class="tag">Complete property care, starting with the lawn — Niagara Region</div>
+    </div>
+    <div class="bh1">See your price in <b>30 seconds</b>.<br>No sales call. No haggling.</div>
+    <div class="steps">
+      <div class="s"><b>1.</b> Go to <b>2boots.ca</b> on your phone</div>
+      <div class="s"><b>2.</b> Trace your lawn or driveway</div>
+      <div class="s"><b>3.</b> Your price appears — book&nbsp;it</div>
+      <div class="note">Free · no obligation · no signup · quote subject to a quick on-site check</div>
+    </div>
+    <div class="svc">
+      <div class="c"><div class="cin"><div class="img i-lawn"></div><div class="cap">Lawn care &amp; mowing</div></div></div>
+      <div class="c"><div class="cin"><div class="img i-pw"></div><div class="cap">Pressure washing</div></div></div>
+      <div class="c"><div class="cin"><div class="img i-decks"></div><div class="cap">Decks &amp; staining</div></div></div>
+      <div class="c"><div class="cin"><div class="img i-gutters"></div><div class="cap">Gutter cleaning</div></div></div>
+    </div>
+    <div class="also">Also: <b>deck builds</b> &amp; <b>seasonal snow removal</b></div>
+    <div class="promise"><b>The price holds.</b> Your quote stands unless an on-site measure differs by more than 15% — our guarantee, not fine print. Local Niagara crew — not a far-off call centre.</div>
+    <div class="bfoot">
+      <div class="phone">365-359-5700</div>
+      <div class="row">2boots.ca · bootswork98@outlook.com</div>
+      <div class="row">St. Catharines · Niagara Falls · Port Colborne</div>
+    </div>
+  </section>
+
+</body>
+</html>

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<style>
+  /* Door hanger: 4.25x11in trim + 0.125in bleed = 4.5x11.25in.
+     TOP 1.5in reserved for the shop's die-cut hook hole — no text there, art only.
+     Copy sourced from the 2boots CRM PRINT_TEMPLATES 'door-hanger' entry. */
+  @font-face { font-family: 'Anton'; src: url('assets/Anton-Regular.ttf'); }
+  @page { size: 4.5in 11.25in; margin: 0; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'DejaVu Sans', sans-serif; width: 4.5in; height: 11.25in; position: relative; background: #17301f; color: #fff; overflow: hidden; }
+
+  .photo { position: absolute; top: 0; left: 0; right: 0; height: 5.4in; background: url('assets/hero.jpg') center 30% / cover no-repeat; }
+  .photo::after { content: ''; position: absolute; inset: 0; background: rgba(31,107,58,0.30); }
+  .fade { position: absolute; top: 4.9in; left: 0; right: 0; height: 0.5in; background: linear-gradient(rgba(23,48,31,0), #17301f); z-index: 2; }
+  /* hook-zone: no text above 1.6in — die-cut area */
+  .brand { position: absolute; top: 1.7in; left: 0; right: 0; text-align: center; z-index: 3; font-size: 10.5pt; font-weight: 700; letter-spacing: 0.5pt; }
+
+  .headline { position: absolute; top: 4.0in; left: 0.35in; right: 0.35in; z-index: 3; color: #f4f1e6; font-family: 'Anton', 'DejaVu Sans', sans-serif; }
+  .headline .l1 { font-size: 34pt; transform: rotate(-2deg); line-height: 1; }
+  .headline .l2 { font-size: 26pt; transform: rotate(-2deg); margin-left: 0.4in; line-height: 1.05; }
+
+  .body { position: absolute; top: 6.05in; left: 0.35in; right: 0.35in; z-index: 3; }
+  .lede { font-size: 10pt; color: #e8f4ec; line-height: 1.45; text-align: center; }
+  .steps { margin-top: 0.14in; border: 1.6pt solid #9fdcb6; border-radius: 7pt; padding: 0.12in 0.15in; background: rgba(255,255,255,0.06); }
+  .steps .s { font-size: 9.4pt; margin: 3.5pt 0; color: #fff; }
+  .steps .s b { color: #9fdcb6; }
+  .quote { margin-top: 0.16in; text-align: center; }
+  .quote .free { font-size: 13pt; font-weight: 700; letter-spacing: 1.2pt; }
+  .quote .rule { width: 2.2in; height: 1pt; background: #9fdcb6; margin: 6pt auto; }
+  .quote .call { font-size: 9.5pt; color: #cfe8d8; }
+  .quote .phone { font-family: 'Anton', 'DejaVu Sans', sans-serif; font-size: 25pt; margin-top: 3pt; letter-spacing: 1pt; }
+  .quote .site { font-size: 13pt; font-weight: 700; color: #9fdcb6; margin-top: 4pt; }
+
+  .foot { position: absolute; bottom: 0.3in; left: 0; right: 0; text-align: center; z-index: 3; }
+  .foot .wm { font-size: 15pt; font-weight: 700; }
+  .foot .wm .two { color: #9fdcb6; }
+  .foot .sub { font-size: 7pt; color: #8fc4a2; margin-top: 2pt; letter-spacing: 0.5pt; }
+</style>
+</head>
+<body>
+
+  <div class="photo"></div>
+  <div class="fade"></div>
+  <div class="brand">2BOOTS PROPERTY MAINTENANCE</div>
+  <div class="headline">
+    <div class="l1">LAWN LOOKING</div>
+    <div class="l2">LONG? WE'RE CLOSE.</div>
+  </div>
+  <div class="body">
+    <div class="lede">Lawn care &amp; curb appeal for your neighbourhood — a local crew, not a call centre.</div>
+    <div class="steps">
+      <div class="s"><b>1.</b> Go to <b>2boots.ca</b> on your phone</div>
+      <div class="s"><b>2.</b> Trace your lawn or driveway</div>
+      <div class="s"><b>3.</b> Your price appears — book&nbsp;it</div>
+    </div>
+    <div class="quote">
+      <div class="free">FREE, NO-OBLIGATION QUOTE</div>
+      <div class="rule"></div>
+      <div class="call">Call or text Austin</div>
+      <div class="phone">365-359-5700</div>
+      <div class="site">2boots.ca</div>
+    </div>
+  </div>
+  <div class="foot">
+    <div class="wm"><span class="two">2</span>boots</div>
+    <div class="sub">LAWNS · PRESSURE WASHING · DECKS · GUTTERS · SNOW</div>
+  </div>
+
+</body>
+</html>

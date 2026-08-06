@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<style>
+  @font-face { font-family: 'Anton'; src: url('assets/Anton-Regular.ttf'); }
+  @page { size: 4in 4in; margin: 0; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'DejaVu Sans', sans-serif; width: 4in; height: 4in; position: relative; background: #17301f; color: #fff; overflow: hidden; }
+  .photo { position: absolute; inset: 0; background: url('assets/hero.jpg') center 30% / cover no-repeat; }
+  .photo::after { content: ''; position: absolute; inset: 0; background: linear-gradient(rgba(31,107,58,0.15), rgba(23,48,31,0.88) 78%); }
+  .top { position: absolute; top: 0.22in; left: 0; right: 0; text-align: center; z-index: 2; font-size: 9pt; font-weight: 700; letter-spacing: 0.5pt; }
+  .headline { position: absolute; top: 1.55in; left: 0.3in; right: 0.3in; z-index: 2; font-family: 'Anton', 'DejaVu Sans', sans-serif; color: #f4f1e6; }
+  .headline .l1 { font-size: 34pt; transform: rotate(-2deg); line-height: 1; }
+  .headline .l2 { font-size: 25pt; transform: rotate(-2deg); margin-left: 0.35in; }
+  .cta { position: absolute; bottom: 0.32in; left: 0.3in; right: 0.3in; z-index: 2; text-align: center; }
+  .cta .free { font-size: 11pt; font-weight: 700; letter-spacing: 1pt; }
+  .cta .site { font-family: 'Anton', 'DejaVu Sans', sans-serif; font-size: 21pt; color: #9fdcb6; margin-top: 3pt; }
+  .cta .sub { font-size: 8pt; color: #cfe8d8; margin-top: 3pt; }
+</style>
+</head>
+<body>
+  <div class="photo"></div>
+  <div class="top">2BOOTS PROPERTY MAINTENANCE · NIAGARA</div>
+  <div class="headline"><div class="l1">MOW TIME?</div><div class="l2">NO PROBLEM!</div></div>
+  <div class="cta">
+    <div class="free">SEE YOUR PRICE IN 30 SECONDS</div>
+    <div class="site">2boots.ca</div>
+    <div class="sub">free instant quote · no sales call · 365-359-5700</div>
+  </div>
+</body>
+</html>

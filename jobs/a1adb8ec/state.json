@@ -1,6 +1,6 @@
 {
   "state": "done",
-  "detail": "CRM has seasonal & audience templates; 4 print pieces mapped",
+  "detail": "2boots marketing kit complete: 52 files, 3 seasonal variants, all audited",
   "tempo": "idle",
   "inFlight": {
     "tasks": 5,
@@ -30,12 +30,12 @@
       "startedAt": 1786003705685
     }
   ],
-  "tokens": 7004636,
+  "tokens": 7032532,
   "output": {
-    "result": "CRM supports door-hanger, business card, flyer, realtor card; seasonal check-in template; can render per-town & seasonal variants immediately"
+    "result": "2boots marketing kit on Desktop\\2boots\\: business-cards, rack-cards (plain/10%-off/free-edging + fall/winter seasonal), town-variants, door-hangers, social (1080×1080 + 1080×1920), process runbook + print_designer.faith.md. RGB/CMYK/press variants. Confirm phone/email before print order."
   },
   "children": null,
-  "linkScanOffset": 52191825,
+  "linkScanOffset": 56043774,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -60,6 +60,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T08:29:21.672Z",
+  "updatedAt": "2026-08-06T08:46:01.889Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }

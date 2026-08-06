@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<style>
+  /* Realtor leave-behind: 3.5x2in trim + 0.125in bleed = 3.75x2.25in. Copy sourced
+     from the 2boots CRM's own PRINT_TEMPLATES 'realtor-card' entry. */
+  @font-face { font-family: 'Anton'; src: url('assets/Anton-Regular.ttf'); }
+  @page { size: 3.75in 2.25in; margin: 0; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 3.75in; }
+  .side { width: 3.75in; height: 2.25in; page-break-after: always; position: relative; overflow: hidden; }
+  .side:last-child { page-break-after: auto; }
+  body { font-family: 'DejaVu Sans', sans-serif; }
+
+  .front { background: #17301f; color: #fff; }
+  .front .photo { position: absolute; inset: 0; background: url('assets/work-decks.jpg') center / cover no-repeat; opacity: 0.35; }
+  .front .inner { position: absolute; inset: 0.25in; display: flex; flex-direction: column; justify-content: center; }
+  .wordmark { font-size: 26pt; font-weight: 700; line-height: 1; position: relative; }
+  .wordmark .two { color: #9fdcb6; }
+  .rule { width: 0.55in; height: 2.5pt; background: #9fdcb6; margin: 6pt 0 5pt; position: relative; }
+  .front .tag { font-family: 'Anton', 'DejaVu Sans', sans-serif; font-size: 12pt; color: #e8f4ec; position: relative; letter-spacing: 0.4pt; }
+  .front .sub { font-size: 7pt; color: #b9dcc6; margin-top: 3pt; position: relative; }
+
+  .back { background: #ffffff; color: #17301f; }
+  .back .inner { position: absolute; inset: 0.22in 0.25in; display: flex; flex-direction: column; }
+  .pitch { font-size: 8.6pt; line-height: 1.45; color: #2c4636; }
+  .pitch b { color: #1f6b3a; }
+  .divider { flex: 1; }
+  .contact { border-top: 0.8pt solid #d7e6dc; padding-top: 5pt; }
+  .contact .phone { font-size: 13.5pt; font-weight: 700; color: #1f6b3a; }
+  .contact .row { font-size: 7.4pt; color: #5a7263; margin-top: 2pt; }
+</style>
+</head>
+<body>
+
+  <section class="side front">
+    <div class="photo"></div>
+    <div class="inner">
+      <div class="wordmark"><span class="two">2</span>boots</div>
+      <div class="rule"></div>
+      <div class="tag">LISTING-PREP &amp; CURB APPEAL</div>
+      <div class="sub">One reliable crew across Niagara — for agents who need it done this week.</div>
+    </div>
+  </section>
+
+  <section class="side back">
+    <div class="inner">
+      <div class="pitch">
+        <b>Fast listing-prep</b> so a property photographs and shows its best:
+        lawn, edging, deck wash, quick turnaround. One reliable crew for curb
+        appeal across Niagara — instant quotes at <b>2boots.ca</b>.
+      </div>
+      <div class="divider"></div>
+      <div class="contact">
+        <div class="phone">365-359-5700</div>
+        <div class="row">Call or text Austin · bootswork98@outlook.com · 2boots.ca</div>
+        <div class="row">St. Catharines · Niagara Falls · Port Colborne · Welland</div>
+      </div>
+    </div>
+  </section>
+
+</body>
+</html>
