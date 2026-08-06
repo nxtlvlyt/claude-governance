@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "S1 verdict stage running; zero FAILED, daemon alive",
+  "detail": "trainer healthy post-relaunch (38/720, 19.06s/it); S1 verdict pending",
   "tempo": "idle",
   "inFlight": {
     "tasks": 4,
@@ -24,10 +24,10 @@
       "startedAt": 1785980623392
     }
   ],
-  "tokens": 6701561,
+  "tokens": 6701815,
   "output": null,
   "children": null,
-  "linkScanOffset": 38745193,
+  "linkScanOffset": 38759590,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -52,6 +52,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T01:58:46.305Z",
+  "updatedAt": "2026-08-06T02:00:23.974Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
