@@ -1,6 +1,6 @@
 {
   "state": "blocked",
-  "detail": "flyer lacks concrete offer + images; needs sizing + image decision",
+  "detail": "flyer 6/7 compliant—missing printed offer line",
   "tempo": "blocked",
   "inFlight": {
     "tasks": 5,
@@ -30,11 +30,13 @@
       "startedAt": 1786003705685
     }
   ],
-  "tokens": 6979566,
-  "needs": "provide: (1) offer line (e.g. '10% off first cut'), (2) which images to use, (3) flyer size/dimensions",
-  "output": null,
+  "tokens": 6980451,
+  "needs": "decide on a printed offer (e.g., '10% off first cut') to add to flyer front",
+  "output": {
+    "result": "flyer 6/7 compliant (needs 1 printed offer); business card fully compliant; both print-ready"
+  },
   "children": null,
-  "linkScanOffset": 50289854,
+  "linkScanOffset": 50350828,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -59,6 +61,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T08:08:44.746Z",
+  "updatedAt": "2026-08-06T08:10:11.604Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
