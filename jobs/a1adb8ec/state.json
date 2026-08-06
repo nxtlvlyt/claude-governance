@@ -1,10 +1,10 @@
 {
-  "state": "done",
-  "detail": "bottom bar CSS regression fixed; times restored to prod styling",
+  "state": "working",
+  "detail": "S2 pickup watcher armed; S1/S2/S3 queue monitoring",
   "tempo": "idle",
   "inFlight": {
     "tasks": 5,
-    "queued": 1,
+    "queued": 2,
     "kinds": [
       "monitor",
       "session_cron"
@@ -28,14 +28,19 @@
       "kind": "monitor",
       "label": "S2/S3 status transitions to DONE or FAILED",
       "startedAt": 1785988231120
+    },
+    {
+      "id": "b5f6sa768",
+      "kind": "shell",
+      "label": "until grep -q \"mt-ui-rest-state.S2\" \"/c/Users/marka/agy-muezzin/missions/_logs/daemon-status.json\" 2>/dev/null || grep -a \"mt-ui-rest-state.S2\" \"/c/Users/marka/agy-muezzin/missions/_logs/daemon-event…",
+      "startedAt": 1785988268510,
+      "doneAt": 1785988270055
     }
   ],
-  "tokens": 6821533,
-  "output": {
-    "result": "bottom bar layout fixed (display: flex !important removed); S2 fired, S3 queued"
-  },
+  "tokens": 6822444,
+  "output": null,
   "children": null,
-  "linkScanOffset": 42988674,
+  "linkScanOffset": 43017552,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -60,6 +65,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T03:50:42.884Z",
+  "updatedAt": "2026-08-06T03:51:17.304Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
