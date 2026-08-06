@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "S1 attempt 3 running; evicted guardian model, patched witness path, probing training speed recovery",
+  "detail": "training 317/720; GPU slowdown fixed, recovery check ~5m",
   "tempo": "idle",
   "inFlight": {
     "tasks": 4,
@@ -25,10 +25,10 @@
       "startedAt": 1785980236617
     }
   ],
-  "tokens": 6682823,
+  "tokens": 6682916,
   "output": null,
   "children": null,
-  "linkScanOffset": 37354722,
+  "linkScanOffset": 37416334,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -53,6 +53,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T01:37:33.041Z",
+  "updatedAt": "2026-08-06T01:38:54.297Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
