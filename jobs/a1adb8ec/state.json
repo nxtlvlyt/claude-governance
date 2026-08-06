@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "trainer 59/720 @ 21.35s/it, ~4h ETA; watchdog auto-saved",
+  "detail": "background job running; awaiting scheduler diff + loader receipts",
   "tempo": "idle",
   "inFlight": {
     "tasks": 7,
@@ -43,10 +43,10 @@
       "startedAt": 1786024588247
     }
   ],
-  "tokens": 7083522,
+  "tokens": 7083652,
   "output": null,
   "children": null,
-  "linkScanOffset": 59058025,
+  "linkScanOffset": 59068101,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -71,6 +71,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T14:03:57.551Z",
+  "updatedAt": "2026-08-06T14:04:14.091Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
