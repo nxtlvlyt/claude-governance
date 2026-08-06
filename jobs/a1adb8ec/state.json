@@ -1,6 +1,6 @@
 {
   "state": "working",
-  "detail": "training step 227/720 (20.1s/step); critical band approaching ~280",
+  "detail": "batch 236/720 (20.2s/step); still climbing ~2h40m",
   "tempo": "idle",
   "inFlight": {
     "tasks": 6,
@@ -36,10 +36,10 @@
       "startedAt": 1786020906555
     }
   ],
-  "tokens": 7201689,
+  "tokens": 7201946,
   "output": null,
   "children": null,
-  "linkScanOffset": 61101073,
+  "linkScanOffset": 61117720,
   "linkScanPath": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\a1adb8ec-bcb6-4317-954a-4fa3f4410ca8.jsonl",
   "template": "bg",
   "selfWake": true,
@@ -64,6 +64,6 @@
   "providerEnv": {},
   "backend": "daemon",
   "createdAt": "2026-08-01T04:19:04.780Z",
-  "updatedAt": "2026-08-06T16:27:51.558Z",
+  "updatedAt": "2026-08-06T16:30:15.256Z",
   "firstTerminalAt": "2026-08-01T04:26:56.154Z"
 }
