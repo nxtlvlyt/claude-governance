@@ -220,8 +220,29 @@ export function assertRepoRoot(repoRoot) {
  */
 function dirtySet(repoRoot) {
   const porc = execSync('git status --porcelain -uall', gitOpts(repoRoot)).toString();
-  const dirty = porc.split(/\r?\n/).map((l) => l.trim()).filter(Boolean)
-    .map((l) => l.replace(/^[\sMADRCU?!]+/, '').trim())          // strip the XY status prefix
+  const dirty = porc.split(/\r?\n/).filter((l) => l.length > 3)
+    // FIXED-WIDTH STATUS STRIP (bug fixed 2026-08-07; the same defect was found and fixed the
+    // same hour in agy-muezzin/git_steps.mjs, where it surfaced as 7 consecutive
+    // containment-drift failures against the phantom path 'STER-PLAN.md'). The old shape
+    // trimmed first, then ran a greedy /^[\sMADRCU?!]+/ — so any leading FILENAME character
+    // that happens to be a status letter is eaten along with the prefix:
+    //   " M MASTER-PLAN.md"  -> "STER-PLAN.md"   (the M and A of MASTER consumed)
+    //   " M README.md"       -> "EADME.md"
+    //   " M ARCHITECTURE.md" -> "HITECTURE.md"
+    //   " M CLAUDE.md"       -> "LAUDE.md"
+    // The mangled path matches no ALLOW-FILES entry, so assertCleanOutsideAllowlist fails the
+    // step as containment-drift — blaming the mission for touching a file that does not exist.
+    // Uppercase-initial docs are the common case, so this bit the exact files missions edit most.
+    // porcelain v1 is FIXED WIDTH: two status chars + one space, then the path. Slice it.
+    // THIS FILE WAS THE DIVERGENT ONE, not the norm: orchestrate.mjs (stale-sandbox sweep) and
+    // conduct-cycle.mjs (unmerged-path scan) both already used `line.slice(3)` correctly. The
+    // regex here was a local reinvention of a solved problem — the amortization signal in
+    // ~/.claude/canon/pattern-amortization-signal.md, arriving as a bug instead of a helper.
+    // The leading .trim() is deliberately gone: trimming destroys the fixed-width offset
+    // (" M MASTER-PLAN.md" trimmed is "M MASTER-PLAN.md", and slice(3) would yield
+    // "ASTER-PLAN.md"). No trailing .trim() either — git quotes paths with real trailing
+    // spaces, and trimming would corrupt them.
+    .map((l) => l.slice(3))
     .map((p) => p.replace(/^"|"$/g, '').replace(/\\/g, '/'))     // unquote + normalize slashes
     .map((p) => { const arrow = p.split(' -> '); return arrow.length === 2 ? arrow[1] : p; })  // renames: take the new path
     .filter(Boolean)
