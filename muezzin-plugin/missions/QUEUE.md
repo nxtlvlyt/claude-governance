@@ -3996,3 +3996,12 @@ advisory candidate surface to ops-deploy is the safe, additive first move.
   code — restart each from its own repo (mt: MUEZZIN_ARCHITECT_ROUTE=panel
   MUEZZIN_MAX_LANES=1) BEFORE the next training window; owner: next conductor wake, and the
   training-launch checklist gains "verify daemons post-date the guard".
+- 2026-08-07 AGY-CLOUD-EXCLUSIVE TEMP MODE BUILT + LIVE-TESTED (operator ask: "can it have
+  a temp mode of what we want"): ONE flag file — agy-muezzin\missions\_logs\AGY-CLOUD-EXCLUSIVE
+  — closes every Claude lane (label relief, named seat, route-prefer, post-local tier) AND
+  the local lane in the agy fork's waterfall. Engine seats then run agy -> ollama-cloud ->
+  cloud stand-in -> named fail. Receipt: flag set + laguna dispatch -> "local lane held;
+  stand-in kimi-k2.7-code" reached ollama.com; NO claude attempt, NO local attempt; flag
+  deleted after (mode currently OFF). Toggle = create/delete the file. NOTE: running daemons
+  need the owed restart (line above) before the patched dispatch is live in them. Conducting
+  judgment (the conductor's own session) stays Claude by design.
