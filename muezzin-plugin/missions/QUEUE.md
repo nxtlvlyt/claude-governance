@@ -3985,3 +3985,14 @@ a wrong-but-executed (differs/absent) one does NOT. Net: one small class-gate ch
 NOT a new naive-signal branch. Advisory-vs-auto-write fork (above) still stands for the FUTURE step
 of actually auto-writing the annotation — that remains operator-sign-off-gated; extending the EXISTING
 advisory candidate surface to ops-deploy is the safe, additive first move.
+
+- 2026-08-07 NO-LOCAL-SEATS-HOLD GUARD LANDED (conductor-direct, all four conditions held;
+  scout receipt in session): parent seat_dispatch.mjs local lane + agy-muezzin localOnly
+  branch now FAIL CLOSED (WaterfallError NO-LOCAL-SEATS-HOLD) when GAP-PRIORITY-HOLD or
+  TRAINING-ACTIVE exists — closes the cloud->local fallback that OOM'd training twice
+  2026-08-05 (north-mini 20GB, laguna-xs 36GB). LIVE-TESTED: flag set -> laguna dispatch
+  refused with the named error; flag cleaned after. RESTART OWED (static-import staleness):
+  BOTH running muezzin-daemon.mjs processes (PIDs 30008/30544 at patch time) hold pre-guard
+  code — restart each from its own repo (mt: MUEZZIN_ARCHITECT_ROUTE=panel
+  MUEZZIN_MAX_LANES=1) BEFORE the next training window; owner: next conductor wake, and the
+  training-launch checklist gains "verify daemons post-date the guard".

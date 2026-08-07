@@ -967,6 +967,16 @@ export async function dispatchWithWaterfall(baseBody, { cwd, localOnly = false, 
   // adaptive heal attempts. This loop was the former cloud lane, retargeted 2026-07-03 —
   // the heals (429/503 backoff, ctx-drop, suffix fix, think:false, one timeout extend)
   // are provider-generic and the local queue benefits from every one of them.
+  // NO-LOCAL-SEATS-HOLD (2026-08-07): mirrors agy-muezzin's TRAINING-HOLD GUARD
+  // (2026-08-05 — north-mini 20GB + laguna-xs 36GB landed on the 4090 mid-train and
+  // killed two relaunches). This parent had no equivalent: every mt-* local dispatch
+  // was unprotected. Fails CLOSED — no cloud lane exists here to stand in with.
+  for (const flag of process.env.MUEZZIN_HOLD_BYPASS === '1' ? [] : ['GAP-PRIORITY-HOLD', 'TRAINING-ACTIVE']) {
+    try { readFileSync(join(dirname(fileURLToPath(import.meta.url)), 'missions', '_logs', flag)); }
+    catch { continue; }
+    throw new WaterfallError('NO-LOCAL-SEATS-HOLD', 'local', baseBody.model,
+      `local lane closed by ${flag} — refusing to dispatch onto the training GPU`);
+  }
   const local = LOCAL_PROVIDER;
   let body = baseBody, timeout = FETCH_TIMEOUT_MS;
   const kindCounts = {};   // per-error-kind heal tally: lets healDispatch cap a single kind (TIMEOUT) without touching the global heal budget the FIXING heals need
