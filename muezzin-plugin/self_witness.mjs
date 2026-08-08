@@ -623,11 +623,33 @@ export async function witnessArtifact(text, context = {}, opts = {}) {
   // model (< smallLaneBytes) is already mid-inference — never to big-lane chain work.
   // (Receipt for the change: 1234 ok=null yields — witness coverage ~zero under the
   // local-only roster because the GPU was ALWAYS chain-busy.)
+  // TRAINING-ACTIVE YIELD (leak fixed 2026-08-07). seat_dispatch.mjs already refuses its
+  // LOCAL lane while missions/_logs/TRAINING-ACTIVE exists (NO-LOCAL-SEATS-HOLD, ~line 974),
+  // so no mission seat lands on the training GPU. But THIS module never went through
+  // seat_dispatch — it fetches OLLAMA_BASE/api/chat directly (~line 197) — so the witness
+  // walked straight past that hold. Receipt: with TRAINING-ACTIVE set since 08:31, the 4090
+  // still showed granite4.1:30b resident at 22,742 MiB of 24,564. The guard covered one of
+  // two dispatch paths, which is the same "reports success without doing the whole thing"
+  // shape as the rest of this night's defects.
+  // This yields rather than throws: it reuses the existing GPU-busy yield, so ok=null, which
+  // buildReceipt/line ~381 defines as "never a block". Mission flow is unaffected; the
+  // witness simply records that it stood down for training instead of loading a 22GB model
+  // onto the card a training run needs.
+  // MUEZZIN_HOLD_BYPASS=1 is the SAME escape hatch seat_dispatch's hold already honors
+  // (~line 974) — reused deliberately rather than inventing a second convention. The
+  // selftest below runs with it set, because the real flag file lives in this repo and an
+  // unbypassed check makes every witness assertion yield (that is exactly what happened on
+  // the first run of this patch: 'Cannot read properties of null (reading verdict)').
+  let trainingHold = false;
+  if (process.env.MUEZZIN_HOLD_BYPASS !== '1') {
+    try { readFileSync(join(HERE, 'missions', '_logs', 'TRAINING-ACTIVE')); trainingHold = true; } catch { /* no flag -> witness proceeds */ }
+  }
+
   const smallLaneBytes = opts.smallLaneBytes ?? 12 * 1024 * 1024 * 1024;
   let ps;
   try { ps = await probe(); } catch { ps = null; }   // probe down -> treat as unknown; proceed cautiously below
   const smallLaneBusy = !!ps && ps.models.some((m) => m.size_vram > 0 && m.size_vram < smallLaneBytes && m.name !== structureModel && m.name !== guardianModel);
-  if (smallLaneBusy) {
+  if (trainingHold || smallLaneBusy) {
     const receipt = emit(buildReceipt({ context, yielded: true, structureModel, guardianModel }));
     return { laguna: null, guardian: null, ok: null, yielded: true, receipt };
   }

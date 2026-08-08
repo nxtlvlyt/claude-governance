@@ -3,13 +3,24 @@ MISSION-CLASS: research
 PARENT: V36-ANSWER-EXTRACTION-GROUNDTRUTH.S2
 TARTIB-INDEX: 1 of 2
 REQUIRES: none (first in tartib order)
-STEPS: 8
+STEPS: 9
 
 PARENT MAQSAD: sub-mission 2 of 3 — Item web_search_base_49 (male artist whose track reached 1 billion Spotify streams fastest -> his record label): resolve hop chain via SearXNG + WebFetch, write standalone part-file or UNRESOLVED. through Hop-pattern grouping check — confirm at least two distinct named shape groups exist in HOP-PATTERNS.md (a single catch-all group would mean no real analysis happened).
 
 Maqsad: sub-mission 1 of 2 — Guard G1 — load the REAL verbatim questions for ids 49, 66, 84, 90 from MISS-SHAPES.json (never reconstruct from lossy pointer text) and persist them to a receipt file for downstream steps to read. through Anti-fabrication check — re-resolve every URL cited in ANSWER-GROUNDTRUTH.md live to confirm nothing was invented (a dead/unreachable URL fails the mission's zero-invented-sources bar).
 
 Steps:
+  0. Create the parts/ output directory before anything writes into it. Run this LITERAL
+     command. [command]
+     New-Item -ItemType Directory -Force -Path 'parts' | Out-Null; if (Test-Path 'parts') { Write-Output 'PARTS_DIR_OK' } else { Write-Output 'PARTS_DIR_FAILED'; exit 1 }
+     WHY (root cause of the 01:49:52 FAILED, receipted): every step below writes to parts/,
+     but a fresh split-child sandbox contains only .git/ and mission-events.jsonl — there is
+     no parts/ directory. PowerShell's Set-Content does NOT create parent directories, so
+     step 1 died with:
+       Set-Content: Could not find a part of the path
+       'C:\Users\marka\.claude\muezzin-plugin\missions\v36-answer-extraction-groundtruth.S2.S1\parts\QUESTIONS-VERBATIM.md'
+     Zero steps committed. This is a missing-directory defect, NOT a defect in G1 — the guard
+     itself was correct and was being executed as designed.
   1. Guard G1 — load the REAL verbatim questions for ids 49, 66, 84, 90 from MISS-SHAPES.json (never reconstruct from lossy pointer text) and persist them to a receipt file for downstream steps to read. [command] parts/QUESTIONS-VERBATIM.md ; context_dependencies: C:/Users/marka/conductor-qwen/phase4/v36-mining/MISS-SHAPES.json
      validation_command: $j = Get-Content -Raw 'C:/Users/marka/conductor-qwen/phase4/v36-mining/MISS-SHAPES.json' | ConvertFrom-Json; $items = @(); foreach ($p in 'items','rows','questions','misses','data') { if ($j.$p) { $items = $j.$p; break } }; if ((-not $items -or $items.Count -eq 0) -and ($j -is [array])) { $items = $j }; $ids=49,66,84,90; $out=@(); foreach ($id in $ids) { $key="web_search_base_$id"; $hit = $items | Where-Object { $_.id -eq $key -or $_.id -eq $id -or ("$($_.id)" -eq "$id") }; if (-not $hit -or -not $hit.question) { throw "FAIL: G1 guard - no question found for $key in MISS-SHAPES.json, STOP do not reconstruct" }; $out += "## $key`n$($hit.question)`n" }; ($out -join "`n") | Set-Content parts/QUESTIONS-VERBATIM.md -Encoding utf8; if ((Get-Content parts/QUESTIONS-VERBATIM.md -Raw).Length -gt 20) { Write-Output "PASS: verbatim questions loaded for $($ids -join ',')" } else { throw "FAIL: QUESTIONS-VERBATIM.md empty" }
   2. Guard G2 — probe SearXNG liveness at localhost:8080 and record the HTTP status + channel decision (UP=200 means SearXNG mandatory, WebSearch forbidden; DOWN licenses fallback with this receipt). [command] parts/SEARXNG-PROBE.md
