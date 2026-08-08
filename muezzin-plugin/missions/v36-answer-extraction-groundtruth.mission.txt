@@ -39,17 +39,48 @@ are the fixable set, not the hard set.
  10. web_search_base_90 — Who is the spouse of the president of the college attended by the
      losing nominee of the 2024 Palauan general election?
 
-The FULL question text for each id is in phase4/v36-mining/MISS-SHAPES.json (field `question`)
-and the complete transcript is in phase4/v36-mining/miss-transcripts/miss-<N>.json. READ THE
-FULL QUESTION from MISS-SHAPES.json before searching — the abbreviations above are pointers,
-not the questions. Several questions carry an "as of April 2025" qualifier that changes the
+STEP ZERO — LOAD THE REAL QUESTIONS, AND PROVE IT. Run this LITERAL command FIRST. Do not
+improvise a substitute, and do not proceed if it errors:
+
+  Get-Content -Raw 'C:\Users\marka\conductor-qwen\phase4\v36-mining\MISS-SHAPES.json'
+
+WHY THIS IS AN ABSOLUTE PATH AND WHY IT IS LITERAL (root cause of the 2026-08-07 contaminated
+run, receipted): this line previously read "phase4/v36-mining/MISS-SHAPES.json" — a RELATIVE
+path. The mission sandbox cwd is the mission directory, not C:\Users\marka\conductor-qwen, so
+it never resolved. The executor reported it honestly —
+    "Original question text unavailable: MISS-SHAPES.json could not be read — ENOENT"
+— and then RECONSTRUCTED each question from the one-line pointers in this mission body. Those
+pointers are lossy, and the reconstruction silently changed the questions:
+    id 20 REAL:          "...the largest university IN THE U.S. BY ACREAGE in 2024"
+    id 20 RECONSTRUCTED: "the world's largest university BY ENROLLMENT"  -> IGNOU, India
+Different metric, different country, different entity — every hop answered a question nobody
+asked. The output was quarantined as evidence-grade zero.
+
+THE ABBREVIATED LINES ABOVE ARE POINTERS, NOT QUESTIONS. Quote each question verbatim from
+the `question` field of MISS-SHAPES.json. If the file cannot be read, STOP and report that —
+do NOT reconstruct a question from the pointer text. A confident answer to the wrong question
+is worse than no answer: per teacher.faith.md it becomes a reflex the student cannot
+attribute or unlearn.
+
+Full transcripts, if a hop needs them:
+C:\Users\marka\conductor-qwen\phase4\v36-mining\miss-transcripts\miss-<N>.json Several questions carry an "as of April 2025" qualifier that changes the
 answer; honor it and say so when the current answer differs from the April-2025 answer.
 
 Context and hard rules:
-  - SEARCH CHANNEL: SearXNG at http://localhost:8080 is the operator's SOTA search and is the
-    FIRST channel (operator ruling 2026-06-09). It has a paid Brave API behind it and is up.
-    Use WebFetch to read the actual pages. Anthropic WebSearch is a fallback only if SearXNG
-    is genuinely down — say so explicitly if you fall back.
+  - SEARCH CHANNEL — PROBE IT, DO NOT ASSUME IT. SearXNG at http://localhost:8080 is the
+    operator's SOTA search and is the FIRST channel (operator ruling 2026-06-09; paid Brave
+    API behind it). Before your first search, run this LITERAL command and record its output
+    in SEARCH-LOG.md:
+      powershell -NoProfile -Command "try { (Invoke-WebRequest -UseBasicParsing -Uri 'http://localhost:8080/' -TimeoutSec 8).StatusCode } catch { 'DOWN' }"
+    If it prints 200, SearXNG is UP and you MUST use it for every query; Anthropic WebSearch
+    is then NOT permitted. If and only if it prints DOWN or errors, you may fall back — and
+    you must paste that DOWN output into SEARCH-LOG.md as the receipt for falling back.
+    WHY THIS IS A PROBE AND NOT A SENTENCE (receipted 2026-08-07): the previous version of
+    this rule said exactly the right thing in prose, and the run used `WebSearch:` for every
+    single query anyway. SearXNG was verified UP during that run — HTTP 200 on both `/` and
+    `/search?...&format=json` — so the fallback was never warranted. A rule the executor can
+    satisfy by not reading it is not a rule.
+    Use WebFetch to read the actual pages either way; a search result snippet is not a source.
   - NEVER INVENT A RECEIPT (teacher.faith.md). If a fact cannot be established from a real
     fetched page, write UNRESOLVED for that item with what you tried and why it failed. An
     honest UNRESOLVED is worth more than a plausible answer — a fabricated receipt becomes a
