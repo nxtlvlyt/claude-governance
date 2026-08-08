@@ -1,0 +1,18 @@
+MISSION-ID: V36-ANSWER-EXTRACTION-GROUNDTRUTH.S3
+MISSION-CLASS: research
+PARENT: V36-ANSWER-EXTRACTION-GROUNDTRUTH
+TARTIB-INDEX: 3 of 3
+REQUIRES: V36-ANSWER-EXTRACTION-GROUNDTRUTH.S2 (tartib — this sub-mission may not start until V36-ANSWER-EXTRACTION-GROUNDTRUTH.S2's receipt exists)
+STEPS: 2
+
+PARENT MAQSAD: for each of the 10 BFCL board misses below, establish (a) the correct final answer,
+
+Maqsad: sub-mission 3 of 3 — Compile SEARCH-LOG.md from the search-query field recorded in each of the 10 part-files, so the 'searched not recalled' claim is independently checkable (every query issued, which item it served, whether it helped). through Final done-check — cross-reference that every item marked non-UNRESOLVED in ANSWER-GROUNDTRUTH.md has a matching logged query entry in SEARCH-LOG.md, closing the loop between resolved answers and their search evidence.
+
+Steps:
+  17. Compile SEARCH-LOG.md from the search-query field recorded in each of the 10 part-files, so the 'searched not recalled' claim is independently checkable (every query issued, which item it served, whether it helped). [edit] SEARCH-LOG.md ; context_dependencies: parts/part-20.md, parts/part-21.md, parts/part-31.md, parts/part-39.md, parts/part-40.md, parts/part-46.md, parts/part-49.md, parts/part-66.md, parts/part-84.md, parts/part-90.md
+     validation_command: $c = Get-Content SEARCH-LOG.md -Raw; $lines = ($c -split "`n") | Where-Object { $_ -match '\S' }; if ($lines.Count -ge 10) { Write-Output "PASS: $($lines.Count) logged lines" } else { throw "FAIL: only $($lines.Count) lines, expected >=10 (>=1 per item)" }
+  18. Final done-check — cross-reference that every item marked non-UNRESOLVED in ANSWER-GROUNDTRUTH.md has a matching logged query entry in SEARCH-LOG.md, closing the loop between resolved answers and their search evidence. [verify] SEARCH-LOG.md
+     validation_command: $g = Get-Content ANSWER-GROUNDTRUTH.md -Raw; $log = Get-Content SEARCH-LOG.md -Raw; $ids = 20,21,31,39,40,46,49,66,84,90; $bad=@(); foreach ($i in $ids) { if ($g -match "web_search_base_$i(?s).*?SOURCE URL" -and $log -notmatch "$i") { $bad += $i } }; if ($bad.Count -eq 0) { Write-Output "PASS: every resolved item has a logged query" } else { throw "FAIL: resolved items with no log entry: $($bad -join ',')" }
+
+Done means: SEARCH-LOG.md exist/are updated as specified

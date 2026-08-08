@@ -359,6 +359,23 @@ export const registry = {
     qualifying_runs: 0, correct_runs: 0, established: false, adala_record: []
   },
 
+  // IDENTITY WARNING — RECEIPTED 2026-08-07, OPERATOR-CONFIRMED. This name is CLOUD-ONLY.
+  // The operator states plainly he does not have DeepSeek V4 Pro locally and lacks the
+  // resources to run any quantized version of it. He is right, and the local tag lies:
+  //   `ollama show deepseek-v4-pro:latest` on nxtbeast reports
+  //     architecture qwen35 | parameters 27.3B | ctx 262144 | embedding 5120 | Q4_K_M | +vision
+  //   blob sha256-b2898667ed7b... — a QWEN 27.3B wearing DeepSeek's name. Not DeepSeek at all.
+  // WHY THIS MATTERS OPERATIONALLY, not just cosmetically: under the NO-CLOUD ruling
+  // (2026-07-02) seat_dispatch has no cloud lane (line ~48 "THE ONLY OLLAMA PROVIDER IS
+  // LOCAL") and strips the :cloud suffix (line ~561), so a dispatch to the seat name
+  // "deepseek-v4-pro" resolves LOCAL and lands on that mislabeled Qwen blob. The
+  // selection_basis below ("WON the live scanner test 3/3") therefore credits DeepSeek for
+  // work that may have been done by a Qwen 27.3B. Do not cite that basis as a DeepSeek
+  // record without first re-establishing which blob served the run.
+  // Third instance of this hazard class found in one night: `Qwen/Qwen3-32B:latest` is
+  // actually a TUNED 27.3B sharing conductor-qwen-27b-v11's blob, and the kimi/North alias
+  // (digest 429d372cb9f6) is already documented in seat_modes.mjs:64,66. A tag name is not
+  // a model identity — verify with /api/show + blob digest before seating or citing.
   "deepseek-v4-pro": {
     id: "deepseek-v4-pro", role: ["architect", "auditor", "governance-scanner", "code-review"],
     chosen: true, selection_basis: "2026-06-09 — SOTA reasoning index + variance; WON the live scanner test 3/3 format-clean + 3/3 correct (minimax 2/3, glm 1/3 over-flagged) -> scanner seat earned by a run, not a benchmark",

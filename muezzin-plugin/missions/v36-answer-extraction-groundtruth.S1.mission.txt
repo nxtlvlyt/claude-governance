@@ -1,0 +1,30 @@
+MISSION-ID: V36-ANSWER-EXTRACTION-GROUNDTRUTH.S1
+MISSION-CLASS: research
+PARENT: V36-ANSWER-EXTRACTION-GROUNDTRUTH
+TARTIB-INDEX: 1 of 3
+REQUIRES: none (first in tartib order)
+STEPS: 8
+
+PARENT MAQSAD: for each of the 10 BFCL board misses below, establish (a) the correct final answer,
+
+Maqsad: sub-mission 1 of 3 — Preflight — confirm SearXNG (the operator's SOTA search, localhost:8080) is actually reachable before any research step depends on it. through Item web_search_base_46 (referenced year -> Forbes' most powerful woman of that year -> her political party): resolve hop chain via SearXNG + WebFetch, write standalone part-file or UNRESOLVED.
+
+Steps:
+  1. Preflight — confirm SearXNG (the operator's SOTA search, localhost:8080) is actually reachable before any research step depends on it. [command] 
+     validation_command: try { $r = Invoke-WebRequest -Uri "http://localhost:8080/search?q=test&format=json" -UseBasicParsing -TimeoutSec 10; if ($r.StatusCode -eq 200) { Write-Output "PASS: SearXNG reachable" } else { throw "FAIL: status $($r.StatusCode)" } } catch { throw "FAIL: SearXNG unreachable - $_" }
+  2. Create the parts/ directory that will hold one part-file per BFCL miss (required before any part-file edit step can target a subdirectory). [command] parts
+     validation_command: New-Item -ItemType Directory -Force -Path parts | Out-Null; if (Test-Path parts -PathType Container) { Write-Output "PASS: parts dir exists" } else { throw "FAIL: parts dir not created" }
+  3. Item web_search_base_20 (largest university's president -> children count): read full question from MISS-SHAPES.json, resolve hop chain via SearXNG search + WebFetch of real pages, write question/hop chain/final answer/source URL/search query/confidence to a standalone part-file, or UNRESOLVED with what was tried. [edit] parts/part-20.md ; context_dependencies: phase4/v36-mining/MISS-SHAPES.json
+     validation_command: $c = Get-Content parts/part-20.md -Raw; if ($c -match '(?i)hop chain' -and $c -match '(SOURCE URL|UNRESOLVED)' -and $c.Length -gt 100) { Write-Output "PASS: part-20 complete" } else { throw "FAIL: part-20 missing required fields" }
+  4. Item web_search_base_21 (company owning the largest referenced equity stake -> its CEO, as of April 2025, noting if the current CEO differs): resolve hop chain via SearXNG + WebFetch, write standalone part-file or UNRESOLVED. [edit] parts/part-21.md ; context_dependencies: phase4/v36-mining/MISS-SHAPES.json
+     validation_command: $c = Get-Content parts/part-21.md -Raw; if ($c -match '(?i)hop chain' -and $c -match '(SOURCE URL|UNRESOLVED)' -and $c.Length -gt 100) { Write-Output "PASS: part-21 complete" } else { throw "FAIL: part-21 missing required fields" }
+  5. Item web_search_base_31 (political party receiving the referenced backing -> its president, as of April 2025): resolve hop chain via SearXNG + WebFetch, write standalone part-file or UNRESOLVED. [edit] parts/part-31.md ; context_dependencies: phase4/v36-mining/MISS-SHAPES.json
+     validation_command: $c = Get-Content parts/part-31.md -Raw; if ($c -match '(?i)hop chain' -and $c -match '(SOURCE URL|UNRESOLVED)' -and $c.Length -gt 100) { Write-Output "PASS: part-31 complete" } else { throw "FAIL: part-31 missing required fields" }
+  6. Item web_search_base_39 (2024 highest-grossing movie -> director -> company they founded/first worked at -> founding year): resolve hop chain via SearXNG + WebFetch, write standalone part-file or UNRESOLVED. [edit] parts/part-39.md ; context_dependencies: phase4/v36-mining/MISS-SHAPES.json
+     validation_command: $c = Get-Content parts/part-39.md -Raw; if ($c -match '(?i)hop chain' -and $c -match '(SOURCE URL|UNRESOLVED)' -and $c.Length -gt 100) { Write-Output "PASS: part-39 complete" } else { throw "FAIL: part-39 missing required fields" }
+  7. Item web_search_base_40 (city where the referenced word record was set -> its mayor -> university the mayor attended): resolve hop chain via SearXNG + WebFetch, write standalone part-file or UNRESOLVED. [edit] parts/part-40.md ; context_dependencies: phase4/v36-mining/MISS-SHAPES.json
+     validation_command: $c = Get-Content parts/part-40.md -Raw; if ($c -match '(?i)hop chain' -and $c -match '(SOURCE URL|UNRESOLVED)' -and $c.Length -gt 100) { Write-Output "PASS: part-40 complete" } else { throw "FAIL: part-40 missing required fields" }
+  8. Item web_search_base_46 (referenced year -> Forbes' most powerful woman of that year -> her political party): resolve hop chain via SearXNG + WebFetch, write standalone part-file or UNRESOLVED. [edit] parts/part-46.md ; context_dependencies: phase4/v36-mining/MISS-SHAPES.json
+     validation_command: $c = Get-Content parts/part-46.md -Raw; if ($c -match '(?i)hop chain' -and $c -match '(SOURCE URL|UNRESOLVED)' -and $c.Length -gt 100) { Write-Output "PASS: part-46 complete" } else { throw "FAIL: part-46 missing required fields" }
+
+Done means: parts, parts/part-20.md, parts/part-21.md, parts/part-31.md, parts/part-39.md, parts/part-40.md, parts/part-46.md exist/are updated as specified

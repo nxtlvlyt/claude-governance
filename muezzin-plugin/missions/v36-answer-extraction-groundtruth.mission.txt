@@ -1,0 +1,81 @@
+MISSION V36-ANSWER-EXTRACTION-GROUNDTRUTH — establish the real answers, with real sources
+MISSION-CLASS: research
+
+Niyyah: v3.6's answer-extraction corpus rows cannot be authored honestly without knowing what
+the correct answer actually IS, with a source that was really fetched. teacher.faith.md is
+absolute on this: never invent a receipt, omit rather than invent. This mission produces the
+receipts. It does NOT author training rows — disposition authoring belongs to the
+framework-holding seat and is explicitly out of scope here.
+
+Maqsad: for each of the 10 BFCL board misses below, establish (a) the correct final answer,
+(b) the live source URL that establishes it, (c) the exact search query that surfaced it, and
+(d) the intermediate hops the question requires. Every one of these is a MULTI-HOP question:
+the model must resolve an unnamed entity first, then look up a fact about it. The v3.4 model
+searched and then failed to state the final fact — so the hop chain is the thing worth
+capturing, not just the answer.
+
+These 10 are the ANSWER-EXTRACTION class from phase4/v36-mining/MISS-SHAPES.json (the model
+DID conclude, but concluded wrong). They are v3.4-only misses — Sonnet-5 gets them — so they
+are the fixable set, not the hard set.
+
+  1. web_search_base_20 — How many children does the president of the largest university
+     [in the referenced place] have?
+  2. web_search_base_21 — As of April 2025, who is the CEO of the company that owns the
+     largest equity [stake referenced]?
+  3. web_search_base_31 — As of April 2025, who is the president of the political party that
+     received [the referenced backing]?
+  4. web_search_base_39 — What year was the company where the director of the highest-grossing
+     movie of 2024 first [worked/founded] established?
+  5. web_search_base_40 — Which university did the mayor attend, in the city where the record
+     for the most words [record referenced] was set?
+  6. web_search_base_46 — What is the political party of Forbes' most powerful woman of
+     [the referenced year]?
+  7. web_search_base_49 — What is the record label of the male artist whose track reached one
+     billion Spotify streams fastest?
+  8. web_search_base_66 — Who is the current spouse of the person who won the 2024 mayoral
+     election for the referenced city?
+  9. web_search_base_84 — Who is the current mayor (as of April 2025) of the most populous
+     city of the badminton-dominant country referenced?
+ 10. web_search_base_90 — Who is the spouse of the president of the college attended by the
+     losing nominee of the 2024 Palauan general election?
+
+The FULL question text for each id is in phase4/v36-mining/MISS-SHAPES.json (field `question`)
+and the complete transcript is in phase4/v36-mining/miss-transcripts/miss-<N>.json. READ THE
+FULL QUESTION from MISS-SHAPES.json before searching — the abbreviations above are pointers,
+not the questions. Several questions carry an "as of April 2025" qualifier that changes the
+answer; honor it and say so when the current answer differs from the April-2025 answer.
+
+Context and hard rules:
+  - SEARCH CHANNEL: SearXNG at http://localhost:8080 is the operator's SOTA search and is the
+    FIRST channel (operator ruling 2026-06-09). It has a paid Brave API behind it and is up.
+    Use WebFetch to read the actual pages. Anthropic WebSearch is a fallback only if SearXNG
+    is genuinely down — say so explicitly if you fall back.
+  - NEVER INVENT A RECEIPT (teacher.faith.md). If a fact cannot be established from a real
+    fetched page, write UNRESOLVED for that item with what you tried and why it failed. An
+    honest UNRESOLVED is worth more than a plausible answer — a fabricated receipt becomes a
+    reflex in a student model that the student cannot attribute or unlearn.
+  - Do NOT write training rows, JSONL, prompt/target pairs, or anything shaped like corpus
+    data. This mission produces EVIDENCE ONLY. Row authoring is a separate seat's work.
+  - Some answers legitimately changed between April 2025 and now. Record BOTH when they differ,
+    labelled, rather than silently picking one.
+
+Deliverables, all cwd-relative in this sandbox:
+  1. ANSWER-GROUNDTRUTH.md — one section per id, in the order above. Each section MUST carry:
+     the full question (quoted from MISS-SHAPES.json), the HOP CHAIN written as numbered steps
+     (entity to resolve -> fact to look up), the FINAL ANSWER stated as a plain sentence, the
+     SOURCE URL actually fetched, the SEARCH QUERY that found it, and a CONFIDENCE 0.0-1.0.
+     Mark any item UNRESOLVED rather than guessing.
+  2. HOP-PATTERNS.md — across the 10, what SHAPE of hop the model kept failing to complete.
+     Group them (e.g. resolve-superlative-then-lookup-person; resolve-place-then-lookup-office).
+     This is the analytical deliverable: which hop shapes recur is what makes the corpus rows
+     generalize instead of memorize.
+  3. SEARCH-LOG.md — every query issued and whether it helped. Cheap to write, and it is the
+     evidence that the answers were searched rather than recalled.
+
+Done means: ANSWER-GROUNDTRUTH.md has all 10 sections with either a sourced answer or an
+explicit UNRESOLVED; every non-UNRESOLVED answer carries a real fetched URL; HOP-PATTERNS.md
+groups the 10 into named hop shapes; SEARCH-LOG.md exists. Zero invented sources — a single
+fabricated URL fails this mission outright.
+
+Amanah: this is entrusted to you; discharge it with ihsan. What you write here becomes another
+model's reflexes.
