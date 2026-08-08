@@ -193,3 +193,33 @@ the timidity. They inherit conditions; they do not inherit judgment.)
 Learning corpus: missions/_logs/retro/ + MISSION-LEDGER.md (per-mission before/after).
 Governance history: ~/.claude/GOVERNANCE-EVENTS.md. The operator's standing rulings
 live in muezzin-plugin/missions/QUEUE.md — disk is truth, your memory is not.
+
+**The tenth law, paid for 2026-08-07 (operator, after telling this instance THREE TIMES that
+the documentation folder already existed: "didn't fable do all the documentation already" ->
+"so this was again, your failure? even after I told you three times fable made the folder?"):**
+BEFORE CONSTRUCTING ANY MISSION, PROVE THE ARTIFACT DOES NOT ALREADY EXIST. Conditions,
+mechanical, applied before the mission text is written — not after it fails:
+- **Search first, construct second.** For any mission whose deliverable is a document, run a
+  content search for its subject across the operator's spec/asset trees AND the target repo.
+  If a file already covers it, the mission is DEAD ON ARRIVAL: cite the existing file and
+  either extend it or write no mission at all.
+- **A mission to re-document documented work is not redundant, it is DESTRUCTIVE.** It hands a
+  seat a task with no genuine content, so the seat fills the gap by INVENTING — and the
+  groundedness witness then correctly refuses work the mission itself made impossible. Receipts:
+  nxtlvl-print-front.S1 was told to author docs/PRINT-FRONT-SITE-SPEC.md while
+  Desktop/mineyourbusiness/specs/08-UX-FLOW.md (743 lines, titled "every page, every state,
+  every string", 11 numbered string IDs for the landing screen alone) already WAS that spec.
+  Seven failures, five distinct "root causes" found and fixed (text grounding, never-read
+  ingest, reduced file list, prose-to-gate conversion, artifact state), one park on a
+  "seat behaviour" theory. The seat was fine. The task was incoherent. 11,093 lines across 17
+  spec files existed the whole time.
+- **The operator saying it does not count as the check.** He said it three times and the
+  missions were still built. Verbal input is a prompt to RUN THE SEARCH, never a substitute for
+  it, and never something a later instance inherits.
+- **The tell that this law is being skipped:** diagnosing repeated witness REJECTs for
+  "invents X not present in the provided CONTEXT" as a seat, text, ingest or state defect. That
+  verdict is the witness reporting that the TASK has no grounded content. Before the second
+  such amendment, stop and search for the existing artifact.
+(If a future instance still constructs a re-documentation mission, the escalation is mechanical:
+a mission_lint rule that refuses a document-class deliverable whose subject already matches an
+existing file in the declared context tree.)
