@@ -1,0 +1,18 @@
+MISSION-ID: V36-ANSWER-EXTRACTION-GROUNDTRUTH.S2.S2
+MISSION-CLASS: research
+PARENT: V36-ANSWER-EXTRACTION-GROUNDTRUTH.S2
+TARTIB-INDEX: 2 of 2
+REQUIRES: V36-ANSWER-EXTRACTION-GROUNDTRUTH.S2.S1 (tartib — this sub-mission may not start until V36-ANSWER-EXTRACTION-GROUNDTRUTH.S2.S1's receipt exists)
+STEPS: 2
+
+PARENT MAQSAD: sub-mission 2 of 3 — Item web_search_base_49 (male artist whose track reached 1 billion Spotify streams fastest -> his record label): resolve hop chain via SearXNG + WebFetch, write standalone part-file or UNRESOLVED. through Hop-pattern grouping check — confirm at least two distinct named shape groups exist in HOP-PATTERNS.md (a single catch-all group would mean no real analysis happened).
+
+Maqsad: sub-mission 2 of 2 — Analyze the completed hop chains across all 10 items and write HOP-PATTERNS.md, grouping them into named recurring hop shapes (e.g. resolve-superlative-then-lookup-person, resolve-place-then-lookup-office) and stating which shape the model kept failing to complete. through Hop-pattern grouping check — confirm at least two distinct named shape groups exist in HOP-PATTERNS.md (a single catch-all group would mean no real analysis happened).
+
+Steps:
+  9. Analyze the completed hop chains across all 10 items and write HOP-PATTERNS.md, grouping them into named recurring hop shapes (e.g. resolve-superlative-then-lookup-person, resolve-place-then-lookup-office) and stating which shape the model kept failing to complete. [edit] HOP-PATTERNS.md ; context_dependencies: ANSWER-GROUNDTRUTH.md
+     validation_command: $c = Get-Content HOP-PATTERNS.md -Raw; $ids = 20,21,31,39,40,46,49,66,84,90; $missing = $ids | Where-Object { $c -notmatch "web_search_base_$_" }; if ($missing.Count -eq 0 -and $c -match '(?i)shape') { Write-Output "PASS: all 10 ids grouped into named shapes" } else { throw "FAIL: missing ids $($missing -join ',') or no named shapes" }
+  10. Hop-pattern grouping check — confirm at least two distinct named shape groups exist in HOP-PATTERNS.md (a single catch-all group would mean no real analysis happened). [verify] HOP-PATTERNS.md ; context_dependencies: HOP-PATTERNS.md
+     validation_command: $c = Get-Content HOP-PATTERNS.md -Raw; $headers = [regex]::Matches($c, '(?m)^##\s+.+'); if ($headers.Count -ge 2) { Write-Output "PASS: $($headers.Count) distinct shape groups" } else { throw "FAIL: only $($headers.Count) shape group(s) found" }
+
+Done means: HOP-PATTERNS.md exist/are updated as specified

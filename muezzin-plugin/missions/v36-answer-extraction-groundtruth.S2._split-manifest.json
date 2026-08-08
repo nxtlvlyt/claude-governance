@@ -1,0 +1,21 @@
+{
+  "parentId": "V36-ANSWER-EXTRACTION-GROUNDTRUTH.S2",
+  "ceiling": 8,
+  "originalStepCount": 10,
+  "groupCount": 2,
+  "children": [
+    {
+      "id": "V36-ANSWER-EXTRACTION-GROUNDTRUTH.S2.S1",
+      "file": "missions/v36-answer-extraction-groundtruth.S2.S1.mission.txt",
+      "steps": 8,
+      "requires": null
+    },
+    {
+      "id": "V36-ANSWER-EXTRACTION-GROUNDTRUTH.S2.S2",
+      "file": "missions/v36-answer-extraction-groundtruth.S2.S2.mission.txt",
+      "steps": 2,
+      "requires": "V36-ANSWER-EXTRACTION-GROUNDTRUTH.S2.S1"
+    }
+  ],
+  "ts": "2026-08-08T01:35:10.257Z"
+}
