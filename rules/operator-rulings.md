@@ -27,6 +27,23 @@ rulings. This file is the loudness fix.)
   does too" — the PRODUCT BOTS: the trading bot (@nxtnfabot, trading-system) and the
   CGSports Discord bot (cgsports-pipeline). Scope: the bots' RUNTIME LLM seats (Q&A,
   commentary, persona voice). The muezzin/conductor jurisdiction itself stays local+Claude.
+  **nxtlvl.studio print-shop build carve-out (operator word 2026-08-09, extending the
+  product-bot class to this build).** Ollama Cloud PERMITTED for the nxtlvl.studio
+  print-design-shop build (formerly staged under the mineyourbusiness spec pack;
+  ships as a feature of nxtlvl.studio, repo github.com/nxtlvlyt/nxtlvl-portal, deployed
+  via Wrangler). INVERTED from the usual carve-out shape — operator word same day:
+  "can you promise me no local models will be used... seat ollama cloud models in every
+  role working with claude opus and sonnet" — so for THIS build, local nxtbeast models
+  are OUT (not merely un-carved-out — explicitly excluded), and every non-Claude seat
+  runs Ollama Cloud instead. Roster as verified live 2026-08-09 against agy-muezzin's
+  own seat_dispatch.mjs censused-cloud catalog: kimi-k2.6, kimi-k2.7-code, glm-5.2,
+  deepseek-v4-flash:0731-cloud, alongside Claude Opus 5 (architect/panel) and Sonnet 5
+  (executor). Cloud dispatch is direct HTTPS to https://ollama.com/api/chat with
+  OLLAMA_API_KEY/OLLAMA_CLOUD_API_KEY (both live in this laptop's shell env,
+  2026-08-09) — NOT reachable via this session's mcp__ollama-* tools, which route to
+  nxtbeast local only. Build go/no-go (intake decision 1/6) was GREENLIT the same
+  exchange, conditioned on this roster. See [[mineyourbusiness-project]] memory for
+  the spec pack and the parked agy mission (nxtlvl-print-front.S1) this build resumes.
 - SUPERSEDED 2026-07-02 (kept for history): "Anything served via Ollama (local or Ollama
   Cloud) is an allowed seat regardless of org." Claude family seats remain allowed and
   budget-strategic (operator-ratified 2026-06-10: Claude tier, routing windows, standing
