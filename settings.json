@@ -189,10 +189,10 @@
       }
     ]
   },
+  "effortLevel": "high",
   "fastModePerSessionOptIn": true,
   "skipDangerousModePermissionPrompt": true,
   "skipWorkflowUsageWarning": true,
   "theme": "dark",
-  "skipAutoPermissionPrompt": true,
-  "effortLevel": "high"
+  "skipAutoPermissionPrompt": true
 }
