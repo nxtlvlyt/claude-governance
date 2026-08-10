@@ -18,9 +18,15 @@ if (!j.access_token) { console.error('stitch-launch: token mint failed: ' + JSON
 
 // shell:true — Windows .cmd shims throw spawn EINVAL on modern Node without it (the
 // same class as the claude.cmd fix in seat_dispatch, 2026-06-10).
+//
+// GOOGLE_CLOUD_PROJECT added 2026-08-09 (this laptop's copy predated nxtbeast's
+// 2026-07-12 fix and would 403 on every call without it — the proxy sends this as
+// X-Goog-User-Project, the quota project; ADC alone does not supply it to the
+// proxy). Same project id nxtbeast uses, already verified ENABLED for
+// stitch.googleapis.com.
 const child = spawn('npx.cmd -y @_davideast/stitch-mcp@latest proxy', {
   stdio: 'inherit',
-  env: { ...process.env, STITCH_ACCESS_TOKEN: j.access_token },
+  env: { ...process.env, STITCH_ACCESS_TOKEN: j.access_token, GOOGLE_CLOUD_PROJECT: process.env.GOOGLE_CLOUD_PROJECT || 'project-95424c56-ddf2-4f9a-a6b' },
   shell: true,
 });
 child.on('exit', (code) => process.exit(code ?? 0));
