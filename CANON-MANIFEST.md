@@ -11,6 +11,10 @@ Open the actual file when it governs your situation — do not act from memory.
 - **kv-cache-budget-checks.md** — Pre-invocation RAM budget; context_length is not safe
 - **local-delegation-routing.md** — Ollama as mechanical targets vs foreign-frontier validators
 - **memory-governance.md** — Rules for operational memory files: prohibited content, no PreMemoryWrite hook, index review at session start.
+- **model-eval-harness-preflight.md** — Standing up a measurement harness against any model/
+  family without re-buying debugging time: API-client quirks, token-budget/timeout
+  characterization METHOD, tool-call caps, mechanical-checker validation, LLM-judge blind-
+  grading discipline, remote-job resilience. Method is family-agnostic; numbers are per-model.
 - **model-rijal.md** — Behavioral biographies for each deliberation chain model: dispatch constraints, known failure modes, verdict accuracy records. Dispatch summary per model injected into chain prompts for calibration.
 - **pattern-amortization-signal.md** — N same-shape fixes → name structural helper instead
 - **perfect-repo-architecture.md** — Formation vs procedure split; two-layer project design
