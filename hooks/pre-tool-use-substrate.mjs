@@ -3,7 +3,9 @@
 // PreToolUse hook — HARD fail-closed gate on substrate-class edits.
 // Node.js .mjs port of pre-tool-use-substrate.ps1 (Phase A migration, C1 deliberation CONDITIONAL_APPROVE 2026-05-14).
 //
-// Requires a foreign-frontier dispatch (mcp__gemini/gpt/grok/glm/ollama-*, WebSearch, WebFetch)
+// Requires a foreign-frontier dispatch (mcp__ollama-*, WebSearch, WebFetch — per
+// operator-rulings.md 2026-06-09: gemini/gpt/grok/glm workers are forbidden outside
+// Ollama; narrowed 2026-08-11 after this file's own text was found still naming them)
 // to appear after the last prior substrate edit attempt before allowing any new Edit/Write/NotebookEdit
 // on substrate-class files.
 //
@@ -122,7 +124,7 @@ function getSubstrateEvents(path, skipId) {
       if (skipId && String(block.id) === skipId) continue;
       idx++;
       const name = block.name || '';
-      if (/^mcp__(gemini|gpt|grok|glm|ollama)/i.test(name) ||
+      if (/^mcp__ollama/i.test(name) ||
           name === 'WebSearch' || name === 'WebFetch') {
         events.push({ kind: 'dispatch', idx });
         continue;
@@ -190,14 +192,17 @@ witness rule + cited-but-not-applied failure mode):
   Same-tribe self-validation (Claude auditing Claude) is the failure
   mode the canon names; foreign-model validation is independent witness.
 
-The transcript shows no foreign-frontier dispatch (mcp__gemini-* /
-mcp__gpt-* / mcp__grok-* / mcp__glm-* / mcp__ollama-*
+The transcript shows no foreign-frontier dispatch (mcp__ollama-* /
 WebSearch / WebFetch) since the last substrate edit (or session start).
+Per operator-rulings.md 2026-06-09: gemini/gpt/grok/glm workers are
+forbidden outside Ollama — never dispatch them, including as a way to
+satisfy this gate.
 
 Required next action:
 
-  1. Dispatch a foreign-frontier validator on the change-shape of THIS
-     edit. Prompt shape: "I am about to ${toolName} <path>. Here is the
+  1. Dispatch a foreign-frontier validator (mcp__ollama-*, or WebFetch
+     for a live doc/API check) on the change-shape of THIS edit.
+     Prompt shape: "I am about to ${toolName} <path>. Here is the
      change-shape: <what is being added/removed and why>. Audit for
      canon-coherence and bypass surfaces."
   2. Read the validator's response.
