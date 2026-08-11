@@ -117,6 +117,13 @@ this file.
   from the launch command. Then poll the REMOTE output file via a separate connection rather
   than tailing a local pipe, so a future connection blip interrupts only your view, never the
   job itself.
+- **A guard/circuit-breaker that exits mid-record can leave a malformed partial record in the
+  output file** — a field the record-writing logic hadn't reached yet when the guard fired
+  simply won't be there, and a downstream consumer that assumes every record is well-formed
+  will crash on it. If a run is gap-filled with a separate small follow-up run and the outputs
+  are concatenated, validate every record's schema and drop malformed/duplicate ones before
+  handing the file to any downstream step — do not assume a guard firing cleanly means the
+  output file it leaves behind is clean.
 
 ## Applying this to a new model family
 
