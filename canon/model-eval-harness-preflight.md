@@ -74,6 +74,15 @@ this file.
   hand-read failure demonstrates the looser version is wrong, not preemptively or by feel.
 - Treat any mechanical checker's first-pass numbers as provisional until spot-checked by a
   human or a second, independent method — never report them as a finding on their own.
+- **An "every X satisfies Y" checker is vacuously satisfied by an empty/degenerate
+  response** — zero X means nothing violates the rule. Confirmed live: an IFEval-style
+  "every word must have prime length" constraint registered a full pass against a
+  completely empty response, caught only by chance while hand-reading a candidate row, not
+  by the harness itself. This silently inflates any reported pass rate by exactly the
+  empty-response rate on that task shape — non-trivial on models/tasks already prone to
+  empty generations. Fix: any checker of this shape needs a companion minimum-content
+  check, or every result set needs an explicit post-hoc audit for empty-response passes
+  before a pass rate is reported as a finding.
 
 ## 6. LLM-as-judge blind grading — applies to any model being judged, by any judge model
 
