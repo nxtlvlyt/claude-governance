@@ -110,7 +110,15 @@ this file.
   passing pipes, ampersands, multi-line inline scripts, or complex syntax through a nested
   remote-shell invocation reliably mangles. Fix every time: write the script to a local file,
   transfer it, then execute the transferred file — never construct complex commands inline
-  across an ssh/wsl/remote-shell boundary.
+  across an ssh/wsl/remote-shell boundary. **Corollary (2026-08-12): post-transfer remote
+  TEXT TRANSFORMS are the same hazard class.** A clean file transfer followed by a remote
+  `sed -i s/\r$//` CRLF-strip silently ate a literal trailing 'r' from a training-critical
+  Python file (`RenderError` → `RenderErro`) when the escape survived one shell layer but not
+  the next — and it only surfaced because the mangled name happened to crash an import; in a
+  string or comment it would have shipped. Normalize line endings (and any other text
+  transform) LOCALLY before transfer, send the final bytes, and run zero text-mutating
+  commands on the remote side. If a remote file must be verified, verify by grep/checksum —
+  read-only — never by re-transforming it.
 - **A backgrounded job's local wrapper reporting "killed" does not mean the remote process
   died.** Verify with a process check on the remote host before assuming a job actually died
   and relaunching it — needlessly relaunching a live job wastes compute and can corrupt output
