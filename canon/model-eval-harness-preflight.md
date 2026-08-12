@@ -133,6 +133,19 @@ this file.
   are concatenated, validate every record's schema and drop malformed/duplicate ones before
   handing the file to any downstream step — do not assume a guard firing cleanly means the
   output file it leaves behind is clean.
+- **Batches that cover the same task set are still not comparable unless their PROTOCOL
+  matches** — round count, rescue/self-correction mechanism, sampler params, token budget.
+  Verify each batch's protocol from its own records (e.g. presence/absence of `round3_*`
+  fields), not from memory of how it "should" have been run. Receipt (2026-08-12,
+  conductor-qwen): a v3.6 batch run 2-round was nearly merged into a paired comparison
+  against a 3-round v37 run — 5 of the 6 round-3 rescues on the 3-round side sat in one
+  discordant cell of the McNemar table, i.e. the "difference" was partly the protocol, not
+  the model. When protocols differ, either recompute the symmetric subset (e.g. round-2-only
+  passes on both sides) or report the asymmetry explicitly alongside the headline number —
+  never silently combine. Corollary from the same night: locate batch files by READING their
+  key ranges and schemas, not by filename or recency — the file assumed to be "the first
+  half" covered a different task window entirely, and only per-file key-range probing found
+  the real one.
 
 ## Applying this to a new model family
 
