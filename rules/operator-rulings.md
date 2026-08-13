@@ -24,9 +24,25 @@ rulings. This file is the loudness fix.)
   + Claude family seats remain the allowed roster.
   CARVE-OUTS (jurisdictions where Ollama Cloud IS permitted): agy + warroom (2026-07-11),
   the PRODUCT BOTS (trading bot @nxtnfabot/trading-system, CGSports Discord bot
-  cgsports-pipeline — operator word 2026-07-22), and **nxtlvl.studio print-shop build
-  (operator word 2026-08-09)**. The muezzin/conductor jurisdiction itself stays
-  local+Claude outside these four.
+  cgsports-pipeline — operator word 2026-07-22), **nxtlvl.studio print-shop build
+  (operator word 2026-08-09)**, and **betterbrampton.ca campaign site build (operator
+  word 2026-08-13)**. The muezzin/conductor jurisdiction itself stays local+Claude
+  outside these five.
+- **BETTERBRAMPTON.CA — OLLAMA CLOUD CARVE-OUT (operator word 2026-08-13: "it's what
+  built it, why would I say no?", confirming cloud dispatch for this project after the
+  session found `betterbrampton/_logs/seat-record.json` already showed kimi-k2.7-code
+  + glm-5.2 verdict-panel dispatches with no matching carve-out entry).** Covers: the
+  betterbrampton.ca mayoral-campaign site build, local working directory
+  `C:\Users\marka\code\betterbrampton\site` (package/spec pack at
+  `C:\Users\marka\code\betterbrampton\package\brampton-2026-package\`). Missions for
+  this project run through the same engine as nxtlvl — `C:\Users\marka\muezzin-cloud`
+  (the cloud-only fork, hard-blocked from ever reaching nxtbeast:11434 per its own
+  `no-local-gpu-guard.mjs`) — or the main `~/.claude/muezzin-plugin` seat roster
+  falling through to cloud; either is compliant now. Roster inherits muezzin-cloud's
+  censused catalog per its STATE.md (2026-08-09): kimi-k2.6, kimi-k2.7-code, glm-5.1,
+  glm-5.2, deepseek-v4-flash(:0731-cloud), deepseek-v4-pro, nemotron-3-ultra, kimi-k2.5
+  — minimax family stays disqualified (standing ruling below, unaffected by this
+  carve-out). Claude Opus/Sonnet remain the architect/executor tier as elsewhere.
 - **NXTLVL.STUDIO PRINT-SHOP BUILD — OLLAMA CLOUD CARVE-OUT (operator word 2026-08-09,
   extending the product-bot class to this build; read this bullet in full before any
   dispatch decision for this project — do not rely on grep/skim of the bullet above,
