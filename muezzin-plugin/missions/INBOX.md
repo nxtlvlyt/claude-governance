@@ -365,3 +365,5 @@ Both are UNPROVEN (video showed nothing working); neither justifies build effort
 - 2026-08-06T23:34:13.151Z EXTERNAL SIGNAL: NEW CI FAILURE on nxtlvlyt/muddytires-pages — 2 new failed run(s) (Lighthouse CI@main#31126457962, Lighthouse CI@main#31124746393). Auto-filed by external-signals-poller (gap-external-signals-poller); verify with: gh run list -R nxtlvlyt/muddytires-pages --json conclusion,workflowName,headBranch,createdAt,databaseId -L 20
 
 - 2026-08-06T23:34:13.151Z EXTERNAL SIGNAL: NEW SENTRY ISSUE(S) on muddytires — 1 new unresolved issue(s) (7655741665). Auto-filed by external-signals-poller (gap-external-signals-poller); verify at https://sentry.io/organizations/abass-inc/issues/?project=&query=is%3Aunresolved
+
+- 2026-08-15T17:59:28.753Z EXTERNAL SIGNAL: NEW SENTRY ISSUE(S) on muddytires — 1 new unresolved issue(s) (7673910013). Auto-filed by external-signals-poller (gap-external-signals-poller); verify at https://sentry.io/organizations/abass-inc/issues/?project=&query=is%3Aunresolved
