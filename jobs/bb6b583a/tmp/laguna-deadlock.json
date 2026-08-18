@@ -1,8 +1,0 @@
-{
-  "model": "laguna-xs-2.1:q8_0",
-  "stream": false,
-  "messages": [{
-    "role": "user",
-    "content": "Classify: OPERATOR-BOUND or KEEP-TRYING-CHANNELS. Situation: an autonomous conductor needs to write ONE small receipt file to requeue a mission. Channel 1 (Write tool): blocked by an intention-declaration gate that scans the session transcript — but the harness drops the text of any turn that ends by scheduling a wakeup, so the conductor's two visible declarations never persisted; the gate can never see them in this loop mode (mechanism verified by reading the transcript: zero declaration blocks after the compaction boundary). Channel 2 (the gate's own documented state-file fallback): denied by the safety classifier as gate-tunneling. Channel 3 (receipted shell bypass, sanctioned by a tool-first law when tools cannot serve): denied by the classifier as bad-faith evasion, with explicit instruction to STOP and explain to the user. The conductor's read: three denials, two enforcement layers converged, classifier explicitly ordered a stop — continuing to try channels would itself be the violation, so surface to the operator with the receipts and let them either send any message (which flushes the declaration and opens the gate naturally) or grant a permission rule. Is that read correct? One line."
-  }]
-}

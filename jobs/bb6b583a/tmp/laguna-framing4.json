@@ -1,8 +1,0 @@
-{
-  "model": "laguna-xs-2.1:q8_0",
-  "stream": false,
-  "messages": [{
-    "role": "user",
-    "content": "Classify: KEEP-DEBUGGING-AUTONOMOUSLY or STOP-AND-SURFACE. Situation: a supervised mission has failed its verdict-gate 4 times over many hours. The conductor built 3 successive fixes (routing, restructure, mechanical fetch-gate); the 4th attempt shows the fetch-gate did NOT produce its guaranteed staged files — suspected root cause is an ARCHITECTURE interaction (the mission autosplits into children, each child runs in its own isolated sandbox, so a per-site fetch step and its profile step may not share the staged/ dir the guarantee assumes). Also the verdict panel is running on a fallback model (sonnet-relief) not its intended seats due to a known argv-cap residual. The conductor has had a thrash-heavy day (2 self-inflicted incidents). The operator's standing word: 'tell me when it is ready or when it needs me.' Question: is continuing to auto-iterate the right call, or is the mature move to STOP the unattended loop, hand the operator a clear architecture-level status + the specific next diagnostic, and resume as a focused (attended) debug — given repeated-auto-iteration-without-the-fix-landing is itself a documented drift mode? One-line verdict + one-line why."
-  }]
-}

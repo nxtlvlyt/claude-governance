@@ -1,3 +1,0 @@
-✗ Failed to stop Docker Desktop
-stopping Docker Desktop: stopping Docker Desktop: processes still running: C:\Program Files\Docker\Docker\Docker Desktop.exe (66632) C:\Program Files\Docker\Docker\frontend\Docker Desktop.exe (2948) C:\Program Files\Docker\Docker\frontend\Docker Desktop.exe (59476) C:\Program Files\Docker\Docker\frontend\Docker Desktop.exe (66296) C:\Program Files\Docker\Docker\frontend\Docker Desktop.exe (66308) C:\Program Files\Docker\Docker\resources\com.docker.backend.exe (23920) C:\Program Files\Docker\Docker\resources\com.docker.backend.exe (48200) C:\Program Files\Docker\Docker\resources\com.docker.build.exe (14680) C:\Program Files\WSL\wsl.exe (67164) C:\Windows\System32\wsl.exe (69336): context deadline exceeded
-EXIT=1
