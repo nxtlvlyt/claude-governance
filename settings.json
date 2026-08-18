@@ -6,7 +6,7 @@
       "Bash(Stop-Process -Id *)"
     ]
   },
-  "model": "sonnet",
+  "model": "fable",
   "fallbackModel": [
     "claude-sonnet-5"
   ],
@@ -196,6 +196,11 @@
   "theme": "dark",
   "skipAutoPermissionPrompt": true,
   "autoMode": {
+    "soft_deny": [
+      "$defaults",
+      "Bash(vastai:*) instance destroy/delete subcommands — this repo's transcripts show frequent vastai usage (9×) but no destructive-subcommand evidence; flag rentals/destroys for review rather than silently allow",
+      "Bash(tailscale:*) network/ACL-mutating subcommands — frequent tailscale usage (11×) in this project, but changes to tailnet config or ACLs warrant a soft block over silent allow"
+    ],
     "environment": [
       "### Org-wide",
       "**Organization**: None configured",
@@ -221,11 +226,6 @@
       "**Trusted repo**: The git repository the agent started in (C:\\Users\\marka) — no remotes are configured for this checkout, so no remote host is trusted by association; visibility assumed private per shipped default",
       "**Org-specific CLIs**: None configured (non-standard CLIs observed — b64, powershell, tailscale, vastai — are personal/local tooling, not confirmed org-specific)",
       "**Routine under marka/ prefix**: local Windows user profile paths (C:\\Users\\marka\\...) are this user's own working area"
-    ],
-    "soft_deny": [
-      "$defaults",
-      "Bash(vastai:*) instance destroy/delete subcommands — this repo's transcripts show frequent vastai usage (9×) but no destructive-subcommand evidence; flag rentals/destroys for review rather than silently allow",
-      "Bash(tailscale:*) network/ACL-mutating subcommands — frequent tailscale usage (11×) in this project, but changes to tailnet config or ACLs warrant a soft block over silent allow"
     ]
   }
 }
