@@ -194,5 +194,38 @@
   "skipDangerousModePermissionPrompt": true,
   "skipWorkflowUsageWarning": true,
   "theme": "dark",
-  "skipAutoPermissionPrompt": true
+  "skipAutoPermissionPrompt": true,
+  "autoMode": {
+    "environment": [
+      "### Org-wide",
+      "**Organization**: None configured",
+      "**Cloud provider(s)**: None configured",
+      "**Repository visibility**: Not queryable here (no remotes configured in this repo — origin/HEAD unset); assume private",
+      "**Internal sharing / snippet hosting**: None configured — treat public paste/gist services as outside the trust boundary",
+      "**Secrets management**: None configured",
+      "**Default / protected branches**: Not queryable here (no origin remote in this repo to derive owner/repo)",
+      "**CI/CD deploy targets**: None configured",
+      "**Network posture**: None configured",
+      "**Source control**: The trusted repo (this working directory, C:\\Users\\marka) — no remotes are configured, so no external git host is trusted by default",
+      "**Trusted internal domains**: None configured",
+      "**Trusted cloud buckets**: None configured",
+      "**Key internal services**: nxtbeast (local Ollama host, contacted 50× this project) — local network host only, not a cloud/internal service endpoint claim beyond that",
+      "**Internal package registry**: None configured",
+      "**Sensitive data locations & audiences**: any file or store holding personal data, confidential business data, credentials, regulated data, or similarly sensitive material; preserve exact handles when known and share only with audiences cleared at the [named+specifics] bar. Note: this repo's own docs reference credential-handling paths (e.g. .claude/.credentials.json, .dsh/.credentials.yaml) — treat these as sensitive-data locations if present",
+      "**Data retention / declassification**: None configured",
+      "**Sensitive remote targets**: any namespace, host, or container whose name carries `prod` or `production` as a whole word or name segment (hyphen/underscore/dot-delimited)",
+      "**Protected deployment namespaces / environments**: None configured — fall back to the Sensitive remote targets heuristic",
+      "**Protected IaC scopes**: IAM, RBAC, networking, quota, and node-pool resources; anything whose name or tag carries `prod` or `production` as a whole word or name segment",
+      "### User-specific",
+      "**Primary use of Claude Code**: software development (agentic/multi-model orchestration tooling, per this repo's .claude/rules and skills content)",
+      "**Trusted repo**: The git repository the agent started in (C:\\Users\\marka) — no remotes are configured for this checkout, so no remote host is trusted by association; visibility assumed private per shipped default",
+      "**Org-specific CLIs**: None configured (non-standard CLIs observed — b64, powershell, tailscale, vastai — are personal/local tooling, not confirmed org-specific)",
+      "**Routine under marka/ prefix**: local Windows user profile paths (C:\\Users\\marka\\...) are this user's own working area"
+    ],
+    "soft_deny": [
+      "$defaults",
+      "Bash(vastai:*) instance destroy/delete subcommands — this repo's transcripts show frequent vastai usage (9×) but no destructive-subcommand evidence; flag rentals/destroys for review rather than silently allow",
+      "Bash(tailscale:*) network/ACL-mutating subcommands — frequent tailscale usage (11×) in this project, but changes to tailnet config or ACLs warrant a soft block over silent allow"
+    ]
+  }
 }
