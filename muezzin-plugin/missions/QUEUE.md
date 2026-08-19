@@ -1,5 +1,21 @@
 # Mission Queue — conductor's open work (substrate, not memory)
 
+## 2026-08-19 ITEM: Arch 3.6 27b print-seat audition (one-tune+faith hypothesis — OPERATOR'S OWN PROPOSAL)
+Operator, 2026-08-19: "I thought one base tune with how to be, added with a faith
+file would be powerful?" — test it before any new per-seat training. Audition the
+EXISTING Arch 3.6 27b (local, D:\conductor-qwen\models\conductor-qwen-27b-v11) as
+the PRINT DESIGNER seat: system = print_designer.faith.md + HEADLESS-PRINT-PIPELINE.md,
+task = author one 2boots-class card HTML to spec, graded MECHANICALLY by
+nxtlvl-portal print-gates/preflight.py (+ gate34) — zero LLM judging needed.
+PRECONDITIONS (all mechanical): (a) nxtlvl-print-colorgates.S1-S4 DONE in
+muezzin-cloud (preflight.py committed — it is the grader); (b) nxtbeast GPU free
+(no training resident, /api/ps empty) — the 27B is LOCAL, so this CANNOT run in the
+muezzin-cloud fork (hard no-local-GPU guard); it runs in THIS jurisdiction.
+PASS = preflight verdict PASS + faith honesty floor held (no invented contact info).
+If it passes: one-base-tune + faith files becomes the seat architecture; per-seat
+tunes are dead. If it fails: the failure classes feed the base tune's next corpus.
+9B stays dead per standing ruling either way.
+
 ## OPERATOR RULING 2026-06-12 ~04:00 (his words: "we need to drop down to 1 mission at a
 ## time to manage our usage until Tuesday"): MAX_LANES 2 → 1 until Tuesday 2026-06-16.
 ## Applied: muezzin-daemon.mjs MAX_LANES=1 + restart (PID 116740, "up to 1 parallel
