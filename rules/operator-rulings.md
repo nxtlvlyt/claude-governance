@@ -84,6 +84,17 @@ rulings. This file is the loudness fix.)
   (use-it-or-lose-it route windows); Ollama level-4 models (kimi, deepseek-v4-pro)
   never do level-2 jobs when budget is tight. The dial is muezzin-route.json.
 
+- **DSH / DEEPSEEK HARNESS — OLLAMA CLOUD CARVE-OUT, CLOUD-DEFAULT (operator word
+  2026-08-18: "could we set it up to run using all ollama cloud models by default and have
+  the ability to switch to local models?", asked twice in the same session while directing
+  the DSH governance-port work).** Covers: the DeepSeek Harness (dsh/Cordis) jurisdiction on
+  this laptop — the governance-framework port and any profiles built under it (including the
+  v4.8 profile-usuli work). Ollama Cloud is the DEFAULT model route (roster inherits the
+  censused cloud catalog: kimi-k2.6, kimi-k2.7-code, glm-5.1/5.2, deepseek-v4 family,
+  nemotron-3-ultra; minimax stays disqualified per the standing ruling), with local models
+  (nxtbeast/laptop) as the config-switchable second route via the same llm-pi-ai adapter.
+  The muezzin/conductor jurisdiction itself remains local+Claude as before — this carve-out
+  is DSH-scoped, same shape as the agy/warroom/nxtlvl/betterbrampton entries.
 - **CONDUCTOR-QWEN TRAINING CARVE-OUT (operator word 2026-07-28: approved plan
   majestic-sauteeing-cupcake + "you are the main architect and the other architects
   are used to keep your usage down... and for their creativity and their non family
