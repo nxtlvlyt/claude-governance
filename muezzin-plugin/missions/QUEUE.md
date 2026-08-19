@@ -12,9 +12,15 @@ muezzin-cloud (preflight.py committed — it is the grader); (b) nxtbeast GPU fr
 (no training resident, /api/ps empty) — the 27B is LOCAL, so this CANNOT run in the
 muezzin-cloud fork (hard no-local-GPU guard); it runs in THIS jurisdiction.
 PASS = preflight verdict PASS + faith honesty floor held (no invented contact info).
-If it passes: one-base-tune + faith files becomes the seat architecture; per-seat
-tunes are dead. If it fails: the failure classes feed the base tune's next corpus.
-9B stays dead per standing ruling either way.
+CANDIDATE B (operator word 2026-08-19: "the website uses Gemma 4 31b which I think
+will surprise you" — the 2boots.ca site itself was gemma-built): run gemma4:31b
+UNTUNED under the same faith + runbook + gates, same task, same grader. The 16-PRINT-
+GATES §7 loop failure was self-diagnosed as loop-design, not model — this audition
+uses the fixed harness (regression guard, best-round revert), so it is a fair test.
+If it passes: one-base-tune + faith files becomes the seat architecture (and possibly
+faith-file-only with NO tune, if candidate B matches candidate A); per-seat tunes are
+dead. If it fails: the failure classes feed the base tune's next corpus. 9B stays
+dead per standing ruling either way.
 
 ## OPERATOR RULING 2026-06-12 ~04:00 (his words: "we need to drop down to 1 mission at a
 ## time to manage our usage until Tuesday"): MAX_LANES 2 → 1 until Tuesday 2026-06-16.
