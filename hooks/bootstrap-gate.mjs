@@ -46,6 +46,16 @@ const REQUIRED = [
   { suffix: '.claude/CANON-MANIFEST.md',  label: '~/.claude/CANON-MANIFEST.md' },
 ];
 
+// CONDUCTING GATE (2026-08-18, operator: "how do we get the conductor to
+// understand their faith file?" — receipt: a session conducted for 6 hours,
+// obeying only the rules-layer laws, without ever opening the faith. The
+// pointer-read is probabilistic; this makes it a precondition of the verbs.)
+// An Edit/Write whose target is a conducting artifact additionally requires
+// the conductor faith in the transcript. Same escalation conductor-core.md
+// itself prescribes when guaranteed-delivery text still gets missed.
+const CONDUCTOR_FAITH = { suffix: '.claude/faiths/conductor.faith.md', label: '~/.claude/faiths/conductor.faith.md' };
+const CONDUCTING_TARGET = /(\.mission\.txt$)|([\\/]missions[\\/](autorun|queue)\.md$)/i;
+
 // Normalize separators and lowercase only — do NOT resolve() the suffix,
 // that would expand it relative to CWD and break the endsWith comparison.
 const normSlash = (p) => p.replace(/\\/g, '/').toLowerCase();
@@ -57,6 +67,7 @@ if (isReadTool) {
   const filePath = inp.tool_input?.file_path;
   if (!filePath) process.exit(0);
   if (REQUIRED.some(req => pathEndsWith(filePath, req.suffix))) process.exit(0);
+  if (pathEndsWith(filePath, CONDUCTOR_FAITH.suffix)) process.exit(0); // faith Read is unlock path — never deadlock
 }
 
 // Locate transcript
@@ -121,7 +132,32 @@ const missing = REQUIRED.filter(req =>
   !readPaths.some(rp => pathEndsWith(rp, req.suffix))
 );
 
-if (missing.length === 0) process.exit(0);
+if (missing.length === 0) {
+  // Base orientation demonstrated. Conducting-class writes need the faith too.
+  const target = inp.tool_input?.file_path;
+  if (
+    isWriteTool && target && CONDUCTING_TARGET.test(normSlash(target)) &&
+    !readPaths.some(rp => pathEndsWith(rp, CONDUCTOR_FAITH.suffix))
+  ) {
+    process.stdout.write(JSON.stringify({
+      hookSpecificOutput: {
+        hookEventName: 'PreToolUse',
+        permissionDecision: 'deny',
+        permissionDecisionReason: `BOOTSTRAP GATE — CONDUCTING (~/.claude/hooks/bootstrap-gate.mjs).
+
+This write targets a conducting artifact (mission file / AUTORUN / QUEUE),
+and ${CONDUCTOR_FAITH.label} has not been read this session.
+
+The faith is the seat's identity — constructing or firing missions without it
+is the exact failure it was written to prevent (receipt: 2026-08-18, six
+hours of conducting on the rules layer alone). Read it, then retry; the
+Read is always allowed and this gate stays open for the rest of the session.`,
+      },
+    }));
+    process.exit(2);
+  }
+  process.exit(0);
+}
 
 // Block — compose denial message
 const missingList = missing.map(r => `  - ${r.label}`).join('\n');
