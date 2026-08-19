@@ -15,17 +15,18 @@ PASS = preflight verdict PASS + faith honesty floor held (no invented contact in
 CANDIDATE B (operator word 2026-08-19: "the website uses Gemma 4 31b which I think
 will surprise you" — the 2boots.ca site itself was gemma-built): run gemma-4-31b
 UNTUNED under the same faith + runbook + gates, same task, same grader — dispatched
-via AIMLAPI CLOUD (google/gemma-4-31b-it, the §7 loop's receipted transport), NOT the
-local Ollama copy. The 16-PRINT-GATES §7 loop failure was self-diagnosed as
+via OLLAMA CLOUD (operator ruling 2026-08-19: "anything we test locally will be on
+ollama cloud"; census the cloud catalog for gemma-4-31b first — if absent, SURFACE
+that to the operator, do not silently swap providers). The 16-PRINT-GATES §7 loop failure was self-diagnosed as
 loop-design, not model — this audition uses the fixed harness (regression guard,
 best-round revert), so it is a fair test.
 SCOPE RULING (operator word 2026-08-19, same exchange: "no I don't want anything on
 the site to be done locally"): this audition produces OFFLINE TEST ARTIFACTS ONLY —
 nothing it makes ships to any site or customer, and NO site/production work runs on
-local models regardless of audition outcome. Local execution here is limited to
-candidate A (Arch 27B, whose weights only exist locally), gated on the GPU being
-free; if the operator extends the no-local ruling to test runs too, candidate A parks
-and candidate B alone answers the faith-file-only question.
+local models regardless of audition outcome. Candidate A (Arch 27B, local-only weights) is
+PARKED per the operator's 2026-08-19 ruling (tests run on Ollama Cloud; local runs
+only on his specific green-light) — unpark owner: this item, on his word. Candidate B
+alone answers the faith-file-only question until then.
 If it passes: one-base-tune + faith files becomes the seat architecture (and possibly
 faith-file-only with NO tune, if candidate B matches candidate A); per-seat tunes are
 dead. If it fails: the failure classes feed the base tune's next corpus. 9B stays

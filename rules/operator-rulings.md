@@ -148,6 +148,18 @@ rulings. This file is the loudness fix.)
   already-trained 9B artifacts stay on disk and their historical numbers remain quotable as
   history. Nothing new gets built on it.
 
+- **LOCAL-MODEL TESTING RUNS ON OLLAMA CLOUD (operator word 2026-08-19, during the
+  print-seat audition design: "no I don't want anything on the site to be done
+  locally" + "anything we test locally will be on ollama cloud").** CONDITIONS:
+  (a) no site/production/customer-facing work ever executes on local (nxtbeast/laptop)
+  models; (b) capability TESTS of open models (auditions, seat benches) dispatch via
+  Ollama Cloud, not the local GPU — if a candidate is absent from the censused cloud
+  catalog, that absence is SURFACED to the operator, never silently swapped to another
+  provider or run locally; (c) custom local-only weights (e.g. Arch 3.6 27b, which no
+  cloud hosts) PARK until the operator green-lights a specific local run. This governs
+  test/audition dispatch; the muezzin/conductor runtime jurisdiction rulings above are
+  undisturbed.
+
 ## Mission & engine rulings
 - **GAP ISSUES ARE ALWAYS PRIORITY** (operator word 2026-07-03 ~01:2x: "gap issues is always
   priority", after asking "how is the conductor still failing at this"). An open gap of
