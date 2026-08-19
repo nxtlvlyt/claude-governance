@@ -367,3 +367,20 @@ Both are UNPROVEN (video showed nothing working); neither justifies build effort
 - 2026-08-06T23:34:13.151Z EXTERNAL SIGNAL: NEW SENTRY ISSUE(S) on muddytires — 1 new unresolved issue(s) (7655741665). Auto-filed by external-signals-poller (gap-external-signals-poller); verify at https://sentry.io/organizations/abass-inc/issues/?project=&query=is%3Aunresolved
 
 - 2026-08-15T17:59:28.753Z EXTERNAL SIGNAL: NEW SENTRY ISSUE(S) on muddytires — 1 new unresolved issue(s) (7673910013). Auto-filed by external-signals-poller (gap-external-signals-poller); verify at https://sentry.io/organizations/abass-inc/issues/?project=&query=is%3Aunresolved
+
+- 2026-08-18 (conductor-qwen session, operator-endorsed direction): BUILD THE DREAMING PASS —
+  an out-of-band batch job (scheduled mission class) that closes the manual-postmortem loop.
+  Design, distilled from the Anthropic context-engineering talk (transcript at
+  ~/.claude/uploads/55ec3b3b-8c5e-457a-aae2-3c176c33ee27/85eee769-8mSClPSaYNyyJZR1.txt) +
+  operator-shared spec text, both reviewed 2026-08-18: (1) INGEST recent session JSONL
+  transcripts (~/.claude/projects/*) + the current rules/memory tree; (2) EXTRACT via
+  sub-agents: repeated corrective loops, aborted tool calls, recurring operator pushback;
+  (3) PROPOSE a structured diff of rule promotions/adjustments/retirements WITH transcript
+  receipts and frequency counts (fifth-law compliant: every causal claim carries its
+  receipts); (4) OPERATOR GATE: Mark accepts/rejects before anything merges — canon write
+  access stays his. Rationale receipts: the ten conductor-core laws are all manual outputs
+  of exactly this process (each "paid for" by a dated failure); conductor-core itself
+  documents a memory failing twice before promotion — the staleness/visibility gap this
+  automates away. Seeds/overlaps: mission-exhaust-analysis memory (125-log manual cut),
+  warroom analytics item, N5 conductor-lesson checks. NOT muezzin-runtime-scoped: reviews
+  the general governance layer, so the operator gate is mandatory, not optional.
