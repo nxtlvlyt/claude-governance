@@ -76,16 +76,23 @@ if (!transcriptPath || !existsSync(transcriptPath)) {
   process.exit(0); // fail-open: cannot validate without transcript
 }
 
-// Read last 30 entries
 const allLines = readFileSync(transcriptPath, 'utf8').split('\n');
-// 2026-06-24: widened from -30 to -200 after diagnostic showed session-marker
-// dilution. The 30-line slice was dominated by queue-operation / bridge-session
-// / permission-mode / attachment entries, leaving only 1-2 substantive message
-// entries visible — recent tool_uses (WebFetch, Agent) got crowded out, producing
-// false "no compliant dispatch" failures. The boundary detection still terminates
-// at the real-user-message correctly; this just gives the loop enough entries
-// to find them.
-const lines = allLines.slice(-200);
+// 2026-08-20 FIX: the -200 pre-slice (widened from -30 on 2026-06-24 for a
+// different reason — session-marker dilution crowding out real entries) had a
+// real, reproduced bug: on tool-call-dense turns (routine this session — dozens
+// of Bash/Read/Edit calls per turn), a single turn's own entries can exceed 200
+// lines, so the reverse walk below never reaches the true turn-start boundary
+// within the slice and silently runs out at index 0 instead of breaking on the
+// real user message. lastAssistantText then concatenates text from MULTIPLE
+// actual turns, and stale stop-language from an earlier turn re-matches on a
+// later one — confirmed live: the same phrase appeared 9 times across the
+// transcript, each a genuine turn, but kept re-triggering blocks on turns that
+// never said it. Fix: walk the FULL transcript in reverse (the existing
+// break-on-real-user-message condition is correct and unchanged) so the
+// boundary is always found regardless of turn size. SAFETY_CAP below is a
+// runaway guard for pathological file sizes only — not a normal-case bound.
+const SAFETY_CAP = 20000;
+const lines = allLines.length > SAFETY_CAP ? allLines.slice(-SAFETY_CAP) : allLines;
 
 // Walk in reverse to find last assistant entry
 let lastAssistantText = '';
