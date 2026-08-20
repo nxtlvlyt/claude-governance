@@ -138,10 +138,18 @@ for (const line of allLines) {
 }
 
 // State-file fallback: same-turn surrender articulation via Bash (intention accompanies act).
-// Instance writes ~/.claude/state/pending-surrender.json with {ts, surrender_text} before Edit.
-// TTL: 60s. Substrate-coupling check still runs — substrate says must appear in old_string.
+// Instance writes ~/.claude/state/pending-surrender-<session_id>.json (or the
+// unscoped legacy name if session_id is unavailable) with {ts, surrender_text}
+// before Edit. TTL: 60s. Substrate-coupling check still runs — substrate says
+// must appear in old_string.
+// SESSION-SCOPED (2026-08-20): same collision class fixed in niyyah-gate.mjs
+// the same turn — the unscoped global path let concurrent Claude Code
+// sessions race on one shared file. session_id is already used above for the
+// transcript path; reused here for the pending-surrender path.
 {
-  const pendingFile = join(os.homedir(), '.claude', 'state', 'pending-surrender.json');
+  const pendingFile = inp.session_id
+    ? join(os.homedir(), '.claude', 'state', `pending-surrender-${inp.session_id}.json`)
+    : join(os.homedir(), '.claude', 'state', 'pending-surrender.json'); // fallback: session_id unavailable
   if (existsSync(pendingFile)) {
     try {
       const pending = JSON.parse(readFileSync(pendingFile, 'utf8'));

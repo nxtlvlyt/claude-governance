@@ -74,10 +74,21 @@ for (const line of lines) {
 }
 
 // State-file fallback: same-turn niyyah via Bash (intention accompanies act — Islamic model).
-// Instance writes ~/.claude/state/pending-niyyah.json with {ts, niyyah_text} before Edit in same turn.
-// TTL: 60s. Source-read verification still runs against JSONL — integrity intact.
+// Instance writes ~/.claude/state/pending-niyyah-<session_id>.json (or the
+// unscoped legacy name if session_id is unavailable) with {ts, niyyah_text}
+// before Edit in same turn. TTL: 60s. Source-read verification still runs
+// against JSONL — integrity intact.
+// SESSION-SCOPED (2026-08-20): the unscoped global path let two concurrent
+// Claude Code sessions on the same machine race on one shared file — one
+// session's niyyah content silently overwrote another's, reproduced live
+// twice in the same turn (dsh-port work vs. an unrelated trading-bot
+// session). inp.session_id is already used above for the transcript path;
+// reusing it here for the pending-niyyah path eliminates the collision
+// class entirely, since each session now gets its own file.
 if (!niyyahFound) {
-  const pendingFile = join(os.homedir(), '.claude', 'state', 'pending-niyyah.json');
+  const pendingFile = inp.session_id
+    ? join(os.homedir(), '.claude', 'state', `pending-niyyah-${inp.session_id}.json`)
+    : join(os.homedir(), '.claude', 'state', 'pending-niyyah.json'); // fallback: session_id unavailable
   if (existsSync(pendingFile)) {
     try {
       const pending = JSON.parse(readFileSync(pendingFile, 'utf8'));
