@@ -227,5 +227,6 @@
       "**Org-specific CLIs**: None configured (non-standard CLIs observed — b64, powershell, tailscale, vastai — are personal/local tooling, not confirmed org-specific)",
       "**Routine under marka/ prefix**: local Windows user profile paths (C:\\Users\\marka\\...) are this user's own working area"
     ]
-  }
+  },
+  "autoUpdatesChannel": "latest"
 }
