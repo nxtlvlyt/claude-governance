@@ -43,7 +43,22 @@ rulings. This file is the loudness fix.)
   glm-5.2, deepseek-v4-flash(:0731-cloud), deepseek-v4-pro, nemotron-3-ultra, kimi-k2.5
   — minimax family stays disqualified (standing ruling below, unaffected by this
   carve-out). Claude Opus/Sonnet remain the architect/executor tier as elsewhere.
-- **NXTLVL.STUDIO PRINT-SHOP BUILD — OLLAMA CLOUD CARVE-OUT (operator word 2026-08-09,
+- **BETTERBRAMPTON FLYER PIPELINE — AGY EXECUTOR EXTENSION (operator word 2026-08-25:
+  "so we should be able to have an agy make all these flyers? it has good QC and access to
+  ollama models? and would keep our usage down?" then "then we will run agy and pump out
+  them all").** The agy jurisdiction (agy-muezzin, Ollama Cloud permitted per its own
+  2026-07-11 carve-out) is AUTHORIZED as the executor for the betterbrampton FLYER
+  PIPELINE specifically: scaling the approved flyer templates across the event matrix
+  (platform sizes x languages x dated events). CONDITIONS: (a) governed by
+  `package/brampton-2026-package/05-creative/FLYER-VOICE.md` (audience register,
+  source-of-record order, full-name rule, Latin-script legal name) + `band_gate.py` +
+  the visual_qc faith witness; (b) every batch lands in the operator's approval queue —
+  humans release, nothing auto-posts (BUILD-STATE decision 3); (c) non-English variants
+  need native-speaker review before release; (d) Claude audits samples per batch (agy's
+  receipted readiness is supervised, not autonomous); (e) this extends agy to the flyer
+  lane only — betterbrampton SITE missions stay on muezzin-cloud/main-plugin per the
+  2026-08-13 carve-out. First batch does not fire until the team+Paul approval of the
+  v3 seed pack (APPROVAL-SHEET.md) comes back.
   extending the product-bot class to this build; read this bullet in full before any
   dispatch decision for this project — do not rely on grep/skim of the bullet above,
   three subagents missed this addition on 2026-08-09 by not reading past the
