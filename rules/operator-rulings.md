@@ -57,8 +57,10 @@ rulings. This file is the loudness fix.)
   need native-speaker review before release; (d) Claude audits samples per batch (agy's
   receipted readiness is supervised, not autonomous); (e) this extends agy to the flyer
   lane only — betterbrampton SITE missions stay on muezzin-cloud/main-plugin per the
-  2026-08-13 carve-out. First batch does not fire until the team+Paul approval of the
-  v3 seed pack (APPROVAL-SHEET.md) comes back.
+  2026-08-13 carve-out. TIMING AMENDED same day
+  (operator word: "have agy do them and all the flyers for the next month"): GENERATION of
+  the month batch starts now per 05-creative/FLYER-PIPELINE-HANDOFF.md; RELEASE of anything
+  remains gated on the approval queue.
   extending the product-bot class to this build; read this bullet in full before any
   dispatch decision for this project — do not rely on grep/skim of the bullet above,
   three subagents missed this addition on 2026-08-09 by not reading past the
