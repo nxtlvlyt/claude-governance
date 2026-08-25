@@ -1,0 +1,49 @@
+```json
+{
+  "role": "workshop",
+  "verdict": "APPROVE",
+  "confidence": 0.95,
+  "summary": "The plugin implements the FM-12 'Camel Gate' logic to prevent agent turns from ending while background tasks are active without a scheduled wakeup. It correctly maps tool-based task creation (including argument-specific flags), settlement via terminal status patterns, and wakeup scheduling. The state management is per-agent and correctly handles turn transitions and a fail-open steering cap to prevent infinite loops.",
+  "concerns": [
+    {
+      "id": "C1",
+      "section": "lib/index.js:113",
+      "description": "The `settleTools` logic depends on `resultText` concatenating content. If a tool result returns structured data that is not specifically 'text' type blocks, the terminal status regex might fail to find the status line even if the job is settled.",
+      "severity": "non_blocking",
+      "recommended_fix": "Ensure the `resultText` helper or the regex is robust against different result content structures if `dsh-tool-jobs` evolves.",
+      "investigation_task": "Verify if `dsh-tool-jobs` always outputs the terminal status line as a text block in the result content array."
+    }
+  ],
+  "closed_prior_concerns": [],
+  "search_findings": "N/A - Source code analysis performed on provided target files.",
+  "niyyah_audit": {
+    "honorsSource": true,
+    "guardsFailureMode": true,
+    "note": "The implementation specifically addresses the 2026-08-24 lifecycle bug regarding permanent gate opening."
+  }
+}
+``````json
+{
+  "role": "workshop",
+  "verdict": "APPROVE",
+  "confidence": 0.95,
+  "summary": "The plugin implements the FM-12 'Camel Gate' logic to prevent agent turns from ending while background tasks are active without a scheduled wakeup. It correctly maps tool-based task creation (including argument-specific flags), settlement via terminal status patterns, and wakeup scheduling. The state management is per-agent and correctly handles turn transitions and a fail-open steering cap to prevent infinite loops.",
+  "concerns": [
+    {
+      "id": "C1",
+      "section": "lib/index.js:113",
+      "description": "The `settleTools` logic depends on `resultText` concatenating content. If a tool result returns structured data that is not specifically 'text' type blocks, the terminal status regex might fail to find the status line even if the job is settled.",
+      "severity": "non_blocking",
+      "recommended_fix": "Ensure the `resultText` helper or the regex is robust against different result content structures if `dsh-tool-jobs` evolves.",
+      "investigation_task": "Verify if `dsh-tool-jobs` always outputs the terminal status line as a text block in the result content array."
+    }
+  ],
+  "closed_prior_concerns": [],
+  "search_findings": "N/A - Source code analysis performed on provided target files.",
+  "niyyah_audit": {
+    "honorsSource": true,
+    "guardsFailureMode": true,
+    "note": "The implementation specifically addresses the 2026-08-24 lifecycle bug regarding permanent gate opening."
+  }
+}
+```

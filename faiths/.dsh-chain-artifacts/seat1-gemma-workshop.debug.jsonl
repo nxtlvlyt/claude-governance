@@ -1,0 +1,397 @@
+{"type":"block-start","index":0,"blockType":"text"}
+{"type":"text-delta","index":0,"text":"```"}
+{"type":"text-delta","index":0,"text":"json"}
+{"type":"text-delta","index":0,"text":"\n"}
+{"type":"text-delta","index":0,"text":"{"}
+{"type":"text-delta","index":0,"text":"\n"}
+{"type":"text-delta","index":0,"text":"  "}
+{"type":"text-delta","index":0,"text":"\""}
+{"type":"text-delta","index":0,"text":"role"}
+{"type":"text-delta","index":0,"text":"\":"}
+{"type":"text-delta","index":0,"text":" \""}
+{"type":"text-delta","index":0,"text":"workshop"}
+{"type":"text-delta","index":0,"text":"\","}
+{"type":"text-delta","index":0,"text":"\n"}
+{"type":"text-delta","index":0,"text":"  "}
+{"type":"text-delta","index":0,"text":"\""}
+{"type":"text-delta","index":0,"text":"ver"}
+{"type":"text-delta","index":0,"text":"dict"}
+{"type":"text-delta","index":0,"text":"\":"}
+{"type":"text-delta","index":0,"text":" \""}
+{"type":"text-delta","index":0,"text":"APPRO"}
+{"type":"text-delta","index":0,"text":"VE"}
+{"type":"text-delta","index":0,"text":"\","}
+{"type":"text-delta","index":0,"text":"\n"}
+{"type":"text-delta","index":0,"text":"  "}
+{"type":"text-delta","index":0,"text":"\""}
+{"type":"text-delta","index":0,"text":"confidence"}
+{"type":"text-delta","index":0,"text":"\":"}
+{"type":"text-delta","index":0,"text":" "}
+{"type":"text-delta","index":0,"text":"0"}
+{"type":"text-delta","index":0,"text":"."}
+{"type":"text-delta","index":0,"text":"9"}
+{"type":"text-delta","index":0,"text":"5"}
+{"type":"text-delta","index":0,"text":","}
+{"type":"text-delta","index":0,"text":"\n"}
+{"type":"text-delta","index":0,"text":"  "}
+{"type":"text-delta","index":0,"text":"\""}
+{"type":"text-delta","index":0,"text":"summary"}
+{"type":"text-delta","index":0,"text":"\":"}
+{"type":"text-delta","index":0,"text":" \""}
+{"type":"text-delta","index":0,"text":"The"}
+{"type":"text-delta","index":0,"text":" plugin"}
+{"type":"text-delta","index":0,"text":" implements"}
+{"type":"text-delta","index":0,"text":" the"}
+{"type":"text-delta","index":0,"text":" FM"}
+{"type":"text-delta","index":0,"text":"-"}
+{"type":"text-delta","index":0,"text":"1"}
+{"type":"text-delta","index":0,"text":"2"}
+{"type":"text-delta","index":0,"text":" '"}
+{"type":"text-delta","index":0,"text":"Camel"}
+{"type":"text-delta","index":0,"text":" Gate"}
+{"type":"text-delta","index":0,"text":"'"}
+{"type":"text-delta","index":0,"text":" logic"}
+{"type":"text-delta","index":0,"text":" to"}
+{"type":"text-delta","index":0,"text":" prevent"}
+{"type":"text-delta","index":0,"text":" agent"}
+{"type":"text-delta","index":0,"text":" turns"}
+{"type":"text-delta","index":0,"text":" from"}
+{"type":"text-delta","index":0,"text":" ending"}
+{"type":"text-delta","index":0,"text":" while"}
+{"type":"text-delta","index":0,"text":" background"}
+{"type":"text-delta","index":0,"text":" tasks"}
+{"type":"text-delta","index":0,"text":" are"}
+{"type":"text-delta","index":0,"text":" active"}
+{"type":"text-delta","index":0,"text":" without"}
+{"type":"text-delta","index":0,"text":" a"}
+{"type":"text-delta","index":0,"text":" scheduled"}
+{"type":"text-delta","index":0,"text":" wakeup"}
+{"type":"text-delta","index":0,"text":"."}
+{"type":"text-delta","index":0,"text":" It"}
+{"type":"text-delta","index":0,"text":" correctly"}
+{"type":"text-delta","index":0,"text":" maps"}
+{"type":"text-delta","index":0,"text":" tool"}
+{"type":"text-delta","index":0,"text":"-"}
+{"type":"text-delta","index":0,"text":"based"}
+{"type":"text-delta","index":0,"text":" task"}
+{"type":"text-delta","index":0,"text":" creation"}
+{"type":"text-delta","index":0,"text":" ("}
+{"type":"text-delta","index":0,"text":"including"}
+{"type":"text-delta","index":0,"text":" argument"}
+{"type":"text-delta","index":0,"text":"-"}
+{"type":"text-delta","index":0,"text":"specific"}
+{"type":"text-delta","index":0,"text":" flags"}
+{"type":"text-delta","index":0,"text":"),"}
+{"type":"text-delta","index":0,"text":" settlement"}
+{"type":"text-delta","index":0,"text":" via"}
+{"type":"text-delta","index":0,"text":" terminal"}
+{"type":"text-delta","index":0,"text":" status"}
+{"type":"text-delta","index":0,"text":" patterns"}
+{"type":"text-delta","index":0,"text":","}
+{"type":"text-delta","index":0,"text":" and"}
+{"type":"text-delta","index":0,"text":" wakeup"}
+{"type":"text-delta","index":0,"text":" scheduling"}
+{"type":"text-delta","index":0,"text":"."}
+{"type":"text-delta","index":0,"text":" The"}
+{"type":"text-delta","index":0,"text":" state"}
+{"type":"text-delta","index":0,"text":" management"}
+{"type":"text-delta","index":0,"text":" is"}
+{"type":"text-delta","index":0,"text":" per"}
+{"type":"text-delta","index":0,"text":"-"}
+{"type":"text-delta","index":0,"text":"agent"}
+{"type":"text-delta","index":0,"text":" and"}
+{"type":"text-delta","index":0,"text":" correctly"}
+{"type":"text-delta","index":0,"text":" handles"}
+{"type":"text-delta","index":0,"text":" turn"}
+{"type":"text-delta","index":0,"text":" transitions"}
+{"type":"text-delta","index":0,"text":" and"}
+{"type":"text-delta","index":0,"text":" a"}
+{"type":"text-delta","index":0,"text":" fail"}
+{"type":"text-delta","index":0,"text":"-"}
+{"type":"text-delta","index":0,"text":"open"}
+{"type":"text-delta","index":0,"text":" steering"}
+{"type":"text-delta","index":0,"text":" cap"}
+{"type":"text-delta","index":0,"text":" to"}
+{"type":"text-delta","index":0,"text":" prevent"}
+{"type":"text-delta","index":0,"text":" infinite"}
+{"type":"text-delta","index":0,"text":" loops"}
+{"type":"text-delta","index":0,"text":".\","}
+{"type":"text-delta","index":0,"text":"\n"}
+{"type":"text-delta","index":0,"text":"  "}
+{"type":"text-delta","index":0,"text":"\""}
+{"type":"text-delta","index":0,"text":"conc"}
+{"type":"text-delta","index":0,"text":"erns"}
+{"type":"text-delta","index":0,"text":"\":"}
+{"type":"text-delta","index":0,"text":" ["}
+{"type":"text-delta","index":0,"text":"\n"}
+{"type":"text-delta","index":0,"text":"    "}
+{"type":"text-delta","index":0,"text":"{"}
+{"type":"text-delta","index":0,"text":"\n"}
+{"type":"text-delta","index":0,"text":"      "}
+{"type":"text-delta","index":0,"text":"\""}
+{"type":"text-delta","index":0,"text":"id"}
+{"type":"text-delta","index":0,"text":"\":"}
+{"type":"text-delta","index":0,"text":" \""}
+{"type":"text-delta","index":0,"text":"C"}
+{"type":"text-delta","index":0,"text":"1"}
+{"type":"text-delta","index":0,"text":"\","}
+{"type":"text-delta","index":0,"text":"\n"}
+{"type":"text-delta","index":0,"text":"      "}
+{"type":"text-delta","index":0,"text":"\""}
+{"type":"text-delta","index":0,"text":"section"}
+{"type":"text-delta","index":0,"text":"\":"}
+{"type":"text-delta","index":0,"text":" \""}
+{"type":"text-delta","index":0,"text":"lib"}
+{"type":"text-delta","index":0,"text":"/"}
+{"type":"text-delta","index":0,"text":"index"}
+{"type":"text-delta","index":0,"text":"."}
+{"type":"text-delta","index":0,"text":"js"}
+{"type":"text-delta","index":0,"text":":"}
+{"type":"text-delta","index":0,"text":"1"}
+{"type":"text-delta","index":0,"text":"1"}
+{"type":"text-delta","index":0,"text":"3"}
+{"type":"text-delta","index":0,"text":"\","}
+{"type":"text-delta","index":0,"text":"\n"}
+{"type":"text-delta","index":0,"text":"      "}
+{"type":"text-delta","index":0,"text":"\""}
+{"type":"text-delta","index":0,"text":"description"}
+{"type":"text-delta","index":0,"text":"\":"}
+{"type":"text-delta","index":0,"text":" \""}
+{"type":"text-delta","index":0,"text":"The"}
+{"type":"text-delta","index":0,"text":" `"}
+{"type":"text-delta","index":0,"text":"sett"}
+{"type":"text-delta","index":0,"text":"le"}
+{"type":"text-delta","index":0,"text":"Tools"}
+{"type":"text-delta","index":0,"text":"`"}
+{"type":"text-delta","index":0,"text":" logic"}
+{"type":"text-delta","index":0,"text":" depends"}
+{"type":"text-delta","index":0,"text":" on"}
+{"type":"text-delta","index":0,"text":" `"}
+{"type":"text-delta","index":0,"text":"result"}
+{"type":"text-delta","index":0,"text":"Text"}
+{"type":"text-delta","index":0,"text":"`"}
+{"type":"text-delta","index":0,"text":" concaten"}
+{"type":"text-delta","index":0,"text":"ating"}
+{"type":"text-delta","index":0,"text":" content"}
+{"type":"text-delta","index":0,"text":"."}
+{"type":"text-delta","index":0,"text":" If"}
+{"type":"text-delta","index":0,"text":" a"}
+{"type":"text-delta","index":0,"text":" tool"}
+{"type":"text-delta","index":0,"text":" result"}
+{"type":"text-delta","index":0,"text":" returns"}
+{"type":"text-delta","index":0,"text":" structured"}
+{"type":"text-delta","index":0,"text":" data"}
+{"type":"text-delta","index":0,"text":" that"}
+{"type":"text-delta","index":0,"text":" is"}
+{"type":"text-delta","index":0,"text":" not"}
+{"type":"text-delta","index":0,"text":" specifically"}
+{"type":"text-delta","index":0,"text":" '"}
+{"type":"text-delta","index":0,"text":"text"}
+{"type":"text-delta","index":0,"text":"'"}
+{"type":"text-delta","index":0,"text":" type"}
+{"type":"text-delta","index":0,"text":" blocks"}
+{"type":"text-delta","index":0,"text":","}
+{"type":"text-delta","index":0,"text":" the"}
+{"type":"text-delta","index":0,"text":" terminal"}
+{"type":"text-delta","index":0,"text":" status"}
+{"type":"text-delta","index":0,"text":" regex"}
+{"type":"text-delta","index":0,"text":" might"}
+{"type":"text-delta","index":0,"text":" fail"}
+{"type":"text-delta","index":0,"text":" to"}
+{"type":"text-delta","index":0,"text":" find"}
+{"type":"text-delta","index":0,"text":" the"}
+{"type":"text-delta","index":0,"text":" status"}
+{"type":"text-delta","index":0,"text":" line"}
+{"type":"text-delta","index":0,"text":" even"}
+{"type":"text-delta","index":0,"text":" if"}
+{"type":"text-delta","index":0,"text":" the"}
+{"type":"text-delta","index":0,"text":" job"}
+{"type":"text-delta","index":0,"text":" is"}
+{"type":"text-delta","index":0,"text":" settled"}
+{"type":"text-delta","index":0,"text":".\","}
+{"type":"text-delta","index":0,"text":"\n"}
+{"type":"text-delta","index":0,"text":"      "}
+{"type":"text-delta","index":0,"text":"\""}
+{"type":"text-delta","index":0,"text":"severity"}
+{"type":"text-delta","index":0,"text":"\":"}
+{"type":"text-delta","index":0,"text":" \""}
+{"type":"text-delta","index":0,"text":"non"}
+{"type":"text-delta","index":0,"text":"_"}
+{"type":"text-delta","index":0,"text":"blocking"}
+{"type":"text-delta","index":0,"text":"\","}
+{"type":"text-delta","index":0,"text":"\n"}
+{"type":"text-delta","index":0,"text":"      "}
+{"type":"text-delta","index":0,"text":"\""}
+{"type":"text-delta","index":0,"text":"recommended"}
+{"type":"text-delta","index":0,"text":"_"}
+{"type":"text-delta","index":0,"text":"fix"}
+{"type":"text-delta","index":0,"text":"\":"}
+{"type":"text-delta","index":0,"text":" \""}
+{"type":"text-delta","index":0,"text":"Ensure"}
+{"type":"text-delta","index":0,"text":" the"}
+{"type":"text-delta","index":0,"text":" `"}
+{"type":"text-delta","index":0,"text":"result"}
+{"type":"text-delta","index":0,"text":"Text"}
+{"type":"text-delta","index":0,"text":"`"}
+{"type":"text-delta","index":0,"text":" helper"}
+{"type":"text-delta","index":0,"text":" or"}
+{"type":"text-delta","index":0,"text":" the"}
+{"type":"text-delta","index":0,"text":" regex"}
+{"type":"text-delta","index":0,"text":" is"}
+{"type":"text-delta","index":0,"text":" robust"}
+{"type":"text-delta","index":0,"text":" against"}
+{"type":"text-delta","index":0,"text":" different"}
+{"type":"text-delta","index":0,"text":" result"}
+{"type":"text-delta","index":0,"text":" content"}
+{"type":"text-delta","index":0,"text":" structures"}
+{"type":"text-delta","index":0,"text":" if"}
+{"type":"text-delta","index":0,"text":" `"}
+{"type":"text-delta","index":0,"text":"d"}
+{"type":"text-delta","index":0,"text":"sh"}
+{"type":"text-delta","index":0,"text":"-"}
+{"type":"text-delta","index":0,"text":"tool"}
+{"type":"text-delta","index":0,"text":"-"}
+{"type":"text-delta","index":0,"text":"jobs"}
+{"type":"text-delta","index":0,"text":"`"}
+{"type":"text-delta","index":0,"text":" evolves"}
+{"type":"text-delta","index":0,"text":".\","}
+{"type":"text-delta","index":0,"text":"\n"}
+{"type":"text-delta","index":0,"text":"      "}
+{"type":"text-delta","index":0,"text":"\""}
+{"type":"text-delta","index":0,"text":"invest"}
+{"type":"text-delta","index":0,"text":"igation"}
+{"type":"text-delta","index":0,"text":"_"}
+{"type":"text-delta","index":0,"text":"task"}
+{"type":"text-delta","index":0,"text":"\":"}
+{"type":"text-delta","index":0,"text":" \""}
+{"type":"text-delta","index":0,"text":"Verify"}
+{"type":"text-delta","index":0,"text":" if"}
+{"type":"text-delta","index":0,"text":" `"}
+{"type":"text-delta","index":0,"text":"d"}
+{"type":"text-delta","index":0,"text":"sh"}
+{"type":"text-delta","index":0,"text":"-"}
+{"type":"text-delta","index":0,"text":"tool"}
+{"type":"text-delta","index":0,"text":"-"}
+{"type":"text-delta","index":0,"text":"jobs"}
+{"type":"text-delta","index":0,"text":"`"}
+{"type":"text-delta","index":0,"text":" always"}
+{"type":"text-delta","index":0,"text":" outputs"}
+{"type":"text-delta","index":0,"text":" the"}
+{"type":"text-delta","index":0,"text":" terminal"}
+{"type":"text-delta","index":0,"text":" status"}
+{"type":"text-delta","index":0,"text":" line"}
+{"type":"text-delta","index":0,"text":" as"}
+{"type":"text-delta","index":0,"text":" a"}
+{"type":"text-delta","index":0,"text":" text"}
+{"type":"text-delta","index":0,"text":" block"}
+{"type":"text-delta","index":0,"text":" in"}
+{"type":"text-delta","index":0,"text":" the"}
+{"type":"text-delta","index":0,"text":" result"}
+{"type":"text-delta","index":0,"text":" content"}
+{"type":"text-delta","index":0,"text":" array"}
+{"type":"text-delta","index":0,"text":".\""}
+{"type":"text-delta","index":0,"text":"\n"}
+{"type":"text-delta","index":0,"text":"    "}
+{"type":"text-delta","index":0,"text":"}"}
+{"type":"text-delta","index":0,"text":"\n"}
+{"type":"text-delta","index":0,"text":"  "}
+{"type":"text-delta","index":0,"text":"],"}
+{"type":"text-delta","index":0,"text":"\n"}
+{"type":"text-delta","index":0,"text":"  "}
+{"type":"text-delta","index":0,"text":"\""}
+{"type":"text-delta","index":0,"text":"closed"}
+{"type":"text-delta","index":0,"text":"_"}
+{"type":"text-delta","index":0,"text":"prior"}
+{"type":"text-delta","index":0,"text":"_"}
+{"type":"text-delta","index":0,"text":"conc"}
+{"type":"text-delta","index":0,"text":"erns"}
+{"type":"text-delta","index":0,"text":"\":"}
+{"type":"text-delta","index":0,"text":" [],"}
+{"type":"text-delta","index":0,"text":"\n"}
+{"type":"text-delta","index":0,"text":"  "}
+{"type":"text-delta","index":0,"text":"\""}
+{"type":"text-delta","index":0,"text":"search"}
+{"type":"text-delta","index":0,"text":"_"}
+{"type":"text-delta","index":0,"text":"findings"}
+{"type":"text-delta","index":0,"text":"\":"}
+{"type":"text-delta","index":0,"text":" \""}
+{"type":"text-delta","index":0,"text":"N"}
+{"type":"text-delta","index":0,"text":"/"}
+{"type":"text-delta","index":0,"text":"A"}
+{"type":"text-delta","index":0,"text":" -"}
+{"type":"text-delta","index":0,"text":" Source"}
+{"type":"text-delta","index":0,"text":" code"}
+{"type":"text-delta","index":0,"text":" analysis"}
+{"type":"text-delta","index":0,"text":" performed"}
+{"type":"text-delta","index":0,"text":" on"}
+{"type":"text-delta","index":0,"text":" provided"}
+{"type":"text-delta","index":0,"text":" target"}
+{"type":"text-delta","index":0,"text":" files"}
+{"type":"text-delta","index":0,"text":".\","}
+{"type":"text-delta","index":0,"text":"\n"}
+{"type":"text-delta","index":0,"text":"  "}
+{"type":"text-delta","index":0,"text":"\""}
+{"type":"text-delta","index":0,"text":"ni"}
+{"type":"text-delta","index":0,"text":"yy"}
+{"type":"text-delta","index":0,"text":"ah"}
+{"type":"text-delta","index":0,"text":"_"}
+{"type":"text-delta","index":0,"text":"audit"}
+{"type":"text-delta","index":0,"text":"\":"}
+{"type":"text-delta","index":0,"text":" {"}
+{"type":"text-delta","index":0,"text":"\n"}
+{"type":"text-delta","index":0,"text":"    "}
+{"type":"text-delta","index":0,"text":"\""}
+{"type":"text-delta","index":0,"text":"hon"}
+{"type":"text-delta","index":0,"text":"ors"}
+{"type":"text-delta","index":0,"text":"Source"}
+{"type":"text-delta","index":0,"text":"\":"}
+{"type":"text-delta","index":0,"text":" true"}
+{"type":"text-delta","index":0,"text":","}
+{"type":"text-delta","index":0,"text":"\n"}
+{"type":"text-delta","index":0,"text":"    "}
+{"type":"text-delta","index":0,"text":"\""}
+{"type":"text-delta","index":0,"text":"guards"}
+{"type":"text-delta","index":0,"text":"Failure"}
+{"type":"text-delta","index":0,"text":"Mode"}
+{"type":"text-delta","index":0,"text":"\":"}
+{"type":"text-delta","index":0,"text":" true"}
+{"type":"text-delta","index":0,"text":","}
+{"type":"text-delta","index":0,"text":"\n"}
+{"type":"text-delta","index":0,"text":"    "}
+{"type":"text-delta","index":0,"text":"\""}
+{"type":"text-delta","index":0,"text":"note"}
+{"type":"text-delta","index":0,"text":"\":"}
+{"type":"text-delta","index":0,"text":" \""}
+{"type":"text-delta","index":0,"text":"The"}
+{"type":"text-delta","index":0,"text":" implementation"}
+{"type":"text-delta","index":0,"text":" specifically"}
+{"type":"text-delta","index":0,"text":" addresses"}
+{"type":"text-delta","index":0,"text":" the"}
+{"type":"text-delta","index":0,"text":" "}
+{"type":"text-delta","index":0,"text":"2"}
+{"type":"text-delta","index":0,"text":"0"}
+{"type":"text-delta","index":0,"text":"2"}
+{"type":"text-delta","index":0,"text":"6"}
+{"type":"text-delta","index":0,"text":"-"}
+{"type":"text-delta","index":0,"text":"0"}
+{"type":"text-delta","index":0,"text":"8"}
+{"type":"text-delta","index":0,"text":"-"}
+{"type":"text-delta","index":0,"text":"2"}
+{"type":"text-delta","index":0,"text":"4"}
+{"type":"text-delta","index":0,"text":" lifecycle"}
+{"type":"text-delta","index":0,"text":" bug"}
+{"type":"text-delta","index":0,"text":" regarding"}
+{"type":"text-delta","index":0,"text":" permanent"}
+{"type":"text-delta","index":0,"text":" gate"}
+{"type":"text-delta","index":0,"text":" opening"}
+{"type":"text-delta","index":0,"text":".\""}
+{"type":"text-delta","index":0,"text":"\n"}
+{"type":"text-delta","index":0,"text":"  "}
+{"type":"text-delta","index":0,"text":"}"}
+{"type":"text-delta","index":0,"text":"\n"}
+{"type":"text-delta","index":0,"text":"}"}
+{"type":"text-delta","index":0,"text":"\n"}
+{"type":"text-delta","index":0,"text":"```"}
+{"type":"block-end","index":0,"block":{"type":"text","text":"```json\n{\n  \"role\": \"workshop\",\n  \"verdict\": \"APPROVE\",\n  \"confidence\": 0.95,\n  \"summary\": \"The plugin implements the FM-12 'Camel Gate' logic to prevent agent turns from ending while background tasks are active without a scheduled wakeup. It correctly maps tool-based task creation (including argument-specific flags), settlement via terminal status patterns, and wakeup scheduling. The state management is per-agent and correctly handles turn transitions and a fail-open steering cap to prevent infinite loops.\",\n  \"concerns\": [\n    {\n      \"id\": \"C1\",\n      \"section\": \"lib/index.js:113\",\n      \"description\": \"The `settleTools` logic depends on `resultText` concatenating content. If a tool result returns structured data that is not specifically 'text' type blocks, the terminal status regex might fail to find the status line even if the job is settled.\",\n      \"severity\": \"non_blocking\",\n      \"recommended_fix\": \"Ensure the `resultText` helper or the regex is robust against different result content structures if `dsh-tool-jobs` evolves.\",\n      \"investigation_task\": \"Verify if `dsh-tool-jobs` always outputs the terminal status line as a text block in the result content array.\"\n    }\n  ],\n  \"closed_prior_concerns\": [],\n  \"search_findings\": \"N/A - Source code analysis performed on provided target files.\",\n  \"niyyah_audit\": {\n    \"honorsSource\": true,\n    \"guardsFailureMode\": true,\n    \"note\": \"The implementation specifically addresses the 2026-08-24 lifecycle bug regarding permanent gate opening.\"\n  }\n}\n```"}}
+{"type":"usage","usage":{"inputTokens":4776,"outputTokens":394}}
+{"type":"finish","reason":{"kind":"stop"},"replayState":{"response":{"kind":"pi-ai","version":2,"api":"openai-completions","provider":"ollama-cloud","model":"gemma4:31b","responseId":"chatcmpl-479","stopReason":"stop"},"blocks":[{"type":"text"}]}}
