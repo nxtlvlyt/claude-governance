@@ -1,0 +1,17 @@
+{
+  "timestamp": "2026-06-09T22:15:28.594Z",
+  "hook_version": "1.0.0",
+  "parse_error": null,
+  "history": [
+    {
+      "timestamp": "2026-06-09T22:15:28.521Z",
+      "event": "FALLBACK",
+      "provider": "ollama",
+      "model": "nemotron-3-ultra",
+      "error_type": "NETWORK",
+      "message": "Network error on ollama: fetch failed",
+      "history": []
+    }
+  ],
+  "history_length": 1
+}

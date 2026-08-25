@@ -68,8 +68,8 @@ whether the verdict was accurate.
 |-------|-------|
 | RAM footprint | ~20GB |
 | Typical inference time | ~2.1 min (GPU, RTX 4090, Gap 7 phase 1, 2026-05-13) |
-| Dispatch method | Python streaming, timeout=32768, `think: False` TOP-LEVEL (not inside options) |
-| Known constraints | `think: False` must be top-level body key — inside `options` has no effect. Without it, qwen emits chain-of-thought before JSON, causing parse failures downstream. |
+| Dispatch method | Python streaming, timeout=32768, `think: True` TOP-LEVEL — C2 fix, commit bbb7952 |
+| Known constraints | `think: True` must be top-level body key — captures CoT in `message.thinking`, improving deliberation depth. nemotron-3-super uses `think: False`; the two models differ. Without top-level placement, the parameter has no effect. |
 | MCP usable? | No — CPU inference too slow for MCP timeout |
 
 ### Verdict Accuracy Record
@@ -238,6 +238,61 @@ creates a conflict of interest. Operator audit is the appropriate mechanism.)*
 *"claude-sonnet-4-6 (Seat 3): architect synthesis with history context. Not
 independently auditable in this file — operator audit applies. Seat 7: spawned
 Agent, governed by subagent-start.ps1."*
+
+---
+
+## kimi-k2.7-code — Executor Seat (Phase-2, reasoning-heavy mode)
+
+**Role in chain:** Phase-2 executor in the `reasoning-heavy` seat mode — the per-step
+writer that must produce a usable artifact EVERY step. Ollama Cloud coder. Seated
+2026-06-17 (operator three-way hard bake-off).
+
+### Operational Profile
+
+| Field | Value |
+|-------|-------|
+| Capability | Hard battery (expression-evaluator w/ precedence; topo-sort w/ cycle detection; LRU recency; full semver precedence; safe deep-path access) — solved ALL 5 correctly. Co-best with Sonnet + GLM-5.2 at the ceiling. |
+| Reliability | 100% clean emission every run — zero empties across the battery. Decisive seat property: a per-step executor must emit every step. |
+| Speed/cost | Fast raw API, token-efficient / cheap (metered). |
+| Fallback | CLAUDE_SEAT_MAP → sonnet (proven reliable executor) if cloud fails. |
+
+### Reliability + Capability Record
+
+Three-way bake-off 2026-06-17 (Kimi-2.7 vs GLM-5.2 vs Sonnet): capability tie at the
+ceiling; Kimi = Sonnet on reliability (clean every run). Quality parity with Sonnet — its
+edge over Sonnet is cost/speed (not quality); its edge over GLM-5.2 is reliable emission.
+
+### Dispatch Summary
+
+*"kimi-k2.7-code: Phase-2 executor (reasoning-heavy). Co-best-with-Sonnet capability + 100%
+clean emission + cheap/fast = the right per-step executor. Sonnet fallback via CLAUDE_SEAT_MAP."*
+
+---
+
+## glm-5.2 — Phase-3 Audit Seat (NOT a Phase-2 executor)
+
+**Role in chain:** Phase-3 adversarial audit (verdict). Ollama Cloud (Z.ai), 1M ctx,
+long-horizon coder, SWE-bench Pro 62.1. Explicitly KEPT OUT of the Phase-2 executor seat.
+
+### Operational Profile
+
+| Field | Value |
+|-------|-------|
+| Capability | Capability-equal with Kimi + Sonnet — solved all 5 hard-battery tasks. No raw-ability gap at the top. |
+| Reliability (the finding) | INTERMITTENT EMPTY OUTPUT on hard tasks — 1 empty in 3 semver retries + earlier low-budget empties. Recovers on retry but UNPREDICTABLE — a per-step executor cannot tolerate it. |
+| Audit strength | Strong in Phase-3 — caught a real logic bug + a traversal vuln. A rare empty is a cheap retry here. |
+
+### Reliability + Capability Record
+
+A single-task head-to-head (2026-06-17, oracle-d1.js answers[] edit) PASSED — which MISSED
+the intermittent-empty the harder multi-task battery exposed. **Lesson: one-task validation
+is insufficient for emission reliability — it needs a multi-run battery.** Consequence: the
+reasoning-heavy executor seat was corrected glm-5.2 → kimi-k2.7-code (2026-06-17).
+
+### Dispatch Summary
+
+*"glm-5.2: capability-equal but intermittent-empty — KEEP OUT of Phase-2 (per-step emission
+liability). Phase-3 AUDIT only, where it tests strong and a rare empty is a cheap retry."*
 
 ---
 

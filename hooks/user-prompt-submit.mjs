@@ -39,7 +39,9 @@ When drafting "your call" / "want me to" / "should I" / "operator decision requi
   4. Only then, if all three resolve to "this genuinely needs the operator," surface the substantive question.
 
 Per CLAUDE.md D2 (attempt before asking) and D12 (write against open source, not from memory):
-Substrate-resolvable findings are yours to verify by reading files. Do not surface them as questions.`;
+Substrate-resolvable findings are yours to verify by reading files. Do not surface them as questions.
+
+[CHAIN-FIRST DEFAULT — conductor] Reach for the chain FIRST; repair it when it breaks. A mission is the default unit of work — construct/fire/judge, do not hand-implement deliverables. Bypassing the chain (hand-editing a project/deliverable file, or witnessing with ONE model) requires a stated justification AND a FAILED-x2 receipt or an explicit bootstrap-exception. Witness substrate/engine edits with guardian AND laguna (both via mcp__ollama; guardian = granite4.1-guardian:8b), never laguna alone.`;
 
 // Turn counter + CURRENT-STATE.md heartbeat every 10 turns (crash resilience)
 let turnCount = 1;
@@ -53,12 +55,24 @@ try { writeFileSync(turnCountFile, String(turnCount)); } catch { /* non-fatal */
 
 if (turnCount % 10 === 0) {
   const ts = new Date().toISOString().replace('T', ' ').replace(/\.\d+Z$/, '');
+  // Fix 2 (2026-05-29, chain-approved): preserve an already-set model_version across
+  // heartbeats. The old code hardcoded the placeholder, clobbering the real value every
+  // 10 turns (why Sonnet-vs-Opus was untraceable). Read existing CURRENT-STATE.md; reuse
+  // model_version if it is a real value; otherwise keep the placeholder. Fails open.
+  let modelVersionLine = 'model_version: (instance: write your actual model ID here at session start — e.g. claude-sonnet-4-6)';
+  try {
+    const prevState = readFileSync(currentStateFile, 'utf8');
+    const mv = prevState.match(/^model_version:\s*(.+)$/m);
+    if (mv && !/write your actual model ID/i.test(mv[1])) {
+      modelVersionLine = `model_version: ${mv[1].trim()}`;
+    }
+  } catch { /* no prior file — keep placeholder */ }
   const heartbeat = `# CURRENT-STATE.md
 
 Written by: user-prompt-submit.mjs hook (turn ${turnCount} heartbeat)
 Timestamp: ${ts}
 Project CWD: ${cwd}
-model_version: (instance: write your actual model ID here at session start — e.g. claude-sonnet-4-6)
+${modelVersionLine}
 
 ## Governance constants (always true)
 

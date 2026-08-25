@@ -193,7 +193,7 @@ PHASE1_AGENTS = [
         "think": True,      # safe: script captures message.thinking separately; JSON verdict in message.content
         "num_predict": 8192, # 4096 was too small — thinking tokens count against num_predict; qwen exhausted budget on thinking with 0 left for content
         "num_ctx": 32768,   # 16384 stalled (token exhaustion); 24576 caused model-load hang; 32768 = operator-context.md S4 intended value for thinking models with large prompts
-        "num_gpu": 45,      # qwen3.6:27b loads ~27GB total; 45 layers = ~18GB VRAM, ~20GB GPU used, ~3.5GB free
+        "num_gpu": 40,      # RETUNED 2026-06-01 (gpu_retune empirical sweep, operator-prompted): num_gpu=40 fits at 32768 (no 500; 45 still 500s, so ceiling is 41-44), PROCESSOR 33%/67% CPU/GPU, ~34GB split across GPU+RAM. Measured 4.56 tok/s vs 2.07 CPU = ~2.2x on the slowest seat. Undoes the 2026-05-29 num_gpu=0 safe-fallback (the "TODO: retune" is now DONE). Requires OLLAMA_LLM_LIBRARY=cuda_v12 server.
     },
 ]
 
@@ -205,8 +205,7 @@ PHASE2_AGENTS = [
         "think": None,
         "num_predict": 3072,
         "num_ctx": 16384,
-        "num_gpu": 0,       # laguna ignores num_ctx — always allocates 24576 KV cells → ~24.8GB > 24GB VRAM → 500.
-                            # CPU is required. num_gpu=99 was wrong; corrected per no-skip rule.
+        "num_gpu": 20,      # RETUNED 2026-06-01 (gpu_retune empirical, operator-prompted): full offload still 500s (fixed 24576-cell KV overflows 24GB), but num_gpu=20 PARTIAL fits at 16384 — 46%/54% CPU/GPU, ~26GB split. Measured prefill 722 vs 140 tok/s (5.2x) + gen 16 vs 9.9 (1.6x) = ~2.4x total on a prefill-heavy prompt. The old "CPU required" assumed full-offload-only. Requires OLLAMA_LLM_LIBRARY=cuda_v12 server.
     },
     {
         "name": GOVERNANCE_MODEL,
@@ -214,8 +213,8 @@ PHASE2_AGENTS = [
         "search_query": SEARCH_QUERIES[3],
         "think": None,
         "num_predict": 4096,
-        "num_ctx": 24576,
-        "num_gpu": 99,      # granite4.1:30b ~17.5GB model + ~4.5GB KV = ~23GB, fits 24GB
+        "num_ctx": 16384,   # retuned 2026-06-01: granite is GQA (small KV) → full GPU fits at 16384.
+        "num_gpu": 64,      # RETUNED 2026-06-01 (gpu_retune.mjs empirical): granite q4 is ~17GB (NOT the ~35GB static estimate) → all 64 layers fit the 24GB 4090 at ctx<=16384. ~4.4s vs ~11.8s CPU (~3x). Requires the ollama server on OLLAMA_LLM_LIBRARY=cuda_v12.
     },
     {
         "name": SYNTHESIS_MODEL,
@@ -224,7 +223,7 @@ PHASE2_AGENTS = [
         "think": False,
         "num_predict": 32768,
         "num_ctx": 32768,   # capped at 32768 — nemotron OOM above this on 192GB (operator-context S1)
-        "num_gpu": 14,      # nemotron 80.6GB/89 layers ~927MB/layer; 14 layers ~13GB on GPU, rest CPU
+        "num_gpu": 14,      # 2026-05-29 REVERTED to 14: blanket num_gpu=0 forced all 93GB to CPU RAM -> OOM 500. nemotron NEEDS partial GPU (14 layers ~13GB on the free 24GB GPU, ~80GB CPU) to fit. This is its documented working config (unlike qwen/granite which 500 on GPU layout — nemotron's small offload is fine).
     },
 ]
 
@@ -391,6 +390,43 @@ def dispatch_agent(cfg, prior_verdicts, search_results, open_concerns, soft_note
     rijal = get_rijal_summary(name)
     rijal_block = f"\n[RIJAL -- PRIOR PERFORMANCE NOTE FOR {name}]\n{rijal}" if rijal else ""
 
+    # CONDUCTOR INDEPENDENCE-AUDIT (canon 6agent-deliberation-stack.md, "Laguna independence audit").
+    # ONLY the laguna seat (the FIRST phase-2 seat, role 'code-review') performs this check.
+    # It receives sonnet-blind.txt (Seat-3 Phase-1 blind eval) alongside the synthesis it already
+    # sees in prior_verdicts, and audits whether the synthesis reversed any blind-eval position
+    # WITHOUT new substrate evidence (= conductor confirmation-bias / deference to Seats 1/2).
+    # FAIL-SAFE: if sonnet-blind.txt is missing/unreadable, the audit is skipped silently — the
+    # dispatch proceeds unchanged. Only the laguna seat is touched; granite/nemotron unaffected.
+    independence_block = ""
+    independence_block_present = False
+    if role == 'code-review':
+        blind_path = os.path.join(OUTPUT_DIR, "sonnet-blind.txt")
+        try:
+            with open(blind_path, 'r', encoding='utf-8') as bf:
+                blind_text = bf.read().strip()
+            if blind_text:
+                independence_block = (
+                    "\n[CONDUCTOR INDEPENDENCE-AUDIT -- REQUIRED FIELD IN YOUR RETURNED JSON]\n"
+                    "You MUST include in your returned JSON an additional REQUIRED field "
+                    "`\"independence_audit\": \"PASS\"` or `\"FAIL\"` (PASS if the Seat-3 synthesis "
+                    "honored the blind eval / cited substrate for any reversal; FAIL if it reversed a "
+                    "blind-eval position without evidence = conductor confirmation-bias), plus a "
+                    "`\"independence_reason\": \"one sentence\"` field. These two fields are REQUIRED "
+                    "in your JSON object -- do not omit them.\n"
+                    "How to decide: compare the Seat-3 SYNTHESIS (shown in PRIOR AGENT VERDICTS above, "
+                    "labelled 'architect seat 3') against the Seat-3 BLIND eval below. The blind eval was "
+                    "written by Seat 3 from substrate ALONE, before it read Seats 1/2. The synthesis was "
+                    "written after. Did the synthesis REVERSE any blind-eval position WITHOUT citing new "
+                    "substrate evidence (= conductor confirmation-bias / deference to Seats 1/2)? If yes, "
+                    "`\"independence_audit\": \"FAIL\"`; otherwise `\"PASS\"`.\n\n"
+                    "[SEAT-3 BLIND EVAL]\n"
+                    f"{blind_text}\n"
+                )
+                independence_block_present = True
+        except Exception:
+            # Fail-safe: blind eval missing/unreadable → skip the audit silently, do not break dispatch.
+            independence_block = ""
+
     prompt = "\n".join([
         f"You are the {role} agent in a 5-agent review chain.",
         rijal_block,
@@ -399,6 +435,7 @@ def dispatch_agent(cfg, prior_verdicts, search_results, open_concerns, soft_note
         f"\n[PRIOR AGENT VERDICTS]\n{chr(10).join(prior_verdicts) if prior_verdicts else 'None -- you are first.'}",
         concern_block,
         soft_notes_block,
+        independence_block,
         "\nReturn ONLY valid JSON. No explanation before or after the JSON object.",
     ])
 
@@ -494,6 +531,18 @@ def dispatch_agent(cfg, prior_verdicts, search_results, open_concerns, soft_note
     elapsed = time.time() - wall_start
     print(f"\nDone in {elapsed / 60:.1f} min -- {len(content)} chars", flush=True)
 
+    # Capture the laguna INDEPENDENCE-AUDIT (canon: separate check alongside the verdict).
+    # The instruction now asks for a REQUIRED structured field `"independence_audit": "PASS|FAIL"`
+    # inside the returned JSON (laguna ignored the old free-text `INDEPENDENCE:` line on its first
+    # live run). We PREFER the parsed-JSON field below; the regex on raw content is kept as a
+    # resilience FALLBACK (older outputs / models that still emit the line). None when no audit ran
+    # (non-laguna, or blind missing).
+    independence_verdict = None  # regex-fallback capture from raw content
+    if role == 'code-review':
+        _im = re.search(r'INDEPENDENCE:\s*(PASS|FAIL)', content, re.IGNORECASE)
+        if _im:
+            independence_verdict = _im.group(1).upper()
+
     try:
         start_idx = content.find('{')
         end_idx   = content.rfind('}') + 1
@@ -501,16 +550,188 @@ def dispatch_agent(cfg, prior_verdicts, search_results, open_concerns, soft_note
             result = json.loads(content[start_idx:end_idx])
             result['_agent'] = name
             result['_role']  = role
+            if role == 'code-review':
+                # Prefer the parsed-JSON field; fall back to the regex value from raw content.
+                parsed_ia = result.get('independence_audit')
+                if isinstance(parsed_ia, str) and parsed_ia.strip().upper() in ('PASS', 'FAIL'):
+                    result['independence_audit'] = parsed_ia.strip().upper()
+                    print(f"  INDEPENDENCE-AUDIT: {result['independence_audit']} (parsed JSON)", flush=True)
+                elif independence_verdict is not None:
+                    result['independence_audit'] = independence_verdict
+                    print(f"  INDEPENDENCE-AUDIT: {independence_verdict} (regex fallback)", flush=True)
+                elif independence_block_present:
+                    result.pop('independence_audit', None)
+                    print(f"  INDEPENDENCE-AUDIT: (no independence_audit field or line found in laguna output)", flush=True)
             return result
     except json.JSONDecodeError:
         pass
 
+    # PARSE_ERROR path: JSON unusable, so only the regex fallback is available.
+    if role == 'code-review' and independence_verdict is not None:
+        print(f"  INDEPENDENCE-AUDIT: {independence_verdict} (regex fallback, JSON unparsed)", flush=True)
+    elif role == 'code-review' and independence_block_present:
+        print(f"  INDEPENDENCE-AUDIT: (no independence_audit field or line found in laguna output)", flush=True)
     return {
         "_agent": name, "_role": role,
         "verdict": "PARSE_ERROR",
         "summary": content[:800],
         "concerns": [], "raw": True,
+        **({"independence_audit": independence_verdict} if independence_verdict is not None else {}),
     }
+
+
+def run_sonnet_verifier(local_result, question, seat_name):
+    """
+    Phase-2 per-seat Sonnet verifier. FILTER, not override.
+    Rule 1: cannot delete the local verdict -- appends verifier_filter field only.
+    Rule 2: tool-grounded -- reads substrate files cited in concerns + runs SearXNG.
+    Rule 3: slowdown-as-insight -- disagreement is the signal, not an error.
+
+    Dispatches via Claude CLI (`claude -p`) -- uses subscription, no separate API billing.
+    Returns a verifier_filter dict or None on failure.
+    """
+    # On Windows, `claude` resolves as claude.cmd via shell=True; bare list fails.
+    try:
+        r = subprocess.run("claude --version", capture_output=True, shell=True, timeout=5)
+        if r.returncode != 0:
+            print(f"  [verifier:{seat_name}] claude CLI not available (exit {r.returncode}) -- skipping", flush=True)
+            return None
+    except Exception as e:
+        print(f"  [verifier:{seat_name}] claude CLI probe failed: {e} -- skipping", flush=True)
+        return None
+
+    # --- Identify substrate files to read ---
+    # Pull files referenced in the local seat's concern sections + the declared SUBSTRATE_FILES
+    files_to_read = list(SUBSTRATE_FILES)  # always include the declared substrate
+    for c in local_result.get('concerns', []):
+        sec = c.get('section', '')
+        # section often names a file path or partial path -- try to resolve
+        if sec and ('/' in sec or '\\' in sec or '.' in sec):
+            # treat as a possible file path relative to CLAUDE_HOME or absolute
+            candidate = sec if os.path.isabs(sec) else os.path.join(CLAUDE_HOME, sec)
+            if os.path.exists(candidate) and candidate not in files_to_read:
+                files_to_read.append(candidate)
+
+    # Read substrate files (bounded -- cap at 6 files, 3000 chars each)
+    files_read = []
+    substrate_read_block = ""
+    for fpath in files_to_read[:6]:
+        full = fpath if os.path.isabs(fpath) else os.path.join(CLAUDE_HOME, fpath)
+        try:
+            with open(full, 'r', encoding='utf-8') as fh:
+                content = fh.read(3000)
+            substrate_read_block += f"\n\n=== FILE: {fpath} ===\n{content}"
+            files_read.append(fpath)
+        except Exception as e:
+            substrate_read_block += f"\n\n=== FILE: {fpath} ===\n[UNREADABLE: {e}]"
+
+    # --- Run SearXNG search on the primary concern ---
+    # Use the highest-severity concern's description as the search target
+    concerns = local_result.get('concerns', [])
+    blocking = [c for c in concerns if c.get('severity') == 'blocking']
+    primary_concern = (blocking[0] if blocking else (concerns[0] if concerns else None))
+    search_query = ""
+    search_findings = "[no concerns to search]"
+    if primary_concern:
+        # Build a targeted query: concern description + key term from investigation_task
+        desc = (primary_concern.get('description') or '')[:120]
+        inv  = (primary_concern.get('investigation_task') or '')[:60]
+        search_query = f"{desc} {inv}".strip()
+        print(f"  [verifier:{seat_name}] SearXNG search: {search_query[:100]!r}", flush=True)
+        search_findings = searxng_search(search_query, num_results=4, jina_n=1)
+
+    # --- Build the verifier prompt ---
+    concerns_block = json.dumps(concerns, indent=2) if concerns else "[]"
+    prompt = f"""You are a Sonnet verifier in a deliberation chain. Your role is FILTER, not override.
+
+A local AI seat ({seat_name}) has reviewed a governance/architecture question and returned a verdict.
+Your task: judge whether each concern the local seat raised is VALID and APPLICABLE to the actual substrate.
+
+You are TOOL-GROUNDED. You have been given:
+1. Real substrate files read from disk (below)
+2. Live SearXNG search results on the primary concern (below)
+You must base your filter verdict on these -- not on re-reasoning alone.
+
+=== THE QUESTION UNDER REVIEW ===
+{question}
+
+=== LOCAL SEAT VERDICT (DO NOT DELETE OR OVERRIDE -- READ AND FILTER) ===
+Seat: {seat_name}
+Verdict: {local_result.get('verdict', '?')}
+Summary: {local_result.get('summary', '')}
+Concerns raised:
+{concerns_block}
+
+=== SUBSTRATE FILES READ FROM DISK ===
+{substrate_read_block}
+
+=== LIVE SEARXNG SEARCH RESULTS (query: {search_query!r}) ===
+{search_findings}
+
+=== YOUR TASK ===
+For each concern the local seat raised, evaluate whether it is VALID given the actual substrate files
+and search evidence above. Then produce an overall FILTER verdict.
+
+FILTER verdicts (pick one):
+  PASS    -- The local seat's concern(s) are valid and applicable to this substrate. Carry them forward.
+  WEAKEN  -- The concern applies but is overstated; reduce its severity or scope (explain how).
+  DISMISS -- The concern does not apply to THIS substrate (cite the specific file/line/evidence that
+             refutes it). DISMISS is only valid when evidence contradicts the concern, not when
+             you merely disagree with the local model's reasoning.
+
+CRITICAL -- Slowdown-as-insight rule:
+Even if you believe the local model is factually wrong, do NOT simply dismiss. A wrong verdict
+from a heterogeneous model often means there is a real issue the local model mis-located.
+If the concern is wrong but points at a real risk, return WEAKEN with a redirect, not DISMISS.
+
+Return ONLY valid JSON, no preamble:
+{{
+  "filter_verdict": "PASS|WEAKEN|DISMISS",
+  "rationale": "one paragraph grounded in the substrate files and search results above",
+  "evidence_cited": "specific file path(s) and/or search result title(s) that support your verdict",
+  "per_concern_notes": [
+    {{"concern_id": "C1", "assessment": "VALID|OVERSTATED|INAPPLICABLE", "note": "one sentence"}}
+  ],
+  "redirect_if_weaken": "(if WEAKEN) where should the concern be re-aimed",
+  "search_query_used": "{search_query}",
+  "search_findings_summary": "one sentence on what search revealed",
+  "files_read": {json.dumps(files_read)}
+}}
+"""
+
+    print(f"  [verifier:{seat_name}] Dispatching via claude CLI ({len(prompt)} chars)...", flush=True)
+    start = time.time()
+    try:
+        # Pipe prompt via stdin -- avoids all shell quoting issues on Windows.
+        # CREATE_NO_WINDOW suppresses the console window on Windows for background dispatch.
+        import ctypes
+        CREATE_NO_WINDOW = 0x08000000
+        kwargs = {"creationflags": CREATE_NO_WINDOW} if os.name == "nt" else {}
+        r = subprocess.run(
+            "claude --print --output-format text",
+            input=prompt, capture_output=True, encoding="utf-8", timeout=240, shell=True,
+            **kwargs,
+        )
+        raw = r.stdout or ""
+        elapsed = time.time() - start
+        print(f"  [verifier:{seat_name}] Done in {elapsed:.1f}s -- {len(raw)} chars", flush=True)
+        if r.returncode != 0:
+            print(f"  [verifier:{seat_name}] CLI exit {r.returncode}: {r.stderr[:200]}", flush=True)
+            return None
+
+        # Parse JSON from response
+        si = raw.find('{')
+        ei = raw.rfind('}') + 1
+        if si >= 0 and ei > si:
+            vf = json.loads(raw[si:ei])
+            print(f"  [verifier:{seat_name}] Filter verdict: {vf.get('filter_verdict', '?')}", flush=True)
+            return vf
+        else:
+            print(f"  [verifier:{seat_name}] PARSE FAILED -- raw: {raw[:200]}", flush=True)
+            return {"filter_verdict": "PARSE_ERROR", "raw": raw[:800]}
+    except Exception as e:
+        print(f"  [verifier:{seat_name}] CLI ERROR: {e}", flush=True)
+        return None
 
 
 def main():
@@ -647,6 +868,18 @@ def main():
         print(f"  Stopping {name}...", flush=True)
         safe_stop(name)
         time.sleep(5)
+
+        # Phase-2 per-seat Sonnet verifier (FILTER, not override -- spec §2/§3)
+        # Runs AFTER safe_stop so the local model is fully unloaded before the claude CLI fires.
+        # This prevents resource contention (Ollama + claude subprocess competing for RAM/GPU).
+        if PHASE == 2 and result is not None and os.environ.get('DELIBERATE_SKIP_VERIFIER') != '1':
+            seat_label = name.split(':')[0].split('/')[-1]
+            vf = run_sonnet_verifier(result, QUESTION, seat_label)
+            if vf is not None:
+                result['verifier_filter'] = vf
+                with open(out_json, 'w', encoding='utf-8') as f:
+                    json.dump(result, f, indent=2, ensure_ascii=False)
+                print(f"  [verifier] filter written to disk: {vf.get('filter_verdict','?')}", flush=True)
 
     report = {
         "phase": PHASE,

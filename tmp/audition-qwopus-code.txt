@@ -1,0 +1,24 @@
+```powershell
+function Backup-File {
+    [CmdletBinding(SupportsShouldProcess)]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Path
+    )
+
+    if (-not (Test-Path -LiteralPath $Path)) {
+        throw "Source file does not exist: $Path"
+    }
+
+    $sourceFile = Get-Item -LiteralPath $Path
+    $timestamp = Get-Date -Format 'yyyyMMddHHmmss'
+    $backupName = "{0}.bak.{1}" -f $sourceFile.Name, $timestamp
+    $destinationPath = Join-Path -Path $sourceFile.DirectoryName -ChildPath $backupName
+
+    if ($PSCmdlet.ShouldProcess($sourceFile.FullName, "Copy to $destinationPath")) {
+        Copy-Item -LiteralPath $sourceFile.FullName -Destination $destinationPath -Force
+    }
+
+    Get-Item -LiteralPath $destinationPath
+}
+```

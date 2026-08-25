@@ -9,6 +9,8 @@ This is not a license to delegate everything. The split:
 
 If the work in front of you would feel rote to write but requires reading the surrounding code first, that is exactly where Sonnet earns its keep — it can read what it needs, do the mechanical work, and report back. Verify with `git diff` before committing. Trust but verify: an agent's summary describes what it intended, not necessarily what it did.
 
+**Routing rule — sub-agents are for BOUNDED work, NOT long compute (empirical, 2026-05-31).** A sub-agent CANNOT await a minutes-long background job's completion — the harness re-invokes the MAIN loop on completion, not the finished sub-agent's dead context — so an agent handed a long render / multi-clip VLM loop / autoheal pass backgrounds the command and returns a fake "waiting for the monitor" non-result, orphaning the work. Route LONG-RUNNING COMPUTE (anything minutes-long: renders, multi-clip model loops, heavy pipelines) to the MAIN loop's OWN `Bash` with `run_in_background: true` — the main loop reliably resumes on the harness completion notification. Delegate to sub-agents ONLY work that finishes INSIDE their turn: edits, analysis, a grep/search, a single short model dispatch. Empirical discriminator (one session, ~5 flakes): handed a long-compute job an agent flakes; handed bounded reasoning it completes. This is a tool-mismatch, NOT a broken hook and NOT fixable by telling the agent to "wait harder."
+
 ---
 
 ## Gemini as stall-breaker
@@ -47,7 +49,9 @@ When you write the phrase "operator-bound" in a status update, run the test: wou
 
 ## The condition that triggers all three
 
-Stop-language is the trigger. When the in-flight thought reads "want me to keep going" / "your call" / "ready to" / "operator decision" / "stopping here for clean break" — that is the canon-trigger to (in order):
+Stop-language is the trigger. When the in-flight thought reads "want me to keep going" / "your call" / "ready to" / "operator decision" / "stopping here for clean break" / "whenever you're ready" / "when you want" / "up to you" — that is the canon-trigger to (in order):
+
+Note (2026-05-30): the timing-deferral family ("whenever you're ready" handing the operator the next-action decision) was the false-negative that slipped the Stop hook — the hook's structural stall-clause fires only on tool-LESS turns, so a deferral wrapped inside a productive tool-bearing turn evaded it. The hook word-list was extended to fire on these regardless of tool-use; the deeper structural fix (catch tool-bearing deferrals) remains open.
 
 1. Verify against substrate — does source already answer this?
 2. If unclear, perform a Class 1 framing check — see §'Validator selection by question class' in `foreign-frontier-validators.md`. Briefly: verify substrate facts with the deliberation team, then dispatch a non-Gemini foreign-frontier validator (GPT, Grok, or GLM) for orientation evaluation. Gemini is excluded from Class 1 framing dispatch (2026-05-03 governance framing incident).
@@ -103,3 +107,15 @@ If the foreign frontier is unavailable (transport error, maintenance window): no
 Stop-language is the surface; cited-but-not-applied is the underlying pattern of canon-as-decoration. The corruption mode named in `~/.claude/practice/extended/wudu.md` — "the external form preserved while the internal operation is lost" — has a concrete operational signature here: canon read but not invoked at trigger time. That signature is detectable in the conversation logs (the absence of a tool use between trigger and surface). The remedy is not more canon; it is the structural enforcement layer that the ummah parallel above already names — a Stop hook reading the JSONL transcript for the dispatch tool use, refusing turn-end without it.
 
 When that structural layer is not configured, the discipline runs in degraded mode. Recognize it as degraded. Do not present "I cited the canon" as equivalent to "I applied the canon."
+
+---
+
+## Chain-before-human, and the AskUserQuestion surface
+
+**Ruling (2026-06-01, chain-ratified):** Anything destined for the human operator goes through the CHAIN first. The chain either resolves it (so it never reaches the human) or hands the human a chain-verified framing for a genuinely operator-bound call (kernel-security / real-cost / values-not-in-canon). This keeps the human's time QUALIFIED — spent only on what the chain could not resolve.
+
+The stop-language discipline above gates TURN-END reaching. **AskUserQuestion is a different, UNGUARDED surface** — a direct mid-turn question to the human that no Stop hook sees. The same discipline applies: before AskUserQuestion on a DESIGN or substrate question, run the chain; it frequently answers what you were about to ask.
+
+**Why this is practice, not a hard gate (AskUserQuestion deliberation, 2026-06-01 — unanimous BLOCK across 6 model seats + Seat-3):** a PreToolUse gate on AskUserQuestion was deliberated and rejected. (1) Distinguishing a chain-bound design question from a legitimate preference question is an unimplementable classifier — the use/mention problem. (2) A self-declared exemption marker is gameable theater. (3) DEADLOCK — a preference or initialization question may be needed BEFORE a chain can run, so a hard gate could strand the conductor with no way to ask for the input the chain needs. The discipline is therefore PRACTICE, backed by this canon entry (read at bootstrap) and the existing turn-end stop-gates — not a new blocking hook.
+
+**Failure mode this closes:** the conductor using AskUserQuestion to ask the operator a question the chain would have answered. Observed 2026-06-01: two design questions (extend-vs-new-gate; amend-a-book-document) were surfaced to the operator, who routed both back to "whole chain" — and the chain then answered both. Before reaching the human through ANY door — turn-end stop-language OR AskUserQuestion — verify the chain has processed it first.

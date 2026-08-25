@@ -1,0 +1,28 @@
+{
+  "_comment": "FAIL-path test for muezzin.mjs. Step 1 writes nothing but declares a checkpoint — proves the gate BLOCKS and does not advance.",
+  "name": "muezzin-fail-gate-test",
+  "run_dir": "C:\\Users\\marka\\AppData\\Local\\Temp\\muezzin-fail-test-run",
+  "steps": [
+    {
+      "id": "step-1-write-nothing",
+      "type": "shell",
+      "description": "Shell command succeeds but writes no artifact — checkpoint should FAIL and block.",
+      "command": "node -e \"console.log('step ran but wrote no artifact')\"",
+      "checkpoint": {
+        "file": "C:\\Users\\marka\\AppData\\Local\\Temp\\muezzin-fail-test-run\\artifact-that-does-not-exist.txt",
+        "schema": "text",
+        "min_chars": 50
+      }
+    },
+    {
+      "id": "step-2-should-not-run",
+      "type": "shell",
+      "description": "This step must NOT run — if it does, the gate failed to block.",
+      "command": "node -e \"console.error('GATE FAILED: step 2 ran despite step 1 checkpoint failure'); process.exit(1)\"",
+      "checkpoint": {
+        "file": "C:\\Users\\marka\\AppData\\Local\\Temp\\muezzin-fail-test-run\\artifact-that-does-not-exist.txt",
+        "schema": "text"
+      }
+    }
+  ]
+}
