@@ -1,0 +1,32 @@
+{
+  "draft_id": "3407fe5c-4b44-4297-b1e9-a1327158bd5e",
+  "created_at": "2026-08-27T02:51:12.467Z",
+  "source_session_id": "ae463cb4-1dde-43b5-aac5-91611e184a9d",
+  "cwd": "C:\\Users\\marka\\.dsh\\profiles\\usuli-headless",
+  "model": "claude-sonnet-5",
+  "cli_version": "2.1.245",
+  "os": "win32 x64",
+  "request_ids": [
+    "req_011CeSVVV8i1Y4shjwpcSQKT",
+    "req_011CeSVYNDKnD6ktWxRDQDDi",
+    "req_011CeSVZqrGAK5YgTKw6xRxH"
+  ],
+  "type": "bug",
+  "title": "Stop-hook (drift-and-ratchet/delegation-canon) blocks normal /loop turn endings, including ones that already called ScheduleWakeup",
+  "details": "**What happened:** A user-configured Stop hook (stop-validation.mjs, implementing ~/.claude/canon/delegation-and-stall-discipline.md) fired 14 times in one session, blocking turn endings whenever text matched \"stop-language\" patterns (e.g. \"your call\", \"which do you want\") without a same-turn mcp__ollama-*/WebFetch dispatch. It fired even on a turn whose final action was ScheduleWakeup (a real, substantive continuation mechanism for a /loop-driven session), and re-fired on an already-classified, already-validator-confirmed question with no new information to gain from re-dispatching.\n**What the user said:** User didn't comment on the hook directly; observed by the model across the session while working through it repeatedly per the hook's own required-resolution steps (verify substrate, dispatch a validator on the framing, note classification).\n**Repro:** Run a /loop-mode session doing real interactive work (not an autonomous conductor mission) with this hook installed; end a turn with a status line mentioning a still-open question for the user, or with ScheduleWakeup as the final action — the hook pattern-matches on phrases like \"your call\"/\"which do you want\" and demands a fresh mcp__ollama-*/WebFetch dispatch every time, even for the identical already-answered question, and even when the turn already took a real action.\n**Evidence:** Session hook name stop-validation.mjs; canon files ~/.claude/practice/extended/drift-and-ratchet.md and ~/.claude/canon/delegation-and-stall-discipline.md; 14 qualifying fires in one session.\n**Cause:** The canon appears designed for autonomous muezzin/conductor mission loops (where \"stop language\" reaching for the operator mid-unsupervised-run is a real failure mode) but is applied unconditionally to an interactive, human-present Claude Code session and to /loop's own designed ScheduleWakeup-based turn-ending pattern, producing repeated false positives.",
+  "area": "Stop hooks / user-configured governance hooks",
+  "failure_mode": "other",
+  "task_category": "code_edit",
+  "trigger": "model_judgment",
+  "effort": "xhigh",
+  "thinking_type": "adaptive",
+  "message_count": 3520,
+  "assistant_turn_count": 270,
+  "subagent_count": 0,
+  "transcript_ref": {
+    "session_file": "C:\\Users\\marka\\.claude\\projects\\C--Users-marka\\ae463cb4-1dde-43b5-aac5-91611e184a9d.jsonl",
+    "message_range": null,
+    "project_dir_key": "C--Users-marka"
+  },
+  "status": "queued"
+}
