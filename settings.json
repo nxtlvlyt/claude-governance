@@ -6,7 +6,7 @@
       "Bash(Stop-Process -Id *)"
     ]
   },
-  "model": "claude-fable-5[1m]",
+  "model": "sonnet",
   "fallbackModel": [
     "claude-sonnet-5"
   ],
@@ -189,6 +189,7 @@
       }
     ]
   },
+  "feedbackDrafts": "off",
   "effortLevel": "high",
   "fastModePerSessionOptIn": true,
   "autoUpdatesChannel": "latest",
@@ -228,6 +229,5 @@
       "**Org-specific CLIs**: None configured (non-standard CLIs observed — b64, powershell, tailscale, vastai — are personal/local tooling, not confirmed org-specific)",
       "**Routine under marka/ prefix**: local Windows user profile paths (C:\\Users\\marka\\...) are this user's own working area"
     ]
-  },
-  "feedbackDrafts": "off"
+  }
 }
