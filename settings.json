@@ -196,7 +196,6 @@
   "skipDangerousModePermissionPrompt": true,
   "skipWorkflowUsageWarning": true,
   "theme": "dark",
-  "skipAutoPermissionPrompt": true,
   "autoMode": {
     "soft_deny": [
       "$defaults",
