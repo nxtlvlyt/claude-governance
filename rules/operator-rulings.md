@@ -112,6 +112,19 @@ rulings. This file is the loudness fix.)
   (nxtbeast/laptop) as the config-switchable second route via the same llm-pi-ai adapter.
   The muezzin/conductor jurisdiction itself remains local+Claude as before — this carve-out
   is DSH-scoped, same shape as the agy/warroom/nxtlvl/betterbrampton entries.
+- **OLLAMA CLOUD KEY: USE THE ONE IN THE SHELL ENV, NEVER RAISE ROTATION (operator word
+  2026-09-05: "stop asking me to do this use the one that's there once everything is done
+  I'll rotate").** CONDITIONS: (a) cloud dispatch uses the existing `OLLAMA_API_KEY` /
+  `OLLAMA_CLOUD_API_KEY` from this laptop's shell env, as-is; (b) no instance raises key
+  rotation, key hygiene, or "if you rotated the key" again -- rotation is his, timed to
+  "when everything is done", and he does it unprompted; (c) the ONLY valid liveness probe
+  for the cloud key is `GET https://ollama.com/api/tags` (or a tiny `/api/chat`) --
+  `GET https://ollama.com/api/ps` answers `{"error": "unauthorized"}` for a VALID key
+  (receipt 2026-09-05: both env keys read "unauthorized" on /api/ps and, in the same
+  minute, authorized on /api/tags and on /api/chat with kimi-k3). The instance that read
+  /api/ps as "key rejected" and pushed rotation onto the operator twice in one evening is
+  the failure that paid for this ruling; the local-Ollama `/api/ps` GR10 check is a
+  different thing and stays.
 - **CONDUCTOR-QWEN TRAINING CARVE-OUT (operator word 2026-07-28: approved plan
   majestic-sauteeing-cupcake + "you are the main architect and the other architects
   are used to keep your usage down... and for their creativity and their non family
