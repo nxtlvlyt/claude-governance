@@ -135,6 +135,25 @@ rulings. This file is the loudness fix.)
   kimi-k3 + glm-5.3 audit pair; (c) the cap that tripped (~1.9M input tokens in ~2 h on the old
   plan) is history, but a "usage limit" reply still stops a bulk pass and waits, never hammers.
   Adding credit or changing plan stays his; this ruling records that he did it.
+- **HIGH-TOKEN WORK ROUTES TO OLLAMA CLOUD; CLAUDE KEEPS ORCHESTRATION (operator words
+  2026-09-06, asked twice in one session: "could we switch all high token work to only ollama
+  cloud models? with you managing it to keep your token usage down? would that work?").**
+  Scope: the dsh-port and conductor-qwen lanes (both already Ollama-Cloud carve-outs above);
+  the muezzin/conductor runtime jurisdiction is unchanged. CONDITIONS: (a) audit reading,
+  patch PROPOSAL, cross-model verification, refute passes, and source-reading synthesis run
+  on the censused cloud pair (kimi-k3 + glm-5.3, others from the catalog as needed), with the
+  conductor fetching file contents into packets and applying/testing mechanically -- the
+  `cloud-fix` runner pattern: cloud model returns a unified diff, the conductor applies it,
+  runs the unit's selftest 3x, the OTHER cloud model verifies, any failure reverts; (b) what
+  stays on Claude: the conductor's own orchestration and judgment, multi-step tool-loop
+  debugging (a gate failure whose cause is not in one file), and a per-batch SAMPLE review of
+  applied cloud diffs -- any diff touching a gate's deny/allow logic gets a Claude read before
+  it stays (kimi-k3's own refutation 2026-09-06: selftests filter for test-passing diffs, not
+  semantic or policy regressions); (c) Sonnet workflows are not the default for
+  audit/fix backlogs any more -- they are the exception route when the cloud pair disagrees
+  or a unit lacks a selftest to gate on; (d) in-flight Sonnet workflows finish, they are not
+  killed to satisfy this. WHY HERE: a routing preference stated twice and written zero times
+  is exactly the shape the 9B ruling below was written for.
 - **CONDUCTOR-QWEN TRAINING CARVE-OUT (operator word 2026-07-28: approved plan
   majestic-sauteeing-cupcake + "you are the main architect and the other architects
   are used to keep your usage down... and for their creativity and their non family
