@@ -125,6 +125,16 @@ rulings. This file is the loudness fix.)
   /api/ps as "key rejected" and pushed rotation onto the operator twice in one evening is
   the failure that paid for this ruling; the local-Ollama `/api/ps` GR10 check is a
   different thing and stays.
+- **OLLAMA CLOUD IS ON THE MAX PLAN -- USE IT FREELY, 10 CONCURRENT (operator words 2026-09-05
+  ~21:00 laptop time, after the account's session cap tripped mid-audit and he credited it: "ok
+  it's been credited", "it's on the max plan so feel free to use it as much as needed now", "can
+  handle 10 instances at once", "this new ollama plan should speed things up with us being able to
+  run 10 models calls at once").** CONDITIONS: (a) bulk cloud work (audits, panels, benches) runs
+  at up to 10 concurrent requests, not serialized -- the runner default is 8, leaving 2 slots for
+  live dsh/gemma dispatches; (b) usage volume is not a reason to skip or thin the standing
+  kimi-k3 + glm-5.3 audit pair; (c) the cap that tripped (~1.9M input tokens in ~2 h on the old
+  plan) is history, but a "usage limit" reply still stops a bulk pass and waits, never hammers.
+  Adding credit or changing plan stays his; this ruling records that he did it.
 - **CONDUCTOR-QWEN TRAINING CARVE-OUT (operator word 2026-07-28: approved plan
   majestic-sauteeing-cupcake + "you are the main architect and the other architects
   are used to keep your usage down... and for their creativity and their non family
