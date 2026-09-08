@@ -1,0 +1,25 @@
+MISSION: cg-platform-skeleton — the v3 platform engine + NFL end-to-end on Cloudflare
+MISSION-CLASS: code-repo
+REPO-ROOT: C:/Users/marka/Documents/cgsports
+TARGET-BRANCH: main
+ALLOW-FILES:
+  - v3-cloudflare/wrangler.jsonc
+  - v3-cloudflare/package.json
+  - v3-cloudflare/tsconfig.json
+  - v3-cloudflare/sports/nfl.sport.ts
+  - v3-cloudflare/platform/core/schema.ts
+  - v3-cloudflare/platform/core/adapters/odds-api.ts
+  - v3-cloudflare/platform/predict/harness.ts
+  - v3-cloudflare/platform/render/sport-home.ts
+  - v3-cloudflare/functions/api/[sport]/games.ts
+  - v3-cloudflare/public/index.html
+  - v3-cloudflare/migrations/0001_team_stats.sql
+REQUIRES: search
+
+Niyyah: build the ONE platform engine that makes a sport data, not code — so a bug fixed once is fixed for every sport, and a new sport is a config file, not a codebase.
+
+Maqsad: stand up the v3 platform skeleton on Cloudflare (Pages + Functions + D1) with NFL as the first sport end-to-end, per V3-ARCHITECTURE.md §5 step 1. The platform (/platform: core, predict, render) is the one engine; /sports holds pure config (nfl.sport.ts); the API and web shell render from that config. NFL renders its sport-home from config through /render.
+
+Context: V3-ARCHITECTURE.md (C:/Users/marka/Documents/cgsports/V3-ARCHITECTURE.md) is the build skeleton — read §1 (A SPORT IS DATA, NOT CODE), §2.5 (MIGRATION MANIFEST), §5 (build path). The v2 reference implementation is at C:/Users/marka/Documents/cgsports/server/ (services, routes, storage) and C:/Users/marka/Documents/cgsports/v2/ (contract layer). The NFL Foundation recipe is at C:/Users/marka/Documents/cgsports/docs/foundation/sports/nfl.md. The existing NFL-only Cloudflare build is at C:/Users/marka/Documents/cgsports/nfl-cloudflare/ (src/nfl-predictor.ts, src/odds.ts, src/team-stats.ts, functions/api/nfl/games.ts) — port its proven Poisson/Skellam + Monte Carlo predictor and Odds API client into /platform/predict and /platform/core/adapters. Cloudflare shape: Pages + Functions (functions/ dir), D1 (d1_databases binding), wrangler.jsonc with pages_build_output_dir. Golden Rules: CPU-only, numbered migrations, nothing deleted, data sovereignty (no historical parquet/csv to cloud), spread sign integrity (home-centric). Predict the CURRENT week's games only (7-day outlook window), never the whole season.
+
+Done means: a Cloudflare Pages project at v3-cloudflare/ where (1) /sports/nfl.sport.ts declares NFL's markets/season/data-source/branding as config, (2) /platform/render renders an NFL sport-home page from that config, (3) /platform/predict produces a spread/total/moneyline pick for the current week's NFL games via the Odds API, (4) D1 accumulates team stats, and (5) `wrangler pages deploy` serves it. The Arafat: NFL renders its sport-home from config through /render — no NFL-specific page code exists outside the config.
