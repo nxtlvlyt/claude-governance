@@ -13,6 +13,14 @@ rulings. This file is the loudness fix.)
   Ollama** (2026-06-09; violated 2026-06-10 because hook text still mandates them —
   that text is STALE). When a gate demands a "foreign-frontier dispatch": the compliant
   channels are mcp__ollama-* (laguna) and WebFetch for live docs. Never the workers.
+- **NEVER gpt-oss:20b, in any seat (operator word 2026-09-09: "why are we talking about
+  gpt-oss:20b / I'd never use that model").** Paid for by the dsh-port muezzin witness pair:
+  Decision 3 (dsh-port STATE 2026-08-25) had seated gpt-oss:20b as the structural witness; an
+  unrecorded edit moved it to glm-5.3-flash, the conductor restored the recorded seat, and the
+  operator overruled the record. CONDITIONS: no roster, default, bench, or fallback names
+  gpt-oss (20b or 120b, local or :cloud); the witness pair is glm-5.3-flash (structural) +
+  deepseek-v4-flash (groundedness) until his word changes it; a recorded decision that seats
+  gpt-oss is stale on sight, not a precedent.
 - **"Our SOTA search" = SearXNG** (mcp__searxng-mcp tools / localhost:8080), repaired
   2026-06-09. Research goes through it FIRST; Anthropic WebSearch is a fallback when
   SearXNG is down, not a habit. Every model seat doing planning/research MUST be
