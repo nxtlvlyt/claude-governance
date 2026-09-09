@@ -227,6 +227,24 @@ rulings. This file is the loudness fix.)
   test/audition dispatch; the muezzin/conductor runtime jurisdiction rulings above are
   undisturbed.
 
+- **DUBBING LANE — nxtbeast GPU + ComfyUI CARVE-OUT (operator words 2026-09-09: "if you can
+  tell me how long we will need the GPU for I'll pause the training" then "ok I freed the GPU
+  we need the most sota outcome let's get this done").** Covers: the campaign-video dubbing
+  lane (Paul Tarriwal clips → Punjabi / Filipino), pipeline as he wrote it 2026-09-09:
+  ffmpeg extract → separation → transcript + word timestamps → translate (≤ source +15%,
+  native review) → voice-cloned TTS per segment → mix at original timestamps, −14 LUFS →
+  LTX 2.3 audio-driven lipsync V2V in ComfyUI (half-res in, two-stage upsample) → mux.
+  CONDITIONS: (a) nxtbeast's 4090 and its ComfyUI (100.103.44.13:8188) MAY run production
+  work for THIS lane, setting aside for this lane only the "no GPU touches while training
+  resident" rule and the 2026-08-19 "nothing production-facing on local models" rule;
+  (b) the window is the one he paused training for — the conductor reports the moment the
+  GPU is free again, and any later GPU session for this lane needs his word again;
+  (c) the estimate given for this window: ~1 h for both languages, up to 2 h with retries,
+  plus ~30 min first-run setup; (d) cloud pieces stay cloud (Deepgram nova-3 + Seed Audio on
+  AIMLAPI, kimi-k3 / glm-5.3-flash translation on Ollama Cloud); (e) release of any dubbed
+  video still goes through the campaign's approval queue and native-speaker review, and the
+  AI-dubbed disclosure decision is his/the campaign's before the first post; (f) outputs
+  stay in the session scratchpad until he says where they go.
 ## Mission & engine rulings
 - **GAP ISSUES ARE ALWAYS PRIORITY** (operator word 2026-07-03 ~01:2x: "gap issues is always
   priority", after asking "how is the conductor still failing at this"). An open gap of
