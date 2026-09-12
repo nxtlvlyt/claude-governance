@@ -6,7 +6,7 @@
       "Bash(Stop-Process -Id *)"
     ]
   },
-  "model": "claude-fable-5-1[1m]",
+  "model": "opus[1m]",
   "fallbackModel": [
     "claude-sonnet-5"
   ],
